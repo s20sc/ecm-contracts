@@ -1,0 +1,115 @@
+[
+ {
+  "id": "guided_enable",
+  "fix": "mavros bdda1fab (v0.17): consumer mavsetp drops the removed guided_enable call",
+  "type": "UPGRADE",
+  "ver_delta": {
+   "changed_fields": [
+    "api:guided_enable"
+   ],
+   "consumer_reads": [],
+   "semver_old": "0.16.0",
+   "semver_new": "0.17.0"
+  }
+ },
+ {
+  "id": "gps_global_position",
+  "fix": "mavros 263650d: consumer _find_gps_topic switched to global_position/raw/fix",
+  "type": "UPGRADE",
+  "ver_delta": {
+   "changed_fields": [
+    "topic:gps/fix"
+   ],
+   "consumer_reads": [
+    "topic:global_position/raw/fix"
+   ],
+   "semver_old": "0.12.0",
+   "semver_new": "0.13.0"
+  }
+ },
+ {
+  "id": "SetMode_mode_sent",
+  "fix": "mavros v0.20 #625: consumer reads response.mode_sent",
+  "type": "UPGRADE",
+  "ver_delta": {
+   "changed_fields": [
+    "field:success->mode_sent"
+   ],
+   "consumer_reads": [
+    "field:mode_sent"
+   ],
+   "semver_old": "0.19.0",
+   "semver_new": "0.20.0"
+  }
+ },
+ {
+  "id": "progress_checker_plugins",
+  "fix": "nav2 #3555: Iron config uses progress_checker_plugins (list)",
+  "type": "UPGRADE",
+  "ver_delta": {
+   "changed_fields": [
+    "param:progress_checker_plugin"
+   ],
+   "consumer_reads": [
+    "param:progress_checker_plugins"
+   ],
+   "semver_old": "1.1.0",
+   "semver_new": "1.2.0"
+  }
+ },
+ {
+  "id": "on_init_override",
+  "fix": "ros2_control: consumer controller overrides on_init() in galactic+",
+  "type": "UPGRADE",
+  "ver_delta": {
+   "changed_fields": [
+    "api:on_init"
+   ],
+   "consumer_reads": [
+    "api:on_init",
+    "api:update"
+   ],
+   "semver_old": "galactic",
+   "semver_new": "humble"
+  }
+ },
+ {
+  "id": "PILZ_frame_fixed",
+  "fix": "moveit2 #3070: request frame_id set to the model frame (world)",
+  "type": "PAIR",
+  "producer": {
+   "outputs": [
+    {
+     "role": "goal",
+     "msg_type": "moveit_msgs/MotionPlanRequest",
+     "frame": "world",
+     "units": "none",
+     "qos": {
+      "reliability": "reliable",
+      "durability": "volatile",
+      "deadline_ms": null
+     }
+    }
+   ],
+   "exclusive": []
+  },
+  "consumer": {
+   "inputs": [
+    {
+     "role": "goal",
+     "msg_type": "moveit_msgs/MotionPlanRequest",
+     "frame": "world",
+     "units": "none",
+     "qos": {
+      "reliability": "reliable",
+      "durability": "volatile",
+      "deadline_ms": null
+     },
+     "min_rate_hz": null
+    }
+   ],
+   "exclusive": [],
+   "perm_requires": []
+  }
+ }
+]

@@ -1,0 +1,3132 @@
+{
+  "kobuki_node": {
+    "module_id": "kobuki_node",
+    "semver": "0.7.6",
+    "interface_hash": "sub:commands/velocity(geometry_msgs/Twist),commands/{led1,led2,digital_output,external_power,sound,reset_odometry,motor_power,controller_info}; pub:odom(nav_msgs/Odometry),joint_states(sensor_msgs/JointState),sensors/imu_data(sensor_msgs/Imu),sensors/core(kobuki_msgs/SensorState),events/{button,bumper,cliff,wheel_drop,power_system,digital_input,robot_state},sensors/dock_ir,version_info,controller_info; tf:odom->base_footprint",
+    "outputs": [
+      {
+        "role": "odometry",
+        "topic": "/odom",
+        "msg_type": "nav_msgs/Odometry",
+        "frame": "odom (child_frame_id base_footprint)",
+        "units": "m, m/s, rad, rad/s",
+        "rate_hz": null,
+        "postconditions": [
+          "pose/twist integrated from wheel encoders fused with gyro heading when use_imu_heading=true (default true)",
+          "publishes TF odom->base_footprint when publish_tf=true (default true)",
+          "frames follow REP-105 (odom continuous frame), units follow REP-103 (m, rad, right-handed)"
+        ]
+      },
+      {
+        "role": "joint_states",
+        "topic": "/joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "units": "rad (position), rad/s (velocity)",
+        "postconditions": [
+          "reports wheel_left_joint and wheel_right_joint positions/velocities (names configurable via wheel_left_joint_name / wheel_right_joint_name)"
+        ]
+      },
+      {
+        "role": "imu",
+        "topic": "/mobile_base/sensors/imu_data",
+        "msg_type": "sensor_msgs/Imu",
+        "frame": "gyro_link",
+        "units": "rad, rad/s",
+        "postconditions": [
+          "yaw/heading from factory-calibrated single-axis gyro; orientation about z only"
+        ]
+      },
+      {
+        "role": "core_sensors",
+        "topic": "/mobile_base/sensors/core",
+        "msg_type": "kobuki_msgs/SensorState",
+        "postconditions": [
+          "raw bumper/cliff/wheel-drop/battery/current/charger state at packet rate"
+        ]
+      },
+      {
+        "role": "bumper_event",
+        "topic": "/mobile_base/events/bumper",
+        "msg_type": "kobuki_msgs/BumperEvent",
+        "postconditions": [
+          "edge-triggered: emitted on bumper PRESSED/RELEASED transition only"
+        ]
+      },
+      {
+        "role": "cliff_event",
+        "topic": "/mobile_base/events/cliff",
+        "msg_type": "kobuki_msgs/CliffEvent",
+        "postconditions": [
+          "edge-triggered cliff sensor transitions"
+        ]
+      },
+      {
+        "role": "wheel_drop_event",
+        "topic": "/mobile_base/events/wheel_drop",
+        "msg_type": "kobuki_msgs/WheelDropEvent",
+        "postconditions": [
+          "edge-triggered wheel-drop transitions"
+        ]
+      },
+      {
+        "role": "version_info",
+        "topic": "/mobile_base/version_info",
+        "msg_type": "kobuki_msgs/VersionInfo",
+        "qos": {
+          "durability": "transient_local"
+        },
+        "postconditions": [
+          "latched publisher (transient_local equivalent): firmware/hardware/software versions"
+        ]
+      },
+      {
+        "role": "robot_state_event",
+        "topic": "/mobile_base/events/robot_state",
+        "msg_type": "kobuki_msgs/RobotStateEvent",
+        "qos": {
+          "durability": "transient_local"
+        },
+        "postconditions": [
+          "latched publisher: ONLINE/OFFLINE state"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "velocity_command",
+        "topic": "/mobile_base/commands/velocity",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_link (robot body frame; source comment: 'for now assuming this is in the robot frame')",
+        "units": "m/s (linear.x), rad/s (angular.z)",
+        "preconditions": [
+          "only linear.x and angular.z are actuated (differential drive; linear.y/z and angular.x/y ignored)",
+          "motors must be enabled to take effect",
+          "if no command received within cmd_vel_timeout (default 0.6 s) the base stops (commands a zero velocity)"
+        ]
+      },
+      {
+        "role": "motor_power",
+        "topic": "/mobile_base/commands/motor_power",
+        "msg_type": "kobuki_msgs/MotorPower",
+        "preconditions": [
+          "ON/OFF enum; gates whether velocity_command is actuated"
+        ]
+      },
+      {
+        "role": "reset_odometry",
+        "topic": "/mobile_base/commands/reset_odometry",
+        "msg_type": "std_msgs/Empty",
+        "preconditions": [
+          "resets integrated odometry pose to zero"
+        ]
+      },
+      {
+        "role": "controller_info",
+        "topic": "/mobile_base/commands/controller_info",
+        "msg_type": "kobuki_msgs/ControllerInfo",
+        "preconditions": [
+          "PID gains p,i,d must all be non-negative or the command is rejected"
+        ]
+      }
+    ],
+    "exclusive": [
+      "/dev/kobuki (single serial/FTDI hardware port; device_port default /dev/kobuki)",
+      "actuation:/mobile_base/commands/velocity (sole writer of wheel velocity to the physical base)"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "battery_low": 14,
+      "battery_dangerous": 13.2,
+      "cmd_vel_timeout_s": 0.6
+    },
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "kobuki",
+    "_provenance": "package.xml (version 0.7.6); src/library/kobuki_ros.cpp (advertise/subscribe list, queue sizes, latched flags); src/library/subscriber_callbacks.cpp (cmd_vel Twist, robot-frame comment, enable precond"
+  },
+  "kobuki_safety_controller": {
+    "module_id": "kobuki_safety_controller",
+    "semver": "0.7.6",
+    "interface_hash": "sub:events/bumper(kobuki_msgs/BumperEvent),events/cliff(kobuki_msgs/CliffEvent),events/wheel_drop(kobuki_msgs/WheelDropEvent),enable(std_msgs/Empty),disable(std_msgs/Empty),reset(std_msgs/Empty); pub:cmd_vel(geometry_msgs/Twist)",
+    "outputs": [
+      {
+        "role": "safety_velocity",
+        "topic": "cmd_vel",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_link",
+        "units": "m/s (linear.x), rad/s (angular.z)",
+        "postconditions": [
+          "on bumper or cliff hazard: commands backward linear.x = -0.1 m/s (back off)",
+          "on wheel-drop: commands zero velocity (full stop)",
+          "publishes only while a latched hazard state is active; continues until reset"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "bumper_event",
+        "topic": "events/bumper",
+        "msg_type": "kobuki_msgs/BumperEvent",
+        "preconditions": [
+          "edge-triggered event from base; latches a hazard state"
+        ]
+      },
+      {
+        "role": "cliff_event",
+        "topic": "events/cliff",
+        "msg_type": "kobuki_msgs/CliffEvent",
+        "preconditions": [
+          "edge-triggered cliff event"
+        ]
+      },
+      {
+        "role": "wheel_drop_event",
+        "topic": "events/wheel_drop",
+        "msg_type": "kobuki_msgs/WheelDropEvent",
+        "preconditions": [
+          "edge-triggered wheel-drop event"
+        ]
+      },
+      {
+        "role": "enable",
+        "topic": "enable",
+        "msg_type": "std_msgs/Empty",
+        "preconditions": [
+          "enables the controller; disable topic mutes its output"
+        ]
+      },
+      {
+        "role": "reset",
+        "topic": "reset",
+        "msg_type": "std_msgs/Empty",
+        "preconditions": [
+          "clears latched hazard states"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "backoff_linear_speed_mps": -0.1
+    },
+    "recovery": "retreat",
+    "changed_fields": [],
+    "_system": "kobuki",
+    "_provenance": "include/kobuki_safety_controller/safety_controller.hpp (publisher cmd_vel geometry_msgs/Twist; subscribers events/bumper, events/cliff, events/wheel_drop, enable, disable, reset with msg types); nodel"
+  },
+  "kobuki_keyop": {
+    "module_id": "kobuki_keyop",
+    "semver": "0.7.6",
+    "interface_hash": "pub:cmd_vel(geometry_msgs/Twist); params:linear_vel_max,angular_vel_max,linear_vel_step,angular_vel_step; rate 10Hz",
+    "outputs": [
+      {
+        "role": "teleop_velocity",
+        "topic": "cmd_vel",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_link",
+        "units": "m/s (linear.x), rad/s (angular.z)",
+        "rate_hz": 10.0,
+        "postconditions": [
+          "incremental velocity from keyboard; linear step 0.1 m/s, angular step 0.02 rad/s (defaults)",
+          "publishes at fixed 10 Hz loop rate",
+          "disables motors / sends zero on quit"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "linear_vel_max": 3.4,
+      "angular_vel_max": 1.2,
+      "linear_vel_step": 0.1,
+      "angular_vel_step": 0.02
+    },
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "kobuki",
+    "_provenance": "src/keyop_core.cpp (publishes cmd_vel geometry_msgs/Twist; defaults linear_vel_max 3.4, angular_vel_max 1.2, linear_vel_step 0.1, angular_vel_step 0.02; ros::Rate loop_rate(10)); package version 0.7.6"
+  },
+  "kobuki_bumper2pc": {
+    "module_id": "kobuki_bumper2pc",
+    "semver": "0.7.6",
+    "interface_hash": "sub:core_sensors(kobuki_msgs/SensorState); pub:pointcloud(sensor_msgs/PointCloud2); frame base_link",
+    "outputs": [
+      {
+        "role": "bumper_pointcloud",
+        "topic": "pointcloud",
+        "msg_type": "sensor_msgs/PointCloud2",
+        "frame": "base_link (configurable via base_link_frame, default base_link)",
+        "units": "m",
+        "postconditions": [
+          "emits a 3-point cloud (left/center/right) at a configurable range/height representing active bumper/cliff hits, for costmap obstacle layers"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "core_sensors",
+        "topic": "core_sensors",
+        "msg_type": "kobuki_msgs/SensorState",
+        "preconditions": [
+          "consumes raw bumper/cliff bitfields from the base sensor core stream"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "kobuki",
+    "_provenance": "src/kobuki_bumper2pc.cpp (subscribes core_sensors kobuki_msgs/SensorState; publishes pointcloud sensor_msgs/PointCloud2; base_link_frame param default base_link; 3-point cloud construction); package v"
+  },
+  "mavros.sys_status": {
+    "module_id": "mavros.sys_status",
+    "semver": "1.21.1",
+    "interface_hash": "State{Header header;bool connected,armed,guided,manual_input;string mode;uint8 system_status} + SetMode{base_mode:uint8,custom_mode:string -> mode_sent:bool}",
+    "outputs": [
+      {
+        "role": "vehicle_state",
+        "topic": "/mavros/state",
+        "msg_type": "mavros_msgs/State",
+        "frame": null,
+        "units": null,
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 1.0,
+        "postconditions": [
+          "connected reflects FCU heartbeat link liveness",
+          "armed/guided/mode reflect last HEARTBEAT from FCU",
+          "mode string maps to autopilot-specific MODE_* constants"
+        ]
+      },
+      {
+        "role": "extended_state",
+        "topic": "/mavros/extended_state",
+        "msg_type": "mavros_msgs/ExtendedState",
+        "frame": null,
+        "units": null,
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "reports VTOL state and landed_state from EXTENDED_SYS_STATE"
+        ]
+      },
+      {
+        "role": "battery",
+        "topic": "/mavros/battery",
+        "msg_type": "sensor_msgs/BatteryState",
+        "frame": null,
+        "units": "V|A",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "voltage/current/percentage from SYS_STATUS/BATTERY_STATUS"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "statustext_send",
+        "topic": "/mavros/statustext/send",
+        "msg_type": "mavros_msgs/StatusText",
+        "frame": null,
+        "units": null,
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "FCU link connected"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/sys_status.cpp (advertise 'state','extended_state','battery','estimator_status','statustext/recv','sys_status'; subscribe 'statustext/send'; advertiseService 'set_mode','set_stream_"
+  },
+  "mavros.set_mode_service": {
+    "module_id": "mavros.set_mode_service",
+    "semver": "1.21.1",
+    "interface_hash": "SetMode.srv: req{uint8 base_mode; string custom_mode} --- resp{bool mode_sent}",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "set_mode",
+        "topic": "/mavros/set_mode",
+        "msg_type": "mavros_msgs/SetMode",
+        "frame": null,
+        "units": null,
+        "qos": null,
+        "min_rate_hz": null,
+        "preconditions": [
+          "FCU connected",
+          "custom_mode string must be a valid mode for the connected autopilot (e.g. OFFBOARD on PX4, GUIDED on ArduPilot)",
+          "base_mode filled from MAV_MODE enum or 0 when custom_mode set"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/sys_status.cpp advertiseService('set_mode'); mavros_msgs/srv/SetMode.srv (req base_mode:uint8 + MAV_MODE_* constants, custom_mode:string; resp mode_sent:bool). resp mode_sent only c"
+  },
+  "mavros.command": {
+    "module_id": "mavros.command",
+    "semver": "1.21.1",
+    "interface_hash": "cmd services: arming(CommandBool:req{bool value}->resp{bool success,uint8 result}), takeoff/land(CommandTOL), command(CommandLong), command_int(CommandInt), set_home(CommandHome), trigger_control(CommandTriggerControl), vtol_transition(CommandVtolTransition)",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "arming",
+        "topic": "/mavros/cmd/arming",
+        "msg_type": "mavros_msgs/CommandBool",
+        "frame": null,
+        "units": null,
+        "qos": null,
+        "min_rate_hz": null,
+        "preconditions": [
+          "FCU connected",
+          "value=true arms motors, value=false disarms",
+          "FCU prearm checks must pass for arming to take effect"
+        ]
+      },
+      {
+        "role": "takeoff",
+        "topic": "/mavros/cmd/takeoff",
+        "msg_type": "mavros_msgs/CommandTOL",
+        "frame": "global (lat/lon/alt)",
+        "units": "deg|m",
+        "qos": null,
+        "min_rate_hz": null,
+        "preconditions": [
+          "vehicle armed",
+          "min_pitch/yaw/altitude fields supplied in CommandTOL"
+        ]
+      },
+      {
+        "role": "land",
+        "topic": "/mavros/cmd/land",
+        "msg_type": "mavros_msgs/CommandTOL",
+        "frame": "global (lat/lon/alt)",
+        "units": "deg|m",
+        "qos": null,
+        "min_rate_hz": null,
+        "preconditions": [
+          "FCU connected"
+        ]
+      },
+      {
+        "role": "command_long",
+        "topic": "/mavros/cmd/command",
+        "msg_type": "mavros_msgs/CommandLong",
+        "frame": null,
+        "units": null,
+        "qos": null,
+        "min_rate_hz": null,
+        "preconditions": [
+          "command field is a valid MAV_CMD enum value"
+        ]
+      },
+      {
+        "role": "set_home",
+        "topic": "/mavros/cmd/set_home",
+        "msg_type": "mavros_msgs/CommandHome",
+        "frame": "global (lat/lon/alt)",
+        "units": "deg|m",
+        "qos": null,
+        "min_rate_hz": null,
+        "preconditions": [
+          "FCU connected"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [
+      "actuator_arm_authority"
+    ],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/command.cpp advertiseService on '~cmd' nh: 'command'(CommandLong),'command_ack'(CommandAck),'command_int'(CommandInt),'arming'(CommandBool),'set_home'(CommandHome),'takeoff'(Command"
+  },
+  "mavros.setpoint_raw": {
+    "module_id": "mavros.setpoint_raw",
+    "semver": "1.21.1",
+    "interface_hash": "PositionTarget{Header;uint8 coordinate_frame(FRAME_LOCAL_NED=1,LOCAL_OFFSET_NED=7,BODY_NED=8,BODY_OFFSET_NED=9);uint16 type_mask(IGNORE_PX..IGNORE_YAW_RATE,FORCE);Point position;Vector3 velocity;Vector3 acceleration_or_force;float32 yaw,yaw_rate}",
+    "outputs": [
+      {
+        "role": "target_local_echo",
+        "topic": "/mavros/setpoint_raw/target_local",
+        "msg_type": "mavros_msgs/PositionTarget",
+        "frame": "ENU (republished from FCU NED)",
+        "units": "m|m/s|m/s^2|rad",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "echoes POSITION_TARGET_LOCAL_NED received from FCU, converted NED->ENU"
+        ]
+      },
+      {
+        "role": "target_attitude_echo",
+        "topic": "/mavros/setpoint_raw/target_attitude",
+        "msg_type": "mavros_msgs/AttitudeTarget",
+        "frame": "ENU",
+        "units": "rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "echoes ATTITUDE_TARGET from FCU"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "setpoint_local",
+        "topic": "/mavros/setpoint_raw/local",
+        "msg_type": "mavros_msgs/PositionTarget",
+        "frame": "ENU (input; converted to NED for FCU)",
+        "units": "m|m/s|m/s^2|rad",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "position/velocity/accel interpreted in ENU then translated to FCU NED",
+          "coordinate_frame selects LOCAL_NED/LOCAL_OFFSET_NED/BODY_NED/BODY_OFFSET_NED semantics",
+          "type_mask bits select which fields are active",
+          "FCU must be in OFFBOARD/GUIDED mode to act on setpoint"
+        ]
+      },
+      {
+        "role": "setpoint_global",
+        "topic": "/mavros/setpoint_raw/global",
+        "msg_type": "mavros_msgs/GlobalPositionTarget",
+        "frame": "global (lat/lon/alt)",
+        "units": "deg|m|m/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "FCU in offboard/guided mode"
+        ]
+      },
+      {
+        "role": "setpoint_attitude",
+        "topic": "/mavros/setpoint_raw/attitude",
+        "msg_type": "mavros_msgs/AttitudeTarget",
+        "frame": "ENU (input; converted to NED)",
+        "units": "rad/s (body rates), normalized thrust",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "thrust_scaling parameter must be configured or attitude setpoints are ignored with a warning",
+          "FCU in offboard/guided mode"
+        ]
+      }
+    ],
+    "exclusive": [
+      "fcu_offboard_setpoint_stream"
+    ],
+    "perm_grants": [],
+    "perm_requires": [
+      "fcu_mode:OFFBOARD_or_GUIDED"
+    ],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/setpoint_raw.cpp (subscribe 'setpoint_raw/local','setpoint_raw/global','setpoint_raw/attitude'; publish 'setpoint_raw/target_local','target_global','target_attitude'; ENU->NED conve"
+  },
+  "mavros.setpoint_position": {
+    "module_id": "mavros.setpoint_position",
+    "semver": "1.21.1",
+    "interface_hash": "sub setpoint_position/local(PoseStamped, ENU), setpoint_position/global(GeoPoseStamped); tf map->target_position when tf_listen",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "setpoint_local",
+        "topic": "/mavros/setpoint_position/local",
+        "msg_type": "geometry_msgs/PoseStamped",
+        "frame": "map (ENU, input converted to NED for FCU)",
+        "units": "m (position), quaternion (orientation)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "pose interpreted in ENU per REP-105",
+          "FCU in OFFBOARD/GUIDED mode to act on it"
+        ]
+      },
+      {
+        "role": "setpoint_global",
+        "topic": "/mavros/setpoint_position/global",
+        "msg_type": "geographic_msgs/GeoPoseStamped",
+        "frame": "global (lat/lon/alt)",
+        "units": "deg|m",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "FCU in offboard/guided mode"
+        ]
+      }
+    ],
+    "exclusive": [
+      "fcu_offboard_setpoint_stream"
+    ],
+    "perm_grants": [],
+    "perm_requires": [
+      "fcu_mode:OFFBOARD_or_GUIDED"
+    ],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/setpoint_position.cpp (subscribe 'setpoint_position/local' PoseStamped ENU, 'setpoint_position/global' GeoPoseStamped, 'setpoint_position/global_to_local'; optional tf listen map->t"
+  },
+  "mavros.setpoint_velocity": {
+    "module_id": "mavros.setpoint_velocity",
+    "semver": "1.21.1",
+    "interface_hash": "sub setpoint_velocity/cmd_vel(TwistStamped, ENU), cmd_vel_unstamped(Twist)",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "cmd_vel",
+        "topic": "/mavros/setpoint_velocity/cmd_vel",
+        "msg_type": "geometry_msgs/TwistStamped",
+        "frame": "ENU (input; converted to FCU frame per mav_frame param)",
+        "units": "m/s (linear), rad/s (angular)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "velocity interpreted in ENU then translated per mav_frame (LOCAL_NED/BODY_NED/BODY_OFFSET_NED)",
+          "FCU in OFFBOARD/GUIDED mode"
+        ]
+      },
+      {
+        "role": "cmd_vel_unstamped",
+        "topic": "/mavros/setpoint_velocity/cmd_vel_unstamped",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "ENU",
+        "units": "m/s, rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "timestamp synthesized as ros::Time::now()",
+          "FCU in offboard/guided mode"
+        ]
+      }
+    ],
+    "exclusive": [
+      "fcu_offboard_setpoint_stream"
+    ],
+    "perm_grants": [],
+    "perm_requires": [
+      "fcu_mode:OFFBOARD_or_GUIDED"
+    ],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/setpoint_velocity.cpp (subscribe 'setpoint_velocity/cmd_vel' TwistStamped ENU, 'setpoint_velocity/cmd_vel_unstamped' Twist; mav_frame param LOCAL_NED/BODY_NED/BODY_OFFSET_NED; ENU->"
+  },
+  "mavros.local_position": {
+    "module_id": "mavros.local_position",
+    "semver": "1.21.1",
+    "interface_hash": "pub local_position/pose(PoseStamped,map,ENU), velocity_local(TwistStamped,base_link), odom(Odometry,map/base_link); tf map->base_link when tf/send",
+    "outputs": [
+      {
+        "role": "pose",
+        "topic": "/mavros/local_position/pose",
+        "msg_type": "geometry_msgs/PoseStamped",
+        "frame": "map",
+        "units": "m (position), quaternion (orientation)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "pose in ENU per REP-105",
+          "frame_id configurable via frame_id param (default map)"
+        ]
+      },
+      {
+        "role": "velocity_local",
+        "topic": "/mavros/local_position/velocity_local",
+        "msg_type": "geometry_msgs/TwistStamped",
+        "frame": "base_link",
+        "units": "m/s (linear), rad/s (angular)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "local ENU-derived velocity, child frame tf_child_frame_id (default base_link)"
+        ]
+      },
+      {
+        "role": "odom",
+        "topic": "/mavros/local_position/odom",
+        "msg_type": "nav_msgs/Odometry",
+        "frame": "map",
+        "units": "m, m/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "header.frame_id=map (param), child_frame_id=base_link (param); world-fixed ENU pose, body-frame twist per REP-105"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/local_position.cpp (publish 'local_position/pose' PoseStamped frame_id=map, 'local_position/velocity_local' TwistStamped child=base_link, 'local_position/odom' Odometry frame_id=map"
+  },
+  "mavros.global_position": {
+    "module_id": "mavros.global_position",
+    "semver": "1.21.1",
+    "interface_hash": "pub global_position/global(NavSatFix), global(Odometry,map), raw/fix(NavSatFix), rel_alt(Float64,m), compass_hdg(Float64,deg), gp_origin(GeoPointStamped)",
+    "outputs": [
+      {
+        "role": "global_fix",
+        "topic": "/mavros/global_position/global",
+        "msg_type": "sensor_msgs/NavSatFix",
+        "frame": "map",
+        "units": "deg (lat/lon), m (alt)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "fused global position from GLOBAL_POSITION_INT",
+          "WGS84 lat/lon/alt"
+        ]
+      },
+      {
+        "role": "local",
+        "topic": "/mavros/global_position/local",
+        "msg_type": "nav_msgs/Odometry",
+        "frame": "map",
+        "units": "m, m/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "UTM/local ENU projection of global fix"
+        ]
+      },
+      {
+        "role": "rel_alt",
+        "topic": "/mavros/global_position/rel_alt",
+        "msg_type": "std_msgs/Float64",
+        "frame": null,
+        "units": "m",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "altitude relative to home"
+        ]
+      },
+      {
+        "role": "compass_hdg",
+        "topic": "/mavros/global_position/compass_hdg",
+        "msg_type": "std_msgs/Float64",
+        "frame": null,
+        "units": "deg",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "heading in degrees (0-360)"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/global_position.cpp (publish 'global_position/global' NavSatFix frame map, 'global_position/local' Odometry, 'global_position/raw/fix' NavSatFix, 'global_position/rel_alt' Float64 m"
+  },
+  "mavros.imu": {
+    "module_id": "mavros.imu",
+    "semver": "1.21.1",
+    "interface_hash": "pub imu/data(Imu,base_link), imu/data_raw(Imu,base_link), imu/mag(MagneticField,base_link), imu/static_pressure(FluidPressure), imu/temperature_imu(Temperature)",
+    "outputs": [
+      {
+        "role": "imu_data",
+        "topic": "/mavros/imu/data",
+        "msg_type": "sensor_msgs/Imu",
+        "frame": "base_link",
+        "units": "rad/s (angular_velocity), m/s^2 (linear_acceleration), quaternion (orientation)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "orientation describes ENU->base_link transform per REP-103",
+          "fused AHRS attitude included"
+        ]
+      },
+      {
+        "role": "imu_data_raw",
+        "topic": "/mavros/imu/data_raw",
+        "msg_type": "sensor_msgs/Imu",
+        "frame": "base_link",
+        "units": "rad/s, m/s^2",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "raw gyro+accel, no orientation fusion"
+        ]
+      },
+      {
+        "role": "mag",
+        "topic": "/mavros/imu/mag",
+        "msg_type": "sensor_msgs/MagneticField",
+        "frame": "base_link",
+        "units": "Tesla",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "magnetic field in base_link frame"
+        ]
+      },
+      {
+        "role": "static_pressure",
+        "topic": "/mavros/imu/static_pressure",
+        "msg_type": "sensor_msgs/FluidPressure",
+        "frame": "base_link",
+        "units": "Pascal",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "barometric static pressure"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/src/plugins/imu.cpp (publish 'imu/data','imu/data_raw' sensor_msgs/Imu frame base_link, 'imu/mag' MagneticField base_link Tesla, 'imu/static_pressure'/'imu/diff_pressure' FluidPressure Pascal, "
+  },
+  "mavros.mavros_node": {
+    "module_id": "mavros.mavros_node",
+    "semver": "1.21.1",
+    "interface_hash": "executable mavros_node; fcu_url + gcs_url params; loads pluginlib plugins; serial:///dev/tty | udp://bind@remote | tcp://host link backends",
+    "outputs": [],
+    "inputs": [],
+    "exclusive": [
+      "fcu_link:single_mavlink_endpoint",
+      "single_hardware_port (serial device when fcu_url is serial:///...)"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "mavros \u2014 MAVLink<->ROS bridge for PX4/Ar",
+    "_provenance": "mavros/README.md (node executables mavros_node and gcs_bridge; fcu_url connection schemas serial:///path[:baud], udp://[bind_host][:port]@[remote[:port]] default ports 14555/14550, tcp://host:5760, tc"
+  },
+  "ur_robot_driver/HardwareInterface": {
+    "module_id": "ur_robot_driver/HardwareInterface",
+    "semver": "2.4.1",
+    "interface_hash": "ros_control RobotHW plugin ur_driver::HardwareInterface; exports JointStateIF(6 joints: pos/vel/eff), PositionJointIF, VelocityJointIF, ScaledPositionJointIF, ScaledVelocityJointIF, SpeedScalingIF, ForceTorqueSensorIF(tool0_controller), IndustrialRobotStatusIF, Cartesian state/twist/pose IF; pub robot_program_running/io_states/tool_data/robot_mode/safety_mode/tf; sub script_command",
+    "outputs": [
+      {
+        "role": "joint_states_source",
+        "topic": "/joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "units": "rad, rad/s, N*m (position, velocity, effort)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 500.0,
+        "postconditions": [
+          "joint_positions/velocities/efforts exposed for the 6 arm joints via JointStateHandle (shoulder_pan, shoulder_lift, elbow, wrist_1, wrist_2, wrist_3)",
+          "rate published by joint_state_controller at hardware_control_loop loop_hz=500"
+        ]
+      },
+      {
+        "role": "wrench_source",
+        "topic": "wrench",
+        "msg_type": "geometry_msgs/WrenchStamped",
+        "frame": "wrench (default frame_id; FT measurement frame is tool0_controller)",
+        "units": "N, N*m",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 500.0,
+        "postconditions": [
+          "TCP force/torque exposed via ForceTorqueSensorHandle bound to frame tool0_controller; published by force_torque_sensor_controller",
+          "wrench frame_id configurable via wrench_frame_id param (default 'wrench')"
+        ]
+      },
+      {
+        "role": "io_states",
+        "topic": "io_states",
+        "msg_type": "ur_msgs/IOStates",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "reports digital_in/out, flag, analog_in/out states; analog state in V or A per Analog.domain (VOLTAGE/CURRENT)"
+        ]
+      },
+      {
+        "role": "tool_data",
+        "topic": "tool_data",
+        "msg_type": "ur_msgs/ToolDataMsg",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "reports tool analog inputs and ranges as read from RTDE tool channels"
+        ]
+      },
+      {
+        "role": "robot_mode",
+        "topic": "robot_mode",
+        "msg_type": "ur_dashboard_msgs/RobotMode",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "latched (advertise latch=true); enum NO_CONTROLLER..RUNNING from RTDE robot_mode field"
+        ]
+      },
+      {
+        "role": "safety_mode",
+        "topic": "safety_mode",
+        "msg_type": "ur_dashboard_msgs/SafetyMode",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "latched; enum NORMAL/REDUCED/PROTECTIVE_STOP/.../FAULT from RTDE safety_mode field"
+        ]
+      },
+      {
+        "role": "external_control_state",
+        "topic": "robot_program_running",
+        "msg_type": "std_msgs/Bool",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "latched (advertise queue=10, latch=true); true iff the External Control URCap program node is running and the robot accepts ROS commands"
+        ]
+      },
+      {
+        "role": "tcp_pose_tf",
+        "topic": "/tf",
+        "msg_type": "tf2_msgs/TFMessage",
+        "frame": "base -> tool0_controller",
+        "units": "m (translation), quaternion (rotation)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 500.0,
+        "postconditions": [
+          "publishes the robot-reported TCP pose transform tool0_controller relative to base"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "script_command",
+        "topic": "script_command",
+        "msg_type": "std_msgs/String",
+        "preconditions": [
+          "arbitrary URScript; on e-Series robot must be in remote-control mode; sending raw script halts program execution unless wrapped in a secondary program"
+        ]
+      }
+    ],
+    "exclusive": [
+      "joint_command_interface:shoulder_pan_joint",
+      "joint_command_interface:shoulder_lift_joint",
+      "joint_command_interface:elbow_joint",
+      "joint_command_interface:wrist_1_joint",
+      "joint_command_interface:wrist_2_joint",
+      "joint_command_interface:wrist_3_joint",
+      "single_hardware_robot:ur (one ur_driver::HardwareInterface per physical arm via reverse_port/robot_ip)"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "hardware_control_loop_hz": 500
+    },
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "universal_robot",
+    "_provenance": "Universal_Robots_ROS_Driver/ur_robot_driver: hardware_interface_plugin.xml (plugin class ur_driver::HardwareInterface base hardware_interface::RobotHW); src/hardware_interface.cpp L355-397 (JointState"
+  },
+  "scaled_pos_joint_traj_controller": {
+    "module_id": "scaled_pos_joint_traj_controller",
+    "semver": "2.4.1",
+    "interface_hash": "position_controllers/ScaledJointTrajectoryController over 6 arm joints; action server follow_joint_trajectory : control_msgs/FollowJointTrajectory; goal_time=0.6, stopped_velocity_tolerance=0.05, per-joint trajectory=0.2 goal=0.1, stop_trajectory_duration=0.5, state_publish_rate=500, action_monitor_rate=20",
+    "outputs": [
+      {
+        "role": "controller_state",
+        "topic": "scaled_pos_joint_traj_controller/state",
+        "msg_type": "control_msgs/JointTrajectoryControllerState",
+        "units": "rad, rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 500.0,
+        "postconditions": [
+          "publishes desired/actual/error for the 6 arm joints; progress scaled by robot-reported speed scaling so pause-on-safeguard-stop slows trajectory progress instead of erroring"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "trajectory_goal",
+        "topic": "scaled_pos_joint_traj_controller/follow_joint_trajectory",
+        "msg_type": "control_msgs/FollowJointTrajectory",
+        "units": "rad, rad/s, rad/s^2",
+        "preconditions": [
+          "goal trajectory joint_names must be the 6 arm joints; positions in rad; controller claims the scaled position joint command interface; respects goal_time and per-joint trajectory/goal tolerances",
+          "External Control program must be running (robot_program_running == true) for commands to reach the arm"
+        ]
+      }
+    ],
+    "exclusive": [
+      "scaled_joint_command_interface:shoulder_pan_joint",
+      "scaled_joint_command_interface:shoulder_lift_joint",
+      "scaled_joint_command_interface:elbow_joint",
+      "scaled_joint_command_interface:wrist_1_joint",
+      "scaled_joint_command_interface:wrist_2_joint",
+      "scaled_joint_command_interface:wrist_3_joint"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "goal_time_tolerance_s": 0.6,
+      "stopped_velocity_tolerance": 0.05,
+      "per_joint_trajectory_tolerance_rad": 0.2,
+      "per_joint_goal_tolerance_rad": 0.1,
+      "stop_trajectory_duration_s": 0.5
+    },
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "universal_robot",
+    "_provenance": "Universal_Robots_ROS_Driver/ur_robot_driver/config/ur5e_controllers.yaml scaled_pos_joint_traj_controller block (type position_controllers/ScaledJointTrajectoryController, joints=robot_joints, constra"
+  },
+  "speed_scaling_state_controller": {
+    "module_id": "speed_scaling_state_controller",
+    "semver": "2.4.1",
+    "interface_hash": "scaled_controllers/SpeedScalingStateController; reads SpeedScalingHandle; publishes speed_scaling_factor std_msgs/Float64 in [0,1]; publish_rate=500",
+    "outputs": [
+      {
+        "role": "speed_scaling",
+        "topic": "speed_scaling_factor",
+        "msg_type": "std_msgs/Float64",
+        "units": "dimensionless fraction in [0,1]",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 500.0,
+        "postconditions": [
+          "publishes the current execution speed scaling reported by the robot (combination of RTDE speed_scaling and target_speed_fraction); value between 0 and 1",
+          "topic name configurable via speed_scaling_id param (default 'speed_scaling_factor')"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "speed_scaling_min": 0,
+      "speed_scaling_max": 1
+    },
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "universal_robot",
+    "_provenance": "config/ur5e_controllers.yaml speed_scaling_state_controller (type scaled_controllers/SpeedScalingStateController, publish_rate 500); hardware_interface.cpp L375 SpeedScalingHandle(speed_scaling_id, &s"
+  },
+  "force_torque_sensor_controller": {
+    "module_id": "force_torque_sensor_controller",
+    "semver": "2.4.1",
+    "interface_hash": "force_torque_sensor_controller/ForceTorqueSensorController; reads ForceTorqueSensorHandle (frame tool0_controller); publishes wrench geometry_msgs/WrenchStamped; publish_rate=500",
+    "outputs": [
+      {
+        "role": "wrench",
+        "topic": "wrench",
+        "msg_type": "geometry_msgs/WrenchStamped",
+        "frame": "wrench (header frame_id; sensor measurement frame tool0_controller)",
+        "units": "N (force), N*m (torque)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 500.0,
+        "postconditions": [
+          "publishes TCP force-torque from the robot's built-in/estimated FT sensor; frame_id defaults to 'wrench', settable via wrench_frame_id param",
+          "can be zeroed via the driver's zero_ftsensor service"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [
+      "force_torque_sensor_interface:tool0_controller"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "universal_robot",
+    "_provenance": "config/ur5e_controllers.yaml force_torque_sensor_controller (type force_torque_sensor_controller/ForceTorqueSensorController, publish_rate 500); hardware_interface.cpp L377-378 ForceTorqueSensorHandle"
+  },
+  "joint_state_controller": {
+    "module_id": "joint_state_controller",
+    "semver": "2.4.1",
+    "interface_hash": "joint_state_controller/JointStateController; reads JointStateHandle for 6 arm joints; publishes /joint_states sensor_msgs/JointState; publish_rate=500",
+    "outputs": [
+      {
+        "role": "joint_states",
+        "topic": "/joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "units": "rad (position), rad/s (velocity), N*m (effort)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 500.0,
+        "postconditions": [
+          "publishes name/position/velocity/effort for shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint, wrist_3_joint",
+          "units follow REP-103 (radians, radians/s)"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "universal_robot",
+    "_provenance": "config/ur5e_controllers.yaml joint_state_controller (type joint_state_controller/JointStateController, publish_rate=loop_hz=500); hardware_interface.cpp L361 JointStateHandle(joint_names_[i], &joint_p"
+  },
+  "ur5e_moveit_config/move_group": {
+    "module_id": "ur5e_moveit_config/move_group",
+    "semver": "1.5.0",
+    "interface_hash": "MoveIt SimpleControllerManager controller_list wiring move_group to scaled_pos_joint_traj_controller via action_ns follow_joint_trajectory type FollowJointTrajectory over 6 arm joints; joint_limits enforce per-joint vel/effort/position",
+    "outputs": [
+      {
+        "role": "trajectory_command",
+        "topic": "/scaled_pos_joint_traj_controller/follow_joint_trajectory",
+        "msg_type": "control_msgs/FollowJointTrajectory",
+        "units": "rad, rad/s, rad/s^2",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "sends time-parameterized trajectories for the 6 arm joints respecting configured joint_limits to the driver's FollowJointTrajectory action server"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "joint_states",
+        "topic": "/joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "units": "rad, rad/s",
+        "min_rate_hz": null,
+        "preconditions": [
+          "requires current state of all 6 arm joints to plan; relies on joint_state_controller publishing /joint_states"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [
+      "scaled_pos_joint_traj_controller/follow_joint_trajectory action server"
+    ],
+    "perm_limits": {
+      "shoulder_pan_max_velocity_rad_s": 3.141592653589793,
+      "shoulder_pan_max_effort_Nm": 150,
+      "shoulder_pan_position_rad": 6.283185307179586,
+      "shoulder_lift_max_velocity_rad_s": 3.141592653589793,
+      "shoulder_lift_max_effort_Nm": 150,
+      "shoulder_lift_position_rad": 6.283185307179586,
+      "elbow_max_velocity_rad_s": 3.141592653589793,
+      "elbow_max_effort_Nm": 150,
+      "elbow_position_rad": 3.141592653589793,
+      "wrist_1_max_velocity_rad_s": 3.141592653589793,
+      "wrist_1_max_effort_Nm": 28,
+      "wrist_2_max_velocity_rad_s": 3.141592653589793,
+      "wrist_2_max_effort_Nm": 28,
+      "wrist_3_max_velocity_rad_s": 3.141592653589793,
+      "wrist_3_max_effort_Nm": 28
+    },
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "universal_robot",
+    "_provenance": "universal_robot/ur5e_moveit_config/config/ros_controllers.yaml controller_list (name scaled_pos_joint_traj_controller, action_ns follow_joint_trajectory, type FollowJointTrajectory, 6 arm joints); ur_"
+  },
+  "ur_robot_driver/dashboard_client": {
+    "module_id": "ur_robot_driver/dashboard_client",
+    "semver": "2.4.1",
+    "interface_hash": "Dashboard server bridge node; advertises std_srvs/Trigger lifecycle services (brake_release, power_on/off, play/pause/stop, unlock_protective_stop, restart_safety, shutdown, connect) plus ur_dashboard_msgs query/load services (get_robot_mode, get_safety_mode, load_program, program_state, raw_request)",
+    "outputs": [],
+    "inputs": [],
+    "exclusive": [
+      "dashboard_tcp_connection:robot (single dashboard server socket on robot_ip)"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "retry",
+    "changed_fields": [],
+    "_system": "universal_robot",
+    "_provenance": "Universal_Robots_ROS_Driver/ur_robot_driver/doc/ROS_INTERFACE.md dashboard_client Advertised Services (brake_release/power_on/power_off/play/pause/stop/unlock_protective_stop/restart_safety/shutdown/c"
+  },
+  "motoman_driver/motion_streaming_interface": {
+    "module_id": "motoman_driver/motion_streaming_interface",
+    "semver": "0.3.5",
+    "interface_hash": "subs:joint_path_command(motoman_msgs/DynamicJointTrajectory)+joint_states(sensor_msgs/JointState); srv:joint_path_command(CmdJointTrajectoryEx),stop_motion,robot_enable(std_srvs/Trigger),robot_disable(std_srvs/Trigger),select_tool(motoman_msgs/SelectTool)",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "trajectory_command",
+        "topic": "joint_path_command",
+        "msg_type": "motoman_msgs/DynamicJointTrajectory",
+        "units": "rad (joint positions per REP-103, revolute axes)",
+        "min_rate_hz": null,
+        "preconditions": [
+          "joint_names field present; streamer maps each name to a controller motion-group/axis index (joint-position ordering is name-driven, not array-index driven)",
+          "controller must be in MotoROS trajectory/streaming mode and motion enabled (robot_enable already called)",
+          "positions are absolute joint-space coordinates for each axis; no Cartesian poses are accepted"
+        ]
+      },
+      {
+        "role": "current_position",
+        "topic": "joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "frame": "none (sensor_msgs/JointState carries no frame; joint identity is by name)",
+        "units": "rad",
+        "min_rate_hz": null,
+        "preconditions": [
+          "used to seed/validate trajectory start point against current robot position"
+        ]
+      }
+    ],
+    "exclusive": [
+      "motoman_controller_motion_socket:FS100_motion_port_50240",
+      "controller_traj_mode:MotoROS_motion_server",
+      "joint_command_interface:all_motion_groups"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "note": "per-joint velocity limits read from robot_description URDF param if not explicitly provided; if unavailable, velocity validation is disabled (ROS_WARN). No numeric default published."
+    },
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "motoman",
+    "_provenance": "motoman_driver/src/joint_streaming_node.cpp (node name motion_interface, FS100_motion_port=50240); src/industrial_robot_client/joint_trajectory_interface.cpp L121-131,148-181 (advertiseService/subscri"
+  },
+  "motoman_driver/robot_state": {
+    "module_id": "motoman_driver/robot_state",
+    "semver": "0.3.5",
+    "interface_hash": "pubs:joint_states(sensor_msgs/JointState),feedback_states(control_msgs/FollowJointTrajectoryFeedback),dynamic_feedback_states(motoman_msgs/DynamicJointTrajectoryFeedback),robot_status(industrial_msgs/RobotStatus)",
+    "outputs": [
+      {
+        "role": "joint_states",
+        "topic": "joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "frame": "none (JointState has no frame; joints identified by name field)",
+        "units": "rad (position), rad/s (velocity) per REP-103 for revolute axes",
+        "rate_hz": null,
+        "postconditions": [
+          "name/position/velocity arrays are populated and index-aligned",
+          "joint ordering matches the controller-reported motion-group order, republished under the configured joint_names"
+        ]
+      },
+      {
+        "role": "controller_feedback",
+        "topic": "feedback_states",
+        "msg_type": "control_msgs/FollowJointTrajectoryFeedback",
+        "units": "rad, rad/s",
+        "rate_hz": null,
+        "postconditions": [
+          "actual.positions/velocities/accelerations reflect controller-streamed joint feedback"
+        ]
+      },
+      {
+        "role": "multigroup_feedback",
+        "topic": "dynamic_feedback_states",
+        "msg_type": "motoman_msgs/DynamicJointTrajectoryFeedback",
+        "units": "rad, rad/s",
+        "rate_hz": null,
+        "postconditions": [
+          "per-group DynamicJointState entries; num_groups matches active controller motion groups"
+        ]
+      },
+      {
+        "role": "robot_status",
+        "topic": "robot_status",
+        "msg_type": "industrial_msgs/RobotStatus",
+        "rate_hz": null,
+        "postconditions": [
+          "reports controller mode, e-stop, drives_powered, motion_possible, in_motion, in_error (TriState/RobotMode fields per industrial_msgs)"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [
+      "motoman_controller_state_socket:FS100_state_port_50241",
+      "controller_state_server:MotoROS_state_server"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "motoman",
+    "_provenance": "motoman_driver/src/robot_state_node.cpp (node name state_interface, FS100_state_port=50241); src/industrial_robot_client/robot_state_interface.cpp L51-54,126-176 (add_handler joint/joint_feedback/join"
+  },
+  "motoman_driver/joint_trajectory_action": {
+    "module_id": "motoman_driver/joint_trajectory_action",
+    "semver": "0.3.5",
+    "interface_hash": "action:joint_trajectory_action(control_msgs/FollowJointTrajectory); pub:joint_path_command(motoman_msgs/DynamicJointTrajectory); subs:feedback_states(control_msgs/FollowJointTrajectoryFeedback),robot_status(industrial_msgs/RobotStatus)",
+    "outputs": [
+      {
+        "role": "trajectory_to_streamer",
+        "topic": "joint_path_command",
+        "msg_type": "motoman_msgs/DynamicJointTrajectory",
+        "units": "rad",
+        "rate_hz": null,
+        "postconditions": [
+          "a goal accepted by the action server is forwarded as a DynamicJointTrajectory to the motion streamer",
+          "joint_names carried through so the streamer can map to controller axes"
+        ]
+      },
+      {
+        "role": "action_result",
+        "topic": "joint_trajectory_action/result",
+        "msg_type": "control_msgs/FollowJointTrajectoryActionResult",
+        "postconditions": [
+          "error_code set to SUCCESSFUL, INVALID_GOAL, or INVALID_JOINTS per goal validation",
+          "goal succeeds only after robot reaches goal within constraints/goal_threshold (default 0.01 rad)"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "action_goal",
+        "topic": "joint_trajectory_action/goal",
+        "msg_type": "control_msgs/FollowJointTrajectoryActionGoal",
+        "units": "rad (absolute joint-space positions)",
+        "min_rate_hz": null,
+        "preconditions": [
+          "goal joint_names must match the configured/controller joint set (else INVALID_JOINTS)",
+          "single-group default action plus optional per-group <ns>/<name>/joint_trajectory_action servers when 'topic_list' param defines multiple motion groups"
+        ]
+      },
+      {
+        "role": "controller_feedback",
+        "topic": "feedback_states",
+        "msg_type": "control_msgs/FollowJointTrajectoryFeedback",
+        "units": "rad, rad/s",
+        "min_rate_hz": 1.0,
+        "preconditions": [
+          "used to track progress toward goal; absence beyond the 1.0 s watchdog period aborts the active goal"
+        ]
+      },
+      {
+        "role": "robot_status",
+        "topic": "robot_status",
+        "msg_type": "industrial_msgs/RobotStatus",
+        "min_rate_hz": null,
+        "preconditions": [
+          "in_motion / in_error used to decide goal completion and to abort on controller error"
+        ]
+      }
+    ],
+    "exclusive": [
+      "action_namespace:joint_trajectory_action"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "goal_threshold_rad": 0.01
+    },
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "motoman",
+    "_provenance": "motoman_driver/src/joint_trajectory_action_node.cpp (node name joint_trajectory_action); src/industrial_robot_client/joint_trajectory_action.cpp L51-117 (action_server_ 'joint_trajectory_action' contr"
+  },
+  "motoman_driver/io_relay": {
+    "module_id": "motoman_driver/io_relay",
+    "semver": "0.3.5",
+    "interface_hash": "srv:read_single_io(ReadSingleIO),write_single_io(WriteSingleIO),read_group_io(ReadGroupIO),write_group_io(WriteGroupIO),read_mregister(ReadMRegister),write_mregister(WriteMRegister)",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "read_single_io",
+        "topic": "read_single_io",
+        "msg_type": "motoman_msgs/ReadSingleIO",
+        "preconditions": [
+          "request.address is a base-10 IO element address that exists and is configured on the controller",
+          "returns success(bool), message(string), value(int32)"
+        ]
+      },
+      {
+        "role": "write_single_io",
+        "topic": "write_single_io",
+        "msg_type": "motoman_msgs/WriteSingleIO",
+        "preconditions": [
+          "writable addresses only: Network Inputs >=27010 (>=25010 on DX100/FS100) or Universal/General Outputs >=10010",
+          "request.value=int32; returns success(bool), message(string)"
+        ]
+      },
+      {
+        "role": "read_group_io",
+        "topic": "read_group_io",
+        "msg_type": "motoman_msgs/ReadGroupIO",
+        "preconditions": [
+          "request.address base-10 group-IO address existing on controller",
+          "returns success(bool), message(string), value(uint8)"
+        ]
+      },
+      {
+        "role": "write_group_io",
+        "topic": "write_group_io",
+        "msg_type": "motoman_msgs/WriteGroupIO",
+        "preconditions": [
+          "writable addresses only: Network Inputs >=2701 (>=2501 on DX100/FS100) or Universal/General Outputs >=1001",
+          "request.value=uint8 (8-bit group); returns success(bool), message(string)"
+        ]
+      },
+      {
+        "role": "read_mregister",
+        "topic": "read_mregister",
+        "msg_type": "motoman_msgs/ReadMRegister",
+        "preconditions": [
+          "readable M-register addresses 0..999; driver internally offsets by 1000000 (caller must NOT add it)",
+          "returns success(bool), message(string), value(uint16)"
+        ]
+      },
+      {
+        "role": "write_mregister",
+        "topic": "write_mregister",
+        "msg_type": "motoman_msgs/WriteMRegister",
+        "preconditions": [
+          "writable M-register addresses 0..559; driver internally offsets by 1000000 (caller must NOT add it)",
+          "request.value=uint16; returns success(bool), message(string)"
+        ]
+      }
+    ],
+    "exclusive": [
+      "motoman_controller_io_socket:io_server_tcp_port_50242",
+      "controller_io_server:MotoROS_IO_server"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "writable_single_io": "Network Inputs >=27010 (DX100/FS100 >=25010), General Outputs >=10010",
+      "writable_group_io": "Network Inputs >=2701 (DX100/FS100 >=2501), General Outputs >=1001",
+      "readable_mregister": "0..999",
+      "writable_mregister": "0..559"
+    },
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "motoman",
+    "_provenance": "motoman_driver/src/io_relay.cpp L97-107 (advertiseService read_mregister/read_single_io/read_group_io/write_mregister/write_single_io/write_group_io), L150-287 (request/response types); launch/io_rela"
+  },
+  "motoman_driver/select_tool (service on motion_streaming_interface)": {
+    "module_id": "motoman_driver/select_tool",
+    "semver": "0.3.5",
+    "interface_hash": "srv:select_tool(motoman_msgs/SelectTool){req:uint32 group_number, uint32 tool_number; res:string message, bool success}",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "select_tool",
+        "topic": "select_tool",
+        "msg_type": "motoman_msgs/SelectTool",
+        "preconditions": [
+          "group_number is 0-based in [0, total_nr_of_groups) and must correspond to an active controller motion group; ROS side does not validate, MotoROS does",
+          "tool_number is 0-based in [0,63]",
+          "tool switch takes effect AFTER the last trajectory segment sent before the call completes (MotoROS FIFO queue); applications should call when in_motion==false (from robot_status) to control which trajectory uses the new tool",
+          "tool TCP does NOT affect joint-space trajectory execution; affects FSU/PFL dynamics and jogging only (jogging tool-switch unsupported on FS100)",
+          "success=false (with message) indicates MotoROS-side rejection even when the ROS service call itself succeeds"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "group_number": "[0, total_nr_of_groups)",
+      "tool_number": "[0, 63]"
+    },
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "motoman",
+    "_provenance": "motoman_driver/srv/SelectTool.srv (full field + semantics block: group_number/tool_number 0-based, tool_number legal-values [0,63], FIFO timing, in_motion advice via robot_status, FS100 jogging limita"
+  },
+  "kobuki_node/mobile_base": {
+    "module_id": "kobuki_node/mobile_base",
+    "semver": "0.7.6",
+    "interface_hash": "sub:commands/velocity(Twist),commands/{led1,led2,sound,motor_power,reset_odometry,...} | pub:odom(nav_msgs/Odometry),joint_states(JointState),sensors/imu_data(Imu),sensors/core(SensorState),events/{bumper,cliff,wheel_drop,button,power_system}(kobuki_msgs),sensors/dock_ir | tf:odom->base_footprint",
+    "outputs": [
+      {
+        "role": "odom",
+        "topic": "odom",
+        "msg_type": "nav_msgs/Odometry",
+        "frame": "odom (child_frame=base_footprint)",
+        "units": "m, m/s, rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 50.0,
+        "postconditions": [
+          "pose integrated from wheel encoders fused with gyro heading when use_imu_heading=true",
+          "publishes odom->base_footprint TF when publish_tf=true (default)"
+        ]
+      },
+      {
+        "role": "joint_states",
+        "topic": "joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "frame": null,
+        "units": "rad (wheel positions)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "publishes wheel_left_joint and wheel_right_joint positions"
+        ]
+      },
+      {
+        "role": "imu",
+        "topic": "sensors/imu_data",
+        "msg_type": "sensor_msgs/Imu",
+        "frame": "gyro_link",
+        "units": "rad, rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "heading from factory-calibrated gyro"
+        ]
+      },
+      {
+        "role": "core_sensors",
+        "topic": "sensors/core",
+        "msg_type": "kobuki_msgs/SensorState",
+        "frame": null,
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "raw bumper/cliff/wheel-drop/battery/current state at hardware stream rate"
+        ]
+      },
+      {
+        "role": "bumper_event",
+        "topic": "events/bumper",
+        "msg_type": "kobuki_msgs/BumperEvent",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "edge-triggered: published only on bumper state change"
+        ]
+      },
+      {
+        "role": "cliff_event",
+        "topic": "events/cliff",
+        "msg_type": "kobuki_msgs/CliffEvent",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "edge-triggered on cliff sensor change"
+        ]
+      },
+      {
+        "role": "wheel_drop_event",
+        "topic": "events/wheel_drop",
+        "msg_type": "kobuki_msgs/WheelDropEvent",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "edge-triggered on wheel-drop change"
+        ]
+      },
+      {
+        "role": "version_info",
+        "topic": "version_info",
+        "msg_type": "kobuki_msgs/VersionInfo",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "latched publisher (advertise latched=true)"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "velocity_command",
+        "topic": "commands/velocity",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint (body frame; Twist has no header)",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": 600.0
+        },
+        "min_rate_hz": 1.0,
+        "preconditions": [
+          "differential-drive: only linear.x and angular.z are used; linear.y, linear.z, angular.x/y ignored",
+          "no command within cmd_vel_timeout (0.6s) -> setBaseControl(0,0)"
+        ]
+      },
+      {
+        "role": "motor_power",
+        "topic": "commands/motor_power",
+        "msg_type": "kobuki_msgs/MotorPower",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "enable/disable motor driver"
+        ]
+      },
+      {
+        "role": "reset_odometry",
+        "topic": "commands/reset_odometry",
+        "msg_type": "std_msgs/Empty",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        }
+      }
+    ],
+    "exclusive": [
+      "single_hardware_port:/dev/kobuki",
+      "commands/velocity",
+      "tf:odom->base_footprint"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "turtlebot",
+    "_provenance": "yujinrobot/kobuki @ kobuki_node: package.xml (version 0.7.6), src/library/kobuki_ros.cpp (advertiseTopics L303-345: publishers/subscribers), src/library/odometry.cpp (L27-156: odom_frame=odom, base_fr"
+  },
+  "yocs_cmd_vel_mux/CmdVelMuxNodelet": {
+    "module_id": "yocs_cmd_vel_mux/CmdVelMuxNodelet",
+    "semver": "0.12.1",
+    "interface_hash": "sub:input/{safety_controller@p10,teleop@p7,switch@p6,navi@p5}(Twist) | pub:output(Twist),active(std_msgs/String) | arbitration:strict-priority+per-source-timeout",
+    "outputs": [
+      {
+        "role": "output",
+        "topic": "cmd_vel_mux/output",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint (body frame; Twist has no header)",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "forwards only the highest-priority currently-active source",
+          "remapped to mobile_base/commands/velocity in turtlebot_bringup",
+          "when allowed source times out, arbitration is released (allowed=VACANT) and no further messages forwarded until a source publishes"
+        ]
+      },
+      {
+        "role": "active_source",
+        "topic": "cmd_vel_mux/active",
+        "msg_type": "std_msgs/String",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "publishes name of source currently holding the output, or '(none)' when vacant"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "safety_controller_in",
+        "topic": "cmd_vel_mux/input/safety_controller",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": 200.0
+        },
+        "min_rate_hz": 1.0,
+        "preconditions": [
+          "priority 10 (highest in turtlebot mux.yaml)",
+          "source considered inactive after 0.2s silence"
+        ]
+      },
+      {
+        "role": "teleop_in",
+        "topic": "cmd_vel_mux/input/teleop",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": 1000.0
+        },
+        "preconditions": [
+          "priority 7; timeout 1.0s"
+        ]
+      },
+      {
+        "role": "switch_in",
+        "topic": "cmd_vel_mux/input/switch",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": 1000.0
+        },
+        "preconditions": [
+          "priority 6; timeout 1.0s"
+        ]
+      },
+      {
+        "role": "navigation_in",
+        "topic": "cmd_vel_mux/input/navi",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": 1000.0
+        },
+        "min_rate_hz": 1.0,
+        "preconditions": [
+          "priority 5 (lowest); navigation stack is preempted by any higher-priority source"
+        ]
+      }
+    ],
+    "exclusive": [
+      "cmd_vel_mux/output->mobile_base/commands/velocity"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "turtlebot",
+    "_provenance": "yujinrobot/yujin_ocs @ yocs_cmd_vel_mux: package.xml (version 0.12.1), src/cmd_vel_mux_nodelet.cpp (L44-58 priority arbitration: higher-priority active source wins, output_topic_pub.publish; L64-81 pe"
+  },
+  "yocs_velocity_smoother/VelocitySmootherNodelet": {
+    "module_id": "yocs_velocity_smoother/VelocitySmootherNodelet",
+    "semver": "0.12.1",
+    "interface_hash": "sub:raw_cmd_vel(Twist),odometry(Odometry),robot_cmd_vel(Twist) | pub:smooth_cmd_vel(Twist) | limits:speed_lim_v/w,accel_lim_v/w @20Hz",
+    "outputs": [
+      {
+        "role": "smooth_cmd_vel",
+        "topic": "smooth_cmd_vel",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint (body frame; Twist has no header)",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 20.0,
+        "postconditions": [
+          "output respects speed_lim_v=0.8 m/s, speed_lim_w=5.4 rad/s (clamped)",
+          "acceleration bounded by accel_lim_v=1.0 m/s^2, accel_lim_w=2.0 rad/s^2",
+          "remapped to cmd_vel_mux/input/navi in navigation stack",
+          "emits zero velocity when input stops (commands considered stale)"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "raw_cmd_vel",
+        "topic": "raw_cmd_vel",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "fed by move_base cmd_vel (remapped raw_cmd_vel)"
+        ]
+      },
+      {
+        "role": "odometry",
+        "topic": "odometry",
+        "msg_type": "nav_msgs/Odometry",
+        "frame": "odom",
+        "units": "m/s, rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "used only when robot_feedback=1 (odometry); turtlebot default robot_feedback=2 uses robot_cmd_vel instead"
+        ]
+      },
+      {
+        "role": "robot_cmd_vel",
+        "topic": "robot_cmd_vel",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "feedback of last command actually sent to base (robot_feedback=2, turtlebot default)"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "max_vel": 0.8,
+      "max_vel_theta": 5.4,
+      "acc_lim_v": 1,
+      "acc_lim_w": 2
+    },
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "turtlebot",
+    "_provenance": "yujinrobot/yujin_ocs @ yocs_velocity_smoother: package.xml (version 0.12.1), src/velocity_smoother_nodelet.cpp (L318-321 subs: odometry, robot_cmd_vel, raw_cmd_vel(raw_in_vel_sub); pub smooth_cmd_vel "
+  },
+  "kobuki_safety_controller/SafetyControllerNodelet": {
+    "module_id": "kobuki_safety_controller/SafetyControllerNodelet",
+    "semver": "0.7.6",
+    "interface_hash": "sub:events/{bumper,cliff,wheel_drop}(kobuki_msgs),enable,disable,reset | pub:cmd_vel(Twist) reactive-backoff",
+    "outputs": [
+      {
+        "role": "cmd_vel",
+        "topic": "cmd_vel",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint (body frame; Twist has no header)",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "publishes reactive backing-off/stop command on hazard event",
+          "remapped to cmd_vel_mux/input/safety_controller (highest mux priority 10)",
+          "only publishes while a hazard is active (bumper pressed / cliff / wheel-drop)"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "bumper_event",
+        "topic": "events/bumper",
+        "msg_type": "kobuki_msgs/BumperEvent",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "consumes edge-triggered bumper events from mobile_base/events/bumper"
+        ]
+      },
+      {
+        "role": "cliff_event",
+        "topic": "events/cliff",
+        "msg_type": "kobuki_msgs/CliffEvent",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "consumes mobile_base/events/cliff"
+        ]
+      },
+      {
+        "role": "wheel_drop_event",
+        "topic": "events/wheel_drop",
+        "msg_type": "kobuki_msgs/WheelDropEvent",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "consumes mobile_base/events/wheel_drop"
+        ]
+      },
+      {
+        "role": "enable",
+        "topic": "enable",
+        "msg_type": "std_msgs/Empty",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        }
+      },
+      {
+        "role": "disable",
+        "topic": "disable",
+        "msg_type": "std_msgs/Empty",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        }
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [
+      "override:cmd_vel_mux@priority10"
+    ],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "retreat",
+    "changed_fields": [],
+    "_system": "turtlebot",
+    "_provenance": "yujinrobot/kobuki @ kobuki_safety_controller: package.xml (version 0.7.6), include/kobuki_safety_controller/safety_controller.hpp (L104-110 subs: enable, disable, events/bumper, events/cliff, events/w"
+  },
+  "kobuki_bumper2pc/Bumper2PcNodelet": {
+    "module_id": "kobuki_bumper2pc/Bumper2PcNodelet",
+    "semver": "0.7.6",
+    "interface_hash": "sub:core_sensors(kobuki_msgs/SensorState) | pub:pointcloud(sensor_msgs/PointCloud2)@base_link | 3-point synthetic cloud from bumper/cliff bits",
+    "outputs": [
+      {
+        "role": "bumper_pointcloud",
+        "topic": "pointcloud",
+        "msg_type": "sensor_msgs/PointCloud2",
+        "frame": "base_link",
+        "units": "m",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 50.0,
+        "postconditions": [
+          "3-point cloud (left/center/right) placed at pointcloud_radius=0.25 m and height=0.04 m when corresponding bumper/cliff bit is set, else at +inf",
+          "frame_id = base_link (param base_link_frame)",
+          "lazy: only publishes when it has >=1 subscriber",
+          "consumed by move_base local costmap 'bump' observation source"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "core_sensors",
+        "topic": "core_sensors",
+        "msg_type": "kobuki_msgs/SensorState",
+        "frame": null,
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "reads bumper and cliff bitfields from mobile_base/sensors/core"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "turtlebot",
+    "_provenance": "yujinrobot/kobuki @ kobuki_bumper2pc: package.xml (version 0.7.6), src/kobuki_bumper2pc.cpp (L131 pub pointcloud(PointCloud2), L132 sub core_sensors(SensorState), L84-87 params pointcloud_radius=0.25,"
+  },
+  "move_base (turtlebot_navigation)": {
+    "module_id": "move_base (turtlebot_navigation)",
+    "semver": "2.3.7",
+    "interface_hash": "action:move_base(MoveBaseAction) | sub:scan(LaserScan),mobile_base/sensors/bumper_pointcloud(PointCloud2),map(OccupancyGrid),tf | pub:cmd_vel(Twist via velocity_smoother) | planners:NavfnROS(global)+DWAPlannerROS(local)",
+    "outputs": [
+      {
+        "role": "cmd_vel",
+        "topic": "cmd_vel",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base_footprint (body frame; Twist has no header)",
+        "units": "linear.x m/s, angular.z rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 5.0,
+        "postconditions": [
+          "DWAPlannerROS local control output at controller_frequency=5.0 Hz",
+          "remapped to navigation_velocity_smoother/raw_cmd_vel (does NOT drive base directly; passes through smoother then cmd_vel_mux priority 5)"
+        ]
+      },
+      {
+        "role": "action_result",
+        "topic": "move_base/result",
+        "msg_type": "move_base_msgs/MoveBaseActionResult",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "SimpleActionServer result on goal reached or aborted"
+        ]
+      },
+      {
+        "role": "action_feedback",
+        "topic": "move_base/feedback",
+        "msg_type": "move_base_msgs/MoveBaseActionFeedback",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "current base pose feedback toward goal"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "goal",
+        "topic": "move_base/goal",
+        "msg_type": "move_base_msgs/MoveBaseActionGoal",
+        "frame": "map (global_frame_id)",
+        "units": "m, rad",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "goal pose expressed in map frame (or any frame resolvable via tf)"
+        ]
+      },
+      {
+        "role": "scan",
+        "topic": "scan",
+        "msg_type": "sensor_msgs/LaserScan",
+        "frame": "camera_depth_frame (from depthimage_to_laserscan; or laser frame on laser variant)",
+        "units": "m",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "LaserScan observation source for obstacle/clearing; min_obstacle_height 0.25, max 0.35; obstacle_range 2.5 m, raytrace_range 3.0 m"
+        ]
+      },
+      {
+        "role": "bump",
+        "topic": "mobile_base/sensors/bumper_pointcloud",
+        "msg_type": "sensor_msgs/PointCloud2",
+        "frame": "base_link",
+        "units": "m",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "PointCloud2 marking-only source (clearing:false); from kobuki_bumper2pc; max_obstacle_height 0.15"
+        ]
+      },
+      {
+        "role": "map",
+        "topic": "map",
+        "msg_type": "nav_msgs/OccupancyGrid",
+        "frame": "map",
+        "units": "m (resolution)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "static_layer enabled in global costmap; requires a map server / SLAM publishing /map"
+        ]
+      },
+      {
+        "role": "tf",
+        "topic": "tf",
+        "msg_type": "tf2_msgs/TFMessage",
+        "frame": "map->odom->base_footprint chain",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "requires complete map->odom (AMCL/SLAM) and odom->base_footprint (kobuki) transform chain"
+        ]
+      }
+    ],
+    "exclusive": [
+      "cmd_vel (via navigation_velocity_smoother -> cmd_vel_mux/input/navi)",
+      "move_base action server namespace"
+    ],
+    "perm_grants": [],
+    "perm_requires": [
+      "tf:map->odom (external localization)",
+      "tf:odom->base_footprint (kobuki_node)",
+      "scan source",
+      "map source"
+    ],
+    "perm_limits": {
+      "robot_radius": 0.2,
+      "controller_frequency": 5,
+      "planner_frequency": 1,
+      "obstacle_range": 2.5,
+      "raytrace_range": 3
+    },
+    "recovery": "retry",
+    "changed_fields": [],
+    "_system": "turtlebot",
+    "_provenance": "turtlebot/turtlebot_apps @ turtlebot_navigation: package.xml (version 2.3.7), launch/includes/move_base.launch.xml (frames: global_frame=map, local_costmap global_frame=odom, robot_base_frame=base_foo"
+  },
+  "tf2_ros/TransformBroadcaster": {
+    "module_id": "tf2_ros/TransformBroadcaster",
+    "semver": "0.7.10",
+    "interface_hash": "TFMessage{geometry_msgs/TransformStamped[] transforms}; TransformStamped{std_msgs/Header header(frame_id=parent), string child_frame_id, geometry_msgs/Transform transform{Vector3 translation[m], Quaternion rotation}}",
+    "outputs": [
+      {
+        "role": "tf_dynamic",
+        "topic": "/tf",
+        "msg_type": "tf2_msgs/TFMessage",
+        "frame": "per-message: header.frame_id is the parent frame, child_frame_id is the child (e.g. odom->base_link); no fixed frame at the node level",
+        "units": "m (translation), rad (rotation, as unit quaternion); right-handed per REP-103",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "each published TransformStamped names exactly one parent (header.frame_id) and one child (child_frame_id)",
+          "stamp in header is the time the transform is valid for; consumers interpolate/extrapolate around it",
+          "publish queue depth is 100 (not latched): late joiners do not receive past dynamic transforms"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [
+      "tf_authority:child_frame_id"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "geometry2_tf2",
+    "_provenance": "tf2_ros/src/transform_broadcaster.cpp (noetic-devel): publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf\", 100). tf2_msgs/msg/TFMessage.msg, geometry_msgs/TransformStamped. REP-103 (m, rad, right-"
+  },
+  "tf2_ros/StaticTransformBroadcaster": {
+    "module_id": "tf2_ros/StaticTransformBroadcaster",
+    "semver": "0.7.10",
+    "interface_hash": "TFMessage{geometry_msgs/TransformStamped[] transforms} published latched on /tf_static; broadcaster dedups by child_frame_id",
+    "outputs": [
+      {
+        "role": "tf_static",
+        "topic": "/tf_static",
+        "msg_type": "tf2_msgs/TFMessage",
+        "frame": "per-message parent (header.frame_id) -> child (child_frame_id); intended for transforms that never change (e.g. base_link->sensor)",
+        "units": "m (translation), rad (rotation, unit quaternion); right-handed per REP-103",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "topic is latched (advertise(...,true)): late-joining subscribers receive the last published full static set",
+          "broadcaster stores one entry per child_frame_id; re-sending the same child_frame_id overwrites it and republishes the whole accumulated message",
+          "transforms are treated as time-invariant by consumers (no extrapolation limit applied to static transforms)"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [
+      "tf_static_authority:child_frame_id"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "geometry2_tf2",
+    "_provenance": "tf2_ros/src/static_transform_broadcaster.cpp (noetic-devel): publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf_static\", 100, true) -- the trailing 'true' is the ROS1 latched flag. sendTransform a"
+  },
+  "tf2_ros/static_transform_publisher": {
+    "module_id": "tf2_ros/static_transform_publisher",
+    "semver": "0.7.10",
+    "interface_hash": "CLI node: {x,y,z,qx,qy,qz,qw,frame_id,child_frame_id} | {x,y,z,yaw,pitch,roll,frame_id,child_frame_id} | {/param_name}; emits one TFMessage on latched /tf_static",
+    "outputs": [
+      {
+        "role": "tf_static",
+        "topic": "/tf_static",
+        "msg_type": "tf2_msgs/TFMessage",
+        "frame": "frame_id (parent, argv) -> child_frame_id (child, argv)",
+        "units": "m (x,y,z translation), rad (yaw,pitch,roll when using Euler form); quaternion (qx,qy,qz,qw) when using quaternion form; right-handed per REP-103",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "publishes exactly one static transform once, then spins to keep the latched /tf_static message available",
+          "rejects (ROS_FATAL, exit 1) if frame_id equals child_frame_id",
+          "yaw/pitch/roll form maps to quaternion via setRPY(roll, pitch, yaw) ordering"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "param_transform",
+        "topic": "(ROS param server, /param_name argv form)",
+        "msg_type": "XmlRpc struct {header{frame_id}, child_frame_id, transform{translation{x,y,z}, rotation{x,y,z,w}}}",
+        "frame": "frame_id field is parent, child_frame_id field is child",
+        "units": "m (translation), unit quaternion (rotation)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "param must contain child_frame_id, header.frame_id, transform.translation.{x,y,z}, transform.rotation.{x,y,z,w} (validateXmlRpcTf); missing members -> ROS_FATAL"
+        ]
+      }
+    ],
+    "exclusive": [
+      "tf_static_authority:child_frame_id"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "geometry2_tf2",
+    "_provenance": "tf2_ros/src/static_transform_broadcaster_program.cpp (noetic-devel): node name 'static_transform_publisher' (AnonymousName); CLI args x y z qx qy qz qw frame_id child_frame_id OR x y z yaw pitch roll "
+  },
+  "tf2_ros/TransformListener": {
+    "module_id": "tf2_ros/TransformListener",
+    "semver": "0.7.10",
+    "interface_hash": "subscribes tf2_msgs/TFMessage on /tf and /tf_static; populates BufferCore; error enum TF2Error{NO_ERROR,LOOKUP_ERROR,CONNECTIVITY_ERROR,EXTRAPOLATION_ERROR,INVALID_ARGUMENT_ERROR,TIMEOUT_ERROR,TRANSFORM_ERROR}",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "tf_dynamic",
+        "topic": "/tf",
+        "msg_type": "tf2_msgs/TFMessage",
+        "frame": "consumes any parent->child pair; assembles the full frame tree (REP-105: each frame has exactly one parent)",
+        "units": "m, rad (right-handed, REP-103)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "transform stamps should be monotonic; a detected backward jump in wall time clears the entire buffer",
+          "dynamic transforms must be published frequently enough that a lookup time falls within the buffer's cached window, else ExtrapolationException",
+          "publisher 'authority' is taken from the publishing node name for conflict diagnostics"
+        ]
+      },
+      {
+        "role": "tf_static",
+        "topic": "/tf_static",
+        "msg_type": "tf2_msgs/TFMessage",
+        "frame": "consumes static parent->child pairs; stored without extrapolation limit",
+        "units": "m, rad (right-handed, REP-103)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "relies on /tf_static being latched so the listener receives static transforms even if it subscribes after they were published"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "retry",
+    "changed_fields": [],
+    "_system": "geometry2_tf2",
+    "_provenance": "tf2_ros/src/transform_listener.cpp (noetic-devel): subscribes \"/tf\" (queue 100) and \"/tf_static\" (queue 100); fills tf2::BufferCore via setTransform(...,is_static); on detected backward time jump (now"
+  },
+  "tf2_ros/BufferServer": {
+    "module_id": "tf2_ros/BufferServer",
+    "semver": "0.7.10",
+    "interface_hash": "action tf2_msgs/LookupTransform: goal{target_frame,source_frame,source_time,timeout,target_time,fixed_frame,advanced(bool)} -> result{geometry_msgs/TransformStamped transform, tf2_msgs/TF2Error error}",
+    "outputs": [
+      {
+        "role": "lookup_result",
+        "topic": "/tf2_buffer_server/result",
+        "msg_type": "tf2_msgs/LookupTransformActionResult",
+        "frame": "result.transform is target_frame <- source_frame (header.frame_id = target_frame)",
+        "units": "m, rad (right-handed, REP-103)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "every accepted goal is set succeeded; transform failures are reported in result.error (TF2Error code), not as action abort",
+          "error codes: LOOKUP_ERROR, CONNECTIVITY_ERROR, EXTRAPOLATION_ERROR, INVALID_ARGUMENT_ERROR, TIMEOUT_ERROR, TRANSFORM_ERROR",
+          "goal resolved when canTransform(target,source,time) becomes true or the goal's timeout/end_time elapses"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "lookup_goal",
+        "topic": "/tf2_buffer_server/goal",
+        "msg_type": "tf2_msgs/LookupTransformActionGoal",
+        "frame": "target_frame and source_frame (and fixed_frame for advanced API) must exist in the served frame tree",
+        "units": "source_time/target_time are ROS time; timeout is ROS duration",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "underlying Buffer (fed by a TransformListener) must hold the requested frames within its cache window (default buffer_size 120.0 s)",
+          "advanced=true requires target_time and fixed_frame (time-travel lookup); advanced=false uses source_time only"
+        ]
+      }
+    ],
+    "exclusive": [
+      "action_namespace:tf2_buffer_server"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "geometry2_tf2",
+    "_provenance": "tf2_ros/src/buffer_server.cpp + buffer_server_main.cpp (noetic-devel): actionlib action server, default namespace 'tf2_buffer_server' (node 'tf_buffer'); action tf2_msgs/action/LookupTransform.action;"
+  },
+  "tf2_ros/Buffer.frames_service": {
+    "module_id": "tf2_ros/Buffer.frames_service",
+    "semver": "0.7.10",
+    "interface_hash": "srv FrameGraph: request{} -> response{string frame_yaml}",
+    "outputs": [
+      {
+        "role": "frame_graph",
+        "topic": "~tf2_frames (service)",
+        "msg_type": "tf2_msgs/FrameGraph",
+        "frame": "returns the full frame tree as a YAML string (frame ids and parent/authority/rate metadata)",
+        "units": "n/a (introspection string)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "response.frame_yaml describes the current set of frames known to the Buffer",
+          "service is only advertised when frame-service/debug is enabled (publish_frame_service param, default false in buffer_server_main)"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "frame_graph_request",
+        "topic": "~tf2_frames (service)",
+        "msg_type": "tf2_msgs/FrameGraph",
+        "frame": "n/a",
+        "units": "n/a",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "empty request (FrameGraph.srv request section is empty)"
+        ]
+      }
+    ],
+    "exclusive": [
+      "service_name:tf2_frames"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "geometry2_tf2",
+    "_provenance": "tf2_ros/src/buffer.cpp (noetic-devel): when debug/publish_frame_service enabled, advertiseService(\"tf2_frames\", &Buffer::getFrames). tf2_msgs/srv/FrameGraph.srv: empty request '---' string frame_yaml "
+  },
+  "cob_omni_drive_controller/WheelController": {
+    "module_id": "cob_omni_drive_controller/WheelController",
+    "semver": "0.8.22",
+    "interface_hash": "sub:command(geometry_msgs/Twist); pub:wheel_commands(cob_base_controller_utils/WheelCommands{header,drive_target_velocity[],steer_target_velocity[],steer_target_position[],steer_target_error[]}); hw:VelocityJointInterface(steer+drive joints); dynrecfg:SteerCtrlConfig",
+    "outputs": [
+      {
+        "role": "wheel_commands",
+        "topic": "twist_controller/wheel_commands",
+        "msg_type": "cob_base_controller_utils/WheelCommands",
+        "units": "rad/s (drive/steer target velocity), rad (steer target position)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 100.0,
+        "postconditions": [
+          "per-wheel drive velocity, steer velocity, steer position and steer error published every control step via realtime publisher",
+          "on NaN in incoming Twist the target is reset to zero (ROS_FATAL logged)"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "base_twist_command",
+        "topic": "twist_controller/command",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base (robot base frame, e.g. base_link/base_footprint; unstamped, frame implicit per REP-103 body frame)",
+        "units": "m/s linear, rad/s angular",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "wheel/undercarriage geometry parsed from controller params (parseWheelParams)",
+          "incoming Twist must be finite; NaN triggers safety reset to zero",
+          "claims steer+drive joints on hardware_interface::VelocityJointInterface"
+        ]
+      }
+    ],
+    "exclusive": [
+      "joint_command_interface:base_steer_joints",
+      "joint_command_interface:base_drive_joints",
+      "VelocityJointInterface:undercarriage"
+    ],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_control@melodic_dev: cob_omni_drive_controller/src/control_plugin.cpp (WheelController:VelocityJointInterface, setCommand to steer_joints_/drive_joints_), src/WheelControllerBase.h (subscri"
+  },
+  "cob_omni_drive_controller/OdometryController": {
+    "module_id": "cob_omni_drive_controller/OdometryController",
+    "semver": "0.8.22",
+    "interface_hash": "pub:odometry(nav_msgs/Odometry); srv:reset_odometry(std_srvs/Trigger); tf:odom->base_footprint (optional, broadcast_tf); hw:JointStateInterface(read-only)",
+    "outputs": [
+      {
+        "role": "odometry",
+        "topic": "twist_controller/odometry",
+        "msg_type": "nav_msgs/Odometry",
+        "frame": "odom (header.frame_id, param frame_id default 'odom'); child_frame_id 'base_footprint' (param default)",
+        "units": "m (pose position), rad (orientation), m/s & rad/s (twist)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": 0.0,
+        "postconditions": [
+          "odometry pose/twist integrated from wheel JointStateInterface every update",
+          "pose & twist covariance set from params cov_pose/cov_twist (default 0.1)",
+          "optionally broadcasts tf odom->base_footprint when broadcast_tf true (default true); can invert via invert_odom_tf",
+          "publishes at fixed publish_rate via timer, suppresses TF_REPEATED_DATA when stamp unchanged"
+        ]
+      },
+      {
+        "role": "odom_tf",
+        "topic": "/tf",
+        "msg_type": "geometry_msgs/TransformStamped",
+        "frame": "odom -> base_footprint (or inverted if invert_odom_tf)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "only broadcast when broadcast_tf param true; documented to conflict with robot_pose_ekf"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "reset_odometry",
+        "topic": "twist_controller/reset_odometry",
+        "msg_type": "std_srvs/Trigger",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "preconditions": [
+          "controller must be running, else returns success=false message='not running'"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_control@melodic_dev: cob_omni_drive_controller/src/odom_plugin.cpp (advertise 'odometry' nav_msgs/Odometry; frame_id param default 'odom'; child_frame_id default 'base_footprint'; advertise"
+  },
+  "cob_twist_controller": {
+    "module_id": "cob_twist_controller",
+    "semver": "0.8.22",
+    "interface_hash": "sub:twist_controller/command_twist(geometry_msgs/Twist), twist_controller/command_twist_stamped(geometry_msgs/TwistStamped), joint_states(sensor_msgs/JointState), obstacle_distance(cob_control_msgs/ObstacleDistances), base/odometry(nav_msgs/Odometry); pub:joint_group_velocity_controller/command(std_msgs/Float64MultiArray) [default controller_interface], twist_direction(visualization_msgs/MarkerArray); needs srv:obstacle_distance/registerLinkOfInterest when CA on",
+    "outputs": [
+      {
+        "role": "joint_velocity_command",
+        "topic": "joint_group_velocity_controller/command",
+        "msg_type": "std_msgs/Float64MultiArray",
+        "units": "rad/s (joint velocities); pluginlib-selected interface may instead emit position (Float64MultiArray), JointTrajectory, or JointState",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "inverse differential kinematics solution for the configured chain, published to the selected controller_interface output",
+          "output limited per enforce_pos/vel/acc limit params and Cartesian input limits (max_lin_twist/max_rot_twist) unless below DIV0 threshold"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "command_twist",
+        "topic": "twist_controller/command_twist",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "chain_base_link (orientation interpreted w.r.t. chain_base coordinate system, NO tf transform applied)",
+        "units": "m/s linear, rad/s angular",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "params chain_base_link, chain_tip_link, joint_names required",
+          "/robot_description must contain a valid KDL chain from chain_base_link to chain_tip_link with >0 joints",
+          "twist is assumed already expressed in chain_base_link frame"
+        ]
+      },
+      {
+        "role": "command_twist_stamped",
+        "topic": "twist_controller/command_twist_stamped",
+        "msg_type": "geometry_msgs/TwistStamped",
+        "frame": "any frame in tf tree; transformed via tf lookupTransform(chain_base_link, msg.header.frame_id)",
+        "units": "m/s linear, rad/s angular",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "tf transform from msg.header.frame_id to chain_base_link must be available, else command dropped (ROS_ERROR)"
+        ]
+      },
+      {
+        "role": "joint_states",
+        "topic": "joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "units": "rad (position)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "provides current configuration of the controlled chain"
+        ]
+      },
+      {
+        "role": "obstacle_distance",
+        "topic": "obstacle_distance",
+        "msg_type": "cob_control_msgs/ObstacleDistances",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "only used when collision-avoidance constraint (constraint_ca) is enabled"
+        ]
+      },
+      {
+        "role": "base_odometry",
+        "topic": "base/odometry",
+        "msg_type": "nav_msgs/Odometry",
+        "frame": "odom",
+        "units": "m/s, rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "only used when kinematic_extension == BASE_COMPENSATION/BASE_ACTIVE to subtract base motion"
+        ]
+      }
+    ],
+    "exclusive": [
+      "joint_group_velocity_controller/command (the downstream ros_control controller it feeds)"
+    ],
+    "perm_grants": [],
+    "perm_requires": [
+      "obstacle_distance/registerLinkOfInterest (cob_srvs/SetString service) must exist when collision avoidance enabled, else CA disabled"
+    ],
+    "perm_limits": {
+      "enforce_pos_limits": "from URDF joint limits",
+      "enforce_vel_limits": "from URDF joint velocity limits",
+      "enforce_acc_limits": "param limits_acc",
+      "max_lin_twist": "param",
+      "max_rot_twist": "param"
+    },
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_control@melodic_dev: cob_twist_controller/src/cob_twist_controller.cpp (subscribe command_twist/command_twist_stamped under nh 'twist_controller' lines 193-194; joint_states line 192; obsta"
+  },
+  "cob_control_mode_adapter": {
+    "module_id": "cob_control_mode_adapter",
+    "semver": "0.8.22",
+    "interface_hash": "sub:joint_group_position_controller/command, joint_group_velocity_controller/command (passthrough monitors); uses srv:controller_manager/{load_controller,switch_controller}(controller_manager_msgs); selects active ros_control controller based on which command stream is live",
+    "outputs": [],
+    "inputs": [
+      {
+        "role": "cmd_pos",
+        "topic": "joint_group_position_controller/command",
+        "msg_type": "std_msgs/Float64MultiArray",
+        "units": "rad",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "only monitored if joint_group_position_controller param/controller present"
+        ]
+      },
+      {
+        "role": "cmd_vel",
+        "topic": "joint_group_velocity_controller/command",
+        "msg_type": "std_msgs/Float64MultiArray",
+        "units": "rad/s",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "only monitored if joint_group_velocity_controller present; arrival within max_command_silence triggers switch to velocity controller"
+        ]
+      }
+    ],
+    "exclusive": [
+      "controller_manager/switch_controller (mutually-exclusive activation of joint_trajectory_controller / joint_group_position_controller / joint_group_velocity_controller for the same joint group)"
+    ],
+    "perm_grants": [],
+    "perm_requires": [
+      "controller_manager/load_controller (controller_manager_msgs/LoadController)",
+      "controller_manager/switch_controller (controller_manager_msgs/SwitchController)"
+    ],
+    "perm_limits": {
+      "max_command_silence_s": "param max_command_silence (silence beyond which the active streaming controller is released)"
+    },
+    "recovery": "retry",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_control@melodic_dev: cob_control_mode_adapter/src/cob_control_mode_adapter_node.cpp (serviceClient controller_manager/load_controller line 53 and controller_manager/switch_controller lines "
+  },
+  "cob_base_velocity_smoother": {
+    "module_id": "cob_base_velocity_smoother",
+    "semver": "0.8.22",
+    "interface_hash": "sub:input(geometry_msgs/Twist); pub:output(geometry_msgs/Twist); ramps/limits base velocity using circular buffer over min_input_rate window",
+    "outputs": [
+      {
+        "role": "smoothed_cmd_vel",
+        "topic": "output",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base (passthrough of input frame; unstamped)",
+        "units": "m/s linear, rad/s angular",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "acceleration-limited / smoothed Twist computed from a circular buffer of recent commands",
+          "if no new command within max delay (1/min_input_rate), output is forced to zero Twist"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "raw_cmd_vel",
+        "topic": "input",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "base (robot base frame; unstamped)",
+        "units": "m/s linear, rad/s angular",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "expects continuous Twist commands; staleness beyond 1/min_input_rate is treated as stop"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "acceleration_limits": "from cfg/config (dynamic_reconfigure)"
+    },
+    "recovery": "retreat",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_control@melodic_dev: cob_base_velocity_smoother/src/cob_base_velocity_smoother.cpp (header comment 'subscribes (input) and publishes (output) geometry_msgs::Twist' line 27; advertise 'outpu"
+  },
+  "cob_collision_velocity_filter": {
+    "module_id": "cob_collision_velocity_filter",
+    "semver": "0.8.22",
+    "interface_hash": "sub:command_in(geometry_msgs/Twist); pub:command(geometry_msgs/Twist), relevant_obstacles_grid(nav_msgs/OccupancyGrid); uses costmap_2d footprint to clamp velocity near obstacles",
+    "outputs": [
+      {
+        "role": "safe_cmd_vel",
+        "topic": "command",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "robot_base_frame (param, default /base_link)",
+        "units": "m/s linear, rad/s angular",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "input Twist reduced/blocked when costmap obstacles lie within the robot footprint trajectory (costmap_obstacle_treshold default 250)",
+          "acceleration-limited by max_acceleration param"
+        ]
+      },
+      {
+        "role": "relevant_obstacles",
+        "topic": "relevant_obstacles_grid",
+        "msg_type": "nav_msgs/OccupancyGrid",
+        "frame": "global_frame (param, default /base_link)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "publishes the subset of costmap cells influencing the velocity decision"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "raw_cmd_vel",
+        "topic": "command_in",
+        "msg_type": "geometry_msgs/Twist",
+        "frame": "robot_base_frame (param, default /base_link)",
+        "units": "m/s linear, rad/s angular",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "requires a costmap_2d::Costmap2DROS instance (laser/obstacle layer) providing the robot footprint and obstacle cells"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {
+      "max_acceleration": "param",
+      "costmap_obstacle_treshold": "param default 250"
+    },
+    "recovery": "retreat",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_control@melodic_dev: cob_collision_velocity_filter/src/cob_collision_velocity_filter.cpp (advertise 'command' geometry_msgs/Twist line 45 and 'relevant_obstacles_grid' nav_msgs/OccupancyGri"
+  },
+  "cob_cartesian_controller": {
+    "module_id": "cob_cartesian_controller",
+    "semver": "0.8.22",
+    "interface_hash": "action:cartesian_trajectory_action(cob_cartesian_controller/CartesianController.action{move_type,move_lin,move_circ,profile -> success,message}); broadcasts tf target_frame; drives frame_tracker via srv frame_tracker/start_tracking(cob_srvs/SetString) and frame_tracker/stop(std_srvs/Trigger)",
+    "outputs": [
+      {
+        "role": "target_frame_tf",
+        "topic": "/tf",
+        "msg_type": "geometry_msgs/TransformStamped",
+        "frame": "target_frame (param, default 'cartesian_target') expressed relative to root_frame / chain_tip_link",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "broadcasts the moving Cartesian target frame that the frame_tracker servoes the arm toward",
+          "interpolates LIN/CIRC trajectory in root_frame at update_rate"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "cartesian_trajectory_goal",
+        "topic": "<action_ns>/goal",
+        "msg_type": "cob_cartesian_controller/CartesianControllerActionGoal",
+        "frame": "root_frame (param 'root_frame'; trajectory interpolated in this reference frame)",
+        "units": "m (linear path), rad (rotation)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "params chain_tip_link, root_frame, update_rate required",
+          "frame_tracker action/services (start_tracking, stop) must be available",
+          "move_type LIN=1 or CIRC=2 with MoveLin/MoveCirc/Profile fields"
+        ]
+      }
+    ],
+    "exclusive": [
+      "arm Cartesian motion via frame_tracker -> twist_controller (claims the arm through the frame tracking pipeline for the goal duration)"
+    ],
+    "perm_grants": [],
+    "perm_requires": [
+      "frame_tracker/start_tracking (cob_srvs/SetString)",
+      "frame_tracker/stop (std_srvs/Trigger)"
+    ],
+    "perm_limits": {
+      "velocity_profile": "cob_cartesian_controller/Profile (vel/accel of generated trajectory)"
+    },
+    "recovery": "abort",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_control@melodic_dev: cob_cartesian_controller/src/cartesian_controller.cpp (params chain_tip_link line 33, root_frame line 39, update_rate line 45, target_frame default 'cartesian_target' l"
+  },
+  "cob_obstacle_distance": {
+    "module_id": "cob_obstacle_distance",
+    "semver": "0.8.22",
+    "interface_hash": "sub:joint_states(sensor_msgs/JointState), obstacle_distance/registerObstacle; pub:obstacle_distance(cob_control_msgs/ObstacleDistances), obstacle_distance/marker(visualization_msgs/MarkerArray); srv:obstacle_distance/registerLinkOfInterest(cob_srvs/SetString)",
+    "outputs": [
+      {
+        "role": "obstacle_distances",
+        "topic": "obstacle_distance",
+        "msg_type": "cob_control_msgs/ObstacleDistances",
+        "frame": "chain_base_link (distance vectors computed from chain base; root_frame param used for collision lookups)",
+        "units": "m (distance, vectors)",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "publishes nearest-point distance per registered link-of-interest/obstacle pair, with frame_vector and nearest-point vectors",
+          "consumed by cob_twist_controller collision-avoidance constraint"
+        ]
+      },
+      {
+        "role": "distance_marker",
+        "topic": "obstacle_distance/marker",
+        "msg_type": "visualization_msgs/MarkerArray",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "transient_local",
+          "deadline_ms": null
+        },
+        "postconditions": [
+          "latched marker visualization of obstacle geometry"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "role": "joint_states",
+        "topic": "joint_states",
+        "msg_type": "sensor_msgs/JointState",
+        "units": "rad",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "params joint_names, root_frame, chain_base_link, chain_tip_link required; /robot_description must yield a valid KDL chain"
+        ]
+      },
+      {
+        "role": "register_link_of_interest",
+        "topic": "obstacle_distance/registerLinkOfInterest",
+        "msg_type": "cob_srvs/SetString",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "min_rate_hz": null,
+        "preconditions": [
+          "clients (e.g. cob_twist_controller) register collision links before distances are computed for them"
+        ]
+      }
+    ],
+    "exclusive": [],
+    "perm_grants": [
+      "obstacle_distance/registerLinkOfInterest (cob_srvs/SetString)",
+      "obstacle_distance/registerObstacle"
+    ],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_control@melodic_dev: cob_obstacle_distance/src/cob_obstacle_distance.cpp (subscribe joint_states line 66, obstacle_distance/registerObstacle line 67; advertiseService obstacle_distance/regi"
+  },
+  "cob_msgs/DashboardState": {
+    "module_id": "cob_msgs/DashboardState",
+    "semver": "0.7.9",
+    "interface_hash": "DashboardState{diagnostic_msgs/DiagnosticStatus diagnostics_toplevel_state; cob_msgs/PowerState power_state; cob_msgs/EmergencyStopState emergency_stop_state}",
+    "outputs": [
+      {
+        "role": "dashboard_state",
+        "topic": "/dashboard/state",
+        "msg_type": "cob_msgs/DashboardState",
+        "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+        },
+        "rate_hz": null,
+        "postconditions": [
+          "aggregates top-level diagnostics, battery PowerState, and EmergencyStopState for dashboard/teleop consumers"
+        ]
+      }
+    ],
+    "inputs": [],
+    "exclusive": [],
+    "perm_grants": [],
+    "perm_requires": [],
+    "perm_limits": {},
+    "recovery": "none",
+    "changed_fields": [],
+    "_system": "care-o-bot",
+    "_provenance": "ipa320/cob_common@kinetic_dev: cob_msgs/msg/DashboardState.msg (diagnostic_msgs/DiagnosticStatus diagnostics_toplevel_state; cob_msgs/PowerState power_state; cob_msgs/EmergencyStopState emergency_stop"
+  }
+}

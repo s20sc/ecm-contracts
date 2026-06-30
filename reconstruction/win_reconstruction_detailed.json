@@ -1,0 +1,131 @@
+[
+ {
+  "case_id": "robust_248cb38",
+  "corpus": "ROBUST",
+  "dim": "Sig",
+  "conflict": true,
+  "rederived": "producer_frame=ENU(base_link), consumer_frame=NED(aircraft); send_attitude_target omits ftf::transform_orientation_enu_ned",
+  "source": "mavros/src/plugins/setpoint_attitude.cpp (master)"
+ },
+ {
+  "case_id": "robust_b96bf67",
+  "corpus": "ROBUST",
+  "dim": "Sig",
+  "conflict": true,
+  "rederived": "ENU->NED conversion uses simple quaternion product not conjugation sandwich -> quaternion not in NED",
+  "source": "mavlink/mavros issue #1586"
+ },
+ {
+  "case_id": "robust_c0067f9",
+  "corpus": "ROBUST",
+  "dim": "Ver",
+  "conflict": true,
+  "rederived": "WaypointGOTO.srv deleted; mission.py still imports mavros_msgs.srv.WaypointGOTO",
+  "source": "mavros commit b3ef10ff; issue #465"
+ },
+ {
+  "case_id": "robust_de2cc36",
+  "corpus": "ROBUST",
+  "dim": "Ver",
+  "conflict": true,
+  "rederived": "new PX4 always sends COMMAND_ACK; send_command_long_and_wait lacks is_px4() in wait condition",
+  "source": "mavros command.cpp; issues #82, #561"
+ },
+ {
+  "case_id": "robust_778c1ac",
+  "corpus": "ROBUST",
+  "dim": "Ver",
+  "conflict": true,
+  "rederived": "params moved to trajectory_execution/ sub-namespace; flat names silently ignored",
+  "source": "moveit PR #72 (fixes #61)"
+ },
+ {
+  "case_id": "robust_263650d",
+  "corpus": "ROBUST",
+  "dim": "Ver",
+  "conflict": true,
+  "rederived": "gps/fix renamed to global_position/raw/fix; mavcmd._find_gps_topic used old path",
+  "source": "mavros commit 263650d"
+ },
+ {
+  "case_id": "robust_9ffffca",
+  "corpus": "ROBUST",
+  "dim": "Sig",
+  "conflict": true,
+  "rederived": "GLOBAL_POSITION_INT vz=positive-down(NED) published with frame_id=map(ENU,Z-up); x/y also swapped pre-fix",
+  "source": "mavros global_position.cpp; issue #1015, PR #1016"
+ },
+ {
+  "case_id": "robust_a482f82",
+  "corpus": "ROBUST",
+  "dim": "Sig",
+  "conflict": true,
+  "rederived": "openni.launch passed manager as absolute /camera_nodelet_manager; second namespaced instance collides",
+  "source": "openni.launch pre-fix; issue #80; commit a482f82"
+ },
+ {
+  "case_id": "B-Beh-01",
+  "corpus": "ROS2",
+  "dim": "Beh",
+  "conflict": true,
+  "rederived": "joint_states pub SensorDataQoS(BEST_EFFORT); CurrentStateMonitor sub SystemDefaultsQoS(RELIABLE) -> no match",
+  "source": "moveit2 current_state_monitor_middleware_handle.cpp; issue #1190"
+ },
+ {
+  "case_id": "B-Beh-02",
+  "corpus": "ROS2",
+  "dim": "Beh",
+  "conflict": true,
+  "rederived": "best_effort camera pub vs rosbridge default reliable sub -> incompatible",
+  "source": "rosbridge_suite issue #551"
+ },
+ {
+  "case_id": "B-Beh-03",
+  "corpus": "ROS2",
+  "dim": "Beh",
+  "conflict": true,
+  "rederived": "mavros /mavros/battery SensorDataQoS(BEST_EFFORT) vs default RELIABLE sub -> RELIABILITY_QOS_POLICY incompat",
+  "source": "ros2/mavros sys_status.cpp; issue #1886"
+ },
+ {
+  "case_id": "B-Ver-01",
+  "corpus": "ROS2",
+  "dim": "Ver",
+  "conflict": true,
+  "rederived": "SetMode.srv response success renamed to mode_sent; consumer reads .response.success",
+  "source": "mavros_msgs SetMode.srv; CHANGELOG v0.20.0 (#625)"
+ },
+ {
+  "case_id": "B-Ver-02",
+  "corpus": "ROS2",
+  "dim": "Ver",
+  "conflict": true,
+  "rederived": "franka_msgs/FrankaState message-definition change across versions; consumer reads removed field",
+  "source": "franka_ros2 franka_msgs (re-derived from version diff)"
+ },
+ {
+  "case_id": "B-Ver-03",
+  "corpus": "ROS2",
+  "dim": "Ver",
+  "conflict": true,
+  "rederived": "ros2_control chainable reference-interface API change; downstream controller depends on it",
+  "source": "ros-controls/ros2_control issue #1400 / PR #1401"
+ },
+ {
+  "case_id": "B-Ver-05",
+  "corpus": "ROS2",
+  "dim": "Ver",
+  "conflict": true,
+  "rederived": "control_msgs/FollowJointTrajectory action md5/interface change across versions; consumer pinned to old",
+  "source": "control_msgs (re-derived from interface diff)"
+ },
+ {
+  "case_id": "B-Sig-04",
+  "corpus": "ROS2",
+  "dim": "Sig",
+  "conflict": true,
+  "adverse_correction": "EXCLUDED",
+  "rederived": "base_scan vs base_link ARE distinct frames (REP-105) and consuming one as the other corrupts geometry, BUT this is a constructed archetype of the PhysFrame frame-mismatch class (190 instances/180 projects), not a specific catalogued instance",
+  "source": "PhysFrame (Kate et al. 2021, arXiv:2106.11266); REP-105"
+ }
+]

@@ -1,0 +1,209 @@
+[
+ {
+  "case_id": "B-Res-02",
+  "kind": "pair",
+  "fetched": true,
+  "independent_conflict": true,
+  "producer_exclusive": [
+   "joint1/position"
+  ],
+  "consumer_exclusive": [
+   "joint1/position"
+  ],
+  "evidence": "ForwardCommandController doc (control.ros.org) states each instance claims `joint[i] + \"/\" + interface_name`; with joints=[\"joint1\"] and interface_name=\"position\" both controllers claim the token \"joint1/position\", and ros2_control#345 confirms that two controllers claiming the same command interface conflict because command interfaces are exclusively owned (resource manager enforces single-claimer rule)."
+ },
+ {
+  "case_id": "B-Res-03",
+  "kind": "pair",
+  "fetched": true,
+  "independent_conflict": true,
+  "producer_exclusive": [
+   "jointXYZ/position"
+  ],
+  "consumer_exclusive": [
+   "jointXYZ/position"
+  ],
+  "evidence": "fmauch's comment on ros-controls/ros2_control#1179 states: 'define two controllers claiming the same interface, e.g. all joints' position interface' and shows the error 'Command interface jointXYZ/position is already claimed' \u2014 both controllers declare the same exclusive joint position command interface token."
+ },
+ {
+  "case_id": "B-Res-04",
+  "kind": "pair",
+  "fetched": true,
+  "independent_conflict": false,
+  "producer_exclusive": [
+   "panda_1_joint1/effort",
+   "panda_1_joint2/effort",
+   "panda_1_joint3/effort",
+   "panda_1_joint4/effort",
+   "panda_1_joint5/effort",
+   "panda_1_joint6/effort",
+   "panda_1_joint7/effort"
+  ],
+  "consumer_exclusive": [
+   "panda_3_joint1/effort",
+   "panda_3_joint2/effort",
+   "panda_3_joint3/effort",
+   "panda_3_joint4/effort",
+   "panda_3_joint5/effort",
+   "panda_3_joint6/effort",
+   "panda_3_joint7/effort"
+  ],
+  "evidence": "franka_hardware/ros2_control/franka_ros2_control_macros.xacro (frankaemika/franka_ros2 humble): configure_arm_joints macro emits joint_name=\"${joint_prefix}_joint{1..7}\" each with &lt;command_interface name=\"effort\"/&gt;; franka_hardware_interface.cpp exports tokens as joint.name+\"/\"+cmd_interface.name; the two arm instances resolve joint_prefix to \"panda_1\" and \"panda_3\" respectively, yielding fully disjoint token sets with no shared exclusive resource."
+ },
+ {
+  "case_id": "B-Ver-04",
+  "kind": "upgrade",
+  "fetched": true,
+  "changed_fields": [
+   "on_init",
+   "init"
+  ],
+  "consumer_reads": [
+   "configure",
+   "init",
+   "update"
+  ],
+  "producer_frame": "galactic+: on_init() added as pure virtual (virtual CallbackReturn on_init()=0) in ControllerInterface/ControllerInterfaceBase; init() signature expanded to pass controller_name, urdf, cm_update_rate, node_namespace, node_options; configure() remains as non-virtual lifecycle-transition wrapper",
+  "consumer_frame": "foxy-era controller: does NOT override on_init() (method did not exist in foxy ControllerInterface); calls configure() via lifecycle and overrides update(); depends on init(controller_name) or init(controller_name, node_options) two-arg signature",
+  "independent_conflict": true,
+  "evidence": "GitHub ros-controls/ros2_control foxy branch controller_interface.hpp: on_init() absent, configure() present; galactic branch controller_interface.hpp: on_init() declared pure virtual (= 0), making any consumer that omits its override an abstract class \u2014 verified via control.ros.org galactic API source and direct GitHub branch fetch",
+  "producer_exclusive": [
+   "on_init"
+  ],
+  "consumer_exclusive": []
+ },
+ {
+  "case_id": "robust_bdda1fa",
+  "kind": "upgrade",
+  "fetched": true,
+  "changed_fields": [
+   "guided_enable"
+  ],
+  "consumer_reads": [
+   "guided_enable"
+  ],
+  "producer_frame": "mavros 0.15.x: CommandPlugin (command.cpp) advertised ROS service \\\"guided_enable\\\" (CommandBool); command.py exposed guided_enable proxy attribute",
+  "consumer_frame": "mavros/scripts/mavsetp called command.guided_enable(value=True) in enable_offboard() to request OFFBOARD/guided mode",
+  "producer_exclusive": [],
+  "consumer_exclusive": [
+   "guided_enable"
+  ],
+  "independent_conflict": true,
+  "evidence": "Commit d7bd7857 (mavlink/mavros, landed in v0.16.0, fix for issue #407) removed guided_enable service from CommandPlugin (command.cpp) and removed guided_enable from command.py; consumer mavsetp still called command.guided_enable(value=True) causing the 'module object has no attribute guided_enable' error reported in issue #478, confirmed by commit bdda1fab which fixed the consumer in v0.17.0."
+ },
+ {
+  "case_id": "robust_e1a8005",
+  "kind": "upgrade",
+  "fetched": true,
+  "changed_fields": [
+   "conn_system_time",
+   "conn_timesync",
+   "frame_id",
+   "time_ref_source",
+   "timesync_avg_alpha"
+  ],
+  "producer_frame": "sys_time plugin after commit e1a80052fb (fix #206): reads conn/system_time, conn/timesync, time/frame_id, time/time_ref_source, time/timesync_avg_alpha",
+  "consumer_frame": "px4_config.yaml (unchanged in same commit): sets conn_timesync and conn_system_time as flat top-level keys (old names without slash namespace)",
+  "producer_exclusive": [
+   "conn/system_time",
+   "conn/timesync",
+   "time/frame_id",
+   "time/time_ref_source",
+   "time/timesync_avg_alpha"
+  ],
+  "consumer_reads": [
+   "conn_timesync",
+   "conn_system_time"
+  ],
+  "consumer_exclusive": [
+   "conn_timesync",
+   "conn_system_time"
+  ],
+  "independent_conflict": true,
+  "evidence": "Commit e1a80052fb (mavlink/mavros, \"plugin: sys_time: fix #206 (param ns)\") shows the plugin changed from nh.param(\"conn_timesync\",...) to nh.param(\"conn/timesync\",...) and from nh.param(\"conn_system_time\",...) to nh.param(\"conn/system_time\",...), while px4_config.yaml in the same tree still sets the flat keys conn_timesync and conn_system_time."
+ },
+ {
+  "case_id": "B-Sig-05",
+  "kind": "pair",
+  "fetched": true,
+  "independent_conflict": true,
+  "producer_frame": "user-chosen TF frame (arbitrary header.frame_id in goal_constraints[].position_constraints[].header, e.g. \"ur_base_link\")",
+  "consumer_frame": "robot_model->getModelFrame() (enforced by PILZ computePoseIK equality check, typically \"world\")",
+  "evidence": "moveit2 trajectory_functions.cpp (Humble API source) line ~70: `if (frame_id != robot_model->getModelFrame()) { RCLCPP_ERROR ... \"Given frame (...) is unequal to model frame(...)\" return false; }` \u2014 producer's open frame_id field vs. consumer's hard equality check against the model frame, confirmed by issue #3035 error \"Given frame (ur_base_link) is unequal to model frame(world)\"."
+ },
+ {
+  "case_id": "B-Sig-06",
+  "kind": "pair",
+  "fetched": true,
+  "producer_frame": "goal.header.frame_id (caller-supplied PoseStamped frame, conventionally \"map\")",
+  "consumer_frame": "global_frame (costmap global_frame parameter, default \"map\", read via costmap_ros->getGlobalFrameID())",
+  "independent_conflict": false,
+  "evidence": "nav2_navfn_planner/src/navfn_planner.cpp sets global_frame_ = costmap_ros->getGlobalFrameID() (default \"map\" per costmap docs); ComputePathToPose.action goal is geometry_msgs/PoseStamped whose header.frame_id is caller-supplied (api.nav2.org/actions/jazzy/computepathtopose.html); both default to \"map\" so no fixed-frame incompatibility at the interface level."
+ },
+ {
+  "case_id": "B-Ver-06",
+  "kind": "upgrade",
+  "fetched": true,
+  "independent_conflict": true,
+  "changed_fields": [
+   "progress_checker_plugin"
+  ],
+  "consumer_reads": [
+   "progress_checker_plugin"
+  ],
+  "producer_frame": "Iron: controller_server exposes parameter progress_checker_plugins (list of strings)",
+  "consumer_frame": "Humble consumer config reads parameter progress_checker_plugin (single string)",
+  "producer_exclusive": [
+   "progress_checker_plugins"
+  ],
+  "consumer_exclusive": [
+   "progress_checker_plugin"
+  ],
+  "evidence": "PR ros-navigation/navigation2#3555 body explicitly shows the breaking rename: Humble used `progress_checker_plugin: \\\"progress_checker\\\"` (string); Iron requires `progress_checker_plugins: [\\\"progress_checker\\\"]` (list), confirmed via `gh api repos/ros-planning/navigation2/pulls/3555`."
+ },
+ {
+  "case_id": "B-Ver-07",
+  "kind": "upgrade",
+  "fetched": true,
+  "changed_fields": [
+   "disable_collision_checks"
+  ],
+  "consumer_reads": [
+   "disable_collision_checks",
+   "target_yaw",
+   "time_allowance"
+  ],
+  "producer_frame": "Humble nav2_msgs/action/Spin goal: {target_yaw: float32, time_allowance: builtin_interfaces/Duration}; result: {total_elapsed_time}; feedback: {angular_distance_traveled}",
+  "consumer_frame": "Iron/Jazzy nav2_behavior_tree spin_action.cpp sets goal_.disable_collision_checks, goal_.target_yaw, goal_.time_allowance",
+  "producer_exclusive": [],
+  "consumer_exclusive": [
+   "disable_collision_checks"
+  ],
+  "independent_conflict": true,
+  "evidence": "GitHub issue #5633 and api.nav2.org confirm Humble Spin.action goal has only target_yaw+time_allowance; Iron/Jazzy adds bool disable_collision_checks (PR #3891); nav2_behavior_tree/plugins/action/spin_action.cpp on main explicitly sets goal_.disable_collision_checks, confirming the consumer references the added field."
+ },
+ {
+  "case_id": "B-Ver-08",
+  "kind": "upgrade",
+  "fetched": true,
+  "changed_fields": [
+   "async_send_request return type: SharedFuture (Galactic) \u2192 FutureAndRequestId (Humble)"
+  ],
+  "producer_frame": "Galactic: Client::async_send_request(SharedRequest) returns SharedFuture (std::shared_future<SharedResponse>); Humble: returns FutureAndRequestId (struct with std::future<SharedResponse> and int64_t request_id, with deprecated implicit conversion to SharedFuture)",
+  "consumer_frame": "Consumer stores the result of async_send_request into a SharedFuture variable and calls .get() on it, depending on the return being directly assignable to SharedFuture",
+  "consumer_reads": [
+   "SharedFuture (return type of async_send_request)",
+   "SharedFuture::get()"
+  ],
+  "producer_exclusive": [
+   "FutureAndRequestId",
+   "FutureAndRequestId::future (std::future)",
+   "FutureAndRequestId::request_id"
+  ],
+  "consumer_exclusive": [
+   "SharedFuture direct assignment from async_send_request"
+  ],
+  "independent_conflict": true,
+  "evidence": "rclcpp PR#1734 (github.com/ros2/rclcpp/pull/1734) changed async_send_request return from SharedFuture to FutureAndRequestId in Humble; moveit2_tutorials issue #122 confirms existing consumers storing result as SharedFuture trigger a deprecation warning \\\"use .future.share() instead of an implicit conversion\\\""
+ }
+]

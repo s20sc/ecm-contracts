@@ -1,0 +1,162 @@
+[
+  {
+    "case_id": "robust_35682ec",
+    "title": "Wrong topic remapping makes robot ignore velocity commands",
+    "description": "ROS allows resource names to be remapped. Topics, in particular, are resources that can be remapped. When topic \"A\" is remapped to \"B\" and a node tries to publish/subscribe on \"A\", it will (automatically) publish/subscribe to \"B\" instead. Remappings are commonly defined in launch files. Launch files are special XML files used by the tool `roslaunch` to initialize several nodes, parameters and rema"
+  },
+  {
+    "case_id": "robust_fbe70c7",
+    "title": "Keyboard Teleoperation Not Issuing Commands to Base",
+    "description": "The node for keyboard teleoperation for Kobuki was not issuing commands to the robot. As it turns out, it was an issue of wrong remappings and namespaces.  The teleop node was advertising a topic different than the one the base was subscribed to. A contributing factor for this issue may be the fact that the teleop node and the base node are launched in different launch files.\n"
+  },
+  {
+    "case_id": "robust_8a729db",
+    "title": "Outdated parameter file",
+    "description": "The Kobuki (Turtlebot) robot has a graphical tool (Kobuki Dashboard) that shows the status of the various components of the robot and allows access to basic functionalities (e.g. LEDs). This tool runs as a ROS node that subscribes to the diagnostics aggregator node (ros/diagnostics/diagnostic_aggregator/aggregator_node). The diagnostics aggregator consumes a series of parameters from the ROS param"
+  },
+  {
+    "case_id": "robust_5ee65b0",
+    "title": "Missing Queue Sizes for Some Publishers",
+    "description": "When publishing or subscribing to a topic in ROS, the developer often declares a queue size to be associated with that publisher/subscriber.  The queues store messages temporarily, if the system is not fast enough to process every message before a new one arrives. In older versions of ROS, declaring the queue size was not mandatory when using the Python client libraries. As of ROS Indigo, this was"
+  },
+  {
+    "case_id": "robust_dd40270",
+    "title": "Missing Queue Sizes for Some Publishers",
+    "description": "When publishing or subscribing to a topic in ROS, the developer often declares a queue size to be associated with that publisher/subscriber.  The queues store messages temporarily, if the system is not fast enough to process every message before a new one arrives. In older versions of ROS, declaring the queue size was not mandatory when using the Python client libraries. As of ROS Indigo, this was"
+  },
+  {
+    "case_id": "robust_03660af",
+    "title": "Potential Race Condition on Serial Writes",
+    "description": "The Kobuki driver communicates with the actual robot by sending commands over a serial cable. This interface was not protected against concurrent accesses, while being used in an environment that, more often that not, features multithreading.\n"
+  },
+  {
+    "case_id": "robust_3c4c399",
+    "title": "Possible Race Condition When Accessing Sensor Data",
+    "description": "Sensor data could potentially be accessed in multi-threaded contexts, but there were no synchronization mechanisms in place. It worked well for Kobuki due to chance: all read and write operations were in the same thread. But, due to the way it is built, it could have been an issue for other users.\n"
+  },
+  {
+    "case_id": "robust_4115400",
+    "title": "Multiple Simulated Robots Do Not Update Orientation",
+    "description": "When multiple Kobuki robots were spawned in the Gazebo simulator their translations would properly update their odometry, but rotations would not. The underlying issue was that every robot instance was using the same IMU sensor, instead of each having its own.\n"
+  },
+  {
+    "case_id": "robust_5abe7d4",
+    "title": "ABI/API Incompatibility",
+    "description": "When the Gazebo simulator upgraded from version 1.9 to version 2.0 there were compatibility issues with Kobuki's plugin. For instance, some header files changed paths.\n"
+  },
+  {
+    "case_id": "robust_55e84a6",
+    "title": "API Change Causes Incompatibility",
+    "description": "Kobuki ships a graphical monitoring/diagnostics bench for their robots which makes use of a (graph) plotting widget. This widget is internal to rqt_plot, and is changed by the rqt_plot maintainers. Kobuki's test bench (note: these are not unit tests or code-level tests) breaks due to this change in one of its dependencies, causing runtime crashes when it tries to use the old version of rqt_plot's "
+  },
+  {
+    "case_id": "robust_3c7f92a",
+    "title": "Test Suite GUI Crashing Due to API Changes",
+    "description": "Kobuki's test suite uses GUI plugins for rqt in order to plot collected data. This plotting component crashed due to changes in rqt's interface.\n"
+  },
+  {
+    "case_id": "robust_9682b9a",
+    "title": "rqt_plot Failing When Kobuki Is Installed",
+    "description": "Starting the rqt_plot tool (a plotting GUI with plugins) resulted in a crash when Kobuki was also installed (for specific versions, and after a certain update to rqt_plot). The crash was due to the tool interpreting some resource paths relative to the XML file that defines the plugin, while its documentation stated that paths should be relative to the ROS package path.  Since most plugins had the "
+  },
+  {
+    "case_id": "robust_c04eae5",
+    "title": "No Graceful Termination When Firmware is Outdated",
+    "description": "There were no checks on firmware version, and thus no graceful termination if the driver and firmware were incompatible.\n"
+  },
+  {
+    "case_id": "robust_248cb38",
+    "title": "Missing ENU->NED frame conversion in send_attitude_target",
+    "description": "The \"send_attitude_target\" function in \"setpoint_attribute.cpp\" accepts a 3D affine transformation (along with a timestamp), and forwards an attitude target to MAVLink via the lower-level \"send_attitude_target\" in \"setpoint_attribute.cpp\". Amongst other parameters, the lower-level function accepts attitude as a size 4 array of floats, representing a quaternion. The (buggy) higher-level function co"
+  },
+  {
+    "case_id": "robust_b96bf67",
+    "title": "Incorrect orientation (wrong frame) passed to set_attitude_target",
+    "description": "MAVROS operates on a frame of base_link->ENU, whereas MAVLink operates on aircraft->NED. Therefore, location and orientation must be transformed between these two frames when communicating between them.  The buggy function correctly performs the necessary frame conversions, but fails to pass the converted orientation in the \"set_attitude_target\" function call.\n"
+  },
+  {
+    "case_id": "robust_263650d",
+    "title": "Incorrect topic name used to fetch GPS information",
+    "description": "Following changes to MAVROS, the name of the \"gps\" topic was renamed to \"global_position\". The buggy function, \"_find_gps_topic\", continues to use the older, incorrect name of the \"gps\" topic.\n"
+  },
+  {
+    "case_id": "robust_753226d",
+    "title": "Missing assignment during construction of JointState object",
+    "description": "The \"ServoStatePublisher\" class is used to publish the state of the robot's joints to the \"joint_states\" topic. The \"rc_out_cb\" method is used to describe these states (as sensor_msgs::JointState objects). Following the (implicit) construction of a JointState object (via \"boost::make_shared<sensor_msgs::JointState>();\"), \"rc_out_cb\" assigns appropriate values to each of the fields of this object. "
+  },
+  {
+    "case_id": "robust_bdda1fa",
+    "title": "Run-time missing attribute/method error",
+    "description": "Following a rosrun call to mavsetp (e.g., rosrun mavros mavsetp local -p 2 2 2 2), a missing attribute is encountered on line 40 of the \"mavsetp\" (Python) script. The attribute in question is \"guided_enable\", which no longer exists, following a refactoring of the code. The aforementioned refactoring (https://github.com/mavlink/mavros/issues/407) removed the \"cmd/guided_enabled\" service, responsibl"
+  },
+  {
+    "case_id": "robust_c0067f9",
+    "title": "Erroneous import of Goto service",
+    "description": "\"mavros/src/mavros/mission.py\" attempts to import a class that no longer exists, \"WaypointGOTO\", from the \"mavros_msgs.srv\" module.\nThe service was marked for deprecation in mavlink/mavros#414, and removed in b3ef10ff.\n"
+  },
+  {
+    "case_id": "robust_de2cc36",
+    "title": "New version of PX4 autopilot module changes network communication behaviour",
+    "description": "A newer version of the PX4 autopilot module now sends an acknowledgement signal upon receiving a command, unlike all previous versions. To ensure proper functioning, the \"send_command_long_and_wait\" function, responsible for issuing commands to the drone should be updated to expect acknowledgement from the drone (autopilot).\n"
+  },
+  {
+    "case_id": "robust_e1a8005",
+    "title": "Incorrect ROS parameter names used throughout a file",
+    "description": "All ROS parameter interactions within \"mavros/src/plugins/sys_time.cpp\" use an older name for each parameter. Following a refactoring of the source code, namespaces were introduced to separate these parameters (e.g., \"conn_system_time\" -> \"conn/system_time\"). Because of how Mavros uses \"ros::NodeHandle::param\" (the function used to fetch parameter values), it returns a default value when no parame"
+  },
+  {
+    "case_id": "robust_778c1ac",
+    "title": "parameter moved into namespace",
+    "description": "MoveIt parameters have been reorganized. The parameters 'allowed_execution_duration_scaling' and 'allowed_goal_duration_margin' have been moved down in the hierarchy, under 'trajectory_execution'. This now produces warning during execution of launch files (so files that start ROS nodes), as assigned parameters no longer exist at top level.  The framework still assigns them but produces a warning, "
+  },
+  {
+    "case_id": "robust_1ec8ca1",
+    "title": "Wrong transform in MH5",
+    "description": "Visualizing the Robot Model described in the xacro and overlaying the TF frames, it looks like the position from the last link - link_t - is set to a wrong position.\n"
+  },
+  {
+    "case_id": "robust_2d42582",
+    "title": "Incorrect values for joint limits in sia20d package",
+    "description": "The position limits for the joints joint_s, joint_r and joint_t for the SIA20 are set to exactly 3.1416 or -3.1416, but from the data sheet the limits for these joints are exactly Pi. The values appear to be rounded up, which gives the possibility for the robot to try to reach positions, which are physically not reachable.\n"
+  },
+  {
+    "case_id": "robust_9bf25ea",
+    "title": "Incorrect values for frame transform between two robot links",
+    "description": "The transform from link_t to tool0 in sia20 package is in reality -pi.  In the robot description file it is rounded to -3.1416, which leads to an offset of 3 degree difference from the real robot to the description.\n"
+  },
+  {
+    "case_id": "robust_3e32933",
+    "title": "Image Processing Sometimes Does Not Receive Data",
+    "description": "One of Turtlebot's launch files launches a node that processes depth images and converts the point cloud data to a laser scan. This node had remappings that expected the images to arrive on a specific topic. However, depending on whether some options were set, the correct topic name could change. This scenario was not foreseen, and under those circumstances the node would not receive any images to"
+  },
+  {
+    "case_id": "robust_61a75df",
+    "title": "Dashboard Crashes In ROS Kinetic",
+    "description": "Turtlebot and Kobuki come with a dashboard program for live diagnostics.  This program worked well on previous versions of ROS, but users reported crashes when using it in ROS Kinetic and Ubuntu 16.04 (required by Kinetic). The issue is that the application's GUI was built on top of Qt4, but Ubuntu 16.04 uses Qt5 which changed the API and made it incompatible. On the programming language level the"
+  },
+  {
+    "case_id": "robust_928306b",
+    "title": "No Laptop Battery Information Displaying",
+    "description": "Turtlebot's dashboard application features an indicator for the remaining charge of the laptop controlling the robot. After an upgrade to more recent OS versions and laptops, this indicator stopped displaying information. This was due to a change in the OS layer where the battery information was moved, and thus the script that looked for it could not find it in the old location.\n"
+  },
+  {
+    "case_id": "robust_9299530",
+    "title": "Update Breaks Robot Visualization",
+    "description": "An update to the rviz tool broke the visualization for some robots, by requiring additional information in the models.\n"
+  },
+  {
+    "case_id": "robust_9ffffca",
+    "title": "Node Does Not Support Namespaces",
+    "description": "A velocity smoother node for Kobuki's teleoperation was being used with remappings to global topic names.  A global name (starts with \"/\") is already fully resolved (ie: cannot be namespaced), which makes setups very inflexible. If a user wants to launch multiple robots, or simply launch a robot within a specific namespace, topic names may clash because of this or end up disconnected. The use of g"
+  },
+  {
+    "case_id": "robust_a482f82",
+    "title": "No Support For Namespaces and Multiple Instances",
+    "description": "Camera processing nodes used hard-coded and global names, making it impossible to launch multiple instances in different namespaces, as the names would clash.\n"
+  },
+  {
+    "case_id": "robust_0000000",
+    "title": "Individual ROS-packages of Metapackage are outdated on local system",
+    "description": "The motor for the tray of CoB-3 is not moving. The reason for the error is that certain ROS packages are outdated on the local system. This happened since updating the metapackage does not update the individual packages. Metapackages are specialized Packages in ROS (and catkin). They do not install files (other than their package.xml manifest) and they do not contain any files usually found in pac"
+  }
+]

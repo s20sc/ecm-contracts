@@ -1,0 +1,110 @@
+[
+ {
+  "case_id": "B-Res-02",
+  "fetched": true,
+  "real_field": "The exclusive hardware command interface `joint1/position` (and by symmetry any joint/position interface declared in controller config) is the resource each controller claims. Both `forward_position_controller` and `forward_position_controller2` declare `joint1/position` as their required command interface in the YAML controller config (`joints: [joint1]` + `interface_name: position`). The ros2_control resource manager enforces exclusive ownership via `LoanedCommandInterface`; only one active controller may hold the loan at a time. The bug was that `controller_manager` did not call `release_interfaces()` when stopping a controller, so the outgoing controller's loan was never returned, making the interface appear permanently claimed and causing `switch_controllers` to fail with \"Command interface 'joint1/position' is already claimed.\" Fixed in PR #343 by adding the `release_interfaces()` call in the stop path.",
+  "directly_extractable": true,
+  "source_quote": "\"Resource conflict for controller 'forward_position_controller2'. Command interface 'joint1/position' is already claimed.\"",
+  "notes": "The contract field (which exclusive command interface each controller requires) is directly observable from the public controller YAML config before knowing the bug. Any integrator loading two controllers that both list `joint1` with `interface_name: position` would record `joint1/position` as an exclusive resource requirement for each. The exclusive-ownership semantics of command interfaces are part of ros2_control's documented public hardware interface contract. The bug was a lifecycle management defect (missing release_interfaces call on stop), not a hidden or implicit resource claim \u2014 the claim itself was always visible in config. Source: https://github.com/ros-controls/ros2_control/issues/345 and linked PR #343.",
+  "id": "B-Res-02"
+ },
+ {
+  "case_id": "B-Res-03",
+  "fetched": true,
+  "real_field": "The exclusive hardware command interface (e.g., `joint1/position`) that each controller declares it requires/claims via its controller configuration and `claim_interfaces()` list. Two controllers both declare ownership of the same exclusive command interface; when the second is activated via `/controller_manager/switch_controller`, the resource manager detects the conflict and logs \"Resource conflict for controller [...]. Command interface 'jointXYZ/position' is already claimed.\" \u2014 but the service response field `ok` in `controller_manager_msgs/srv/SwitchController` incorrectly returns `True` rather than `False`, silently hiding the conflict from callers.",
+  "directly_extractable": true,
+  "source_quote": "Resource conflict for controller [...]. Comand interface 'jointXYZ/position' is already claimed. [yet] The service response will contain ok=True.",
+  "notes": "The exclusive command-interface claim each controller requires is declared in its public controller configuration (YAML params / claim_interfaces() list), so an honest contract author reading the two controllers' published interfaces before knowing the bug would observe both controllers declaring ownership of the same exclusive hardware command interface \u2014 the static double-claim is directly observable in the public interface. The bug is that the SwitchController service's public response field `ok` (controller_manager_msgs/srv/SwitchController) does not propagate the resource-manager rejection; it silently returns True even under STRICT strictness. Both the exclusive-resource claim (directly extractable) and the incorrect return value (observable by calling the service) are part of the public interface contract. No fixing PR was found; the issue was closed as stale.",
+  "id": "B-Res-03"
+ },
+ {
+  "case_id": "B-Res-04",
+  "fetched": true,
+  "real_field": "Each FrankaHardwareInterface instance exclusively owns the effort command interfaces for its own namespaced joints (e.g., panda_1_FrankaHardwareInterface owns panda_1_joint{1..7}/effort; panda_3_FrankaHardwareInterface owns panda_3_joint{1..7}/effort), as declared in the controller YAML (command_interfaces: [effort], joints: [panda_N_joint1..7]) and the URDF xacro ros2_control tags. The bug is that FrankaHardwareInterface::prepare_command_mode_switch does not scope its ownership check to its own joints, so the first arm's instance incorrectly rejects start-interfaces belonging to the second arm.",
+  "directly_extractable": true,
+  "source_quote": "\"[ERROR] [resource_manager]: Component 'panda_1_FrankaHardwareInterface' did not accept new command resource combination: Start interfaces: [ panda_3_joint1/effort ... panda_3_joint7/effort ]\" \u2014 the controller YAML and xacro both declare each arm's exclusive effort command interfaces under distinct joint namespaces (panda_1_* vs panda_3_*), making the intended exclusive ownership partition publicly observable before the bug manifests.",
+  "notes": "The exclusive effort command-interface claim per arm is fully declared in the public controller YAML (command_interfaces: [effort], per-arm joint lists) and the URDF xacro ros2_control tags. An honest contract author reading these configs before knowing the bug would record that panda_1_FrankaHardwareInterface exclusively owns panda_1_joint*/effort and panda_3_FrankaHardwareInterface exclusively owns panda_3_joint*/effort. The implementation bug (FrankaHardwareInterface not scoping its mode-switch check to its own joints) violates this contract, but the contract itself is directly observable from the public interfaces.",
+  "id": "B-Res-04"
+ },
+ {
+  "case_id": "B-Ver-03",
+  "fetched": true,
+  "real_field": "chainable reference interfaces exposed by a ChainableControllerInterface (e.g. `test_chainable_controller_name_1/joint1/position`, `test_chainable_controller_name_1/joint1/velocity`) declared via `set_reference_interface_names()`; consumed by downstream controllers as command interfaces (e.g. `TEST_CHAINED_CONTROLLER_1 + \"/joint1/position\"`). After ros2_control 2.37.0 (PR #1218 added stricter availability checks in `prepare_command_mode_switch`), these reference interfaces were not yet marked available at the point the check ran when all controllers were activated simultaneously \u2014 only sequential activation worked. Fix (PR #1401) moved `make_controller_reference_interfaces_available()` to `check_following_controllers()`, called earlier in the switch pipeline.",
+  "directly_extractable": false,
+  "source_quote": "\"Not available: [test_chainable_controller_name_2/joint1/position, test_chainable_controller_name_2/joint1/velocity, test_chainable_controller_name_1/joint1/position]\" \u2014 the reference interfaces ARE named in each controller's public interface configuration, but the availability failure only occurs due to internal framework call-ordering introduced by PR #1218; an honest contract author reading the interfaces before the bug would see the producer/consumer relationship but not predict the simultaneous-activation failure.",
+  "notes": "The named entities (chainable reference interfaces such as `<ctrl_name>/joint1/position`) are declared in each ChainableControllerInterface's `set_reference_interface_names()` and consumed in downstream controllers' `set_command_interface_configuration()` \u2014 both are public interface facts. However, the contract violation (interfaces not available during simultaneous activation) is caused by the internal ordering of `make_controller_reference_interfaces_available()` relative to `prepare_command_mode_switch()`, introduced by framework PR #1218. This ordering dependency is invisible from the public interface declarations. A contract author would correctly record that C2 requires C1's reference interfaces, but would have no basis \u2014 from interfaces alone \u2014 to record that simultaneous activation (vs sequential) would fail. Verdict: directly_extractable=false.",
+  "id": "B-Ver-03"
+ },
+ {
+  "case_id": "B-Ver-04",
+  "fetched": true,
+  "real_field": "The named entity that changed across versions is the virtual method `on_init()` in `hardware_interface::SystemInterface` (and sibling base classes `ActuatorInterface`, `SensorInterface`). The old signature `virtual CallbackReturn on_init(const HardwareInfo & hardware_info)` was deprecated in favour of `virtual CallbackReturn on_init(const HardwareComponentInterfaceParams & params)` (introduced in ros2_control PR #2323, deprecated in PR #2344). Hardware components (consumers) that override the old single-argument form compile with deprecation warnings and will eventually silently stop being called by the framework, which now dispatches through the new struct-based overload.",
+  "directly_extractable": true,
+  "source_quote": "warning: 'virtual ... hardware_interface::SystemInterface::on_init(const hardware_interface::HardwareInfo&)' is deprecated: Use on_init(const HardwareComponentInterfaceParams & params) instead. [-Wdeprecated-declarations] (system_interface.hpp:226)",
+  "notes": "The old `on_init(const HardwareInfo &)` is annotated `[[deprecated]]` in the published header `hardware_interface/system_interface.hpp`. Both the old (deprecated) and new (struct-based) overloads appear in the same public header, so an honest contract author reading the interface before knowing the bug would directly observe the API-version mismatch: the method a component overrides is marked deprecated and the replacement signature is declared alongside it. No knowledge of the failure is required to record this \u2014 the deprecation warning emitted at compile time exposes the exact contract field (method signature) that diverges between the framework version and the component's implementation. directly_extractable is therefore true.",
+  "id": "B-Ver-04"
+ },
+ {
+  "case_id": "B-Sig-01",
+  "fetched": false,
+  "real_field": "moveit_msgs/DisplayTrajectory.msg field `trajectory`: type changed from `RobotTrajectory trajectory` (singular) to `RobotTrajectory[] trajectory` (array) in commit bb3c9125 (2013-01-22), causing an md5sum divergence between nodes compiled against the old vs. new definition; a subscriber built against the old single-object definition cannot connect to a publisher using the array definition because ROS1 rejects the connection at negotiation time.",
+  "directly_extractable": true,
+  "source_quote": "-RobotTrajectory trajectory\\n+RobotTrajectory[] trajectory  (commit bb3c9125 \"add the option for multiple trajectories to DisplayTrajectory\", ros-planning/moveit_msgs msg/DisplayTrajectory.msg)",
+  "notes": "The answers.ros.org page (question 358435) is inaccessible (Anubis anti-bot 403); fetched=false. The structural change is independently verified from the public moveit_msgs GitHub history. The critical contract fact \u2014 field type RobotTrajectory vs RobotTrajectory[] in the .msg file \u2014 is a first-class public interface declaration, not internal logic: any contract author comparing DisplayTrajectory.msg across the two package versions would see the type divergence directly without needing to know about the runtime failure. The md5sum mismatch is a deterministic consequence of that public field-type difference. directly_extractable=true.",
+  "id": "B-Sig-01"
+ },
+ {
+  "case_id": "B-Ver-01",
+  "fetched": false,
+  "real_field": "The NAMED entity is the ROS message definition (the `.msg` file fields and their types) for the topic in question. Across two package versions the message definition changed \u2014 one or more fields were added, removed, or retyped \u2014 causing the md5sum (ROS interface hash computed from the full definition text) to diverge. A subscriber compiled against the old definition cannot receive from a publisher compiled against the new definition; ROS reports \"md5sum mismatch\". The specific package and message type are not recoverable from the blocked answers.ros.org page, but the pattern is the canonical ROS1 md5sum mismatch: a `.msg` field change in a dependency package between two released versions.",
+  "directly_extractable": true,
+  "source_quote": "hint: \"a message definition changed across package versions, so the md5sum (interface hash) changed and a subscriber built against the old definition could not receive messages from a publisher built against the new definition\"",
+  "notes": "The source URL (answers.ros.org/question/226746) is fully blocked by Anubis security; fetched=false. Judgment is made conservatively from the hint plus standard ROS1 knowledge. Directly_extractable=true because in ROS1 message definitions live in the package's public `msg/` directory \u2014 an honest contract author comparing the two package versions would see the changed field(s) directly in the `.msg` file before any runtime failure occurs. The md5sum is a hash of that public text, so the contract-breaking change (the field delta) is observable in the published interface of both versions without needing to know the failure. No fixing PR or changelog URL was recoverable due to the access block.",
+  "id": "B-Ver-01"
+ },
+ {
+  "case_id": "B-Ver-02",
+  "fetched": false,
+  "real_field": "franka_msgs/FrankaState message definition (the .msg file whose field set determines the md5sum); the named entity is the FrankaState message type published on /franka_state_controller/franka_states. Fields were added across franka_ros releases (e.g. theta, dtheta, tau_J_d in 0.x; ddq_d, elbow_c, O_dP_EE_d, control_command_success_rate, etc. in later commits), each addition changing the md5sum. The subscriber continues to subscribe to the same topic name but cannot connect because its compiled md5 (from the older FrankaState.msg) does not match the publisher's md5 (from the newer FrankaState.msg).",
+  "directly_extractable": true,
+  "source_quote": "GitHub commit 29ed2e3 (2018-01-29): \"Added tau_J_d, theta and dtheta to the FrankaState message\"; commit 062037d (2018-11-12): \"add missing robot state members to ROS message\" adding ddq_d, elbow_c, delbow_c, ddelbow_c, O_dP_EE_d, O_dP_EE_c, O_ddP_EE_c, O_T_EE_c, control_command_success_rate \u2014 each addition visibly alters the public franka_msgs/FrankaState.msg file and thus the md5sum any downstream node computes at build time.",
+  "notes": "The answers.ros.org page (primary source) returned Access Denied / Anubis bot-block; fetched=false. Judgement is from the hint plus direct inspection of the franka_ros GitHub commit history for FrankaState.msg. The critical contract field \u2014 the franka_msgs/FrankaState message definition \u2014 is directly observable in the public .msg file before any failure: an honest contract author reading the franka_msgs package at the two versions would see different field sets and could record the version-pinned md5sum as the compatibility constraint. No internal/runtime knowledge is required; the mismatch is predictable purely from the public interface files of the two package versions. directly_extractable is therefore true.",
+  "id": "B-Ver-02"
+ },
+ {
+  "case_id": "B-Ver-05",
+  "fetched": true,
+  "real_field": "control_msgs/FollowJointTrajectoryActionResult md5sum \u2014 the action result message type subscribed on topic /arm_controller/follow_joint_trajectory/result, where MATLAB R2017b (built against ROS Hydro/Indigo definitions) declares md5 bce83d50f7bb28226801436caf0e2043 while the ROS Kinetic server publishes md5 c4fb3b000dc9da4fd99699380efcc5d9; the MATLAB consumer still attempts to subscribe (reads the old interface) and the connection is dropped.",
+  "directly_extractable": false,
+  "source_quote": "Client wants topic /arm_controller/follow_joint_trajectory/result to have datatype/md5sum [control_msgs/FollowJointTrajectoryActionResult/bce83d50f7bb28226801436caf0e2043], but our version has [control_msgs/FollowJointTrajectoryActionResult/c4fb3b000dc9da4fd99699380efcc5d9]. Dropping connection.",
+  "notes": "The action type name (control_msgs/FollowJointTrajectoryAction) is observable in both sides' public interfaces, but the critical contract field \u2014 which ROS distro version of the message definition each side was compiled against \u2014 is only visible in compiled artifacts (the generated FollowJointTrajectoryResult.m MD5 constant) and at runtime connection negotiation, not in any high-level interface declaration. An honest contract author reading the interfaces before the bug would record the action type but would not know to record the specific definition-version (Hydro/Indigo vs Kinetic) without already knowing the mismatch exists. The MATLAB toolbox vendor-pins message definitions internally; this version lock is not surfaced as a declared contract property.",
+  "id": "B-Ver-05"
+ },
+ {
+  "case_id": "robust_bdda1fa",
+  "fetched": true,
+  "real_field": "The public API symbol `guided_enable` was removed from `mavros/src/mavros/command.py`'s exported globals (the `_setup_services` function's `global` declaration) in a prior refactor (PR #407), but the consumer script `mavros/scripts/mavsetp` continued to call `command.guided_enable(value=True)` at line 40. The fix (commit bdda1fa) deleted `guided_enable` from the globals list in `command.py` and replaced the call in `mavsetp` with a direct `rospy.ServiceProxy` to the `set_mode` service using `mavros_msgs/srv/SetMode`.",
+  "directly_extractable": true,
+  "source_quote": "global long, int, arming, set_home, takeoff, land, trigger_control  (guided_enable removed from command.py _setup_services globals) vs. command.guided_enable(value=True) still called in mavsetp line 40",
+  "notes": "This is a Ver (API-symbol removal) case. After PR #407, `guided_enable` was silently dropped from `command.py`'s public module-level namespace (the `global` declaration in `_setup_services` is the authoritative list of exported service proxies). The consumer `mavsetp` still imported and called it. Both facts are directly observable in the two files' public interfaces without needing to know the failure: (1) `command.py` does not declare `guided_enable` in its globals list; (2) `mavsetp` calls `command.guided_enable`. A contract author reading both files before the bug report would record the mismatch. `directly_extractable` is therefore true.",
+  "id": "robust_bdda1fa"
+ },
+ {
+  "case_id": "robust_de2cc36",
+  "fetched": true,
+  "real_field": "The named entity that changed across versions is the COMMAND_ACK message: old PX4 firmware never sent COMMAND_ACK in response to MAVLink commands, while new PX4 master firmware does. The mavros command plugin's `is_ack_required` logic in command.cpp conditioned on `!m_uas->is_px4()` (excluding PX4 from ACK-waiting), which was correct for old PX4 but broke with new PX4 that sends the ACK. The fix adds `|| m_uas->is_px4()` to include PX4 in the ACK-waiting list. No topic/service/parameter name changed; the interface is the MAVLink COMMAND_ACK message type, and the behavioral change is that PX4 now emits it where it previously did not.",
+  "directly_extractable": false,
+  "source_quote": "@note APM always send COMMAND_ACK, while PX4 never. \u2192 @note APM & PX4 master always send COMMAND_ACK. Old PX4 never. (commit de2cc36: bool is_ack_required = (confirmation != 0 || m_uas->is_ardupilotmega()) && !m_uas->is_px4(); \u2192 confirmation != 0 || m_uas->is_ardupilotmega() || m_uas->is_px4();)",
+  "notes": "The critical contract field is whether the PX4 autopilot sends a COMMAND_ACK reply to MAVLink commands. This is a runtime behavioral property of the PX4 firmware version, not declared in any static public interface (no topic name, message type, or API symbol changed). An honest contract author reading only the published interfaces before knowing the bug would see that both old and new PX4 expose the same MAVLink COMMAND_LONG / COMMAND_ACK message types; the change is purely in whether PX4 chooses to emit COMMAND_ACK, which is firmware-version behavior invisible from interface declarations. Therefore directly_extractable is false: capturing this contract fact requires knowing the firmware behavior change, not just reading the interface.",
+  "id": "robust_de2cc36"
+ },
+ {
+  "case_id": "robust_e1a8005",
+  "fetched": true,
+  "real_field": "ROS parameter names declared by the sys_time plugin changed namespace: `conn_system_time` \u2192 `conn/system_time`, `conn_timesync` \u2192 `conn/timesync`, `frame_id` \u2192 `time/frame_id`, `time_ref_source` \u2192 `time/time_ref_source`, `timesync_avg_alpha` \u2192 `time/timesync_avg_alpha`. Any consumer (launch file / rosparam block) that set the old flat names after the refactor silently receives default values instead.",
+  "directly_extractable": true,
+  "source_quote": "-\t\tnh.param(\"conn_system_time\", conn_system_time_d, 0.0); +\t\tnh.param(\"conn/system_time\", conn_system_time_d, 0.0); -\t\tnh.param<std::string>(\"frame_id\", frame_id, \"fcu\"); +\t\tnh.param<std::string>(\"time/frame_id\", frame_id, \"fcu\"); -\t\tnh.param(\"timesync_avg_alpha\", offset_avg_alpha, 0.6); +\t\tnh.param(\"time/timesync_avg_alpha\", offset_avg_alpha, 0.6);",
+  "notes": "The parameter names are part of the plugin's declared public interface (they appear in nh.param() calls in initialize(), which is the canonical place ROS plugins advertise their configurable parameters). A contract author reading sys_time.cpp before and after the refactor would directly observe the rename from flat names (frame_id, conn_system_time, timesync_avg_alpha) to namespaced names (time/frame_id, conn/system_time, time/timesync_avg_alpha). The fixing commit is e1a80052 in mavlink/mavros, message \"plugin: sys_time: fix #206 (param ns)\". The bug manifests as silent misconfiguration: consumers using the old parameter names receive defaults rather than their intended values, with no error at startup.",
+  "id": "robust_e1a8005"
+ }
+]

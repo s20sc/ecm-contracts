@@ -1,0 +1,250 @@
+{
+ "admitted": [
+  {
+   "case_id": "B-Sig-05",
+   "gold_dimension": [
+    "Sig"
+   ],
+   "type": "PAIR",
+   "producer": {
+    "outputs": [
+     {
+      "role": "x",
+      "msg_type": "moveit_msgs/MotionPlanRequest",
+      "frame": "ur_base_link",
+      "units": "none",
+      "qos": {
+       "reliability": "reliable",
+       "durability": "volatile",
+       "deadline_ms": null
+      },
+      "rate_hz": null
+     }
+    ],
+    "exclusive": []
+   },
+   "consumer": {
+    "inputs": [
+     {
+      "role": "x",
+      "msg_type": "moveit_msgs/MotionPlanRequest",
+      "frame": "world",
+      "units": "none",
+      "qos": {
+       "reliability": "reliable",
+       "durability": "volatile",
+       "deadline_ms": null
+      },
+      "min_rate_hz": null
+     }
+    ],
+    "exclusive": [],
+    "perm_requires": []
+   },
+   "source_url": "https://github.com/moveit/moveit2/issues/2857",
+   "notes": "PILZ generator rejects goal whose header.frame_id (ur_base_link) != robot model frame (world). Frames declared in request+model."
+  },
+  {
+   "case_id": "B-Ver-06",
+   "gold_dimension": [
+    "Ver"
+   ],
+   "type": "UPGRADE",
+   "producer": {
+    "outputs": [
+     {
+      "role": "x",
+      "msg_type": "pkg/Iface",
+      "frame": "none",
+      "units": "none",
+      "qos": {
+       "reliability": "reliable",
+       "durability": "volatile",
+       "deadline_ms": null
+      },
+      "rate_hz": null
+     }
+    ],
+    "exclusive": []
+   },
+   "consumer": {
+    "inputs": [
+     {
+      "role": "x",
+      "msg_type": "pkg/Iface",
+      "frame": "none",
+      "units": "none",
+      "qos": {
+       "reliability": "reliable",
+       "durability": "volatile",
+       "deadline_ms": null
+      },
+      "min_rate_hz": null
+     }
+    ],
+    "exclusive": [],
+    "perm_requires": []
+   },
+   "ver_delta": {
+    "interface_hash_old": "v_old",
+    "interface_hash_new": "v_new",
+    "semver_old": "1.1.0",
+    "semver_new": "1.2.0",
+    "changed_fields": [
+     "param:progress_checker_plugin"
+    ],
+    "consumer_reads": [
+     "param:progress_checker_plugin"
+    ]
+   },
+   "source_url": "https://github.com/ros-navigation/navigation2/pull/3555",
+   "notes": "controller_server param progress_checker_plugin renamed to progress_checker_plugins Humble->Iron; old-name configs silently fail."
+  },
+  {
+   "case_id": "B-Ver-07",
+   "gold_dimension": [
+    "Ver"
+   ],
+   "type": "UPGRADE",
+   "producer": {
+    "outputs": [
+     {
+      "role": "x",
+      "msg_type": "pkg/Iface",
+      "frame": "none",
+      "units": "none",
+      "qos": {
+       "reliability": "reliable",
+       "durability": "volatile",
+       "deadline_ms": null
+      },
+      "rate_hz": null
+     }
+    ],
+    "exclusive": []
+   },
+   "consumer": {
+    "inputs": [
+     {
+      "role": "x",
+      "msg_type": "pkg/Iface",
+      "frame": "none",
+      "units": "none",
+      "qos": {
+       "reliability": "reliable",
+       "durability": "volatile",
+       "deadline_ms": null
+      },
+      "min_rate_hz": null
+     }
+    ],
+    "exclusive": [],
+    "perm_requires": []
+   },
+   "ver_delta": {
+    "interface_hash_old": "v_old",
+    "interface_hash_new": "v_new",
+    "semver_old": "1.1.0",
+    "semver_new": "1.2.0",
+    "changed_fields": [
+     "field:disable_collision_checks"
+    ],
+    "consumer_reads": [
+     "field:disable_collision_checks"
+    ]
+   },
+   "source_url": "https://github.com/ros-navigation/navigation2/issues/5633",
+   "notes": "nav2_msgs/action/Spin.action field disable_collision_checks absent in Humble binary; consumer referencing it fails."
+  },
+  {
+   "case_id": "B-Ver-08",
+   "gold_dimension": [
+    "Ver"
+   ],
+   "type": "UPGRADE",
+   "producer": {
+    "outputs": [
+     {
+      "role": "x",
+      "msg_type": "pkg/Iface",
+      "frame": "none",
+      "units": "none",
+      "qos": {
+       "reliability": "reliable",
+       "durability": "volatile",
+       "deadline_ms": null
+      },
+      "rate_hz": null
+     }
+    ],
+    "exclusive": []
+   },
+   "consumer": {
+    "inputs": [
+     {
+      "role": "x",
+      "msg_type": "pkg/Iface",
+      "frame": "none",
+      "units": "none",
+      "qos": {
+       "reliability": "reliable",
+       "durability": "volatile",
+       "deadline_ms": null
+      },
+      "min_rate_hz": null
+     }
+    ],
+    "exclusive": [],
+    "perm_requires": []
+   },
+   "ver_delta": {
+    "interface_hash_old": "v_old",
+    "interface_hash_new": "v_new",
+    "semver_old": "1.1.0",
+    "semver_new": "1.2.0",
+    "changed_fields": [
+     "api:async_send_request"
+    ],
+    "consumer_reads": [
+     "api:async_send_request"
+    ]
+   },
+   "source_url": "https://github.com/ros2/rclcpp/issues/1968",
+   "notes": "rclcpp Client::async_send_request return type changed shared_future->FutureAndRequestId (Galactic->Humble PR#1734); repeated .get() segfaults."
+  }
+ ],
+ "excluded": [
+  {
+   "issue": "moveit/moveit2#2352",
+   "dim": "Signature",
+   "reason": "consumer-side transform implementation bug (reversed lookupTransform args), not an interface frame incompatibility; the contract would over-flag normal cross-frame commands"
+  },
+  {
+   "issue": "ros-navigation/navigation2#3054",
+   "dim": "Signature",
+   "reason": "namespace/launch-wiring fault (namespaced map topic), out of scope per the interface-property screening rule"
+  },
+  {
+   "issue": "ros-navigation/navigation2#3075",
+   "dim": "Signature",
+   "reason": "timing-dependent (TF buffer window), not a static interface frame mismatch the contract can predict"
+  },
+  {
+   "issue": "mavlink/mavros#480",
+   "dim": "Version",
+   "reason": "ROS1-era (v0.16) topic rename; excluded to keep the ROS2 replication substrate pure (real and verified, but wrong substrate)"
+  },
+  {
+   "issue": "ros2/rclcpp#1734",
+   "dim": "Version",
+   "reason": "duplicate of rclcpp#1968 (the PR that caused it); merged into the single async_send_request case"
+  },
+  {
+   "issue": "ros-navigation/navigation2#2186 (B-Sig-06)",
+   "dim": "Signature",
+   "reason": "Independent reconstruction found goal frame and planner global_frame both default to map: no fixed-frame incompatibility at the interface level (the bug needs a user-set non-default frame). Demoted from admitted to excluded."
+  }
+ ],
+ "discovered": 10,
+ "note": "searched moveit2/nav2/rclcpp/mavros trackers for documented frame-mismatch and named-entity-change integration bugs; each candidate independently refetched and confirmed; admitted only in-scope interface cases scored by the frozen checker."
+}
