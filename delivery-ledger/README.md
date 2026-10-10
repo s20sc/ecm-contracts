@@ -1,7 +1,7 @@
 # Portable mechanism-ledger entry
 
-Use this publication edition of the V32 scientific package, the selected
-retained task files and the V40 mechanism-ledger supplement. Their documented
+Use this publication edition of the scientific package, the selected
+retained task files and the retained mechanism-ledger supplement. Their documented
 role, path and comment mappings preserve the scientific algorithms and
 recorded judgments without claiming byte identity with the original archive.
 Copy `config.example.json`

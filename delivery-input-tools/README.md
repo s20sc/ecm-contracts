@@ -1,6 +1,6 @@
 # Restore the selected replay inputs
 
-Use the existing snapshot archive and V32 scientific package. This utility
+Use the existing snapshot archive and scientific package. This utility
 verifies the archive SHA256, selects the 51 files in the delivery runtime's
 public manifest, restores 48 snapshot files from content-addressed blobs and
 3 reconstructions from the scientific package, and verifies every restored

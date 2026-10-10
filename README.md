@@ -20,11 +20,11 @@ This edition separates reader instructions from retained scientific provenance. 
   harness failures. Machine-specific paths are represented by documented aliases;
   these records are not portable instructions or promises of a supported old environment.
 - `historical-project/`: specifically retained analysis inputs that differ
-  from the V32 package. Do not silently substitute one implementation for another.
+  from the primary package. Do not silently substitute one implementation for another.
 - `upstream-evidence/` and `third-party-notices/`: selected upstream sources,
   original notices, source URLs, and retrieved license text.
 - `delivery-runtime/` and `delivery-input-tools/`: delivery-only entry points
-  for the V38 boundary, V39 contrast, and V41 adaptive-client workflows.
+  for the boundary, consumer-contrast, and adaptive-client workflows.
 - `delivery-compatible/`, `delivery-late/`, and `delivery-ledger/`: configured
   retained-source comparison, historical/current late replay, and mechanism
   ledger regeneration. Their own READMEs specify inputs and output boundaries.
@@ -32,6 +32,12 @@ This edition separates reader instructions from retained scientific provenance. 
   points. They do not replace the historical observations.
 
 A numerical reproduction validates the recorded computations, not the correctness of every source interpretation or model label.
+
+## Download the source snapshot
+
+The [revision release](https://github.com/s20sc/ecm-contracts/releases/tag/emse-revision-1) provides the [source snapshot archive](https://github.com/s20sc/ecm-contracts/releases/download/emse-revision-1/snapshots.zip). Its SHA256 is `faf9042d68226bb73c9b20b9406b11012c20623594e0eb2e3ec020b7a46d8d00`. This external input is needed for the complete historical replay below.
+
+Archived evidence filenames retain their original identifiers so source receipts and recorded runs remain traceable. These identifiers are not public manuscript version names.
 
 ## Primary deterministic reproduction
 
@@ -56,7 +62,7 @@ Follow `delivery-input-tools/README.md` to restore the 51 selected retained
 files (181,251 bytes) for the three delivery workflows, not the entire snapshot
 corpus. For the wider source-evidence checks, pass `SUPPLEMENT_RETAINED_INPUTS.json`
 to the same restore tool: it selects 176 retained files, including the patched
-u0397 client used by V36. Configure
+u0397 client used by the source-comparison analysis. Configure
 `delivery-runtime/README.md` with the scientific package, restored task tree,
 and CPython 3.12 intake at
 `execution-records/p5-v39-consumer-contrast-001/`. Run contrast before adaptive;
@@ -65,14 +71,14 @@ metadata inventory. Use fresh output directories and retain interrupted attempts
 
 Before publication normalization, the archived delivery entry points were validated on the same macOS/Python 3.11.2 host:
 six contrast observations, three adaptive observations, and four boundary
-observations. The current export requires its own new integrity and execution receipts. This is not a second-machine reproduction claim. The recognized
+observations. Validation of the current publication representation is recorded in `VALIDATION.md` and `delivery-validation/`. This is not a second-machine reproduction claim. The recognized
 3.12 consumer failure is an observed failure, not a successful client workflow.
 Installed-package and entry-point counts are host dependent; do not require a
 new machine to reproduce the original host counts by construction.
 
 ## Source comparison and analysis supplements
 
-`delivery-compatible/README.md` documents the V36 source comparison using the
+`delivery-compatible/README.md` documents the retained source comparison using the
 same restored task tree. Four provider/client combinations returned 63 nonempty
 mapping entries each on the validation host; all six full-map comparisons were
 equal. These counts are observations, not values imposed by the entry point.

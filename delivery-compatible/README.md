@@ -1,6 +1,6 @@
 # Compatible-change retained-source replay
 
-This delivery copy relocates the archived V36 script. Its provider/consumer
+This delivery copy relocates the archived source-comparison script. Its provider/consumer
 loading, discovery binding, metadata monitoring, four endpoints, mapping
 comparison, and source-stability predicates are preserved. Public representations
 of the historical script, protocol and observations remain under

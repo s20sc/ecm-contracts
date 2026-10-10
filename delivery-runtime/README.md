@@ -1,7 +1,7 @@
-# Public replay entry point (delivery candidate)
+# Public replay entry point
 
-This is a delivery-only adaptation of the V38 boundary, V39 consumer-contrast,
-and V41 original adaptive-client runners. Recorded predictions, results and
+This is a delivery-only adaptation of the archived boundary, consumer-contrast,
+and original adaptive-client runners. Recorded predictions, results and
 failed attempts remain separate historical evidence. Public source and receipt
 representations use the documented role and path mappings; they do not claim
 byte identity with the original archive. The delivered copies retain
@@ -26,7 +26,7 @@ The runtime records the exact interpreter and package source pins used locally.
 A clean Python environment is recommended; this delivery has not yet been
 validated on a second operating system or independently provisioned machine.
 
-Place this edition's V32-derived scientific replication package, selected retained source,
+Place this edition's scientific replication package, selected retained source,
 and CPython 3.12 source intake at paths specified in a configuration JSON:
 
 ```json

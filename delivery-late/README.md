@@ -1,6 +1,6 @@
 # Portable seven-case late replay
 
-This is a separate delivery entry. It executes the retained V34
+This is a separate delivery entry. It executes the retained historical
 `late/replay.py` evaluation logic with explicit, sealed logical-path aliases.
 The original `main` is never called. Public source and receipt copies use the
 documented role, path and comment mappings. Historical result values and
@@ -20,8 +20,8 @@ The two modes must run in separate fresh interpreters:
   documented derivatives; historical scoring and canonical implementations
   are not replaced by their current counterparts.
 - `current` loads the active replication package's eight modules, including
-  `adjudication_guard`, and its current FREEZE. Its reference is the V40
-  current-active record authenticated by the V41 identity work.
+  `adjudication_guard`, and its current FREEZE. Its reference is the retained current-active record authenticated by the
+  subsequent module-identity checks.
 
 ## Run
 
@@ -62,7 +62,7 @@ resolved roots, and authenticates every listed input, then verifies
 module hashes against the selected mode's publication FREEZE. Original freeze
 times and historical amendment hashes do not date or authenticate these
 derivative bytes. The public seal
-replaces the V41 runner's private V40-manifest receipt-authentication dependency;
+replaces the archived runner's private manifest-authentication dependency;
 it is not represented as that old manifest or old runner hash.
 
 During evaluation, the guard denies writes, network, subprocesses, native-library
