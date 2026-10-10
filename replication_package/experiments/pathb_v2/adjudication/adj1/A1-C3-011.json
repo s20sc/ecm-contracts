@@ -1,0 +1,68 @@
+{
+  "item_id": "A1-C3-011",
+  "kind": "A1",
+  "case_id": "C3-011",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The compressed transport plugin declares different parameters depending on the namespace of the node.",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/109",
+    "reason": "A plugin and its host qualify as separate units. The maintainer confirms an unintended parameter-name difference and the fix changes declared names, not merely deployment bindings. This supports a code-level PAIR mismatch with undocumented consumer effect; no actual failed parameter-setting attempt is supplied."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "When the node is put under a namespace, the plugin will add a dot character to the parameter names:",
+      "url": "https://github.com/ros-perception/image_transport_plugins/issues/109",
+      "reason": "The wrong declared parameter names support element_removed_or_renamed. The original report lists unscoped names; the specification explicitly chooses a later broken revision with transport-scoped names. That scope is independently supported by the source code, so the listed compressed.format/jpeg_quality/png_level elements are accepted for that bounded reconstruction, not asserted as the reporter's exact names.",
+      "supporting_evidence": [
+        {
+          "quote": "const std::string param_name = base_name + \".\" + transport_name + \".\" +\n    definition.descriptor.name;",
+          "url": "https://raw.githubusercontent.com/ros-perception/image_transport_plugins/e073dbc7b4f8d7e494758a5b72d95af9b06e7fdb/compressed_image_transport/src/compressed_publisher.cpp"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "class_verdict": "disagree",
+      "proposed_class": "element_removed_or_renamed",
+      "elements_verdict": "disagree",
+      "proposed_elements": [
+        "param:camera.image_raw.compressed.format",
+        "param:camera.image_raw.compressed.jpeg_quality",
+        "param:camera.image_raw.compressed.png_level"
+      ],
+      "quote": "-  std::string param_base_name = base_topic.substr(ns_len);\n+  uint ns_prefix_len = ns_len > 1 ? ns_len + 1 : ns_len;\n+  std::string param_base_name = base_topic.substr(ns_prefix_len);",
+      "url": "https://github.com/ros-perception/image_transport_plugins/pull/188.diff",
+      "reason": "This is the implementation cause of condition 0's wrong parameter names, not a second value-encoding interaction. The source does not establish an incorrect namespace returned by get_effective_namespace or a distinct representation agreement violated on that API. Fold this entry into condition 0 rather than count it independently; retain the affected parameter names, not the correctly functioning namespace getter, as the failed boundary elements."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I could publish a fix for that but I need to know which way is the intended one.",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/109",
+    "reason": "The original report provides parameter listings, not a consumer failure or diagnostic. unknown is appropriate; the deprecation warning introduced by the fix is not evidence of a diagnostic in the broken composition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The compressed transport plugin declares different parameters depending on the namespace of the node.",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/109",
+    "reason": "Declaration behavior is described without an observed failure-detection stage, so unknown is retained."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I left the incorrect parameter names and mirror their changes to the correct ones.",
+    "url": "https://github.com/ros-perception/image_transport_plugins/pull/188",
+    "reason": "The reviewed change supplies a concrete fix, but neither that PR nor the issue demonstrates a successful parameter interaction with an identified host revision. recommended remains appropriate."
+  },
+  "notes": "Read the complete issue discussion, PRs 188/192, the compressed-publisher portion of the fix, and the pinned broken declaration code. The two listed conditions describe one documented naming failure. Changes to other transport plugins in the same PR are outside this composition."
+}

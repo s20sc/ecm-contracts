@@ -1,0 +1,98 @@
+{
+  "case_id": "B-Rec-02",
+  "corpus": "C2",
+  "source_refs": [
+    "https://arxiv.org/abs/2507.10235",
+    "https://arxiv.org/html/2507.10235v1",
+    "https://github.com/ros-navigation/navigation2/issues/1307",
+    "https://github.com/ros-navigation/navigation2/pull/1251",
+    "https://github.com/ros-navigation/navigation2/pull/1336",
+    "https://github.com/ros-navigation/navigation2/pull/1371",
+    "https://github.com/ros-navigation/navigation2/issues/1301",
+    "https://github.com/BehaviorTree/BehaviorTree.CPP/blob/2.5.2/include/behaviortree_cpp/controls/sequence_node.h",
+    "https://github.com/BehaviorTree/BehaviorTree.CPP/blob/3.0.9/include/behaviortree_cpp/controls/sequence_node.h"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The paper (Chen et al., \"An Empirical Study of Interaction Bugs in ROS-based Software\") cites one recovery-related instance, Navigation2#1307: \"the robot does not replan its path at the expected frequency of 1Hz to avoid the obstacle in time due to an error in the implementation of its behavior tree. Instead, it exhibits a recovery behavior\". Issue #1307 has reproduction steps (\"Launch navstack. Send goal pose. Drop an obstacle on the robot's path.\"), the nav2 commit (f409ba184e54f919bb8a2cbb6d0057b8b3658dde), a full log and a GIF; the maintainer who wrote the fix confirms the cause (\"This is about solving the continual replanning problem, which is currently broken. We only plan once currently.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["nav2_bt_navigator", "BehaviorTree.CPP"],
+      "interface_kind": "library API",
+      "evidence": "nav2's behavior-tree XML wraps the replanning subtree (RateController/ComputePathToPose) and FollowPath in the library's `Sequence` control node. In BehaviorTree.CPP 2.5.2 `Sequence` re-ticks earlier children while a later child is RUNNING (\"If any child returns RUNNING, previous children will be ticked again.\"); in 3.x it does not (\"If any child returns RUNNING, previous children will NOT be ticked again.\"). After nav2 PR #1251 (\"Switched to version 3 of the behavior tree library.\") the XML kept `Sequence`, so ComputePathToPose is ticked only once. The tick semantics of a provider element cross the library boundary; the tree would work with the V2 provider, and the fix (nav2 PR #1371) replaces `Sequence` with a nav2 control node, so this is an interface failure, not internal, wiring, or build."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (BehaviorTree.CPP) runs at V3 while the consumer's XML still uses `Sequence` as it behaved at 2.5.2, the version nav2 pinned before PR #1251. Reporter: \"PR #1251 seems to break this.\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"Obstacle appears in the global costmap, but the path is not updated. Robot does recovery behavior, and calculates a new path after sometime.\"; reporter's instrumentation: \"I put print statements inside ```PlannerServer::computePathToPose()```. It was not ticking at 1Hz.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "BehaviorTree.CPP",
+      "role": "provider",
+      "repo": "https://github.com/BehaviorTree/BehaviorTree.CPP",
+      "broken_rev": "3.0.9",
+      "resolved_rev": "ros2-3.1.1",
+      "pinned": true,
+      "revision_basis": "The reporter does not state the BehaviorTree.CPP version. nav2 at f409ba18 declares behaviortree_cpp_v3 and its tools/ros2_dependencies.repos pulls BehaviorTree.CPP branch `ros2-dev`, which no longer exists. nav2 at f409ba18 includes \"behaviortree_cpp/...\" headers, which rules out 3.1.0 and later (3.1.0, tagged 2019-10-30, renamed the include directory). The latest V3 tag on the ROS 2 line before the report (2019-10-26) is 3.0.9 (6f1b573422b3030f81f2b11be12b071f9c0aff91, 2019-05-28; also the Dashing binary release 3.0.9-1), so 3.0.9 is a best estimate; its SequenceNode already has the non-re-ticking semantics. Resolved: the resolution does not change this unit, but the nav2 revision that contains the fix (4ece520b) includes \"behaviortree_cpp_v3/...\" headers (nav2 #1334, 2019-11-13) and pins BehaviorTree.CPP `ros2-3.1.1` (tag 47d770c38623be39b677efa0a6e164a9085500e3) in its ros2_dependencies.repos, so it cannot build against 3.0.9; the resolved composition therefore uses ros2-3.1.1. The SequenceNode semantics are the same in 3.0.9 and ros2-3.1.1.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "nav2_bt_navigator",
+      "role": "consumer",
+      "repo": "https://github.com/ros-navigation/navigation2",
+      "broken_rev": "f409ba184e54f919bb8a2cbb6d0057b8b3658dde",
+      "resolved_rev": "4ece520ba87e1a813fb6d5dc680c01dbb94873af",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter states \"Version or commit hash: f409ba184e54f919bb8a2cbb6d0057b8b3658dde\". Resolved: PR #1371 (\"fixes #1301, fixes #1307\"), squash-merged to master as 4ece520ba87e1a813fb6d5dc680c01dbb94873af on 2019-11-22; it adds the PipelineSequence control node to nav2_behavior_tree and uses it in the nav2_bt_navigator trees. nav2_behavior_tree (same repository and revision) is treated as part of this unit.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {"broken": "2.5.2", "resolved": "ros2-3.1.1", "basis": "inferred"},
+  "inventory": [
+    {"element": "api:BT::SequenceNode", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::SequenceStarNode", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::FallbackNode", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::BehaviorTreeFactory", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::Tree", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::Blackboard", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::ControlNode", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::DecoratorNode", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::CoroActionNode", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}},
+    {"element": "api:BT::ConditionNode", "sides": {"BehaviorTree.CPP": "provides", "nav2_bt_navigator": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:BT::SequenceNode"],
+      "quote": "The `sequence` node in the V3 behavior tree library works differently than in V2. There seems to be no way to have two subtrees running simultaneously in V3 unless you use the `parallel` node.",
+      "url": "https://github.com/ros-navigation/navigation2/pull/1336"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No build, load, or activation diagnostic; the reporter found the missing replanning by instrumentation (\"I put print statements inside ```PlannerServer::computePathToPose()```. It was not ticking at 1Hz.\"). The only error in the log is the runtime progress-checker message \"[controller_server-4] [ERROR] [controller_server]: Failed to make progress\" followed by recovery actions. (https://github.com/ros-navigation/navigation2/issues/1307)",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "nav2 replaces the library `Sequence` above the ComputePath and FollowPath subtrees with a nav2 control node, PipelineSequence, that keeps ticking earlier children while a later child is RUNNING (nav2 PR #1371, squash commit 4ece520b; the earlier variant PR #1336 with a FirstCompletion-style node was superseded and not merged).",
+    "status": "recommended",
+    "evidence": "PR #1371 was merged as the fix (\"fixes #1301, fixes #1307\"; \"Robotic platform tested on | TB3 in Gazebo\"), but no source shows the reporter's obstacle scenario working with it; the reviewing maintainer wrote \"If this really fixes the issue, I'd unblock it\" (https://github.com/ros-navigation/navigation2/pull/1371#issuecomment-556925459), and the issue was closed by the merge without reporter confirmation."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Mechanism, from the fix author: \"With the version of the tree on master we use a `Sequence` node at the top of the ComputePath(CP) and the FollowPath(FP) subtrees. With that tree, once we start navigating, the FP subtree returns the RUNNING status until we reach the goal. The Sequence node never ticks the CP subtree again because it is waiting for the FP subtree to complete and return a SUCCESS.\" (https://github.com/ros-navigation/navigation2/pull/1336#issuecomment-554580325). Before PR #1251 nav2 pinned BehaviorTree.CPP 2.5.2 (tools/ros2_dependencies.repos at 5d1f8768) and its navigate_w_replanning_and_recovery.xml already had the same `Sequence` structure (only `${goal}` became `{goal}` in the V3 port). consumer_built_against basis: broken 2.5.2 is inferred (the XML's `Sequence` usage matches 2.5.2's declared semantics and predates the migration; the consumer's C++ code at f409ba18 is built against V3); resolved ros2-3.1.1 is documented by nav2's own dependency pin at 4ece520b. Secondary vs primary: the paper files this under \"Improper (re)planning\" as an environmental iBug caused by \"an error in the implementation of its behavior tree\"; the primary sources place the cause in the V2-to-V3 change of the library `Sequence` semantics, which is what is specified here. The visible recovery behaviour is a downstream symptom (controller_server's progress checker fails on the stale path and the BT RecoveryNode runs clear/spin/wait); no conflict between two recovery mechanisms is documented, so no recovery_conflict condition is recorded. Other compositions: the same root cause breaks goal preemption (issue #1301, bt_navigator to planner/controller, fixed by the same PR); the bt_navigator to planner_server path request rate (path computed once instead of 1 Hz) could also be read as a PAIR rate shortfall between those two nodes, but the change that caused and fixed it is in the BT library/XML boundary. Maintainer's first hypothesis (DWB failure triggering recovery; add retries before recovery) was not the adopted fix."
+}

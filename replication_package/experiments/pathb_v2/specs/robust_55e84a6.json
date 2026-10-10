@@ -1,0 +1,109 @@
+{
+  "case_id": "robust_55e84a6",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_desktop/issues/33",
+    "https://github.com/yujinrobot/kobuki_desktop/issues/33#issuecomment-51585637",
+    "https://github.com/yujinrobot/kobuki_desktop/issues/33#issuecomment-51742356",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/5ee65b061a4a919b2a32e80087f4cb3e51e924ed",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/6df4bd7e92aea5cf3696b20861fca0ed413ece6e",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/55e84a61e50d23be20f1d7abb4018a635370bff4",
+    "https://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0bea3f942c19f354512284ec146491fe4",
+    "https://github.com/ros-visualization/rqt_common_plugins/commit/c8223f54aff207c4092f65dcccb91d567619cad9",
+    "https://github.com/ros-visualization/rqt_common_plugins/blob/0.3.8/rqt_plot/src/rqt_plot/plot_widget.py#L150",
+    "https://github.com/ros-visualization/rqt_common_plugins/blob/0.3.6/rqt_plot/src/rqt_plot/mat_data_plot.py#L97"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Error log in the issue body: \"PluginManager._load_plugin() could not load plugin \\\"kobuki_qtestsuite/Kobuki Test Suite\\\":\\nTraceback (most recent call last): ... File \\\"/opt/ros/indigo/lib/python2.7/dist-packages/rqt_plot/plot_widget.py\\\", line 150, in switch_data_plot_widget\\n    self.data_plot.autoscroll(self.autoscroll_checkbox.isChecked())\\nAttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'\", reported by maintainer jihoonl with the provider change identified (\"rqt_plot API has been changed by this commit. https://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0bea3f942c19f354512284ec146491fe4\") and fixed in three commits ending with 55e84a61."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rqt_plot", "kobuki_qtestsuite"],
+      "interface_kind": "library API",
+      "evidence": "Step 1: rqt_plot is a separately released package (rqt_common_plugins, installed under /opt/ros/indigo); kobuki_qtestsuite is an rqt plugin (kobuki_desktop) that instantiates rqt_plot's PlotWidget and hands it a FullSizeDataPlot, a subclass of rqt_plot.mat_data_plot.MatDataPlot; plugin and host library are separate units. Step 2: the failure is an API mismatch crossing the boundary: PlotWidget.switch_data_plot_widget at rqt_plot 0.3.7+ requires the object it receives to provide autoscroll(), which MatDataPlot provided at 0.3.3-0.3.6 (mat_data_plot.py:97 'def autoscroll(self, enabled=True):') and no longer provides after the graph-backend refactor (f7a485e0 moved mat_data_plot.py into rqt_plot/data_plot/ behind a DataPlot wrapper; c8223f54 'Strip data store out of individual plots' removed autoscroll from the backend class; DataPlot.autoscroll at data_plot/__init__.py:251 replaces it). Steps 3-5 do not apply. Interface kind: library API."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer (last edited 2013-08-21) references rqt_plot.mat_data_plot.MatDataPlot as the widget class accepted by PlotWidget.switch_data_plot_widget, as declared through release 0.3.6; the provider installed at report time (0.3.7/0.3.8, matched by the traceback's plot_widget.py line 150) declares the DataPlot wrapper as that widget and the backend MatDataPlot without autoscroll."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: plugin load aborted with \"AttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rqt_plot",
+      "role": "provider",
+      "repo": "https://github.com/ros-visualization/rqt_common_plugins",
+      "broken_rev": "8374c8074c8e3592d00d5e5f8a7f18e55d1d33ab",
+      "resolved_rev": "8374c8074c8e3592d00d5e5f8a7f18e55d1d33ab",
+      "pinned": true,
+      "revision_basis": "The traceback shows rqt_plot installed from /opt/ros/indigo with plot_widget.py line 150 = 'self.data_plot.autoscroll(self.autoscroll_checkbox.isChecked())' but no version. That line is at 150 only in releases 0.3.7 (47bd2279, 2014-07-11) and 0.3.8 (8374c807, 2014-07-15); at 0.3.6 it is line 91 and at 0.3.9 (2014-08-18) line 150 is 'self.data_plot.close()'. 8374c807 = tag 0.3.8 is the newest release before the 2014-08-08 report and was still the newest when the fix was confirmed on 2014-08-11; 0.3.7 and 0.3.8 declare the same rqt_plot interface. The resolution does not change this unit.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "kobuki_qtestsuite",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "f04c615cd9216e1b7b6949db2745dc8fa25acc0b",
+      "resolved_rev": "55e84a61e50d23be20f1d7abb4018a635370bff4",
+      "pinned": true,
+      "revision_basis": "f04c615c (2014-05-28) is the parent of the first fix commit and the head of the indigo branch on the report date; the reporter ran a source checkout (/home/jihoonl/research/ros/kobuki/src/kobuki_desktop/...) and the traceback's line numbers (testsuite_widget.py:43 setupUi, battery_profile_frame.py:51 switch_data_plot_widget(FullSizeDataPlot(...))) match this revision. 55e84a61 (2014-08-11) is the last of the three fix commits (5ee65b06 -> 6df4bd7e -> 55e84a61), contained in tag 0.4.0 (2014-08-11) and later.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "7d11bea7145e712538930a7e4b0632780240a85b",
+    "resolved": "8374c8074c8e3592d00d5e5f8a7f18e55d1d33ab",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:rqt_plot.plot_widget.PlotWidget", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.switch_data_plot_widget", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.add_topic", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.remove_topic", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.enable_timer", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.topic_edit", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.mat_data_plot.MatDataPlot", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.mat_data_plot.MatDataPlot.autoscroll", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.mat_data_plot.MatDataPlot._curves", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.mat_data_plot.MatDataPlot.redraw", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:rqt_plot.mat_data_plot.MatDataPlot.autoscroll", "api:rqt_plot.plot_widget.PlotWidget.switch_data_plot_widget"],
+      "quote": "  File \"/opt/ros/indigo/lib/python2.7/dist-packages/rqt_plot/plot_widget.py\", line 150, in switch_data_plot_widget\n    self.data_plot.autoscroll(self.autoscroll_checkbox.isChecked())\nAttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+    },
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:rqt_plot.mat_data_plot.MatDataPlot"],
+      "quote": "rqt_plot API has been changed by this commit.\n\nhttps://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0bea3f942c19f354512284ec146491fe4",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Activation-stage diagnostic from the rqt plugin manager: \"PluginManager._load_plugin() could not load plugin \\\"kobuki_qtestsuite/Kobuki Test Suite\\\":\\nTraceback (most recent call last):\\n  File \\\"/opt/ros/indigo/lib/python2.7/dist-packages/qt_gui/plugin_handler.py\\\", line 98, in load\\n    self._load()\" ... \"AttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'\" (https://github.com/yujinrobot/kobuki_desktop/issues/33); the plugin failed while being loaded, before any plotting ran.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "kobuki_qtestsuite stops subclassing the backend MatDataPlot and hands PlotWidget.switch_data_plot_widget the provider's wrapper instead ('from rqt_plot.data_plot import DataPlot'; DataPlot(self._plot_widget)), reproducing the fixed battery range with the wrapper's API (set_autoscale(y=False); set_ylim([0, 180])) and dropping the reset() call and FullSizeDataPlot import in gyro_drift_frame.py (kobuki_desktop 5ee65b06, 6df4bd7e, 55e84a61).",
+    "status": "observed",
+    "evidence": "\"Battery profiling now has fixed y scale [0, 180]. and gyro looks fine too.\" (jihoonl, 2014-08-11, https://github.com/yujinrobot/kobuki_desktop/issues/33#issuecomment-51742356), posted when closing the issue after 55e84a61; the rqt_plot in /opt/ros/indigo on that date is still release 0.3.8 (0.3.9 was tagged 2014-08-18)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "consumer_built_against (inferred): the consumer's references (import rqt_plot.mat_data_plot.MatDataPlot, subclass it, pass the instance to PlotWidget.switch_data_plot_widget, read _curves/_canvas, override redraw/_update_legend) match rqt_plot releases 0.3.0-0.3.6; from 0.3.3 (c7258ed2, 2013-11-18) PlotWidget calls autoscroll() on the widget and MatDataPlot itself declares it, so the consumer kept working by inheritance until 0.3.6 (7d11bea7, 2014-06-02), the last matching release and the label recorded; the consumer's own last edit (kobuki_desktop 3c7f92a2, 2013-08-21) predates 0.3.0. The resolved consumer references rqt_plot.data_plot.DataPlot with set_autoscale/set_ylim, declared from 0.3.7 on, so the resolved built-against label is the provider's broken revision. Second condition: f7a485e0 (first released in 0.3.7) moved rqt_plot/src/rqt_plot/mat_data_plot.py to rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py, so 'from rqt_plot.mat_data_plot import MatDataPlot' has no target in a clean 0.3.7+ install; in the reporter's run the import evidently resolved (the traceback passes it and fails on autoscroll), which the source does not explain (a stale compiled module in the debian install path would do it), so the observed crash is attributed to the first condition and the module move is recorded from the provider's diff as the reporter's named API change. The reporter attributes the break to f7a485e0; the primary code change that removed autoscroll from the backend class is c8223f54 (2014-06-02) in the same refactor series, both first released in 0.3.7. The first fix commit 5ee65b06 also adds queue_size arguments to publishers in kobuki_dashboard (unrelated). Interim state after 5ee65b06: \"Still we need to investigate why its scaling is so weird.\" resolved by set_ylim in 6df4bd7e. Provider members omitted from the 10-element inventory: PlotWidget._start_time, PlotWidget.data_plot, MatDataPlot._canvas, MatDataPlot._update_legend. The same consumer's earlier break against rqt_plot's _curves layout (kobuki_desktop issue #9) is a separate case."
+}

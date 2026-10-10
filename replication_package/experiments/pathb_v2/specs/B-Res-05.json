@@ -1,0 +1,98 @@
+{
+  "case_id": "B-Res-05",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/1400",
+    "https://github.com/forssea-robotics/ros2_control/commit/006377d20985f832e3694c64eaae7952e738db43",
+    "https://github.com/ros-controls/ros2_control/pull/1401",
+    "https://github.com/ros-controls/ros2_control/pull/1411",
+    "https://github.com/ros-controls/ros2_control/pull/1218",
+    "https://github.com/ros-controls/ros2_control/blob/a431948a031dc0bfcb19f95bfd0d7137274908fc/controller_manager/src/controller_manager.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #1400 provides a failing unit test (forssea-robotics/ros2_control commit 006377d2, parent = humble tag 2.37.0) and the error log; maintainer saikishor: \"I was able to reproduce the same. I've just fixed it in the PR #1401.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["controller_manager", "hardware_interface (ResourceManager)"],
+      "interface_kind": "library API",
+      "evidence": "controller_manager and hardware_interface are separate packages/libraries; the controller manager calls ResourceManager::prepare_command_mode_switch with the chained controllers' reference interfaces before it calls ResourceManager::make_controller_reference_interfaces_available (in switch_chained_mode, run later from manage_switch). PR #1218 (humble backport a3bf2801, in 2.37.0) added to the resource manager a check that every start interface is available (\"Now only calls with all existing and available interface are allowed\"), so the call order across the API no longer satisfies the provider's precondition. PR #1401: \"This is happening due to the newly added code in the PR: #1218 under the method `prepare_command_mode_switch`\"; the fix moves the availability call in controller_manager ahead of prepare. The disagreement is about call order/precondition across the library boundary, not deployment wiring or build."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the controller manager's start-interface list (output) is the resource manager's prepare_command_mode_switch input, and the resource manager's accept/reject result decides the switch. Observed in the reporter's unit test with both packages at humble 2.37.0."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: activating C1, C2, C3 in one switch is rejected with \"Not acceptable command interfaces combination\" listing the chained reference interfaces under \"Not available\", and the test fails."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "hardware_interface",
+      "role": "provider",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "a431948a031dc0bfcb19f95bfd0d7137274908fc",
+      "resolved_rev": "a431948a031dc0bfcb19f95bfd0d7137274908fc",
+      "pinned": true,
+      "revision_basis": "Reporter: \"Version Humble, ros2_control 2.37.0\"; the reproducer commit 006377d2 on forssea-robotics/ros2_control has parent a431948a031dc0bfcb19f95bfd0d7137274908fc, which is the humble tag 2.37.0 and contains the #1218 backport (a3bf2801). The resolution (#1401 / humble backport #1411) changes only controller_manager, so this unit keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "controller_manager",
+      "role": "consumer",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "a431948a031dc0bfcb19f95bfd0d7137274908fc",
+      "resolved_rev": "69487aeb440e8970e77ebf81ab3e38aeb87707c1",
+      "pinned": true,
+      "revision_basis": "Broken: humble tag 2.37.0 (a431948a), parent of the reporter's reproducer commit. Resolved: the reporter confirmed a local cherry-pick of PR #1401 onto humble (no public revision); the public equivalent is the humble backport PR #1411, merged as 69487aeb440e8970e77ebf81ab3e38aeb87707c1 (2024-03-02, released in 2.40.0). That humble commit also carries unrelated controller_manager changes made between 2.37.0 and 2.40.0. Master fix: PR #1401 merge 1cc73c25e39567bc46a472d71ec9643e4fc40dab.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:hardware_interface::ResourceManager::prepare_command_mode_switch", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::perform_command_mode_switch", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::make_controller_reference_interfaces_available", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::make_controller_reference_interfaces_unavailable", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::import_controller_reference_interfaces", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::command_interface_is_available", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::command_interface_is_claimed", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::claim_command_interface", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::claim_state_interface", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}},
+    {"element": "api:hardware_interface::ResourceManager::get_controller_reference_interface_names", "sides": {"hardware_interface": "provides", "controller_manager": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:hardware_interface::ResourceManager::prepare_command_mode_switch",
+        "api:hardware_interface::ResourceManager::make_controller_reference_interfaces_available"
+      ],
+      "quote": "Fixes the issue of the failing multiple chainable controller activation by the resource manager. This is happening due to the newly added code in the PR: #1218 under the method `prepare_command_mode_switch` method",
+      "url": "https://github.com/ros-controls/ros2_control/pull/1401"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "[resource_manager] ... Not acceptable command interfaces combination: ... Not available: [ test_chainable_controller_name_2/joint1/position test_chainable_controller_name_2/joint1/velocity test_chainable_controller_name_1/joint1/position ] ... [test_controller_manager] ... Could not switch controllers since prepare command mode switch was rejected. (https://github.com/ros-controls/ros2_control/issues/1400)",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "controller_manager makes a following chainable controller's reference interfaces available when it adds that controller to the to-chained-mode request (in check_following_controllers_for_activate, before prepare_command_mode_switch), removes the later call in switch_chained_mode, and makes them unavailable again in clear_requests (PR #1401; humble backport #1411).",
+    "status": "observed",
+    "evidence": "Reporter: \"I confirm that you fix works for us once backported to humble.\" (https://github.com/ros-controls/ros2_control/issues/1400#issuecomment-1952119203), i.e. humble 2.37.0 with #1401 cherry-picked into controller_manager. Maintainer on master: \"I've just fixed it in the PR #1401. The tests seem to pass now.\"; PR #1401 adds the reporter's all-at-once activation test."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Regression history: PR #1218 (resource manager only) added existence/availability checks to prepare_command_mode_switch; its humble backport a3bf2801 shipped in 2.37.0 together with an unchanged controller_manager whose switch path makes chained reference interfaces available only after prepare (\"if it is a chainable controller, make the reference interfaces available on preactivation (This is needed when you activate a couple of chainable controller altogether)\" in switch_chained_mode). Read as a provider change against a consumer written for the earlier provider behaviour this would be an UPGRADE, but both packages are released together at the same version from one repository and the reporter's test builds them at the same revision, so the observed operation is recorded as PAIR. The chainable controllers C1/C2/C3 are correct peers (test controllers), and any chain would fail the same way, so they are not the units of this case. PR #1401 also \"Closes #1369\" (not examined as part of this case). Class `other`: the mismatch is a call-order precondition (availability before prepare), which has no dedicated class."
+}

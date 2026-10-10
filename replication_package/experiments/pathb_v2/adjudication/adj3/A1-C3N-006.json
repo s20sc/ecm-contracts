@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3N-006",
+  "kind": "A1",
+  "case_id": "C3N-006",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "it appears that the formula got copied wrong from Wikipedia, as applying the absolute-value function in the place it was at prevented detection of the long-way-around case.",
+    "url": "https://github.com/moveit/moveit2/pull/1479"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Issue #1478 (\"Floating joint interpolation takes the long way around\") reports a wrong interpolation value from moveit::core::FloatingJointModel::interpolate. I read the issue body (reproducer with fjm.interpolate(jv1, jv2, 0.5, intp) and \"Note how the interpolated angle has value 0.285: it's taking the long way around, with the interpolation going through 0 instead of Pi/-Pi radians.\") and PR #1479 (\"Fixed fabs() use in quaternion interpolation\", body quoted above, merged 2022-08-09). The defect is wrong arithmetic inside one library function; any correct caller receives the wrong result, and the reporter calls the function directly (no two-unit composition). E2 stops at step 2 (internal), which is correct. Loudness/resolution correctly null."
+}

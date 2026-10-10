@@ -1,0 +1,67 @@
+{
+  "task_id": "u0380",
+  "package": "rosbridge_suite",
+  "manifest_version": "2.1.0",
+  "ports": [
+    {
+      "element": "topic:/mavros/global_position/global",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/mavros/local_position/pose",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "rosbridge_websocket retries bind_sockets on OSError every retry_startup_delay seconds (parameter default 2.0; launch arg default 5.0)"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rosbridge_suite/package.xml:4",
+    "ports[0].side": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:140 (node_handle.create_subscription(msg_class, topic, self.callback, qos, raw=raw, ...)); topic name comes from the client 'subscribe' op: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:238",
+    "ports[1].side": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:140 (node_handle.create_subscription(msg_class, topic, self.callback, qos, raw=raw, ...)); topic name comes from the client 'subscribe' op: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:238",
+    "perm_requires": "searched snapshot for sros/enclave/security/keystore/permission: only license text, QUALITY_DECLARATION.md:74 heading, and topic/service/action glob debug logs; no required-permission declaration",
+    "perm_grants": "snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:23 (<arg name=\"topics_glob\" default=\"\" />); snapshot:rosbridge_server/scripts/rosbridge_websocket:223; snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:240-258 (empty glob => no check)",
+    "recovery": "snapshot:rosbridge_server/scripts/rosbridge_websocket:156-172 (while not connected ... except OSError ... time.sleep(retry_startup_delay)); default snapshot:rosbridge_server/scripts/rosbridge_websocket:136 (2.0), launch default snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:11 (5.0)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The snapshot contains no code or configuration specific to either mavros topic; both would only be reached through the generic client-driven subscribe path, whose default QoS (best_effort, volatile) is compatible with reliable or best-effort publishers, so nothing at this revision points to a defect in these elements."
+  },
+  "confidence": "high",
+  "notes": "rosbridge_suite is a generic JSON/WebSocket bridge. Neither /mavros/global_position/global nor /mavros/local_position/pose (nor mavros, NavSatFix, PoseStamped, global_position, local_position) appears anywhere in the snapshot (case-insensitive grep over all 176 files; 166 non-empty files readable, the 10 empty ones are __init__.py). The package would consume these topics only when a WebSocket client sends a 'subscribe' op naming them (capabilities/subscribe.py:230-276 -> internal/subscribers.py:58-142), so the topic names are supplied at run time; they are therefore in neither references nor declares/not_declared. Both packet elements are consumed, so declares and not_declared are empty by rule. msg_type is null: it is the client's optional 'type' field or, if absent, the type discovered from the graph via get_topic_names_and_types (subscribers.py:80-98); hence definition_id is null. frame and units are null: the bridge converts the whole message to JSON (OutgoingMessage) without reading or setting any frame_id and states no units. QoS: code starts from QoSProfile(depth=10, durability=VOLATILE, reliability=BEST_EFFORT) (subscribers.py:116-120) and then selects from discovered publishers' profiles: if any publisher is TRANSIENT_LOCAL, durability=TRANSIENT_LOCAL and reliability=RELIABLE; then if any publisher is BEST_EFFORT, reliability=BEST_EFFORT (subscribers.py:122-127; re-evaluated for later clients at subscribers.py:184-188, where only durability->TRANSIENT_LOCAL and reliability->BEST_EFFORT are applied). Because both values are peer-selected, reliability and durability are recorded null; with no discovered publishers the result is best_effort/volatile. No deadline is set in code (deadline_ms null; no deadline configured). rate_hz/min_rate_hz null: only a client-supplied throttle_rate (ms, default 0) and queue_length exist (subscribe.py:271-273); no rate is set in code. exclusive empty: no hardware command interfaces or device handles; the server binds a TCP listening socket (parameter 'port', default 9090, rosbridge_websocket:110) which is not recorded as an exclusive device resource. perm_grants absent: the only access control is the runtime topics_glob/services_glob/params_glob allowlist whose default is the empty string, meaning no filtering (subscribe.py:240-258); no values are configured in the snapshot. manifest_version taken from the rosbridge_suite metapackage package.xml; all sub-packages (rosbridge_library, rosbridge_server, rosapi, rosapi_msgs, rosbridge_msgs, rosbridge_test_msgs) also declare 2.1.0. scripts/rosbridge_websocket (the launch exec) is byte-identical to scripts/rosbridge_websocket.py."
+}

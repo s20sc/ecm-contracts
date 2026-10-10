@@ -1,0 +1,57 @@
+{
+  "item_id": "A1-CAL-03",
+  "kind": "A1",
+  "case_id": "CAL-03",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command",
+    "url": "https://github.com/ros-navigation/navigation2/pull/6336",
+    "reason": "The concrete speed report and the backport's code-level account establish E1/E4. Odometry consumed by the controller is a cross-node PAIR timing assumption. A historical distro comparison does not itself make this separately identified odometry/controller pairing UPGRADE."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command",
+      "url": "https://github.com/ros-navigation/navigation2/pull/6336",
+      "reason": "Lagging velocity-state feedback is not a declared publication-rate or QoS mismatch; other fits. The reporter configures odom_topic as /odometry/filtered, and the diff replaces robot_speed with last_command_vel_ when open_loop is enabled.",
+      "additional_evidence": [
+        {
+          "quote": "odom_topic: \"/odometry/filtered\"",
+          "url": "https://github.com/ros-navigation/navigation2/issues/5386"
+        },
+        {
+          "quote": "+  state_.speed = settings_.open_loop ? last_command_vel_ : robot_speed;",
+          "url": "https://github.com/ros-navigation/navigation2/pull/6336.diff"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "MPPI Controller same YAML reaches 0.8 m/s on ROS2 Humble but only 0.25 m/s on ROS2 Jazzy",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386",
+    "reason": "The report shows a running controller with an unintended speed cap, not a compiler, connection, or activation diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "It seems that the small acceleration value causes the vehicle to slow down.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386#issuecomment-3125122390"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Tested: Ubuntu 24.04, MuJoCo sim. Our measurement on a simulated Ridgeback mecanum base, vx_max: 0.5: commanded speed 0.165 to 0.466 m/s; ground truth 0.138 to 0.452",
+    "url": "https://github.com/ros-navigation/navigation2/pull/6336",
+    "reason": "The backport is tested with a different odometry-producing peer, not the reporter's unidentified /odometry/filtered provider. Recommended is appropriate for this composition."
+  },
+  "notes": "The original reporter attributes the symptom to acceleration limits; the later PR connects the symptom class to lagging odometry. That is supporting evidence, not a direct measurement of lag in the original robot. artifacts/CAL-03.txt contains only a section header, so it supplies no independent provider timing artifact."
+}

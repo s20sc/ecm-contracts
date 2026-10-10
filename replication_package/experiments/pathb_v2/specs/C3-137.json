@@ -1,0 +1,51 @@
+{
+  "case_id": "C3-137",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/894",
+    "https://github.com/ros2/rclpy/pull/1132",
+    "https://github.com/ros2/rclpy/commit/309f755d29fc734e457a03cb8e3f61da6d602a34",
+    "https://github.com/ros2/rclpy/blob/a5236920be273cdf91d8104485a3657b7b08ac55/rclpy/rclpy/node.py#L473",
+    "https://gist.github.com/guru-florida/37c9d89adb082a2329dec709e58a045d",
+    "https://github.com/devrite/ros2_test_prover/commit/a44657b2d28fa787488811f8a0ad5f003d5d12ca",
+    "https://github.com/fujitatomoya/ros2_test_prover/commit/de537b1934088528707625f3093a27988c7d7505"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue with a reproducer gist and observed output: \"This example program outputs params {foo, ns1.bar, ns2.bar} as {p1, default_bar1, p3} respectively.\" Maintainer jacobperron: \"I'm guessing it is simply a bug and not intended logic.\" Fixed by merged PR ros2/rclpy#1132 (merge commit 309f755d29fc734e457a03cb8e3f61da6d602a34)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["user Python node calling rclpy.node.Node.declare_parameters", "rclpy"],
+      "interface_kind": "library API",
+      "evidence": "The defect is an ordering error inside rclpy's own declare_parameters: the override lookup uses the not-yet-prefixed name. Reporter: \"it attempts to load the user-supplied value from node._parameter_overrides[name] but at this point the namespace hasn't been prefixed to the name. This prefixing occurs on the code immediately following\" (https://github.com/ros2/rclpy/issues/894#issuecomment-1035776371). Code at a5236920: \"if not ignore_override and name in self._parameter_overrides:\\n    value = self._parameter_overrides[name].value\\n\\nif namespace:\\n    name = f'{namespace}.{name}'\". Both the parameter source (YAML / -p, parsed by rcl into _parameter_overrides) and the user code use the same fully qualified name convention (ns1.bar); the mismatch is between two statements of rclpy's own implementation, so it occurs with any correct caller and any correct parameter file. The fix (PR #1132) moves the prefixing above the lookup inside rclpy/rclpy/node.py only; no interface declaration changes."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Would be PAIR (user code calls declare_parameters with namespace= and the parameter overrides from YAML/CLI are expected to flow in). Not decisive because the case stops at E2."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong value: \"Parameters using the namespace argument of declare_parameters() cannot be loaded from sysargs (using -p) or from yaml config files.\""
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Ineligible internal: the wrong key is produced and consumed within rclpy's declare_parameters (override lookup before namespace prefixing). The fork commits under AIT-Assistive-Autonomous-Systems/rclpy are the PR #1132 branch commits; the ros2_test_prover commits are reproducer tests. Reported on Galactic (ros-galactic-rclpy 1.9.0); fix merged to rolling 2023-06-15."
+}

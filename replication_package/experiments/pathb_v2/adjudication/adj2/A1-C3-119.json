@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-C3-119",
+  "kind": "A1",
+  "case_id": "C3-119",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Since ArduPlane-3.7.0, mode 14, previously assigned to LAND, has changed to AVOID_ADSB. ... This does not match the stringify for ArduPlane in mavros lib, for both [ROS2](https://github.com/mavlink/mavros/blob/ros2/mavros/src/lib/uas_stringify.cpp#L49) and [ROS1](https://github.com/mavlink/mavros/blob/1.20.1/mavros/src/lib/uas_stringify.cpp#L45), and could result in unwanted behaviors if the user asks for LAND mode using mavros, which would translate to a request for the flight controller to change to AVOID_ADSB mode.",
+    "url": "https://github.com/mavlink/mavros/issues/2048"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Since ArduPlane-3.7.0, mode 14, previously assigned to LAND, has changed to AVOID_ADSB.",
+      "url": "https://github.com/mavlink/mavros/issues/2048"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "+\t{ 14, \"AVOID_ADSB\" },\t// renamed, prev name: LAND",
+      "url": "https://github.com/mavlink/mavros/pull/2049/files"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "could result in unwanted behaviors if the user asks for LAND mode using mavros, which would translate to a request for the flight controller to change to AVOID_ADSB mode.",
+    "url": "https://github.com/mavlink/mavros/issues/2048"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Thank you for the contribution!",
+    "url": "https://github.com/mavlink/mavros/issues/2048#issuecomment-3062531029"
+  },
+  "notes": "Independently verified all cited sources this session. mavros uas_stringify.cpp at tag 1.20.1 line 45 reads '\t{ 14, \"LAND\" },\t\t// not in list' (https://raw.githubusercontent.com/mavlink/mavros/1.20.1/mavros/src/lib/uas_stringify.cpp); the arduplane_cmode_map covers 0-8, 10-12, 14, 15-21. ArduPlane-3.7.0 defines.h line 61 'AVOID_ADSB    = 14,' (https://raw.githubusercontent.com/ArduPilot/ardupilot/ArduPlane-3.7.0/ArduPlane/defines.h); ArduPlane-3.6.0 enum FlightMode (same file at ArduPlane-3.6.0, lines 50-70) has 0-8, 10-12, 15-21 and no value 14, which supports the spec's inferred consumer_built_against 'ArduPlane-3.6.0'. PR 2049 ('Update ArduPlane mode 14 from LAND to AVOID_ADSB.') merged with merge_commit_sha a5c9f963b0bc0490ec41092de92927a539352d69; PR 2050 same title merged with e7a3e40e55f57e7b70d16b029f4cea37a1e971cf (API). E2: units are separately released (ROS package vs firmware); the mode-number meaning crossing the MAVLink boundary is the interface failure; fix is a code mapping change, not name binding or build -> stop 6, agree. E3 UPGRADE fits S1's 'consumer still references provider elements as they existed at an earlier provider revision'. element_retyped for fc[1] follows S1's rule that a rename inside a definition lists both definition_mismatch and element_retyped; the spec itself records element_removed_or_renamed and representation_convention as alternative readings, and the fix diff's 'renamed, prev name: LAND' supports the chosen pair. Loudness unknown/unknown is right: no execution is reported anywhere in the issue or the two PRs. Resolution 'recommended' is right: both PRs merged but nothing shows the fixed mavros exchanging with ArduPlane-3.7.0."
+}

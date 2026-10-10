@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-robust_e4466f0",
+  "kind": "A1",
+  "case_id": "robust_e4466f0",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "For example, in our project we had a frame called \"54\". This made view_frames.py crash.",
+    "url": "https://github.com/ros/geometry2/pull/133#issuecomment-165138122",
+    "reason": "E1/E4: numeric frame name and observed crash are concrete. E2: tf2_ros supplies serialized frame data to tf2_tools through FrameGraph; an unquoted numeric YAML key crosses that library/service boundary and is treated as a string by the consumer. A provider quoting its keys avoids this failure, so it is not peer-independent internal logic. E3: PAIR."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "For example, in our project we had a frame called \"54\". This made view_frames.py crash.",
+      "url": "https://github.com/ros/geometry2/pull/133#issuecomment-165138122",
+      "reason": "representation_convention is supported by the unquoted YAML child key and the consumer string concatenation. The service and frame_yaml response field carry that representation; this is not a mismatch of coordinate frames or ROS nominal service types."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "For example, in our project we had a frame called \"54\". This made view_frames.py crash.",
+    "url": "https://github.com/ros/geometry2/pull/133#issuecomment-165138122",
+    "reason": "The reported observation is a runtime crash, without a quoted build/connection/activation compatibility diagnostic. Agree with silent_documented in the supplied pre-runtime-tooling sense only; the source does not establish that no Python traceback appeared."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "For example, in our project we had a frame called \"54\". This made view_frames.py crash.",
+    "url": "https://github.com/ros/geometry2/pull/133#issuecomment-165138122",
+    "reason": "The crash occurs while generating the graph from the received YAML, hence run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've cherry picked the first commit.",
+    "url": "https://github.com/ros/geometry2/pull/133#issuecomment-192065068",
+    "reason": "The cherry-picked str(el) change is accepted, but the thread does not demonstrate a successful rerun of the pinned provider/consumer pair; recommended is correct."
+  },
+  "notes": "The service is hosted by the same process, but tf2_ros and tf2_tools are distinct library/package units under E2. Quaternion normalization discussed in the PR concerns static_transform_publisher, not this composition, and is not a missed condition.",
+  "supporting_evidence": [
+    {
+      "quote": "    mstream << frameIDs_reverse[cfid] << \": \" << std::endl;",
+      "url": "https://raw.githubusercontent.com/ros/geometry2/72fa60575aad885bd1de289240f7b4b20d0a418b/tf2/src/buffer_core.cpp#L1112"
+    },
+    {
+      "quote": "    data = yaml.load(srv().frame_yaml)",
+      "url": "https://raw.githubusercontent.com/ros/geometry2/72fa60575aad885bd1de289240f7b4b20d0a418b/tf2_tools/scripts/view_frames.py#L52"
+    },
+    {
+      "quote": "       return FrameGraphResponse(self.all_frames_as_yaml()) ",
+      "url": "https://raw.githubusercontent.com/ros/geometry2/72fa60575aad885bd1de289240f7b4b20d0a418b/tf2_ros/src/tf2_ros/buffer.py#L54"
+    }
+  ]
+}

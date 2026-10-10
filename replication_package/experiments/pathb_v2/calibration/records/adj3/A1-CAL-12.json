@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-12",
+  "kind": "A1",
+  "case_id": "CAL-12",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "If two or more transforms are sended from the same node using successive calls to: tf2_ros.TransformBroadcaster().sendTransform() ... only the last one is received by the tf core.",
+    "url": "https://github.com/ros/geometry2/issues/89"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It looks like the c++ broadcaster as [a sending queue of 100](https://github.com/ros/geometry_experimental/blob/indigo-devel/tf2_ros/src/transform_broadcaster.cpp#L42)\nwhile the python implementation has [a send queue of 1](https://github.com/ros/geometry_experimental/blob/indigo-devel/tf2_ros/src/tf2_ros/transform_broadcaster.py#L44)",
+      "url": "https://github.com/ros/geometry2/issues/89#issuecomment-83259331"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+    "url": "https://github.com/ros/geometry2/issues/89"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-        self.pub_tf = rospy.Publisher(\"/tf\", TFMessage, queue_size=1)\n+        self.pub_tf = rospy.Publisher(\"/tf\", TFMessage, queue_size=100)",
+    "url": "https://github.com/ros/geometry2/pull/90/files"
+  },
+  "notes": "Eligibility agreed (stop_step 6, PAIR, topic /tf). Issue #89 body carries the Python reproducer and 'only the last one is received by the tf core'; tfoote's comment 83259331 names the queue mismatch (100 in C++ vs 1 in Python). PR #90 changes queue_size=1 to queue_size=100, matching the spec's resolution summary. FAILED-CONDITION CLASS ERROR: the class field reads 'qos_reliability', but the defect is the rospy publisher's outgoing message-queue depth (queue_size=1 drops all but the newest message when several are enqueued before the publishing thread sends), which is not a reliability QoS policy (and ROS 1 has no such policy). The spec's own notes state 'it is recorded as other'. Correct class is 'other' (rate_shortfall is the nearest named alternative). Elements topic:/tf agreed. Loudness silent/run agreed (message loss with no ROS diagnostic). Resolution 'recommended' agreed (fix merged; reporter re-run not shown)."
+}

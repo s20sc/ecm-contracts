@@ -1,0 +1,128 @@
+{
+  "case_id": "C3-099",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/797",
+    "https://github.com/ros2/rmw_fastrtps/issues/828",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/130",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/131",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/132",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/133",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/commit/f7e1095e7fd5f9d69c127e7c179c680d5ca70612",
+    "https://github.com/ros2/rmw_fastrtps/pull/827",
+    "https://github.com/ros2/rmw_fastrtps/pull/836",
+    "https://github.com/ros2/rmw_dds_common/pull/68",
+    "https://discourse.ros.org/t/incompatability-between-distributions/43747"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #797 gives a docker-compose reproducer (ros:jazzy running `ros2 topic list`, ros:humble running `ros2 topic echo /chatter std_msgs/String`, same ROS_DOMAIN_ID) and the effect \"The `ros2 topic echo` seems to cause unlimited memory consumption and makes the system run OOM in a matter of seconds.\" The duplicate #828 (moved into rmw_fastrtps) adds an AddressSanitizer trace from a humble listener with a jazzy `ros2 topic info /chatter`. Maintainers confirm and fix (rosidl_typesupport_fastrtps #130 and backports; MiguelCompany closes #797 after \"all related PRs have been merged and backported to all the supported distributions\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "rmw_dds_common",
+        "rmw_fastrtps"
+      ],
+      "interface_kind": "definition (message definition of the discovery topic ros_discovery_info)",
+      "evidence": "Every rmw_fastrtps_cpp participant publishes and subscribes rmw_dds_common's ParticipantEntitiesInfo on \"ros_discovery_info\" (rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp at humble). The #828 ASAN trace places the allocation in the humble participant's deserializer of that message: \"rmw_dds_common::msg::typesupport_fastrtps_cpp::cdr_deserialize(eprosima::fastcdr::Cdr&, rmw_dds_common::msg::NodeEntitiesInfo_<std::allocator<void> >&)\" called from \"_ParticipantEntitiesInfo__cdr_deserialize\" via \"rmw_fastrtps_cpp::TypeSupport::deserializeROSmessage\"; \"The crash is triggered by an invalid (excessively large) size argument passed to `resize`.\" The wire data comes from a jazzy/rolling participant whose rmw_dds_common definition differs from humble's (rmw_dds_common PR #68 \"Change Gid.msg to be 16 bytes.\"; Gid.msg is `char[24] data` at humble 1.6.0 and `char[16] data` at jazzy 3.1.0). The failure needs that cross-boundary difference (it does not occur between humble peers), so it is not internal, even though the resolving edit is inside the consumer's deserializer. Not deployment wiring (ROS_DOMAIN_ID separation is only a workaround that \"only makes it less likely to happen\") and not build-only."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the jazzy (or rolling) participant runs rmw_dds_common at a newer revision (Gid 16 bytes) than the humble consumer was built against (rmw_dds_common 1.6.0, Gid 24 bytes); the two are separately released distributions. Title: \"Running a subscriber on Humble with publishing from Jazzy / Rolling uses up all memory\"."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed OOM on the humble machine: \"The `ros2 topic echo` seems to cause unlimited memory consumption and makes the system run OOM in a matter of seconds.\" https://github.com/ros2/rmw_fastrtps/issues/797 ; #828: \"[ros2run]: Killed\" for `ros2 run demo_nodes_cpp listener` on humble when jazzy runs `ros2 topic info /chatter`."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rmw_dds_common",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rmw_dds_common",
+      "broken_rev": "3.1.0",
+      "resolved_rev": "3.1.0",
+      "pinned": true,
+      "revision_basis": "Provider side = the jazzy participant from the reporter's docker-compose (`image: ros:jazzy`, `command: \"ros2 topic list\"`), report dated 2025-01-15, \"Version or commit hash: latest\", installation binary. rmw_dds_common's latest jazzy release tag before that date is 3.1.0 (973ad5c8b60140dbdafe80eb8a192f1d913f94f6, 2024-04-10); the jazzy branch head then (be02253b7b872bb9223e783421c5deee3269abfe) only removes CODEOWNERS/mirror workflow. The exact package version inside the image is not stated. The title also names Rolling as a publisher; rolling also has `char[16] data`. The resolution does not change rmw_dds_common.",
+      "excerpt": false,
+      "ros_distro": "jazzy"
+    },
+    {
+      "name": "rmw_fastrtps",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rmw_fastrtps",
+      "broken_rev": "6.2.7",
+      "resolved_rev": "6.2.7",
+      "pinned": true,
+      "revision_basis": "Consumer side = the humble participant (`image: ros:humble`, `ros2 topic echo /chatter std_msgs/String`, default RMW rmw_fastrtps_cpp), report dated 2025-01-15, \"latest\" binaries. The latest humble release tag of rmw_fastrtps before that date is 6.2.7 (37f7ef88fbec216d47883763f185bd39fc50b5a1, 2024-07-26); #828's `ros2 doctor --report` (humble, May 2025) likewise lists \"rmw_fastrtps_shared_cpp                   : latest=6.2.7, local=6.2.7\". Exact version in the image is inferred. rmw_fastrtps_cpp code is not changed by the resolving change for this (default rmw_fastrtps_cpp) configuration: the fix lives in rosidl_typesupport_fastrtps (humble f7e1095e7fd5f9d69c127e7c179c680d5ca70612, released as 2.2.3), which generates the ParticipantEntitiesInfo deserializer compiled into rmw_dds_common's humble typesupport library; the rmw_fastrtps humble commit 197c1852f1c780728b3add675bf30b316e02458d (PR #836, released in 6.2.9) only adds the counterpart check to rmw_fastrtps_dynamic_cpp, which this composition does not use. Hence resolved_rev keeps 6.2.7.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "1.6.0",
+    "resolved": "1.6.0",
+    "basis": "documented"
+  },
+  "inventory": [
+    {"element": "topic:ros_discovery_info", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}},
+    {"element": "msg:rmw_dds_common/ParticipantEntitiesInfo", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}},
+    {"element": "msg:rmw_dds_common/NodeEntitiesInfo", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}},
+    {"element": "msg:rmw_dds_common/Gid", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}},
+    {"element": "field:rmw_dds_common/ParticipantEntitiesInfo.gid", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}},
+    {"element": "field:rmw_dds_common/ParticipantEntitiesInfo.node_entities_info_seq", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}},
+    {"element": "field:rmw_dds_common/NodeEntitiesInfo.reader_gid_seq", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}},
+    {"element": "field:rmw_dds_common/NodeEntitiesInfo.writer_gid_seq", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}},
+    {"element": "field:rmw_dds_common/Gid.data", "sides": {"rmw_dds_common": "provides", "rmw_fastrtps": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": [
+        "msg:rmw_dds_common/Gid",
+        "msg:rmw_dds_common/NodeEntitiesInfo",
+        "msg:rmw_dds_common/ParticipantEntitiesInfo",
+        "topic:ros_discovery_info"
+      ],
+      "quote": "Change Gid.msg to be 16 bytes.",
+      "url": "https://github.com/ros2/rmw_dds_common/pull/68"
+    },
+    {
+      "class": "element_retyped",
+      "implicated_elements": [
+        "field:rmw_dds_common/Gid.data"
+      ],
+      "quote": "Change Gid.msg to be 16 bytes.",
+      "url": "https://github.com/ros2/rmw_dds_common/pull/68"
+    },
+    {
+      "class": "other",
+      "implicated_elements": [
+        "field:rmw_dds_common/NodeEntitiesInfo.reader_gid_seq",
+        "field:rmw_dds_common/ParticipantEntitiesInfo.node_entities_info_seq"
+      ],
+      "quote": "The crash is triggered by an invalid (excessively large) size argument passed to `resize`.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/828"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No build/connection/activation diagnostic: humble has no type-hash check, so the peers connect and the humble process runs out of memory at run time (\"makes the system run OOM in a matter of seconds\"; #828: \"[ros2run]: Killed\"). The only messages are run-time deserialization errors from rmw_fastrtps's bad_alloc handler (#797: \"we do see the error output caught in https://github.com/ros2/rmw_fastrtps/pull/737 on the humble node\"; #828 shows \"''Bad alloc' exception deserializing message of type rmw_dds_common::msg::dds_::ParticipantEntitiesInfo_., at ./src/type_support_common.cpp:123'\"), which do not identify a type or definition mismatch.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Consumer-side hardening, not removal of the mismatch: the generated CDR deserializers check a sequence length read from the wire against the remaining buffer before resizing and fail the sample instead (rosidl_typesupport_fastrtps templates, rolling 7283329f7c3cb654e7b843ab127ab2eda680662a, humble backport f7e1095e7fd5f9d69c127e7c179c680d5ca70612 released in 2.2.3, which requires rebuilding rmw_dds_common's humble typesupport); counterpart for rmw_fastrtps_dynamic_cpp in rmw_fastrtps (rolling 09e5a5f1b9504431bbc8970bb098438041041dbe, humble 197c1852f1c780728b3add675bf30b316e02458d). The humble consumer still receives jazzy/rolling ParticipantEntitiesInfo samples with the 16-byte Gid layout and now discards them with a printed error. Maintainers also proposed (not implemented in the sources) refusing peers with/without type hashes, and suggested ROS_DOMAIN_ID separation or ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST as workarounds.",
+      "status": "recommended",
+      "evidence": "urfeex, on a locally compiled humble backport of PR #130 with a Rolling (not Jazzy) publisher: \"I've just tested backporting this to Humble, compiling locally and indeed this fixes the issue reported in https://github.com/ros2/rmw_fastrtps/issues/797\" and \"No memory footprint increase observable :-)\" https://github.com/ros2/rosidl_typesupport_fastrtps/pull/130#issuecomment-2897639579 . Neither the local backport build nor the rolling peer is identified by revision, and the peer differs from the jazzy reproducer, so the resolved composition is not shown with identified revisions. #828 reporter (humble victim, jazzy peer, after the merged fixes): \"After reviewing the patch notes and re-running the reproduction steps, the issue no longer occurs.\" (versions not stated)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Composition choice: the only traffic from the jazzy container in the reproducer is from `ros2 topic list` (no /chatter publisher), so the failing interaction is the rmw-level discovery topic, not std_msgs/String on /chatter; in urfeex's later test with a Rolling /chatter publisher the /chatter data was received (\"data: foo\") while \"sequence size exceeds remaining buffer\" was printed. Link between the Gid definition change and this failure: the sources in this issue chain do not state it in one sentence; it is inferred from (a) the #828 ASAN trace (oversized resize of reader_gid_seq while deserializing a peer's ParticipantEntitiesInfo), (b) rmw_dds_common Gid.msg `char[24] data` at humble 1.6.0 vs `char[16] data` at jazzy 3.1.0 / rolling (changed in 5ab4f5944e4442fe0188e15b10cf11377fb45801, PR #68, 2023-01-23), and (c) gavanderhoorn on ROS Discourse listing \"Change the GID storage to 16 bytes\" among the reasons \"the bytestream exchanged is incompatible between anything Humble-and-older and Iron-and-newer\". Other humble/jazzy differences mentioned there (type description distribution, Fast DDS 2.6.x vs 2.14.x) are not shown to contribute. Maintainer position: cross-distro communication is unsupported (fujitatomoya: \"cross-distro communication is not supported. (interfaces are not guaranteed compatible, including breaking ABI/API)\"); clalancette listed detection via type hashes as a possible future mitigation. Unit modelling: provider = rmw_dds_common (owner of the ParticipantEntitiesInfo/NodeEntitiesInfo/Gid definitions serialized by the jazzy participant); consumer = rmw_fastrtps (humble rmw_fastrtps_cpp creates the ros_discovery_info subscription with that type support); the resolving code lives in a third package, rosidl_typesupport_fastrtps, which generates the consumer's deserializer. topic:ros_discovery_info is written without a leading slash because rmw_fastrtps creates it with `qos.avoid_ros_namespace_conventions = true` and the literal name \"ros_discovery_info\". consumer_built_against basis `documented`: the source states the consumer runs Humble binaries and rmw_dds_common's humble branch has a single release line ending at 1.6.0 (head e26ba1079886c5598614172db0b27526aa6af07d). PAIR also applies (the provider's published sample feeds the consumer's subscription). Related duplicate: #828 (framed as a DoS by malformed RTPS packet; same fix). Workaround ROS_DOMAIN_ID separation \"only makes it less likely to happen\" per the reporter."
+}

@@ -1,0 +1,46 @@
+{
+  "case_id": "robust_493e3f9",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/271",
+    "https://github.com/yujinrobot/kobuki/commit/493e3f9c9f65fbf0283571ca92b89a7203e5f287"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #271 (maintainer bit-pirate): \"Currently the centre of mass is assumed to be in the centre of Kobuki's volume, which is wrong (mostly due to the battery being intentionally placed at the front).\n\nThe result is that in Gazebo Kobuki is constantly bouncing from the front to the back and vice versa.\"; fixed by 493e3f9 \"corrects inertia and center of mass using an approximation (fixes #271)\"."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["kobuki_description", "Gazebo"],
+      "interface_kind": null,
+      "evidence": "The URDF's <inertial> block misdescribes the physical robot: the centre of mass is placed at the body centre (<origin xyz=\"0 0 0\"/>, changed to <origin xyz=\"0.01 0 0\"/>) and izz is miscomputed (izz=\"0.006125\" although the comment's own formula izz = 1/2*m*r^2 with m=2.4, r=0.175 gives 0.03675, the value the fix writes). Gazebo interprets the inertial values as URDF specifies them; there is no disagreement about frame, unit, order, or naming between the model and the simulator. Any correct physics consumer given these values simulates the wrong mass distribution, so the defect is in the description's own content, not in an assumption between the two units."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the kobuki_description model is loaded into Gazebo."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"in Gazebo Kobuki is constantly bouncing from the front to the back and vice versa.\""
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "The fix replaces the model's own values (COM offset \"COM experimentally determined\", corrected izz); the maintainers discussed estimating the COM rather than any Gazebo-side convention (\"For the approximate purposes of simulation, it would be close to being halfway from the centre to the front of the robot.\"). A wrong value that crosses the boundary would make this an interface case only if the value were wrong relative to the consumer's expectation (frame, unit, convention); here it is wrong relative to the physical robot."
+}

@@ -1,0 +1,51 @@
+{
+  "case_id": "robust_0af76d5",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/issues/35",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/0af76d5/0af76d5.bug",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/0af76d5/test.sh",
+    "https://github.com/ros/geometry2/blob/5722773de7d688bcaf8dfe68a0f2a55ff49dc9d3/tf2_ros/include/tf2_ros/message_filter.h"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #35 ('extend tf2_message_filter to avoid race conditions on callback') was opened 2013-10-29 by the maintainer tfoote himself and quotes the earlier trac tickets 5488 and 3007: 'The problem is the following: the transform is not passed on together with the message, which means that there is no guarantee that it is actually available when the callback is executed. If the tf Transformer runs in it's own thread, it might happen that it discards the necessary information in between. This is not a bug in the implementation, but a design flaw.' and 'tf::message_filters are difficult to use because you're only guaranteed to have a transform at the beginning of the callback, not when you actually want to use the transform.' (https://github.com/ros/geometry2/issues/35). The maintainer-authored ticket is taken as the maintainer's confirmation of a concrete defect. There is no reproducer script or error log in the source: the trac tickets are not archived (Wayback Machine reports no snapshot for code.ros.org/trac/ros-pkg/ticket/5488 and /3007), and the ROBUST record only describes an intended reproduction ('The idea is to create a buffer object, manually insert some transforms into it, then instantiate a tf message filter ... and then show that the transform we're looking for, and which msg filters said was there, is no longer there.') with the rostest line commented out in test.sh ('# rostest tf2_ros bug_witness.test'). The issue was closed 2025-05-31 only because the repository was archived at ROS 1 EOL; 'fix: null' in the ROBUST record."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "tf2_ros (MessageFilter and Buffer library, in-process)",
+        "client node registering a tf2_ros::MessageFilter callback (no concrete node named in the source)"
+      ],
+      "interface_kind": null,
+      "evidence": "Step 1: the only interaction the source describes is between the tf2_ros MessageFilter library and whatever client code registers a callback on it; no concrete second unit, repository, or revision is named. Step 2: the failure does not depend on an assumption between two units and would occur with any correct peer. MessageFilter::add registers a transformable request with the buffer (bc_.addTransformableRequest(callback_handle_, target_frame, frame_id, stamp), message_filter.h at 5722773); the buffer's own listener thread later decides the message is transformable and the callback is queued, while the same library's buffer keeps receiving data and may prune the requested time out of its cache before the client's callback runs. ROBUST: 'the checking by tf msg filters whether that is possible and the invocation of the callback happen at two separate times, so even if the check succeeds, by the time the callback is fired, it could fail, because the frames could already have been pushed out of the tf buffer.' The trac text says there is 'no guarantee that it is actually available when the callback is executed', i.e. even a client that looks the transform up immediately can lose it. The race is between two threads of the tf2_ros/tf2 library inside one process; no declared interface element (topic, service, parameter, definition, API declaration) differs between the two sides, and the source itself calls it 'a design flaw' of the API rather than a mismatch between two components. Alternative reading, not adopted: treat the availability guarantee of the MessageFilter callback as a timing contract crossing the library-API boundary (eligible, interface kind library API, class other, outcome undocumented, resolution none); this was rejected because the guarantee cannot be satisfied by any behaviour of the peer and because no concrete composition (second unit with a revision) is documented."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2. For the record: no observed failure instance, warning, or log appears in issue #35 or the ROBUST record; the effect is described only at design level, and the ROBUST record states 'To the best of our knowledge, this bug / design issue remains in ROS till the time of writing this analysis. It has never been addressed.'"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): the documented race is between the transformability check and the later callback inside the tf2_ros MessageFilter/tf2 Buffer library in a single process (the buffer may discard the transform between the two), which occurs regardless of what any peer does; the source names no second deployable unit, no interface element that differs between two sides, and no fix (issue closed only at repository archival). E1 passes only on the strength of the maintainer-authored ticket; there is no reproducer or error log in the public sources (trac tickets 5488/3007 are not archived).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

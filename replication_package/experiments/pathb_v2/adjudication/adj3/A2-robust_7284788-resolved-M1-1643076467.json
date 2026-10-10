@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_7284788-resolved-M1-1643076467",
+  "kind": "A2",
+  "case_id": "robust_7284788",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::lookupTransform]",
+      "verdict": "verified",
+      "source_excerpt": "built u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:70-72 -> \"    virtual geometry_msgs::TransformStamped \" / \"      lookupTransform(const std::string& target_frame, const std::string& source_frame,\" / \"\t      const ros::Time& time, const ros::Duration timeout) const;\" ; running u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:49,70-72,86-89 -> \"    using tf2::BufferCore::lookupTransform;\" / \"    virtual geometry_msgs::TransformStamped \" / \"    lookupTransform(const std::string& target_frame, const std::string& source_frame,\" / \"                    const ros::Time& time, const ros::Duration timeout) const;\""
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::lookupTransform]",
+      "verdict": "verified",
+      "source_excerpt": "u0032/snapshot/tf/src/tf.cpp:242 -> \"    tf2_buffer_.lookupTransform(strip_leading_slash(target_frame),\""
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::lookupTransform]",
+      "verdict": "transcription_only",
+      "built_excerpt": "u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:70-72 -> \"    virtual geometry_msgs::TransformStamped \" / \"      lookupTransform(const std::string& target_frame, const std::string& source_frame,\" / \"\t      const ros::Time& time, const ros::Duration timeout) const;\"",
+      "running_excerpt": "u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:49,70-72,86-89 -> \"    using tf2::BufferCore::lookupTransform;\" / \"    virtual geometry_msgs::TransformStamped \" / \"    lookupTransform(const std::string& target_frame, const std::string& source_frame,\" / \"                    const ros::Time& time, const ros::Duration timeout) const;\""
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Spec operation is UPGRADE. The resolved composition pairs provider tf2_ros (u0101) with consumer tf (u0032); the consumer calls tf2_buffer_.lookupTransform(...) at tf.cpp:242 and the pair_view edge connects out_role == in_role == api:tf2_ros::Buffer::lookupTransform."
+  },
+  "notes": "Both triggering values verified (changed_fields and consumer_reads; the cited locations open and show the lookupTransform declarations). Substance is transcription_only: the whole-file diff of tf2_ros/buffer.h between u0099 (0.5.7) and u0101 (0.5.10) shows only whitespace/indentation changes on lookupTransform (and canTransform); the signatures are byte-identical, and both revisions already carry 'using tf2::BufferCore::lookupTransform;' (buffer.h:49) plus the two timeout overloads (buffer.h:70-72 and 86-89). The ver_delta 'change' is purely because u0099's recon transcribed only the first overload while u0101's recon transcribed the using-declaration plus both overloads. No substantive type/arity/return/default change, so this field_break is a transcription artifact, not a real API break."
+}

@@ -1,0 +1,92 @@
+{
+  "case_id": "robust_5ee65b0",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_desktop/issues/32",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/5ee65b061a4a919b2a32e80087f4cb3e51e924ed",
+    "https://github.com/ros/ros_comm/commit/8b43036842926cc9a351d37cd888537fd2797eb0",
+    "https://github.com/ros/ros_comm/commit/69fb651de8f547c7d48d57ea9cc7c78a492d77d9",
+    "https://github.com/ros/ros_comm/blob/1.11.8/clients/rospy/src/rospy/topics.py",
+    "https://github.com/ros/ros_comm/blob/1.9.40/clients/rospy/src/rospy/topics.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #32 'Add queue_size for publishers.' was opened by maintainer jihoonl on 2014-08-08 with the concrete observation \"From indigo, Publisher complains not having queue_size arguement..\" and closed by him three days later with a link to his fixing commit 5ee65b0, which adds `queue_size=5` to the two `rospy.Publisher(...)` constructor calls in kobuki_dashboard (led_widget.py and motor_widget.py). The complaint is the warning that rospy emits from Indigo on when a Publisher is created without queue_size; the maintainer's report and fix are the confirmation."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_dashboard", "rospy"],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the units are kobuki_dashboard (an rqt dashboard plugin, Python package in yujinrobot/kobuki_desktop, running as a ROS node) and rospy (the ROS Python client library, package in ros/ros_comm, separately released with each ROS distribution). Step 2: the failure is not internal: the same two calls `rospy.Publisher(topic, Led)` and `rospy.Publisher(topic, MotorPower)` are silent under the rospy the code was written against and produce a warning under Indigo's rospy, so it depends on the provider's declaration. Step 3: no launch/config name binding is involved. Step 4: not a build or dependency change; the provider changed the declaration of `rospy.Publisher.__init__` (added the `queue_size` keyword and a warning when it is omitted) and the consumer's fix changes its calls to that constructor. Step 5: not firmware. Step 6: eligible, interface kind library API."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider runs at a newer revision than the consumer was written against. The reporter names the provider revision by distribution only (\"From indigo, Publisher complains ...\"); the Publisher calls in kobuki_dashboard were written on 2013-01-23 (git blame da40a9d4, Groovy era) against a rospy whose `Publisher.__init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None)` had no queue_size parameter. rospy added `queue_size=None` in ros_comm 69fb651d (2013-10-29, 'implement optional queueing for rospy publications (#169)') and the warning in 8b430368 (2014-03-11, 'add warning when queue_size is omitted for rospy publisher (#346)'), first released in 1.11.1. No other operation is documented."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The effect is observed and reported: \"From indigo, Publisher complains not having queue_size arguement..\" The composition keeps working (rospy falls back to synchronous publishing and prints a warning), so this is a warning, not a failure."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_dashboard",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "f04c615cd9216e1b7b6949db2745dc8fa25acc0b",
+      "resolved_rev": "5ee65b061a4a919b2a32e80087f4cb3e51e924ed",
+      "pinned": true,
+      "revision_basis": "broken_rev is the parent of the fixing commit on hydro-devel (2014-05-28, 'cherry-picking #30'); at this revision kobuki_dashboard/src/kobuki_dashboard/led_widget.py line 11 reads `self._pub = rospy.Publisher(topic, Led)` and motor_widget.py line 11 reads `self._pub = rospy.Publisher(topic, MotorPower)` (both lines authored 2013-01-23 in da40a9d4). resolved_rev is the fixing commit 5ee65b0 (2014-08-08), contained in hydro-devel and indigo and first released in tag 0.4.0 (2014-08-11).",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "rospy",
+      "role": "provider",
+      "repo": "https://github.com/ros/ros_comm",
+      "broken_rev": "1.11.8",
+      "resolved_rev": "1.11.8",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distribution (\"From indigo\") on 2014-08-08. The warning was introduced by ros_comm commit 8b430368 (2014-03-11), which is absent from tag 1.11.0 (2014-03-04) and present from 1.11.1 (2014-05-07) on; 1.11.8 (2014-08-04) is the latest Indigo tag before the report, so the running provider is one of 1.11.1 through 1.11.8 and 1.11.8 is used as the bound. The resolution does not change the provider.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "1.9.40",
+    "resolved": "1.11.8",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:rospy.Publisher", "sides": {"rospy": "provides", "kobuki_dashboard": "consumes"}},
+    {"element": "api:rospy.Publisher.__init__", "sides": {"rospy": "provides", "kobuki_dashboard": "consumes"}},
+    {"element": "api:rospy.Publisher.publish", "sides": {"rospy": "provides", "kobuki_dashboard": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:rospy.Publisher.__init__"],
+      "quote": "From indigo, Publisher complains not having queue_size arguement..",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/32"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The diagnostic is rospy's own warning at Publisher construction, reported by the maintainer as \"Publisher complains not having queue_size arguement\". The provider code at 1.11.8 (clients/rospy/src/rospy/topics.py) emits it when queue_size is None: warnings.warn(\"The publisher should be created with an explicit keyword argument 'queue_size'. Please see http://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers for more information.\", SyntaxWarning, stacklevel=2). It is raised when the widget constructs its publishers at plugin start-up, before any connection, so the stage is activation; the issue does not quote the warning text verbatim.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Pass an explicit queue size to both publishers: `self._pub = rospy.Publisher(topic, Led, queue_size=5)` and `self._pub = rospy.Publisher(topic, MotorPower, queue_size=5)` (commit 5ee65b0, released in kobuki_desktop 0.4.0 for Indigo).",
+    "status": "recommended",
+    "evidence": "The maintainer closed the issue with the commit link (https://github.com/yujinrobot/kobuki_desktop/issues/32#issuecomment-51742471) but the source does not show the resolved composition running without the warning. The change follows the provider's documented remedy in the same docstring (\"When the keyword is not being used or when None is passed all publishing will happen synchronously and a warning message will be printed.\")."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "consumer_built_against.broken = 1.9.40 is inferred: the two constructor calls omit queue_size and match the Publisher declaration of the Groovy rospy current when they were written (1.9.40, tagged 2013-01-13; `def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None)`). The same call form is also warning-free under Hydro's rospy (1.10.x, e.g. 1.10.10 has `queue_size=None` but no warning) and under Indigo 1.11.0; the warning only exists from 8b430368 (in 1.11.1+), so any provider revision before that commit is consistent with the consumer's references. consumer_built_against.resolved = 1.11.8 is inferred from the fix passing queue_size=5, which matches the Indigo declaration. The same commit 5ee65b0 also migrates kobuki_qtestsuite from `rqt_plot.mat_data_plot.MatDataPlot` to `rqt_plot.data_plot.DataPlot` (commit message: 'now it uses dataplot class instead of mat dataplot. It still shows weird scaling though..'); that is a different composition (kobuki_qtestsuite versus the rqt_plot library API, a removed/renamed class) not reported in issue #32 and not a condition of this case. Message types published (kobuki_msgs/Led, kobuki_msgs/MotorPower) are exchanged with the Kobuki base node, not with rospy, and are omitted from the inventory."
+}

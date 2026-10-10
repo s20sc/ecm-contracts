@@ -1,0 +1,96 @@
+{
+  "item_id": "A1-robust_03660af",
+  "kind": "A1",
+  "case_id": "robust_03660af",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": " * Need to be a bit careful here, because we have no control over how the user\n * is calling this - they may be calling from different threads (this is so for\n * kobuki_node), so we mutex protect it here rather than relying on the user\n * to do so above.",
+    "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/03660afb5917366cc6d57567e2f695450fd95feb/kobuki_driver/src/driver/kobuki.cpp#L348-L351",
+    "reason": "E1: the public issue and accepted code change document a concrete unprotected-write defect. E2: kobuki_node and its library package kobuki_driver are distinct units; the maintainer explicitly identifies the host's multithreaded calls as the reason the library must synchronize its command API. This is a cross-boundary thread-safety assumption, not a failure independent of the peer. The resolving change is neither deployment wiring, build-only, nor a firmware-only repair. E3: CONCURRENT is supported by the simultaneous host callers and the driver's streaming thread; PAIR also describes the structural call relationship but not the reported contention. E4: the maintainer's code-level statement establishes the mismatch without an observed failure, so undocumented is appropriate."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "These are potentially accessible from multiple threads.\n\nNeed to mutex around the serial.write().\n",
+      "url": "https://github.com/yujinrobot/kobuki/issues/125",
+      "reason": "The documented defect is missing synchronization of command API calls, for which other is appropriate. The serial device is internal to the driver rather than a resource independently claimed by the two selected units. The three command setters directly enter sendCommand, and disable directly enters sendBaseControlCommand; both paths write to the same serial object without a lock at the parent revision. The consumer actually calls all four listed methods. setBaseControl only updates the velocity command state; enable only sets a flag; init sends its version request before starting the streaming thread. The sources do not document another failed condition on those elements.",
+      "evidence": [
+        {
+          "quote": "  sendCommand(Command::SetLedArray(number, colour, kobuki_command.data));",
+          "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_driver/src/driver/kobuki.cpp#L316"
+        },
+        {
+          "quote": "  sendCommand(Command::SetDigitalOutput(digital_output, kobuki_command.data));",
+          "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_driver/src/driver/kobuki.cpp#L320"
+        },
+        {
+          "quote": "  sendCommand(Command::PlaySoundSequence(number, kobuki_command.data));",
+          "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_driver/src/driver/kobuki.cpp#L330"
+        },
+        {
+          "quote": "bool Kobuki::disable()\n{\n  setBaseControl(0.0f, 0.0f);\n  sendBaseControlCommand();\n  is_enabled = false;\n  return true;\n}",
+          "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_driver/src/driver/kobuki.cpp#L407-L413"
+        },
+        {
+          "quote": "  case kobuki_comms::Led::GREEN:  kobuki.setLed(Led1, Green ); break;",
+          "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_node/src/node/subscriber_callbacks.cpp#L73"
+        },
+        {
+          "quote": "  kobuki.setDigitalOutput(digital_output);",
+          "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_node/src/node/subscriber_callbacks.cpp#L101"
+        },
+        {
+          "quote": "    kobuki.playSoundSequence(On);",
+          "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_node/src/node/subscriber_callbacks.cpp#L112"
+        },
+        {
+          "quote": "  kobuki.disable();",
+          "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_node/src/node/subscriber_callbacks.cpp#L169"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "These are potentially accessible from multiple threads.\n\nNeed to mutex around the serial.write().\n",
+    "url": "https://github.com/yujinrobot/kobuki/issues/125",
+    "reason": "Unknown is supported: the entire issue body describes potential exposure, not an observed run, and the only comment is Done. Neither a runtime diagnostic nor an explicitly silent observed failure is supplied. The source contains a command-serialization error emitter, but does not show it firing for this race; its mere existence does not establish loud_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "These are potentially accessible from multiple threads.\n\nNeed to mutex around the serial.write().\n",
+    "url": "https://github.com/yujinrobot/kobuki/issues/125",
+    "reason": "Unknown: the report supplies no diagnostic or observed detection stage. A concurrency defect that could occur during execution is not evidence that it was detected at run time."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Done.\n",
+    "url": "https://github.com/yujinrobot/kobuki/issues/125#issuecomment-6092352",
+    "reason": "Recommended is the defined category for an accepted implementation not shown working in the specified composition. The commit adds command_mutex, locks sendCommand and routes the velocity write through that function. Neither the issue's sole closing comment nor the commit supplies a successful run identifying both unit revisions. A closed issue is not sufficient evidence for observed.",
+    "evidence": [
+      {
+        "quote": "  sendCommand(Command::SetVelocityControl(velocity_commands[0], velocity_commands[1]));",
+        "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/03660afb5917366cc6d57567e2f695450fd95feb/kobuki_driver/src/driver/kobuki.cpp#L343"
+      },
+      {
+        "quote": "  command_mutex.lock();",
+        "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/03660afb5917366cc6d57567e2f695450fd95feb/kobuki_driver/src/driver/kobuki.cpp#L357"
+      },
+      {
+        "quote": "  serial.write(&command_buffer[0], command_buffer.size());\n\n  sig_raw_data_command.emit(command_buffer);\n  command_mutex.unlock();",
+        "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/03660afb5917366cc6d57567e2f695450fd95feb/kobuki_driver/src/driver/kobuki.cpp#L370-L373"
+      }
+    ]
+  },
+  "notes": "Read the public issue body and its complete one-comment thread, fixing commit metadata and driver diff, fixed command implementation, parent command implementation and streaming-thread call sites, consumer subscriber callbacks, and consumer manifest in this session. The API confirms that 32388d7cc5591cf38385ad62d01f0f292f734b17 is the fix's parent. No additional documented failed interaction in the selected composition was found. Unrelated debug-publisher and battery-monitor changes do not establish additional conditions. Absence of observed diagnostics or successful retests is a limitation of the inspected evidence, not proof that none occurred elsewhere."
+}

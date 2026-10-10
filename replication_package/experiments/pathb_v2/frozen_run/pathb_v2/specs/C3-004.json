@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-004",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_cyclonedds/issues/395",
+    "https://github.com/eclipse-cyclonedds/cyclonedds/issues/479",
+    "https://github.com/Nova-UTD/navigator/commit/c316a7e884174a2cfa3e0e7610804486c5d584db",
+    "https://github.com/Nova-UTD/navigator/commit/05f554308bf0e36dcbb67c8660badbdaade36aea",
+    "https://github.com/Nova-UTD/navigator/commit/1d40ba01425de5264195bbbafebf21c1f3a562ad",
+    "https://github.com/Nova-UTD/navigator/commit/659ccb0ab1eb8f48c240a50804d79e2d456f6df4"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer \"RMW_IMPLEMENTATION=rmw_cyclonedds_cpp  gazebo -s libgazebo_ros_init.so /usr/share/gazebo-11/worlds/elevator.world\" with log line \"1652881428.257805 []   gzserver: create_thread: gzserver: no free slot\"; the Cyclone DDS maintainer points to cyclonedds#479 and the reporter confirms \"The problem is fixed by building a custom build of cyclonedds.\" -- https://github.com/ros2/rmw_cyclonedds/issues/395"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["gzserver (Gazebo 11 with gazebo_ros init plugin)", "cyclonedds (via rmw_cyclonedds_cpp)"],
+      "interface_kind": null,
+      "evidence": "The crash is caused by a fixed-size thread-state table inside the Cyclone DDS library, which runs out of slots when enough threads use it on a many-core machine; no value, name, frame, unit, or timing crosses a boundary, and any correct application using that many threads triggers it. The reporter's fix changes only the library's own constant: \"As for a 128 cores machine, the max number of threads is changed from \\\"64\\\" to \\\"256\\\"  (Tested \\\"128\\\" but still failed) in the source file: [cyclonedds/src/core/ddsc/src/dds_init.c] ... thread_states_init (64);\" -- https://github.com/ros2/rmw_cyclonedds/issues/395. The linked upstream issue describes the same limit: \"Probably cause could be caused by the fixed number of max. allocated threads here\" and the maintainer: \"Once again proof that every quick workaround comes back to bite one ... I'd prefer a change that removes the limit altogether\" -- https://github.com/eclipse-cyclonedds/cyclonedds/issues/479. A resource limit inside one library is ineligible `internal`."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated past E2. The failure appears while gzserver runs with Cyclone DDS (both active in one process)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"Gzserver crashes within several minutes after starting with the following logging.\" -- https://github.com/ros2/rmw_cyclonedds/issues/395"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: Cyclone DDS's hard-coded thread-state table (thread_states_init(64)) is exhausted on a 128-core machine; a capacity limit inside one library that any correct many-threaded application triggers.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Setup reported: Ubuntu 20.04, ROS 2 Foxy binaries, rmw_cyclonedds 0.7.3, Gazebo 11 in Docker on a 128-core host; the working custom build used cyclonedds branch release/0.7.x and rmw_cyclonedds branch foxy with the constant raised to 256. Upstream cyclonedds later removed the limit (per cyclonedds#479: \"This was solved, once and for all, by https://github.com/eclipse-cyclonedds/cyclonedds/pull/1290\"). The packet's fix commits are in a downstream project (Nova-UTD/navigator), not by the rmw_cyclonedds or cyclonedds maintainers: c316a7e8 (2022-10-31) has the message \"Fix CycloneDDS error - https://github.com/ros2/rmw_cyclonedds/issues/395 - Removed CycloneDDS apt package, build from source under /src/external\"; its Dockerfile diff replaces `apt install -y ros-foxy-rmw-cyclonedds-cpp` with a sysctl receive-buffer setting. 05f55430, 1d40ba01 and 659ccb0a are large squash commits (all titled \"v1.3.1 - Add MCL, mapping tools, and leaderboard connection improvments (#304)\", committer date 2023-01-21) whose messages include the same bullet. These are build/packaging workarounds in a third project and would themselves be `build`. Reason code judgment: the limit is not a declared interface attribute of either unit; it could alternatively be argued to be an undocumented capacity assumption between application and library, which none of the listed failure classes covers."
+}

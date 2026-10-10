@@ -1,0 +1,101 @@
+{
+  "case_id": "robust_35682ec",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/235",
+    "https://github.com/yujinrobot/kobuki/issues/235#issuecomment-18270268",
+    "https://github.com/yujinrobot/kobuki/commit/35682ec3c3e7177373c66c48228ad58b2eb34aae",
+    "https://github.com/yujinrobot/yujin_ocs/commit/2c10cf98313b14463b40e6c2ad31de8389dd760f",
+    "https://github.com/yujinrobot/yujin_ocs/commit/6d2582b700cb1b256028181591f36f3554abd3f3",
+    "https://github.com/yujinrobot/kobuki/commit/eba436854aa36da144f84f6c6261d454861b89cf"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue body by corot (Jorge Santos, Yujin developer): \"Doesn't move at all. Probably something with remappings and/or cmd_vel_mux\". One hour later the same developer committed 35682ec3 to kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch with message \"Issue #235: remap fixed but keyop still fails when commanding after auto-docking\", changing the remap source from cmd_vel_mux/mux_cmd_vel to cmd_vel_mux/output. Maintainer confirmation of the wrong remap plus a concrete diff."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["cmd_vel_mux", "kobuki_auto_docking"],
+      "interface_kind": "topic",
+      "evidence": "Step 1: cmd_vel_mux is a nodelet in package cmd_vel_mux (yujin_ocs repository); kobuki_auto_docking is a separate package (kobuki repository) whose launch file auto_dock_with_safe_keyop.launch loads the mux, feeds it from its own dock_drive nodelet, and remaps the mux output onto the base driver's command topic. Step 2: the failure is a topic-name mismatch crossing the boundary (the launch references the mux output by a name the mux no longer advertises). Step 3: the resolving edit is a launch remap, but it follows a provider rename: yujin_ocs 2c10cf98 (2012-12-26) changed the nodelet's advertise from \"mux_cmd_vel\" to \"output\" (mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"output\", 10);), and 6d2582b7 the same day made the name a yaml-configurable value defaulting to \"output\". A provider renaming an element that the consumer must follow is an interface change even when the consumer's fix is in a launch file. Steps 4-5 do not apply. Interface kind: topic."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer launch file at kobuki d0bfb126 still references cmd_vel_mux/mux_cmd_vel, the output topic name as declared by cmd_vel_mux before yujin_ocs 2c10cf98 (advertised as \"mux_cmd_vel\" from the initial version 84feeed through f68923d3); the provider running at report time (any yujin_ocs revision from 2c10cf98 on; release 0.2.2 was current) advertises \"output\". PAIR (mux output feeding the base) is the underlying data flow; the failure was observed with the provider at a newer revision than the consumer's reference, so UPGRADE."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"Doesn't move at all.\" (issue body) - observed failure of the velocity path."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "cmd_vel_mux",
+      "role": "provider",
+      "repo": "https://github.com/yujinrobot/yujin_ocs",
+      "broken_rev": "b2e0f3867461cde4966de6192a879c1a287557e0",
+      "resolved_rev": "b2e0f3867461cde4966de6192a879c1a287557e0",
+      "pinned": true,
+      "revision_basis": "The issue names no yujin_ocs revision or release. The output topic has been advertised as \"output\" since 2c10cf98 (2012-12-26 22:08 +0900); at 6d2582b7 (same day) it became the default of the yaml 'publisher' key, still \"output\". b2e0f386 is tag 0.2.2 (2013-02-10), the newest yujin_ocs release before the 2013-02-25 report and the head of origin/groovy-devel on that date; every revision from 2c10cf98 to the report date declares the same output name, so the choice within that range does not affect the interface. The resolution does not change this unit, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "kobuki_auto_docking",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "d0bfb12680e05a4ea93fcbb3cf58aa2817c2aa24",
+      "resolved_rev": "35682ec3c3e7177373c66c48228ad58b2eb34aae",
+      "pinned": true,
+      "revision_basis": "d0bfb126 is the parent of the fix commit and was committed by the reporter on the report date (2013-02-25, 'Mobile base nodelet manager renamed ...'); it contains the remap <remap from=\"cmd_vel_mux/mux_cmd_vel\" to=\"mobile_base/commands/velocity\"/>. 35682ec3 (2013-02-25) is the fix, contained in tag 0.3.6 (2013-02-28) and later.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "f68923d34844e731924d77384d9460c594877366",
+    "resolved": "b2e0f3867461cde4966de6192a879c1a287557e0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {
+      "element": "topic:cmd_vel_mux/output",
+      "sides": {"cmd_vel_mux": "provides", "kobuki_auto_docking": "consumes"}
+    },
+    {
+      "element": "topic:cmd_vel_mux/auto_docking",
+      "sides": {"cmd_vel_mux": "consumes", "kobuki_auto_docking": "provides"}
+    },
+    {
+      "element": "param:cmd_vel_mux/yaml_cfg_file",
+      "sides": {"cmd_vel_mux": "consumes", "kobuki_auto_docking": "provides"}
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["topic:cmd_vel_mux/output"],
+      "quote": "-  mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"mux_cmd_vel\", 10);\n+  mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"output\", 10);",
+      "url": "https://github.com/yujinrobot/yujin_ocs/commit/2c10cf98313b14463b40e6c2ad31de8389dd760f"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "\"Doesn't move at all. Probably something with remappings and/or cmd_vel_mux\" (https://github.com/yujinrobot/kobuki/issues/235). No diagnostic is shown; a ROS 1 remap whose source name is never advertised produces no error, the mux simply publishes on the unremapped cmd_vel_mux/output while the base waits on mobile_base/commands/velocity.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "In kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch change the remap source from cmd_vel_mux/mux_cmd_vel to cmd_vel_mux/output so that the mux's current output topic is routed to mobile_base/commands/velocity (kobuki 35682ec3).",
+    "status": "recommended",
+    "evidence": "Commit message: \"Issue #235: remap fixed but keyop still fails when commanding after auto-docking\" (https://github.com/yujinrobot/kobuki/commit/35682ec3c3e7177373c66c48228ad58b2eb34aae). Closing comment three months later: \"There'is no problem. kobuki_auto_docking used to disable the motors after succeeding.\" (https://github.com/yujinrobot/kobuki/issues/235#issuecomment-18270268). The source states that the remap is fixed but never shows the corrected composition driving the robot; the residual symptom is attributed to motor power being disabled after docking."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Data sink: the velocity messages routed by the remap are consumed by kobuki_node's mobile_base nodelet (kobuki_ros.cpp:327 at d0bfb126: velocity_command_subscriber = nh.subscribe(std::string(\"commands/velocity\"), ...)), which is unchanged by the resolution; it is reached only through the launch remap, so the package that owns the launch file (kobuki_auto_docking, which also owns the dock_drive nodelet publishing into the mux) is taken as the consumer unit. consumer_built_against (inferred): the launch file was authored on 2012-12-14 (kobuki f60b72cc) with the remap source cmd_vel_mux/mux_cmd_vel; that name matches the provider's advertise from the initial version (yujin_ocs 84feeed, 2012-12-01) through f68923d3 (2012-12-26 19:32 +0900, the parent of the rename; release 0.1.1 of 2012-12-21 also advertises \"mux_cmd_vel\"); f68923d3 is the last matching provider revision. kobuki eba43685 (2012-12-26, 'updates for dynamic cmd_vel_mux') updated the launch's parameter name (subscribers_cfg_file -> yaml_cfg_file) for the same provider change set but left the output remap untouched; kobuki_node/launch/webop.launch at d0bfb126 already used cmd_vel_mux/output. kobuki_auto_docking/param/cmd_vel_mux.yaml (subscribers auto_docking, safety_controller, keyboard_teleop) has no 'publisher' key, so the mux advertised the default \"output\". Other compositions in the same launch (dock_drive -> mux, safety controller -> mux, keyop -> velocity smoother -> mux) are wired correctly and are not conditions of this case. The residual 'keyop still fails when commanding after auto-docking' concerns kobuki_auto_docking switching motor power off after a successful dock, a separate behaviour, not an interface condition of this composition. ROS distro is not stated; the repositories were on their groovy lines in February 2013."
+}

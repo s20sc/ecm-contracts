@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_0481047-resolved-M1-c92956b86c",
+  "kind": "A2",
+  "case_id": "robust_0481047",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+      "verdict": "verified",
+      "source_excerpt": "built u0033/snapshot/tf2/include/tf2/buffer_core.h:296 -> \"  std::string _allFramesAsDot() const;\" ; running u0034/snapshot/tf2/include/tf2/buffer_core.h:300 -> \"  std::string _allFramesAsDot(double current_time) const;\""
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:tf2::BufferCore::_allFramesAsDot]",
+      "verdict": "verified",
+      "source_excerpt": "u0032/snapshot/tf/src/tf.cpp:441 -> \"  return tf2_buffer_._allFramesAsDot();\""
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+      "verdict": "substantive",
+      "built_excerpt": "u0033/snapshot/tf2/include/tf2/buffer_core.h:296 -> \"  std::string _allFramesAsDot() const;\"",
+      "running_excerpt": "u0034/snapshot/tf2/include/tf2/buffer_core.h:300 -> \"  std::string _allFramesAsDot(double current_time) const;\""
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Spec operation is UPGRADE. The resolved composition pairs provider tf2 (task u0034, resolved revision 04810475) providing api:tf2::BufferCore::_allFramesAsDot with consumer tf (task u0032) reading it at tf.cpp:441; the pair_view edge sets out_role == in_role == the element, so the two ports are actually connected."
+  },
+  "notes": "Both triggering values verified (changed_fields and consumer_reads). The changed_fields delta is substantive: at built revision tf2 0.5.7 (u0033) the member is declared 'std::string _allFramesAsDot() const;' (zero-arg), while at the running/resolved revision (u0034) line 300 is 'std::string _allFramesAsDot(double current_time) const;' — an arity change (a double parameter added). Note the resolved revision 04810475 re-adds the zero-arg overload at buffer_core.h:301 ('std::string _allFramesAsDot() const;'), which is exactly the backwards-compatibility fix (PR #86); the consumer's zero-arg call at tf.cpp:441 is therefore satisfied in the resolved composition. The field_break on this element is a genuine substantive signature change between built and running, consistent with the case's element_retyped/removed condition."
+}

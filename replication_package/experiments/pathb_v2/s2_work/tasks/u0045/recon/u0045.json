@@ -1,0 +1,72 @@
+{
+  "task_id": "u0045",
+  "package": "cob_sound",
+  "manifest_version": "0.6.7",
+  "ports": [
+    {
+      "element": "param:/sound_controller/cepstral_settings",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/sound_controller/cepstral_voice",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/sound_controller/mode",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "param:/sound_controller/cepstral_settings",
+    "param:/sound_controller/cepstral_voice",
+    "param:/sound_controller/mode"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:cob_sound/package.xml:3",
+    "ports[0].side": "snapshot:cob_sound/ros/src/sound.cpp:215",
+    "ports[0].frame": "snapshot:cob_sound/ros/src/sound.cpp:215 (string param read as std::string, used only to build the swift command line at :218; no spatial meaning)",
+    "ports[1].side": "snapshot:cob_sound/ros/src/sound.cpp:214",
+    "ports[1].frame": "snapshot:cob_sound/ros/src/sound.cpp:214 (string param read as std::string, used only to build the swift command line at :218; no spatial meaning)",
+    "ports[2].side": "snapshot:cob_sound/ros/src/sound.cpp:213",
+    "ports[2].frame": "snapshot:cob_sound/ros/src/sound.cpp:213 (string param read as std::string, compared with \"cepstral\" at :216 to select the TTS command; no spatial meaning)",
+    "references[param:/sound_controller/cepstral_settings]": "snapshot:cob_sound/ros/src/sound.cpp:215",
+    "references[param:/sound_controller/cepstral_voice]": "snapshot:cob_sound/ros/src/sound.cpp:214",
+    "references[param:/sound_controller/mode]": "snapshot:cob_sound/ros/src/sound.cpp:213",
+    "perm_requires": "searched all files under snapshot/cob_sound (package.xml, CMakeLists.txt, action/*.action, ros/src/sound.cpp, ros/src/test_client.py, fix_swift_for_precise.sh); no permission declarations; no launch or yaml configuration for cob_sound exists in the snapshot",
+    "perm_grants": "same search as perm_requires; nothing found",
+    "recovery": "same search as perm_requires; on command failure sound.cpp only publishes a DiagnosticStatus level 2 (lines 224-239, 267-282); no declared recovery behaviour"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All three params are read consistently with nh_.param<std::string> under absolute names with defaults and used coherently (mode selects cepstral vs festival; voice and settings feed the swift command). The only oddity is that the node is initialised as 'cob_sound' while the params live under /sound_controller, which may be intentional given launch files not in the snapshot."
+  },
+  "confidence": "high",
+  "notes": "cob_sound only consumes the three packet elements; it provides none, so declares and not_declared are empty. All three are read inside say() on every call (sound.cpp:209-215) via nh_.param<std::string> with absolute names, so the NodeHandle namespace does not affect resolution. Declared C++ type is std::string for all three; defaults: mode \"festival\" (:213), cepstral_voice \"David\" (:214), cepstral_settings \"\\\"speech/rate=170\\\"\" (:215, the default includes literal double quotes). cepstral_voice and cepstral_settings are only used when mode == \"cepstral\" (:216-218). msg_type and definition_id are null because these are parameters, not message-typed elements; QoS null because ROS 1. The node is started with ros::init name \"cob_sound\" (:360); no launch or yaml file in the snapshot sets any /sound_controller/* parameter (grep for sound_controller and cepstral over the whole snapshot found only sound.cpp:211-218). Unrelated to the listed elements: test_client.py:13 sets goal.text.data while action/Say.action declares the goal field as plain 'string text'."
+}

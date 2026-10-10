@@ -1,0 +1,24 @@
+{
+  "task_id": "u0164",
+  "package": "assimp",
+  "status": "evidence_inadequate",
+  "searched": "Excerpt-based task: the only allowed source is artifact.txt, which is one line (150 bytes, one trailing newline). Case-insensitive search of it for each packet element and its parts (MH5_BASE_AXIS, MH5_B_AXIS, MH5_L_AXIS, MH5_R_AXIS, MH5_S_AXIS, MH5_T_AXIS, MH5_U_AXIS, motoman_mh5_support, meshes, package://) and for the package name assimp: 0 hits each. The only related token is 'STL'. The artifact is neither source code, nor a manifest, nor a definition file, and does not name any of the seven resource elements.",
+  "manifest_version": null,
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "status": "artifact.txt:1 | \"ASCII STL files are supposed to be designated by the first 5 lines reading \"solid\" in ASCII.\" -- https://github.com/ros-industrial/motoman/issues/60"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The single quoted sentence states the rule an STL reader uses to classify a file as ASCII (leading 'solid' token), which points to an ASCII/binary STL detection mismatch between these mesh files and the reader; the excerpt does not show assimp code, does not name the meshes, and does not say which side departs from the format."
+  },
+  "confidence": "high",
+  "notes": "All seven packet elements are resources that assimp is listed as consuming. No port can be recorded: the artifact does not name any of them, so msg_type, frame, units, QoS, rates and definition_id are all undeterminable (resources are files, not ROS message types, and no .msg/.srv/.action/.idl is involved). declares and not_declared stay empty because no element is on the provides side; references stays empty because the artifact does not name any element. No manifest is present, so manifest_version is null. Permissions and recovery are unknown because there is no code or configuration to check. The artifact's content is a quoted sentence about STL format detection (the word 'lines' in it presumably means the first 5 bytes/characters; recorded verbatim, not interpreted as a declaration). The artifact also carries an issue-tracker URL; issue trackers are not an allowed source and it was not opened. That URL points at the case source, so this excerpt is not blinded."
+}

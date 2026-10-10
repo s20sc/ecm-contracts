@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-009",
+  "kind": "A1",
+  "case_id": "C3-009",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 1,
+    "reason_code": null,
+    "quote": "I notice in the logs \"terminate called without an active exception\" - which usually means that a std::thread went out of scope while not joined/stopped - I notice we have a std::thread in this test - but I don't actually see how it could go out of scope...",
+    "url": "https://github.com/moveit/moveit2/issues/1334#issuecomment-1171819687",
+    "reason": "E1 is satisfied by a concrete CI failure with a maintainer's verbatim error-log observation; neither a deterministic reproducer nor a known root cause is required. The specification's E1 failure is therefore unsupported. The case still cannot pass E2 step 1: the retained evidence does not identify which interaction, assertion or pair caused the abort. The speculative std::thread explanation is not sufficient to affirm an internal root cause at step 2. E3 remains unestablished; E4 documents the CI failure but not a particular failed interface."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "terminate called without an active exception",
+    "url": "https://github.com/moveit/moveit2/issues/1334#issuecomment-1171819687",
+    "reason": "Retain the excluded-case null. The abort diagnostic is documented; it does not identify an early interface rejection."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Test appears to fail inconsistently",
+    "url": "https://github.com/moveit/moveit2/issues/1334",
+    "reason": "The failure appears in test execution, but an eligible composition has not been established, so the null field remains appropriate."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I haven't seen this one lately. Are we still running into this? Maybe it really was an unrelated threading issue somewhere...",
+    "url": "https://github.com/moveit/moveit2/issues/1334#issuecomment-1405047206",
+    "reason": "Retain null after exclusion. Closing an intermittent issue after non-recurrence is not an observed repair of its composition."
+  },
+  "notes": "Disagree with the reasons/gate, not with retaining this case outside the eligible set. The test source at 58f3828224f051b40ce0b66d217ae4335703a5d2 explicitly exercises topic-based RDF loading and creates spinning_thread before assertions and join; this allows several explanations and does not prove which assertion or interaction failed. I read PRs #1348, #1411, #1422 and #1458: their comments identify #1334 as an unrelated CI failure, not a fix. PR #1384 and its diff detach a thread in planning_scene_rviz_plugin, a different path; they do not show this RDF-loader test repaired. No missing failure class can be responsibly invented."
+}

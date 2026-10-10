@@ -1,0 +1,68 @@
+{
+  "item_id": "A1-C3-146",
+  "kind": "A1",
+  "case_id": "C3-146",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: concrete reproducer and incorrect dump output. E2: the parameter service returns a representation that violates its per-name response contract, crossing the node/CLI boundary; the consumer also mishandles that response. E3: PAIR over get_parameters. This is not merely internal or deployment wiring.",
+    "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "# List of values which is the same length and order as the provided names. If a\n# parameter was not yet set, the value will have PARAMETER_NOT_SET as the\n# type.\nParameterValue[] values",
+      "url": "https://raw.githubusercontent.com/ros2/rcl_interfaces/iron/rcl_interfaces/srv/GetParameters.srv",
+      "reason": "The inspected rclpy 4.1.4 callback instead empties the entire response on ParameterUninitializedException. Empty-array versus per-name PARAMETER_NOT_SET is a boundary representation convention. get_parameters, its values field, and the uninitialized param_2 are implicated."
+    }
+  ],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "service:/param_demo/get_parameters",
+        "field:rcl_interfaces/GetParameters.values"
+      ],
+      "quote": "`ros2 param dump` needs to handle empty list as exception if happens instead of proceeding zipping results. if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.",
+      "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1933083033",
+      "reason": "Distinct from the provider's response encoding, the CLI internally replaces an empty response with a string and then zips its characters with parameter names. S1 explicitly includes internal defects within the selected composition as other. PR 881 repairs this consumer condition independently of changing the provider.",
+      "supporting_evidence": [
+        {
+          "quote": "return '# Parameter not set'",
+          "url": "https://raw.githubusercontent.com/ros2/ros2cli/0.25.4/ros2param/ros2param/verb/dump.py#L55"
+        },
+        {
+          "quote": "for param_name, pval in zip(response, parameter_values):",
+          "url": "https://raw.githubusercontent.com/ros2/ros2cli/0.25.4/ros2param/ros2param/verb/dump.py#L97"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+    "url": "https://github.com/ros2/ros2/issues/1517",
+    "reason": "The dump presents corrupted values as output; the reproduced command transcript has no incompatibility diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "❯ ros2 param dump /param_demo",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "We merged in the fixes here, and backported the ones we could.  So closing this out, thanks for the report.",
+    "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1948372693",
+    "reason": "Accepted fixes establish recommended; the retrieved thread does not identify a working fixed pair by both revisions. The later discussion explicitly distinguishes the unbackported rclpy behavior change from the ros2cli fix."
+  },
+  "notes": "The listed condition is retained for the provider-side encoding failure; the added other condition prevents the independently documented string-as-iterable defect from being hidden inside that class. The related rclcpp declaration example is not an additional condition of this rclpy/ros2param composition."
+}

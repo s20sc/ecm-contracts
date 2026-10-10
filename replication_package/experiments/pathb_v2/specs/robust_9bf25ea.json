@@ -1,0 +1,84 @@
+{
+  "case_id": "robust_9bf25ea",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/motoman/issues/106",
+    "https://github.com/ros-industrial/motoman/pull/110",
+    "https://github.com/ros-industrial/motoman/commit/9bf25eae1b495fd9ccacb904d93f82c959227582",
+    "https://github.com/ros-industrial/motoman/blob/e2384f02d926da5b9716fdf915783af31962138c/motoman_sia20d_support/urdf/sia20d_macro.xacro"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue #106 by maintainer gavanderhoorn (2016-07-18) names the concrete defect: \"The `link_t-tool0` transform defining the orientation of the `tool0` frame currently specifies only a rotation over Z of `-pi`, but it uses the value `3.1416` for it\", with the observed effect \"The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.\" Closed with \"Fixed in 9bf25ea.\" (merge of PR #110)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["motoman_sia20d_support", "robot_state_publisher"],
+      "interface_kind": "parameter (robot_description URDF content: fixed-joint origin of the tool0 frame)",
+      "evidence": "Step 1: the SIA20 support package provides the robot model (robot_description); the node that turns it into the base->tool0 transform the reporter compared against the robot is a separate process consuming that parameter. Step 2: the failure is a wrong frame definition (the tool0 frame's Z rotation written as -3.1416 instead of -pi) that crosses the boundary into the consumer, which computes a base->tool0 orientation that disagrees with the robot; the consumer is correct and the resolving edit is inside the provider (\"A wrong value, frame ... that crosses the boundary is an interface failure even when the resolving edit is inside one unit\"). Step 3: not a remap/name binding; the fix rewrites the rpy value in the URDF. Step 4: not build/packaging. Step 5: not firmware. Step 6: eligible; interface kind parameter (the URDF content carried by robot_description)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the support package's URDF output feeds the consumer's input (robot_description), and the effect was observed while the composition ran (\"cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot\"). No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect: \"The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.\" (https://github.com/ros-industrial/motoman/issues/106). The fix commit states the mismatch: \"sia20: don't round PI in joint_t-tool0 transform. Fix #106. Leads to incorrect 'base->tool0' transform orientations.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "motoman_sia20d_support",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/motoman",
+      "broken_rev": "2d42582c692191f67f1e986467822fcd3b3935b9",
+      "resolved_rev": "9bf25eae1b495fd9ccacb904d93f82c959227582",
+      "pinned": true,
+      "revision_basis": "broken_rev is the parent of the fix on indigo-devel (PR #110, base indigo-devel, merged 2016-08-28 as 9bf25ea, two minutes after the #102 fix 2d42582); at 2d42582 sia20d_macro.xacro already carries the corrected joint limits but still has `<origin xyz=\"0 0 0.0\" rpy=\"0 0 -3.1416\"/>` for link_t-tool0, the pre-image shown in the fix diff. The reporter links the file at e2384f02d926da5b9716fdf915783af31962138c (2014-01-26); the #102 diff context shows the tool0 origin line unchanged between that blob and 2d42582. resolved_rev is the commit named in the closing comment (\"Fixed in 9bf25ea.\").",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "robot_state_publisher",
+      "role": "consumer",
+      "repo": "https://github.com/ros/robot_state_publisher",
+      "broken_rev": "indigo-devel",
+      "resolved_rev": "indigo-devel",
+      "pinned": false,
+      "revision_basis": "The source does not name the consumer; it reports the effect on \"the `base->tool0` transform\", which is the TF transform that robot_state_publisher computes from robot_description and the joint states, so that node is taken as the consumer. The distro is stated only through the sister issue's remark that the package \"should still be fixed for Indigo\" (#102, \"Similar to #102\"). No version is given; the indigo-devel branch of ros/robot_state_publisher (head 611d97942f15f8a86092d390d2df82ef7cf51822 when checked on 2026-09-26) is used, unpinned. The resolution does not change this unit.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "param:/robot_description", "sides": {"motoman_sia20d_support": "provides", "robot_state_publisher": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "frame_mismatch",
+      "implicated_elements": ["param:/robot_description"],
+      "quote": "The `link_t-tool0` transform defining the orientation of the `tool0` frame currently specifies only a rotation over Z of `-pi`, but it uses the value `3.1416` for it ([here](https://github.com/ros-industrial/motoman/blob/e2384f02d926da5b9716fdf915783af31962138c/motoman_sia20d_support/urdf/sia20d_macro.xacro#L188)).\n\nThe difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+      "url": "https://github.com/ros-industrial/motoman/issues/106"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from any tooling: the URDF parses, loads and publishes; the wrong orientation was noticed only by comparing the computed base->tool0 transform with the robot's reported values at run time (\"off by as much as 3 degrees wrt to the values reported by the robot\").",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Write the tool0 rotation with full precision: in sia20d_macro.xacro the link_t-tool0 origin changes from rpy=\"0 0 -3.1416\" to rpy=\"0 0 -3.1415926535\" (the same edit is applied to the SIA10F joint_tool0 origin in sia10f_macro.xacro).",
+    "status": "recommended",
+    "evidence": "Commit 9bf25ea (\"sia20: don't round PI in joint_t-tool0 transform. Fix #106. Leads to incorrect 'base->tool0' transform orientations.\") merged via PR #110; the maintainer closed the issue with \"Fixed in 9bf25ea.\" The source does not show the corrected base->tool0 transform being compared with the robot afterwards, so the resolved composition is not observed."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "low",
+  "notes": "The consumer is inferred (the source names no node); MoveIt's kinematics is a plausible alternative consumer given the same reporters and the sister issue #102 (\"Similar to #102\"), and would make the same wrong value cross the same parameter. Class frame_mismatch is chosen because the defect is the definition of the tool0 frame's orientation relative to what the robot reports for its tool frame; the mismatch is numeric (rounded rotation) rather than a frame-id naming difference, so `other` would be the alternative reading. Magnitude as reported, not verified: 3.1416 - pi is about 7.3e-6 rad (about 0.0004 degrees), which does not by itself account for a 3-degree discrepancy; the reporter's figure is recorded verbatim. The fix also corrects the SIA10F description (\"The SIA10F (and I assume the D) has the same problem\"; \"SIA10D urdf doesn't have this problem, as it doesn't have a `tool0` link\"), a second composition not part of this case. The fix touches only the two macro xacro files; the generated motoman_sia20d_support/urdf/sia20d.urdf still reads rpy=\"0 0 -3.1416\" for link_t-tool0 at 9bf25ea (it was last regenerated by 2d42582)."
+}

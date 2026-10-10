@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_61a75df",
+  "kind": "A1",
+  "case_id": "robust_61a75df",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "When trying \"rqt -s kobuki_dashboard\", I get \"ImportError: cannot import name QMessageBox\"",
+    "url": "https://github.com/turtlebot/turtlebot/issues/250"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/kobuki_dashboard/dashboard.py\", line 8, in <module>\n    from QtGui import QMessageBox, QAction\nImportError: cannot import name QMessageBox",
+      "url": "https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "in battery_widgets.py\r\nfrom python_qt_binding.QtGui import QToolButton\r\n->\r\nfrom QtWidgets import QToolButton",
+      "url": "https://github.com/turtlebot/turtlebot/issues/250#issuecomment-281542245"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PluginManager._load_plugin() could not load plugin \"kobuki_dashboard/KobukiDashboard\":\nTraceback (most recent call last):\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/plugin_handler.py\", line 99, in load\n    self._load()",
+    "url": "https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This problem is related to qt5 used on ubuntu16.04.\r\nThanks for your advice. @k-okada\r\n\r\nAs correcting following two lines, it looks like working as shown in the attached screenshot."
+  },
+  "notes": "Independently verified. (1) E1: issue #250 body (fishcu, 2017-01-30) matches verbatim, including the PyQt4-workaround segfault and the two missing rocon packages (correctly relegated to notes as separate compositions); the migrated robotics.SE question 78536 fetched via Stack Exchange API and contains the full traceback verbatim (dashboard.py line 8 'from QtGui import QMessageBox, QAction' -> 'ImportError: cannot import name QMessageBox' under PluginManager._load_plugin). (2) E2/E3: provider mechanism read directly at python_qt_binding 0.3.1 binding_helper.py: line 103 'sys.modules[module_name] = module' (bare-name registration) and _load_pyqt's \"_named_import('PyQt5.%s' % module_name)\" — the Qt5 module layout is what python_qt_binding registers, so the consumer's QtGui-era references are removed/renamed elements; UPGRADE with inferred built-against 0.2.19 (last Qt4 release) is the tightest bound and the reasoning holds. Interface change, not build: the fix edits the consumer's import references. (3) Fix read directly: commit 61a75df ('change to use QtWidgets from QtGui for ubuntu16.04', parent 3d837662, 2017-02-22) changes exactly dashboard.py 'from QtGui import QMessageBox, QAction' -> 'from QtWidgets import QMessageBox, QAction' and battery_widget.py 'from python_qt_binding.QtGui import QToolButton' -> 'from QtWidgets import QToolButton' — the same two edits yuki-asano reported working (comment 281542245, same day, quoted above); stonier: 'Coming in 0.5.3, thanks @yuki-asano ' read in-thread. (4) Loudness loud_documented/activate: import error reported by rqt's plugin loader at plugin load. (5) Resolution observed: the two committed edits shown working on Ubuntu 16.04 + Kinetic against the kinetic python_qt_binding deb (0.3.1/0.3.2, identical layout per spec's diff argument, not contradicted by anything read)."
+}

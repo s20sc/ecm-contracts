@@ -1,0 +1,50 @@
+{
+  "case_id": "robust_fbe70c7",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/25",
+    "https://github.com/yujinrobot/kobuki/commit/fbe70c7d5e6d3b85fea6296c23039958c428e6df",
+    "https://github.com/yujinrobot/kobuki/blob/847586795c5f12209f408cc950343bba8cf01810/kobuki_meta/resources/launch/keyop.launch",
+    "https://github.com/yujinrobot/kobuki/blob/847586795c5f12209f408cc950343bba8cf01810/kobuki_meta/resources/launch/components/base.launch",
+    "https://github.com/yujinrobot/kobuki/blob/847586795c5f12209f408cc950343bba8cf01810/kobuki_meta/resources/launch/minimal.launch",
+    "https://github.com/yujinrobot/kobuki/blob/847586795c5f12209f408cc950343bba8cf01810/kobuki_node/src/nodelets/kobuki_node.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #25 \"Keyop core\" (maintainer stonier, 2012-04-05): \"Fix the launchers to get keyop core functional.\" closed the next day with \"Done.\" and commit fbe70c7 (\"kobuki description started, joint state publisher working, keyop core functional.\"), whose launch-file diff shows the defective bindings: keyop.launch remapped keyop/cmd_vel to the absolute /robot_core/cmd_vel while base.launch launched the base nodelets inside <group ns=\"kobuki\"> and remapped a non-existent robot_core/control_command to cmd_vel. Maintainer confirmation of a concrete defect; no log."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": ["keyop_core (keyop node, external Yujin package; no public repository located)", "kobuki_node (KobukiNodelet loaded as robot_core, subscribing to cmd_vel)"],
+      "interface_kind": null,
+      "evidence": "Two units: the keyop_core teleoperation node publishing velocity commands, and the kobuki base nodelet (kobuki_node/KobukiNodelet, nodelet name robot_core) which at the parent revision subscribes to \"cmd_vel\" on its private handle (kobuki_node.cpp: `velocity_command_subscriber = nh.subscribe(std::string(\"cmd_vel\"), 10, &KobukiNodelet::subscribeVelocityCommand, ...`), i.e. /kobuki/robot_core/cmd_vel under minimal.launch's ns=\"kobuki\". At the parent, keyop.launch (no namespace) had `<remap from=\"keyop/cmd_vel\" to=\"/robot_core/cmd_vel\"/>` and base.launch had `<remap from=\"robot_core/control_command\" to=\"cmd_vel\"/>`, so the teleop published on /robot_core/cmd_vel and nothing was subscribed there. The minimal resolving change binds names only: keyop.launch is wrapped in `<group ns=\"kobuki\">` with `<remap from=\"keyop/cmd_vel\" to=\"cmd_vel\"/>` (and enable/disable likewise), and base.launch changes the remap to `<remap from=\"robot_core/cmd_vel\" to=\"cmd_vel\"/>` (plus a joint_states remap). No declared or referenced interface of either unit changed in the commit: kobuki_node's cmd_vel subscription and message type are untouched, and no keyop_core code is part of the change. Stop at step 3."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached (the composition would be a PAIR of keyop publisher and base subscriber, but the case is ineligible at E2 step 3)."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "Not reached; the source states only that keyop was not functional and is functional after the launch changes."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 3 (deployment_wiring): the teleop and the base were wired to different resolved topic names by their launch files (absolute /robot_core/cmd_vel versus /kobuki/robot_core/cmd_vel, and a stale robot_core/control_command remap); the fix changes only namespaces and remaps.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "The commit fbe70c7 is large (kobuki_description package added, joint_states publisher, odometry refactor in kobuki_driver), but the only parts that touch the keyop/base interaction are the two launch files; the teleop node itself (keyop_core, from Yujin's then-external 'ycs' stack, referenced in kobuki_meta/manifest.xml as `<depend package=\"keyop_core\"/>`) is not in this repository and no public copy of its April 2012 source was found, so an interface rename on its side cannot be excluded; the launch diff alone is consistent with wrong bindings. The other nodelet in base.launch, diff_drive_base/DiffDriveBase (mobile_base), also had its cmd_vel remapped to the same namespace-relative name; the base.launch remap source name change (robot_core/control_command -> robot_core/cmd_vel) corrects the remap to the name kobuki_node actually subscribes to rather than reflecting a code change in this commit. The keyop reset_odometry remap was commented out as \"Unused\". Commit dated 2012-04-06, before the first release tag 0.1.0 (2012-04-20), electric/fuerte era."
+}

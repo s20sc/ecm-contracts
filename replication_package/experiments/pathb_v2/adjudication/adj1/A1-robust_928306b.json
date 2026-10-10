@@ -1,0 +1,96 @@
+{
+  "item_id": "A1-robust_928306b",
+  "kind": "A1",
+  "case_id": "robust_928306b",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "We just made a clean install of **Ubuntu 12.04.3 LTS** and the default kernel are **3.8.0-31-generic** instead of previous **3.2.0-53-generic-pae** (default netbook ASUS 1025C)",
+    "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473",
+    "reason": "Concrete failure after changing the independently released kernel; the battery-reading node consumes the kernel's file interface. The fixes change parsing, scaling and referenced attributes, not just deployment wiring. E1-E4 hold, although not every condition is an interface removal caused by the upgrade."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473",
+      "reason": "The reported installed kernel configuration no longer exposes the old procfs interface used by the consumer. This does not establish removal from all upstream Linux builds."
+    },
+    {
+      "index": 1,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "\tif (battery->power_unit == ACPI_BATTERY_POWER_UNIT_MA) {\n\t\tbattery->bat.properties = charge_battery_props;\n\t\tbattery->bat.num_properties =\n\t\t\tARRAY_SIZE(charge_battery_props);\n\t} else {\n\t\tbattery->bat.properties = energy_battery_props;\n\t\tbattery->bat.num_properties =\n\t\t\tARRAY_SIZE(energy_battery_props);\n\t}",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v3.8/drivers/acpi/battery.c",
+      "reason": "The same selection between charge/current and energy/power property families is present in the v3.2 source read this session. Primary code supports a consumer assuming the wrong supported property family, not a rename/removal of energy_* or power_now in Linux 3.8. The missing energy/power attributes named in the specification are implicated, but the specification's own primary-source caveat must govern classification rather than the reporter's rename terminology.",
+      "additional_evidence": [
+        {
+          "quote": "\tif (battery->power_unit == ACPI_BATTERY_POWER_UNIT_MA) {\n\t\tbattery->bat.properties = charge_battery_props;",
+          "url": "https://raw.githubusercontent.com/torvalds/linux/v3.2/drivers/acpi/battery.c"
+        },
+        {
+          "quote": "- no **energy_now** file but a **charge_now**\n- no **energy_full_design** file but a **charge_full_design**\n- no **power_now** file",
+          "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-        rv.voltage  = _read_number(_battery_acpi_path + '/voltage_now')\n+        rv.voltage  = _read_number(_battery_acpi_path + '/voltage_now')/10e5",
+      "url": "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f",
+      "reason": "The complete diff read this session applies the same micro-unit conversion to energy_now, power_now, energy_full and energy_full_design. Use the patch's divisor 10e5, not the comment's erroneous 10e6."
+    },
+    {
+      "index": 3,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-        state = _read_string(_battery_acpi_path+'/status', 'discharging').lower()\n+        # Charging state; make lowercase and remove trailing eol\n+        state = _read_string(_battery_acpi_path+'/status', 'discharging').lower().rstrip()",
+      "url": "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f"
+    },
+    {
+      "index": 4,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-            design_capacity    = _read_number(_battery_acpi_path + '/energy_full')\n+            design_capacity    = _read_number(_battery_acpi_path + '/energy_full_design')/10e5",
+      "url": "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f",
+      "reason": "The paired edit changes last_full_capacity from energy_full_design to energy_full. This is a semantic exchange of capacity attributes, separate from their numerical scale."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "- charging symbol doesn't appear in the dashboard",
+    "url": "https://github.com/turtlebot/turtlebot/issues/102",
+    "reason": "The report and comments describe wrong/missing displayed battery information without posting an interface diagnostic. No claim is made that the code has no possible warning path."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Current doesn't get possitive when charging, so the charging symbol never appears",
+    "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Issue #102: Battery info fixed for new laptops. Also I have changed the default path where to look for the BAT0 files, as the current one was deprecated long time ago",
+    "url": "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f",
+    "reason": "An accepted implementation exists, but the issue and PR comments do not demonstrate the final patched consumer working with an identified kernel revision; recommended is appropriate."
+  },
+  "notes": "Read the issue, all issue/PR comments, both fixing diffs and relevant Linux v3.2/v3.8 battery source. The kernel family comparison is upstream evidence about semantics, not verification of the exact Ubuntu kernel build. Missing charging indication is the documented consequence of the status parsing/sign problem, not an additional independently evidenced condition."
+}

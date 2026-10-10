@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL2-08",
+ "kind": "A1",
+ "case_id": "CAL2-08",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "MAVLink move some of messages between dialects, that's not a problem for the protocol itself or C implementation, but for C++ it is because here i have a namespace for each dialect.",
+  "url": "https://github.com/mavlink/mavros/issues/2088#issuecomment-3664322233"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: ‘mavlink::common::msg::GLOBAL_POSITION_INT’ has not been declared\n  301 |     mavlink::common::msg::GLOBAL_POSITION_INT & gpos,",
+   "url": "https://github.com/mavlink/mavros/issues/2088"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "global_position.cpp:301:5: error: ‘mavlink::common::msg::GLOBAL_POSITION_INT’ has not been declared",
+  "url": "https://github.com/mavlink/mavros/issues/2088"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Ah, i overlooked https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a - so, i'll release 2.14.0 today.  (commit 42d26080 verified this session: 'fix: update GLOBAL_POSITION_INT message type to standard namespace', diff '-    mavlink::common::msg::GLOBAL_POSITION_INT & gpos,' '+    mavlink::standard::msg::GLOBAL_POSITION_INT & gpos,'; the only working composition shown in the thread is the workaround downgrade: 'Yes, it works with 2025.9.9.')"
+ },
+ "notes": "Sources opened this session: issue 2088 body (compiler error, rosinstall output 'url: https://github.com/ros2-gbp/mavlink-gbp-release.git' / 'version: release/humble/mavlink/2025.12.12-1', mavros 2.13.0) and all cited comments verbatim; commit 42d26080 diff; mavros 2.13.0 global_position.cpp line 301 read from the raw tag ('mavlink::common::msg::GLOBAL_POSITION_INT & gpos,'); and the release-tag dialect files, which confirm the spec's primary-source check: common.xml at 2025.9.9-1 line 5427 '<message id=\"33\" name=\"GLOBAL_POSITION_INT\">'; absent from common.xml at 2025.12.12-1 (only GLOBAL_POSITION_INT_COV at line 5769 remains); present in standard.xml at 2025.12.12-1 line 115 '<message id=\"33\" name=\"GLOBAL_POSITION_INT\">'. The maintainer's interim claim 'i've checked build, and 2025.12.12 has the same standard.xml as 2025.9.9' is indeed contradicted by these files, and the spec correctly followed the primary sources over the secondary statement. Eligibility agree: UPGRADE with documented built-against (the maintainer's downgrade advice plus the reporter's successful build with 2025.9.9); moving the message between dialect namespaces changes the provider definition the consumer references, which the tree counts as an interface change, not build-only. Class element_removed_or_renamed fits the removal from the common dialect; elements and loudness (compiler error at build) agree. Resolution recommended agree: the fix is merged and released as 2.14.0 per the maintainer, but 2.14.0 building against mavlink 2025.12.12 is never shown in the thread."
+}

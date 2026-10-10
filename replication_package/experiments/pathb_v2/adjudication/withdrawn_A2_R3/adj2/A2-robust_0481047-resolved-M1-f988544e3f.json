@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_0481047-resolved-M1-f988544e3f",
+ "kind": "A2",
+ "case_id": "robust_0481047",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "verified",
+   "source_excerpt": "Locations resolved from assembled/robust_0481047.json (resolved upgrade unit: built=u0033, running=u0034, consumer=u0032) because the item's provenance entries are null. built u0033 snapshot/tf2/include/tf2/buffer_core.h:296: \"  std::string _allFramesAsDot() const;\". running u0034 (tf2 04810475) snapshot/tf2/include/tf2/buffer_core.h:300-301: \"  std::string _allFramesAsDot(double current_time) const;\" / \"  std::string _allFramesAsDot() const;\" — the cited running location :300 is the first of the two overloads."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "verified",
+   "source_excerpt": "u0032 (tf 1.11.4) snapshot/tf/src/tf.cpp:441: \"  return tf2_buffer_._allFramesAsDot();\" (inside std::string Transformer::allFramesAsDot() const; tf2_ros::Buffer tf2_buffer_ declared at snapshot/tf/include/tf/tf.h:387)."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "transcription_only",
+   "built_excerpt": "u0033 buffer_core.h:296: \"  std::string _allFramesAsDot() const;\" — the zero-argument declaration the consumer binds to.",
+   "running_excerpt": "u0034 buffer_core.h:300-301: \"  std::string _allFramesAsDot(double current_time) const;\" / \"  std::string _allFramesAsDot() const;\" and buffer_core.cpp:1412-1415: \"std::string BufferCore::_allFramesAsDot() const\" / \"{\" / \"  return _allFramesAsDot(0.0);\" / \"}\". The zero-argument declaration is character-for-character identical to the built one and still defined; the running record additionally lists a sibling one-argument overload. What the consumer depends on (the zero-argument member, its type, arity, return type and presence) is unchanged; adding the overload introduces no ambiguity for a zero-argument call. The difference between the two records is additive, not a change to the consumer's dependency."
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The composition matches the spec's resolved operation: provider tf2 at 04810475 (u0034, running) with the consumer tf at 1.11.4 (u0032) built against 0.5.7/d9d810ea (u0033). The ports are the same as in the broken composition and remain connected: tf.cpp:441 \"return tf2_buffer_._allFramesAsDot();\" calls the element that u0034's buffer_core.h:300-301 declares (including the restored zero-argument overload). definition_id is null in this PAIR encoding (no hash for a C++ API element), which does not affect the port-connection judgment."
+ },
+ "notes": "The item's evidence.provenance is null for both trigger paths; I sourced the locations from the item's referenced assembled file (resolved upgrade unit provenance: built snapshot:tf2/include/tf2/buffer_core.h:296, running snapshot:tf2/include/tf2/buffer_core.h:300, consumer snapshot:tf/src/tf.cpp:441) and verified each by opening the snapshots — hence verified, not unverifiable. Substance: at the resolved running revision the zero-argument declaration the consumer depends on is identical to built (PR #86 'Backwards compatibility for #84' replaced the default argument with two overloads; the zero-arg overload delegates: buffer_core.cpp:1412-1415 'return _allFramesAsDot(0.0);'), so the recorded change is additive-only with respect to the consumer's dependency — transcription_only under the rubric's consumer-dependence test. Contrast: the broken running revision (u0035) is substantive for the same element and consumer."
+}

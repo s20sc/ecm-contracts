@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-056",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/746",
+    "https://github.com/ros2/geometry2/pull/805",
+    "https://github.com/autowarefoundation/managed_transform_buffer/pull/23"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "Issue #746 is a consistency/enhancement request, not a report of a defective interaction: \"In #720, all `.h` files in the `tf2` package were converted to `.hpp` with deprecation warnings -- which is great! However, this was not done consistently throughout the repo. For example, the `tf2_ros` package still is missing several `.hpp` files. This makes it pretty inconvenient to do blanket search/replaces in downstream repos that use this.\" Expected: \"Every header in the repo should ideally consistently have a `.hpp` counterpart now -- not just `tf2`.\" Actual: \"Not the case currently.\" No reproducer of a failure, no error log, and no maintainer statement of a defect; maintainers treat it as planned package-by-package work (clalancette: \"we usually do it on a package-by-package basis, not for the whole repository.\"). https://github.com/ros2/geometry2/issues/746"
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": ["tf2_ros (C++ headers)", "downstream C++ packages that include tf2_ros headers"],
+      "interface_kind": null,
+      "evidence": "Not reached: no failed interaction is documented. The resolving PR #805 ('Change tf2_ros C to C++ headers', merged into rolling 2025-07-18 as a99d88be) adds .hpp headers and turns the .h files into deprecated forwarding headers (e.g. tf2_ros/include/tf2_ros/buffer.h \"+9 -322\", buffer.hpp \"+358\" added); it creates rather than fixes a provider-side interface change."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not reached."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on an interaction is documented; the only stated consequence is inconvenience for downstream search/replace."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "no_defect (E1): the issue requests that tf2_ros get .hpp headers for consistency with tf2; it documents no failed interaction, reproducer, error log, or maintainer-confirmed defect.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Related composition not documented as a failure here: the earlier tf2 header move (geometry2 #720) deprecated tf2 .h headers, and downstream autowarefoundation/managed_transform_buffer PR #23 ('fix: tf2 uses hpp headers in rolling (and is backported)', merged 2025-05-21 as 7de93a00) switched a test include from \"#include <tf2/LinearMath/Transform.h>\" to \"#include <tf2/LinearMath/Transform.hpp>\" while leaving tf2_ros .h includes, with the comment \"Tracking here: https://github.com/ros2/geometry2/issues/746 That's for later then.\" That PR shows no warning or error log (\"Tests performed: Compilation\"), so it does not supply a documented failure for an UPGRADE case either. A commenter on #746 mentions CI pipelines treating the tf2 deprecation warnings as errors (\"lots of CI pipelines that use this package are treating warnings as errors and reacting quickly to the changes\"), but no specific consumer or log is given."
+}

@@ -1,0 +1,108 @@
+{
+  "case_id": "robust_21b86f6",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/issues/74",
+    "https://groups.google.com/g/swri-ros-pkg-dev/c/1e3A_1BTQWQ",
+    "https://github.com/ros-industrial/universal_robot/pull/82",
+    "https://github.com/ros-industrial/universal_robot/commit/21b86f63408a99aff35cd82ca6ac180a99566ee5"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #74 \"Verify LinkLengths\" records the mailing-list thread \"[ univeral_robot ] UR10: link length differences xacro and 'real' dimensions?\", where Maarten de Vries reproduces the problem: \"With the unmodified URDF I can see a clear difference between a pose I give to the inverse kinematics from ur_kinematics and the one visualized in rviz.\" Maintainers confirm: de-vri-es on #74 (\"there is no issue with the ur_kinematics DH parameters, but the link lengths in the UR10 URDF still seem to be wrong\"), abubeck (\"According to UR the correct link length are in the config file of the UR\"), and fix PR #82 (kphawkins)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "ur_description",
+        "ur_kinematics"
+      ],
+      "interface_kind": "definition (UR10 kinematic model: joint origins in ur_description's ur10.urdf.xacro vs the DH constants compiled into ur_kinematics' ur10_kin library)",
+      "evidence": "ur_description (URDF/xacro package) and ur_kinematics (C++ library ur10_kin with forward/inverse) are separately released packages of ros-industrial/universal_robot. Joint solutions computed by ur_kinematics under its constants (`#define d1  0.1273`, `#define a2 -0.612`, `#define a3 -0.5723`, `#define d4  0.163941`, `#define d5  0.1157`, `#define d6  0.0922`) are rendered through the URDF, whose joint origins use different lengths (`shoulder_height` 0.128, `shoulder_offset` 0.1704, `upper_arm_length` 0.60186, `elbow_offset` 0.12817, `forearm_length` 0.56415, `wrist_1_length`/`wrist_2_length` 0.11279, `wrist_3_length` 0.0857). PR #82: \"Currently, the kinematic paramaters in the UR10 urdf disagree with those in the ur_kinematics/ur_kin.h files.\" The disagreement is between the two units' definitions of the same chain; the values cross the boundary, so it is an interface failure even though the fix is inside ur_description."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the output of ur_kinematics' inverse kinematics (joint values) is displayed through the ur_description robot model in rviz (\"a pose I give to the inverse kinematics from ur_kinematics and the one visualized in rviz\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"With the unmodified URDF I can see a clear difference between a pose I give to the inverse kinematics from ur_kinematics and the one visualized in rviz. When I use the lengths from the 2D drawing and those measured from the step file, I can't visually see any difference.\" (Maarten de Vries, 2014-05-27, swri-ros-pkg-dev)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "ur_description",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "8a15a0bc9305f8bdb3fea0c85d75a29357ab1b0d",
+      "resolved_rev": "21b86f63408a99aff35cd82ca6ac180a99566ee5",
+      "pinned": true,
+      "revision_basis": "The reporter names no revision; the thread's first message links the hydro-devel blob of ur10.urdf.xacro (2014-05-27). 8a15a0bc is the hydro-devel head on that date (merge of PR #70, 2014-05-23); ur_description/urdf/ur10.urdf.xacro is unchanged from 614e2aa (2014-03-28) through f39b2e75, the first parent of the fix merge. Resolved: merge 21b86f6 of PR #82 (2014-08-06), first released in 1.0.3.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "ur_kinematics",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "8a15a0bc9305f8bdb3fea0c85d75a29357ab1b0d",
+      "resolved_rev": "8a15a0bc9305f8bdb3fea0c85d75a29357ab1b0d",
+      "pinned": true,
+      "revision_basis": "Same repository revision as the reproduction date (hydro-devel head 8a15a0bc on 2014-05-27). ur_kinematics is unchanged between 8a15a0bc and the fix merge 21b86f6 (git diff --stat empty), so the resolution does not change this unit and it keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "resource:joint/shoulder_pan_joint", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}},
+    {"element": "resource:joint/shoulder_lift_joint", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}},
+    {"element": "resource:joint/elbow_joint", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}},
+    {"element": "resource:joint/wrist_1_joint", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}},
+    {"element": "resource:joint/wrist_2_joint", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}},
+    {"element": "resource:joint/wrist_3_joint", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}},
+    {"element": "resource:joint/ee_fixed_joint", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}},
+    {"element": "resource:frame/base_link", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}},
+    {"element": "resource:frame/ee_link", "sides": {"ur_description": "provides", "ur_kinematics": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "resource:joint/shoulder_pan_joint",
+        "resource:joint/shoulder_lift_joint",
+        "resource:joint/elbow_joint",
+        "resource:joint/wrist_1_joint",
+        "resource:joint/wrist_2_joint",
+        "resource:joint/wrist_3_joint",
+        "resource:joint/ee_fixed_joint",
+        "resource:frame/ee_link"
+      ],
+      "quote": "This updates the UR10 model description to one which is based on Collada meshes.  Furthermore, the kinematic description is modified to rely solely on Denavit-Hartenberg parameters found in urcontrol.conf.  Currently, the kinematic paramaters in the UR10 urdf disagree with those in the ur_kinematics/ur_kin.h files.",
+      "url": "https://github.com/ros-industrial/universal_robot/pull/82"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The mismatch is seen only as a visual pose difference, with no diagnostic: \"With the unmodified URDF I can see a clear difference between a pose I give to the inverse kinematics from ur_kinematics and the one visualized in rviz.\" (https://groups.google.com/g/swri-ros-pkg-dev/c/1e3A_1BTQWQ).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Provider-side: ur10.urdf.xacro rewritten so that its link lengths derive from the DH constants of urcontrol.conf, the same values as ur_kin.h (`ur10_d1` 0.1273, `ur10_a2` -0.612, `ur10_a3` -0.5723, `ur10_d4` 0.163941, `ur10_d5` 0.1157, `ur10_d6` 0.0922; `shoulder_height = ${ur10_d1}`, `upper_arm_length = ${-ur10_a2}`, `forearm_length = ${-ur10_a3}`, `wrist_1_length = ${ur10_d4 - elbow_offset - shoulder_offset}`, `wrist_2_length = ${ur10_d5}`, `wrist_3_length = ${ur10_d6}`); PR #82 also replaces the meshes, inertias and MoveIt config (merge 21b86f6). ur_kinematics unchanged.",
+    "status": "recommended",
+    "evidence": "abubeck on PR #82: \"This was tested on UR10 with version v1.6 and v1.7. I will merge this pull request.\" and on #74: \"@ipa-fxm checked the link length to the configs on all our controllers (UR10 and UR5) and verified them with the current PR's.\" These checks are against the UR controllers, a different peer; dpsolomon: \"The kinematics look correct now, good job @kphawkins.\" No source shows the resolved URDF displayed against ur_kinematics output at named revisions."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Choice of composition: the thread starter (G.A. vd. Hoorn) asked whether the UR10 xacro lengths differ from UR's published drawing (\"the 'upper arm length' is given as 0.60186m in the urdf, while UR seems to specify 0.6127m in their pdf\"), which is documentation, not a unit; the reproduced two-unit failure is Maarten de Vries's (ur_kinematics IK vs the URDF shown in rviz), and PR #82 names exactly this disagreement. Other composition in the source, not a condition of this case: ur_description <-> UR10 controller (URControl, urcontrol.conf): a list member (sender shown as \"baron...@gmail.com\") reports that the original URDF \"resulted in errors above 1cm\" relative to \"what the UR controller states\", and abubeck reports that UR says \"the correct link length are in the config file of the UR\"; the fix was validated against UR10 controllers v1.6 and v1.7. Also mentioned: ur_kinematics UR5 constants differ slightly from UR's drawings (Maarten, \"possibly even negligible\"); joint velocity/acceleration limits split to issue #76; PR #82 review raised mesh origin, scale and normal problems and Gazebo display issues (fmessmer screenshot), which are separate. Class `other` is used because the mismatch is in numeric kinematic parameters of the same chain (both units model the UR10), not a type, frame name, or unit; it could also be read as a definition-level disagreement. Inventory uses `resource:joint/<name>` and `resource:frame/<name>` for URDF joints and links (no canonical form exists for kinematic-chain elements); ur_kinematics consumes them in the sense that its hard-coded DH model assumes that chain geometry and its joint solutions are interpreted by those joints."
+}

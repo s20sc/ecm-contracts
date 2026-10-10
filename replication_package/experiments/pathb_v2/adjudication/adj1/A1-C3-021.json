@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-021",
+  "kind": "A1",
+  "case_id": "C3-021",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "As it stands, the take_sequence test fulfills the first part of that\n(it was initialized by rmw_message_sequence_init()), but doesn't fulfill\nthe second part (populated by ROS messages).",
+    "url": "https://github.com/ros2/rmw_implementation/pull/175",
+    "reason": "The test passes an insufficiently initialized argument to a separately built rmw library. The precondition violation crosses an API boundary and the issue supplies the resulting abort stack. This supports PAIR and E1-E4 even though the resolving edit is in the caller."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Make sure to do the\ninitialization to a known type before calling rmw_take_sequence.",
+      "url": "https://github.com/ros2/rmw_implementation/pull/175",
+      "reason": "The message sequence lacks populated message pointers, violating an API precondition. other and api:rmw_take_sequence accurately describe the failed condition; this is not evidence of mismatched message type declarations."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "#1  0x0000ffff81ca9d68 in __GI_abort () at abort.c:79",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/279",
+    "reason": "The report supplies a runtime abort and stack trace, not an explanatory build/connection/activation diagnostic. No independently reported compatibility refusal precedes the abort."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "#7  0x0000ffff81a8ba7c in rmw_take_sequence (subscription=0xaaaaca02bdd0, count=1, message_sequence=0xfffff6cfa170, message_info_sequence=0xfffff6cfa190,",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/279",
+    "reason": "The stack locates the failure in the executing take_sequence test."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "CI is green, merging.  Thanks for the review.",
+    "url": "https://github.com/ros2/rmw_implementation/pull/175",
+    "reason": "The caller fix was accepted and CI passed, but no revision-identified successful rerun of the intermittently failing pair is supplied. The proposed Cyclone-side change was subsequently withdrawn, so it is not an additional observed resolution."
+  },
+  "notes": "Read the issue, PR 175 discussion/diff, and PR 280 discussion. The later correction in PR 280 explicitly retracts the alleged Cyclone type-confusion problem; it should not be added as a missed condition or treated as a merged provider fix."
+}

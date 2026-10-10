@@ -1,0 +1,57 @@
+{
+  "case": "C3-063",
+  "status": "coordinator post-hoc source-only audit; not historical A2 completion, not human validation",
+  "raw_ecm_findings": [
+    {
+      "rule": "field_break",
+      "dimension": "Ver",
+      "token": "api:numpy.matrix.resize",
+      "detail": "changed field 'api:numpy.matrix.resize' is read by a consumer"
+    },
+    {
+      "rule": "field_break",
+      "dimension": "Ver",
+      "token": "api:numpy.ndarray",
+      "detail": "changed field 'api:numpy.ndarray' is read by a consumer"
+    },
+    {
+      "rule": "field_break",
+      "dimension": "Ver",
+      "token": "api:numpy.zeros",
+      "detail": "changed field 'api:numpy.zeros' is read by a consumer"
+    }
+  ],
+  "unknown_rules": [],
+  "finding_count": 3,
+  "preserved_score": "wrong_reason",
+  "preserved_warning_false_alarm": true,
+  "findings_source_check": [
+    {
+      "token": "api:numpy.matrix.resize",
+      "consumer_source": "u0318:image_geometry/image_geometry/cameramodels.py:8,102",
+      "old_declaration": "C implementation array_resize(...)",
+      "new_declaration": "Python API a.resize(new_shape, refcheck=True)",
+      "comparable_old_source": "u0319:numpy/add_newdocs.py:4156",
+      "comparable_new_source": "u0320:numpy/core/_add_newdocs.py:3673",
+      "assessment": "Same documented Python signature; representation differs between C implementation and Python API. No interface incompatibility established by this declaration-string delta."
+    },
+    {
+      "token": "api:numpy.ndarray",
+      "consumer_source": "u0318:image_geometry/image_geometry/cameramodels.py:83-86",
+      "old_declaration": "C PyArray_Type initializer",
+      "new_declaration": "Python ndarray(shape, dtype=float, buffer=None, offset=0, strides=None, order=None)",
+      "comparable_old_source": "u0319:numpy/add_newdocs.py:2432-2433",
+      "comparable_new_source": "u0320:numpy/core/_add_newdocs.py:2094-2095",
+      "assessment": "Same documented Python signature; representation differs. No interface incompatibility established by this declaration-string delta."
+    },
+    {
+      "token": "api:numpy.zeros",
+      "consumer_source": "u0318:image_geometry/image_geometry/cameramodels.py:306",
+      "comparable_old_source": "u0319:numpy/add_newdocs.py:901",
+      "comparable_new_source": "u0320:numpy/core/_add_newdocs.py:1216",
+      "assessment": "In addition to representation mismatch, new documented signature adds optional keyword-only like=None. Consumer passes shape and dtype. Signature evidence does not establish a break of that recorded call; no dynamic compatibility experiment performed."
+    }
+  ],
+  "historical_A2_deliverable": "incomplete for this wrong-reason warning-only control",
+  "successor_requirement": "Explicitly mark historical A2 coverage incomplete in manuscript, response and checklist. Append this separately timed source-only audit; do not rewrite A2 records or remove observed rejection."
+}

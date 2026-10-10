@@ -1,0 +1,72 @@
+{
+ "item_id": "A1-robust_928306b",
+ "kind": "A1",
+ "case_id": "robust_928306b",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "We just made a clean install of **Ubuntu 12.04.3 LTS** and the default kernel are **3.8.0-31-generic** instead of previous **3.2.0-53-generic-pae** (default netbook ASUS 1025C)\n\nSo file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_",
+  "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_",
+   "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "But  the new **laptop_hardware.py** file doesn't work because some files was renamed:\n- no **energy_now** file but a **charge_now**\n- no **energy_full_design** file but a **charge_full_design**\n- no **power_now** file",
+   "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+  },
+  {
+   "index": 2,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "- The problem stated in the issue doesn't get affected neither; the problem is in the way we process the information on BAT0 files (I'll fix all this tomorrow)\n  - Values must be divided by 10e6",
+   "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+  },
+  {
+   "index": 3,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "+        # Charging state; make lowercase and remove trailing eol\n+        state = _read_string(_battery_acpi_path+'/status', 'discharging').lower().rstrip()",
+   "url": "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f"
+  },
+  {
+   "index": 4,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "- _Design Capacity_ is lower than _Capacity_; I suppose this is wrong",
+   "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "charging symbol doesn't appear in the dashboard",
+  "url": "https://github.com/turtlebot/turtlebot/issues/102"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Not tested on other version of Ubuntu sorry. Yes we can improve the script by checking more efficiently /proc/acpi/power_supply directory, then /sys/class/power_supply, then file in this directory."
+ },
+ "notes": "Verified this session: issue #102 body and comments 26799473/27193014 (all five condition quotes verbatim), PR #104 comments (tfoote '+1 partial fix for #102', rk4an's not-tested statement at https://github.com/turtlebot/turtlebot/pull/104#issuecomment-26883320, stonier's 2.2.3 release note), merge commit 0c0f532 message and both fix patches. Eligibility walk: E2 step 3 correctly excluded because the fix is not only a device-path rebinding — 0c0f532 adds charge_full/charge_full_design/current_now/charge_now fallback attribute names and 928306b divides all sysfs values by 10e5 and strips the status string (both read in the .patch files). Kernel as a unit is unusual but fits 'a package'; the ACPI attribute files are a declared interface, so E2 step 5 (firmware, no declared interface) does not apply. UPGRADE supported by rk4an's kernel statements. The spec's own caveats (10e6 vs 10e5, charge_* naming depending on battery hardware per mainline drivers/acpi/battery.c) were not re-verified against kernel source; they do not affect the four adjudicated dimensions. Resolution = recommended is right: fixes merged and released as 2.2.3, but no comment shows the resolved revision working with an identified kernel (jronald never reports back). The artifact file's quotes match the issue comments I fetched."
+}

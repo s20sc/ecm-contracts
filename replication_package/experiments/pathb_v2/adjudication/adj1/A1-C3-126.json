@@ -1,0 +1,78 @@
+{
+  "item_id": "A1-C3-126",
+  "kind": "A1",
+  "case_id": "C3-126",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: container reproducer, observed crash, loan-lifetime analysis, and maintainer confirmation. E2: rclcpp retains and dereferences provider-owned memory after returning it through the RMW loan API. It depends on the cross-unit loan-lifetime contract and is absent on the non-loaned path; not merely a peer-independent internal crash. E3: PAIR. E4: nodes fail startup.",
+    "quote": "They do not work like that; once the memory is returned to the underlying middleware, they should be considered invalid.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1724283083"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "They do not work like that; once the memory is returned to the underlying middleware, they should be considered invalid.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1724283083",
+      "reason": "Ownership and lifetime of returned loaned memory are not covered by a more specific listed class, so other is appropriate. The take/return APIs and can_loan_messages capability selecting that path are the implicated elements, not a type or clock-unit mismatch.",
+      "supporting_evidence": [
+        {
+          "quote": "rmw_subscription->can_loan_messages = sub->is_loaning_available;",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_cyclonedds/1.3.4/rmw_cyclonedds_cpp/src/rmw_node.cpp"
+        },
+        {
+          "quote": "rmw_serdata_free(), but will be released when",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_cyclonedds/1.3.4/rmw_cyclonedds_cpp/src/rmw_node.cpp"
+        },
+        {
+          "quote": "`rmw_return_loaned_message_from_subscription()` is called",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_cyclonedds/1.3.4/rmw_cyclonedds_cpp/src/rmw_node.cpp"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Random nodes fail startup with the following exception:",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469",
+    "reason": "The initial runtime failure is a misleading negative-time exception, not a diagnostic of the unsafe loan-lifetime contract. The later Valgrind investigation is not a built-in connection or activation refusal.",
+    "supporting_evidence": [
+      {
+        "quote": "what():  cannot store a negative time point in rclcpp::Time",
+        "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+      }
+    ]
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Random nodes fail startup with the following exception:",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469",
+    "reason": "The report explicitly says startup; activate is appropriate for the observed node-startup failure, without implying a managed-node lifecycle transition."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The above works around the issue.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1877574593",
+    "reason": "The maintainer describes a workaround and Humble/Iron backports, but no test identifies both selected revisions plus the changed rcl intermediary. The separate copy-based fix is confirmed without tested revisions; recommended remains appropriate.",
+    "supporting_evidence": [
+      {
+        "quote": "+  bool disable_loaned_message = true;",
+        "url": "https://github.com/ros2/rcl/pull/1116.diff"
+      },
+      {
+        "quote": "+      \"Loaned messages are only safe with const ref subscription callbacks. \"",
+        "url": "https://github.com/ros2/rclcpp/pull/2364.diff"
+      }
+    ]
+  },
+  "notes": "The selected pair is eligible even though the consumer is at fault: it violates the lifetime of a loan returned across the provider boundary. The Humble safety workaround requires rcl as well as the listed rclcpp update; rclcpp #2364 only warns when loans are enabled. Thus the two units alone do not completely specify the resolved environment. MessagePoolMemoryStrategy defects discussed later are a different composition/path and are not added here. No additional independent failed condition in this loaned-message composition was found."
+}

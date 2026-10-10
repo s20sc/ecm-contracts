@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-136",
+  "kind": "A1",
+  "case_id": "C3-136",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "This problem seems to be related to Fast-RTPS. Using OpenSplice for DDS implementation, I can't reproduce this problem unlike Fast-RTPS.",
+    "url": "https://github.com/ros2/rclcpp/issues/755"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Issue #755 (\"Listener stops working\") documents a stall in message delivery at high publish rates. I read the issue body (listener \"**STOPS** after receiving some messages (random amount)\") and the thread: jacobperron (\"It sounds like a bug.\"), ivanpauno (\"I have been able to reproduce it on Linux (after retrying a bunch of times). The worst case I have seen: our demos with the timer changed to 100us, published up to message number 4700, listened up to message 4676.\"), vinnamkim (the quote above), and clalancette (\"you are using a 'reliable' QoS ... all of the messages must be acknowledged before they are dropped from the queue ... try switching to 'Best Effort'\"). I also read Fast-DDS#571, where the failure reproduces with Fast-RTPS's native API (no ROS code) and eProsima's lauramg15 attributes it to the writer settings: \"This problem can be solved reducing the heartbeat period.\" The stall therefore lives inside the middleware's reliable transport and occurs with any correct publisher/subscriber pair; it does not depend on an assumption between the two ROS nodes. E2 stops at step 2 (internal), which is correct. Loudness/resolution correctly null."
+}

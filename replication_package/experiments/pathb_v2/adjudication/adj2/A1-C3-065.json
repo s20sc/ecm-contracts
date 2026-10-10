@@ -1,0 +1,18 @@
+{"item_id": "A1-C3-065", "kind": "A1", "case_id": "C3-065",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+   "quote": "the `z` coordinate is not consistent with the transformation, in fact, it remains positive toward down.",
+   "url": "https://github.com/mavlink/mavros/issues/2054"},
+ "failed_conditions": [
+   {"index": 0, "class_verdict": "agree", "proposed_class": null,
+    "elements_verdict": "agree", "proposed_elements": [],
+    "quote": "`GLOBAL_POSITION_INT` MAVlink [message](https://mavlink.io/en/messages/common.html#GLOBAL_POSITION_INT) expresses velocity in NED frame therefore a NED->ENU conversion is needed to comply with ROS 2 standard.\n\nFIX: #2054: instead of converting into `ENU`, the code was converting into `END` frame.",
+    "url": "https://github.com/mavlink/mavros/pull/2226"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+   "quote": "When filling mavros topic `global_position/local` and converting the linear velocity frame from `NED` to `ENU` the `z` coordinate is not consistent with the transformation, in fact, it remains positive toward down. ... You can see it also from this plot",
+   "url": "https://github.com/mavlink/mavros/issues/2054"},
+ "resolution": {"verdict": "agree", "proposed": null,
+   "quote": "PR #2226 'global_position: fix ENU velocity conversion' merged 2026-06-27T12:15:00Z as merge commit 46cc78fb77c8f40687d04fff99839170b57130d0; no comment or test shows a subscriber running against the fixed composition",
+   "url": "https://github.com/mavlink/mavros/pull/2226"},
+ "notes": "Verified this session: issue #2054 body quotes the code and links global_position.cpp#L343 on ros2, proposes the -gpos.vz fix, attaches the plot; at the pinned broken revision 09df29645e34b46c781e27dffe1fe613f81f50e0 I read line 343 verbatim: '      Eigen::Vector3d(gpos.vy, gpos.vx, gpos.vz) / 1E2,'; at the resolved merge 46cc78fb lines 345-346 read 'ftf::transform_frame_ned_enu(\\n        Eigen::Vector3d(gpos.vx, gpos.vy, gpos.vz)) / 1E2,' exactly as the spec's resolution summary states; PR #2226 body and merge metadata (merged 2026-06-27, merge_commit 46cc78fb...) match the spec. Eligibility step 6: the wrong axis convention of the twist crossing the mavros->subscriber boundary is an interface failure though the fix is inside mavros; frame_mismatch follows the merged PR's own wording, with representation_convention as the plausible alternative the spec notes. The unnamed subscriber as excerpt unit with empty section is consistent with S1 (no code or configuration of it is quoted in the source)."}

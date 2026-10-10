@@ -1,0 +1,24 @@
+{
+  "task_id": "u0179",
+  "package": "forward_position_controller2",
+  "status": "evidence_inadequate",
+  "searched": [
+    "Listed every file in snapshot/ (81 files, including hidden files): the snapshot is the ros2_controllers repository with packages ros2_controllers, forward_command_controller, position_controllers, velocity_controllers, effort_controllers, joint_state_controller, joint_trajectory_controller, diff_drive_controller (all package.xml <version>0.2.0</version>). There is no package, directory, package.xml, plugin description, launch file or controller-manager YAML named forward_position_controller2.",
+    "grep -rn 'forward_position_controller' snapshot/ : 0 hits; grep -rni 'forward_position|position_controller2|controller2' snapshot/ : 0 hits.",
+    "grep -rn 'joint1/position|joint2/position' snapshot/ : 0 hits. The tokens joint1 and joint2 occur only in test sources and test YAML (e.g. forward_command_controller/test/test_forward_command_controller.cpp:119, joint_trajectory_controller/test/config/test_joint_trajectory_controller.yaml:3-4), none of which names forward_position_controller2.",
+    "YAML files present: diff_drive_controller/test/config/test_diff_drive_controller.yaml, joint_trajectory_controller/test/config/test_joint_trajectory_controller.yaml, codecov.yml; none configures a controller instance named forward_position_controller2."
+  ],
+  "manifest_version": null,
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {},
+  "blinding_guess": {"defective": "cannot_tell", "why": "The unit named in the packet is not present in the snapshot, so nothing about its declared resources can be read from it."},
+  "confidence": "low",
+  "notes": "The name forward_position_controller2 reads like a controller-instance name from a controller-manager configuration, but no such configuration is in the snapshot, so the unit cannot be tied to any code here; nothing below is attributed to it. For context only: forward_command_controller/src/forward_command_controller.cpp:96 builds its claimed command interfaces as joint + \"/\" + interface_name_, with joints read at run time from the parameter declared at :47 (\"joints\", default empty) and interface_name from :49 (\"interface_name\", default \"\"); position_controllers/src/joint_group_position_controller.cpp:30 fixes interface_name_ = hardware_interface::HW_IF_POSITION. Whether forward_position_controller2 is an instance of either type, and which joints it lists, is determined by configuration outside the snapshot, so the resource tokens resource:joint1/position and resource:joint2/position cannot be confirmed or excluded. No ports, exclusive claims, declares, not_declared or references are recorded for that reason."
+}

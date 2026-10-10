@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_35682ec",
+  "kind": "A1",
+  "case_id": "robust_35682ec",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Doesn't move at all. Probably something with remappings and/or cmd_vel_mux",
+    "url": "https://github.com/yujinrobot/kobuki/issues/235"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"mux_cmd_vel\", 10);\n+  mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"output\", 10);",
+      "url": "https://github.com/yujinrobot/yujin_ocs/commit/2c10cf98313b14463b40e6c2ad31de8389dd760f"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Doesn't move at all. Probably something with remappings and/or cmd_vel_mux",
+    "url": "https://github.com/yujinrobot/kobuki/issues/235"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Issue #235: remap fixed but keyop still fails when commanding after\nauto-docking"
+  },
+  "notes": "All key claims verified. (1) Issue 235 body 'Doesn't move at all. Probably something with remappings and/or cmd_vel_mux'. (2) Provider rename commit 2c10cf98 ('reconfiguration of inputs is working.', 2012-12-26): the diff shows '-  mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"mux_cmd_vel\", 10);' replaced by '+  mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"output\", 10);' — matching the spec's failed-condition quote verbatim. (3) Consumer launch file at d0bfb126 line 7: '<remap from=\"cmd_vel_mux/mux_cmd_vel\" to=\"mobile_base/commands/velocity\"/>' — the consumer still references the old name. (4) Fix commit 35682ec3 'Issue #235: remap fixed but keyop still fails when commanding after auto-docking' (2013-02-25); closing comment 18270268 'There'is no problem. kobuki_auto_docking used to disable the motors after succeeding.' (5) E2 topic interface eligible at step 6: the resolving edit is a launch remap, but it follows a provider rename (the provider renamed mux_cmd_vel -> output); per the rubric 'a provider renaming an element that the consumer must follow is an interface change even when the consumer's fix is in a launch file', so step 3 (deployment_wiring) does not apply. (6) Class element_removed_or_renamed correct: the provider removed/renamed the topic name the consumer references; implicated element topic:cmd_vel_mux/output correct. (7) Loudness silent_documented + run: no diagnostic; a ROS 1 remap whose source name is never advertised produces no error (the mux simply publishes on the unremapped cmd_vel_mux/output while the base waits on mobile_base/commands/velocity). (8) Resolution 'recommended': the commit states the remap is fixed but the source never shows the corrected composition driving the robot; the residual 'keyop still fails' is attributed to motor power being disabled after docking, a separate behaviour. No missed conditions in this composition."
+}

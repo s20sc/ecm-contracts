@@ -1,0 +1,89 @@
+{
+  "case_id": "robust_1518978",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ipa320/cob_driver/issues/272",
+    "https://web.archive.org/web/20201024081958/https://github.com/ipa320/cob_driver/issues/272",
+    "https://web.archive.org/web/20201024081958/https://github.com/ipa320/cob_driver/pull/274",
+    "https://github.com/ipa320/cob_driver/commit/151897840540e8dd662cf6c8c77e5613c84e3424",
+    "https://github.com/ipa320/cob_driver/commit/6f6ae2dcccadad5aa0b016876644a1bcb6755ada",
+    "https://github.com/ipa320/cob_robots/pull/464",
+    "https://github.com/robust-rosin/robust/blob/master/care-o-bot/1518978/1518978.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue ipa320/cob_driver#272 'cob_sound has hardcoded namespaces' was filed by the package maintainer (floweisshardt, 2016-04-07T08:25:33Z): \"parameters are hardcoded to /sound_controller/mode\", and closed by him with \"fixed in #274 and ipa320/cob_robots#464\" (2016-04-08). The fix commit 151897840540e8dd662cf6c8c77e5613c84e3424 'use private namespace for cob_sound parameters' changes cob_sound/ros/src/sound.cpp from `nh_.param<std::string>(\"/sound_controller/mode\",mode,\"festival\");` (and the cepstral_voice / cepstral_settings lines) to `nh_.param<std::string>(\"~mode\",mode,\"festival\");`. The defect is concrete (the exact hard-coded names are given) and maintainer-confirmed; the original issue URL now returns 404 because ipa320/cob_driver was re-created as a fork on 2024-02-14 with issues disabled, so the thread was read from the Wayback Machine snapshot of 2020-10-24."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["cob_sound", "cob_bringup"],
+      "interface_kind": "parameter",
+      "evidence": "Step 1: cob_sound (package cob_sound in ipa320/cob_driver; node `sound`, launched as /sound/sound_node) and cob_bringup (package cob_bringup in ipa320/cob_robots; robot launch files that put the sound parameters on the parameter server). They interact only through the parameter server, and they are released from different repositories, so they are separate units; sound.launch is not the node's own launch file but part of the robot bringup package. Step 2: the defect is how the parameter name is resolved across that boundary (the node reads the global name /sound_controller/mode instead of a name relative to its own namespace /sound/sound_node), so a peer that sets the parameter relative to the node's namespace, or a second instance of the node, is not served; not internal. Step 3: the resolving change edits the node's referenced parameter names in C++ ('/sound_controller/mode' -> '~mode'), i.e. a unit's referenced interface changed, so this is not deployment wiring even though cob_bringup's side of the fix is launch/YAML. Step 4/5: not a build or firmware change. Step 6: eligible; interface kind parameter."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: cob_bringup's robot launch files write `<param name=\"/sound_controller/mode\" value=\"cepstral\" />` to the parameter server and cob_sound reads it (`nh_.param<std::string>(\"/sound_controller/mode\",mode,\"festival\")`) on every say request; an output of one unit feeds an input of the other. No other operation is documented."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The source records the defect at code level (issue: \"parameters are hardcoded to /sound_controller/mode\"; commit message: \"use private namespace for cob_sound parameters\"; dataset record: \"This could cause a mismatch of names if not handled correctly.\") but shows no observed failure, warning, or log, so the outcome class is undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "cob_sound",
+      "role": "consumer",
+      "repo": "https://github.com/ipa320/cob_driver",
+      "broken_rev": "79eb332c7365f2fcc2d931657c9742cd6f8ee241",
+      "resolved_rev": "151897840540e8dd662cf6c8c77e5613c84e3424",
+      "pinned": true,
+      "revision_basis": "79eb332c ('consistently fill result for say and play', 2016-04-07T11:28:46Z) is the parent of the fix commit and the last indigo_dev revision before it; PR #274 ('Issues cob sound', fmessmer:issues_cob_sound -> ipa320/cob_driver:indigo_dev, merged 2016-04-08T10:05:42Z) contains exactly 79eb332c and 1518978. 151897840540e8dd662cf6c8c77e5613c84e3424 is the packet's fix commit; it is an ancestor of indigo_dev (merged via merge commit e1b83d6d, 2016-04-08T10:05:42Z). A follow-up commit in the same merge, 6f6ae2dc 'unify namespaces with cob_light' (2016-04-08T07:18:01Z), makes nh_ a private NodeHandle (`nh_ = ros::NodeHandle(\"~\");`) and drops the tilde from the three names, which resolves to the same private parameters.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "cob_bringup",
+      "role": "provider",
+      "repo": "https://github.com/ipa320/cob_robots",
+      "broken_rev": "ece26836da44d1bbdf909fffa8528e04e7ecc75b",
+      "resolved_rev": "15a087a64bd581b77f47de03d8e56a8bab6b360d",
+      "pinned": true,
+      "revision_basis": "ece26836 is the indigo_dev base of cob_robots PR #464 ('load sound parameter from yaml file', opened 2016-04-07, 'prerequisite for https://github.com/ipa320/cob_driver/pull/274'); at that revision cob_bringup/robots/cob3-2.xml, cob3-6.xml, cob3-9.xml, cob4-1.xml and cob4-2.xml each contain `<param name=\"/sound_controller/mode\" value=\"cepstral\" />` before including drivers/sound.launch. 15a087a6 is the single commit of PR #464 and its merge commit (merged 2016-04-08T09:59:51Z, ancestor of indigo_dev); it adds cob_hardware_config/<robot>/config/sound.yaml (mode, cepstral_voice, cepstral_settings) loaded by sound.launch into the node's private namespace and removes the global param lines. cob_hardware_config, which holds the YAML, lives in the same repository at the same revision.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "param:/sound_controller/mode", "sides": {"cob_bringup": "provides", "cob_sound": "consumes"}},
+    {"element": "param:/sound_controller/cepstral_voice", "sides": {"cob_sound": "consumes"}},
+    {"element": "param:/sound_controller/cepstral_settings", "sides": {"cob_sound": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["param:/sound_controller/mode", "param:/sound_controller/cepstral_voice", "param:/sound_controller/cepstral_settings"],
+      "quote": "parameters are hardcoded to /sound_controller/mode",
+      "url": "https://web.archive.org/web/20201024081958/https://github.com/ipa320/cob_driver/issues/272"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "The source shows no diagnostic and no observed failure; it records the hard-coded global parameter names as the defect. A missing parameter would not be reported by the node at run time either, because each `nh_.param` call supplies a default ('festival', 'David', '\"speech/rate=170\"').",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "The node reads its parameters from its private namespace (`nh_.param<std::string>(\"~mode\",mode,\"festival\");`, `\"~cepstral_voice\"`, `\"~cepstral_settings\"`; commit 1518978, later restated as a private NodeHandle in 6f6ae2dc), and the bringup side supplies them there: drivers/sound.launch gains `<rosparam command=\"load\" file=\"$(arg pkg_hardware_config)/$(arg robot)/config/sound.yaml\"/>` inside the sound_node element, new cob_hardware_config/<robot>/config/sound.yaml files hold `mode: \"festival\"`, `cepstral_voice: \"David\"`, `cepstral_settings: \"\\\"speech/rate=170\\\"\"`, and the robot launch files drop `<param name=\"/sound_controller/mode\" value=\"cepstral\" />` (cob_robots PR #464, 15a087a6).",
+    "status": "recommended",
+    "evidence": "Both changes were merged by the maintainer (cob_robots PR #464 on 2016-04-08T09:59:51Z as the stated prerequisite; cob_driver PR #274 on 2016-04-08T10:05:42Z) and the issue was closed with \"fixed in #274 and ipa320/cob_robots#464\"; the source does not show the resolved composition running, so the status is recommended rather than observed."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Borderline eligibility: as shipped, both sides used the same global name, so the composition in the source did agree and the failure is latent (it materialises only when the node's namespace is expected to scope the parameter, e.g. a launch that sets `mode` relative to a <group> or a second sound node), which is why the outcome is undocumented and the class is `other` rather than a name mismatch. The broken cob_bringup revision sets only /sound_controller/mode (value cepstral) and only for cob3-2, cob3-6, cob3-9, cob4-1 and cob4-2; raw3-4 includes sound.launch without setting it; cepstral_voice and cepstral_settings were never set by cob_robots at the broken revision, hence their one-sided inventory entries. At the resolved revision the YAML sets all three keys, with mode 'festival' rather than the previous 'cepstral'. The two-repository fix also creates an undocumented version skew (a cob_sound updated without cob_robots, or vice versa, silently falls back to the defaults); not a condition of this case. PR #274 also 'fixes #273' (a separate cob_sound issue, not examined). The dataset record classifies the fault CONFIG:NAMESPACE / PROGRAMMING:BAD-SMELL with failure SYSTEM:NONE."
+}

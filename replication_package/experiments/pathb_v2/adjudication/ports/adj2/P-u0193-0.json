@@ -1,0 +1,11 @@
+{"item_id": "P-u0193-0", "kind": "P", "task_id": "u0193", "element": "msg:ur_driver/MSG_JOINT_STATES", "side": "consumes",
+ "values": [{"field": "msg_type", "recorded": "ur_driver/MSG_JOINT_STATES", "verdict": "verified",
+   "source_excerpt": "driver.py:41 'MSG_OUT = 1' :42 'MSG_QUIT = 2' :43 'MSG_JOINT_STATES = 3' :44 'MSG_MOVEJ = 4'",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "driver.py:319 'elif mtype == MSG_JOINT_STATES:' :322 'state_mult = struct.unpack_from(\"!%ii\" % (3*6), buf, 0)' :324 'state = [s / MULT_jointstate for s in state_mult]' :326 'msg = JointState()' :327 'msg.header.stamp = rospy.get_rostime()' - no frame_id set in :326-335",
+   "qos_basis": null},
+  {"field": "units", "recorded": "18 int32 values each divided by MULT_jointstate = 10000.0 (6 positions, 6 velocities, 6 efforts)", "verdict": "verified",
+   "source_excerpt": "driver.py:57 'MULT_jointstate = 10000.0' :322 'state_mult = struct.unpack_from(\"!%ii\" % (3*6), buf, 0)' :324 'state = [s / MULT_jointstate for s in state_mult]' :332 'msg.velocity = state[6:12]' :333 'msg.effort = state[12:18]' (:330-331 fill positions from state[:6])",
+   "qos_basis": null}],
+ "notes": "All cited lines opened and match. '!%ii' % (3*6) unpacks 18 network-order 4-byte signed integers (int32); the length guard at :320 waits for 3*(6*4)=72 bytes. Positions are filled from state[:6] (:330-331), velocity from state[6:12] (:332), effort from state[12:18] (:333), each element already divided by MULT_jointstate=10000.0 at :324. The JointState published at :326-335 sets only header.stamp/name/position/velocity/effort; no frame_id is ever assigned, consistent with frame=none."}

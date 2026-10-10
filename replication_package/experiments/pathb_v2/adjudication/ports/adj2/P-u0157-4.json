@@ -1,0 +1,6 @@
+{"item_id": "P-u0157-4", "kind": "P", "task_id": "u0157", "element": "msg:mavlink/COMMAND_ACK", "side": "consumes",
+ "values": [
+  {"field": "msg_type", "recorded": "mavlink/COMMAND_ACK", "verdict": "verified", "source_excerpt": "\tvoid handle_command_ack(const mavlink::mavlink_message_t *msg, mavlink::common::msg::COMMAND_ACK &ack)", "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified", "source_excerpt": "\t\t\tif ((*it)->expected_command == ack.command) {\n\t\t\t\t(*it)->result = ack.result;\n\t\t\t\t(*it)->ack.notify_all();\n\t\t\t\treturn;\n\t\t\t}\n\n\t\tROS_WARN_THROTTLE_NAMED(10, \"cmd\", \"CMD: Unexpected command %u, result %u\",\n\t\t\t\tack.command, ack.result);", "qos_basis": null}
+ ],
+ "notes": "msg_type: mavros/src/plugins/command.cpp:105 states the C++ type mavlink::common::msg::COMMAND_ACK (canonical spelling mavlink/COMMAND_ACK); subscription confirmed at :80 'make_handler(&CommandPlugin::handle_command_ack)'. frame: handler body at command.cpp:105-117 uses only ack.command and ack.result; no spatial field is read, supporting frame=none."}

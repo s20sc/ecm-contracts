@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-03",
+  "kind": "A1",
+  "case_id": "CAL-03",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command",
+    "url": "https://github.com/ros-navigation/navigation2/pull/6336"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command",
+      "url": "https://github.com/ros-navigation/navigation2/pull/6336"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "On Ubuntu 24.04, maximum speed is limited to ~0.25 m/s.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Tested: Ubuntu 24.04, MuJoCo sim. Our measurement on a simulated Ridgeback mecanum base, vx_max: 0.5: commanded speed 0.165 to 0.466 m/s; ground truth 0.138 to 0.452",
+    "url": "https://github.com/ros-navigation/navigation2/pull/6336"
+  },
+  "notes": "Sources opened: issue #5386 body and all comments, PR #6336 body (merged 2026-08-11 as 3f71f94b), issue #5214 comment id 2927731729, all via gh api. Eligibility: agree, stop 6. E1: full parameter file, repro steps, version \"ros-jazzy-navigation2 1.3.7-1noble.20250624.020544\", observed cap. E2 step 1: controller_server's MPPI plugin (odom_topic \"/odometry/filtered\" in the reporter's YAML) and the separately deployed odometry-publishing process are distinct units. Step 2: the failure depends on the cross-boundary assumption that the consumed twist tracks the commanded velocity - the fix PR names it (\"seeds rollouts from lagging odometry\"), and the maintainer states the assumption class in #5214 (\"all controllers in Nav2 assume that your robot has properly setup robot controllers to be able to execute commands given.\"); with a peer whose twist tracks the command the symptom does not occur, so not internal. Steps 3-5: the fix adds a controller parameter and changes optimizer code, not name bindings, build, or firmware. Stop 6, topic. Caveat noted, not verdict-changing: the reporter's own closure is a different emphasis (\"It seems that the small acceleration value causes the vehicle to slow down.\", and \"I think the following parameters are not effective in the HUMBLE version ... and it is effective in JAZZY\"), i.e. an internal-behaviour reading of the same symptom; the primary fix source supports the interface reading, and S1 says to classify from primary sources. Failed condition: class 'other' agreed - a content-latency (lagging twist) assumption, not a publishing-rate shortfall (rate_shortfall) nor an enforced QoS deadline; elements (topic + twist field) agreed. Loudness DISAGREED: the spec records loud_documented while its own loudness_evidence says \"no diagnostic is reported, the reporter found it by observing /cmd_vel\"; per S1, loud_documented requires a tooling diagnostic at build/connection/activation, and none exists in the source - the reporter observed only wrong speed. Proposed silent_documented; detection stage run is consistent with the spec's own stage. Resolution recommended agreed: PR #6336 merged and shown working with a different peer (quoted), and the reporter closed on their own diagnosis; S1 makes a fix shown working with a different peer 'recommended'."
+}

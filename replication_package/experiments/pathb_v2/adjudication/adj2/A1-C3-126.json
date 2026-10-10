@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-126",
+  "kind": "A1",
+  "case_id": "C3-126",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Random nodes fail startup with the following exception:\nterminate called after throwing an instance of 'std::runtime_error'\n  what():  cannot store a negative time point in rclcpp::Time",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "That said, I see exactly what you mean about the loaned APIs.  They do not work like that; once the memory is returned to the underlying middleware, they should be considered invalid.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1724283083"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "==17578== Invalid read of size 8 ... ==17578==  Address 0x61084f0 is 0 bytes inside a block of size 8 free'd ... ==17578==    by 0x616573B: rmw_return_loaned_message_from_subscription (rmw_node.cpp:3573)",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1723688992"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "We disabled loans by default via https://github.com/ros2/rclcpp/pull/2335 and https://github.com/ros2/rcl/pull/1110 ... The above works around the issue.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1877574593"
+  },
+  "notes": "Verified this session: issue 469 body (2023-09-18, ros:humble Docker, CYCLONEDDS_URI SharedMemory, iox-roudi, component_container with use_sim_time:=true, /clock at 10000 Hz) contains 'Random nodes fail startup with the following exception:', the quoted crash, and 'This happens only in ros:humble. It doesn't happen in ros:iron and ros:rolling.' Comment 1723688992 (zygfrydw) contains the Valgrind trace 'Invalid read of size 8' with the block 'free'd' by 'dds_data_allocator_free' inside 'rmw_return_loaned_message_from_subscription (rmw_node.cpp:3573)' and the sentence 'Yes, it does fix the issue for us.' (re rclcpp#2092). Comment 1724283083 (clalancette) contains verbatim the quoted loaned-API statement and 'And in point of fact, if you use the non-loaned APIs, it works exactly as you expect; the object can live beyond the scope of the callback, assuming the callback takes a reference.' Comment 1877574593 (clalancette) contains the quoted closing. Code verified: rmw_cyclonedds rmw_node.cpp at 7cb3b38a line 2896 'rmw_subscription->can_loan_messages = sub->is_loaning_available;' (https://raw.githubusercontent.com/ros2/rmw_cyclonedds/7cb3b38a21e14fbcc84aadcc460e4d812d0c7a7f/rmw_cyclonedds_cpp/src/rmw_node.cpp); rclcpp time_source.cpp at 52327dd3 line 166 'last_msg_set_ = msg;'; subscription.hpp at 52327dd3 line 373 '// message is loaned, so we have to make sure that the deleter does not deallocate the message'. E2: the defect is the loan-lifetime agreement across the RMW boundary (provider-owned memory freed while consumer still reads it) and it only occurs when the peer loans (Iceoryx enabled; non-loaned APIs fine), so an interface reading at stop 6 is defensible even though the faulty logic sits in rclcpp -- the spec states both sides honestly. Class 'other' (ownership/lifetime, no specific class) and the three implicated elements (all in inventory) agree. Loudness silent_documented: no tooling diagnostic for the mismatch; the visible symptom is an unrelated-looking crash from garbage data and the UAF needed Valgrind; detection_stage 'activate' is supported by 'Random nodes fail startup' and the Valgrind trace running through 'rclcpp::TimeSource::attachClock' into 'rclcpp::node_interfaces::NodeTimeSource::NodeTimeSource' (node startup). Resolution recommended: the closing names the merged PRs but no source shows the Humble fix (rcl 5.3.6 default-off) running in this composition; the reporter's 'Yes, it does fix the issue for us.' is about rolling-only rclcpp#2092 at different revisions, correctly not counted as observed."
+}

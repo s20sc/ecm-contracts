@@ -1,0 +1,98 @@
+{
+  "item_id": "A1-C3-099",
+  "kind": "A1",
+  "case_id": "C3-099",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "It is sufficient to have a Humble subscriber and do a `ros2 topic list` from Jazzy to (sometimes) trigger the issue.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/797",
+    "reason": "E1/E4: a Docker reproducer and observed unbounded memory consumption are public. E2: newer rmw_dds_common discovery definitions reach the older rmw_fastrtps/typesupport consumer across a wire boundary. The malformed-layout handling is not a deployment-name problem. E3: UPGRADE fits newer discovery definitions consumed by Humble-built code; PAIR also describes transport. Stop at 6."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-char[24] data\n+char[16] data",
+      "url": "https://github.com/ros2/rmw_dds_common/pull/68/files",
+      "reason": "Agree definition_mismatch: Gid retains its name but its fixed array shrinks. NodeEntitiesInfo contains Gid sequences and ParticipantEntitiesInfo contains Gid and NodeEntitiesInfo, so their serialized definitions change transitively; the failing exchange is discovery, not /chatter.",
+      "additional_evidence": [
+        {
+          "quote": "Gid[] reader_gid_seq\nGid[] writer_gid_seq",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_dds_common/1.6.0/rmw_dds_common/msg/NodeEntitiesInfo.msg"
+        },
+        {
+          "quote": "Gid gid\nNodeEntitiesInfo[] node_entities_info_seq",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_dds_common/3.1.0/rmw_dds_common/msg/ParticipantEntitiesInfo.msg"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-char[24] data\n+char[16] data",
+      "url": "https://github.com/ros2/rmw_dds_common/pull/68/files",
+      "reason": "Agree element_retyped and field:rmw_dds_common/Gid.data. The fixed-array extent changes from 24 to 16 while the field name remains data; this is distinct from the enclosing definition mismatch."
+    },
+    {
+      "index": 2,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The crash is triggered by an invalid (excessively large) size argument passed to `resize`.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/828",
+      "reason": "Agree other and the two implicated sequence fields. The report traces the allocation at reader_gid_seq.resize and the enclosing ParticipantEntitiesInfo node_entities_info_seq deserializer. This unchecked allocation is an additional defect within the selected composition, not a separate nominal type mismatch.",
+      "additional_evidence": [
+        {
+          "quote": "    ros_message.reader_gid_seq.resize(size); // <-- crash*",
+          "url": "https://github.com/ros2/rmw_fastrtps/issues/828"
+        },
+        {
+          "quote": "    ros_message.node_entities_info_seq.resize(size);",
+          "url": "https://github.com/ros2/rmw_fastrtps/issues/828"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The `ros2 topic echo` seems to cause unlimited memory consumption and makes the system run OOM in a matter of seconds.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/797",
+    "reason": "Agree silent_documented in S1's stage-limited sense: the documented effect is runtime OOM without an interface-incompatibility refusal at build/connect/activate. Runtime Fast CDR errors and later ASAN analysis do exist; this verdict does not claim total absence of log output."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The `ros2 topic echo` seems to cause unlimited memory consumption and makes the system run OOM in a matter of seconds.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/797",
+    "reason": "The documented failure is detected at run, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've just tested backporting this to Humble, compiling locally and indeed this fixes the issue reported in https://github.com/ros2/rmw_fastrtps/issues/797",
+    "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/130#issuecomment-2897639579",
+    "reason": "Agree recommended for the specified composition. This successful experiment uses a Rolling publisher, not the original Jazzy peer, with no exact tested revisions. #828 later confirms Jazzy/Humble reproduction no longer occurs but supplies no fixed package revisions. The diff hardens sequence allocation; it does not make the two discovery definitions identical.",
+    "additional_evidence": [
+      {
+        "quote": "On the Humble subscriber with a Rolling publisher",
+        "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/130#issuecomment-2897639579"
+      },
+      {
+        "quote": "After reviewing the patch notes and re-running the reproduction steps, the issue no longer occurs. Thank you.",
+        "url": "https://github.com/ros2/rmw_fastrtps/issues/828#issuecomment-3252088218"
+      }
+    ]
+  },
+  "notes": "Read reports #797/#828 and comments, typesupport #130 discussion/diff, Gid change #68 and the three message definitions at 1.6.0 and 3.1.0. Attribution of the discovery-layout incompatibility specifically to the Gid shrink is a code-based inference, not an explicit root-cause sentence in #797. Reader sequence allocation is directly localized in #828. No extra condition is added for every other cross-distro difference or for the unobserved writer allocation path."
+}

@@ -1,0 +1,31 @@
+{
+  "item_id": "P-u0195-0",
+  "kind": "P",
+  "task_id": "u0195",
+  "element": "msg:ur_driver/MSG_JOINT_STATES",
+  "side": "provides",
+  "values": [
+    {
+      "field": "msg_type",
+      "recorded": "ur_driver/MSG_JOINT_STATES",
+      "verdict": "unverifiable",
+      "source_excerpt": "  MSG_JOINT_STATES = 3\n      socket_send_int(MSG_JOINT_STATES)",
+      "qos_basis": null
+    },
+    {
+      "field": "frame",
+      "recorded": "none",
+      "verdict": "unverifiable",
+      "source_excerpt": "    def send_joint_state():\n      q = get_joint_positions()\n      qdot = get_joint_speeds()\n      tau = get_joint_torques()\n      wrench = get_tcp_force()",
+      "qos_basis": null
+    },
+    {
+      "field": "units",
+      "recorded": "q[0..5], qdot[0..5], tau[0..5] each sent as floor(MULT_jointstate * value), MULT_jointstate = 10000.0; physical units not stated in code",
+      "verdict": "unverifiable",
+      "source_excerpt": "  MULT_jointstate = 10000.0\n      socket_send_int(floor(MULT_jointstate * q[0]))",
+      "qos_basis": null
+    }
+  ],
+  "notes": "Opened ur_driver/prog:1-70, including every cited location. Lines 6 and 48 define and transmit the numeric discriminator MSG_JOINT_STATES, not a type named ur_driver/MSG_JOINT_STATES; qualifying that discriminator as a message type is not a stated type or an allowed spelling conversion. Lines 42-66 do not state a frame or explicitly define a no-frame value; absence of a transmitted frame does not by itself establish the recorded frame token. The units provenance cites only lines 20 and 49, supporting the scale and q[0] encoding but not the full claim about all q, qdot and tau entries or a code-wide absence of physical units. The wider payload range is cited for other fields, not for units."
+}

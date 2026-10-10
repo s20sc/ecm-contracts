@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL2-09",
+ "kind": "A1",
+ "case_id": "CAL2-09",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "If you are careful with what IK solution is used then the non-joint-limited version works best.  — i.e. the failure depends on how the consumer uses the declared range, not on either unit alone; the maintainer's counterpoint was also read verbatim: 'How can setting the joint limits to what the mfg specs be a bug?'",
+  "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "The 'disjoint-ness' shown in Fig. 2 means that it is _impossible_ to plan a path where the elbow joint position starts in one of the sets A, B, or C and finishes in another. I think this is why plans fail reasonably often when using the full joint limits of the UR5. \n\nThis could be fixed by limiting the elbow joint to [-Pi, Pi) when full joint limits are used.",
+   "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Now when the robot is tested (without limiting the elbow joint) it times out (fails) on many queries, this will be because of the elbow self collisions. The planners then work when the elbow is limited to -pi, pi.",
+  "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "The planners then work when the elbow is limited to -pi, pi.  (observed by the reporter with a locally modified model and unidentified MoveIt revision; the merged fix verified this session: commit 2e078f5 'Merge pull request #320 from gavanderhoorn/bp_268_indigo-devel / Backport #268 to Indigo', parent 68d76b2, diff changing the non-joint-limited elbow limit from '<limit lower=\"${-2.0 * pi}\" upper=\"${2.0 * pi}\" effort=\"150.0\" velocity=\"3.15\"/>' to '<limit lower=\"${-pi}\" up...' in ur3/ur5/ur10 xacros)"
+ },
+ "notes": "Sources opened this session: issue 265 body (the disjoint-CFree analysis and fix proposal verbatim) and the full comment thread (gavanderhoorn's 'whose problem is this' exchange and 'How can setting the joint limits to what the mfg specs be a bug?'; scottpaulin's 'Its a bug report. Limiting the elbow joint range of motion should fix the planning in Moveit', the 'careful with what IK solution' statement, and the tested observation; the '+1 to restrict the elbow joint in the not-limited URDF in this repo. It does not make much sense to specify the full joint space of the individual joint if the whole arm makes it impossible to reach it.' text, read verbatim in the thread — attribution to v4hn per the spec, whose comment header was outside my excerpt window); commit 2e078f5 and its diff/parents. Eligibility is a genuine judgement call and the spec's reasoning matches my independent walk: the declared joint-range value crosses into MoveIt's planning (PAIR via robot_description); the failure depends on the pairing (a consumer careful about IK solutions does not fail), so step-2 internal is not available; the fix changes the provider's declared value, not a deployment name binding, so step 3 does not apply; class 'other' is the honest fit (a value-domain property of a parameter with no listed class). Loudness silent_documented/run agree: the only symptom is planning time-outs. Resolution recommended agree: the fix is merged, and the reporter showed planners working with a locally limited model, but the resolved composition is not identified by revision (MoveIt revision unknown; spec's own notes). One canonicalization nit: the inventory element is written 'param:/robot_description' here while CAL2-01 used 'param:robot_description' — not verdict-relevant."
+}

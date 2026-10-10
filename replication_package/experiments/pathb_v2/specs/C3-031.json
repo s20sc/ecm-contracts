@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-031",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/1784",
+    "https://github.com/mavlink/mavros/commit/e61226626b1257e8118923233281b4121ca7a3a7",
+    "https://github.com/mavlink/mavros/blob/1.13.0/mavros/src/mavros/mission.py",
+    "https://github.com/mavlink/mavros/blob/1.13.0/mavros/scripts/mavwp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #1784 gives the command and traceback: \"searchwing@test:~ $ rosrun mavros mavwp dump wp.txt\" ... \"File \\\"/install/lib/python3/dist-packages/mavros/mission.py\\\", line 105, in write\" / \"writer.writerow((self.file_header ,))\" / \"TypeError: a bytes-like object is required, not 'str'\" (https://github.com/mavlink/mavros/issues/1784). The maintainer's commit e6122662 says \"Fix #1784\"."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["mavros (mavwp script + mavros.mission Python module)", "mavros_node"],
+      "interface_kind": null,
+      "evidence": "The crash happens inside one unit. The mavwp script (mavros/scripts/mavwp) opens the output file with argparse.FileType('wb') and passes it to QGroundControlWP.write in the mavros Python module (mavros/src/mavros/mission.py), which wraps it in csv.writer and writes str rows. The script and the module ship together in the mavros package at the same revision and are not separately deployable, so their interaction is internal. The only ROS interaction in the command, mavwp's subscription to the waypoint topic published by mavros_node (M.subscribe_waypoints), delivered the message: the traceback is raised inside the _write_file callback that received it. The fix changes only the file mode in the scripts: \"scripts: waypoint and param files are text, not binary\" (https://github.com/mavlink/mavros/commit/e61226626b1257e8118923233281b4121ca7a3a7). The failure would occur with any correct peer."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No failing operation between two units: the failure is in the script's own file output."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"[ERROR] [1662742151.544002]: bad callback: <function do_dump.<locals>._write_file at 0xb4650340>\" followed by the TypeError (https://github.com/mavlink/mavros/issues/1784)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): the TypeError comes from mavros's own Python tooling. The mavwp script opens the dump file in binary mode ('wb') and passes it to its own package's QGroundControlWP.write, which writes str through csv under Python 3. No interface between separately deployable units is involved, and the fix is a file-mode change in the scripts.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Reporter environment: mavros 1.13.0 (tag 1.13.0 = ed762be1), ROS Noetic, ArduPilot SITL (master). Fix commit e6122662 (2022-09-24) is contained in tag 1.14.0 (0af02a55); the maintainer closed the issue with \"Should be fixed in 1.14. Please reopen if i'm wrong.\" The same commit also changes mavparam load/dump from 'rb'/'wb' to 'r'/'w', the same defect in another script, with no failure shown in the source. Alternative reading, not adopted: the reporter asks \"Does it maybe still expect python2?\", so the scripts were written against Python 2 csv/file-mode semantics and broke under the Python 3 runtime of Noetic. That would make it an UPGRADE between mavros and the Python standard library. It was not adopted because the language runtime is not framed in the source as a peer component: the maintainer's fix and message treat it as mavros choosing the wrong file mode. The mavros package itself is the only unit involved in the crash."
+}

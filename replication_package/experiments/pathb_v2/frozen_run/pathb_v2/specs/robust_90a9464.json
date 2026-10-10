@@ -1,0 +1,48 @@
+{
+  "case_id": "robust_90a9464",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/motoman/issues/166",
+    "https://github.com/ros-industrial/motoman/pull/164",
+    "https://github.com/ros-industrial/motoman/pull/165",
+    "https://github.com/ros-industrial/motoman/commit/90a94642f763903f71536dc972782a237309a7f1"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue #166 (maintainer gavanderhoorn, 2017-04-05) with an error log from Travis: \"unknown macro name: xacro:motoman_sda10f\" while running roslaunch-check on motoman_sda10f_support/test/launch_test.xml, and the maintainer's diagnosis: \"`sda10f.xacro` is trying to instantiate a macro called `motoman_sda10f`, but that doesn't exist, so `roslaunch` tests for that top-level xacro fail.\" Fix commit 90a9464 (\"Fixed issue #166, added tests to ensure it is fixed\")."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["motoman_sda10f_support (sda10f.xacro and sda10f_macro.xacro, one package)", "xacro (the processor that evaluates the files)"],
+      "interface_kind": null,
+      "evidence": "Step 1: the only candidate pair is the motoman_sda10f_support package (whose top-level sda10f.xacro includes its own urdf/sda10f_macro.xacro) and the xacro processor. The two xacro files are one unit: they ship in one package and are not separately deployable (\"a node and its own launch file are one unit\" applies by analogy). Step 2: the failure is a name mismatch entirely inside that one package: sda10f.xacro calls `<xacro:motoman_sda10f prefix=\"\"/>` while sda10f_macro.xacro at the same revision defines `<robot ... name=\"sda10f\">` with no macro of that name (\"The macro is actually called `sda10f`\"). Any correct xacro processor would report an unknown macro, so the failure does not depend on an assumption between the package and its processor; the fix (90a9464) edits only files inside motoman_sda10f_support (defines `<xacro:macro name=\"motoman_sda10f\" params=\"prefix\">` and a compatibility `sda10f` macro). Ineligible: internal."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2. (For the record the effect was observed loudly: the xacro processor's \"unknown macro name: xacro:motoman_sda10f\" during roslaunch-check on the Jade Travis job.)"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: the top-level sda10f.xacro instantiates a macro name (`motoman_sda10f`) that the macro file in the same package does not define (`sda10f`); both files are one unit, and the defect would surface with any correct xacro processor. The fix changes only motoman_sda10f_support. Context worth recording: PR #164 notes \"I did verify that this is not an issue in Indigo. Apparently xacro naming was not a checked as closely?\" and \"I'm not sure why this is suddenly a problem. That file (`sda10f.xacro`) hasn't changed since it was originally committed.\", i.e. a stricter xacro on Jade exposed the latent name defect; that exposure is not an interface change of xacro but the package's own error becoming visible. The same commit also fixes prefixing inside the package (`${prefix}base_link`, `${parent}` in arm_macro.xacro, PR #169 for kinetic), which are further internal changes, not interface conditions.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Revisions for reference: the failing top-level file sda10f.xacro at ab90e745d3b0a691f137dc0c6c9f9f8804d9a73d (parent of the fix) reads `<xacro:include filename=\"$(find motoman_sda10f_support)/urdf/sda10f_macro.xacro\" /> <xacro:motoman_sda10f prefix=\"\"/>`; the maintainer links sda10f.xacro at b645a083 and sda10f_macro.xacro at 5c58be32. The fix 90a9464 (2017-04-10) is contained in indigo-devel and kinetic-devel per compare; jade-devel diverged and received the partial fix of PR #164 instead. The Travis job that failed ran the Jade build (\"/opt/ros/jade/share/roslaunch/cmake/../scripts/roslaunch-check\"). ros_distro as stated: jade (failing) and indigo (reported not failing)."
+}

@@ -1,0 +1,125 @@
+{
+  "case_id": "C3-119",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/2048",
+    "https://github.com/mavlink/mavros/pull/2049",
+    "https://github.com/mavlink/mavros/pull/2050",
+    "https://github.com/mavlink/mavros/blob/1.20.1/mavros/src/lib/uas_stringify.cpp",
+    "https://github.com/ArduPilot/ardupilot/blob/ArduPlane-3.7.0/ArduPlane/defines.h",
+    "https://github.com/ArduPilot/ardupilot/blob/ArduPlane-3.6.0/ArduPlane/defines.h"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The report is a code-level statement of one concrete mismatch with links to both sides: \"Since ArduPlane-3.7.0, mode 14, previously assigned to LAND, has changed to AVOID_ADSB.\" and \"This does not match the stringify for ArduPlane in mavros lib, for both ROS2 and ROS1\" -- https://github.com/mavlink/mavros/issues/2048 . The maintainer merged the fixes (PR #2049, \"Fix #2048\"; PR #2050, \"Fix #2049 for ROS2\") and closed the issue: \"Thank you for the contribution!\" -- https://github.com/mavlink/mavros/issues/2048#issuecomment-3062531029"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "mavros",
+        "ArduPlane"
+      ],
+      "interface_kind": "wire protocol field",
+      "evidence": "mavros (ROS node/library) and the ArduPlane firmware are separately released units that interact over MAVLink. The value of the custom_mode field crossing that boundary is interpreted differently on the two sides for value 14: mavros maps it to \"LAND\" (\"{ 14, \"LAND\" },\t\t// not in list\" -- https://github.com/mavlink/mavros/blob/1.20.1/mavros/src/lib/uas_stringify.cpp), ArduPlane declares \"AVOID_ADSB    = 14,\" (https://github.com/ArduPilot/ardupilot/blob/ArduPlane-3.7.0/ArduPlane/defines.h). mavros converts mode strings to custom_mode for SET_MODE (\"if (!m_uas->cmode_from_str(req.custom_mode, custom_mode)) {\" and \"sm.custom_mode = custom_mode;\" in mavros/src/plugins/sys_status.cpp at 1.20.1) and HEARTBEAT custom_mode back to strings (\"auto vehicle_mode = m_uas->str_mode_v10(hb.base_mode, hb.custom_mode);\"). Not internal, not a name binding, not build-only; the firmware is not at fault and its mode enumeration is declared."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (ArduPlane) assigned mode number 14 in ArduPlane-3.7.0, while mavros's ArduPlane table still reflects the provider's mode list from before that release (entries 0-8, 10-12, 15-21 as in ArduPlane-3.6.0, with 14 marked \"not in list\"). The failing exchange itself would be a PAIR (mavros sends SET_MODE / reads HEARTBEAT)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch and its predicted effect, not an observation: \"could result in unwanted behaviors if the user asks for LAND mode using mavros, which would translate to a request for the flight controller to change to AVOID_ADSB mode.\" -- https://github.com/mavlink/mavros/issues/2048 . No observed flight or log is reported, so outcome class undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros",
+      "role": "consumer",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "1.20.1",
+      "resolved_rev": "a5c9f963b0bc0490ec41092de92927a539352d69",
+      "pinned": true,
+      "revision_basis": "The reporter links the ROS1 table at tag 1.20.1 (commit 39d0929e929ae4e65f777b140f67be6b86d49568, 2025-05-05), which was also the master head on the report date (the fix commit's parent is 39d0929e). Resolved revision is PR #2049 as merged into master (a5c9f963b0bc0490ec41092de92927a539352d69, 2025-07-11), a one-line change to mavros/src/lib/uas_stringify.cpp.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "ArduPlane",
+      "role": "provider",
+      "repo": "https://github.com/ArduPilot/ardupilot",
+      "broken_rev": "ArduPlane-3.7.0",
+      "resolved_rev": "ArduPlane-3.7.0",
+      "pinned": true,
+      "revision_basis": "No deployment was reproduced; the reporter names ArduPlane-3.7.0 as the release that assigned mode 14 to AVOID_ADSB and links current master (ArduPlane/mode.h), which still declares \"AVOID_ADSB    = 14,\" (master df6e48f1fd4843cac54b8583cffc542e74192f9f on the report date). Tag ArduPlane-3.7.0 (2e240699e6c4b0c9372a5746f7a587009f98e67e) is used as the provider revision of the broken composition. The resolution does not change the firmware, so it keeps this revision.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "ArduPlane-3.6.0",
+    "resolved": "ArduPlane-3.7.0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {
+      "element": "field:mavlink/HEARTBEAT.custom_mode",
+      "sides": {
+        "ArduPlane": "provides",
+        "mavros": "consumes"
+      }
+    },
+    {
+      "element": "field:mavlink/SET_MODE.custom_mode",
+      "sides": {
+        "mavros": "provides",
+        "ArduPlane": "consumes"
+      }
+    },
+    {
+      "element": "api:FlightMode",
+      "sides": {
+        "ArduPlane": "provides",
+        "mavros": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": [
+        "api:FlightMode",
+        "field:mavlink/SET_MODE.custom_mode",
+        "field:mavlink/HEARTBEAT.custom_mode"
+      ],
+      "quote": "Since ArduPlane-3.7.0, mode 14, previously assigned to LAND, has changed to AVOID_ADSB.",
+      "url": "https://github.com/mavlink/mavros/issues/2048"
+    },
+    {
+      "class": "element_retyped",
+      "implicated_elements": [
+        "api:FlightMode"
+      ],
+      "quote": "+\t{ 14, \"AVOID_ADSB\" },\t// renamed, prev name: LAND",
+      "url": "https://github.com/mavlink/mavros/pull/2049/files"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No execution is reported; the effect is only predicted: \"could result in unwanted behaviors if the user asks for LAND mode using mavros\" -- https://github.com/mavlink/mavros/issues/2048",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "mavros's ArduPlane custom-mode table maps 14 to \"AVOID_ADSB\" instead of \"LAND\" (PR #2049 on master for ROS1, PR #2050 on the ros2 branch). ArduPlane is unchanged.",
+    "status": "recommended",
+    "evidence": "Merged as a5c9f963b0bc0490ec41092de92927a539352d69 (master) and e7a3e40e55f57e7b70d16b029f4cea37a1e971cf (ros2); no test or flight with ArduPlane is shown in the issue or PRs."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Composition chosen: the ROS1 line (mavros master / tag 1.20.1), which the reporter links with an exact tag and which PR #2049 (\"Fix #2048\") fixes; the identical mismatch in the ROS2 line (ros2 branch, mavros/src/lib/uas_stringify.cpp: \"{14, \"LAND\"},                 // not in list\", fixed by PR #2050, merge e7a3e40e55f57e7b70d16b029f4cea37a1e971cf) is a second composition not specified here. consumer_built_against is inferred: mavros's table (header comment \"ArduPlane/defines.h\") lists exactly the modes of ArduPlane-3.6.0's enum FlightMode (0-8, 10-12, 15-21) plus 14 marked \"not in list\"; ArduPlane-3.7.0 differs from 3.6.0 in the enum only by adding AVOID_ADSB = 14. The resolved table (with 14 = AVOID_ADSB) matches ArduPlane-3.7.0's enum exactly. Primary-source correction of the reporter's wording \"previously assigned to LAND\": ArduPlane's own defines.h never had an active LAND mode; up to ArduPlane-2.67 it carried the commented placeholder \"//#define LAND 14\t\t\t// This is not used by APM.\", and from 2.68 to 3.6.0 value 14 is absent from enum FlightMode. The classes follow the fix diff's framing of the change as a rename of the enumerator for value 14 (\"renamed, prev name: LAND\"), applying the rule for a renamed element inside a definition (definition_mismatch + element_retyped); the same mismatch could also be read as representation_convention (the integer custom_mode encodes different modes on the two sides). 'api:FlightMode' names ArduPlane's mode enumeration as declared at ArduPlane-3.7.0 (ArduPlane/defines.h); on current master it is Mode::Number in ArduPlane/mode.h. Current master also has modes 13 TAKEOFF and 22-26 that mavros's table lacks; they are outside the 3.6.0 -> 3.7.0 upgrade specified here."
+}

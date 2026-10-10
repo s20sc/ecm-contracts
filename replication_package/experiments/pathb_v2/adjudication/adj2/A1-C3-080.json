@@ -1,0 +1,18 @@
+{"item_id": "A1-C3-080", "kind": "A1", "case_id": "C3-080",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+   "quote": "When setting fcu_protocol to v1.0 with mavros 0.33 or later I faced problems communicating with my drone that still runs autoquad.",
+   "url": "https://github.com/mavlink/mavros/issues/1787"},
+ "failed_conditions": [
+   {"index": 0, "class_verdict": "agree", "proposed_class": null,
+    "elements_verdict": "agree", "proposed_elements": [],
+    "quote": "With mavros version >= 0.33 I was actually still sending mavlink v2.0 messages even after successfully setting the fcu_version=v1.0.",
+    "url": "https://github.com/mavlink/mavros/issues/1787"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+   "quote": "I also looked at the messages with [this](https://mavlink.io/en/guide/wireshark.html) wireshark plugin to double check.",
+   "url": "https://github.com/mavlink/mavros/issues/1787"},
+ "resolution": {"verdict": "agree", "proposed": null,
+   "quote": "LGTM, Thanks!  (APPROVED review by vooon on PR #1794 'libmavconn: fix MAVLink v1.0 output selection', merged 2022-10-25T18:16:56Z as 3795202c521956c148a80e62fbd3a2947655d611); the reporter's working tests were earlier local patches of unidentified revision: \"If I change line 105 in interface.cpp to use `m_mavlink_status` too, it works\"",
+   "url": "https://github.com/mavlink/mavros/pull/1794"},
+ "notes": "Verified this session: issue #1787 body verbatim (fcu_protocol quote, mechanism 'the function `get_status_p()` is called in line 237 which returns the `m_parse_status` and not the `m_mavlink_status` where the flag for the protocol version was set', regression commit 56d782d4bc55209550cf3d2628bb1a6ae94a384c linked, versions 'Mavros: 0.32.3 & 0.33 & latest', 'ROS: tested for melodic & noetic', wireshark quote, and both 2022-10-10 comments 'the `m_mavlink_status.flags` is back to v2.0 when calling `get_status_p`' / 'If I change line 105 in interface.cpp to use `m_mavlink_status` too, it works'); maintainer vooon 'Aha, yes, great finding!'; at tag 1.13.0 I read libmavconn/src/udp.cpp line 237 verbatim: '\t\t\ttx_q.emplace_back(message, get_status_p(), sys_id, source_compid);'; PR #1794 metadata: head 6b4949bd484f4503016a88cdef7603853801d058, base master, base_sha 0af02a552b7ea981a64aca2bd307ce56020ed4c2, and tag 1.14.0 resolves to exactly 0af02a552b7ea981a64aca2bd307ce56020ed4c2 (the claimed second broken revision); compare 3795202c...1.15.0 = ahead 13, behind_by 0, so tag 1.15.0 contains the fix as claimed. Eligibility step 6 holds: the framing-version mismatch crosses the libmavconn->FCU link and is only visible with a v1-only peer (a v2-capable FCU works), so not internal; the fix is a libmavconn code change, not wiring/build/firmware. Class representation_convention fits the framing/encoding difference (v1 vs v2 magic) with the canonical-form adaptation explained in notes. Resolution recommended is right: merged fix plus maintainer approval, but the resolved composition is never shown working with both units identified by revision (AutoQuad firmware revision never given)."}

@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-C3-135-broken-M1-f40dc10f9f",
+ "kind": "A2",
+ "case_id": "C3-135",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:importlib.metadata.SelectableGroups.get]",
+   "verdict": "verified",
+   "source_excerpt": "built u0395 (cpython v3.9.0): `grep -rIl 'SelectableGroups' snapshot/` returns 0 files; snapshot/Lib/importlib/metadata.py is 586 lines and its `grep -n '^class '` lists exactly: PackageNotFoundError(:37), EntryPoint(:41), PackagePath(:129), FileHash(:145), Distribution(:153), DistributionFinder(:360), FastPath(:407), Prepared(:455), MetadataPathFinder(:476), PathDistribution(:499) — no SelectableGroups. running u0394 (cpython v3.10.0): snapshot/Lib/importlib/metadata/__init__.py:399 \"    def get(self, name, default=None):\" inside \"class Deprecated:\" (:365), inherited via :420 \"class SelectableGroups(Deprecated, dict):\"."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:importlib.metadata.SelectableGroups.get]",
+   "verdict": "verified",
+   "source_excerpt": "u0396/snapshot/rosidl_cli/rosidl_cli/entry_points.py:39: \"    for entry_point in importlib_metadata.entry_points().get(group_name, []):\" with the module binding at :18 \"    import importlib.metadata as importlib_metadata\" (inside try/except with fallback \"    import importlib_metadata\" at :20)."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:importlib.metadata.SelectableGroups.get]",
+   "verdict": "substantive",
+   "built_excerpt": "u0395 snapshot/Lib/importlib/metadata.py (complete class list above; 0 grep hits for SelectableGroups in the whole snapshot): the element api:importlib.metadata.SelectableGroups.get does not exist — entry_points() at :554 \"def entry_points():\" returns a plain built-in dict built by \"    return {\" / \"        group: tuple(eps)\" (lines 564-566), so .get is dict.get.",
+   "running_excerpt": "u0394 snapshot/Lib/importlib/metadata/__init__.py:399-401 \"    def get(self, name, default=None):\" / \"        self._warn()\" / \"        return super().get(name, default)\" in class Deprecated (:365), and :420 \"class SelectableGroups(Deprecated, dict):\" — the element now exists, and the .get a consumer reaches is Deprecated.get, which emits a deprecation warning before delegating."
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The UPGRADE encoding matches the spec's operation: provider cpython upgraded from built v3.9.0 (u0395) to running v3.10.0 (u0394) while consumer rosidl_cli at 62fc0bd (u0396) was built against 3.9. The two ports are actually connected: the provider port is the stdlib importlib.metadata API (u0394 Lib/importlib/metadata/__init__.py defines SelectableGroups and entry_points), and the consumer port is the direct call chain at u0396 entry_points.py:18 \"import importlib.metadata as importlib_metadata\" -> :39 \"importlib_metadata.entry_points().get(group_name, [])\" — the consumer invokes exactly the changed element on the upgraded provider."
+ },
+ "notes": "Every specific claim in the provenance entries was reproduced: 0 grep hits for SelectableGroups at built, the exact class inventory of 3.9.0's metadata.py, entry_points() at :554 returning a dict, Deprecated.get at running :399 with class Deprecated at :365 and SelectableGroups at :420, and the consumer read at :39. Substance: presence change of the element (absent at built, present at running with deprecation-warning behavior) — substantive. Functional note: the call still works at running because SelectableGroups subclasses dict, but the adjudication rubric classifies presence/type changes as substantive."
+}

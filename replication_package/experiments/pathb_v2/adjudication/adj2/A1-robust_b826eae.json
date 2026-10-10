@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-robust_b826eae",
+ "kind": "A1",
+ "case_id": "robust_b826eae",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "xacro.XacroException: Parameters [has_podest] were not set for macro xacro:schunk_pg70",
+  "url": "https://github.com/ipa320/cob_robots/issues/552"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "xacro.XacroException: Parameters [has_podest] were not set for macro xacro:schunk_pg70",
+   "url": "https://github.com/ipa320/cob_robots/issues/552"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Invalid <param> tag: Cannot load command parameter [robot_description]: command [/opt/ros/indigo/share/xacro/xacro.py '/home/travis/catkin_ws/src/cob_robots/cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro'] returned with code [1].",
+  "url": "https://github.com/ipa320/cob_robots/issues/552"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "fixed in #553"
+ },
+ "notes": "Verified this session: cob_robots#552 body verbatim (the Travis log with the XacroException and the Invalid <param> robot_description failure, both quoted above), and the closing comment 'fixed in #553' by floweisshardt at 2016-11-10T22:34:53Z (https://github.com/ipa320/cob_robots/issues/552#issuecomment-259828039); PR #553 (title 'fix cob3-9 urdf', body 'fixes #552 ', head b826eae, merged 2016-11-11T09:07:06Z, base indigo_dev); the b826eae patch changing the macro call to '<xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\" has_podest=\"false\">'; and the provider-side 779ce503 patch changing the declaration '-  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin\">' -> '+  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin has_podest\">'. Eligibility: two separately released packages from different repositories; the macro's declared parameter list changed on the provider and the consumer's source call had to follow — an interface change ('Rebuilding a consumer because a provider's definition changed is an interface change'), so E2 stops at 6 (not deployment wiring, not build-only); UPGRADE is right (provider gained the required parameter on 2016-11-02 while the consumer file was unchanged since 2015; the failure appeared when Travis rebuilt the consumer). Class element_retyped concurs: the macro is still present and its declaration/signature changed. Loudness loud_documented/build: the xacro processor raised the exception during the roslaunch-check step of the CI build. Resolution recommended is right: the fix merged and the issue was closed, but the source shows no build output of the fixed composition. The provider broken_rev (870c6302, indigo_dev head via care-o-bot's .travis.rosinstall) is an inference from CI configuration that I did not re-verify; it does not affect the four adjudicated dimensions."
+}

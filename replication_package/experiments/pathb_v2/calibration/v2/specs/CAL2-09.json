@@ -1,0 +1,100 @@
+{
+ "case_id": "CAL2-09",
+ "corpus": "C1",
+ "source_refs": [
+  "https://github.com/ros-industrial/universal_robot/issues/265",
+  "https://github.com/ros-industrial/universal_robot/pull/268",
+  "https://github.com/ros-industrial/universal_robot/pull/320",
+  "https://github.com/ros-industrial/universal_robot/commit/2e078f5e3e9b3ec52dac83c096e90e7cd3edd0f2",
+  "https://github.com/ros-industrial/universal_robot/blob/68d76b249e062ba8477b9b2e51f6a716a6017b02/ur_description/urdf/ur5.urdf.xacro"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue #265 (scottpaulin) documents the defect with configuration-space figures and a reproduction on a UR5 through RViz/MoveIt (\"Now when the robot is tested (without limiting the elbow joint) it times out (fails) on many queries, this will be because of the elbow self collisions. The planners then work when the elbow is limited to -pi, pi.\"); maintainers v4hn (\"+1 to restrict the elbow joint in the not-limited URDF in this repo.\") and gavanderhoorn (closing comment) confirm and merge PRs #268/#320."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "ur_description",
+    "moveit_planners_ompl"
+   ],
+   "interface_kind": "parameter",
+   "evidence": "ur_description's non-joint-limited xacros declare the elbow_joint range as <limit lower=\"${-2.0 * pi}\" upper=\"${2.0 * pi}\" .../>; the model reaches MoveIt as the robot_description parameter and MoveIt's planning pipeline (IK goal sampling and the OMPL joint state space) treats the declared range as the space to plan in. Near +-pi the arm is in self-collision, so the declared range contains three disconnected collision-free regions and queries whose goal lies in another region fail. The value that crosses the boundary (the declared joint range) is what the fix changes, in the provider (limit ${-pi}..${pi}). Judgement call: the declared range matches the manufacturer's spec (gavanderhoorn: \"How can setting the joint limits to what the mfg specs be a bug?\"), and a consumer that picked IK solutions in the start state's region would not fail (scottpaulin: \"If you are careful with what IK solution is used then the non-joint-limited version works best.\"), so the failure depends on the consumer's use of the declared range and is not internal to one unit."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: the URDF produced from ur_description feeds MoveIt's planning (robot_description parameter). Reporter: \"I booted up the UR5 and started planning to random valid targets through RVIZ.\""
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Reporter: \"The 'disjoint-ness' shown in Fig. 2 means that it is _impossible_ to plan a path where the elbow joint position starts in one of the sets A, B, or C and finishes in another. I think this is why plans fail reasonably often when using the full joint limits of the UR5.\" and \"it times out (fails) on many queries\"."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "ur_description",
+   "role": "provider",
+   "repo": "https://github.com/ros-industrial/universal_robot",
+   "broken_rev": "68d76b249e062ba8477b9b2e51f6a716a6017b02",
+   "resolved_rev": "2e078f5e3e9b3ec52dac83c096e90e7cd3edd0f2",
+   "pinned": true,
+   "revision_basis": "The reporter names no version or distro (issue opened 2016-10-11; indigo-devel head then was 2cb16836, whose ur5.urdf.xacro has the same elbow limits). The packet's fix commit 2e078f5 is the indigo-devel merge of backport PR #320; broken is its first parent 68d76b2 (non-limited elbow_joint limit ${-2.0 * pi}..${2.0 * pi}), resolved is 2e078f5 (limit ${-pi}..${pi}). The same change landed on kinetic-devel as PR #268 (merge 8a8591e2).",
+   "excerpt": false,
+   "ros_distro": null
+  },
+  {
+   "name": "moveit_planners_ompl",
+   "role": "consumer",
+   "repo": "https://github.com/moveit/moveit",
+   "broken_rev": null,
+   "resolved_rev": null,
+   "pinned": false,
+   "revision_basis": "Unknown: the reporter tested with MoveIt through RViz (and with OMPL directly) but names no MoveIt version or ROS distro. The fix does not change MoveIt, so the resolved composition would keep the same (unknown) revision.",
+   "excerpt": false,
+   "ros_distro": null
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "param:/robot_description",
+   "sides": {
+    "ur_description": "provides",
+    "moveit_planners_ompl": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "other",
+   "implicated_elements": [
+    "param:/robot_description"
+   ],
+   "quote": "The 'disjoint-ness' shown in Fig. 2 means that it is _impossible_ to plan a path where the elbow joint position starts in one of the sets A, B, or C and finishes in another. I think this is why plans fail reasonably often when using the full joint limits of the UR5. \n\nThis could be fixed by limiting the elbow joint to [-Pi, Pi) when full joint limits are used.",
+   "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "silent_documented",
+ "loudness_evidence": "The only symptom is planning failure at run time: \"Now when the robot is tested (without limiting the elbow joint) it times out (fails) on many queries, this will be because of the elbow self collisions.\" No build/connection/activation diagnostic is shown.",
+ "detection_stage": "run",
+ "resolution": {
+  "summary": "In ur_description's non-joint-limited ur3/ur5/ur10 xacros, restrict elbow_joint to ${-pi}..${pi} (other joints keep +-2pi).",
+  "status": "recommended",
+  "evidence": "PR #268 (kinetic-devel) and backport PR #320 (indigo-devel, merge 2e078f5) merged 2017-09-12; the reporter observed \"The planners then work when the elbow is limited to -pi, pi.\" with a locally modified model and unidentified MoveIt revision, so the resolved composition is not identified by revision."
+ },
+ "ros_generation": "ROS1",
+ "excerpt_based": false,
+ "confidence": "low",
+ "notes": "Eligibility is a judgement call: the joint range is the manufacturer's value and the self-collision comes from the same URDF's own geometry; it is treated as an interface failure because the declared range crosses into MoveIt, which plans over it, and the resolving change alters the declared value. Consumer unit: the failure is observed in MoveIt's planning pipeline (IK goal selection via the KDL plugin configured in ur5_moveit_config/config/kinematics.yaml plus OMPL planning in move_group); moveit_planners_ompl is named as the consumer, with the IK plugin and move_group host as further consumers of the same robot_description. Other composition in the same thread, not a condition of this case: ur5_moveit_config's ompl_planning.yaml longest_valid_segment_fraction (0.05) consumed by MoveIt/OMPL produced \"[ WARN] [1476187001.882120692]: Fail: ABORTED: Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing.\"; fixed by PR #266. Also mentioned: IK solvers using hard-coded limits (ros-planning/moveit_ros#731, ros-planning/moveit#150). The fix also applies to UR3 and UR10 xacros; the joint_limited variants already used +-pi for the elbow."
+}

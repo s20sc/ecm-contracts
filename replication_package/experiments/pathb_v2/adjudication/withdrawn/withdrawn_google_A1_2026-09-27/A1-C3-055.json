@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-055",
+  "kind": "A1",
+  "case_id": "C3-055",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Issue #276 gives a reproducer (\"ros2 run demo_nodes_cpp talker\" in one terminal; \"sudo timedatectl set-ntp no\" and \"sudo date -s @`date +%s | xargs -I@ echo @-5 | bc`\" in another), an strace showing \"FUTEX_WAIT_BITSET_PRIVATE|FUTEX_CLOCK_REALTIME\", and a gdb stack through \"dds_waitset_wait_impl ... rmw_wait () from ... librmw_cyclonedds_cpp.so\". Cyclone maintainer confirmed: \"the implementation of the timeout in `rmw_wait` (which is simply passed on to Cyclone's `dds_waitset_wait`) is using the wall clock rather than a monotonic clock.\" https://github.com/ros2/rmw_cyclonedds/issues/276",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/276"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Just to be sure: the issue you're running into is that implementation of the timeout in `rmw_wait` (which is simply passed on to Cyclone's `dds_waitset_wait`) is using the wall clock rather than a monotonic clock. Correct?",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/276#issuecomment-762678460"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The delay is observed only as missing timer output and in strace/gdb, with no diagnostic from any tool: \"once system time jumps back in 5 seconds, timer will be in sleep in 5 more seconds.\"",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/276#issuecomment-762678460"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "cyclonedds PR #2255 body: \"The main commit in this PR allows blocking with timeouts based on a monotonic clock rather than the system clock. This should address the various problems with time jumps people have been facing. I haven't actually tested it with time jumps yet because of some practicalities\" and \"Fixes #1995 https://github.com/ros2/rmw_cyclonedds/issues/276\". Merged 2025-08-05; no report in the sources shows rmw_cyclonedds running with the fixed Cyclone across a time jump."
+  },
+  "notes": "Adjudicated case C3-055: fully agrees with specification eligibility (E1-E4 step 6), failed conditions, loudness (silent_documented), and resolution status (recommended)."
+}

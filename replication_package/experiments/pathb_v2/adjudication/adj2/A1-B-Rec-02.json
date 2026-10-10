@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Rec-02",
+  "kind": "A1",
+  "case_id": "B-Rec-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "If any child returns RUNNING, previous children will be ticked again.  [BehaviorTree.CPP 2.5.2 sequence_node.h]  vs.  If any child returns RUNNING, previous children will NOT be ticked again.  [BehaviorTree.CPP 3.0.9 sequence_node.h]",
+    "url": "https://github.com/BehaviorTree/BehaviorTree.CPP/blob/3.0.9/include/behaviortree_cpp/controls/sequence_node.h"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The `sequence` node in the V3 behavior tree library works differently than in V2. There seems to be no way to have two subtrees running simultaneously in V3 unless you use the `parallel` node.",
+      "url": "https://github.com/ros-navigation/navigation2/pull/1336"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I put print statements inside ```PlannerServer::computePathToPose()```.\nIt was not ticking at 1Hz.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/1307"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "If this really fixes the issue, I'd unblock it, but I'd really then like to have a ticket about refactoring / rethinking the BT nodes to account for \"lessons learned\" and some of the features I brought up above",
+    "url": "https://github.com/ros-navigation/navigation2/pull/1371#issuecomment-556925459"
+  },
+  "notes": "独立核验通过。两版头文件注释逐字核对：2.5.2 'If any child returns RUNNING, previous children will be ticked again.'；3.0.9 'If any child returns RUNNING, previous children will NOT be ticked again.'。issue 1307 正文逐字核到 'Launch navstack.'、'Drop an obstacle on the robot's path.'、版本行 'f409ba184e54f919bb8a2cbb6d0057b8b3658dde'、'Obstacle appears in the global costmap, but the path is not updated.'、'Robot does recovery behavior, and calculates a new path after sometime.'；维护者关键句在 PR1371 评论逐字核到：'Let me add, this isn't about solving the Global Recovery problem. This is about solving the continual replanning problem, which is currently broken. We only plan once currently.'。PR1251 描述要点逐字核到 'Switched to version 3 of the behavior tree library.'（注意是 PR 描述 bullet，非标题；标题为 'Migrate to Behavior Tree V3.'）。PR1371 已合并，merge_commit_sha=4ece520ba87e1a813fb6d5dc680c01dbb94873af，模板行 'fixes #1301, fixes #1307' 与 'Robotic platform tested on | TB3 in Gazebo' 逐字核到。正文日志 '[controller_server-4] [ERROR] [controller_server]: Failed to make progress' 亦核到（spec loudness_evidence 相符）。论文引文（arxiv 2507.10235v1）核到开头 'when an obstacle suddenly blocks the robot's path in Navigation2#1307, the robot does n[ot]...'（我的截取窗口止于此，与 spec 引文开头一致）。class=element_retyped（元素仍在、声明/行为语义跨版本改变）认可，为最优可用类；api:BT::SequenceNode 牵连正确。UPGRADE 与 consumer_built_against=2.5.2(inferred) 的读法与定义相符。resolution=recommended 正确：PR 合并并经维护者 Gazebo 测试，但报告者的障碍场景未被展示修复，且测试时 BT.CPP 版本未识别（repos pin 为推断），不满足 observed 的双单元按版本识别要求。"
+}

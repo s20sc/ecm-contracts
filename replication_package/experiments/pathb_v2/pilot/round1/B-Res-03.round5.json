@@ -1,0 +1,98 @@
+{
+  "case_id": "B-Res-03",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/1179",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1825885817",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1911700097",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1912400524",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-2464683564",
+    "https://github.com/ros-controls/ros2_control/blob/945d64ed3640e8fcda6050958e020ca17ef1eb8b/controller_manager/src/controller_manager.cpp",
+    "https://github.com/ros-controls/ros2_control/blob/e3ae24b881219ff2f1a7ab3d9d3b2c63b9d32dba/controller_manager/src/controller_manager.cpp",
+    "https://github.com/ros-controls/ros2_control/blob/humble/controller_manager_msgs/srv/SwitchController.srv",
+    "https://github.com/ros-controls/ros2_control/pull/2060",
+    "https://github.com/ros-controls/ros2_control/commit/a207bf1289e49dd63f25053521cd441ab65fc7a9",
+    "https://github.com/ros-controls/ros2_control/pull/2448"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public GitHub issue with a reproducer, the service transcript and the controller_manager log, reproduced by the reporter on two distros and acknowledged by maintainers. Report: \"Calling the service **/controller_manager/switch_controller** return always true even if it could not switch the controllers.\" with the command `ros2 service call /controller_manager/switch_controller controller_manager_msgs/srv/SwitchController \"{start_controllers: [\"dummy_controller\"]}\"` and the response \"controller_manager_msgs.srv.SwitchController_Response(ok=True)\". Humble reproduction 2024-01-07: \"I  tested in humble and appears the same problem\". Maintainer saikishor proposed a workaround (\"Please try with the `strictness` set to `STRICT` when sending the service request.\"), maintainer christophfroehlich confirmed the caveat, and PR #2060 (\"[CM] Fix `switch_controller` behaviour with unknown controller switch request\") was merged on master on 2025-02-26."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["controller_manager", "ros2service"],
+      "interface_kind": "service",
+      "evidence": "Step 1: the two units are the controller_manager node (package controller_manager, ros-controls/ros2_control) that serves /controller_manager/switch_controller, and the service client process the reporter used, `ros2 service call` (package ros2service, ros2/ros2cli); they interact only through the ROS 2 service. Step 2: the failed interaction is a wrong value crossing the boundary: the response field `ok` is true although the requested activation was refused. In the provider at the reporter's Humble revision the controller-listing lambda only warns for an unknown name under BEST_EFFORT (`RCLCPP_WARN(get_logger(), \"Could not '%s' controller with name '%s' because no controller with this name exists\", action.c_str(), controller.c_str()); if (strictness == controller_manager_msgs::srv::SwitchController::Request::STRICT) { RCLCPP_ERROR(get_logger(), \"Aborting, no controller is switched! ('STRICT' switch)\"); return controller_interface::return_type::ERROR; }`), then `if (activate_request_.empty() && deactivate_request_.empty()) { RCLCPP_INFO(get_logger(), \"Empty activate and deactivate list, not requesting switch\"); clear_requests(); return controller_interface::return_type::OK; }` and the callback sets `response->ok = switch_controller(activate_controllers, deactivate_controllers, request->strictness, activate_asap, request->timeout) == controller_interface::return_type::OK;`. The consumer receives ok=True; the resolving edit is inside the provider, but the wrong value crosses the service boundary, so this is not `internal`. Step 3: no name binding is involved. Step 4: no build or packaging change. Step 5: not firmware. Stop at step 6: interface kind service."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the client's request feeds the controller manager's service handler and the handler's response (`ok`) feeds the client. The failure was observed in this request/response exchange. The request itself asks the controller manager to switch controllers, but no other operation between these two units is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure (wrong data): \"The controller manager notify the error\" `[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists` / `[controller_manager]: Empty activate and deactivate list, not requesting switch` \"But the service response is Ok\" `controller_manager_msgs.srv.SwitchController_Response(ok=True)` (https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833). Code-level statement of the mismatch by the fixing maintainer: \"When there is an unknown controller which is the only one to activate or deactivate the BEST_EFFORT still says successful. I believe it should fail\" (PR #2060)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "controller_manager",
+      "role": "provider",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "humble branch as of the reporter's 2024-01-07 reproduction (branch head 945d64ed3640e8fcda6050958e020ca17ef1eb8b, 2024-01-04, between tags 2.36.0 and 2.37.0); exact version not stated",
+      "resolved_rev": "a207bf1289e49dd63f25053521cd441ab65fc7a9",
+      "pinned": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "ros2service",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/ros2cli",
+      "broken_rev": "humble (exact version not stated)",
+      "resolved_rev": null,
+      "pinned": false,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null},
+  "inventory": [
+    {"element": "service:/controller_manager/switch_controller", "sides": {"controller_manager": "provides", "ros2service": "consumes"}},
+    {"element": "msg:controller_manager_msgs/srv/SwitchController", "sides": {"controller_manager": "provides", "ros2service": "consumes"}},
+    {"element": "field:controller_manager_msgs/srv/SwitchController.start_controllers", "sides": {"ros2service": "provides", "controller_manager": "consumes"}},
+    {"element": "field:controller_manager_msgs/srv/SwitchController.activate_controllers", "sides": {"ros2service": "provides", "controller_manager": "consumes"}},
+    {"element": "field:controller_manager_msgs/srv/SwitchController.strictness", "sides": {"ros2service": "provides", "controller_manager": "consumes"}},
+    {"element": "field:controller_manager_msgs/srv/SwitchController.ok", "sides": {"controller_manager": "provides", "ros2service": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "service:/controller_manager/switch_controller",
+        "field:controller_manager_msgs/srv/SwitchController.ok",
+        "field:controller_manager_msgs/srv/SwitchController.strictness",
+        "field:controller_manager_msgs/srv/SwitchController.activate_controllers"
+      ],
+      "quote": "Calling the service **/controller_manager/switch_controller** return always true even if it could not switch the controllers.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1179"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic reports the response mismatch; the client observes only `controller_manager_msgs.srv.SwitchController_Response(ok=True)` (\"But the service response is Ok\"). The controller manager does log the refused activation on its own side (`[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists` and `[controller_manager]: Empty activate and deactivate list, not requesting switch`, https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833), which in the humble code are RCLCPP_WARN and RCLCPP_INFO lines, but that log concerns the unknown controller name, not the wrong `ok` value, and it does not reach the consumer. The reporter's original command set no strictness, and the provider then warns and continues: \"Controller Manager: to switch controllers you need to specify a strictness level of controller_manager_msgs::SwitchController::STRICT (%d) or ::BEST_EFFORT (%d). Defaulting to ::BEST_EFFORT\" (controller_manager.cpp at 945d64ed).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "PR #2060 (merge commit a207bf1289e49dd63f25053521cd441ab65fc7a9 on master, 2025-02-26; contained in tag 5.0.0): in `switch_controller`'s controller-listing lambda, when a requested name does not exist the lambda now sets `result = request_list.empty() ? controller_interface::return_type::ERROR : controller_interface::return_type::OK;` (comment: \"For the BEST_EFFORT switch, if there are more controllers that are in the list, this is not a critical error\") and returns `result` instead of always OK, so a request whose only controllers are unknown yields ok=false under BEST_EFFORT as well as STRICT. The added test `switch_controller_failure_behaviour_on_unknown_controller` asserts `cm_->switch_controller({\"unknown_controller\"}, {}, strictness, true, rclcpp::Duration(0, 0))` returns `controller_interface::return_type::ERROR` for both BEST_EFFORT and STRICT. Workaround recommended in the issue: send `strictness` STRICT, with the caveat that STRICT also fails when the controller is already in the requested state.",
+    "status": "observed",
+    "evidence": "PR #2060 body shows the resolved provider with a service client (ros2controlcli, whose switch_controllers verb prints the error when `not response.ok`): Before: `$ ros2 control switch_controllers --deactivate unkown_controller` -> `Successfully switched controllers`; Now: `$ ros2 control switch_controllers --deactivate unkown_controller` -> `Error switching controllers, check controller_manager logs` and `$ ros2 control switch_controllers --activate unkown_controller` -> `Error switching controllers, check controller_manager logs`, while `$ ros2 control switch_controllers --activate unkown_controller  ctrl_1` -> `Successfully switched controllers`. Codecov on the PR: \"All modified and coverable lines are covered by tests\". Workaround: saikishor \"Please try with the `strictness` set to `STRICT` when sending the service request. I think it should respond with false.\" (#issuecomment-1911700097); christophfroehlich \"Hint: the problem with `STRICT` is, that it does return false also if the controller exists but is already in the desired state.\" (#issuecomment-1912400524). The humble code confirms STRICT returns ERROR for an unknown name (\"Aborting, no controller is switched! ('STRICT' switch)\")."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Composition choice: the source documents failed interactions in more than one composition; this case specifies the one the reporter reproduced and asked about, the service client and controller_manager exchanging a SwitchController request/response whose `ok` is wrong. Other compositions recorded here and not conditions of this case: (1) fmauch 2024-11-08 (#issuecomment-2464683564): two controllers claiming the same command interface, CONCURRENT activation, refused by the resource manager with a loud diagnostic (\"... [controller_manager]: Resource conflict for controller [...]. Comand interface 'jointXYZ/position' is already claimed.\") while \"The service response will contain `ok=True`\" even \"**with strictness STRICT**\"; that is an exclusive_resource_conflict between the two controllers plus a second instance of the wrong-response defect; PR #2060 does not touch this path (it only handles unknown controller names), so it remains unresolved in the source. (2) The original Foxy report (2023-11-24) quotes \"Resource conflict for controller 'dummy_controller'. Command interface 'XXXX' is already claimed.\"; that message text belongs to the resource-conflict path in the Foxy code (controller_manager.cpp at e3ae24b881219ff2f1a7ab3d9d3b2c63b9d32dba, foxy branch head, 1 commit after tag 0.11.0), not to the unknown-controller path, which in Foxy is a RCLCPP_WARN followed by \"Empty start and stop list, not requesting switch\" and `return controller_interface::return_type::OK;`; the maintainer replied \"Foxy is End-Of-Life officially\" and asked for Humble/Iron/Rolling, and the reporter's Humble log shows the unknown-controller path, so the Humble reproduction is taken as the broken composition. Request fields: the Foxy command used `start_controllers`; on humble `start_controllers`/`stop_controllers`/`start_asap` are marked \"DEPRECATED: Use activate_controllers filed instead\" in SwitchController.srv and the humble service callback merges them into `activate_controllers` with a warning; the reporter's Humble command is not shown, so both fields are listed. Definition text on humble for the failed field: \"The return value \\\"ok\\\" indicates if the controllers were switched successfully or not.  The meaning of success depends on the specified strictness.\" and \"BEST_EFFORT means that even when something goes wrong with one controller, the service will still try to activate/stop the remaining controllers\". Revisions: the broken provider revision is a bound, not a pin (the reporter names only the distro and `ros2_control_demo_example_1 rrbot.launch.py` from ros2_control_demos as the harness); the consumer's resolved revision is null because the resolved composition in PR #2060 is demonstrated with a different client of the same service (`ros2 control switch_controllers`, package ros2controlcli in the ros2_control repo, and the gtest client in controller_manager/test/test_controller_manager_srvs.cpp), not with `ros2 service call`. The issue itself was closed by the stale bot on 2025-05-19 without a link to the fix; the link is established by PR #2448's body (\"It affects the BEST_EFFORT strictness and was introduced in https://github.com/ros-controls/ros2_control/pull/2060\") and by the merged diff and its test. The change is present on the jazzy branch head and absent from the humble branch head (checked 2026-09-25); no backport PR to humble was found. Later related changes: PR #2088 (2025-03-13) added a `message` response field; PR #2448 (2025-08-10) documented the new BEST_EFFORT semantics (\"Returns 'false' if all controllers of 'activate_controllers' or 'deactivate_controllers' are not yet loaded or configured\"). Loudness: a reader who counts the provider-side activation-time log as the diagnostic would classify this loud_documented at stage activate; this spec treats it as silent because the diagnostic names the unknown controller, not the response defect, and the consumer sees only ok=True. E3 alternatives: none."
+}

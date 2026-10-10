@@ -1,0 +1,106 @@
+{
+  "task_id": "u0038",
+  "package": "kobuki_driver",
+  "manifest_version": "0.4.0",
+  "ports": [
+    {
+      "element": "api:ecl::Serial::Serial",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::block",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::open",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::read",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::write",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:ecl::Serial::Serial",
+    "api:ecl::Serial::block",
+    "api:ecl::Serial::open",
+    "api:ecl::Serial::read",
+    "api:ecl::Serial::write"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "spin(): if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)() and retry; other exceptions rethrown"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:snapshot/kobuki_driver/package.xml:3",
+    "ports[0].side": "snapshot:snapshot/kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | ecl::Serial serial;",
+    "ports[0].frame": "snapshot:snapshot/kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | serial device object; carries raw bytes, no spatial meaning",
+    "ports[1].side": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:93 | serial.block(4000); // blocks by default, but just to be clear!",
+    "ports[1].frame": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:93 | read-blocking/timeout setting, no spatial meaning",
+    "ports[2].side": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:95 | serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);",
+    "ports[2].frame": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:95 | opens a serial port by device name, no spatial meaning",
+    "ports[3].side": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:185 | int n = serial.read((char*)buf, packet_finder.numberOfDataToRead());",
+    "ports[3].frame": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:185 | raw byte buffer, no spatial meaning",
+    "ports[4].side": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:487 | serial.write((const char*)&command_buffer[0], command_buffer.size());",
+    "ports[4].frame": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:487 | raw byte buffer, no spatial meaning",
+    "references[api:ecl::Serial::Serial]": "snapshot:snapshot/kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | ecl::Serial serial; (member default-constructed; Kobuki::Kobuki() initializer list at snapshot/kobuki_driver/src/driver/kobuki.cpp:50-56 does not initialise serial)",
+    "references[api:ecl::Serial::block]": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:93 | serial.block(4000);",
+    "references[api:ecl::Serial::open]": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:95 | serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); also :155 | if ( !serial.open() ) { and :158 (same 5-argument call as :95)",
+    "references[api:ecl::Serial::read]": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:185 | int n = serial.read((char*)buf, packet_finder.numberOfDataToRead());",
+    "references[api:ecl::Serial::write]": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:487 | serial.write((const char*)&command_buffer[0], command_buffer.size());",
+    "perm_requires": "searched snapshot/kobuki_driver (package.xml, CMakeLists.txt, src/, include/) for permission/policy/security declarations; none found",
+    "perm_grants": "searched snapshot/kobuki_driver (package.xml, CMakeLists.txt, src/, include/) for permission/policy/security declarations; none found",
+    "recovery": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:155-179 | if ( !serial.open() ) { try { serial.open(...); ... } catch (const ecl::StandardException &e) { ... ecl::Sleep(5)(); // five seconds ... continue; } }",
+    "blinding_guess": "judgement after recording, no further investigation"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All five ecl::Serial elements are used directly in src/driver/kobuki.cpp and include/kobuki_driver/kobuki.hpp with internally consistent call forms (default construction, block(4000), 5-argument open plus zero-argument open() status check, read(char*, n), write(const char*, n)); whether these match the ecl_devices API at the hydro release cannot be judged from the snapshot, and the ecl_devices C++ headers are not an allowed source."
+  },
+  "confidence": "high",
+  "notes": "All packet elements are C++ API symbols of ecl::Serial (ecl_devices, declared as build_depend/run_depend in package.xml:19,27 and find_package/CATKIN_DEPENDS in CMakeLists.txt:3,8; header pulled in via #include <ecl/devices.hpp> at kobuki.hpp:24) that this package consumes; none is provided, so declares and not_declared are empty. The only uses of ecl::Serial in the package are kobuki.hpp:188 and kobuki.cpp:93,95,155,158,185,487 (grep over snapshot/kobuki_driver excluding doxygen and scripts/web; tools/version_info.cpp and src/test/*.cpp use kobuki::Kobuki, not ecl::Serial). api:ecl::Serial::open is used in two forms: the 5-argument open(port, BaudRate, DataBits, StopBits, Parity) at kobuki.cpp:95 and :158, and a zero-argument serial.open() used as a boolean 'is open' check at kobuki.cpp:155. api:ecl::Serial::Serial is referenced only implicitly through default construction of the member. The device name comes at run time from parameters.device_port (documented default /dev/kobuki, parameters.hpp:54). No ROS message types are involved, so msg_type and definition_id are null; QoS is null because this is ROS 1 and a non-ROS C++ API. rate_hz is null: the only timing values are the block(4000) read timeout and a 0.1 s data-stream watchdog (kobuki.cpp:143,188), neither a rate. exclusive is empty: the code does not claim the serial device exclusively in code or configuration; whether ecl::Serial::open locks the port depends on ecl_devices internals that are outside the allowed sources. Recovery is recorded as present from the hard-coded reconnect loop in Kobuki::spin(); there is no separate configuration declaration of it."
+}

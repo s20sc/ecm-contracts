@@ -1,0 +1,57 @@
+{
+  "case_id": "C3-083",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/ros2/issues/1177",
+    "https://github.com/ros2/ros2/issues/1177#issuecomment-1403915498",
+    "https://github.com/ros2/ros2_tracing/pull/31",
+    "https://github.com/ros2/ros2_tracing/pull/48",
+    "https://github.com/ros/rosdistro/pull/36641",
+    "https://github.com/ros2/ci/pull/690",
+    "https://github.com/ros2/rmw_fastrtps/pull/591",
+    "https://github.com/ros2/ros2_documentation/pull/2877",
+    "https://github.com/ros2/ros2_documentation/pull/3404",
+    "https://github.com/ros2/ros2_documentation/pull/3414"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is filed under '## Feature request' and asks to 'discuss declaring a dependency on the LTTng userspace tracer (LTTng-UST) on Linux'. It describes a deliberate packaging choice ('This LTTng dependency isn't declared. This was initially for simplicity ... and because of some concerns about overhead.') rather than a concrete defect with a reproducer or error log; the maintainer response treats it as a request ('I think that having the tracepoints available by default is a reasonable request.')."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": [
+        "tracetools (ros2_tracing)",
+        "lttng-ust"
+      ],
+      "interface_kind": null,
+      "evidence": "The resolving changes are dependency declaration and build configuration: ros2_tracing#31 edits tracetools/package.xml, tracetools/CMakeLists.txt, config.h.in, CI workflows and README to 'explicitly depend on/expect LTTng-UST on Linux'; ros2/ci#690 installs LTTng packages in the CI Dockerfiles; rosdistro#36641 adds an 'lttng-tools' rosdep rule for RHEL; ros2_tracing#48 adds an explicit dl link. No unit's declared interface changes. rmw_fastrtps#591 (merged 2022-03-21) only adds tracetools instrumentation calls to rmw_fastrtps_cpp and ros2_documentation#2877 adds a build-with-tracing guide ('This guide will become invalid/unneeded if we do https://github.com/ros2/ros2/issues/1177'); neither changes an interface between units. The issue author closed it with 'The PRs have been merged, so I'm closing this.'"
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No failing operation between two units is documented; the request concerns whether tracepoints are compiled into binaries by default."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No interaction failure is documented; the effect described is that the tracing feature 'currently isn't available out-of-the-box'."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "Not a concrete defect (E1 fails: feature request); on the E2 tree it stops at step 4, build (dependency declaration, rosdep rule, CI install only).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

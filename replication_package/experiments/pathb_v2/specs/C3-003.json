@@ -1,0 +1,88 @@
+{
+  "case_id": "C3-003",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/717",
+    "https://github.com/ros2/rclcpp/pull/2349",
+    "https://github.com/ros2/rclcpp/pull/2387",
+    "https://github.com/ros2/rclcpp/pull/2388"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives a complete C++ reproducer and a gdb backtrace ending in \"#0  0x..in rmw_fastrtps_shared_cpp::__rmw_event_set_callback (rmw_event=0x5555559ea0b0, callback=0x0, user_data=0x0)\" and \"Thread 4 \\\"example_segfault\\\" received signal SIGSEGV, Segmentation fault.\" The Fast DDS maintainer diagnoses the cause and the rclcpp fix is merged -- https://github.com/ros2/rmw_fastrtps/issues/717"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rclcpp", "rmw_fastrtps_shared_cpp"],
+      "interface_kind": "library API",
+      "evidence": "Two separately built libraries: rclcpp (caller, through rcl and rmw_implementation) and rmw_fastrtps_shared_cpp (the rmw implementation). The failure is a call-ordering assumption across the rmw API: rclcpp clears the event callback after the event's parent publisher has been destroyed, and rmw_fastrtps shares one listener between the publisher and its events. \"it seems to me the info structure is used after it was destroyed. This would mean there is a call to `rmw_event_set_callback` after the call to `rmw_destroy_publisher`.\" -- https://github.com/ros2/rmw_fastrtps/issues/717 ; \"Both the `EventHandler` and its associated pubs/subs share the same underlying rmw event listener ... When a pub/sub is destroyed, that listener is destroyed. There is a data race when the `~EventHandlerBase` calls  `clear_on_ready_callback()`, since it wants to access the listener that could have already been destroyed, thus causing a segfault.\" -- https://github.com/ros2/rclcpp/pull/2349. Timing (call order) crossing the boundary is an interface failure even though the resolving edit is inside rclcpp. Not deployment wiring, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: rclcpp's calls (rcl_event_set_callback -> rmw_event_set_callback on a publisher event) feed rmw_fastrtps_shared_cpp, which dereferences the listener of the already destroyed publisher. Reproducer: nodes with a SensorDataQoS publisher are created in a loop and added to an EventsExecutor spinning in another thread."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed segmentation fault: \"Thread 4 \\\"example_segfault\\\" received signal SIGSEGV, Segmentation fault.\" -- https://github.com/ros2/rmw_fastrtps/issues/717"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclcpp",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rclcpp",
+      "broken_rev": "fbb78ec975b47930faf280593cae30fd08523f5f",
+      "resolved_rev": "7877358e7b913e19a7a07845d1ed198f10f94657",
+      "pinned": true,
+      "revision_basis": "The reporter states \"On ROS2 Iron\" and the backtrace paths are a source build (/root/iron_ros2/src/ros2/rclcpp/...); no rclcpp commit is named. fbb78ec9 is the head of the iron branch on the report date (2023-10-03; last iron commit before it is dated 2023-09-28). The backtrace line numbers match this revision: event_handler.cpp:47 is clear_on_ready_callback() in ~EventHandlerBase, event_handler.cpp:86 is rcl_event_set_callback, event_handler.hpp:219 is set_on_new_event_callback(nullptr, nullptr), events_executor.cpp:122 is execute_event and :392 is build_entities_collection. Resolved: 7877358e is the merge of the iron backport PR 2387 (merged 2023-12-13) of the rolling fix PR 2349 (merge 411dbe8212dd753ee60871f8605d0a8beaae5e37).",
+      "excerpt": false,
+      "ros_distro": "iron"
+    },
+    {
+      "name": "rmw_fastrtps_shared_cpp",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rmw_fastrtps",
+      "broken_rev": "6899cac13faf60cc0f3762bdb47ff7bb9fe04b9e",
+      "resolved_rev": "6899cac13faf60cc0f3762bdb47ff7bb9fe04b9e",
+      "pinned": true,
+      "revision_basis": "Iron source build (/root/iron_ros2/src/ros2/rmw_fastrtps/...); 6899cac1 is the head of the rmw_fastrtps iron branch on the report date (last iron commit before 2023-10-03, dated 2023-08-30). The reporter's permalink points to rolling commit ad4550adea4f65fdc126423f2fec13f441c6bbaa (not on the iron branch); in both revisions rmw_fastrtps_shared_cpp/src/rmw_event.cpp line 160 is the same statement, `custom_event_info->get_listener()->set_on_new_event_callback(`, matching frame #0 of the backtrace. The resolution does not change this unit, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "iron"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:rmw_create_publisher", "sides": {"rmw_fastrtps_shared_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_destroy_publisher", "sides": {"rmw_fastrtps_shared_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_publisher_event_init", "sides": {"rmw_fastrtps_shared_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_event_set_callback", "sides": {"rmw_fastrtps_shared_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_event_fini", "sides": {"rmw_fastrtps_shared_cpp": "provides", "rclcpp": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:rmw_event_set_callback", "api:rmw_destroy_publisher"],
+      "quote": "Three lines after setting `info->deleted = true;` there is a `delete info;`, so it seems to me the info structure is used after it was destroyed. This would mean there is a call to `rmw_event_set_callback` after the call to `rmw_destroy_publisher`.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/717"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only evidence is a runtime crash captured in gdb: \"Thread 4 \\\"example_segfault\\\" received signal SIGSEGV, Segmentation fault.\" No build, connection, or activation diagnostic from existing tooling is shown. -- https://github.com/ros2/rmw_fastrtps/issues/717",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "rclcpp: remove clear_on_ready_callback() from ~EventHandlerBase and call it in a new ~EventHandler destructor, which runs while the derived class still holds parent_handle_ (the publisher/subscription), so the rmw listener is still alive when rmw_event_set_callback(NULL) is called.",
+    "status": "recommended",
+    "evidence": "Merged to rolling (PR 2349, 411dbe82) after green CI and backported to iron (PR 2387, 7877358e). The PR author states \"Even without being able to reproduce properly on rolling, I think this fix may be correct and could avoid future issues.\" -- https://github.com/ros2/rclcpp/pull/2349. No source shows the reproducer running without the segfault on identified revisions."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Eligibility judgment: the underlying mistake is C++ destruction order inside rclcpp (derived-class member parent_handle_ is destroyed before the base-class destructor body runs), which could be read as internal; it is treated as an interface failure because the effect is an rmw API call made after the parent entity was destroyed, i.e. a call-ordering assumption between rclcpp and the rmw implementation (the rmw header does not state a publisher/event lifetime rule; rmw.h only says of rmw_event_set_callback that \"this function could be called by the user at any time\"). Class `other` is used because no listed class covers a call-ordering/lifetime violation. The consumer reaches the rmw symbols through rcl (rcl_publisher_event_init, rcl_event_set_callback, rcl_event_fini, rcl_publisher_fini) and rmw_implementation; these pass-through layers are not treated as separate units of this composition. The title calls it a data race and the rclcpp PR calls it one (the last reference to the EventHandler may be dropped on the executor thread); CONCURRENT is a possible alternative reading of the operation. The reporter also reproduces on Galactic/Humble with the standalone irobot-ros/events-executor package; the humble backport PR 2388 was closed unmerged. The reporter's proof-of-concept fix in rmw_fastrtps (mauropasse/rmw_fastrtps@adf1aa7e52b9aea8c1b76886683ae5e663237b81) was described by its author as \"not correct, was just for illustration purpuses\"."
+}

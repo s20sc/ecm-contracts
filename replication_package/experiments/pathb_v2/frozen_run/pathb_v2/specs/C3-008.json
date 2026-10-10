@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-008",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/2246",
+    "https://github.com/ros-controls/ros2_controllers/pull/2266",
+    "https://github.com/ros-controls/ros2_controllers/pull/2268",
+    "https://github.com/ros-controls/ros2_controllers/pull/2269"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is a good-first-issue refactoring task, not a defect report: \"This is only used as a copy of `params_.publish_limited_velocity` and can be easily removed.\" -- https://github.com/ros-controls/ros2_controllers/issues/2246. The fix PR describes a cleanup: \"Removed the redundant `publish_limited_velocity_` member from the `DiffDriveController`.\" -- https://github.com/ros-controls/ros2_controllers/pull/2266. No malfunction, reproducer, or error is documented."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated: E1 fails. The change is confined to diff_drive_controller's own header and source (a private member replaced by the generated parameter struct field), so it would also be `internal` if a defect were assumed."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: no failing operation documented."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on any interaction is documented."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: code cleanup (remove a redundant member variable in DiffDriveController), not a documented defect.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "PR 2266 (master, merge 2bf30933fb8b3280762dfd5976f05c7e6807e017), backports PR 2268 (jazzy, merge 28ede2cf2792be90f55839b260ccf537af6b1ce0) and PR 2269 (kilted, merge 31cb74e54488cbdfceb04c1696162e6a81e22ce6); each edits only diff_drive_controller.hpp and diff_drive_controller.cpp. The ROS parameter publish_limited_velocity itself is unchanged."
+}

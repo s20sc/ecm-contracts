@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3N-024",
+  "kind": "A1",
+  "case_id": "C3N-024",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: maintainer-confirmed CI failure and a compiler diagnostic. E2 stops at 6: separately released rclcpp removed an API called by moveit_core; this is not merely a build-system change. E3: UPGRADE.",
+    "quote": "We have a broken ci-testing with the changes from https://github.com/ros2/rclcpp/pull/1913.",
+    "url": "https://github.com/moveit/moveit2/issues/1178"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The provider deletes the one-argument integer-duration constructor. The consumer fix replaces Duration(-1) with Duration::from_nanoseconds(-1), confirming the specified symbol and removal class.",
+      "quote": "-  explicit Duration(rcl_duration_value_t nanoseconds);",
+      "url": "https://github.com/ros2/rclcpp/commit/6815022909086487f2b8dc14c0540b00d4cf61a0.patch"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "An explicit compiler diagnostic satisfies loud_documented.",
+    "quote": "error: no matching conversion for functional-style cast from 'int' to 'rclcpp::Duration'",
+    "url": "https://github.com/moveit/moveit2/pull/1181"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The failure occurs while compiling the consumer header: build.",
+    "quote": "CI is failing on #1176 with the errors",
+    "url": "https://github.com/moveit/moveit2/pull/1181"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The accepted source fix is concrete, but the discussion does not identify the rclcpp revision used for a successful resolved run; recommended is supported.",
+    "quote": "+  virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration::from_nanoseconds(-1)) = 0;",
+    "url": "https://github.com/moveit/moveit2/commit/14d2a932c74ab1dc6bed652738d17ee2bae23d4f.patch"
+  },
+  "notes": "The additional goal_response_callback errors concern moveit_simple_controller_manager and rclcpp_action, not this moveit_core/rclcpp composition; they are not missed conditions here."
+}

@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-085",
+  "kind": "A1",
+  "case_id": "C3-085",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 4,
+    "reason_code": "build",
+    "quote": "+if(CMAKE_C_COMPILER_ID MATCHES \"Clang\" AND NOT APPLE)\n   target_link_libraries(_rclpy_pybind11 PRIVATE atomic)",
+    "url": "https://github.com/ros2/rclpy/pull/1096.diff",
+    "reason": "E1 has a source-install failure and accepted fix. The entire resolving diff changes the platform condition controlling libatomic linkage in CMake; no unit's declared or referenced robotics interface changes. The appropriate E2 stop is build-only step 4. This is not rebuilding a consumer after a changed provider definition. E4 has a link failure, while no E3 runtime composition is established."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "std::atomic fails to link",
+    "url": "https://github.com/ros2/rclpy/issues/1095",
+    "reason": "Null is appropriate after exclusion. The report describes a link failure but does not quote a literal linker diagnostic, so no stronger diagnostic wording is invented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The rclpy package shouldn't fail during the colcon build stage of the installation.",
+    "url": "https://github.com/ros2/rclpy/issues/1095",
+    "reason": "The underlying stage is build, but the specification intentionally leaves excluded-case fields null."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+if(CMAKE_C_COMPILER_ID MATCHES \"Clang\" AND NOT APPLE)",
+    "url": "https://github.com/ros2/rclpy/pull/1096.diff",
+    "reason": "Null follows exclusion. The patch is a build-platform guard, not a two-unit interface repair."
+  },
+  "notes": "No listed or missed integration conditions. Read issue #1095, PR #1096 comments and its complete one-hunk diff. The source supports the CMake/linkage diagnosis without relying on the reporter's speculative account of when Apple Clang can process atomic."
+}

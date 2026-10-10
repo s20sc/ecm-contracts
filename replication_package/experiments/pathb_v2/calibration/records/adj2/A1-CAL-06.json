@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-06",
+  "kind": "A1",
+  "case_id": "CAL-06",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "# List of values which is the same length and order as the provided names. If a\n# parameter was not yet set, the value will have PARAMETER_NOT_SET as the\n# type.\nParameterValue[] values",
+    "url": "https://github.com/ros2/rcl_interfaces/blob/iron/rcl_interfaces/srv/GetParameters.srv"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "1. `ros2 param dump` needs to handle empty list as exception if happens instead of proceeding zipping results. if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.",
+      "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1933083033"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "We merged in the fixes here, and backported the ones we could.  So closing this out, thanks for the report.",
+    "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1948372693"
+  },
+  "notes": "All key sources opened: issue #1517 body and comments (gh api); rclpy parameter_service.py at 4.1.4 via raw.githubusercontent - _get_parameters_callback does 'except (ParameterNotDeclaredException, ParameterUninitializedException):' then 'response.values = node.get_parameters([])' and returns, i.e. an empty values list for the whole request; ros2param dump.py at 0.25.4 - 'if not response.values:' / 'return '# Parameter not set''; GetParameters.srv at iron (gh api contents) declaring the same-length/order convention with PARAMETER_NOT_SET (quoted). Eligibility: agree, stop 6. E1 reproducer and wrong output verified, maintainer reproduced on rolling (comment 1933083033). Step 2: the wrong encoding crosses the service boundary - the provider answers with an empty values list where the srv declares one value per name with PARAMETER_NOT_SET; the consumer zips names with the resulting '# Parameter not set' character array. A provider following the srv convention or a consumer treating the empty list as an error removes the failure, so it is not internal. Steps 3-5: fixes are source changes on both sides. Stop 6, service. Failed condition: class representation_convention agreed - the mismatch is how the not-set state is encoded in the response crossing the boundary; elements agreed (param:param_2 is the mis-encoded uninitialized parameter that triggers the provider's exception path; param_1's wrong display is collateral of the same single response, which the spec could also have listed). Loudness silent_documented/run agreed - dump completes and prints wrong values with no diagnostic. Resolution DISAGREED: the spec's own summary documents the merged fixes (ros2/ros2cli#881, ros2/rclpy#1216, merged 2024-02-09) and the issue was closed with the quoted comment, so a resolving change exists and was accepted; S1's category for accepted-but-not-shown-working is 'recommended', not 'none'. The absence of an iron backport (reporter: 'If no fix is going to be merged for Iron though, I think this ticket is still \"Open\".') affects which revisions carry the fix, not the existence of a resolution."
+}

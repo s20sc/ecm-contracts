@@ -1,0 +1,64 @@
+{
+  "item_id": "A1-B-Res-05",
+  "kind": "A1",
+  "case_id": "B-Res-05",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The first one activate controllers one by one and passes, while the second one activates them all at once and fails with this message:",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1400",
+    "reason": "E1/E4: two explicit tests distinguish sequential activation from all-at-once failure, with maintainer reproduction. E2: controller_manager calls the hardware_interface library before making its reference interfaces available, violating an API precondition across separately built package/library units. E3: PAIR is a valid description of the observed same-release manager/resource-manager interaction; regression history alone does not prove a separately deployed provider-only UPGRADE."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Could not switch controllers since prepare command mode switch was rejected.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1400",
+      "reason": "The interfaces exist but are not yet available when prepare is called. other correctly captures this availability/call-order precondition, rather than permission_missing or competing exclusive claims. Both prepare_command_mode_switch and make_controller_reference_interfaces_available participate.",
+      "supporting_evidence": [
+        {
+          "quote": "+        resource_manager_->make_controller_reference_interfaces_available(\n+          following_ctrl_it->info.name);",
+          "url": "https://github.com/ros-controls/ros2_control/pull/1401.patch"
+        },
+        {
+          "quote": "Not available: \n[\n test_chainable_controller_name_2/joint1/position\n test_chainable_controller_name_2/joint1/velocity\n test_chainable_controller_name_1/joint1/position\n]",
+          "url": "https://github.com/ros-controls/ros2_control/issues/1400"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Not acceptable command interfaces combination:",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1400",
+    "reason": "The resource manager prints an explicit unavailable-interface rejection."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[  FAILED  ] TestControllerManagerSrvs.activate_chained_controllers_all_at_once (128 ms)",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1400",
+    "reason": "The failure occurs during the attempt to activate the chain in one switch."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "I confirm that you fix works for us once backported to humble.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1400",
+    "reason": "This is genuine positive evidence for a local backport, but it does not identify the resulting consumer revision or show the specification's selected public backport 69487aeb440e8970e77ebf81ab3e38aeb87707c1 running with hardware_interface at a431948a031dc0bfcb19f95bfd0d7137274908fc. Under S1's requirement that the resolved composition work with both units identified by revision, observed is too strong. Preserve the successful local-backport report while labeling the specified resolved composition recommended.",
+    "supporting_evidence": [
+      {
+        "quote": "Hopefully this will get released soon (cherry picks were easily done for us).",
+        "url": "https://github.com/ros-controls/ros2_control/issues/1400"
+      }
+    ]
+  },
+  "notes": "The source states Humble ros2_control 2.37.0 for the broken reproduction. The fix moves reference-interface availability earlier and cleans it up on request clearing. A working unversioned local cherry-pick must not be silently equated with a later public backport containing additional changes. This disagreement is about the strict resolution-status evidence threshold, not a claim that the fix failed."
+}

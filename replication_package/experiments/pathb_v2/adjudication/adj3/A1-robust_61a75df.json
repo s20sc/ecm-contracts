@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_61a75df",
+  "kind": "A1",
+  "case_id": "robust_61a75df",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This problem is related to qt5 used on ubuntu16.04.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/250#issuecomment-281542245"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "from QtGui import QMessageBox, QAction\nImportError: cannot import name QMessageBox",
+      "url": "https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "in battery_widgets.py\nfrom python_qt_binding.QtGui import QToolButton\n->\nfrom QtWidgets import QToolButton",
+      "url": "https://github.com/turtlebot/turtlebot/issues/250#issuecomment-281542245"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PluginManager._load_plugin() could not load plugin \"kobuki_dashboard/KobukiDashboard\"",
+    "url": "https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "As correcting following two lines, it looks like working as shown in the attached screenshot."
+  },
+  "notes": "All quotes verified verbatim (issue #250 body and comments 281542245/281927881; stackexchange 78536 body carries the full traceback incl. PluginManager._load_plugin error and the PyQt4 segfault in libQtGui.so.4). Both conditions correctly classed element_removed_or_renamed (QMessageBox/QAction/QToolButton moved from QtGui to QtWidgets between Qt4-era python_qt_binding and the Qt5 release). UPGRADE operation is correct. Loudness loud_documented at activate stage is correct (rqt plugin loader reports the ImportError). Resolution observed is supported by a third-party user's screenshot confirmation plus the maintainer's 'Coming in 0.5.3'."
+}

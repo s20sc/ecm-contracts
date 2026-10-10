@@ -1,0 +1,40 @@
+{
+  "item_id": "A1-C3-062",
+  "kind": "A1",
+  "case_id": "C3-062",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I had no intention to declare parameters against documentation. Most probably a mistake.",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/140"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [
+        "param:.color.image_raw.compressed.format",
+        "param:.color.image_raw.compressed.jpeg_quality",
+        "param:.color.image_raw.compressed.png_level"
+      ],
+      "quote": "I had no intention to declare parameters against documentation. Most probably a mistake.",
+      "url": "https://github.com/ros-perception/image_transport_plugins/issues/140"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Current behavior (ROS2 foxy and humble)",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/140"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I am in favor of moving to the fully-qualified parameter names."
+  },
+  "notes": "E1 confirmed: issue #140 shows the `ros2 param list` output (names without the transport segment) against the documented `<base>/<transport>/<param>` form, and maintainers confirm (\"I had no intention to declare parameters against documentation. Most probably a mistake.\" and \"I would agree that this is likely a mistake.\", both verified in issue comments). E2 stop_step 6 (parameter): the defect is a parameter name crossing the plugin/host boundary, and the resolving change renames the provider's declared parameters. element_removed_or_renamed on the three transport-scoped params is correct. Loudness unknown is right: no failure was observed, only the code-level mismatch (\"this is artificial, what I would expect\"). Resolution recommended is right: the fix (#143/#144, released rolling 3.2.0 / iron 3.1.0, never humble) was merged but no consumer configuration is shown working against the fixed provider. The spec's low confidence and its clear handling of the unidentified consumer (empty excerpt section) are appropriate. The maintainers' deprecation strategy (preserve old names while warning) is confirmed in the comments."
+}

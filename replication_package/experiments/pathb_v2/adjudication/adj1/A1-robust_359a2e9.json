@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-robust_359a2e9",
+  "kind": "A1",
+  "case_id": "robust_359a2e9",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "when trajectories and IO are driven from the ROS side simultaneously",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/107",
+    "reason": "E1/E4: the report describes reproducible socket-stream corruption and resulting command errors. E2: the PC driver and controller-executed URScript are separate processes; their incompatible message-length assumptions cross the TCP boundary. Correcting the receiver's read length changes the wire interpretation, not deployment wiring, packaging, or an undeclared firmware behavior. E3: PAIR is appropriate; concurrent command production triggers the failure but the selected interaction is sender-to-receiver."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "driver: sizeof(io_msgs) is 8 bytes, not 8 ints. Fix #107.",
+      "url": "https://github.com/ros-industrial/universal_robot/commit/359a2e9d0c21b37c4fc077e08dbb56de771734cb.patch",
+      "reason": "The same command identifiers are interpreted with incompatible payload lengths, supporting definition_mismatch rather than a nominal-type or physical-unit mismatch. The inspected patch replaces socket_read_binary_integer(1+6+1) with socket_read_binary_integer(2) in all four listed IO-command branches; the issue's observed example is digital output.",
+      "supporting_evidence": [
+        {"quote": "elif mtype == MSG_SET_DIGITAL_OUT:", "url": "https://github.com/ros-industrial/universal_robot/commit/359a2e9d0c21b37c4fc077e08dbb56de771734cb.patch"},
+        {"quote": "elif mtype == MSG_SET_FLAG:", "url": "https://github.com/ros-industrial/universal_robot/commit/359a2e9d0c21b37c4fc077e08dbb56de771734cb.patch"},
+        {"quote": "elif mtype == MSG_SET_ANALOG_OUT:", "url": "https://github.com/ros-industrial/universal_robot/commit/359a2e9d0c21b37c4fc077e08dbb56de771734cb.patch"},
+        {"quote": "elif mtype == MSG_SET_TOOL_VOLTAGE:", "url": "https://github.com/ros-industrial/universal_robot/commit/359a2e9d0c21b37c4fc077e08dbb56de771734cb.patch"}
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "`unrecognized command` messages being reported in the ROS log",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/107",
+    "reason": "These are runtime symptoms after accepting the connection, not build/connect/activation diagnostics. Thus silent_documented is correct under the supplied definition, despite the runtime log messages."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "part of the _next_ message in the buffer is read.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/107",
+    "reason": "The defect manifests during command-stream processing: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+        params_mult = socket_read_binary_integer(2)",
+    "url": "https://github.com/ros-industrial/universal_robot/commit/359a2e9d0c21b37c4fc077e08dbb56de771734cb.patch",
+    "reason": "The accepted change repairs the read length, but no inspected source demonstrates the simultaneous-IO reproducer working with both selected unit revisions. recommended is supported."
+  },
+  "notes": "Read issue #107 and its comments, the fix patch, and PR #117. PR #117 contains general successful UR5 testing of a broader driver rewrite, so the specification's absolute suggestion that there is no testing in the sources is too broad. That testing does not establish the particular pinned sender/receiver composition or this reproducer; it does not justify observed. Other changes bundled in that PR are not conditions of this case."
+}

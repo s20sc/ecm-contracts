@@ -1,0 +1,100 @@
+{
+  "case_id": "robust_932c6ca",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/commit/932c6cafd2b7959133fb32303e8c27cca3ff9e33",
+    "https://github.com/ros/geometry2/pull/51",
+    "https://github.com/ros/gencpp/issues/3",
+    "https://github.com/ros/gencpp/commit/2c3d57bdb93bda2c5828d80b848601e57b8e7f08",
+    "https://github.com/ros/gencpp/blob/0.4.16/scripts/msg.h.template",
+    "https://github.com/ros/gencpp/blob/0.5.0/scripts/msg.h.template",
+    "https://github.com/ros/geometry2/blob/0.4.10/tf2_ros/src/transform_listener.cpp",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/932c6ca/932c6ca.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #51 (kwatts, 2014-01-29): 'Patch to stop using \"__connection_header\" field in ROS messages (for tf2_ros).', single commit 932c6ca 'TF2 uses message events to get connection header information', confirmed and merged by the maintainer tfoote: 'Merged into indigo-devel' (https://github.com/ros/geometry2/pull/51). The provider-side change is documented in gencpp issue #3 ('Remove _connection_header from message') and commit 2c3d57b 'remove __connection_header from message template (fix #3)'; kwatts on the same day: 'I've made pull requests to remove all client uses of \"__connection_header\" in hydro (pulls will have to go into indigo).' and dirk-thomas: 'Fixed by 2c3d57bdb93bda2c5828d80b848601e57b8e7f08. Will address the other locations when releasing into Indigo.' (https://github.com/ros/gencpp/issues/3). No build log exists; the ROBUST record states 'References to a non-existing field in C++ cause a build failure (reported by type and name analysis).'"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "tf2_ros",
+        "gencpp"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the consumer is the tf2_ros package (tf2_ros/src/transform_listener.cpp reads 'std::map<std::string, std::string>* msg_header_map = msg_in.__connection_header.get();' on a tf2_msgs::TFMessage); the provider is gencpp, the separately released C++ message generator whose scripts/msg.h.template declares the members of every generated message class, including 'boost::shared_ptr<std::map<std::string, std::string> > __connection_header;' at 0.4.16 and no longer at 0.5.0. Step 2: the defect is a name crossing the boundary: the consumer references a member that the provider's newer revision no longer declares (tfoote's gencpp issue: 'This field was clearly left in by mistake (when other fields for md5sum, etc were removed in C-Turtle)', kwatts). It only manifests against the newer provider and does not occur against gencpp 0.4.16, so it depends on the assumption between the two units. Step 3: no name binding at deployment is involved. Step 4: the resolving change is source code in the consumer (switch to ros::MessageEvent), not a build-system or dependency change; rebuilding the consumer because the provider's declaration changed is an interface change per the rule. Step 5: not firmware. Step 6: eligible, interface kind library API (a generated-class member declaration)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (gencpp) at 0.5.0 runs at a newer revision than the consumer's code was written against; the consumer at 0.4.10 still references the provider element __connection_header as it existed at gencpp 0.4.16 (hydro), which is the earlier provider revision. wjwwood's comment records the version skew: 'This was never deprecated in Hydro ... and now we are removing it in Indigo.' (https://github.com/ros/gencpp/issues/3#issuecomment-34225562)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch: the consumer patch 'Patch to stop using \"__connection_header\" field in ROS messages (for tf2_ros).' (PR #51) and the provider commit 'remove __connection_header from message template (fix #3)' with the removed line '-  boost::shared_ptr<std::map<std::string, std::string> > __connection_header;' (https://github.com/ros/gencpp/commit/2c3d57bdb93bda2c5828d80b848601e57b8e7f08), plus the ROBUST dataset record naming the effect: 'References to a non-existing field in C++ cause a build failure (reported by type and name analysis).' The effect itself was never observed in the source (the consumer was patched before the removal landed), so the outcome class is undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2_ros",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "0.4.10",
+      "resolved_rev": "932c6cafd2b7959133fb32303e8c27cca3ff9e33",
+      "pinned": true,
+      "revision_basis": "PR #51's base is hydro-devel at ec3a4c0, which is exactly tag 0.4.10 (2013-12-26, the last hydro release before the PR); tf2_ros/src/transform_listener.cpp there reads 'std::map<std::string, std::string>* msg_header_map = msg_in.__connection_header.get();' inside TransformListener::subscription_callback_impl. Resolved: the PR's single commit 932c6ca (parent ec3a4c0), merged into indigo-devel and first released in 0.5.0 (2014-02-14). The consumer is a hydro release; the broken composition arises when it is built against the indigo gencpp.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "gencpp",
+      "role": "provider",
+      "repo": "https://github.com/ros/gencpp",
+      "broken_rev": "0.5.0",
+      "resolved_rev": "0.5.0",
+      "pinned": true,
+      "revision_basis": "The member was removed in commit 2c3d57b (2014-01-29T16:31-0800, 'remove __connection_header from message template (fix #3)'), and 0.5.0 (dc5639f, the changelog commit made five minutes later, 2014-01-29) is the first release without it; every earlier tag up to 0.4.16 (2014-01-27) still declares it at scripts/msg.h.template line 128. 0.5.0 is the indigo line ('This will be targeted for _Indigo_.', dirk-thomas). Unchanged by the resolution, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "0.4.16",
+    "resolved": "0.5.0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:tf2_msgs::TFMessage", "sides": {"gencpp": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:tf2_msgs::TFMessageConstPtr", "sides": {"gencpp": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:tf2_msgs::TFMessage::transforms", "sides": {"gencpp": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:tf2_msgs::TFMessage::__connection_header", "sides": {"gencpp": "provides", "tf2_ros": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": [
+        "api:tf2_msgs::TFMessage::__connection_header"
+      ],
+      "quote": "Patch to stop using \"__connection_header\" field in ROS messages (for tf2_ros).",
+      "url": "https://github.com/ros/geometry2/pull/51"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No diagnostic is shown in the source: the consumer patch (PR #51, opened 2014-01-29T17:46Z) preceded the provider's removal (gencpp 2c3d57b, 2014-01-30T00:31Z), and no build of tf2_ros 0.4.10 against gencpp 0.5.0 is reported anywhere. The ROBUST record asserts the stage and tooling without showing output: 'References to a non-existing field in C++ cause a build failure (reported by type and name analysis).' and 'detected-by: compiler' (https://github.com/robust-rosin/robust/blob/master/geometry2/932c6ca/932c6ca.bug); a removed class member would be a compiler error at build, but that observation is not in the source.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Commit 932c6ca (PR #51): TransformListener's subscription callbacks take 'const ros::MessageEvent<tf2_msgs::TFMessage>& msg_evt' instead of 'const tf2_msgs::TFMessageConstPtr& msg', read the message with 'msg_evt.getConstMessage()' and obtain the authority with 'std::string authority = msg_evt.getPublisherName(); // lookup the authority', removing every use of msg_in.__connection_header.",
+    "status": "recommended",
+    "evidence": "Diff of 932c6ca: '-    std::map<std::string, std::string>* msg_header_map = msg_in.__connection_header.get();' ... '+  const tf2_msgs::TFMessage& msg_in = *(msg_evt.getConstMessage());' / '+  std::string authority = msg_evt.getPublisherName(); // lookup the authority' (https://github.com/ros/geometry2/commit/932c6cafd2b7959133fb32303e8c27cca3ff9e33); tfoote: 'Merged into indigo-devel' (https://github.com/ros/geometry2/pull/51#issuecomment-35126925). The resolved consumer was released as 0.5.0 with the indigo line, but no build or run of it against gencpp 0.5.0 is shown in the source."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "consumer_built_against is inferred from declarations: the consumer's reference to __connection_header matches the member declared in gencpp's msg.h.template through 0.4.16 ('boost::shared_ptr<std::map<std::string, std::string> > __connection_header;') and absent from 0.5.0; the resolved consumer references only members present in 0.5.0. Because it is inferred, every other change between gencpp 0.4.16 and 0.5.0 is also visible to the checkers. The provider unit is gencpp rather than tf2_msgs because the member is emitted by gencpp's template into every generated message header (tf2_msgs/TFMessage.h is generated at build time from tf2_msgs's unchanged .msg file); the same removal affected other consumers named in gencpp issue #3 (topic_tools, actionlib, tutorials), which are other compositions. The resolved composition additionally relies on roscpp's ros::MessageEvent API (getConstMessage, getPublisherName), a third unit not part of the failing composition. Python messages keep their _connection_header attribute (kwatts: 'I don't see any reason to deprecate or remove it in Python'), so tf2_ros's python listener is unaffected. The ROBUST record's 'pull-request: https://github.com/ros/geometry2/pull/51' is marked not merged on GitHub (merged_at null, 'STATE: closed') while the commit was merged into indigo-devel, matching the packet note."
+}

@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-C3-099-resolved-M2-77ea54a7ea",
+ "kind": "A2",
+ "case_id": "C3-099",
+ "composition": "resolved",
+ "method_label": "M2",
+ "rule": "di_definition_mismatch",
+ "values": [
+  {
+   "path": "producer.outputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "u0354/snapshot/rmw_dds_common/msg/Gid.msg:1: \"char[16] data\" — I ran `python3 definition_hash.py sha256 snapshot/rmw_dds_common/msg/Gid.msg` in s2_work/tasks/u0354 and got {\"algorithm\": \"sha256_normalised\", \"kind\": \"msg\", \"value\": \"18019bf8a2c05fef0196d05cadc03652406576c373119867025c235b7265bc6f\"}, matching the producer value."
+  },
+  {
+   "path": "consumer.inputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "u0353/snapshot/rmw_dds_common/msg/Gid.msg:1: \"char[24] data\" — I ran `python3 definition_hash.py sha256 snapshot/rmw_dds_common/msg/Gid.msg` in s2_work/tasks/u0353 and got {\"algorithm\": \"sha256_normalised\", \"kind\": \"msg\", \"value\": \"fe832c5cdf2e6149636fbfd2c4a2a341587e91a73072ab92578cecf493c233c2\"}, matching the consumer (built-against, 1.6.0) value."
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Same encoding as the broken item and same verification: the resolved composition per specs/C3-099.json keeps rmw_dds_common at 3.1.0 and rmw_fastrtps at 6.2.7 (the fix lives in rosidl_typesupport_fastrtps, a third package), so the Gid pair (u0354 hash 18019bf8… vs u0353 built-against hash fe832c5c…) correctly represents the spec's UPGRADE operation with the consumer still built against 1.6.0. Connection evidence: u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:94/:122 (publisher and subscription of ParticipantEntitiesInfo on \"ros_discovery_info\") and u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171-174 (\"reinterpret_cast<char *>(&msg.gid.data), / RMW_GID_STORAGE_SIZE\")."
+ },
+ "notes": "Identical values and encoding to the broken variant; both hash values verified by recomputation. The definition mismatch persists in the resolved composition, which is coherent with the spec's resolution (consumer-side hardening in the generated deserializer, mismatch not removed)."
+}

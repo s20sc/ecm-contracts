@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-138",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/579",
+    "https://github.com/ros2/rmw_fastrtps/pull/568",
+    "https://github.com/ros2/rmw_fastrtps/commit/19d141d6ed0d5f0d92a8ba87d900299de3613173",
+    "https://github.com/ros2/rmw_fastrtps/blob/b56cd5fe6f42946d69d2e75ec37bf06d9becbe3f/rmw_fastrtps_cpp/src/publisher.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue with a reproducer and log: \"ros2 run demo_nodes_cpp talker_loaned_message\" printing \"[rclcpp]: Currently used middleware can't loan messages. Local allocator will be used.\" Maintainer MiguelCompany: \"After #568 is merged the only requirement for LoanedMessage to work would be for the data type to be plain.\" (https://github.com/ros2/rmw_fastrtps/issues/579#issuecomment-1036153357). Merged PR ros2/rmw_fastrtps#568 (19d141d6)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["demo_nodes_cpp talker_loaned_message (via rclcpp)", "rmw_fastrtps_cpp"],
+      "interface_kind": "library API",
+      "evidence": "The loan refusal is decided entirely by rmw_fastrtps's own policy, independent of the application: at the parent revision b56cd5fe the publisher is created with \"writer_qos.data_sharing().off();\" when middleware-default QoS is not requested, and then \"bool has_data_sharing = DataSharingKind::OFF != writer_qos.data_sharing().kind();\\n  rmw_publisher->can_loan_messages = has_data_sharing && info->type_support_->is_plain();\". Any correct application requesting a loan for any plain type gets the same result. PR #568 description: \"The only requirement on the Fast DDS API in order for loans to be used is that the type is plain. This PR allows calling the loan APIs when data-sharing is OFF.\" The fix changes only the rmw_fastrtps computation of can_loan_messages (publisher.cpp in rmw_fastrtps_cpp and rmw_fastrtps_dynamic_cpp, rmw_take.cpp in rmw_fastrtps_shared_cpp); no declared interface between the application/rclcpp and the rmw changes."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Would be PAIR (application borrows a loaned message from the middleware for publishing). Not decisive because the case stops at E2."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"Currently used middleware can't loan messages. Local allocator will be used.\" while publishing continues (fallback)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "The reported behaviour is a capability limitation of rmw_fastrtps (loans tied to data-sharing, which the rmw turns off by default), not a mismatch of an assumption between the application and the middleware; the composition kept working with a local allocator. Before #568 the maintainer's workaround was deployment QoS configuration (XML data_sharing AUTOMATIC plus RMW_FASTRTPS_USE_QOS_FROM_XML=1), which is QoS configuration rather than name binding. Related side effects discussed in PR #568 (rclcpp Subscription::handle_loaned_message not accounting topic statistics, fixed in ros2/rclcpp#1927; a test using std::launch::deferred, ros2/rclcpp#1940) are separate compositions and are not conditions of this case. Reporter's build: ros2/ros2 commit 4a36f319afcc208deae3c373493ef6d9feda1324 (rolling, source)."
+}

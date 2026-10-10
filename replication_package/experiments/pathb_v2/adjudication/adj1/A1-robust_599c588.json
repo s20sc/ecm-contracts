@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-robust_599c588",
+  "kind": "A1",
+  "case_id": "robust_599c588",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I was just debugging a script for controlling a vehicle and was having trouble with sequencing.",
+    "url": "https://github.com/mavlink/mavros/issues/625",
+    "reason": "E1/E4: the reporter describes sequencing failure and the maintainer confirms the response semantics. E2: the external script and mavros service exchange a boolean whose interpreted meaning differs; the failure is not internal to mavros. The proposed repair changes a service field and consumer behavior, not only wiring. E3: PAIR describes the service response feeding the script."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "whether or not the state transtion was accepted.",
+      "url": "https://github.com/mavlink/mavros/issues/625",
+      "reason": "The service and its success response field carry parsing/sending status instead of the mode-transition outcome the caller expects. That semantic mismatch is other, not a mismatched ROS definition in the original pairing. The absolute /mavros namespace is conventional rather than explicitly reported."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Yes, for some reasons `success` only show mode parsing status",
+      "url": "https://github.com/mavlink/mavros/issues/625#issuecomment-259057790",
+      "reason": "The class and implicated field are correct, but this is the provider-side explanation of condition 0, not an independent second failed condition. The two entries should be consolidated when counting distinct conditions."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "It might fail if the state is invalid but doesn't fail otherwise.",
+    "url": "https://github.com/mavlink/mavros/issues/625",
+    "reason": "The reported validly parsed requests return an apparently successful response despite unconfirmed mode transition; no early compatibility diagnostic is shown. silent_documented is supported."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "was having trouble with sequencing.",
+    "url": "https://github.com/mavlink/mavros/issues/625",
+    "reason": "The discrepancy was discovered during execution of the vehicle-control script: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "b. Call `~set_mode` and wait mode change.",
+    "url": "https://github.com/mavlink/mavros/issues/625#issuecomment-259057790",
+    "reason": "The maintainer recommends state monitoring, and the inspected fix renames success to mode_sent without making it an acceptance acknowledgment. No revised reporter script is shown working. recommended is correct."
+  },
+  "notes": "Read the complete issue #625 comments and fix patch. The two listed conditions duplicate one semantic disagreement. The later success-to-mode_sent definition change can break old clients, but that is a different upgrade composition, not a missed failure of the original PAIR. The unavailable private script must not be treated as modified merely because the provider and its own example scripts changed."
+}

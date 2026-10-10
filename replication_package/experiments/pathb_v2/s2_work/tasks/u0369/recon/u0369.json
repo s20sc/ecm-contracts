@@ -1,0 +1,57 @@
+{
+  "task_id": "u0369",
+  "package": "bt_navigator",
+  "manifest_version": "1.2.9",
+  "ports": [
+    {
+      "element": "action:follow_path",
+      "side": "consumes",
+      "msg_type": "nav2_msgs/action/FollowPath",
+      "frame": "per_message",
+      "units": null,
+      "qos": {
+        "reliability": "reliable",
+        "durability": "volatile",
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "sha256_normalised",
+        "kind": "action",
+        "value": "e019de7b50bb059127fee0663d1495d72b8c8e7faf121d40c9e547a611a8ec57"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "action:follow_path"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "<RecoveryNode number_of_retries=\"1\" name=\"FollowPath\"> around FollowPath, recovery branch WouldAControllerRecoveryHelp error_code=\"{follow_path_error_code}\" then ClearEntireCostmap service_name=\"local_costmap/clear_entirely_local_costmap\""
+  },
+  "provenance": {
+    "manifest_version": "snapshot:nav2_bt_navigator/package.xml:5 | <version>1.2.9</version>",
+    "ports[0].msg_type": "snapshot:nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/follow_path_action.hpp:30 | class FollowPathAction : public BtActionNode<nav2_msgs::action::FollowPath>",
+    "ports[0].frame": "snapshot:nav2_msgs/action/FollowPath.action:13 | nav_msgs/Path path",
+    "ports[0].qos.reliability": "snapshot:nav2_behavior_tree/include/nav2_behavior_tree/bt_action_node.hpp:94 | action_client_ = rclcpp_action::create_client<ActionT>(node_, action_name, callback_group_); (no options argument, so rclcpp_action uses rcl_action_client_get_default_options(): goal/result/cancel services rmw_qos_profile_services_default = RELIABLE, VOLATILE; feedback topic rmw_qos_profile_default = RELIABLE, VOLATILE; status topic rcl_action_qos_profile_status_default = RELIABLE, TRANSIENT_LOCAL)",
+    "ports[0].qos.durability": "snapshot:nav2_behavior_tree/include/nav2_behavior_tree/bt_action_node.hpp:94 | action_client_ = rclcpp_action::create_client<ActionT>(node_, action_name, callback_group_); (rcl_action_client_get_default_options(): goal/result/cancel services and feedback topic VOLATILE; status topic TRANSIENT_LOCAL)",
+    "ports[0].definition_id": "snapshot:nav2_msgs/action/FollowPath.action | python3 definition_hash.py sha256 snapshot/nav2_msgs/action/FollowPath.action",
+    "references[action:follow_path]": "snapshot:nav2_behavior_tree/plugins/action/follow_path_action.cpp:106 | name, \"follow_path\", config); ; loaded by snapshot:nav2_bt_navigator/src/bt_navigator.cpp:43 | \"nav2_follow_path_action_bt_node\", ; used without server_name at snapshot:nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:21 | <FollowPath path=\"{path}\" controller_id=\"FollowPath\" error_code_id=\"{follow_path_error_code}\"/>",
+    "perm_requires.state": "searched snapshot for *policy*, *permission*, *.p7s files and for sros/enclave in nav2_bt_navigator and nav2_bringup: none found",
+    "perm_grants.state": "searched snapshot for *policy*, *permission*, *.p7s files and for sros/enclave in nav2_bt_navigator and nav2_bringup: none found",
+    "recovery.state": "snapshot:nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:20 | <RecoveryNode number_of_retries=\"1\" name=\"FollowPath\">",
+    "recovery.value": "snapshot:nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:20-24 | <RecoveryNode number_of_retries=\"1\" name=\"FollowPath\"> ... <WouldAControllerRecoveryHelp error_code=\"{follow_path_error_code}\"/> <ClearEntireCostmap name=\"ClearLocalCostmap-Context\" service_name=\"local_costmap/clear_entirely_local_costmap\"/>"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The consumer side is internally consistent at this revision: the FollowPath BT node creates a client for nav2_msgs/action/FollowPath on the hard-coded name follow_path, the bundled BTs do not remap it, and every goal/result field and error-code constant the consumer code reads (path, controller_id, goal_checker_id, progress_checker_id, error_code, NONE, UNKNOWN, PATIENCE_EXCEEDED, FAILED_TO_MAKE_PROGRESS, NO_VALID_CONTROL) exists in the FollowPath.action in the same snapshot. The only irregularity seen is cosmetic Groot metadata (nav2_tree_nodes.xml lists a service_name port for FollowPath while the code uses server_name)."
+  },
+  "confidence": "medium",
+  "notes": "The snapshot is the whole navigation2 repository; the package described is nav2_bt_navigator (node name bt_navigator, package.xml version 1.2.9). bt_navigator consumes follow_path only through the BT plugin library nav2_follow_path_action_bt_node (source in nav2_behavior_tree, same snapshot), which it loads by default via the plugin_lib_names parameter (bt_navigator.cpp:39-94) and which its bundled BT XMLs instantiate as <FollowPath .../>. The action name follow_path is hard-coded in the plugin's registration (follow_path_action.cpp:106; also controller_cancel_node.cpp:42 for the CancelControl node) and can be remapped per BT node by the server_name input port (bt_action_node.hpp:71-75); none of the BT XMLs in nav2_bt_navigator/behavior_trees set server_name. The client is created on the BT client node (named <node>_<action>_rclcpp_node, bt_action_server_impl.hpp:116-130), so the relative name resolves in bt_navigator's namespace. Default BTs: navigate_to_pose_w_replanning_and_recovery.xml and navigate_through_poses_w_replanning_and_recovery.xml (navigate_to_pose.cpp, navigate_through_poses.cpp); both paths are parameters (default_nav_to_pose_bt_xml, default_nav_through_poses_bt_xml) that can be overridden at run time. Goal fields set by the consumer: path, controller_id, goal_checker_id, progress_checker_id (follow_path_action.cpp:33-36); result field read: error_code (follow_path_action.cpp:47); constants used: Goal NONE (follow_path_action.cpp:41,54) and UNKNOWN, PATIENCE_EXCEEDED, FAILED_TO_MAKE_PROGRESS, NO_VALID_CONTROL (would_a_controller_recovery_help_condition.cpp:27-30). FollowPath.action defines the error-code constants in the goal section and has feedback float32 distance_to_goal, float32 speed with no units stated, so units is null. Frame is per_message: the goal carries a nav_msgs/Path whose header frame comes from the blackboard path produced at run time; the consumer does not hard-code a frame for this element. QoS: no QoS is set in code; values are the rcl_action client defaults. An action spans several channels: reliability is RELIABLE on all of them; durability is VOLATILE on the goal, result and cancel services and the feedback topic, but TRANSIENT_LOCAL on the status topic; the single durability field records the goal/feedback channels. Timeouts that bound the client but are not rates: wait_for_service_timeout default 1000 ms, default_server_timeout default 20 ms, bt_loop_duration default 10 ms (bt_action_server_impl.hpp:58-69). No exclusive resources are claimed. declares and not_declared are empty because the only packet element is consumed."
+}

@@ -1,0 +1,46 @@
+{
+  "case_id": "robust_ff581a0",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847",
+    "https://github.com/mavlink/mavros/pull/296"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Commit ff581a0 (\"distance_sensor: minor correction\", part of PR #296, merged by the maintainer) shows the concrete defect and its fix in mavros_extras/src/plugins/distance_sensor.cpp: pnh.param(\"sensor_position/x\", y, 0.0); and pnh.param(\"sensor_position/x\", z, 0.0); replaced by the /y and /z names. No issue exists (packet issue_url \"N/A\")."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["mavros_extras distance_sensor plugin", "parameter configuration (px4_config.yaml / apm_config.yaml or user launch)"],
+      "interface_kind": null,
+      "evidence": "The plugin looks up a parameter name that the configuration does provide (sensor_position/x) and stores it into its own y and z variables; the provider and the plugin agree on the parameter names sensor_position/x, /y, /z (the config file entries were added in the same PR, a3b59347 \"distance_sensor: define sensor position through param config\"). With any correctly written configuration the plugin still computes the position (x, x, x): a copy-paste defect in the plugin's own logic, not a disagreement about a name, frame, unit, or value between two units."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: parameters set by the configuration are read by the plugin at initialisation."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement only (the fix diff). No observed effect is documented; the defect was introduced and corrected inside PR #296 before it was merged."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Arguable against the rule that a wrong name crossing the boundary is an interface failure: here the name that crosses the boundary (sensor_position/x) is one the configuration provides, and the error lies in which of the plugin's own variables receives the value. The PR #296 discussion also contains a startup failure (\"symbol lookup error: ... libmavros_extras.so: undefined symbol: _ZN8mavutils20orientation_matchingEh\") between libmavros_extras and libmavros, which the maintainer attributes to a stale or system-installed libmavros; it is a different composition and is not part of the listed fix."
+}

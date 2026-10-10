@@ -1,0 +1,62 @@
+{
+  "task_id": "u0283",
+  "package": "rosidl_generator_py",
+  "manifest_version": "0.22.0",
+  "ports": [
+    {
+      "element": "api:__slots__",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:_fields_and_field_types",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:__slots__": "api __slots__: __slots__ = [",
+    "api:_fields_and_field_types": "api _fields_and_field_types: _fields_and_field_types = {"
+  },
+  "not_declared": [
+    "msg:builtin_interfaces/Time",
+    "msg:sensor_msgs/JointState",
+    "msg:std_msgs/Header"
+  ],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rosidl_generator_py/package.xml:5",
+    "ports[0].frame": "snapshot:rosidl_generator_py/resource/_msg.py.em:205 (class attribute listing slot-name strings '_<member>' plus '_check_fields' at line 212; no spatial meaning)",
+    "ports[1].frame": "snapshot:rosidl_generator_py/resource/_msg.py.em:215 (class attribute dict mapping member name to type string, lines 215-256; no spatial meaning)",
+    "declares[api:__slots__]": "snapshot:rosidl_generator_py/resource/_msg.py.em:205",
+    "declares[api:_fields_and_field_types]": "snapshot:rosidl_generator_py/resource/_msg.py.em:215",
+    "not_declared[msg:builtin_interfaces/Time]": "Searched all 35 snapshot files (grep -rni for builtin_interfaces, Time, std_msgs, sensor_msgs, JointState, Header). The only interface definitions in the snapshot are rosidl_generator_py/msg/BuiltinTypeSequencesIdl.idl, rosidl_generator_py/msg/StringArrays.msg, rosidl_generator_py/msg/Property.msg (CMakeLists.txt:50-58 also uses test_interface_files). No builtin_interfaces/Time definition, reference, or package.xml dependency exists.",
+    "not_declared[msg:sensor_msgs/JointState]": "Same search as not_declared[msg:builtin_interfaces/Time]: no sensor_msgs/JointState definition, reference, or dependency anywhere in the snapshot; the only definitions are the three files under rosidl_generator_py/msg/.",
+    "not_declared[msg:std_msgs/Header]": "Same search as not_declared[msg:builtin_interfaces/Time]: no std_msgs/Header definition, reference, or dependency in the snapshot; the only 'header' hits are C include-file variables (header_files) in resource/_msg_support.c.em and resource/_msg_pkg_typesupport_entry_point.c.em.",
+    "perm_requires.state": "Searched snapshot (package.xml, CMakeLists.txt, cmake/*, rosidl_generator_py/*.py, resource/*.em, test/*) for permission declarations; none (only license-text hits for 'permissions').",
+    "perm_grants.state": "Same search as perm_requires.state; no permission grants declared.",
+    "recovery.state": "Searched snapshot for recovery/fallback declarations; none. The only failure handling is the ImportError catch-and-log in Metaclass.__import_type_support__ (resource/_msg.py.em:108-118), which is not a declared recovery behaviour."
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The generated __slots__ list (resource/_msg.py.em:205-213) contains '_check_fields' in addition to one '_<member>' entry per field, so __slots__ no longer corresponds one-to-one with _fields_and_field_types or the message fields; a consumer that derives field names from __slots__ of generated classes such as std_msgs/Header, builtin_interfaces/Time or sensor_msgs/JointState would see an extra non-field slot."
+  },
+  "confidence": "high",
+  "notes": "rosidl_generator_py is a code generator: both api elements are class attributes emitted by the EmPy template resource/_msg.py.em into every generated message class (included for messages, service request/response/event and action messages via resource/_idl.py.em:30-67). __slots__ (lines 205-213) lists '_' + member.name for each member (skipping the sole placeholder member of an empty structure) followed by '_check_fields' (line 212). _fields_and_field_types (lines 215-256) maps member.name to a type string ('sequence<...>', 'T[N]', 'string<N>', 'pkg/Type' using namespaces[0]) and has no '_check_fields' entry; get_fields_and_field_types() returns a copy (lines 413-416). '_check_fields' is set in __init__ from the 'check_fields' kwarg or the module-level ros_python_check_fields read from env ROS_PYTHON_CHECK_FIELDS (resource/_idl.py.em:10; _msg.py.em:296-304). The three msg elements are definitions owned by other packages; this snapshot neither defines nor references them and none of its definitions or code depend on them, so no dependency definition files were fetched and no definition_id is recorded. QoS, rate and definition_id do not apply to the api elements (no topic, no definition file) and are null. ros_distro is jazzy; manifest version 0.22.0."
+}

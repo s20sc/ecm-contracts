@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-136",
+  "kind": "A1",
+  "case_id": "C3-136",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "This problem seems to be related to Fast-RTPS. Using OpenSplice for DDS implementation, I can't reproduce this problem unlike Fast-RTPS.",
+    "url": "https://github.com/ros2/rclcpp/issues/755"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The listener **STOPS** after receiving some messages (random amount). The log message from the callback won't be displayed anymore.",
+    "url": "https://github.com/ros2/rclcpp/issues/755"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "{\"actor\":\"mjcarroll\",\"created\":\"2025-05-17T14:59:02Z\"}"
+  },
+  "notes": "Independent check agrees with ineligible/internal (E2 step 2), at the spec's own medium confidence. Verified this session: (1) reporter is Vaan5 (Windows 10, binaries, dashing, Fast-RTPS, rclcpp per body); body line 203 verified: 'The listener **STOPS** after receiving some messages (random amount).'; log lines verified in the thread: '[INFO] [publisher]: Publishing 486.710000' and '[INFO] [listener]: Received 428.970000'; (2) jacobperron 'It sounds like a bug.' verified and the `bug` label present; (3) ivanpauno's Linux repro verified with ONE transcription discrepancy: actual text is 'our demos with the timer changed to 100us, published up to message number 4700, listened up to message 4676.' — the spec's E1 quote inserts 'number' before 4676 ('listened up to message number 4676'), which is not in the source; (4) Vaan5 verified: 'The same problem happens with the demo talker/listener (so with String messages) if I change the rate.'; vinnamkim OpenSplice quote verified verbatim; ivanpauno 'But in `fastrtps` the problem seems to be much worst.' verified verbatim; clalancette's reliable-QoS quote verified verbatim; ivanpauno's usage-error note verified verbatim ('Your publisher node is looping for ever in `Publisher::start`, so it never spins.'); (5) closure verified via the events API: closed by mjcarroll 2025-05-17 (quote above) with no linked fix; (6) both packet fix refs verified as unrelated number collisions: ApexAI/rclcpp commit 8b18525a77c177ad19716ff96e4a7f9c26856015 is 'remove debugging statements. (#755)' by tomoya (2020-08-19) touching only rcl_yaml_param_parser/test/test_parse_yaml.cpp; ros2/rclcpp PR #801 is '[dashing-backport] Add default value to options in LifecycleNode construnctor. Update API documentation. (#775)' with body 'Backport of #755.' (mis-numbered; the title names #775); (7) Fast-DDS#571 'Fail to receive messages completely at the high publishing rate [5762]' verified: body shows 'HelloWorldExample publisher 2000', subscriber log ending 'Message HelloWorld 256 RECEIVED' with 'Subscribed count : 256'; comment 'This problem can be solved reducing the heartbeat period.'; Best-Effort result 'Subscribed count : 1463'. The stall reproduces with stock demos (any correct application peer) and with Fast-RTPS's native API with no ROS code, so it does not depend on any assumption between the two nodes; reframed as node-vs-middleware, any correct application still triggers it. E2 stops at step 2 (internal). Minor spec-completeness note: E4 is left null here while C3-097 filled E4 despite also stopping at E2 — an inconsistency in spec practice, immaterial to the verdict (the observed effect IS documented: the listener stops). Loudness/resolution null is schema-correct for an ineligible case; the resolution quote above is the GitHub events-API record I read showing closure without a fix."
+}

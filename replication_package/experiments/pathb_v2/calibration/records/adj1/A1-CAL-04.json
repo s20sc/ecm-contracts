@@ -1,0 +1,57 @@
+{
+  "item_id": "A1-CAL-04",
+  "kind": "A1",
+  "case_id": "CAL-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "there is just three gray windows (no image) and a [WARN] message as below",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+    "reason": "The concrete log establishes E1/E4. stereo_image_proc and stereo_view interact through three topics in PAIR. The remedy changes synchronization policy and queue capacity, not merely deployment name bindings; E2 step 3 does not exclude it."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "rate_shortfall",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "A second potential problem is that stereo_image_proc is not running at frame rate. You can see that stereo_view is getting less than one disparity image for every five image pairs.",
+      "url": "https://robotics.stackexchange.com/a/29633",
+      "reason": "The source describes disparity throughput lagging the image inputs, exhausting matching queues. It does not describe removal or renaming of any topic; the log counts messages arriving on all three."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "All the image_pipeline nodes assume exact synchronization for stereo (the ideal case) by default. Since you're getting disparity images from stereo_image_proc, you must have started it with ~approximate_sync set to True. You need to do the same with stereo_view, as the warning message recommends.",
+      "url": "https://robotics.stackexchange.com/a/29633",
+      "reason": "Timestamp compatibility across the three synchronized inputs has no dedicated class in the supplied taxonomy."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ WARN] [1297946062.739511145]: [stereo_view] Low number of synchronized left/right/disparity triplets received.",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+    "reason": "This is a periodic runtime warning after message receipt, not a build, connection, or activation diagnostic. The rubric's silent_documented label does not mean no runtime warning exists."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Synchronized triplets: 0",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "rosrun image_view stereo_view stereo:=/stereo image:=image_rect _approximate_sync:=True _queue_size:=10",
+    "url": "https://robotics.stackexchange.com/a/29633",
+    "reason": "The accepted answer recommends this configuration; it does not show a successful revision-identified rerun."
+  },
+  "notes": "The question and accepted answer were read through the Stack Exchange API. Camera synchronization and insufficient computation are proposed explanations, not independently measured facts. Queue eviction is the mechanism of the first timing/rate condition, not an additional independently evidenced defect."
+}

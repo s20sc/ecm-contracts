@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_55e84a6-broken-M1-87b0cd254c",
+  "kind": "A2",
+  "case_id": "robust_55e84a6",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot]",
+      "verdict": "verified",
+      "source_excerpt": "Built revision:\n\nsnapshot:s2_work/tasks/u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:67\n```\nclass MatDataPlot(QWidget):\n```\n\nRunning revision:\n\nsnapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:67\n```\nclass MatDataPlot(QWidget):\n```\n\nsnapshot:s2_work/tasks/u0080/snapshot/rqt_plot/setup.py:6-10\n```\nd = generate_distutils_setup(\n    packages=['rqt_plot', 'rqt_plot.data_plot'],\n    package_dir={'': 'src'},\n    scripts=['scripts/rqt_plot']\n)\n```\n\nsnapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/__init__.py:46-49\n```\ntry:\n    from mat_data_plot import MatDataPlot\nexcept ImportError:\n    qDebug('[DEBUG] rqt_plot.plot: import of MatDataPlot failed (trying other backends)')\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:rqt_plot.mat_data_plot.MatDataPlot]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:14-22\n```\nfrom rqt_plot.mat_data_plot import MatDataPlot\n\n##############################################################################\n# Classes\n##############################################################################\n\nclass FullSizeDataPlot(MatDataPlot):\n    def __init__(self, parent=None):\n        super(FullSizeDataPlot, self).__init__(parent)\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:67\n```\nclass MatDataPlot(QWidget):\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:67\n```\nclass MatDataPlot(QWidget):\n```\n\nsnapshot:s2_work/tasks/u0080/snapshot/rqt_plot/setup.py:6-10\n```\nd = generate_distutils_setup(\n    packages=['rqt_plot', 'rqt_plot.data_plot'],\n    package_dir={'': 'src'},\n    scripts=['scripts/rqt_plot']\n)\n```\n\nsnapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/__init__.py:46-49\n```\ntry:\n    from mat_data_plot import MatDataPlot\nexcept ImportError:\n    qDebug('[DEBUG] rqt_plot.plot: import of MatDataPlot failed (trying other backends)')\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE connects the broken kobuki_qtestsuite import/subclass to rqt_plot, comparing built u0079 with running u0080 as specified. The old qualified module is the actual dependency, not just the unqualified class name.\n\nsnapshot:s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:14-22\n```\nfrom rqt_plot.mat_data_plot import MatDataPlot\n\n##############################################################################\n# Classes\n##############################################################################\n\nclass FullSizeDataPlot(MatDataPlot):\n    def __init__(self, parent=None):\n        super(FullSizeDataPlot, self).__init__(parent)\n```"
+  },
+  "notes": "Substantive qualified-module removal/relocation, even though the class declaration text is unchanged. I searched the running snapshot: the only mat_data_plot.py is in rqt_plot/data_plot; rqt_plot/__init__.py is zero bytes and there is no old-module shim. The import in data_plot/__init__.py is inside the new package. This verifies the source-level incompatibility, not the historical runtime traceback or whether a stale installed module masked the import error."
+}

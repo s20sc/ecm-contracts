@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-046",
+  "kind": "A1",
+  "case_id": "C3-046",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the provider maintainer confirms removal and the consumer patch shows the outdated include and its replacement. A code-level mismatch suffices even without a failing build log. E2: this is a header API change between cv_bridge and the Autoware package, not only build-system adaptation. E3: UPGRADE is supported by the consumer following the Jazzy-or-newer header while retaining an older-distro fallback.",
+    "quote": "All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-#include <cv_bridge/cv_bridge.h>\n+#if __has_include(<cv_bridge/cv_bridge.hpp>)\n+#include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer\n+#else\n+#include <cv_bridge/cv_bridge.h>  // for ROS 2 Humble or older\n+#endif",
+      "url": "https://github.com/autowarefoundation/autoware_universe/pull/11873.diff",
+      "reason": "The selected traffic-light shape_draw.hpp uses the removed old header. element_removed_or_renamed and api:cv_bridge/cv_bridge.h are supported by the provider statement and this consumer diff. The new header is the repair target, not an additional failed condition."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Compiles locally with jazzy.",
+    "url": "https://github.com/autowarefoundation/autoware_universe/pull/11873",
+    "reason": "This documents only a positive test after the patch. The reviewed report does not show a broken-build diagnostic; unknown is appropriate rather than inferring a compiler error from the diff."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Compiles locally with jazzy.",
+    "url": "https://github.com/autowarefoundation/autoware_universe/pull/11873",
+    "reason": "Compilation is the likely manifestation, but the source does not identify the stage at which the broken composition was actually diagnosed. Retain unknown."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Compiles locally with jazzy.",
+    "url": "https://github.com/autowarefoundation/autoware_universe/pull/11873",
+    "reason": "The patch has a positive local build report, but Jazzy is a distribution, not the tested cv_bridge revision. Inferring 4.1.0 from a rosdistro release entry does not establish which binary/source/overlay the author actually used. S1 requires both units identified by revision for observed; that requirement is not met by this source."
+  },
+  "notes": "The downgrade is evidence-specific: it does not dispute that the author reported a successful build or that the header fix is appropriate. Do not transfer this successful build to an exact provider revision inferred elsewhere. Other packages changed by PR #11873 are outside the selected traffic-light visualization composition."
+}

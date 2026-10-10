@@ -1,0 +1,99 @@
+{
+  "task_id": "u0323",
+  "package": "mavros",
+  "manifest_version": "2.14.0",
+  "ports": [
+    {
+      "element": "field:nav_msgs/Odometry.pose",
+      "side": "provides",
+      "msg_type": "nav_msgs/Odometry",
+      "frame": "map",
+      "units": "m",
+      "qos": {"reliability": "best_effort", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "msg", "value": "00e5542a16efb41fe7ff52707cfd39a254f7bb20a143057d596f6f0c98d49892"}
+    },
+    {
+      "element": "field:nav_msgs/Odometry.twist",
+      "side": "provides",
+      "msg_type": "nav_msgs/Odometry",
+      "frame": "base_link",
+      "units": "m/s",
+      "qos": {"reliability": "best_effort", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "msg", "value": "00e5542a16efb41fe7ff52707cfd39a254f7bb20a143057d596f6f0c98d49892"}
+    },
+    {
+      "element": "msg:nav_msgs/Odometry",
+      "side": "provides",
+      "msg_type": "nav_msgs/Odometry",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "msg", "value": "00e5542a16efb41fe7ff52707cfd39a254f7bb20a143057d596f6f0c98d49892"}
+    },
+    {
+      "element": "topic:/mavros/global_position/local",
+      "side": "provides",
+      "msg_type": "nav_msgs/Odometry",
+      "frame": "map",
+      "units": "m (pose position), m/s (twist linear)",
+      "qos": {"reliability": "best_effort", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "msg", "value": "00e5542a16efb41fe7ff52707cfd39a254f7bb20a143057d596f6f0c98d49892"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "topic:/mavros/global_position/local": "topic /mavros/global_position/local: nav_msgs/Odometry",
+    "msg:nav_msgs/Odometry": "msg nav_msgs/Odometry: 00e5542a16efb41fe7ff52707cfd39a254f7bb20a143057d596f6f0c98d49892",
+    "field:nav_msgs/Odometry.pose": "field nav_msgs/Odometry.pose: geometry_msgs/PoseWithCovariance",
+    "field:nav_msgs/Odometry.twist": "field nav_msgs/Odometry.twist: geometry_msgs/TwistWithCovariance"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:mavros/package.xml:5 | <version>2.14.0</version>",
+    "ports[0].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:124 | gp_odom_pub = node->create_publisher<nav_msgs::msg::Odometry>(\"~/local\", sensor_qos);",
+    "ports[0].frame": "snapshot:mavros/src/plugins/global_position.cpp:71 | node_declare_and_watch_parameter(\"frame_id\", \"map\", ...) ; snapshot:mavros/src/plugins/global_position.cpp:340 | odom.header.frame_id = frame_id; ; snapshot:mavros/launch/px4_config.yaml:51 | frame_id: \"map\" # origin frame ; nav_msgs/Odometry.msg:2 (common_interfaces) | # The pose in this message should be specified in the coordinate frame given by header.frame_id",
+    "ports[0].units": "snapshot:mavros/src/plugins/global_position.cpp:329-331 | X/Y/Z: spherical coordinate X/Y/Z-axis (meters) ; snapshot:mavros/src/plugins/global_position.cpp:323 | relative_alt.data = gpos.relative_alt / 1E3; // in meters (used for pose z at :410 when use_relative_alt)",
+    "ports[0].qos.reliability": "snapshot:mavros/src/plugins/global_position.cpp:112 | auto sensor_qos = rclcpp::SensorDataQoS(); (used at :124). Documented API default: rclcpp::SensorDataQoS is initialised from rmw_qos_profile_sensor_data (rmw/qos_profiles.h): history KEEP_LAST depth 5, reliability BEST_EFFORT, durability VOLATILE, deadline RMW_QOS_DEADLINE_DEFAULT",
+    "ports[0].qos.durability": "snapshot:mavros/src/plugins/global_position.cpp:112 | rclcpp::SensorDataQoS() -> rmw_qos_profile_sensor_data durability RMW_QOS_POLICY_DURABILITY_VOLATILE (documented default)",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 on https://raw.githubusercontent.com/ros2/common_interfaces/<tag>/nav_msgs/msg/Odometry.msg; identical bytes and hash at tags 4.2.0, 4.2.3, 4.2.4, 5.3.0, 5.3.5, 5.3.6, 5.5.0, 5.6.0, 5.7.0 (ros_distro is null)",
+    "ports[1].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:124 | gp_odom_pub = node->create_publisher<nav_msgs::msg::Odometry>(\"~/local\", sensor_qos);",
+    "ports[1].frame": "snapshot:mavros/src/plugins/global_position.cpp:75 | node_declare_and_watch_parameter(\"child_frame_id\", \"base_link\", ...) ; snapshot:mavros/src/plugins/global_position.cpp:341 | odom.child_frame_id = child_frame_id; ; snapshot:mavros/launch/px4_config.yaml:52 | child_frame_id: \"base_link\" # body-fixed frame ; nav_msgs/Odometry.msg:3 (common_interfaces) | # The twist in this message should be specified in the coordinate frame given by the child_frame_id",
+    "ports[1].units": "snapshot:mavros/src/plugins/global_position.cpp:332-334 | VX: latitude vel (m/s) VY: longitude vel (m/s) VZ: altitude vel (m/s) ; snapshot:mavros/src/plugins/global_position.cpp:344-347 | tf2::toMsg(ftf::transform_frame_ned_enu(Eigen::Vector3d(gpos.vx, gpos.vy, gpos.vz)) / 1E2, odom.twist.twist.linear);",
+    "ports[1].qos.reliability": "snapshot:mavros/src/plugins/global_position.cpp:112 | auto sensor_qos = rclcpp::SensorDataQoS(); (used at :124) -> rmw_qos_profile_sensor_data reliability BEST_EFFORT (documented default)",
+    "ports[1].qos.durability": "snapshot:mavros/src/plugins/global_position.cpp:112 | rclcpp::SensorDataQoS() -> rmw_qos_profile_sensor_data durability VOLATILE (documented default)",
+    "ports[1].definition_id": "python3 definition_hash.py sha256 on https://raw.githubusercontent.com/ros2/common_interfaces/<tag>/nav_msgs/msg/Odometry.msg; identical at tags 4.2.0 through 5.7.0 listed under ports[0].definition_id",
+    "ports[2].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:33 | #include \"nav_msgs/msg/odometry.hpp\" ; :124 create_publisher<nav_msgs::msg::Odometry> ; snapshot:mavros/package.xml:60 | <depend>nav_msgs</depend>",
+    "ports[2].definition_id": "python3 definition_hash.py sha256 on https://raw.githubusercontent.com/ros2/common_interfaces/<tag>/nav_msgs/msg/Odometry.msg; identical at tags 4.2.0 through 5.7.0 listed under ports[0].definition_id",
+    "ports[3].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:124 | gp_odom_pub = node->create_publisher<nav_msgs::msg::Odometry>(\"~/local\", sensor_qos);",
+    "ports[3].frame": "snapshot:mavros/src/plugins/global_position.cpp:71 | node_declare_and_watch_parameter(\"frame_id\", \"map\", ...) ; snapshot:mavros/src/plugins/global_position.cpp:340 | odom.header.frame_id = frame_id;",
+    "ports[3].units": "snapshot:mavros/src/plugins/global_position.cpp:326-337 | Global position odometry: X/Y/Z (meters), VX/VY/VZ (m/s), Angular rates: unknown",
+    "ports[3].qos.reliability": "snapshot:mavros/src/plugins/global_position.cpp:112,124 | auto sensor_qos = rclcpp::SensorDataQoS(); ... create_publisher<nav_msgs::msg::Odometry>(\"~/local\", sensor_qos); documented default rmw_qos_profile_sensor_data reliability BEST_EFFORT",
+    "ports[3].qos.durability": "snapshot:mavros/src/plugins/global_position.cpp:112,124 | rclcpp::SensorDataQoS() documented default rmw_qos_profile_sensor_data durability VOLATILE",
+    "ports[3].definition_id": "python3 definition_hash.py sha256 on https://raw.githubusercontent.com/ros2/common_interfaces/<tag>/nav_msgs/msg/Odometry.msg; identical at tags 4.2.0 through 5.7.0 listed under ports[0].definition_id",
+    "declares[topic:/mavros/global_position/local]": "snapshot:mavros/src/plugins/global_position.cpp:124 | create_publisher<nav_msgs::msg::Odometry>(\"~/local\", sensor_qos) on sub-node \"global_position\" (global_position.cpp:61 | Plugin(uas_, \"global_position\")), created in the namespace of the UAS node's fully qualified name (snapshot:mavros/include/mavros/plugin.hpp:86-87 | rclcpp::Node::make_shared(subnode, ...->get_fully_qualified_name(), options)); UAS node named \"mavros\" (snapshot:mavros/src/mavros_node.cpp:84) -> /mavros/global_position/local",
+    "declares[msg:nav_msgs/Odometry]": "python3 definition_hash.py sha256 <raw common_interfaces nav_msgs/msg/Odometry.msg> -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"msg\", \"value\": \"00e5542a16efb41fe7ff52707cfd39a254f7bb20a143057d596f6f0c98d49892\"}; published by snapshot:mavros/src/plugins/global_position.cpp:124,427",
+    "declares[field:nav_msgs/Odometry.pose]": "nav_msgs/msg/Odometry.msg:12 (ros2/common_interfaces, tags 4.2.0-5.7.0) | geometry_msgs/PoseWithCovariance pose ; filled at snapshot:mavros/src/plugins/global_position.cpp:400-423",
+    "declares[field:nav_msgs/Odometry.twist]": "nav_msgs/msg/Odometry.msg:15 (ros2/common_interfaces, tags 4.2.0-5.7.0) | geometry_msgs/TwistWithCovariance twist ; filled at snapshot:mavros/src/plugins/global_position.cpp:344-352",
+    "perm_requires.state": "searched snapshot *.cpp *.hpp *.yaml *.launch *.xml *.py for sros|permission|enclave: only hit is license text at mavros/include/mavros/px4_custom_mode.hpp:17",
+    "perm_grants.state": "same search as perm_requires.state; no permission grants declared",
+    "recovery.state": "searched snapshot *.cpp *.hpp *.yaml *.launch for 'recover': no hits; global_position.cpp:389-395 only logs and publishes fix/rel_alt/hdg on a GeographicLib exception"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "field:nav_msgs/Odometry.twist: global_position.cpp fills odom.twist.twist.linear with earth-fixed velocity (NED->ENU of GLOBAL_POSITION_INT vx/vy/vz, comment 'VX: latitude vel') while setting child_frame_id to base_link; the Odometry definition says the twist is expressed in child_frame_id. The sibling local_position plugin rotates velocity into base_link before filling odom.twist, which global_position does not do."
+  },
+  "confidence": "high",
+  "notes": "ROS 2 package (ament, package.xml format 3). The nav_msgs definitions are not in the snapshot; ros_distro is null and the snapshot targets several distros (README: Humble, Jazzy, Kilted, Rolling; devcontainer ROS_DISTRO=lyrical), so nav_msgs/msg/Odometry.msg was fetched raw from ros2/common_interfaces at tags 4.2.0, 4.2.3, 4.2.4, 5.3.0, 5.3.5, 5.3.6, 5.5.0, 5.6.0, 5.7.0; the file is byte-identical at all of them, so the sha256_normalised value does not depend on which of these distros applies (it is a proxy for the ROS 2 type hash). Topic name: code declares the relative name '~/local' on plugin node 'global_position' whose namespace is the UAS node's fully qualified name; with the UAS node '/mavros' (node name 'mavros', default namespace) it resolves to /mavros/global_position/local, which matches the packet name; node.launch passes namespace 'mavros' via launch, which I did not trace through rcl remapping. Field and topic ports are described for the /mavros/global_position/local publication (global_position.cpp), the only publication the packet names. The msg:nav_msgs/Odometry port records only the type identity: frame, units and QoS are left null because the package publishes this type from several plugins with different frames and QoS (local_position '~/odom' with SensorDataQoS, mavros_extras wheel_odometry '~/odom' and odom '~/in' with depth 10). Frames are parameter defaults ('frame_id' default 'map', 'child_frame_id' default 'base_link'), also set to the same values in px4_config.yaml and apm_config.yaml; they are runtime-reconfigurable (node_declare_and_watch_parameter). deadline_ms is null because SensorDataQoS leaves deadline at RMW_QOS_DEADLINE_DEFAULT (no deadline); no qos_overrides found in the snapshot. No publish rate is set: the topic is published once per received MAVLink GLOBAL_POSITION_INT (global_position.cpp:299-427). Twist: only linear velocity is filled (angular left zero, comment 'Angular rates: unknown'); twist covariance marked unknown (vel_cov_out(0) = -1.0, :350-352). Pose: position from ECEF offset converted to ENU about the map origin (z replaced by relative altitude when use_relative_alt, default true), orientation from uas->data.get_attitude_orientation_enu() (:413); pose covariance from GPS fix covariance plus rot_covariance diagonal. No exclusive resources, permissions or recovery declarations found. references is empty: all packet elements are on the provides side, and this plugin's other subscriptions ('~/set_gp_origin', 'home_position/home') are mavros's own names, not other packages' elements."
+}

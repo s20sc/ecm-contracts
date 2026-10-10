@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-036",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/1092",
+    "https://github.com/ros2/rclpy/pull/1093",
+    "https://github.com/ros2/rclpy/commit/aeed14308a51b30eebf1fddd59a1d68389b38375"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives a reproducer (a node started with allow_undeclared_parameters=True and \"ros2 param set /mynode myparam \" \"\") and the traceback ending in \"AssertionError: The 'string_value' field must be of type 'str'\"; a maintainer confirms: \"Current code didn't consider None return from yaml.safe_load().\" Reporter's versions: \"rolling (rclpy 3.7.1, but same code is in rolling branch at github)\", ros2cli 0.21.0; fix merged into rolling as aeed1430 on 2023-03-16."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "ros2param (ros2cli)",
+        "rclpy"
+      ],
+      "interface_kind": null,
+      "evidence": "The crash is in rclpy's own conversion logic: rclpy.parameter.get_parameter_value parses the string with yaml.safe_load, which returns None for an empty or whitespace-only string, and then assigns that result to the string field (\"value.string_value = yaml_value\"). Any caller passing \"\" or \" \" (ros2 param set, ros2 param load, or a direct call) triggers it, and it would occur with any spec-conformant YAML parser and any correct ParameterValue class, so it does not depend on an assumption between two units. The reporter confirms the target node accepts the same value through the service (\"this is only happening with `ros2 param set` but works with the service call\"), so the ros2cli-to-node interaction is not the failing one. The fix is a one-line change inside rclpy: \"value.string_value = yaml_value if yaml_value is not None else string_value\". Alternative reading considered: None crosses from rclpy into the generated rcl_interfaces ParameterValue setter, which rejects it; not chosen because that setter is only the data type rclpy fills within the same call (it enforces its declared field type, as any correct implementation would), and no other unit's assumption is involved."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR within the ros2cli process: ros2param's set verb passes the command-line value to rclpy (\"parameter.value = get_parameter_value(string_value=args.value)\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash of the ros2 command with the traceback quoted in the issue."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

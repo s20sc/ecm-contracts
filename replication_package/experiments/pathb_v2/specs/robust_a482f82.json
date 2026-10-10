@@ -1,0 +1,50 @@
+{
+  "case_id": "robust_a482f82",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/turtlebot/turtlebot/issues/80",
+    "https://github.com/ros-drivers/openni_launch/pull/3",
+    "https://github.com/ros-drivers/openni_launch/commit/a482f8268042aa8fae0e73970ed2af5dfd01e5df"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #80 (bit-pirate, 2013-07-26) names the concrete defect: \"Because both the original openni.launch and our modified version, called 3dsensor.launch, are using an absolute name(space) for the nodelet manager, we can't currently launch the openni nodelets in other namespaces.\" The openni_launch maintainer accepted the fix (PR #3, jonbinney: \"Thanks for fixing this!\" ... \"Tried this and it seems to preserve the old functionality, so i'm merging it.\"). No reproducer or log is given; the confirmation is the maintainer's acceptance."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": [
+        "openni nodelets (openni_camera/driver and the image_proc / depth_image_proc processing nodelets, loaded with `nodelet load`)",
+        "nodelet manager ($(arg camera)_nodelet_manager)"
+      ],
+      "interface_kind": "service (the nodelet manager addressed by name when loading nodelets)",
+      "evidence": "The interacting elements are named in launch files only. At the parent revision openni.launch starts the manager with `<arg name=\"manager\" value=\"$(arg camera)_nodelet_manager\" />` outside the camera group and passes it to every include as `<arg name=\"manager\"               value=\"/$(arg manager)\" /> <!-- Fully resolved -->`. The fix a482f82 (merge of openni_launch PR #3) changes only launch files (launch/openni.launch and launch/includes/*.launch): it moves the manager into `<group ns=\"$(arg camera)\">`, passes `value=\"$(arg manager)\"` (relative), prefixes nodelet names and topic remaps with `$(arg depth)` / `$(arg ir)` / `$(arg rgb)`, and adds processing-module and num_worker_threads args. PR #3 body: \"Nodelet manager runs on the same level as the nodelets, thereby removing the need for an absolute manager name as nodelet parameter.\" No node's or nodelet's code or declared interface changed; the minimal resolving change rebinds names and namespaces at deployment. Stop at step 3: deployment_wiring."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: nodelets pushed into another namespace are told to load into a manager name that does not resolve to the manager started for them (nodelet loader -> manager). The dataset summary also frames it as multiple instances in different namespaces (CONCURRENT)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch by the maintainer: \"are using an absolute name(space) for the nodelet manager, we can't currently launch the openni nodelets in other namespaces.\" No run-time failure log is shown."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring: the defect (absolute nodelet-manager name and un-namespaced topic remaps in openni.launch / 3dsensor.launch) and its fix are confined to launch-file name and namespace bindings; no unit's declared interface changed.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

@@ -1,0 +1,26 @@
+{
+  "item_id": "A2-B-Sig-01-broken-M5-6ec1d77791",
+  "kind": "A2",
+  "case_id": "B-Sig-01",
+  "composition": "broken",
+  "method_label": "M5",
+  "rule": "di_definition_mismatch",
+  "values": [
+    {
+      "path": "producer.outputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0181/snapshot/msg/DisplayTrajectory.msg:2\nstring model_id\n\n# The representation of the path contains position values for all the joints that are moving along the path; a sequence of trajectories may be specified\nRobotTrajectory[] trajectory\n\n# The robot state is used to obtain positions for all/some of the joints of the robot. \n# It is used by the path display node to determine the positions of the joints that are not specified in the joint path message above. \n# If the robot state message contains joint position information for joints that are also mentioned in the joint path message, the positions in the joint path message will overwrite the positions specified in the robot state message. \nRobotState trajectory_start\n\nsnapshot:s2_work/tasks/u0181/snapshot/msg/CollisionObject.msg:4\n# The object's pose relative to the header frame.\n# The shapes and subframe poses are defined relative to this pose.\ngeometry_msgs/Pose pose\n\nhttps://raw.githubusercontent.com/ros/std_msgs/0.5.13/msg/Header.msg\nuint32 seq"
+    },
+    {
+      "path": "consumer.inputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0180/snapshot/msg/DisplayTrajectory.msg:2\nstring model_id\n\n# The representation of the path contains position values for all the joints that are moving along the path; a sequence of trajectories may be specified\nRobotTrajectory[] trajectory\n\n# The robot state is used to obtain positions for all/some of the joints of the robot. \n# It is used by the path display node to determine the positions of the joints that are not specified in the joint path message above. \n# If the robot state message contains joint position information for joints that are also mentioned in the joint path message, the positions in the joint path message will overwrite the positions specified in the robot state message. \nRobotState trajectory_start\n\nsnapshot:s2_work/tasks/u0180/snapshot/msg/CollisionObject.msg:1\n# A header, used for interpreting the poses\nHeader header\n\n# The id of the object (name used in MoveIt)\nstring id\n\n# The object type in a database of known objects\nobject_recognition_msgs/ObjectType type\n\nhttps://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/melodic/std_msgs/0.5.12-0/msg/Header.msg\nuint32 seq"
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Agree with the PAIR view of the specification's UPGRADE: running provider u0181 versus consumer u0182 loading the u0180 built-against definition. The message-type edge is grounded in the same /move_group/display_planned_path connection, not merely a name match. The actual runtime record reads:\nhttps://answers.ros.org/question/358435/\n[ERROR] [1596202093.852304142]: Client [/rostopic_11410_1596202092781] wants topic /move_group/display_planned_path to have datatype/md5sum [moveit_msgs/DisplayTrajectory/c3c039261ab9e8a11457dac56b6316c8], but our version has [moveit_msgs/DisplayTrajectory/41936b74e168ba754279ae683ce3f121]. Dropping connection.\nThe transport rejects that attempted connection; this is not an assertion of successful delivery. The snapshot also shows rostopic subscribing with the dynamically selected message class:\nsnapshot:s2_work/tasks/u0182/snapshot/tools/rostopic/src/rostopic/__init__.py:1044\n        sub = rospy.Subscriber(real_topic, msg_class, callback_echo.callback, {'topic': topic, 'type_information': type_information})"
+  },
+  "notes": "Independently recomputed the complete recursive ROS1 MD5 closure in memory using the opened snapshots and curl-fetched dependencies: u0181 = 41936b74e168ba754279ae683ce3f121; u0180 = c3c039261ab9e8a11457dac56b6316c8. These are derived values, not literal hashes in the .msg files or copied execution claims. Running dependencies: ros/common_msgs 1.12.8, ros/std_msgs 0.5.13, wg-perception/object_recognition_msgs 0.4.1. Built dependencies: ros-gbp melodic release branches std_msgs 0.5.12-0, common_msgs packages 1.12.7-0, object_recognition_msgs 0.4.1-0. Both computed values also match the runtime quote. Exact historical source revisions are inferred in the specification; the computation verifies the supplied snapshots, not an original installed checkout."
+}

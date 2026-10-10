@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-002",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/1371",
+    "https://github.com/ros2/rclpy/pull/1374",
+    "https://github.com/ros2/rclpy/pull/1530"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives full action server and client reproducer scripts plus tracemalloc output; maintainer Barry-Xu-2018 reproduced it: \"For client, resident memory is changed from 92M to 194M.\" and \"So there's definitely an issue here with the client.\" -- https://github.com/ros2/rclpy/issues/1371"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rclpy", "fibonacci action client application (reporter's script)"],
+      "interface_kind": null,
+      "evidence": "The growth is inside the client process and comes from rclpy's own executor logic, independent of what any correct caller or peer does: \"Each time spin_once_until_future_complete() is called, the same callback is added to the future's done callback. ... This way, the future's done callbacks keep accumulating. When a future is completed (calls set_result()), _schedule_or_invoke_done_callbacks() is called. In this function, it creates a Task for each done callback, which leads to many unnecessary Tasks being created and consuming more and more memory.\" -- https://github.com/ros2/rclpy/pull/1374. Maintainer fujitatomoya states the application code is correct: \"i think that the following application code does nothing wrong? after all, my take here is API is not implemented as designed\" -- https://github.com/ros2/rclpy/issues/1371. The action server's memory did not grow (\"For server, Resident memory hasn't changed much (86M to 87M).\"), so no value crossing a boundary between server and client is implicated. This is a leak inside one process (rclpy's executor), ineligible `internal`."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated past E2; the reproduction is a PAIR-style loop (client sends goals to the server), but the defect does not depend on the pairing."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect: \"Memory consumption from the client  increases overtime\" -- https://github.com/ros2/rclpy/issues/1371"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: memory growth caused by rclpy's executor adding a done callback to the same future on every spin_once_until_future_complete call; a leak inside one process that would occur with any correct caller or peer.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Fix: rolling PR 1374 (merge c009b0de286101da1caedef860b88f1520edb97b, merged 2024-10-25) and its jazzy backport PR 1530 (merge 89ff39136d8a308261af40d5ae7a01506898330e, merged 2025-12-26) route spin_until_future_complete through a new private _spin_once_until_future_complete that does not call future.add_done_callback. The reporter used rclpy binaries 7.5.0-1noble.20240919.221552 with Fast-RTPS (tracemalloc paths under /opt/ros/rolling). Barry-Xu-2018 noted after the fix: \"In my environment, the client memory still increases a bit, but it's much less than before.\" An earlier maintainer comment attributed part of the growth to unprocessed tasks accumulating across repeated spin_until_future_complete calls; that too is executor-internal."
+}

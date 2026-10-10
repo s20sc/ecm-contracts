@@ -1,0 +1,45 @@
+{
+ "item_id": "A1-robust_bb3c7ec",
+ "kind": "A1",
+ "case_id": "robust_bb3c7ec",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Fixed with two changes:\n- I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base)\n- We send Current Charge and Capacity diagnostic values. See /kobuki_node/src/node/diagnostics.cpp",
+  "url": "https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base)",
+   "url": "https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-  stat.add(\"Capacity\", status.capacity);\n-  stat.add(\"Voltage\", status.voltage);\n+\n+  stat.add(\"Voltage (V)\", status.voltage);\n   stat.add(\"Percent\", status.percent());\n+  stat.add(\"Charge (Ah)\", (2.2*status.percent())/100.0);\n+  stat.add(\"Capacity (Ah)\", 2.2); // TODO: how can we tell which battery is in use?",
+   "url": "https://github.com/yujinrobot/kobuki/commit/bb3c7ec8a7e656aa7e75753864351c27d571db47"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "} catch (NullPointerException ex) {\n      // Do nothing: data wasn't there.\n    }",
+  "url": "https://github.com/ros-android/android_app_manager/blob/f080cd934460fc92babd48eee5f660454c1b48d0/library/src/ros/android/views/TurtlebotDashboard.java"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "As we obtain this percent from the voltage, all this tricky Amperage values don't affect the charge shown to the user, that is correct despite the validity of all these hardcoded values."
+ },
+ "notes": "Verified this session: kobuki#136 (title 'Battery charge not shown in Android apps', empty body, corot 2012-06-20) and comment 6444016 verbatim (both fix changes plus the NOTES explaining the hard-coded 3.14 A / 2.2 Ah values); the bb3c7ec patch verbatim (diagnostics.yaml adds 'remove_prefix: mobile_base' to each analyzer; diagnostics.cpp key-value changes exactly as quoted, plus 'Current (A)' 3.14/0.0 branches). Consumer code verified at f080cd9 in TurtlebotDashboard.java: line 158 'if (status.name.equals(\"/Power System/Battery\")) {', lines 275-276 '100 * Float.parseFloat(values.get(\"Charge (Ah)\")) / Float.parseFloat(values.get(\"Capacity (Ah)\"));', lines 284-285 the swallowed NullPointerException, line 288 'view.setPluggedIn( Float.parseFloat(values.get(\"Current (A)\")) > 0);' — the consuming strings match exactly what the fix produces, supporting both the unit identification and the failure mechanism. Eligibility: two nodes interacting through a topic (diagnostics_agg), payload strings crossing the boundary; the minimal fix includes a provider code change (published key-values), not only aggregator configuration, so E2 stops at 6 (not deployment wiring); PAIR is right. Both conditions class 'other' concur: naming conventions of strings inside the diagnostic_msgs payload, no named class fits (condition 1 is a status-name prefix, not an element rename; condition 2 is absent/renamed keys, not a unit mismatch since the quantities were not sent at all). Loudness silent_documented/run: no tooling diagnostic; the dashboard swallows the missing keys, verified in the Java code. Resolution observed: corot's same-day closing comment attests the resolved display ('the charge shown to the user ... is correct'); caveat, which the spec itself discloses: no log or screenshot is posted and the app revision is inferred (f080cd9) — this is the weak end of observed, and I accept it because the maintainer's NOTES describe the fixed composition's behavior in detail."
+}

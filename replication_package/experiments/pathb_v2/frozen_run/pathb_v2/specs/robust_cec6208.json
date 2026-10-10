@@ -1,0 +1,93 @@
+{
+  "case_id": "robust_cec6208",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/pull/56",
+    "https://github.com/ros/geometry2/pull/58",
+    "https://github.com/ros/geometry2/commit/cec62083fa3e54cf210ce8b5ea87b4c0ed60f64b",
+    "https://github.com/ros/geometry2/commit/4c496f5b032bf0f99844e709d6405aacf3b83859",
+    "https://raw.githubusercontent.com/ros/geometry2/48cc8a1984ac78aa23aae9c63a81e3a0a9ed5bee/tf2_ros/src/tf2_ros/buffer.py",
+    "https://raw.githubusercontent.com/ros/geometry2/48cc8a1984ac78aa23aae9c63a81e3a0a9ed5bee/tf2_py/src/tf2_py.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #56 (v4hn, 2014-03-10) names the concrete defect and its location: \"The current interface returns (bool, errorstr). This is nice to have, but it's unintuitive and provokes the mistake \\\"not buffer.can_transform(..)\\\" which should really be \\\"not buffer.can_transform(..)[0]\\\". Such a bug ( as currently in tf2_ros/buffer.py:72 ) is much worse than receiving an error string without raising an exception.\" (https://github.com/ros/geometry2/pull/56). Maintainer confirmation: tfoote merged the consumer-side fix PR #58 (\"Thanks\", https://github.com/ros/geometry2/pull/58#issuecomment-37230310) as commit cec62083 \"Fix the can_transform design flaw at the other end.\" At the PR base revision 48cc8a19 the flagged line is exactly tf2_ros/src/tf2_ros/buffer.py:72: \"not self.can_transform_core(target_frame, source_frame, time) and\". No reproducer or log; concrete code-level report plus maintainer-merged fix."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["tf2_py", "tf2_ros"],
+      "interface_kind": "library API",
+      "evidence": "Two separately released catkin packages in ros/geometry2: tf2_py (Python extension module tf2_py.cpp, version 0.4.10 at 48cc8a19) provides BufferCore.can_transform_core / can_transform_full_core, which at that revision return a 2-tuple: \"return Py_BuildValue(\\\"bs\\\", can_transform, error_msg.c_str());\" (tf2_py/src/tf2_py.cpp lines 207 and 229). tf2_ros (version 0.4.10, package.xml declares <build_depend>tf2_py</build_depend> and <run_depend>tf2_py</run_depend>) consumes them in tf2_ros/src/tf2_ros/buffer.py: \"import tf2_py as tf2\" and \"class Buffer(tf2.BufferCore, tf2_ros.BufferInterface)\", using the return value in a boolean position at lines 72 and 82. Step 2: the failure is a value crossing the library-API boundary (the provider's tuple interpreted as a bool by the consumer), so it is an interface failure even though the resolving edit is inside tf2_ros. Steps 3-5 do not apply (no deployment wiring, build, or firmware change). Interface kind: library API (Python method return value)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the output of tf2_py.BufferCore.can_transform_core (a (bool, str) tuple) feeds the loop condition of tf2_ros.Buffer.can_transform in the same process. Both units are at the same repository snapshot (48cc8a19, both 0.4.10), so no UPGRADE; no concurrency or switching is involved."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch by the reporter (PR #56 body, quoted under E1) and by the fixer in the merged commit 4c496f5b message: \"make can_transform actually do something\\n\\nUp to now these functions never waited for a transform.\\nThe sleep loop's condition was broken and the sleep code itself\\nas well.\" (https://github.com/ros/geometry2/commit/4c496f5b032bf0f99844e709d6405aacf3b83859). No run-time observation of the effect appears in the source, so outcome class is undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2_py",
+      "role": "provider",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "48cc8a1984ac78aa23aae9c63a81e3a0a9ed5bee",
+      "resolved_rev": "48cc8a1984ac78aa23aae9c63a81e3a0a9ed5bee",
+      "pinned": true,
+      "revision_basis": "48cc8a19 is the base commit of the fixing PR #58 (branch hydro-devel) and the first parent of the merge commit cec62083; PR #56 cites \"tf2_ros/buffer.py:72\", which matches this snapshot exactly. tf2_py/package.xml reads <version>0.4.10</version> here. The resolution (PR #58) changes only tf2_ros, so tf2_py keeps its broken revision in the resolved composition; PR #56, which would have changed tf2_py to return a bool, was rejected (\"Can't change a released packages API.\").",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "tf2_ros",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "48cc8a1984ac78aa23aae9c63a81e3a0a9ed5bee",
+      "resolved_rev": "cec62083fa3e54cf210ce8b5ea87b4c0ed60f64b",
+      "pinned": true,
+      "revision_basis": "Broken: 48cc8a19, base of PR #58 on hydro-devel, where tf2_ros/src/tf2_ros/buffer.py line 72 reads \"not self.can_transform_core(target_frame, source_frame, time) and\" (tf2_ros/package.xml <version>0.4.10</version>). Resolved: cec62083, the merge commit of PR #58 on hydro-devel (sole PR commit 4c496f5b), which indexes the tuple with [0] in both loop conditions. The distro is taken from the branch name hydro-devel; the source does not state it otherwise.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:tf2_py.BufferCore.can_transform_core", "sides": {"tf2_py": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:tf2_py.BufferCore.can_transform_full_core", "sides": {"tf2_py": "provides", "tf2_ros": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "nominal_type_mismatch",
+      "implicated_elements": ["api:tf2_py.BufferCore.can_transform_core"],
+      "quote": "The current interface returns (bool, errorstr). This is nice to have, but it's\nunintuitive and provokes the mistake \"not buffer.can_transform(..)\" which\nshould really be \"not buffer.can_transform(..)[0]\". Such a bug ( as currently\nin tf2_ros/buffer.py:72 ) is much worse than receiving an error string without \nraising an exception.",
+      "url": "https://github.com/ros/geometry2/pull/56"
+    },
+    {
+      "class": "nominal_type_mismatch",
+      "implicated_elements": ["api:tf2_py.BufferCore.can_transform_full_core"],
+      "quote": "-                   not self.can_transform_full_core(target_frame, target_time, source_frame, source_time, fixed_frame) and\n+                   not self.can_transform_full_core(target_frame, target_time, source_frame, source_time, fixed_frame)[0] and",
+      "url": "https://github.com/ros/geometry2/commit/cec62083fa3e54cf210ce8b5ea87b4c0ed60f64b"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No diagnostic from any tooling appears in the source and no run of the composition is reported; the reporter characterises the defect as one that does not raise: \"Such a bug ( as currently in tf2_ros/buffer.py:72 ) is much worse than receiving an error string without raising an exception.\" (https://github.com/ros/geometry2/pull/56). Python performs no type check on the tuple used in a boolean position, so nothing at build, import, or run would flag it; the loudness is nevertheless recorded as unknown because the source shows no observed run.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Consumer-side change in tf2_ros/src/tf2_ros/buffer.py (PR #58, commit 4c496f5b, merged as cec62083): index the provider's tuple in both wait-loop conditions, \"not self.can_transform_core(target_frame, source_frame, time)[0] and\" and \"not self.can_transform_full_core(...)[0] and\"; the provider tf2_py is left unchanged. The same commit also replaces the never-reached sleep call \"rospy.Duration(0.05).sleep()\" with a rospy.Rate(20) object and \"r.sleep()\".",
+    "status": "recommended",
+    "evidence": "Accepted and merged by the maintainer (tfoote: \"Thanks\", https://github.com/ros/geometry2/pull/58#issuecomment-37230310; merge commit https://github.com/ros/geometry2/commit/cec62083fa3e54cf210ce8b5ea87b4c0ed60f64b), but the source shows no run of the resolved composition, so the status is recommended rather than observed."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Mechanism at 48cc8a19: tf2_py's can_transform_core returns Py_BuildValue(\"bs\", can_transform, error_msg.c_str()), a 2-tuple that is always truthy in Python, so tf2_ros's loop condition \"not self.can_transform_core(...)\" is always False and the timeout loop never executes; the dataset description's phrase \"always yields False\" refers to the negated condition (the tuple itself casts to True). The reporter first proposed changing the provider (PR #56: tf2_py returning PyBool_FromLong(...) from both bindings); the maintainer rejected it as an API change to a released package (\"Can't change a released packages API.\", https://github.com/ros/geometry2/pull/56#issuecomment-37214424), and the consumer was fixed instead (PR #58 \"As it's important to keep the API stable, let's fix the only other end (mis)using the can_transform API in the standard ROS distribution.\"). PR #58 also fixes a second defect it describes as \"another bug which was never discovered due to the broken can_transform check\": the sleep statement rospy.Duration(0.05).sleep() inside the loop (a call into rospy, a different composition), replaced by rospy.Rate(20).sleep(); it is not a condition of this case. Both units live in the same repository and are released together (both 0.4.10), but are distinct catkin packages (tf2_py is a compiled Python extension; tf2_ros is pure Python here) that tf2_ros declares as build and run dependencies. The public wrapper Buffer.can_transform still returns the provider's tuple after the fix, so callers of tf2_ros that test that return value as a bool would have the same class of defect; the source does not document any."
+}

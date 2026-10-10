@@ -1,0 +1,47 @@
+{
+  "case_id": "B-Beh-04",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros2/ros2/issues/464",
+    "https://github.com/ros2/geometry2/issues/12",
+    "https://github.com/ros2/rmw/pull/111"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is a design question, not a report of one concrete defect: \"So, the question that needs a decision is \\\"do we just use DDS's notion of durability, or implement our own latching mechanism, or both\\\"?\" It states the generic DDS durability matching matrix (\"| Volatile | Transient local | No | No Communication |\") for an unnamed publisher and subscriber, with no reproducer, no error log, and no specific failing composition. The maintainer's later comment confirms a design stance, not a defect: \"Since the time that this issue was opened, we have clearly stuck with the DDS concept of \\\"latched\\\" topics; the publisher and subscriber must agree on this setting in order for true latching to work.\" The issue remains open as a backlog feature request."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 1,
+      "reason_code": "units_not_identifiable",
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "No two concrete units are named as having failed to interact. The affected-use list (\"This is blocking decisions about how to map latched topics over the bridge, with notable examples like `/tf_static` ... and `/map` ...\") names topics whose mapping is undecided, not an observed failed interaction. The linked ros2/geometry2#12 (not this case's source) contains a concrete observation that could be specified as its own case: after changing tf2_ros static_transform_broadcaster to RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL, \"From what I can tell, the transform doesn't get properly published that way; at least, cartographer (which wants to consume the transform) doesn't see it.\" (clalancette, 2017-07-14). The linked ros2/rmw#111 is an unmerged PR proposing a default durability profile and documents no failure."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No failing operation is observed in the source; the matrix row Volatile publisher / Transient local subscriber would be a PAIR, but only as a generic statement of middleware semantics."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on a concrete interaction is documented in this issue."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: design/feature discussion (ROS 1 latching versus DDS durability) without one concrete defect, reproducer, error log, or identified pair of units.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

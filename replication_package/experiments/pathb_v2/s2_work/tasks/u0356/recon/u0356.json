@@ -1,0 +1,61 @@
+{
+  "task_id": "u0356",
+  "package": "rmw_cyclonedds",
+  "manifest_version": "0.4.4",
+  "ports": [
+    {
+      "element": "api:rmw_create_subscription",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rmw_create_subscription": "api rmw_create_subscription: extern \"C\" rmw_subscription_t * rmw_create_subscription( const rmw_node_t * node, const rosidl_message_type_support_t * type_supports, const char * topic_name, const rmw_qos_profile_t * qos_policies #if RMW_VERSION_GTE(0, 8, 1) , const rmw_subscription_options_t * subscription_options #else , bool ignore_local_publications #endif )"
+  },
+  "not_declared": [
+    "msg:geometry_msgs/PoseStamped",
+    "msg:visualization_msgs/Marker",
+    "topic:/test"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rmw_cyclonedds_cpp/package.xml:5",
+    "ports[0].side": "snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:1495",
+    "declares[api:rmw_create_subscription]": "snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:1495",
+    "not_declared[msg:geometry_msgs/PoseStamped]": "searched all 34 files of the snapshot (both packages rmw_cyclonedds_cpp and cyclonedds_cmake_module); no msg/, srv/ or action/ directory and no .msg/.srv/.action files; the only definition file is rmw_cyclonedds_cpp/src/rmw_cyclonedds_topic.idl (struct rmw::cyclonedds::topic {boolean dummy;}); grep for 'PoseStamped', 'geometry_msgs' and 'Pose' over the snapshot returns no match",
+    "not_declared[msg:visualization_msgs/Marker]": "searched all 34 files of the snapshot (both packages rmw_cyclonedds_cpp and cyclonedds_cmake_module); no msg/, srv/ or action/ directory and no .msg/.srv/.action files; the only definition file is rmw_cyclonedds_cpp/src/rmw_cyclonedds_topic.idl (struct rmw::cyclonedds::topic {boolean dummy;}); grep for 'Marker' and 'visualization_msgs' over the snapshot returns no match",
+    "not_declared[topic:/test]": "grep for '/test' over all 34 snapshot files returns no match (only 'test' hits are BUILD_TESTING / ament_lint test_depend lines and README 'tested'); the package creates no topic by a fixed name: topic names are the caller's topic_name argument prefixed with ros_topic_prefix \"rt\" (snapshot:rmw_cyclonedds_cpp/src/namespace_prefix.cpp:23, snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:1438)",
+    "perm_requires": "snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:647 '(void) security_options;' (node security options ignored); grep for security/permission/governance finds no other code or configuration; README.md:33 'Cyclone DDS doesn't yet implement the DDS Security standard'",
+    "perm_grants": "same search as perm_requires: no permission/governance files or code in the snapshot",
+    "recovery": "grep for recover/retry/reconnect finds only a comment at snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:683 about recovering a participant handle; rmw_create_subscription error paths (rmw_node.cpp:1535-1547) free resources and return nullptr, no recovery behaviour declared"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The packet pairs this RMW's rmw_create_subscription with two unrelated message types (PoseStamped, Marker) on one topic /test, which suggests a same-name, different-type subscription scenario. At this revision create_cdds_subscription creates a per-subscription DDS topic with dds_create_topic_arbitrary on the participant (rmw_node.cpp:1443-1447) and simply fails ('failed to create topic', returns nullptr, sertopic not unref'd) if that call is rejected, so a second type on the same topic name within one participant plausibly makes subscription creation fail."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the rmw_cyclonedds repository with two packages: rmw_cyclonedds_cpp 0.4.4 and cyclonedds_cmake_module 0.4.4; manifest_version taken from rmw_cyclonedds_cpp/package.xml (both are 0.4.4). rmw_create_subscription is the implementation of the rmw API function (declared in the external rmw package's headers, which are not in the snapshot); the signature is conditional on RMW_VERSION_GTE(0, 8, 1), where RMW_VERSION_MAJOR/MINOR/PATCH come from the rmw package found at build time (CMakeLists.txt:78-83), so which parameter list is compiled for eloquent depends on the rmw version not in the snapshot; the declares entry records both branches verbatim, whitespace collapsed (lines 1495-1503). The api port has no message type of its own (the type arrives in the type_supports argument at run time), so msg_type, frame, units and definition_id are null. QoS is not fixed by this code: create_readwrite_qos (rmw_node.cpp:1015-1072) maps the caller's rmw_qos_profile_t argument: reliability SYSTEM_DEFAULT/UNKNOWN/RELIABLE -> DDS reliable (max blocking DDS_INFINITY), BEST_EFFORT -> best effort (line 1039); durability SYSTEM_DEFAULT/UNKNOWN/VOLATILE -> volatile, TRANSIENT_LOCAL -> transient local plus durability_service (line 1049); history KEEP_LAST with depth SYSTEM_DEFAULT -> keep last 1; deadline, lifespan and liveliness are not supported (line 1068); ignore_local_publications -> DDS_IGNORELOCAL_PARTICIPANT. Hence all qos values recorded null. The DDS topic name is the caller's topic name prefixed with \"rt\" unless avoid_ros_namespace_conventions is set (make_fqtopic, rmw_node.cpp:997-1013). The three msg/topic packet elements are not defined, published, or subscribed to by fixed name anywhere in this package (it is a middleware implementation), so they have no ports and are listed in not_declared. references is empty: none of the packet elements is consumed by this package; the code's many uses of rmw/rcutils/Cyclone DDS C API symbols are not listed. No exclusive resources are claimed."
+}

@@ -1,0 +1,46 @@
+{
+ "case_id": "CAL2-05",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros2/rmw_cyclonedds/issues/469",
+  "https://github.com/ros2/rclcpp/pull/2335",
+  "https://github.com/ros2/rcl/pull/1110",
+  "https://github.com/ros2/rcl/pull/1116",
+  "https://github.com/ros2/rclcpp/pull/2364",
+  "https://github.com/ros2/rclcpp/pull/2092",
+  "https://github.com/ros2/rclcpp/pull/2336",
+  "https://github.com/ros2/rclcpp/pull/864",
+  "https://github.com/ros2/ros2_documentation/pull/5068",
+  "https://github.com/ros2/rclcpp/blob/52327dd3a3b0fc47446ce86ecaf16fdde4fc4a60/rclcpp/src/rclcpp/time_source.cpp",
+  "https://github.com/ros2/rclcpp/blob/52327dd3a3b0fc47446ce86ecaf16fdde4fc4a60/rclcpp/include/rclcpp/subscription.hpp",
+  "https://github.com/ros2/rmw_cyclonedds/blob/7cb3b38a21e14fbcc84aadcc460e4d812d0c7a7f/rmw_cyclonedds_cpp/src/rmw_node.cpp"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Dockerfile-based reproducer (ros:humble, rmw_cyclonedds_cpp with CYCLONEDDS_URI SharedMemory enabled, iox-roudi, `ros2 topic pub /clock ... -r 10000`, repeated `ros2 run rclcpp_components component_container --ros-args -p use_sim_time:=true`), the crash text \"what():  cannot store a negative time point in rclcpp::Time\", a Valgrind use-after-free trace, and maintainer agreement (\"once the memory is returned to the underlying middleware, they should be considered invalid\")."
+  },
+  "E2": {
+   "pass": false,
+   "stop_step": 2,
+   "reason_code": "internal",
+   "reason": "The documented failure is a defect inside one unit; no interaction between two units failed."
+  }
+ },
+ "eligible": false,
+ "ineligible_reason": "internal: the failure is a defect inside one unit; the value crossing the interface is valid",
+ "units": null,
+ "operation": null,
+ "consumer_built_against": null,
+ "inventory": null,
+ "failed_conditions": null,
+ "outcome_class": null,
+ "loudness": null,
+ "loudness_evidence": null,
+ "detection_stage": null,
+ "resolution": null,
+ "ros_generation": null,
+ "excerpt_based": null,
+ "confidence": "low",
+ "notes": ""
+}

@@ -1,0 +1,167 @@
+{
+  "case_id": "C3-033",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-drivers/usb_cam/issues/109",
+    "https://github.com/ros-drivers/usb_cam/pull/115",
+    "https://github.com/ros-drivers/usb_cam/commit/7ea4124f2eb7a1e7e8d321a87973b4825bbd2043",
+    "https://github.com/ros-drivers/usb_cam/blob/0c3c7cb65ce5bcbd8033f728b0d701825c87f9a0/src/usb_cam.cpp",
+    "https://github.com/FFmpeg/FFmpeg/blob/n2.8.15/libswscale/utils.c",
+    "https://github.com/FFmpeg/FFmpeg/blob/n2.8.15/libavcodec/mjpegdec.c",
+    "https://github.com/FFmpeg/FFmpeg/blob/n2.8.15/libavutil/pixfmt.h",
+    "https://api.launchpad.net/1.0/ubuntu/+archive/primary?ws.op=getPublishedSources&source_name=ffmpeg&exact_match=true&distro_series=https://api.launchpad.net/1.0/ubuntu/xenial"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue with the reproduction command and the emitted diagnostic: \"When I run the command:\r\n\r\nroslaunch usb_cam  usb_cam-test.launch\r\n\r\nthe following message appears:\r\n\r\nswscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly\" (issue #109). A second user confirms the stream of warnings and posts a patch; the maintainer-merged PR #115 addresses it."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "usb_cam",
+        "FFmpeg (libavcodec/libswscale)"
+      ],
+      "interface_kind": "library API",
+      "evidence": "At 0.3.6, usb_cam's mjpeg2rgb() passes the decoder-reported pixel format across the library boundary: \"video_sws_ = sws_getContext(xsize, ysize, avcodec_context_->pix_fmt, xsize, ysize, AV_PIX_FMT_RGB24, SWS_BILINEAR, NULL,\" (src/usb_cam.cpp@0c3c7cb6). FFmpeg's MJPEG decoder sets \"s->avctx->pix_fmt = s->cs_itu601 ? AV_PIX_FMT_YUV422P : AV_PIX_FMT_YUVJ422P;\" (libavcodec/mjpegdec.c@n2.8.15) and libswscale rejects the YUVJ convention as deprecated in sws_init_context: \"if(srcFormat!=c->srcFormat || dstFormat!=c->dstFormat)\n        av_log(c, AV_LOG_WARNING, \"deprecated pixel format used, make sure you did set range correctly\\n\");\" (libswscale/utils.c@n2.8.15). The warning depends on the pixel-format/colour-range convention of the value usb_cam hands to the library, so it crosses the boundary (not internal). The resolving change is C++ code in usb_cam, not wiring, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: usb_cam feeds decoded frames and their pixel format (an output it takes from libavcodec) into libswscale's sws_getContext/sws_scale on every MJPEG frame. No source states which FFmpeg revision usb_cam was written against, so UPGRADE is not supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect is the warning itself; a commenter reports \"Apparently it's just a warning\" and another that \"the constant stream of USELESS warnings makes the whole purpose of usb_cam/kinetic on the ONLY platform (Ubuntu 16.04) that it will EVER be used on a complete nightmare.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "usb_cam",
+      "role": "consumer",
+      "repo": "https://github.com/ros-drivers/usb_cam",
+      "broken_rev": "0.3.6",
+      "resolved_rev": "7ea4124f2eb7a1e7e8d321a87973b4825bbd2043",
+      "pinned": true,
+      "revision_basis": "The reporter (2019-01-10) names only ROS Kinetic and Ubuntu 16.04 and runs the installed usb_cam-test.launch; they do not give a usb_cam version. The develop branch head on the report date was 0c3c7cb6, which is tag 0.3.6 (the last release before the report), and the fix commit 7ea4124f of PR #115 has exactly 0.3.6 (0c3c7cb6) as its parent. resolved_rev is that PR head commit (0.3.6 plus the one-file fix); it was merged into develop by merge commit 37451954 on 2022-10-25, whose first parent carries unrelated later develop changes.",
+      "excerpt": false,
+      "ros_distro": "kinetic"
+    },
+    {
+      "name": "FFmpeg (libavcodec/libswscale)",
+      "role": "provider",
+      "repo": "https://github.com/FFmpeg/FFmpeg",
+      "broken_rev": "n2.8.15",
+      "resolved_rev": "n2.8.15",
+      "pinned": false,
+      "revision_basis": "The source names only Ubuntu 16.04; no FFmpeg version is stated. The Ubuntu xenial ffmpeg source package published in -updates/-security on the report date (2019-01-10) was 7:2.8.15-0ubuntu0.16.04.1 (published 2018-08-23, superseded 2020-07-22 by 2.8.17), per the Launchpad publishing history; upstream tag n2.8.15 is used as the corresponding revision (Ubuntu patches not included). Not pinned because the reporter's installed version is inferred. The resolution does not change this unit, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "api:avcodec_find_decoder",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:avcodec_alloc_context3",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:avcodec_open2",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:avcodec_decode_video2",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:AVCodecContext.pix_fmt",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:avpicture_get_size",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:sws_getContext",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:sws_scale",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:avpicture_layout",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    },
+    {
+      "element": "api:av_log_set_level",
+      "sides": {
+        "usb_cam": "consumes",
+        "FFmpeg (libavcodec/libswscale)": "provides"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "api:sws_getContext",
+        "api:AVCodecContext.pix_fmt"
+      ],
+      "quote": "swscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The provider library's own diagnostic, emitted by libswscale's sws_init_context when the scaling context is created with a YUVJ (full-range JPEG) format: \"deprecated pixel format used, make sure you did set range correctly\" (issue #109; source line in libswscale/utils.c@n2.8.15). usb_cam creates and frees a scaling context for every decoded frame, so the diagnostic repeats throughout the run: \"the constant stream of USELESS warnings\" (issue #109 comment).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "usb_cam raises the libav log threshold before opening the decoder: \"av_log_set_level(AV_LOG_ERROR);\" added to UsbCam::init_mjpeg_decoder (PR #115, commit 7ea4124f). This suppresses the diagnostic; it does not change the pixel format or colour range usb_cam passes to libswscale.",
+    "status": "recommended",
+    "evidence": "PR #115 was merged on 2022-10-25 and the issue was closed \"by merging #115\". A commenter applied the same line to his own tree and reports \"This disables the useless warnings, but it took some time to find\", but neither he nor the PR author identifies the FFmpeg revision of that working composition, so the resolved composition is not shown working with both units identified by revision."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Unit framing: libavcodec (which produces AV_PIX_FMT_YUVJ422P from the MJPEG decoder) and libswscale (which flags YUVJ formats as deprecated) are both built from the FFmpeg source package; they are treated as one provider unit, with usb_cam as the consumer that carries avcodec_context_->pix_fmt into sws_getContext without setting colour range. FFmpeg's pixfmt.h@n2.8.15 documents the convention: \"AV_PIX_FMT_YUVJ422P,  ///< planar YUV 4:2:2, 16bpp, full scale (JPEG), deprecated in favor of AV_PIX_FMT_YUV422P and setting color_range\". A commenter proposed an interface-level change instead (changing avpicture_get_size to AV_PIX_FMT_YUV420P and rewriting AV_PIX_FMT_YUVJ420P to AV_PIX_FMT_YUV420P); another commenter reports \"the solution proposed by tanshiheng does NOT work for me. Node crashes.\" The PR author states \"This warning can be safely ignored at present. Long term libjpeg-turbo could be used instead of libav to decode mjpeg frames.\" Inventory canonical form: the struct member AVCodecContext.pix_fmt is written as api:AVCodecContext.pix_fmt because field:<pkg/Type>.<field> is defined for ROS message definitions, not C library structs. Inventory is capped at 10; other FFmpeg symbols usb_cam 0.3.6 uses (avcodec_register_all, av_frame_alloc, avpicture_alloc, av_init_packet, sws_freeContext) are omitted. av_log_set_level is used only in the resolved composition. The screenshot attached to the issue was not readable as text."
+}

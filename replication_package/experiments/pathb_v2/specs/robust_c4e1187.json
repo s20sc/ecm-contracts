@@ -1,0 +1,96 @@
+{
+  "case_id": "robust_c4e1187",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/commit/c4e118757123ef243d0f3c2e14a6c3d63549f20d",
+    "https://github.com/ros-industrial/universal_robot/pull/303",
+    "https://github.com/ros/urdfdom_headers/compare/0.4.2...1.0.0",
+    "https://github.com/ros/urdfdom_headers/blob/0.4.2/urdf_world/include/urdf_world/types.h",
+    "https://github.com/ros/urdfdom_headers/blob/1.0.0/urdf_world/include/urdf_world/types.h"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #303 (marcoesposito1988): \"urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr. \r\n\r\nThis change is only applied to versions of ROS newer than Lunar. And it was the only change necessary to compile the whole stack into Lunar.\" Maintainer gavanderhoorn merged it \"to make building on Lunar possible\"."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["urdfdom_headers", "ur_kinematics"],
+      "interface_kind": "library API",
+      "evidence": "ur_kinematics (ur_moveit_plugin.cpp) holds the model returned by MoveIt's rdf_loader::RDFLoader::getURDF() as const boost::shared_ptr<urdf::ModelInterface>&; the returned type is urdf::ModelInterfaceSharedPtr, declared by urdfdom_headers as typedef boost::shared_ptr<ModelInterface> ModelInterfaceSharedPtr in 0.4.2 and typedef std::shared_ptr<ModelInterface> ModelInterfaceSharedPtr in 1.0.0 (commit 729c4ded \"Use std pointers instead of boost pointers\"). The consumer must follow the provider's declaration; this is a library API type change, not a build-system change."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: consumer code written against the boost-typedef urdfdom_headers used with ROS Kinetic, built on ROS Lunar where urdfdom_headers declares std::shared_ptr (PR title \"Updated urdf::ModelInterface pointer type for ROS Lunar\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch in the merged PR: \"urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr.\"; maintainer: \"we include it in `kinetic-devel` only to make building on Lunar possible.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "urdfdom_headers",
+      "role": "provider",
+      "repo": "https://github.com/ros/urdfdom_headers",
+      "broken_rev": "1.0.0",
+      "resolved_rev": "1.0.0",
+      "pinned": true,
+      "revision_basis": "The contributor names only the distro (ROS Lunar). urdfdom_headers' default-branch head on the PR date (2017-06-20) was the 1.0.0 tag commit 5cb0b6b6 (next tag 1.0.1 is from 2018-02); 1.0.0 is also the first release whose urdf_world/types.h declares std::shared_ptr<ModelInterface>. The fix does not change the provider.",
+      "excerpt": false,
+      "ros_distro": "lunar"
+    },
+    {
+      "name": "ur_kinematics",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "aa4b3b14d544511803d72db71ef2d9d002b9d481",
+      "resolved_rev": "c4e118757123ef243d0f3c2e14a6c3d63549f20d",
+      "pinned": true,
+      "revision_basis": "Broken: aa4b3b1, the kinetic-devel parent of fix commit c4e1187 (ur_kinematics 1.1.9), with const boost::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF(); Resolved: c4e1187 (PR #303, merged into kinetic-devel as b2be6589 on 2017-09-12), which uses std::shared_ptr under #if ROS_VERSION_MINIMUM(1, 13, 0).",
+      "excerpt": false,
+      "ros_distro": "lunar"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "0.4.2",
+    "resolved": "1.0.0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:urdf::ModelInterfaceSharedPtr", "sides": {"urdfdom_headers": "provides", "ur_kinematics": "consumes"}},
+    {"element": "api:urdf::ModelInterface", "sides": {"urdfdom_headers": "provides", "ur_kinematics": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:urdf::ModelInterfaceSharedPtr"],
+      "quote": "urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr.",
+      "url": "https://github.com/ros-industrial/universal_robot/pull/303"
+    },
+    {
+      "class": "nominal_type_mismatch",
+      "implicated_elements": ["api:urdf::ModelInterfaceSharedPtr", "api:urdf::ModelInterface"],
+      "quote": "+#if ROS_VERSION_MINIMUM(1, 13, 0) \n+  const std::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();\n+#else\n   const boost::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();\n+#endif",
+      "url": "https://github.com/ros-industrial/universal_robot/commit/c4e118757123ef243d0f3c2e14a6c3d63549f20d"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "unknown",
+  "loudness_evidence": "The sources state that the stack did not compile on Lunar without the change (\"it was the only change necessary to compile the whole stack into Lunar\"; \"to make building on Lunar possible\") but do not quote the compiler diagnostic.",
+  "detection_stage": "build",
+  "resolution": {
+    "summary": "In ur_kinematics/src/ur_moveit_plugin.cpp, hold the result of rdf_loader.getURDF() as const std::shared_ptr<urdf::ModelInterface>& when ROS_VERSION_MINIMUM(1, 13, 0), keeping boost::shared_ptr for older distros.",
+    "status": "recommended",
+    "evidence": "PR #303 merged 2017-09-12 into kinetic-devel (merge b2be6589); the contributor reports the stack compiled on Lunar with the change, but the Lunar urdfdom_headers revision is not identified."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Three units are involved: ur_kinematics calls MoveIt's rdf_loader::RDFLoader::getURDF() (moveit_ros_planning), whose declared return type urdf::ModelInterfaceSharedPtr has been unchanged in MoveIt since 6659a6a (2016-09-09, \"Use urdf::*SharedPtr instead of boost::shared_ptr\"); the declaration that changed is the typedef in urdfdom_headers (urdf_world/types.h, 0.4.2 -> 1.0.0), which the contributor names as the cause (\"urdf_model changed the shared pointer type\"). The composition is therefore specified as urdfdom_headers (provider) / ur_kinematics (consumer), with MoveIt as the conduit; ur_kinematics' package.xml does not list urdfdom_headers directly (it reaches it through moveit_core/moveit_ros_planning). consumer_built_against is inferred: the consumer's boost::shared_ptr<urdf::ModelInterface> matches the 0.4.2 typedef, and the fixed #if branch matches 1.0.0. Packet note: at analysis time the fix was not merged; it was merged 2017-09-12. The maintainer did not backport to indigo-devel (\"this is a Lunar only change\")."
+}

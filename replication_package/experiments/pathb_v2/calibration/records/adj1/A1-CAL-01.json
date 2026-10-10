@@ -1,0 +1,67 @@
+{
+  "item_id": "A1-CAL-01",
+  "kind": "A1",
+  "case_id": "CAL-01",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "after #74 I get this error\n/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84",
+    "reason": "Concrete reproducer and linker failure establish E1/E4. Separately built tf consumes tf2's binary API; changing the provider's declaration removes the symbol the older consumer references. This is UPGRADE, not a build-system-only defect."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+      "url": "https://github.com/ros/geometry2/commit/cbcc785cae3a191d18a49128f8bef13b74e02335.diff",
+      "reason": "The same named API has a changed declaration."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+      "url": "https://github.com/ros/geometry2/issues/84",
+      "reason": "At the compiled consumer boundary the zero-argument symbol is missing. This is the binary manifestation of condition 0, not independent evidence of a second root cause."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Note: I built using `catkin_tools`",
+    "url": "https://github.com/ros/geometry2/issues/84#issuecomment-78386851",
+    "reason": "The undefined reference is a build/link diagnostic."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "yep that fixes it!",
+    "url": "https://github.com/ros/geometry2/issues/84#issuecomment-78407496",
+    "reason": "A successful rerun is reported, but the rubric additionally requires both units identified by revision. The consumer is identified only as the installed Indigo libtf.so; the specification infers 1.11.4 from release chronology rather than a reported installed revision. The successful report therefore does not establish the exact specified resolved composition.",
+    "additional_evidence": [
+      {
+        "quote": "So tf is pulled from `/opt/ros/indigo`",
+        "url": "https://github.com/ros/geometry2/issues/84#issuecomment-78386851"
+      },
+      {
+        "quote": "+  std::string _allFramesAsDot(double current_time) const;\n+  std::string _allFramesAsDot() const;",
+        "url": "https://github.com/ros/geometry2/commit/04810475f249e3f067701288388b82ff0dd686ba.diff"
+      }
+    ]
+  },
+  "notes": "The resolution downgrade is about the explicit revision-identification requirement, not denial of the reporter's successful test. The allFramesAsYAML linker error belongs to the separately discussed tf2_ros consumer and is not a missed condition of the tf/tf2 composition."
+}

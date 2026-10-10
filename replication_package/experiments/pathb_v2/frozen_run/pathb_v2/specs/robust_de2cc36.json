@@ -1,0 +1,103 @@
+{
+  "case_id": "robust_de2cc36",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/561",
+    "https://github.com/mavlink/mavros/commit/de2cc36b37689363f60876d9892f2630173b4f8c",
+    "https://github.com/mavlink/mavros/blob/9800c9e20a7325afb985142d3ea68af9660a9a38/mavros/src/plugins/command.cpp",
+    "https://github.com/PX4/PX4-Autopilot/commit/e8e81650dcd2c5aed749a8564d6403151eb209e9",
+    "https://github.com/PX4/PX4-Autopilot/issues/4804",
+    "https://github.com/PX4/PX4-Autopilot/pull/4814",
+    "https://github.com/PX4/PX4-Autopilot/commit/178f32ab41d8d300dcfeb6c4b382f0daba1e4641"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue mavlink/mavros#561 (iZhangHui, 2016-06-15): \"PX4 also send command ack. Please change the condition [here]\" linking mavros/src/plugins/command.cpp#L154 on master. Maintainer confirmation in the fix commit de2cc36b (vooon, 2016-06-23): \"plugin:command fix #561: PX4 now sends COMMAND_ACK. And like APM do not check confirmation field. :)\". The PX4 side is documented by PX4/PX4-Autopilot commit e8e81650 \"implemented command ACK\" (adds '/* send command ACK */ if (ack_sub->update(&ack_time, &command_ack)) { mavlink_command_ack_t msg; ... send_message(MAVLINK_MSG_ID_COMMAND_ACK, &msg); }' to src/modules/mavlink/mavlink_main.cpp) and by PX4 issue #4804 / PR #4814 (the same reporter, 2016-06-13/14) \"Not all commands are being replied with a COMMAND_ACK\"."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["PX4 Firmware", "mavros"],
+      "interface_kind": "wire protocol field",
+      "evidence": "Unit 1: the PX4 autopilot firmware (a firmware image, repository PX4/PX4-Autopilot), which receives MAVLink COMMAND_LONG/COMMAND_INT and, since e8e81650, forwards the commander's vehicle_command_ack as MAVLink COMMAND_ACK. Unit 2: the mavros node's command plugin (mavros/src/plugins/command.cpp), which sends the commands from its cmd/* services and decides whether to wait for COMMAND_ACK. The failed interaction crosses the MAVLink link: at 9800c9e2 the plugin encodes the assumption '@note APM always send COMMAND_ACK, while PX4 never.' as 'bool is_ack_required = (confirmation != 0 || m_uas->is_ardupilotmega()) && !m_uas->is_px4();' (lines 155-158), so with a PX4 that does send COMMAND_ACK the acknowledgement is never awaited and, when it arrives, matches no transaction. Not internal (the behaviour depends on which autopilot is the peer and on its revision); not deployment wiring; not build-only; the firmware has a declared interface (MAVLink common dialect messages COMMAND_LONG, COMMAND_INT, COMMAND_ACK)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (PX4) runs at a revision newer than the one the consumer's assumption was written against. mavros's comment and condition describe PX4 as never sending COMMAND_ACK, which matches PX4 before e8e81650 (parent 94bfad50; the old commander code had only a placeholder: '/* send any requested ACKs */ ... /* send acknowledge command */ // XXX'); from e8e81650 on (authored 2015-12-12, committed 2015-12-28, contained in tags v1.2.0, v1.3.1, v1.3.4, v1.4.1) PX4 sends COMMAND_ACK. The reporter observed the mismatch against a current PX4 in June 2016 (issue #561 and their PX4 PR #4814 of 2016-06-14). PAIR (command out, acknowledgement back) is the alternative reading; see notes."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch by the maintainer's commit de2cc36b: '-\t\t * @note APM always send COMMAND_ACK, while PX4 never.' -> '+\t\t * @note APM & PX4 master always send COMMAND_ACK. Old PX4 never.' and '-\t\tbool is_ack_required = (confirmation != 0 || m_uas->is_ardupilotmega()) && !m_uas->is_px4();' -> '+\t\tbool is_ack_required = confirmation != 0 || m_uas->is_ardupilotmega() || m_uas->is_px4();'. No run-time effect (log, wrong result) is shown in the source."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "PX4 Firmware",
+      "role": "provider",
+      "repo": "https://github.com/PX4/PX4-Autopilot",
+      "broken_rev": "04ac02e7271b15b82e0e7656d4ef5e1f779d975e",
+      "resolved_rev": "04ac02e7271b15b82e0e7656d4ef5e1f779d975e",
+      "pinned": true,
+      "revision_basis": "The reporter names no PX4 revision, only that PX4 sends COMMAND_ACK. The head of the PX4 default branch (main, then master) on the report date 2016-06-15 was 04ac02e7 (committed 2016-06-14); every revision from e8e81650 (\"implemented command ACK\", 2015-12-28) onward forwards vehicle_command_ack as MAVLink COMMAND_ACK (src/modules/mavlink/mavlink_main.cpp, '/* send command ACK */' block), and the GitHub compare API reports e8e81650 as an ancestor of tags v1.2.0, v1.3.1 (2016-05-21), v1.3.4 (2016-07-03) and v1.4.1 (2016-08-06). The reporter's own PX4 PR #4814 (opened 2016-06-14, merged 2016-06-21 as 178f32ab) only adds acknowledgements for further commands and does not change the forwarding. The mavros fix does not touch PX4, so the provider keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "mavros",
+      "role": "consumer",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "9800c9e20a7325afb985142d3ea68af9660a9a38",
+      "resolved_rev": "de2cc36b37689363f60876d9892f2630173b4f8c",
+      "pinned": true,
+      "revision_basis": "Broken revision is the single parent of the fix commit (9800c9e2, 2016-06-23, 'readme #544: add udp-b://@ URL'); the reporter linked the condition on master (command.cpp#L154) on 2016-06-15, and the same condition text ('... && !uas->is_px4();' with the comment 'APM always send COMMAND_ACK, while PX4 never.') is present at release 0.17.0 (259e4cbd, 2016-02-09, line 154) and at 9800c9e2 (line 158), so any revision of that range is broken. Resolved revision is the fix commit de2cc36b (2016-06-23T13:21:01Z), contained in release 0.18.0 (a984a2de, 2016-06-23T16:33:13Z); the 0.17.x maintenance tags (0.17.5, 2017-02-07) do not contain it (compare: diverged).",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "94bfad5057fe96a4ee616eb28498951400f78307",
+    "resolved": "04ac02e7271b15b82e0e7656d4ef5e1f779d975e",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "msg:mavlink/COMMAND_LONG", "sides": {"mavros": "provides", "PX4 Firmware": "consumes"}},
+    {"element": "msg:mavlink/COMMAND_INT", "sides": {"mavros": "provides", "PX4 Firmware": "consumes"}},
+    {"element": "field:mavlink/COMMAND_LONG.confirmation", "sides": {"mavros": "provides", "PX4 Firmware": "consumes"}},
+    {"element": "msg:mavlink/COMMAND_ACK", "sides": {"PX4 Firmware": "provides", "mavros": "consumes"}},
+    {"element": "field:mavlink/COMMAND_ACK.command", "sides": {"PX4 Firmware": "provides", "mavros": "consumes"}},
+    {"element": "field:mavlink/COMMAND_ACK.result", "sides": {"PX4 Firmware": "provides", "mavros": "consumes"}},
+    {"element": "field:mavlink/HEARTBEAT.autopilot", "sides": {"PX4 Firmware": "provides", "mavros": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["msg:mavlink/COMMAND_ACK", "field:mavlink/COMMAND_ACK.command", "field:mavlink/COMMAND_ACK.result"],
+      "quote": "plugin:command fix #561: PX4 now sends COMMAND_ACK.\n\nAnd like APM do not check confirmation field. :)",
+      "url": "https://github.com/mavlink/mavros/commit/de2cc36b37689363f60876d9892f2630173b4f8c"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["msg:mavlink/COMMAND_ACK"],
+      "quote": "PX4 also send command ack. Please change the condition [here](https://github.com/mavlink/mavros/blob/master/mavros/src/plugins/command.cpp#L154)",
+      "url": "https://github.com/mavlink/mavros/issues/561"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "The source contains no log line or observed behaviour, only the reporter's statement that PX4 sends the acknowledgement and the maintainer's condition change. At 9800c9e2 the code path for an unexpected acknowledgement is 'ROS_WARN_THROTTLE_NAMED(10, \"cmd\", \"CMD: Unexpected command %u, result %u\", ack.command, ack.result);' (handle_command_ack, lines 116-117), and the service reply is filled without waiting ('success = true; result = enum_value(MAV_RESULT::ACCEPTED);', lines 190-193); neither is shown as observed.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Commit de2cc36b changes the acknowledgement policy in send_command_long_and_wait: 'bool is_ack_required = confirmation != 0 || m_uas->is_ardupilotmega() || m_uas->is_px4();' (previously '(confirmation != 0 || m_uas->is_ardupilotmega()) && !m_uas->is_px4()'), so mavros registers a CommandTransaction and waits for COMMAND_ACK from PX4 as it already did for ArduPilot; the note becomes '@note APM & PX4 master always send COMMAND_ACK. Old PX4 never.'",
+    "status": "recommended",
+    "evidence": "The fix is the maintainer's commit that closed the issue (2016-06-23); the issue has no comments and no observation of the resolved composition working is recorded."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class 'other': the provider began emitting a protocol message (COMMAND_ACK) the consumer's policy assumed absent for this autopilot; no element was removed, retyped or redefined, and the MAVLink definitions of COMMAND_LONG/COMMAND_ACK are unchanged, so none of the named classes applies. Operation alternative: PAIR (the command the consumer sends and the acknowledgement the provider returns form one request/reply exchange); UPGRADE is recorded because the failure only appears with PX4 at or after e8e81650 and the consumer's condition encodes the earlier PX4 behaviour. The consumer's discriminator is the HEARTBEAT autopilot field (m_uas->is_px4()/is_ardupilotmega()), listed in the inventory for that reason. Consequence of the fix noted in the commit: for PX4 the 'confirmation' field no longer gates waiting for the acknowledgement. The mavros comment 'Old PX4 never.' shows the maintainer treats old firmware as a still-possible peer; with such old firmware the fixed code would wait ACK_TIMEOUT_DT for an acknowledgement that never comes (not documented, only implied by the code). PX4 revision labels: the reporter's exact firmware is unknown; 04ac02e7 is the default-branch head on the report date; consumer_built_against.broken is the parent of the PX4 commit that introduced acknowledgement forwarding. No ROS distro is stated."
+}

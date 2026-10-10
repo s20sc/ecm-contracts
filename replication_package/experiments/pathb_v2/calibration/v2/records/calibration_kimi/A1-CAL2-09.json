@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-CAL2-09",
+ "kind": "A1",
+ "case_id": "CAL2-09",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "The 'disjoint-ness' shown in Fig. 2 means that it is _impossible_ to plan a path where the elbow joint position starts in one of the sets A, B, or C and finishes in another. I think this is why plans fail reasonably often when using the full joint limits of the UR5.",
+  "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "Now when the robot is tested (without limiting the elbow joint) it times out (fails) on many queries, this will be because of the elbow self collisions. The planners then work when the elbow is limited to -pi, pi.",
+   "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Now when the robot is tested (without limiting the elbow joint) it times out (fails) on many queries, this will be because of the elbow self collisions.",
+  "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Its a bug report. Limiting the elbow joint range of motion should fix the planning in Moveit",
+  "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+ },
+ "notes": "Verified issue #265 body and full comment thread. Eligibility is the judgment call the spec flags (confidence low): neither unit is defective in isolation — the declared elbow range matches the manufacturer spec ('How can setting the joint limits to what the mfg specs be a bug?') and MoveIt plans correctly over the declared space — but the declared range crosses the boundary into the consumer's planning space while the provider's own geometry makes regions near ±π unreachable, splitting the collision-free space into three disjoint sets. The resolving edit changes exactly the declared value that crosses the boundary (the joint limit in the provider), so I accept the interface-failure reading over step-2 internal: the failure depends on the interplay of the declared range and the consumer's use of it ('If you are careful with what IK solution is used then the non-joint-limited version works best'). Class 'other' is right (no listed class covers a semantically over-promised declared range); element param:/robot_description agreed. Loudness silent_documented/run agreed: the only symptoms are planning timeouts and an unrelated WARN about invalid plans. Resolution recommended agreed: PRs #268/#320 were merged, and the reporter's working observation used a locally modified model with an unidentified MoveIt revision."
+}

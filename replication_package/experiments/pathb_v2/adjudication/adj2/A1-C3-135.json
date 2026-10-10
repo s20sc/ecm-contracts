@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-135",
+  "kind": "A1",
+  "case_id": "C3-135",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Python 3.10, however, has deprecated the use of a 'dict' interface for the entry_points.  When accessing the entry_points in this way with Python 3.10, we get a deprecation warning:\n\nDeprecationWarning: SelectableGroups dict interface is deprecated. Use select.",
+    "url": "https://github.com/ros2/ros2/issues/1254"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "for entry_point in importlib_metadata.entry_points().get(group_name, []):",
+      "url": "https://raw.githubusercontent.com/ros2/rosidl/62fc0bd06854e1b3f3cf64d0af33f57ad75632fe/rosidl_cli/rosidl_cli/entry_points.py"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.",
+    "url": "https://github.com/ros2/ros2/issues/1254"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Everything is merged, so closing this out.",
+    "url": "https://github.com/ros2/ros2/issues/1254"
+  },
+  "notes": "Verified this session: issue 1254 (clalancette, 2022-04-06) body contains verbatim the quoted sentences, the example link 'an example of this is https://github.com/ros2/rosidl/blob/62fc0bd06854e1b3f3cf64d0af33f57ad75632fe/rosidl_cli/rosidl_cli/entry_points.py#L26-L59', the idiom 'for entry_point in importlib_metadata.entry_points().get(group_name, []):', and the hasattr-select fallback ('Unfortunately this is not supported on earlier versions of Python, so the full solution (so we can support all of our target platforms) ends up looking like:'). Closing comment (clalancette, 2022-04-07) verified. Code verified: rosidl_cli entry_points.py at 62fc0bd0 lines 17-20 try-import block and line 39 with the .get idiom. CPython v3.9.0 Lib/importlib/metadata.py line 554 'def entry_points():' returning a dict (lines 564-565 'return {' / 'group: tuple(eps)') (https://raw.githubusercontent.com/python/cpython/v3.9.0/Lib/importlib/metadata.py); CPython v3.10.0 Lib/importlib/metadata/__init__.py line 949 'def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:' and line 390 '\"SelectableGroups dict interface is deprecated. Use select.\",' (https://raw.githubusercontent.com/python/cpython/v3.10.0/Lib/importlib/metadata/__init__.py). PR 674 'Fix importlib_metdata warning with Python 3.10.' merged 2022-04-07, merge_commit_sha 7909d0f66109482c28a118472431670bdcecf622; patch (only file rosidl_cli/rosidl_cli/entry_points.py) replaces the .get idiom with the exact hasattr(entry_points_impl, 'select') fallback the issue proposed. E2: rosidl_cli (package) and the Python stdlib (library) are units; the changed declaration of entry_points() between provider revisions makes the consumer's dict assumption an interface failure; fix is consumer code -> stop 6. E3 UPGRADE with inferred consumer_built_against v3.9.0 is supported: the consumer's .get matches the dict return of 3.8.0-3.9.x and fails against 3.10's SelectableGroups; the spec honestly labels it inferred and notes 3.8.0-3.9.x equally match. element_retyped (return type changed, element still present) with api:importlib.metadata.entry_points and api:importlib.metadata.SelectableGroups.get agrees. Outcome warning_only (composition keeps working) and loudness loud_documented/run (provider's own DeprecationWarning) agree. Resolution recommended: PRs merged on CI whose Python version is not stated; no source shows fixed rosidl_cli warning-free on 3.10."
+}

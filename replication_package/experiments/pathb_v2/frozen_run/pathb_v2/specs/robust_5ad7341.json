@@ -1,0 +1,51 @@
+{
+  "case_id": "robust_5ad7341",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/commit/5ad734114253f6e8da71f47bdf4033e908349b53",
+    "https://github.com/ros/geometry2/pull/100",
+    "https://github.com/ros/geometry2/issues/92",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/5ad7341/5ad7341.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #100 by the maintainer tfoote ('Connects to #92'; commit fc80e5b: 'move lct_cache into function local memory, the first thing it does is clear the vector so it's not saving allocations. And that vector was not lock protected, for #92'), merged as 5ad7341 (https://github.com/ros/geometry2/pull/100). Issue #92 carries the crash logs: 'double free or corruption (fasttop)' with backtraces ending in 'std::vector<std::pair<ros::Time, unsigned int>, ...>::push_back(...)' called from 'tf2::BufferCore::getLatestCommonTime(unsigned int, unsigned int, ros::Time&, std::string*) const' on two threads at once (thread 7: 'tf2::BufferCore::testTransformableRequests()' <- 'tf2::BufferCore::setTransform(...)' <- 'tf2_ros::TransformListener::subscription_callback_impl' <- 'tf2_ros::TransformListener::dedicatedListenerThread()'; thread 1: 'tf2::BufferCore::addTransformableRequest(...)' <- 'tf2_ros::MessageFilter<pcl::PointCloud<stdr_velodyne::PointType> >::add' <- 'main'), and the maintainer's statement 'I've moved the vector from a member variable onto the stack. That member was not previously threadsafe.' (https://github.com/ros/geometry2/issues/92#issuecomment-94046948)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "tf2 (BufferCore library)",
+        "tf2_ros (TransformListener / MessageFilter library, calling BufferCore from a second thread)"
+      ],
+      "interface_kind": null,
+      "evidence": "Step 1: the two units whose calls collided are the tf2 library (BufferCore) and the tf2_ros library, whose TransformListener dedicated thread calls BufferCore::setTransform while the application thread calls BufferCore::addTransformableRequest through tf2_ros::MessageFilter::add (both paths reach getLatestCommonTime); the reporter's own node (velodyne_localizer, no public repository) hosts both. Step 2: the crash is in tf2's own logic. BufferCore::getLatestCommonTime, a const method on an object documented as thread-safe (tfoote: 'The tf buffer is supposed to be thread safe.'), used the member 'mutable std::vector<P_TimeAndFrameID> lct_cache_;' declared in tf2/include/tf2/buffer_core.h ('lct_cache_.clear();' then 'lct_cache_.push_back(latest);') without holding a lock, so two concurrent callers corrupt one vector. Any correct peer that calls the buffer from two threads, which the API permits and tf2_ros does by design, triggers it; no value, frame, name, definition, or timing crossing the boundary is wrong. The fix ('-  mutable std::vector<P_TimeAndFrameID> lct_cache_;' / '+  std::vector<P_TimeAndFrameID> lct_cache;' local to the function) changes no declared or referenced interface of either unit."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2. (The crash occurred with both libraries active at once; CONCURRENT would have been the operation.)"
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2. (Observed effect in issue #92: abort with 'double free or corruption (fasttop)' and SIGSEGV; the effect of the fix on the reporter's program was not confirmed: 'I tested that patch without #101. It resulted in instant crash' (bricerebsamen), which tfoote attributed to memory clobbering elsewhere: 'To me this looks like it's getting clobbered. I think that the reason for the change due to #100 is that it's changing the memory layout of the class.'; the issue stayed open until repository archival.)"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): the defect is an unprotected mutable member vector (lct_cache_) inside tf2::BufferCore::getLatestCommonTime, a method of an object that the maintainer states 'is supposed to be thread safe'; it corrupts memory whenever two threads call the buffer concurrently, regardless of any assumption between the caller and the library, and the fix (a stack-local vector) changes no interface. The ROBUST record itself classifies it as 'CWE-414: Missing Lock Check' in package tf2, and the crash in issue #92 was not shown resolved by this change.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

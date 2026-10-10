@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_ff581a0",
+  "kind": "A1",
+  "case_id": "robust_ff581a0",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "\t\t\tpnh.param(\"sensor_position/x\", x, 0.0);\n-\t\t\tpnh.param(\"sensor_position/x\", y, 0.0);\n-\t\t\tpnh.param(\"sensor_position/x\", z, 0.0);\n+\t\t\tpnh.param(\"sensor_position/y\", y, 0.0);\n+\t\t\tpnh.param(\"sensor_position/z\", z, 0.0);",
+    "url": "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847.patch"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Subject: [PATCH] distance_sensor: minor correction (no run, warning, or log anywhere in the source; the entire defect record is the diff itself)",
+    "url": "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847.patch"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Subject: [PATCH] distance_sensor: minor correction (null resolution status conforms to the ineligible-case schema; the fix commit exists but nothing shows the composition working)"
+  },
+  "notes": "Verdict on E2 (stop_step 2, internal) agreed after independent verification: the fix diff matches exactly (patch read in full); the config side at ff581a0 declares all three keys — mavros/launch/px4_config.yaml L115-122 read: 'distance_sensor:' / '  hrlv_ez4_pub:' ... '    send_tf: true' / '    sensor_position: {x:  0.0, y:  0.0, z:  -0.3}' (https://raw.githubusercontent.com/mavlink/mavros/ff581a0752107f7ad875c16f83f7b75ccd92f847/mavros/launch/px4_config.yaml); PR #296 'distance_sensor: small enhancements' (TSC21, head external_sensors_connect, base master) merged 2015-05-21 as 3b5e6dff — all as the spec states. The plugin's own create_item reads the x key three times, so the failure occurs with any correct configuration: internal. HOWEVER the spec's E1 evidence contains two provenance errors, verified against the actual patches: (a) the wrong lines were NOT introduced by a3b59347 — its patch (read in full) introduced 'pnh.getParam(\"sensor_posisiton/x\", p->spx) && pnh.getParam(\"sensor_posisiton/y\", p->spy) && pnh.getParam(\"sensor_posisiton/z\", p->spz)' (typo'd key, separate reads); the copy-paste x/x/x lines were introduced by 5dd2e1e ('distance_sensor: sensor position cond changed', 2015-05-17), the direct parent of the fix (patch read in full); (b) the sensor_position config lines were added by a3b5934 itself ('+    sensor_position: {x:  0.0, y:  0.0, z:  -0.3}'), while 4ec5cb71 ('distance_sensor: updated config file') added only '+    send_tf: true'. Neither error changes the verdict: 5dd2e1e and ff581a0 are both inside PR #296, so the broken code still never reached master or a release, and the internal classification rests on the copy-paste error inside one unit's function, not on which commit introduced it. The spec's E1/E2/E4 conclusions stand; the E1 provenance attributions are wrong."
+}

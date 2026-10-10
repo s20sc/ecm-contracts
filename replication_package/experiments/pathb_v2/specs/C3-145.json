@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-145",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-drivers/usb_cam/issues/225",
+    "https://github.com/ros-drivers/usb_cam/pull/237",
+    "https://github.com/ros-drivers/usb_cam/commit/3a1aea43fc6e73fbede57e44dd9e8b7221ae889c",
+    "https://github.com/ros-drivers/usb_cam/blob/bee4e6d24bc1bb35f5e373cb62043fd994130d6e/src/usb_cam.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue with command, parameter file, device format list and log ending \"[ros2run]: Segmentation fault\". Maintainer flynneva: \"I can reproduce this error as well and have tracked it down to the `av_image_alloc` call\" (https://github.com/ros-drivers/usb_cam/issues/225#issuecomment-1474530249). Fixed by merged PR #237 (3a1aea43)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["usb_cam (usb_cam_node_exe)", "FFmpeg libavcodec/libavutil (MJPEG decoding), with the V4L2 camera as the image source"],
+      "interface_kind": "library API",
+      "evidence": "The crash is in usb_cam's own decoder setup, independent of the camera and of which FFmpeg build is used. Maintainer: \"root cause -> the way that `usb_cam` (this repo) was handling setting of the pixel format needed to be rethought.\" (https://github.com/ros-drivers/usb_cam/issues/225#issuecomment-1484373540). At the pre-fix revision bee4e6d2, UsbCam::init_decoder calls \"av_image_alloc(\\n    reinterpret_cast<uint8_t **>(avframe_rgb_), 0, image_width, image_height, AV_PIX_FMT_RGB24, 1);\" (a null linesizes argument), the call the maintainer identified. Every MJPEG configuration reaches this path (reporter: \"using yuyv is OK, but using mjpeg will report an error\"; another user: \"For me nothing works, except `yuyv`, even though the camera supports `mjpeg` and `h264`\"), so the failure would occur with any correct camera and any correct FFmpeg. PR #237 rewrites usb_cam's pixel-format handling (new include/usb_cam/formats/*.hpp; the MJPEG path no longer calls av_image_alloc); no interface of another unit changes."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Would be PAIR (camera MJPEG frames decoded by usb_cam through FFmpeg). Not decisive because the case stops at E2."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"[ros2run]: Segmentation fault\" after \"Starting 'test_camera' (/dev/video0) at 1280x720 via mmap (mjpeg, yuv422p) at 30 FPS\"."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Borderline between internal and a library-API misuse crossing the usb_cam/FFmpeg boundary; recorded as internal because the argument usb_cam passes does not depend on any version- or peer-specific assumption and the maintainer places the root cause in usb_cam's own pixel-format handling. The exact faulting instruction is shown only in a screenshot; the attribution to the null linesizes argument is from the code, not stated in the source. PR #237 also changed the pixel_format parameter values (maintainer: \"the paramater file has changed slightly ... `mjpeg2rgb` and `yuyv2rgb` are the two you want to test\"), a node-internal parameter change that users must follow; the reporter confirmed the ros2 branch after #237 works (https://github.com/ros-drivers/usb_cam/issues/225#issuecomment-1493977030, screenshots only). The reporter's usb_cam version and ROS distro are not stated."
+}

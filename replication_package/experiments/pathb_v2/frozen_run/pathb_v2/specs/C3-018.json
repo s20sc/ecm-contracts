@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-018",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/2671",
+    "https://github.com/ros2/rclcpp/pull/2672",
+    "https://github.com/ros2/rclcpp/blob/64dd644469d7fb6f2ed64e609e5bd48b6b23f4ce/rclcpp/include/rclcpp/publisher.hpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue rclcpp#2671 names the concrete defect (constructor parameter typed `std::allocator<MessageT>` while the member is `MessageAllocator`, \"This prevents creating instances of `LoanedMessage` when using a custom allocator which is not based on `std::allocator`.\"); maintainer fujitatomoya opened the fix PR #2672 (\"closes https://github.com/ros2/rclcpp/issues/2671\"), merged 2024-11-21. No reproducer or error log is given."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "rclcpp",
+        "reporter's application using a custom allocator (not public)"
+      ],
+      "interface_kind": null,
+      "evidence": "The mismatch is inside rclcpp's own API: `template<typename MessageT, typename AllocatorT = std::allocator<void>> class LoanedMessage` declares an allocator template parameter and stores a `MessageAllocator message_allocator_`, but its constructor takes `std::allocator<MessageT> allocator` (fixed in PR #2672: `-    std::allocator<MessageT> allocator)` / `+    MessageAllocator allocator)`). rclcpp's own `Publisher<MessageT, AllocatorT>::borrow_loaned_message()` passes `this->get_ros_message_type_allocator()` (a rebind of AllocatorT) into that constructor, so the two rclcpp templates disagree with each other. Any client that uses a non-std allocator as the class template declares hits the same failure; it does not depend on an assumption the client makes that differs from rclcpp's declared interface, and the only public unit is rclcpp itself (the reporter's application is not public). Classified as an internal defect of rclcpp. Alternative reading considered and rejected: the client application and rclcpp as two units interacting through the LoanedMessage constructor with a nominal type mismatch of the allocator argument; rejected because the inconsistency is between two declarations inside rclcpp and no client code is published. Affected distributions per the reporter: iron, jazzy, rolling (from source). Fix merged to rolling as 7e9ff5f4c774e6c0b28268f2d2b1b03fc52383a2 (parent 64dd644469d7fb6f2ed64e609e5bd48b6b23f4ce)."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E2 step 2). Had it been evaluated, the operation would be PAIR (application calling the rclcpp API)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E2 step 2). The source gives a code-level statement of the mismatch but no observed error output."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

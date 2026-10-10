@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_bb3c7ec",
+  "kind": "A1",
+  "case_id": "robust_bb3c7ec",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Issue #136: Battery charge not shown in Android apps",
+    "url": "https://github.com/yujinrobot/kobuki/commit/bb3c7ec8a7e656aa7e75753864351c27d571db47"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base)",
+      "url": "https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  stat.add(\"Capacity\", status.capacity);\n-  stat.add(\"Voltage\", status.voltage);\n+\n+  stat.add(\"Voltage (V)\", status.voltage);\n   stat.add(\"Percent\", status.percent());\n+  stat.add(\"Charge (Ah)\", (2.2*status.percent())/100.0);\n+  stat.add(\"Capacity (Ah)\", 2.2); // TODO: how can we tell which battery is in use?",
+      "url": "https://github.com/yujinrobot/kobuki/commit/bb3c7ec8a7e656aa7e75753864351c27d571db47"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Battery charge not shown in Android apps",
+    "url": "https://github.com/yujinrobot/kobuki/issues/136"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed with two changes: - I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base) - We send Current Charge and Capacity diagnostic values."
+  },
+  "notes": "Agree with specification. Diagnostic status naming and key convention mismatch."
+}

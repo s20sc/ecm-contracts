@@ -1,0 +1,27 @@
+{
+  "task_id": "u0187",
+  "package": "ur-controller",
+  "status": "evidence_inadequate",
+  "searched": "Excerpt-based task: the only allowed source is artifact.txt (1 line, 227 bytes; a single quoted prose sentence followed by a pull-request URL given as attribution). Case-insensitive search of the artifact for every packet element token: driverProg, movej, servoj, set_digital_out, set_payload, socket_open, socket_read_binary_integer, socket_send_int, 30002, 30003 (also 'tcp' and 'def'): 0 hits each. The only element-adjacent word is 'program' (1 hit). The URL was not followed (pull requests are not an allowed source).",
+  "manifest_version": null,
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "status": "artifact.txt:1 is one prose sentence plus an attribution URL; it names none of the packet elements (grep counts 0 for all ten element tokens)",
+    "perm_requires.state": "artifact.txt:1 contains no code or configuration, so permission declarations could not be checked",
+    "perm_grants.state": "artifact.txt:1 contains no code or configuration, so permission grants could not be checked",
+    "recovery.state": "artifact.txt:1 contains no code or configuration, so recovery behaviour could not be checked"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The excerpt describes controller behaviour for a program sent to it: it runs on receipt without being called, and a subsequent call is 'not possible'. That points to an interface mismatch around the sent program (the consumed api:driverProg element) between this controller and whatever sends the program, but the excerpt does not name the element and does not show which side departs from the expected contract; the sender's follow-up call looks like the more likely defect, so I cannot attribute a defect to this package."
+  },
+  "confidence": "low",
+  "notes": "Artifact sha256_normalised = 0dd3c956f0657e26bdd444787bde598776afa367aa8ac87e0c41bcf6c323e0cd (from definition_hash.py sha256 artifact.txt). The artifact is a comment-style statement, not a complete definition body, so absence of the provided elements (api:movej, api:servoj, api:set_digital_out, api:set_payload, api:socket_open, api:socket_read_binary_integer, api:socket_send_int, resource:tcp/30002, resource:tcp/30003) cannot be read as 'not declared'; all nine are undetermined and are in neither declares nor not_declared. The consumed element api:driverProg is not named in the artifact (it refers only to 'your program'), so it is not in references; whether the controller's handling of the sent program concerns that element cannot be established from the artifact alone. No ports are recorded because the artifact establishes no message type, frame, QoS, rate, or definition for any element. ros_distro is null and the task is ROS1, so QoS would be null in any case. No manifest is available, so manifest_version is null."
+}

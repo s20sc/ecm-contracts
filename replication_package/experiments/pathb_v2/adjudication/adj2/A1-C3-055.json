@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-055",
+  "kind": "A1",
+  "case_id": "C3-055",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Just to be sure: the issue you're running into is that implementation of the timeout in `rmw_wait` (which is simply passed on to Cyclone's `dds_waitset_wait`) is using the wall clock rather than a monotonic clock. Correct?",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/276#issuecomment-762678460"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Just to be sure: the issue you're running into is that implementation of the timeout in `rmw_wait` (which is simply passed on to Cyclone's `dds_waitset_wait`) is using the wall clock rather than a monotonic clock. Correct?",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/276#issuecomment-762678460"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "once system time jumps back in 5 seconds, timer will be in sleep in 5 more seconds.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/276"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The main commit in this PR allows blocking with timeouts based on a monotonic clock rather than the system clock. This should address the various problems with time jumps people have been facing. I haven't actually tested it with time jumps yet because of some practicalities, but perhaps some kind souls are willing to give it a go as it is.",
+    "url": "https://github.com/eclipse-cyclonedds/cyclonedds/pull/2255"
+  },
+  "notes": "独立核验：(1) issue #276 正文逐字确认（复现：talker + \"sudo timedatectl set-ntp no\" + \"sudo date -s @`date +%s | xargs -I@ echo @-5 | bc`\"；strace \"FUTEX_WAIT_BITSET_PRIVATE|FUTEX_CLOCK_REALTIME\"；版本指向 ros2/ros2@57b618fb）。(2) fujitatomoya 的 gdb 栈评论逐字确认：\"#4 dds_waitset_wait_impl (... abstimeout=1611042784228497624) at .../cyclonedds/src/core/ddsc/src/dds_waitset.c:79 / #5 rmw_wait () from .../librmw_cyclonedds_cpp.so / #7 rcl_wait / #8 rclcpp::Executor::wait_for_work\"。(3) 代码确认：cyclonedds@af7aba56 的 dds_waitset.c 第 373-374 行 \"const dds_time_t tnow = dds_time ();\" / \"const dds_time_t abstimeout = (DDS_INFINITY - reltimeout <= tnow) ? DDS_NEVER : (tnow + reltimeout);\"；rmw_cyclonedds@45179db5 的 rmw_node.cpp 第 3390 行 \"const dds_return_t ntrig = dds_waitset_wait(\"；rmw.h@690c72d0 第 2634-2635 行 \"Elapsed time should be measured using a monotonic clock, though rmw implementations could use a different one.\"。(4) 归属评论确认：clalancette \"Is the problem here in `rmw_cyclonedds`, or in CycloneDDS itself?\"；fujitatomoya \"with current implementation, this is because of [cyclonedds] ... rmw suggests monotonic, but not a requirement.\"。(5) PR #2255 \"Gracefully handle time jumps\" 合并于 2025-08-05（merge 49c313a4），正文自述 \"I haven't actually tested it with time jumps yet because of some practicalities\"——recommended 成立（无来源显示 rmw_cyclonedds 携修复版 Cyclone 跨时间跳变运行）。分类 other 成立：失配是相对超时所依据的时钟域（wall vs monotonic），非值的单位/编码差异，无更专类可用。silent_documented（run）成立：仅定时器输出缺失，需 strace/gdb 方可见。未发现遗漏条件（rcl→rmw 视角为同一失败的上一层，已在 notes 记录）。"
+}

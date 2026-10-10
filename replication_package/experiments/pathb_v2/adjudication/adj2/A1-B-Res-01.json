@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-B-Res-01",
+  "kind": "A1",
+  "case_id": "B-Res-01",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 1,
+    "reason_code": null,
+    "quote": "Is there a way to prevent multiple publishers simultaneously publishing messages to the same topic? I think I'm looking for a way for a node to lock access to a topic and release it when it's done.",
+    "url": "https://robotics.stackexchange.com/questions/95440/mechanism-to-prevent-multiple-publishers-simultaneously-publishing-contradictory"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The cmd_vel (geometry_msgs/Twist) topic is a pertinent example as interleaving messages from multiple publishers containing drastically different velocities could cause rather undesirable vibrations in the robot.",
+    "url": "https://robotics.stackexchange.com/questions/95440/mechanism-to-prevent-multiple-publishers-simultaneously-publishing-contradictory"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the typical approach I've seen is to remap the default cmd_vel to something else, place a cmd_vel_mux between Twist producers and the consumer and then configure the mux intelligently"
+  },
+  "notes": "Independently verified this session via the Stack Exchange API (question 95440 with body, plus its single answer with body). Question body verified verbatim: 'Is there a way to prevent multiple publishers simultaneously publishing messages to the same topic?'; the conflict is hypothetical ('...could cause rather undesirable vibrations in the robot.'), roles only ('a joystick', 'a trajectory planner'), no concrete packages, nodes, revisions, reproducer, or error log. The accepted answer (gvdhoorn-rse, accepted on the original site) is a design discussion: ROS 1 lacks native support, SROS2/DDS-Security static access control, remote_mutex critique, and the cmd_vel multiplexer pattern ('The Kobuki uses yocs_cmd_vel_mux for this.'; stevemacenski's comment: 'There's also a muxing program included in topic_tools.'). The quoted 'generic confirmation' is verified verbatim in gvdhoorn's 2020-04-14 comment: 'I've seen what you describe happen many times to users who did not configure their systems correctly. Nothing nefarious there, just simple misconfiguration.' — a statement about misconfiguration in general, not an observation of this asker's system. So E1 fails exactly as the spec records (design/how-to question, no concrete defect), E2 stops at step 1 with no units identifiable (only roles named), E3 notes hypothetical CONCURRENT, and E4's 'could cause' is conditional. eligible=false is correct; null failed_conditions/loudness/resolution are appropriate and I found no missed condition — the thread documents no failed interaction, only a sought mechanism."
+}

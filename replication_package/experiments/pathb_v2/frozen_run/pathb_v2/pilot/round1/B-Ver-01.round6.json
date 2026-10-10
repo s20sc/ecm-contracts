@@ -1,0 +1,108 @@
+{
+  "case_id": "B-Ver-01",
+  "corpus": "C2",
+  "source_refs": [
+    "https://answers.ros.org/question/226746",
+    "https://answers.ros.org/question/226746/subcribe-and-publish-md5-error/",
+    "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error",
+    "https://web.archive.org/web/20220924230527/https://answers.ros.org/question/226746/subcribe-and-publish-md5-error/",
+    "https://api.stackexchange.com/2.3/questions/72068?site=robotics&filter=withbody",
+    "https://api.stackexchange.com/2.3/questions/72068/answers?site=robotics&filter=withbody"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public ROS Answers thread (2016-02-15, migrated to robotics.stackexchange.com question 72068; the original page is also in the Wayback Machine). The reporter posts the publisher's connection-time diagnostic, which carries both md5sums and the subscriber's full message definition: \"Could not process inbound connection: Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection.\" The accepted answer (ahendrix) confirms the cause: \"This message usually means that the message definitions are not the same on both computers.\" and \"That message definition doesn't match the one in your error message (it's in there, but it's hard to read). Were the messages the same when you compiled the nodes on both machines? If you change the messages after you compile, you need to recompile to use the new message.\" The reporter confirms the fix: \"Yes I rebuilt the workspace then it works.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["os5000_imu_publisher", "control_panel"],
+      "interface_kind": "definition",
+      "evidence": "Step 1: two ROS nodes on two machines. The publisher of topic /imu (type os5000_imu/imu_data) runs on a Raspberry Pi 2 (\"a topic which is running on a raspberry pi 2\"); the subscriber node /control_panel runs on the reporter's computer (\"Client [/control_panel] wants topic [/imu]\"). They interact only through the ROS topic, so they are separate units even if both came from the reporter's source tree; each was built separately on its own machine (\"Were the messages the same when you compiled the nodes on both machines?\"). Step 2: the failure is the two builds disagreeing on the definition of os5000_imu/imu_data (different md5sums for the same nominal type); it crosses the boundary and would not occur with a peer compiled against the same definition, so it is not internal. Step 3: no name binding was changed; the topic name and type name already matched. Step 4: the resolving change was a rebuild of the consumer against the changed provider definition, which the instructions class as an interface change, not a build-only change. Step 5: no firmware. Step 6: eligible; interface kind: message definition (os5000_imu/imu_data) carried over topic /imu."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE. The publisher runs with the newer five-field definition of os5000_imu/imu_data (the reporter's current msg file: \"float32 heading float32 pitch float32 roll float32 temp float32 depth\"; the ROS 1 md5 of that body is exactly the publisher's reported sum cb87164d6e531601e0b13c83388dee16), while the subscriber /control_panel was compiled against the earlier six-field definition it sends in its connection header (\"std_msgs/String raw\\nstd_msgs/Float32 heading\\nstd_msgs/Float32 pitch\\nstd_msgs/Float32 roll\\nstd_msgs/Float32 temp\\nstd_msgs/Float32 depth\"; md5 20a63a1c6bab175e3bbe310358cd3614). The consumer therefore references the provider's message definition as it existed at an earlier provider revision. The failure surfaced when the subscriber connected to the publisher (PAIR is also supported; see notes)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: the publisher drops every inbound connection from /control_panel (\"Dropping connection.\" repeated at 1455522139, 1455522140, 1455522141, 1455522143) and the subscriber receives no data; the reporter confirms data flow only after rebuilding (\"now it can receive\")."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "os5000_imu_publisher",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "md5:cb87164d6e531601e0b13c83388dee16",
+      "resolved_rev": "md5:cb87164d6e531601e0b13c83388dee16",
+      "pinned": false,
+      "revision_basis": "The node that publishes /imu on the Raspberry Pi 2; its package is inferred to be os5000_imu from the message type os5000_imu/imu_data (the node name is not given in the source). No public repository: GitHub code search for os5000_imu and for an os5000 imu_data.msg returns no matching package, and the accepted answer treats it as \"custom messages, in a package that you've probably built from source\". The revision label is the message md5sum the publisher itself reports (\"our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16]\"), which equals the ROS 1 md5 of the five-field body the reporter quotes as the current msg file; the resolution does not change this unit, so resolved_rev equals broken_rev.",
+      "excerpt": true,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "control_panel",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2016-02",
+      "resolved_rev": "rebuilt-2016-02",
+      "pinned": false,
+      "revision_basis": "The subscriber node /control_panel (callerid '/control_panel') on the reporter's Ubuntu 14.04 computer; its package name is not stated. No public repository. In the broken composition it is the build the reporter ran on 2016-02-15, compiled against the six-field os5000_imu/imu_data definition it sends in its connection header (md5sum 20a63a1c6bab175e3bbe310358cd3614). In the resolved composition it is the rebuild the reporter reports on 2016-02-16 (\"Yes I rebuilt the workspace then it works\"); the reporter does not say which machine's workspace was rebuilt, but only a rebuild of this unit changes the composition, since the publisher's md5sum already equals that of the current msg file.",
+      "excerpt": true,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved": "md5:cb87164d6e531601e0b13c83388dee16"
+  },
+  "inventory": [
+    {"element": "topic:/imu", "sides": {"os5000_imu_publisher": "provides", "control_panel": "consumes"}},
+    {"element": "msg:os5000_imu/imu_data", "sides": {"os5000_imu_publisher": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.raw", "sides": {"os5000_imu_publisher": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.heading", "sides": {"os5000_imu_publisher": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.pitch", "sides": {"os5000_imu_publisher": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.roll", "sides": {"os5000_imu_publisher": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.temp", "sides": {"os5000_imu_publisher": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.depth", "sides": {"os5000_imu_publisher": "provides", "control_panel": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": ["msg:os5000_imu/imu_data", "topic:/imu"],
+      "quote": "Could not process inbound connection: Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection.",
+      "url": "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error"
+    },
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["field:os5000_imu/imu_data.raw", "msg:os5000_imu/imu_data"],
+      "quote": "{'message_definition': 'std_msgs/String raw\\nstd_msgs/Float32 heading\\nstd_msgs/Float32 pitch\\nstd_msgs/Float32 roll\\nstd_msgs/Float32 temp\\nstd_msgs/Float32 depth\\n\\n================================================================================\\nMSG: std_msgs/String\\nstring data\\n\\n================================================================================\\nMSG: std_msgs/Float32\\nfloat32 data\\n', 'callerid': '/control_panel', 'tcp_nodelay': '0', 'md5sum': '20a63a1c6bab175e3bbe310358cd3614', 'topic': '/imu', 'type': 'os5000_imu/imu_data'}",
+      "url": "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error"
+    },
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["field:os5000_imu/imu_data.heading", "field:os5000_imu/imu_data.pitch", "field:os5000_imu/imu_data.roll", "field:os5000_imu/imu_data.temp", "field:os5000_imu/imu_data.depth", "msg:os5000_imu/imu_data"],
+      "quote": "And you're right I use custom message. This is in the msg file:\nfloat32 heading\nfloat32 pitch\nfloat32 roll\nfloat32 temp\nfloat32 depth",
+      "url": "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "ROS 1 md5sum/type check at connection, logged by the publisher on the Pi as a WARN each time the subscriber connects: \"[WARN] [WallTime: 1455522139.729356] Could not process inbound connection: Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection.\" (https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error)",
+  "detection_stage": "connect",
+  "resolution": {
+    "summary": "Rebuild the subscriber (/control_panel workspace on the computer) so that it is compiled against the current five-field os5000_imu/imu_data definition that the publisher already uses; no change to the publisher.",
+    "status": "observed",
+    "evidence": "Accepted answer: \"If you change the messages after you compile, you need to recompile to use the new message.\" Reporter: \"Oh I don't know we need to recompile when we change the msg file, now it can receive. Thank you very much! :D\" and \"Yes I rebuilt the workspace then it works. Thank you! :D\" (https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error). Resolved composition: os5000_imu_publisher at md5:cb87164d6e531601e0b13c83388dee16 (unchanged) with control_panel at rebuilt-2016-02, i.e. compiled against md5:cb87164d6e531601e0b13c83388dee16. The reporter does not name the machine whose workspace was rebuilt; the identification of the consumer as the rebuilt unit rests on the md5 evidence (see units)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Source access: answers.ros.org/question/226746 now redirects to robotics.stackexchange.com/questions/72068, which blocks curl; the content was read through the Stack Exchange API (question 72068 and its answer 72069) and cross-checked against the Wayback Machine copy of the original page (20220924230527), which carries the same text and the ROS Answers timestamps (asked 2016-02-15 21:23:36 -0500; comments 2016-02-15/16). Verification of which side was stale: the ROS 1 md5 computed from the five-field body quoted by the reporter (float32 heading/pitch/roll/temp/depth) is cb87164d6e531601e0b13c83388dee16, the sum the publisher reports for its own version; the md5 computed from the six-field body in the client's connection header (with std_msgs/String = 992ce8a1687cec8c8bd883ec73ca41d1 and std_msgs/Float32 = 73fcbf46b49191e672908e50842a83d4 substituted for the nested types) is 20a63a1c6bab175e3bbe310358cd3614, the sum the client sends. So the publisher had been rebuilt with the edited msg file and the subscriber had not. Operation: UPGRADE recorded because the consumer references the provider's definition as it existed before the msg file was edited; the failure was observed at the PAIR connection of the two nodes, and PAIR is the alternative reading. The connection header also carried the dependency definitions std_msgs/String (\"string data\") and std_msgs/Float32 (\"float32 data\") after separator lines; the artifact file writes only the plain imu_data bodies. Both units are the reporter's own unpublished code, so both are excerpt-based; the artifact sections for control_panel are empty because the source contains no consumer code or configuration text beyond the connection-header definition, which is recorded under the provider's built-against label. Environment: both machines ROS indigo; Pi: Debian Jessie with ROS-Comm; computer: Ubuntu 14.04 with ROS Desktop. Unknowns: the publisher node's name and the subscriber's package name; whether the two nodes live in the same source package; which workspace the reporter rebuilt (inferred from md5 evidence). A second commenter (NEngelhard) recommends checking the installed generated headers (\"The generated msg-header should be in something like ~/catkin_ws/install/include/YOUR_PACKAGE and contain a MD5Sum. Rebuilding the workspace often solves this kind of problems for me.\")."
+}

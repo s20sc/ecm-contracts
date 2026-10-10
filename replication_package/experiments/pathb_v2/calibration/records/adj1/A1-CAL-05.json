@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-CAL-05",
+  "kind": "A1",
+  "case_id": "CAL-05",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Topic `mavros/global_position/gp_origin` has type `geographic_msgs/GeoPointStamped` and must contain coordinates in LLA. When I send a request containing LLA, I expect to receive a response containing LLA too in order to compare it and ensure that global_origin has been successfully set.",
+    "url": "https://github.com/mavlink/mavros/issues/1381",
+    "reason": "E1/E4 are supported by the concrete coordinate round trip and code. The MAVROS plugin publishes ECEF-valued fields to an external client expecting LLA: an erroneous representation crosses a topic boundary in PAIR. E2 step 2 explicitly includes wrong values crossing a boundary even if the resolving edit is internal to the provider. It is not an internal-only defect."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "topic:/mavros/global_position/gp_origin",
+        "field:geographic_msgs/GeoPointStamped.position"
+      ],
+      "quote": "It is highly counter intuitive to send ECEF coordinates in a ROS message, that is only intended to be used with LLA coordinates:",
+      "url": "https://github.com/mavlink/mavros/issues/1381#issuecomment-1005574073",
+      "reason": "Cartesian ECEF components are encoded in a geographic latitude/longitude/altitude message. The same named type remains in use; this is neither a nominal-type mismatch nor a renamed element. These elements must be added to the currently null inventory; the leading slash assumes the namespace illustrated by the report."
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "Then FCU confirms this with GPS_GLOBAL_ORIGIN message containing the same coordinates as LLA. But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.",
+    "url": "https://github.com/mavlink/mavros/issues/1381",
+    "reason": "The specification leaves this null after incorrectly excluding the case. The source reports wrong published data, without a build, connection, or activation diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "run",
+    "quote": "But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.",
+    "url": "https://github.com/mavlink/mavros/issues/1381"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "However the messages are published in ECEF coordinates.\nThis PR removes such conversion matching message requirements and message contents.",
+    "url": "https://github.com/mavlink/mavros/pull/1942",
+    "reason": "The merged fix removes the LLA-to-ECEF conversion. No successful rerun with the reporter's revision-identified external client is shown."
+  },
+  "notes": "The external client is described by its requests and expected responses, not a public repository. Its existence and expectation are explicit in the report. A reference-frame label of earth does not distinguish Cartesian ECEF from geographic LLA; the representation convention is the best-supported classification."
+}

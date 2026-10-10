@@ -1,0 +1,52 @@
+{
+  "case_id": "C3-117",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/1181",
+    "https://github.com/ros-controls/ros2_controllers/pull/1248",
+    "https://github.com/ros-controls/ros2_controllers/pull/1265",
+    "https://github.com/ros-controls/ros2_controllers/pull/1266",
+    "https://github.com/henrygerardmoore/ros2_controllers/commit/65353ffecccec18186a45cc2d9615b53d5a375bc"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Report with a crash stack trace from ros2_control_node ending in \"admittance_controller::AdmittanceRule::configure\" -> libkinematics_interface_kdl.so and \"Segmentation fault (Address not mapped to object [0x72f6800fc3c8])\", plus reproduction steps (\"Run the `deactivate`  -> `set new params` -> `reconfigure` -> `activate`  steps.\") -- https://github.com/ros-controls/ros2_controllers/issues/1181 ; fixed by merged PR #1248 (\"This PR fixes #1181.\") with Humble/Iron backports #1265/#1266."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "admittance_controller",
+        "kinematics_interface_kdl"
+      ],
+      "interface_kind": null,
+      "evidence": "The crash comes from the host's own object-lifetime handling on reconfigure: AdmittanceRule::configure replaced its pluginlib ClassLoader (kinematics_loader_) while the unmanaged plugin instance created by the old loader (kinematics_) was still alive, so the old instance's destructor could run after its library was unloaded. It occurs with any correct kinematics plugin (and with pluginlib behaving as designed); no value, frame, name or timing crossing the boundary is wrong. The fix only reorders destruction inside admittance_controller: \"// Make sure we destroy the interface first. Otherwise we might run into a segfault\" -- https://github.com/ros-controls/ros2_controllers/pull/1248/files (admittance_controller/include/admittance_controller/admittance_rule_impl.hpp). Author's explanation: \"it makes sure that the `KinematicsInterface` is destroyed before we destroy and recreate the `ClassLoader`\" and \"If we then destroy the interface handle it calls the destructor of the KinematicsInterface, which results in a segfault in case the library is already unloaded.\" -- https://github.com/ros-controls/ros2_controllers/pull/1248#issuecomment-2301461553 . Reporter: \"Issue seems origin somewhere in the AdmittanceRule implementation\" -- https://github.com/ros-controls/ros2_controllers/issues/1181#issuecomment-2288137901 Additional context (confidence in this eligibility decision: medium): ROS 2 Iron binary install (Ubuntu 22.04), with a custom rclcpp backport; the reporter says the crash also happens with default rclcpp and with the plain JTC instead of the scaled JTC. Fix merged to master as 31f7fbebf023de7cd8bfc2be5117f39bfa77af42 (PR #1248), backported to humble (bf53809113e139866af596529a8fe504a4a91d01, PR #1265) and iron (e0c8690b923ee90d6eba35049ebc73fc2a5adb1d, PR #1266). Alternative reading considered and rejected: the pluginlib rule that a ClassLoader must outlive the unmanaged instances it creates could be viewed as a library-API contract between admittance_controller and pluginlib/class_loader; it was treated as internal because the violation is the host's own destruction order and would crash with any correct plugin and any correct pluginlib. The packet's first fix reference is unrelated: henrygerardmoore/ros2_controllers commit 65353ffecccec18186a45cc2d9615b53d5a375bc is \"Add few warning compiler options to error (#1181)\" touching ros2_control packages (controller_manager, hardware_interface, ...); '#1181' there is a ros2_control pull-request number that coincides with this issue number."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "SWITCH (as far as it applies to an internal defect): on reconfigure the host tears down the old kinematics plugin instance and loader and starts a new one; the crash occurs during on_configure. Stated steps: \"`deactivate`  -> `set new params` -> `reconfigure` -> `activate`\" -- https://github.com/ros-controls/ros2_controllers/issues/1181"
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"Sometimes the controller crashes with a segfault.\" and \"does not occur always but only in like 2-3 of 10 tries\" -- https://github.com/ros-controls/ros2_controllers/issues/1181 and https://github.com/ros-controls/ros2_controllers/issues/1181#issuecomment-2288137901"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

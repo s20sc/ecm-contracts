@@ -1,0 +1,76 @@
+{
+  "task_id": "u0313",
+  "package": "compressed_image_transport",
+  "manifest_version": "1.15.0",
+  "ports": [
+    {
+      "element": "param:.color.image_raw.compressed.format",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:.color.image_raw.compressed.jpeg_quality",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": "percentile",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:.color.image_raw.compressed.png_level",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:.color.image_raw.compressed.format": "param format: string",
+    "param:.color.image_raw.compressed.jpeg_quality": "param jpeg_quality: int",
+    "param:.color.image_raw.compressed.png_level": "param png_level: int"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:compressed_image_transport/package.xml:3",
+    "ports[0].element": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:12",
+    "ports[0].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:69 (reconfigure_server_ = boost::make_shared<ReconfigureServer>(this->nh());) serving the CompressedPublisher config generated from cfg/CompressedPublisher.cfg:19",
+    "ports[0].frame": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:12 | gen.add(\"format\", str_t, 0, \"Compression format\", \"jpeg\", edit_method = format_enum) - a compression-format string (enum jpeg/png, lines 9-11), no spatial meaning",
+    "ports[1].element": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:13",
+    "ports[1].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:69",
+    "ports[1].frame": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:13 | gen.add(\"jpeg_quality\", int_t, 0, \"JPEG quality percentile\", 80, 1, 100) - encoder quality setting, no spatial meaning",
+    "ports[1].units": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:13 | \"JPEG quality percentile\"",
+    "ports[2].element": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:17",
+    "ports[2].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:69",
+    "ports[2].frame": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:17 | gen.add(\"png_level\", int_t, 0, \"PNG compression level\", 9, 1, 9) - encoder level setting, no spatial meaning",
+    "declares[param:.color.image_raw.compressed.format]": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:12 | gen.add(\"format\", str_t, 0, \"Compression format\", \"jpeg\", edit_method = format_enum)",
+    "declares[param:.color.image_raw.compressed.jpeg_quality]": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:13 | gen.add(\"jpeg_quality\", int_t, 0, \"JPEG quality percentile\", 80, 1, 100)",
+    "declares[param:.color.image_raw.compressed.png_level]": "snapshot:compressed_image_transport/cfg/CompressedPublisher.cfg:17 | gen.add(\"png_level\", int_t, 0, \"PNG compression level\", 9, 1, 9)",
+    "perm_requires.state": "searched all 43 files of the snapshot (package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/*.cfg, src/*.cpp, include/*.h, test/*): no permission or capability requirement declared",
+    "perm_grants.state": "searched all 43 files of the snapshot: no permission grant declared",
+    "recovery.state": "searched all 43 files of the snapshot: no recovery policy declared; compressed_publisher.cpp:146-162,205-223,228 only log ROS_ERROR on encode failure or unknown format"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "At this revision the three publisher parameters are declared cleanly (format default jpeg with jpeg/png enum, jpeg_quality 1-100 default 80, png_level 1-9 default 9) and used in publish(). The packet's dotted, leading-dot element names look like ROS 2 parameter names, but the snapshot is ROS 1 catkin code whose parameter names are slash-namespaced and resolved at run time, so it cannot show whether the listed dotted names are right or wrong."
+  },
+  "confidence": "medium",
+  "notes": "Generation mismatch: the packet says ROS2/humble, but the snapshot is a ROS 1 catkin package (package.xml:16 buildtool_depend catkin, version 1.15.0; CMakeLists.txt uses catkin and generate_dynamic_reconfigure_options; .travis.yml tests kinetic/melodic). A grep of the whole snapshot finds no rclcpp, ament, or declare_parameter. The three parameters are dynamic_reconfigure parameters defined in cfg/CompressedPublisher.cfg (lines 12, 13, 17; types str_t, int_t, int_t) and served by a dynamic_reconfigure::Server constructed on this->nh() in CompressedPublisher::advertiseImpl (src/compressed_publisher.cpp:69). The namespace of this->nh() comes from the image_transport base class SimplePublisherPlugin, which is not in the snapshot, and from the base topic that the node supplies at run time; getTransportName() returns \"compressed\" (compressed_publisher.h:49). So the full parameter name is determined at run time and, in ROS 1, is slash-separated; the dotted, leading-dot spelling of the packet elements (for example .color.image_raw.compressed.format) does not occur anywhere in the snapshot. The declares entries record the leaf names the code declares verbatim (format, jpeg_quality, png_level) and map them to the packet elements by leaf name and transport name only, not by an exact full-name match. The same cfg also declares jpeg_progressive, jpeg_optimize, jpeg_restart_interval (lines 14-16), which are not packet elements. QoS is null because the code is ROS 1 and parameters carry no QoS; msg_type and definition_id are null because a parameter has no message definition. references is empty because no packet element is consumed; the code also uses sensor_msgs/Image and sensor_msgs/CompressedImage, which are not packet elements."
+}

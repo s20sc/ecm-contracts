@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-052",
+  "kind": "A1",
+  "case_id": "C3-052",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "The issue is caused by the redundant use of `.c_str()` when initializing a `std::string` from another `std::string`.",
+    "url": "https://github.com/ros2/rclcpp/issues/2717",
+    "reason": "E1 has a lint configuration and warning. The generated main's redundant conversion is local code, not a wrong interface name, type or representation delivered to a second component. The source-level correction removes the intermediate string and compares clazz directly. E2 therefore stops at internal before considering build exclusions; E3 supplies no failed composition operation, and E4 is limited to lint/test failure."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "warning:  redundant call to 'c_str' [readability-redundant-string-cstr]",
+    "url": "https://github.com/ros2/rclcpp/issues/2717",
+    "reason": "Retain null for an excluded case, while recognizing that a concrete lint diagnostic is present."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The following warning is raised during the `ament_clang_tidy` test:",
+    "url": "https://github.com/ros2/rclcpp/issues/2717",
+    "reason": "The field is inapplicable after exclusion; the source locates the warning in lint/test execution rather than a failing runtime edge."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+    if (clazz.compare(class_name) == 0) {",
+    "url": "https://github.com/ros2/rclcpp/pull/2718.diff",
+    "reason": "Null follows exclusion. The patch removes the redundant local conversion; it is not an interface repair."
+  },
+  "notes": "No listed or missed integration conditions. Read issue #2717, PR #2718 discussion and its diff. Agree on the scope and internal exclusion; the existence of a user package running the linter does not establish a failed robotics interface. Null loudness/resolution agreement is an applicability judgment, not an assertion that the warning or accepted patch does not exist."
+}

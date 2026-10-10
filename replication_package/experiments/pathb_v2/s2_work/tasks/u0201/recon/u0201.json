@@ -1,0 +1,118 @@
+{
+  "task_id": "u0201",
+  "package": "moveit_ros_planning",
+  "manifest_version": "0.7.2",
+  "ports": [
+    {
+      "element": "param:/move_group/allowed_execution_duration_scaling",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/allowed_goal_duration_margin",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": "s",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/moveit_controller_manager",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/moveit_manage_controllers",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/trajectory_execution/allowed_execution_duration_scaling",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/trajectory_execution/execution_duration_monitoring",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:/move_group/allowed_execution_duration_scaling": "param /move_group/allowed_execution_duration_scaling: double",
+    "param:/move_group/allowed_goal_duration_margin": "param /move_group/allowed_goal_duration_margin: double",
+    "param:/move_group/moveit_controller_manager": "param /move_group/moveit_controller_manager: string",
+    "param:/move_group/moveit_manage_controllers": "param /move_group/moveit_manage_controllers: bool",
+    "param:/move_group/trajectory_execution/allowed_execution_duration_scaling": "param /move_group/trajectory_execution/allowed_execution_duration_scaling: double",
+    "param:/move_group/trajectory_execution/execution_duration_monitoring": "param /move_group/trajectory_execution/execution_duration_monitoring: bool"
+  },
+  "not_declared": [
+    "param:/move_group/trajectory_execution/allowed_goal_duration_margin"
+  ],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "PlanExecution re-plans up to max_replan_attempts (default 5, dynamic_reconfigure ~/plan_execution/max_replan_attempts) when opt.replan_ is set; TrajectoryExecutionManager stops a trajectory that exceeds scaled expected duration plus margin (status TIMED_OUT) when execution_duration_monitoring is true"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:moveit_ros/planning/package.xml:4",
+    "ports[0].frame": "snapshot:moveit_ros/planning/trajectory_execution_manager/cfg/TrajectoryExecutionDynamicReconfigure.cfg:7 \"Accept durations that take a little more time than specified\" (multiplicative duration factor, no spatial meaning); used at snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:1198",
+    "ports[1].frame": "snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:1198 (time margin added to expected trajectory duration; no spatial meaning)",
+    "ports[1].units": "snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:47 \"allow 0.5s more than the expected execution time before triggering a trajectory cancel (applied after scaling)\"; :1198 \"ros::Duration(allowed_goal_duration_margin_)\"",
+    "ports[2].frame": "snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:129,144 (plugin class name passed to createUnmanagedInstance; no spatial meaning)",
+    "ports[3].frame": "snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:78 (boolean flag; no spatial meaning)",
+    "ports[4].frame": "snapshot:moveit_ros/planning/trajectory_execution_manager/cfg/TrajectoryExecutionDynamicReconfigure.cfg:7 (multiplicative duration factor; no spatial meaning)",
+    "ports[5].frame": "snapshot:moveit_ros/planning/trajectory_execution_manager/cfg/TrajectoryExecutionDynamicReconfigure.cfg:6 (boolean flag; no spatial meaning)",
+    "declares[param:/move_group/allowed_execution_duration_scaling]": "snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:81 \"if (!node_handle_.getParam(\"allowed_execution_duration_scaling\", allowed_execution_duration_scaling_))\" on node_handle_(\"~\") (:76); member type double at snapshot:moveit_ros/planning/trajectory_execution_manager/include/moveit/trajectory_execution_manager/trajectory_execution_manager.h:289; default DEFAULT_CONTROLLER_GOAL_DURATION_SCALING = 1.1 (:48,:82). '~' resolves to /move_group because the class is instantiated in node move_group: snapshot:moveit_ros/move_group/src/move_group_context.cpp:53, snapshot:moveit_ros/move_group/src/move_group.cpp:150, snapshot:moveit_ros/move_group/include/moveit/move_group/node_name.h:44",
+    "declares[param:/move_group/allowed_goal_duration_margin]": "snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:84 \"if (!node_handle_.getParam(\"allowed_goal_duration_margin\", allowed_goal_duration_margin_))\" on node_handle_(\"~\") (:76); member type double at snapshot:moveit_ros/planning/trajectory_execution_manager/include/moveit/trajectory_execution_manager/trajectory_execution_manager.h:290; default DEFAULT_CONTROLLER_GOAL_DURATION_MARGIN = 0.5 (:47,:85); '~' -> /move_group per move_group_context.cpp:53 and node_name.h:44",
+    "declares[param:/move_group/moveit_controller_manager]": "snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:128-129 \"std::string controller; if (!node_handle_.getParam(\"moveit_controller_manager\", controller))\"; '~' -> /move_group per move_group_context.cpp:53 and node_name.h:44",
+    "declares[param:/move_group/moveit_manage_controllers]": "snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:78 \"if (!node_handle_.getParam(\"moveit_manage_controllers\", manage_controllers_))\" (default false, :79); member type bool at snapshot:moveit_ros/planning/trajectory_execution_manager/include/moveit/trajectory_execution_manager/trajectory_execution_manager.h:252; '~' -> /move_group per move_group_context.cpp:53 and node_name.h:44",
+    "declares[param:/move_group/trajectory_execution/allowed_execution_duration_scaling]": "snapshot:moveit_ros/planning/trajectory_execution_manager/cfg/TrajectoryExecutionDynamicReconfigure.cfg:7 \"gen.add(\"allowed_execution_duration_scaling\", double_t, 2, ..., 1.1, 1, 10)\"; server namespace snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:57 \"dynamic_reconfigure_server_(ros::NodeHandle(\"~/trajectory_execution\"))\"; cfg registered at snapshot:moveit_ros/planning/CMakeLists.txt:31",
+    "declares[param:/move_group/trajectory_execution/execution_duration_monitoring]": "snapshot:moveit_ros/planning/trajectory_execution_manager/cfg/TrajectoryExecutionDynamicReconfigure.cfg:6 \"gen.add(\"execution_duration_monitoring\", bool_t, 1, ..., True)\"; server namespace snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:57",
+    "not_declared[param:/move_group/trajectory_execution/allowed_goal_duration_margin]": "The ~/trajectory_execution dynamic_reconfigure config (snapshot:moveit_ros/planning/trajectory_execution_manager/cfg/TrajectoryExecutionDynamicReconfigure.cfg:6-8) is complete and holds only execution_duration_monitoring, allowed_execution_duration_scaling, execution_velocity_scaling. grep of the whole snapshot for 'allowed_goal_duration_margin' finds in this package only the '~' read at trajectory_execution_manager.cpp:84 (root private namespace, not trajectory_execution/) and the uses at :85 and :1198; the only 'trajectory_execution/allowed_goal_duration_margin' in the snapshot is a <param> in another package's launch template (snapshot:moveit_setup_assistant/templates/moveit_config_pkg_template/launch/trajectory_execution.launch.xml:12).",
+    "perm_requires": "grep -rniE 'sros|security|permission' over snapshot:moveit_ros/planning finds only BSD licence text; package.xml and the plugin description XMLs declare no permissions (ROS 1 indigo)",
+    "perm_grants": "same search as perm_requires; no grants declared",
+    "recovery.value": "snapshot:moveit_ros/planning/plan_execution/src/plan_execution.cpp:172 \"unsigned int max_replan_attempts = opt.replan_ ? (opt.replan_attempts_ > 0 ? opt.replan_attempts_ : default_max_replan_attempts_) : 1;\", :246 loop condition, default 5 at :82, cfg snapshot:moveit_ros/planning/plan_execution/cfg/PlanExecutionDynamicReconfigure.cfg:6; timeout stop at snapshot:moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp:1226-1236"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The trajectory-execution settings are split across two namespaces. The code reads allowed_goal_duration_margin only at ~allowed_goal_duration_margin, and the ~/trajectory_execution dynamic_reconfigure config has no such field. The config template in the same snapshot sets trajectory_execution/allowed_goal_duration_margin, so that value is silently ignored. The value read from ~allowed_execution_duration_scaling is also overwritten by the dynamic_reconfigure callback with the trajectory_execution/ value."
+  },
+  "confidence": "high",
+  "notes": "All seven packet elements are ROS 1 parameters, so msg_type, qos, rate and definition_id are null and definition_hash.py was not needed. The code names the four root-level parameters relative to the private NodeHandle(\"~\") (trajectory_execution_manager.cpp:76) and the two trajectory_execution/ parameters relative to NodeHandle(\"~/trajectory_execution\") (:57). They resolve to /move_group/... because moveit_ros_move_group instantiates TrajectoryExecutionManager inside node 'move_group' (move_group_context.cpp:53, node_name.h:44). The node name comes from that other package, so another host node would resolve them elsewhere. declares uses the packet's resolved names so the entries compare consistently across runs. The four root-level parameters are read only by the one-argument constructor (:75-88). The two-argument constructor (:90) takes manage_controllers as an argument and reads none of them. allowed_execution_duration_scaling is read from ~ at construction (:81). The dynamic_reconfigure server is then created in initialize() (:157), and its callback (:67) sets the member from the trajectory_execution/ value (cfg default 1.1). That follows the standard dynamic_reconfigure::Server behaviour of invoking the callback on setCallback, which is library behaviour and was not verified inside the snapshot. The effective value therefore comes from the trajectory_execution/ parameter. The ~/trajectory_execution config also declares execution_velocity_scaling (cfg:8), which is not a packet element. exclusive is empty: the only 'exclusive' in the package is a collision-detector activation flag in collision_plugin_loader, not a resource claim. The manager switches controllers through the MoveItControllerManager plugin but names no exclusive resource tokens. references is empty because every packet element is on the provides side. Units for the two scaling parameters are left null: the code describes them as multiplicative factors and states no unit."
+}

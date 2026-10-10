@@ -1,0 +1,38 @@
+{
+ "item_id": "A1-CAL-12",
+ "kind": "A1",
+ "case_id": "CAL-12",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Even with different TransformBroadcaster objects, only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+  "url": "https://github.com/ros/geometry2/issues/89"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "disagree",
+   "proposed_class": "other",
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "The python should be made to match the c++ as this is causing a problem. It's a magic number and should probably be parameterized but just making them match would be better.",
+   "url": "https://github.com/ros/geometry2/issues/89#issuecomment-83259331"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": "run",
+  "quote": "only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+  "url": "https://github.com/ros/geometry2/issues/89"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Fixed with queue_size 100 in pull request #90.",
+  "url": "https://github.com/ros/geometry2/issues/89#issuecomment-83945648"
+ },
+ "notes": "Verified via gh api: issue #89 body (the full tf2_timing_test reproducer, 'This bug does not happen in the tf2 cpp implementation neither in tf.') and all comments: tfoote's 'It looks like the c++ broadcaster as [a sending queue of 100](...) while the python implementation has [a send queue of 1](...)' with the follow-through quoted above, the PR author's 'Fixed with queue_size 100 in pull request #90.', and tfoote's closing 'Fixed in #90'. Eligible PAIR at step 6 (topic /tf) agreed. Class disagree: the spec's failed_conditions entry says qos_reliability while its own notes argue 'no dedicated class ... so it is recorded as other' — an internal contradiction. The defect is the rospy Publisher outgoing queue depth (queue_size=1 dropping all but the newest message of each burst), a history/queue-depth property of the provider side of topic:/tf; ROS 1 queue_size is not a reliability QoS policy, so per the class list this is 'other' (rate_shortfall would be the nearest named alternative, but the provider sustains its publishing rate — messages are dropped by queue depth, not by a slow publisher). Implicated element topic:/tf agreed. Silent at run agreed: ROS 1 drops queued messages without any warning; the loss was visible only as missing frames in view_frames. Resolution 'recommended' agreed: PR #90 merged setting queue_size=100, but no re-run of the reproducer against the merged revision is shown."
+}

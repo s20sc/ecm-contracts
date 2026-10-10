@@ -1,0 +1,47 @@
+{
+  "case_id": "robust_8c30446",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/339",
+    "https://github.com/yujinrobot/kobuki/commit/8c30446d18bad63da0f58a1f666c2e7e209d917d",
+    "https://github.com/yujinrobot/kobuki/blob/52aca4c7a167f3478ebf7f90c10af4658ff5819c/kobuki_node/launch/robot_with_tf.launch"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #339 '[kobuki_node] robot_with_tf.launch referencing wrong file' (maintainer jihoonl, 2014-08-11): \"It should not depend on turtlebot_bringup\\n\\nhttps://github.com/yujinrobot/kobuki/blob/indigo/kobuki_node/launch/robot_with_tf.launch#L18\". Closed 42 seconds later by his commit 8c30446 'fixing the file link resolves #339', which changes line 18 of kobuki_node/launch/robot_with_tf.launch from `<rosparam command=\"load\" file=\"$(find turtlebot_bringup)/param/kobuki/diagnostics.yaml\" />` to `<rosparam command=\"load\" file=\"$(find kobuki_node)/param/diagnostics.yaml\" />`. The defect (a launch file in kobuki_node loading a parameter file from the turtlebot_bringup package, which kobuki_node does not depend on in its package.xml) is concrete and maintainer-confirmed; no reproducer or error log is given."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": ["kobuki_node", "turtlebot_bringup"],
+      "interface_kind": null,
+      "evidence": "Step 1: the units are kobuki_node (whose launch file robot_with_tf.launch is part of the same unit as the node) and turtlebot_bringup (the package in turtlebot/turtlebot whose param/kobuki/diagnostics.yaml the launch file loaded via roslaunch's `$(find turtlebot_bringup)` substitution for the diagnostic_aggregator node it starts). Step 2: the dependency on another package's file is a cross-unit matter, so it is not internal. Step 3: the minimal resolving change only re-binds a file path at deployment: one launch-file attribute changes from `$(find turtlebot_bringup)/param/kobuki/diagnostics.yaml` to `$(find kobuki_node)/param/diagnostics.yaml`. No unit's declared or referenced interface changed: the diagnostic_aggregator node, its parameters, and both YAML files' contents are untouched by the fix; the launch file merely points at a file inside its own package instead of a foreign one. Ineligible: deployment_wiring (it would equally stop at step 4 as a package-dependency matter)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "The interaction would be PAIR at launch time (turtlebot_bringup provides a file that kobuki_node's launch file consumes through roslaunch), but the case is already ineligible at E2 step 3."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "No effect was observed in the source (no launch error is quoted; when turtlebot_bringup is absent roslaunch would fail to resolve `$(find turtlebot_bringup)`, but nothing of the kind is recorded). The maintainer's issue and commit name the mismatch at code level, so the effect class would be undocumented."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Fix commit 8c30446 (2014-08-11, parent 52aca4c) is contained in hydro-devel, indigo and later branches and first released in kobuki 0.6.2 (2014-08-11). At 52aca4c kobuki_node/package.xml lists diagnostic_aggregator as a run_depend but no turtlebot package, so the launch file referenced a package outside its declared dependencies. The kobuki_node copy of diagnostics.yaml that the fix switches to was itself stale at that time (its `remove_prefix: kobuki` values were only corrected on 2014-08-26 in 8a729db, see case robust_8a729db), which is a separate deployment-configuration defect and not part of this case. The dataset's description ('Referencing Wrong Parameter File', truncated) matches the primary source."
+}

@@ -1,0 +1,46 @@
+{
+  "case_id": "robust_b18f559",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/27",
+    "https://github.com/yujinrobot/kobuki/commit/b18f55910cc032f967b436b26710c01ec435291d"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #27 (maintainer stonier, 2012-04-09): \"Are default_data and sensor_data different? We are publishing two topics the same....?\" closed 12 minutes later by the same maintainer: \"Gone. (protocol 1.0 legacy issue).\" Commit b18f559 (\"abolished protocol 1.0 (mostly), also removed redundant topic.\") removes the default_data publisher and KobukiNodelet::publishDefaultData(), drops the protocol-1.0 branches and the Data2 member from the kobuki_driver library, and replaces getData2()/getDefaultData() by getSensorData(). Concrete defect confirmed and fixed by the maintainer, no reproducer or log."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["kobuki_node (KobukiNodelet)"],
+      "interface_kind": null,
+      "evidence": "No interaction between two units failed. The defect is a redundancy inside the kobuki base software: KobukiNodelet advertised both \"sensor_data\" and \"default_data\" (both kobuki_comms/SensorData) and, for protocol 2.0, filled both from the same kobuki_default.data via the driver's duplicate accessors getData2()/getDefaultData(); publishDockIRData() even published SensorData on the default_data publisher. No consumer of default_data is named in the issue or the commit, nothing observed a wrong or missing value, and the change is a cleanup that would be identical with any peer. The accompanying rename of the kobuki_driver library accessors (getData2/getDefaultData -> getSensorData) and the update of its caller in kobuki_node happen in the same commit without any failure, so no library-API condition exists either."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached: no failing interaction, hence no operation."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "Not reached: no effect on any interaction is documented; the only observation is the maintainer noticing two identical topics."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): duplicate topic / leftover protocol-1.0 code paths inside kobuki_node and kobuki_driver, removed as a cleanup; no second unit's interaction with them is documented as failing.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Context from the diff: at the parent 95b24e8 KobukiNodelet::advertiseTopics() had `sensor_data_publisher = nh.advertise < kobuki_comms::SensorData > (\"sensor_data\", 100);` and `default_data_publisher = nh.advertise < kobuki_comms::SensorData > (\"default_data\", 100);`; the fix deletes the second and publishSensorData() now calls kobuki.getSensorData(data). Removing the default_data topic is a provider-side element removal in principle, but the source names no subscriber of it, so there is no composition in which it failed. Commit dated 2012-04-09, pre-0.1.0 (first tag 2012-04-20), electric/fuerte era."
+}

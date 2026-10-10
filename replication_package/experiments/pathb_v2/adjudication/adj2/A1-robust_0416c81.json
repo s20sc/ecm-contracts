@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-robust_0416c81",
+ "kind": "A1",
+ "case_id": "robust_0416c81",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Now all speeds are hardcoded, what it's ok for normal kobuki/turtlebot. But with heavier robots, as waiterbot, minimum speeds are very slow, so the robot can get stuck easily.",
+  "url": "https://github.com/yujinrobot/kobuki/issues/262"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "Now all speeds are hardcoded, what it's ok for normal kobuki/turtlebot. But with heavier robots, as waiterbot, minimum speeds are very slow, so the robot can get stuck easily.\n\nAllow some flexibility on its configuration, at least lower velocity limits.",
+   "url": "https://github.com/yujinrobot/kobuki/issues/262"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I'm facing a similar issue with a heavier than usual Turtlebot.",
+  "url": "https://github.com/yujinrobot/kobuki/issues/262"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Confirmed that it is released on Hydro.",
+  "url": "https://github.com/yujinrobot/kobuki/issues/262"
+ },
+ "notes": "Independently re-decided and agree, noting this is the most borderline eligibility call of the packet. E1: maintainer corot's report names the concrete platform and symptom; a second user reproduces the condition (tulku, 2013-07-08: 'I'm facing a similar issue with a heavier than usual Turtlebot. This patch https://github.com/yujinrobot/kobuki/commit/0416c81e5d08466477c5806443a580a142d0d465 would be very helpful!'); maintainers confirm the fix (jihoonl: 'The configuration patch which @corot made would be sufficient for this issue.'). E2 stop 6: kobuki_auto_docking and kobuki_node are separate packages interacting over the remapped velocity topic -- verified at 977508c5: minimal.launch '<remap from=\"dock_drive/velocity\" to=\"mobile_base/commands/velocity\"/>' and kobuki_ros.cpp line 327 'velocity_command_subscriber = nh.subscribe(std::string(\"commands/velocity\"), 10, &KobukiRos::subscribeVelocityCommand, this);'. The failure does not occur with the standard peer (same commands work on a normal Kobuki/TurtleBot), so the internal test does not apply; the too-low commanded velocity is a wrong value crossing the topic boundary, and the fix (commit 0416c81, verified: adds setMinAbsV/setMinAbsW, defaults min_abs_v(0.01), min_abs_w(0.1), 'void DockDrive::setVel(double v, double w) { vx = sign(v) * std::max(std::abs(v), min_abs_v); wz = sign(w) * std::max(std::abs(w), min_abs_w); }', and nh.getParam(\"min_abs_v\"/\"min_abs_w\") in AutoDockingROS::init) changes the provider's declared parameter interface and emitted values, not mere name binding, so steps 3-5 do not stop. The hardcoded side is verified: dock_drive.cpp at 977508c5 line 46 '#define setVel(v,w) {vx=v;wz=w;}' with setStateVel(BUMPED_DOCK, -0.01, 0.0) (line 212), setStateVel(ALIGNED, 0.05, 0.00) (line 247), setStateVel(SCAN, 0.00, 0.10) (line 249). Condition class 'other' agree (value-range/capability mismatch of the peer, no named class); implicated elements field:geometry_msgs/Twist.linear.x, field:geometry_msgs/Twist.angular.z, topic:mobile_base/commands/velocity agree. E3 PAIR, E4 agree ('the robot can get stuck easily'). Loudness silent_documented / detection_stage run agree: only the physical symptom is reported, no diagnostic anywhere in the thread. Resolution recommended agree: released on Hydro is confirmed but no source shows a heavy robot docking with the parameters set, exactly the 'not shown working in this composition' case. The alternative reading (tuning limitation of the docking algorithm rather than an interaction defect) is acknowledged in the spec's own confidence note; under the tree's wrong-value-crossing-boundary rule I still land on eligible."
+}

@@ -1,0 +1,71 @@
+{
+  "task_id": "u0267",
+  "package": "example",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "topic:/topic",
+      "side": "provides",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": "reliable", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:std_msgs/String",
+      "side": "provides",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:std_msgs/String.data",
+      "side": "provides",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "topic:/topic": "topic topic: std_msgs/String",
+    "field:std_msgs/String.data": "field std_msgs/String.data: string"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].msg_type": "artifact.txt:1 | publisher_ = this->create_publisher<std_msgs::msg::String>(\"topic\", 1);",
+    "ports[0].frame": "artifact.txt:7-8 | auto message = std_msgs::msg::String(); message.data = std::string(\"Hello, \") + data + std::string(\"!\"); (text payload, no header, no spatial meaning)",
+    "ports[0].qos.reliability": "artifact.txt:1 | create_publisher<std_msgs::msg::String>(\"topic\", 1) passes only a history depth; documented default: rclcpp (foxy) qos.hpp conversion constructor QoS(size_t history_depth) is 'equivalent to QoS(KeepLast(history_depth))', whose initial profile is rmw_qos_profile_default; rmw (foxy) qos_profiles.h rmw_qos_profile_default sets RMW_QOS_POLICY_RELIABILITY_RELIABLE",
+    "ports[0].qos.durability": "artifact.txt:1 | create_publisher<std_msgs::msg::String>(\"topic\", 1) passes only a history depth; documented default: rclcpp (foxy) QoS(size_t history_depth) -> QoS(KeepLast(history_depth)) initialised from rmw_qos_profile_default; rmw (foxy) qos_profiles.h rmw_qos_profile_default sets RMW_QOS_POLICY_DURABILITY_VOLATILE",
+    "ports[1].msg_type": "artifact.txt:7 | auto message = std_msgs::msg::String();",
+    "ports[1].frame": "artifact.txt:7-8 | auto message = std_msgs::msg::String(); message.data = std::string(\"Hello, \") + data + std::string(\"!\"); (text payload, no spatial meaning)",
+    "ports[2].msg_type": "artifact.txt:7-8 | auto message = std_msgs::msg::String(); message.data = ...",
+    "ports[2].frame": "artifact.txt:5-8 | std::string data; for (uint8_t c = 120; c < 130; c++) data.push_back(c); ... message.data = std::string(\"Hello, \") + data + std::string(\"!\"); (character string, no spatial meaning)",
+    "declares[topic:/topic]": "artifact.txt:1 | publisher_ = this->create_publisher<std_msgs::msg::String>(\"topic\", 1);  (name written as the relative \"topic\"; packet element is /topic)",
+    "declares[field:std_msgs/String.data]": "artifact.txt:8 | message.data = std::string(\"Hello, \") + data + std::string(\"!\");  (field is assigned a std::string, the rosidl C++ mapping of IDL string; the definition text itself is not in the excerpt)",
+    "perm_requires.state": "artifact.txt:1-10 is a partial excerpt ('/* ... */' at line 3) with no configuration; permissions could not be checked",
+    "perm_grants.state": "artifact.txt:1-10 is a partial excerpt ('/* ... */' at line 3) with no configuration; permissions could not be checked",
+    "recovery.state": "artifact.txt:1-10 is a partial excerpt ('/* ... */' at line 3); recovery behaviour could not be checked"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "artifact.txt:5-8 appends bytes 120..129 to the std_msgs/String data field; 0x80 and 0x81 are not valid UTF-8 on their own (0x7F is also a control character), so the published string field carries non-UTF-8 content that a consumer decoding the field as UTF-8 text would reject."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task: only artifact.txt was used; no snapshot, package.xml, or dependency definition files were read or fetched (excerpt-based tasks allow only the artifact), so manifest_version and all definition_id values are null. The C++ type std_msgs::msg::String is recorded as std_msgs/String per the pkg/Type template. Topic name is copied verbatim as the relative \"topic\"; it resolves to /topic only if the node runs in the root namespace, which the excerpt does not show. QoS: the second argument 1 is a history depth (KeepLast(1)); reliability and durability are the documented rmw_qos_profile_default values; deadline is not set in code and the default (RMW_QOS_DEADLINE_DEFAULT) imposes no deadline, so deadline_ms is null. QoS is an attribute of the publisher endpoint, so it is recorded on the topic port only; the msg and field ports carry null QoS. No rate is visible (publishing context elided at line 3), so rate_hz/min_rate_hz are null. msg:std_msgs/String is used by the code but its declaration signature requires the definition hash, which cannot be computed from the excerpt; it is therefore in neither declares nor not_declared. The field type 'string' is inferred from the std::string assignment (rosidl C++ maps IDL string to std::string); a bounded string<=N maps to the same C++ type and cannot be excluded from the excerpt. references is empty because every packet element is on the provides side. exclusive is empty: no exclusive resource claim appears in the excerpt, but lines elided at line 3 were not visible. Line 10 of the artifact is a source marker and was not followed."
+}

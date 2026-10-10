@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-094",
+  "kind": "A1",
+  "case_id": "C3-094",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Actually my issue is not about Reliability policy, my problem is Durability policy.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "if any(pub.qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL for pub in infos):\n    qos.durability = DurabilityPolicy.TRANSIENT_LOCAL\n    qos.reliability = ReliabilityPolicy.RELIABLE",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rosbridge_websocket]: New publisher discovered on topic '/tf', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Yes this change resolves my issue.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/pull/1023"
+  },
+  "notes": "Independently verified: issue body names Library Version 2.2.0 / Jazzy / Ubuntu 24.04 and the incompatible-QoS warning; the reporter's `ros2 topic info /tf --v` output shows the rosbridge_websocket subscription with \"Durability: TRANSIENT_LOCAL\" while robot_state_publisher (and ekf_se_odom, ekf_se_map, base_link_appender) offer \"Durability: VOLATILE\" and only velocity_controller offers TRANSIENT_LOCAL — exactly the spec's composition. subscribers.py at tag 2.2.0 contains the quoted any(...TRANSIENT_LOCAL...) logic in both __init__ and subscribe(); PR #1023 diff replaces both with `if len(infos) > 0 and all(pub.qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL for pub in infos):` (reviewer: \"so in other words, we set transient local policy if all publishers on that topic also use transient local policy. Wouldn't it be easier if you just modified this line ... by changing `any` to `all` ?\"). Loudness: this is the S1-listed ROS 2 incompatible-QoS event, fired on publisher discovery (connect); the PR's test log reproduces the DURABILITY variant (\"New publisher discovered on topic '/a_topic', offering incompatible QoS. No messages will be received from it. Last incompatible policy: DURABILITY\"), supporting the durability condition over the misleading RELIABILITY label in the reporter's first log line. Exclusion of qos_reliability is correct: every publisher shown is RELIABLE and the reporter disclaims reliability. Resolution: the reporter's confirmation is on their own setup, but the /tf provider's revision is never stated in the source (only the Jazzy distro), so `observed`'s \"both of its units identified by revision\" is not met from the source; `recommended` is a self-consistent strict reading. The three-party trigger (velocity_controller making rosbridge request TRANSIENT_LOCAL) is correctly recorded in notes."
+}

@@ -1,0 +1,84 @@
+{
+  "task_id": "u0255",
+  "package": "compressed_image_transport",
+  "manifest_version": "5.0.3",
+  "ports": [
+    {
+      "element": "api:rclcpp::Node::get_effective_namespace",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:camera.image_raw.compressed.format",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:camera.image_raw.compressed.jpeg_quality",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:camera.image_raw.compressed.png_level",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:camera.image_raw.compressed.format": "param camera.image_raw.compressed.format: string",
+    "param:camera.image_raw.compressed.jpeg_quality": "param camera.image_raw.compressed.jpeg_quality: int",
+    "param:camera.image_raw.compressed.png_level": "param camera.image_raw.compressed.png_level: int"
+  },
+  "not_declared": [],
+  "references": [
+    "api:rclcpp::Node::get_effective_namespace"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:compressed_image_transport/package.xml:3 | <version>5.0.3</version>",
+    "ports[0].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:144 | uint ns_len = node->get_effective_namespace().length(); (return value is a namespace string used only to compute parameter names; no spatial meaning)",
+    "ports[1].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:67 | .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_STRING) (compression method string; no spatial meaning)",
+    "ports[2].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:89 | .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER) (JPEG quality scalar; no spatial meaning)",
+    "ports[3].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:76 | .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER) (PNG compression level scalar; no spatial meaning)",
+    "declares[param:camera.image_raw.compressed.format]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:66 | .set__name(\"format\") with .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_STRING) at line 67; full name built at lines 389-390 as base_name + \".\" + transport_name + \".\" + definition.descriptor.name and declared at line 396",
+    "declares[param:camera.image_raw.compressed.jpeg_quality]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:88 | .set__name(\"jpeg_quality\") with .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER) at line 89; full name built at lines 389-390 and declared at line 396",
+    "declares[param:camera.image_raw.compressed.png_level]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:75 | .set__name(\"png_level\") with .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER) at line 76; full name built at lines 389-390 and declared at line 396",
+    "references[api:rclcpp::Node::get_effective_namespace]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:144 | uint ns_len = node->get_effective_namespace().length(); (also line 404: if (node_->get_effective_namespace().length() > 1) {)",
+    "perm_requires": "searched compressed_image_transport/ (package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/, src/, include/): no permission requirement declared",
+    "perm_grants": "searched compressed_image_transport/ (package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/, src/, include/): no permission grant declared",
+    "recovery": "searched compressed_image_transport/ (package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/, src/, include/): no declared recovery behaviour; only local exception handling (compressed_publisher.cpp:398-401, 227-246)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The publisher strips the node's effective namespace plus the following separator (ns_len > 1 ? ns_len + 1 : ns_len) before turning the base topic into a dotted prefix, so the three listed parameters come out without a leading dot (camera.image_raw.compressed.*), with a deprecation shim for the old dot-prefixed names; the declared names, types and defaults look internally consistent. The subscriber's own mode parameter still uses substr(ns_len) without the +1, but that is not a listed element."
+  },
+  "confidence": "high",
+  "notes": "The snapshot holds the whole image_transport_plugins tree; only snapshot/compressed_image_transport/ was used. Parameter names are assembled at run time: CompressedPublisher::advertiseImpl takes the resolved base_topic, drops the first (ns_len > 1 ? ns_len + 1 : ns_len) characters where ns_len = node->get_effective_namespace().length() (compressed_publisher.cpp:144-146), replaces '/' with '.' (line 147), and declareParameter forms <base>.<transport>.<name> (lines 389-390) with transport name \"compressed\" (compressed_publisher.hpp:60-63). The packet names therefore correspond to a base topic camera/image_raw relative to the node's namespace; the suffixes .compressed.format/.jpeg_quality/.png_level and the types are fixed in code. Declared defaults and constraints: format default \"jpeg\", additional_constraints \"Supported values: [jpeg, png, tiff]\" (lines 64-70); png_level default 3, integer range 0..9 step 1 (lines 73-83); jpeg_quality default 95, integer range 1..100 step 1 (lines 86-96). When the effective namespace length is > 1 the code also declares deprecated dot-prefixed duplicates (e.g. .camera.image_raw.compressed.format, lines 403-415) and registers a pre-set-parameters callback that mirrors values between the dotted and undotted names (lines 149-154, 418-443); these duplicates are not packet elements and are not listed in declares. If a name is already declared, declareParameter catches ParameterAlreadyDeclaredException and reads the existing value (lines 398-401). QoS is null for all ports: parameters declared through rclcpp::Node::declare_parameter carry no QoS, and the api element is a function call. cfg/CompressedPublisher.cfg is a ROS 1 dynamic_reconfigure file with different defaults (jpeg_quality 80, png_level 9, formats jpeg/png only); CMakeLists.txt (ament_cmake) does not reference it, so it was not treated as the declaration. The subscriber (compressed_subscriber.cpp:83-85) computes its own parameter prefix with base_topic.substr(ns_len), without the +1 used by the publisher; this affects only its mode parameter, which is not a packet element. references lists only the packet's consumed element; the code also uses sensor_msgs/msg/Image, sensor_msgs/msg/CompressedImage and other rclcpp APIs, which are not enumerated. No dependency definition files were fetched (none of the elements is a message type)."
+}

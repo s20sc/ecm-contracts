@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-robust_21b86f6",
+ "kind": "A1",
+ "case_id": "robust_21b86f6",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Currently, the kinematic paramaters in the UR10 urdf disagree with those in the ur_kinematics/ur_kin.h files.",
+  "url": "https://github.com/ros-industrial/universal_robot/pull/82"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "This updates the UR10 model description to one which is based on Collada meshes.  Furthermore, the kinematic description is modified to rely solely on Denavit-Hartenberg parameters found in urcontrol.conf.  Currently, the kinematic paramaters in the UR10 urdf disagree with those in the ur_kinematics/ur_kin.h files.",
+   "url": "https://github.com/ros-industrial/universal_robot/pull/82"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "With the unmodified URDF I can see a clear difference between a pose I give to the inverse kinematics from ur_kinematics and the one visualized in rviz. When I use the lengths from the 2D drawing and those measured from the step file, I can't visually see any difference.",
+  "url": "https://groups.google.com/g/swri-ros-pkg-dev/c/1e3A_1BTQWQ"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "This was tested on UR10 with version v1.6 and v1.7. I will merge this pull request.",
+  "url": "https://github.com/ros-industrial/universal_robot/pull/82"
+ },
+ "notes": "Independently re-decided and agree. E1: issue #74 records the mailing-list thread; Maarten de Vries reproduced the mismatch (quote above, read in the fetched Google Groups page) and maintainers confirmed (de-vri-es on #74: 'there is no issue with the ur_kinematics DH parameters, but the link lengths in the UR10 URDF still seem to be wrong'; abubeck: 'According to UR the correct link length are in the config file of the UR'). E2 stop 6: ur_description and ur_kinematics are separate packages of ros-industrial/universal_robot whose disagreement is over the same physical chain -- joint solutions computed under ur_kinematics' DH constants are interpreted through the URDF's joint origins, so the wrong geometry crosses from the description into the consumer of the joint values; the resolving edit rewrites ur10.urdf.xacro's kinematic parameters (an interface/content change, not name binding, not build-only, not firmware); interface kind 'definition' is one of the tree's step-6 kinds. E3 PAIR agree (the IK output feeds the model display). E4 agree (observed visual pose difference). Condition class 'other' agree: the mismatch is numeric kinematic parameters of the same chain, with no shared nominal type, so neither definition_mismatch (same nominal type, different definition) nor any other named class fits; the spec's note that it could also be read as definition-level is a fair caveat and does not change my verdict. Implicated elements agree: the joint origins embody the wrong lengths and the fix rewrites exactly those (resource:joint/* and frame/ee_link); the resource: inventory form is a stated modelling convention in the spec's notes. Loudness silent_documented / detection_stage run agree: the mismatch is visible only as a visual pose difference, no diagnostic. Resolution recommended agree: the checks named in the evidence are against the UR controllers (abubeck: 'This was tested on UR10 with version v1.6 and v1.7. I will merge this pull request.'; '@ipa-fxm checked the link length to the configs on all our controllers (UR10 and UR5) and verified them with the current PR's.'), a different peer from this composition; dpsolomon's 'The kinematics look correct now, good job @kphawkins.' does not show the resolved URDF displayed against ur_kinematics output at named revisions, so 'recommended' (not 'observed') is right. Revision cross-check: commit 21b86f63408a99aff35cd82ca6ac180a99566ee5 verified via API as 'Merge pull request #82 from gt-ros-pkg/ur10_urdf_update' (first parent f39b2e75), matching the spec's revision_basis."
+}

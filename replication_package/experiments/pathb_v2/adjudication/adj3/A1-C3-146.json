@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-146",
+  "kind": "A1",
+  "case_id": "C3-146",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "ros2 param dump reports that param_1 is set to # and param_2 is set to",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["service:/param_demo/get_parameters", "field:rcl_interfaces/GetParameters.values", "param:param_2"],
+      "quote": "if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.",
+      "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1933083033"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "ros2 param dump reports that param_1 is set to # and param_2 is set to",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "`ros2 param dump` needs to handle empty list as exception if happens instead of proceeding zipping results."
+  },
+  "notes": "Issue body verbatim confirms the wrong dump output and the reproducer; maintainer comment 1933083033 verbatim confirms the cause and the two-part fix. class representation_convention is correct: the mismatch is how an uninitialized parameter is encoded in the GetParameters response (empty array vs per-name PARAMETER_NOT_SET entries of the same length), rather than a type or name mismatch. outcome failure (wrong output), loudness silent_documented (dump completes with wrong values and no diagnostic, detection_stage run) are correct. Resolution recommended is correct: both PRs (rclpy#1216, ros2cli#881) merged on rolling 2024-02-09 but no fixed-composition output is shown, and the rclpy fix was not backported to the reporter's iron install."
+}

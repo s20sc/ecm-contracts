@@ -1,0 +1,42 @@
+{
+  "item_id": "A1-CAL-05",
+  "kind": "A1",
+  "case_id": "CAL-05",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This message contains https://docs.ros.org/en/api/geographic_msgs/html/msg/GeoPoint.html and expects\n> Geographic point, using the WGS 84 reference ellipsoid.\n\nHowever the messages are published in ECEF coordinates.\n\nThis PR removes such conversion matching message requirements and message contents.",
+    "url": "https://github.com/mavlink/mavros/pull/1942"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "representation_convention",
+      "elements_verdict": "disagree",
+      "proposed_elements": [
+        "topic:mavros/global_position/gp_origin",
+        "field:geographic_msgs/GeoPoint.latitude",
+        "field:geographic_msgs/GeoPoint.longitude",
+        "field:geographic_msgs/GeoPoint.altitude"
+      ],
+      "quote": "Topic `mavros/global_position/gp_origin` has type `geographic_msgs/GeoPointStamped` and must contain coordinates in LLA. When I send a request containing LLA, I expect to receive a response containing LLA too in order to compare it and ensure that global_origin has been successfully set. Why **global_position** plugin transforms **global_origin** to ECEF?",
+      "url": "https://github.com/mavlink/mavros/issues/1381"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "I just ran into this as well and agree that it is very confusing and probably wrong to use ECEF in a `GeoPoint`.",
+    "url": "https://github.com/mavlink/mavros/issues/1381#issuecomment-1056053123"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "gps_global_origin: remove LLA to ECEF conversion ... FIX https://github.com/mavlink/mavros/issues/1381",
+    "url": "https://github.com/mavlink/mavros/pull/1942"
+  },
+  "notes": "The spec records the case ineligible at E2 step 2 ('internal: the failure is a defect inside one unit; the value crossing the interface is valid'). I disagree. Sources opened this session: issue #1381 body and comments (gh api), PR #1942 body and diff (merged 2024-06-06), mavros 1.0.0 global_position.cpp via raw.githubusercontent (the GeographicLib earth.Forward conversion overwriting latitude/longitude/altitude before gp_global_origin_pub.publish), and geographic_msgs GeoPoint.msg first-hand ('# Geographic point, using the WGS 84 reference ellipsoid.' / '# Latitude [degrees].' / '# Longitude [degrees].' / '# Altitude [m]'). E1 holds: public issue naming the concrete defect with the publishing code, user confirmations, maintainer-merged fix. E2 step 1: units are the mavros global_position plugin (provider of topic mavros/global_position/gp_origin, type geographic_msgs/GeoPointStamped) and the consumer of that topic (the reporter's origin-verification code; other affected consumers: lopsided98 2022, haavarpb 2023). Step 2 does NOT stop at internal: the value crossing the boundary is ECEF coordinates written into fields whose declared meaning is WGS-84 degrees/metres - wrong data for any consumer that follows the type, which is exactly what the merged fix states (quoted). The rubric's own rule ('A wrong value, frame, unit, component order, name, or timing that crosses the boundary is an interface failure even when the resolving edit is inside one unit') applies; the resolving edit removing the conversion is inside mavros but the failure is the mis-encoded value crossing the topic boundary. Steps 3-5 inapplicable (source change, not name/build/firmware). My stop: 6, interface kind topic (representation of the position value on it). Failed condition (spec null, so I propose it): representation_convention - ECEF vs geodetic encoding of the position crossing the boundary; frame_mismatch (ECEF 'earth' frame vs WGS-84 geodetic) is the nearest alternative, and the initial maintainer defence (TSC21 citing REP-0105's ECEF 'earth' frame) shows the frame reading; I prefer representation_convention because the mismatch is against the message type's declared content convention. Loudness: silent_documented/run - consumers read wrong numbers, no diagnostic at build/connect/activation (the plugin's only log line is the GeographicLib exception handler). Resolution: recommended - PR #1942 merged with the statement quoted, but no run of a working composition is shown in the PR or the issue. Caveat noted: the second unit is not identified by repository in the source (excerpt-based consumer), which the spec could have recorded instead of declaring the case internal."
+}

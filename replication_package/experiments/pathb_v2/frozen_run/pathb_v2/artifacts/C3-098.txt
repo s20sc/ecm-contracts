@@ -1,0 +1,38 @@
+[[reporter_mover_node@as-reported-2024-05-06]]
+import rclpy
+from rclpy.node import Node
+
+class MoverNode(Node):
+    def __init__(self):
+        super().__init__("node")
+        self.startup_timer = self.create_timer(
+            timer_period_sec=1/100,
+            callback=self.tmr_callback,
+        )
+
+    def tmr_callback(self) -> None:
+        # self.get_logger().warn("tik")
+        wait = self.create_rate(1000)
+        wait.sleep()
+        wait.destroy()
+
+def main(args=None):
+    rclpy.init()
+    node = MoverNode()
+    executor = rclpy.executors.MultiThreadedExecutor() 
+    executor.add_node(node)
+    executor.spin()
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()
+-- https://github.com/ros2/rclpy/issues/1278
+
+[[reporter_mover_node@as-reported-2024-05-09]]
+def tmr_callback(self) -> None:
+    myRate = self.create_rate(1000)
+    myRate.sleep()
+    self.destroy_rate(myRate)
+-- https://github.com/ros2/rclpy/issues/1278#issuecomment-2101738111

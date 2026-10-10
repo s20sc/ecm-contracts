@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-robust_9299530",
+ "kind": "A1",
+ "case_id": "robust_9299530",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "I just updated my Groovy debian installation with the release that was posted today on ros-users and now collada meshes no longer appear in RViz.  In particular, the TurtleBot is now basically invisible.",
+  "url": "https://github.com/ros-visualization/rviz/issues/622"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-\t\t<unit meter=\"0.01\" name=\"centimeter\"/>\n+\t\t<unit meter=\"1.0\" name=\"meter\"/>",
+   "url": "https://github.com/turtlebot/turtlebot_create/commit/9299530eb77b9e8a2a18160fb6ece325d38abfbc"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Actually, it doesn't look like scaling, but it is pretty messed up on my machine as well (whole robot is just a few speckles of gray and white scattered around)",
+  "url": "https://github.com/ros-visualization/rviz/issues/622#issuecomment-15330155"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "turtlebot_create version 2.0.1 fixes this issue. It's now available on shadow-fixed."
+ },
+ "notes": "Verified this session: rviz#622 body (pirobot's report, 'Yes, 1.9.28 is what I meant.', dgossow's 'We didn't test this with the turtlebot meshes, sorry.'), turtlebot#65 and bit-pirate's fix statement (https://github.com/turtlebot/turtlebot/issues/65#issuecomment-15744659), the 9299530 patch (unit line change verbatim; also removes scaling properties from create.urdf.xacro), and rviz PR#603 body whose rationale quote is verbatim: 'Previously, it was acceptable to simply ignore this attribute as nothing else used it, but the current version of Gazebo does, and so it must be used to maintain consistency.' Eligibility: the mesh <unit> declaration is a definition crossing the boundary; the fix edits the provider-side declaration, not a deployment name binding, not build — stop at 6. UPGRADE supported by the reporter's update statement and the PR#603 rationale. unit_mismatch is the right class for a scale-unit declaration applied differently across the boundary. Restricting the condition to create_body.dae is correct per S1: pirobot's kinect/plate_0/1/2 meshes live in turtlebot_description, fixed by turtlebot PR#66/8cf9d97 (recorded in notes, not conditions). Resolution = recommended is right: bit-pirate's statement is a release announcement, and pirobot's earlier 'applying the following scales to the meshes fixed the problem' used his own meshes with a scale change, not revision 2.0.1. consumer_built_against.broken = 1.9.24 (last unit-ignoring release) is an inference whose supporting tag dates and branch-merge sha 10235373 were not re-verified this session; it does not affect the four adjudicated dimensions."
+}

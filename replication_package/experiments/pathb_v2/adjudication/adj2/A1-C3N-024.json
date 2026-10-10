@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3N-024",
+ "kind": "A1",
+ "case_id": "C3N-024",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "-  explicit Duration(rcl_duration_value_t nanoseconds);",
+  "url": "https://github.com/ros2/rclcpp/commit/6815022909086487f2b8dc14c0540b00d4cf61a0"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "/home/runner/work/moveit2/moveit2/.work/target_ws/install/moveit_core/include/moveit/controller_manager/controller_manager.h:141:67: error: no matching conversion for functional-style cast from 'int' to 'rclcpp::Duration'\n    virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0;",
+   "url": "https://github.com/moveit/moveit2/pull/1181"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "controller_manager.h:141:67: error: no matching conversion for functional-style cast from 'int' to 'rclcpp::Duration'",
+  "url": "https://github.com/moveit/moveit2/pull/1181"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "+  virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration::from_nanoseconds(-1)) = 0;"
+ },
+ "notes": "Independently re-decided and agree. E1: issue 1178 body read verbatim: 'We have a broken ci-testing with the changes from https://github.com/ros2/rclcpp/pull/1913. Currently working on fixing these.' E2 stop 6: I fetched the rclcpp commit 6815022 patch (PR #1913 'remove things that were deprecated during galactic', merged 2022-04-06): it deletes the deprecated 'explicit Duration(rcl_duration_value_t nanoseconds);' from duration.hpp and its definition from duration.cpp; moveit_core's default argument 'rclcpp::Duration(-1)' referenced that constructor, so a provider element the consumer references was removed across the library-API boundary -- not internal, and the fix changes consumer source (not name binding, not build-only), so steps 3-5 do not stop. E3 UPGRADE: PR #1181 body 'I believe this is caused by https://github.com/ros2/rclcpp/pull/1913 and rclcpp getting a new release.' and issue comment (vatanaksoytezer 2022-04-14) 'They did a sync and now main is also broken'. E4: CI build failure with the quoted compiler error. Condition class element_removed_or_renamed on the specific overload is right (other Duration constructors remain; the patch context shows Duration(int32_t,uint32_t) and Duration(std::chrono::nanoseconds) kept). Loudness loud_documented at build: the compiler error is exactly the rubric's 'compiler ... error' diagnostic; detection_stage build agree. Resolution recommended agree: I read all four issue comments and the PR body; nothing in the thread shows the fixed composition building green against an identified rclcpp revision (the two failing CI run links are run URLs I did not open); PR #1181 was merged (API: merged=true, merge_commit_sha 14d2a932c74ab1dc6bed652738d17ee2bae23d4f, base.sha 438f6d208cea653238ea827f1c83ae901cedc360, confirming the spec's broken_rev for moveit_core) and its diff matches the resolution summary. The rclcpp rclcpp broken_rev tag membership (16.0.0) was not independently re-verified; it is outside the four adjudicated fields."
+}

@@ -1,0 +1,91 @@
+{
+  "case_id": "C3-118",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/2632",
+    "https://github.com/moveit/moveit2/pull/2752",
+    "https://github.com/moveit/moveit2/commit/0f24369749e908040bdb05708993a1250edbdea9",
+    "https://github.com/moveit/moveit2/pull/722",
+    "https://github.com/moveit/moveit2/issues/2753",
+    "https://github.com/moveit/moveit2/blob/2.8.0/moveit_ros/moveit_servo/src/servo_node.cpp",
+    "https://github.com/ros2/rclcpp/blob/24.0.0/rclcpp/include/rclcpp/publisher.hpp",
+    "https://github.com/ros2/rclcpp/blob/24.0.0/rclcpp/src/rclcpp/qos.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproduction (\"Launch moveit_servo as a ComposableNode.\") and the resulting error: \"Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value\" -- https://github.com/moveit/moveit2/issues/2632 . Maintainer confirmation: \"I recall seeing that warning when testing, and am OK with the fix in #722 to not enable it.\" -- https://github.com/moveit/moveit2/issues/2632#issuecomment-1877117619 ; the same error was reported earlier by a maintainer in https://github.com/moveit/moveit2/pull/722 (\"[ERROR] [test_servo_integration_container]: Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["moveit_servo", "rclcpp"],
+      "interface_kind": "library API",
+      "evidence": "moveit_servo's ServoNode creates its publishers and subscriptions through rclcpp with rclcpp::SystemDefaultsQoS() (e.g. \"node_->create_publisher<moveit_msgs::msg::ServoStatus>(servo_params_.status_topic, rclcpp::SystemDefaultsQoS());\" -- https://github.com/moveit/moveit2/blob/2.8.0/moveit_ros/moveit_servo/src/servo_node.cpp), which rclcpp turns into keep-last with depth 0 (\"case RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT:\\n      return KeepLast(rmw_qos.depth, false);\" -- https://github.com/ros2/rclcpp/blob/24.0.0/rclcpp/src/rclcpp/qos.cpp). When the node is constructed with intra-process enabled, rclcpp rejects that QoS value at entity creation (\"if (qos.depth() == 0) {\\n        throw std::invalid_argument(\\n                \\\"intraprocess communication is not allowed with a zero qos history depth value\\\");\" -- https://github.com/ros2/rclcpp/blob/24.0.0/rclcpp/include/rclcpp/publisher.hpp). The failure is a QoS value crossing the moveit_servo -> rclcpp API boundary that the provider refuses; it is not a crash in either unit's own logic, not a name binding, not a build change."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: moveit_servo passes QoS profiles and NodeOptions (use_intra_process_comms) into rclcpp's create_publisher/create_subscription when the Servo composable node is loaded with extra_arguments=[{'use_intra_process_comms' : True}], as the warning advises: \"Intra-process communication is disabled, consider enabling it by adding:  extra_arguments=[{'use_intra_process_comms' : True}] to the Servo composable node in the launch file\" -- https://github.com/moveit/moveit2/issues/2632"
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed refusal: \"However, this will lead to the following error:\\r\\n`Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value`\" and \"Following advice of the warning leads to an error.\" -- https://github.com/moveit/moveit2/issues/2632"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "moveit_servo",
+      "role": "consumer",
+      "repo": "https://github.com/moveit/moveit2",
+      "broken_rev": "2.8.0",
+      "resolved_rev": "0f24369749e908040bdb05708993a1250edbdea9",
+      "pinned": true,
+      "revision_basis": "Reporter states \"Source build 2.8.0\" on ROS Rolling; tag 2.8.0 resolves to 4210f4644c90853e3fc34ebba536402d2c87d6fb (2023-09-10). The main branch up to the report date (2023-12-22) also still carried package version 2.8.0 with the same warning and the same SystemDefaultsQoS publishers/subscriptions; the tag is preferred because the warning text quoted in the report ends with \"moveit_servo.servo_node\", the static logger name used at the tag (rclcpp::get_logger(\"moveit_servo.servo_node\")), whereas main by then logged through the node logger. Resolved revision is the merge commit of PR #2752 on main (2024-04-30), which only deletes the warning; ServoNode still creates its entities with rclcpp::SystemDefaultsQoS() at that revision.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "rclcpp",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rclcpp",
+      "broken_rev": "24.0.0",
+      "resolved_rev": "24.0.0",
+      "pinned": true,
+      "revision_basis": "The reporter names only ROS Rolling on Ubuntu 22.04 (MoveIt built from source); the rclcpp revision is not stated. 24.0.0 (0f331f90a99da40f7b7a69b4f55b30b7245d294f, 2023-11-06) is the latest rclcpp release before the report date; 25.0.0 was released 2023-12-26, after it. The rolling branch head on the report date (2bb1dc2c716ae12a24145891724f8436aa4e52bd) contains the identical intra-process QoS checks. The resolution does not change rclcpp, so it keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:rclcpp::NodeOptions::use_intra_process_comms", "sides": {"rclcpp": "provides", "moveit_servo": "consumes"}},
+    {"element": "api:rclcpp::SystemDefaultsQoS", "sides": {"rclcpp": "provides", "moveit_servo": "consumes"}},
+    {"element": "api:rclcpp::Node::create_publisher", "sides": {"rclcpp": "provides", "moveit_servo": "consumes"}},
+    {"element": "api:rclcpp::Node::create_subscription", "sides": {"rclcpp": "provides", "moveit_servo": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:rclcpp::NodeOptions::use_intra_process_comms", "api:rclcpp::SystemDefaultsQoS", "api:rclcpp::Node::create_publisher"],
+      "quote": "Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value",
+      "url": "https://github.com/moveit/moveit2/issues/2632"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Runtime-enforced refusal when the component is constructed: \"Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value\" -- https://github.com/moveit/moveit2/issues/2632 (the component container reports it as \"[ERROR] [test_servo_integration_container]: Component constructor threw an exception: ...\" in https://github.com/moveit/moveit2/pull/722).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "PR #2752 deletes the ServoNode warning that tells users to enable use_intra_process_comms. It does not change the QoS that ServoNode passes to rclcpp, so the refused composition (Servo component with intra-process enabled) still fails; the practical remedy is to leave intra-process disabled. Re-enabling intra-process was deferred to moveit2#2753, pending rclcpp support.",
+    "status": "none",
+    "evidence": "Diff of PR #2752 only removes the `if (!options.use_intra_process_comms())` warning block from moveit_ros/moveit_servo/src/servo_node.cpp -- https://github.com/moveit/moveit2/pull/2752/files ; at the merge commit 0f24369749e908040bdb05708993a1250edbdea9 servo_node.cpp still uses rclcpp::SystemDefaultsQoS() for its publishers and subscriptions. Reporter afterwards: \"You don't need to avoid the composable node. The only thing you need to avoid is following the warnings advice, since this will lead to an error.\" -- https://github.com/moveit/moveit2/issues/2632#issuecomment-2362965448"
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class `other` is used because the refused attribute is the history kind/depth of the QoS profile on the intra-process path; the listed QoS classes cover only reliability, durability and deadline. The source does not name the specific entity that triggered the exception (reporter: \"I did not find anything in the moveit code\"); the implicated create_publisher/SystemDefaultsQoS elements are inferred from the code: the message text is thrown by rclcpp's Publisher::post_init_setup (the subscription path throws a differently worded message), and ServoNode's publishers at 2.8.0 use rclcpp::SystemDefaultsQoS(), which rclcpp 24.0.0 maps to KeepLast with depth 0. PR #2752's description attributes the problem to missing KEEP_ALL support (ros2/rclcpp#752); per the primary code the rejected value is keep-last with depth 0, not KEEP_ALL. History: the same refusal was hit in 2021 and handled by disabling use_intra_process_comms in the servo launch files (moveit2 PR #722); the warning was left in place and is what this issue addresses. Other composition not specified: none. A Humble user reports the warning still appears there (https://github.com/moveit/moveit2/issues/2632#issuecomment-2361907290); no backport of #2752 was traced."
+}

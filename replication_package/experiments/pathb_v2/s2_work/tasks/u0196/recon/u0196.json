@@ -1,0 +1,83 @@
+{
+  "task_id": "u0196",
+  "package": "kobuki_dashboard",
+  "manifest_version": "0.5.1",
+  "ports": [
+    {
+      "element": "api:QtGui.QAction",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:QtGui.QMessageBox",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:python_qt_binding.QtCore.QSize",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:python_qt_binding.QtGui.QToolButton",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:QtGui.QAction",
+    "api:QtGui.QMessageBox",
+    "api:python_qt_binding.QtCore.QSize",
+    "api:python_qt_binding.QtGui.QToolButton"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_dashboard/package.xml:3",
+    "references[api:QtGui.QAction]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8",
+    "references[api:QtGui.QMessageBox]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8",
+    "references[api:python_qt_binding.QtCore.QSize]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:9",
+    "references[api:python_qt_binding.QtGui.QToolButton]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/battery_widget.py:3",
+    "ports[0].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8",
+    "ports[1].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8",
+    "ports[2].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:9",
+    "ports[3].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/battery_widget.py:3",
+    "perm_requires.state": "searched all files under snapshot/kobuki_dashboard (package.xml, CMakeLists.txt, setup.py, plugins/plugin.xml, scripts/kobuki_dashboard, src/kobuki_dashboard/*.py) for permission/capability declarations; only LICENSE boilerplate matched 'permission'",
+    "perm_grants.state": "same search as perm_requires; no grant declarations in code or configuration",
+    "recovery.state": "searched snapshot/kobuki_dashboard for recover/retry/reconnect handling; none found (only shutdown_dashboard unregister at dashboard.py:66 and close() unregister in motor_widget.py:41-42, led_widget.py:41-42)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The package targets kinetic (Qt5 through python_qt_binding) but imports QAction and QMessageBox from a bare 'QtGui' module and QToolButton from python_qt_binding.QtGui; under Qt5 these widget classes live in QtWidgets, so these Qt4-era imports would likely raise ImportError when the plugin loads."
+  },
+  "confidence": "high",
+  "notes": "All four packet elements are Python Qt API symbols this package imports (consumes); none are provided, so declares and not_declared are empty. Port fields (msg_type, frame, units, qos, rates, definition_id) are null because these are library class imports, not ROS communication channels, and no .msg/.srv/.action/.idl definition applies; qos is null also because this is ROS 1. dashboard.py:8 is verbatim 'from QtGui import QMessageBox, QAction' (a bare top-level QtGui module, not python_qt_binding.QtGui); QMessageBox and QAction are imported but not used elsewhere in the file. battery_widget.py:3 'from python_qt_binding.QtGui import QToolButton' is imported but not used in the module body. QSize is imported at dashboard.py:9 (unused there), motor_widget.py:7 and led_widget.py:7, and used at motor_widget.py:19 and led_widget.py:20 ('self.setFixedSize(QSize(40,40))'). Whether the kinetic python_qt_binding still exposes these symbols under these module paths could not be checked from allowed sources (python_qt_binding source is not a definition file). Other interfaces the code uses that are not packet elements and are therefore not recorded as ports: subscribes 'diagnostics_agg' as diagnostic_msgs.msg.DiagnosticArray (dashboard.py:26); publishes kobuki_msgs/MotorPower on '/mobile_base/commands/motor_power' (dashboard.py:22, motor_widget.py:11) and kobuki_msgs/Led on '/mobile_base/commands/led1' and '/mobile_base/commands/led2' (dashboard.py:29, led_widget.py:11), each with queue_size=5. No exclusive resources are claimed."
+}

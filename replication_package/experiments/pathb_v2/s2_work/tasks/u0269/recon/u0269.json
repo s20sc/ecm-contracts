@@ -1,0 +1,28 @@
+{
+  "task_id": "u0269",
+  "package": "rosidl_generator_py",
+  "status": "evidence_inadequate",
+  "searched": "All 29 files under snapshot/ were checked as readable and non-empty (no iCloud placeholders), then searched: grep -rnI -i 'std_msgs|/topic|topic|rclpy|std_|create_publisher|create_subscription' returned no match; grep -rn 'String' matched only rosidl_generator_py test types (Strings, WStrings, StringArrays), rosidl_parser string type classes (AbstractGenericString, AbstractString, AbstractWString, BoundedString, UnboundedString) and rosidl_runtime_c__String / C-API strings in the templates; grep for '.data' matched only rosidl_runtime_c sequence/string struct members in resource/_msg_support.c.em (for example line 231 'ros_message->@(member.name).data'), not std_msgs/String.data; grep -i 'permission|recover|exclusive|qos|frame_id|publish|subscri' matched only Apache license boilerplate. package.xml has no std_msgs dependency, and CMakeLists.txt generates test interfaces only from test_interface_files plus msg/BuiltinTypeSequencesIdl.idl and msg/StringArrays.msg. The package is the Python interface code generator; it names none of the three packet elements (topic:/topic, msg:std_msgs/String, field:std_msgs/String.data).",
+  "manifest_version": "0.9.6",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rosidl_generator_py/package.xml:5",
+    "status": "grep -rnI -i 'std_msgs|/topic|topic|rclpy|std_|create_publisher|create_subscription' over all 29 snapshot files: no match (exit status 1)",
+    "perm_requires": "grep -rnI -i 'permission' over snapshot: only Apache license boilerplate (LICENSE and file headers such as snapshot:rosidl_generator_py/rosidl_generator_py/generate_py_impl.py:12); package.xml and CMakeLists.txt declare no permissions",
+    "perm_grants": "grep -rnI -i 'permission' over snapshot: only Apache license boilerplate; package.xml and CMakeLists.txt declare no permission grants",
+    "recovery": "grep -rnI -i 'recover' over snapshot: no match outside license text; no recovery declaration in code or configuration"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The package is the rosidl Python generator. It names none of the three elements, so any link to them would be indirect: it generates the Python class for std_msgs/String and the C conversion of its string field .data through resource/_msg.py.em and resource/_msg_support.c.em. Nothing I read shows a defect for these elements, and without further investigation I cannot tell whether the generated binding misbehaves for them."
+  },
+  "confidence": "high",
+  "notes": "All three packet elements have side 'consumes'. By the rules, declares and not_declared cover only provided elements, so both stay empty. A consumed element goes into references only when the code names it; this snapshot names none of them, so references is empty and ports is empty because the package publishes, subscribes to, and calls none of them. Its only relation to std_msgs/String is as the generator that would be run on that message's definition when some other package builds it; the snapshot does not name that type. No dependency definition file was fetched because the snapshot's definitions and code do not depend on std_msgs, so no definition_id was computed. QoS, frame, units and rates do not apply because there are no ports. exclusive is empty: grep -i 'exclusive' matched only the license text."
+}

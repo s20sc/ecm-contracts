@@ -1,0 +1,74 @@
+{
+  "task_id": "u0198",
+  "package": "python_qt_binding",
+  "manifest_version": "0.2.19",
+  "ports": [
+    {
+      "element": "api:QtGui.QAction",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:QtGui.QMessageBox",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:python_qt_binding.QtCore.QSize",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:python_qt_binding.QtGui.QToolButton",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3",
+    "ports[0]": "snapshot:src/python_qt_binding/binding_helper.py:103 (sys.modules[module_name] = module, legacy top-level registration of the binding's 'QtGui' module; 'QtGui' is a required module at binding_helper.py:64); element and side from packet.json",
+    "ports[1]": "snapshot:src/python_qt_binding/binding_helper.py:103 (sys.modules[module_name] = module, legacy top-level registration of the binding's 'QtGui' module; 'QtGui' is a required module at binding_helper.py:64); element and side from packet.json",
+    "ports[2]": "snapshot:src/python_qt_binding/__init__.py:59 (sys.modules[__name__ + '.' + module_name] = module) re-exporting the binding's 'QtCore' module, a required module at binding_helper.py:63; element and side from packet.json",
+    "ports[3]": "snapshot:src/python_qt_binding/__init__.py:59 (sys.modules[__name__ + '.' + module_name] = module) re-exporting the binding's 'QtGui' module, a required module at binding_helper.py:64; element and side from packet.json",
+    "perm_requires": "searched snapshot:package.xml, CMakeLists.txt, setup.py, Makefile, MANIFEST.in, cmake/*, src/python_qt_binding/*.py; no permission requirement declared",
+    "perm_grants": "searched snapshot:package.xml, CMakeLists.txt, setup.py, Makefile, MANIFEST.in, cmake/*, src/python_qt_binding/*.py; no permission grant declared",
+    "recovery": "searched snapshot:package.xml, CMakeLists.txt, setup.py, Makefile, MANIFEST.in, cmake/*, src/python_qt_binding/*.py; no recovery behaviour declared for the listed elements"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "At this revision the package is the Qt4-era binding (PyQt4/PySide only) and re-exports the binding's whole QtGui and QtCore modules, with QtWidgets aliased to QtGui; under Qt4 the widget classes QAction, QMessageBox and QToolButton live in QtGui and QSize in QtCore, so all four element paths would resolve here. This is a guess from general Qt knowledge, not verified from allowed sources."
+  },
+  "confidence": "medium",
+  "notes": "The snapshot names none of the four symbols: a search of every file for QAction, QMessageBox, QSize and QToolButton returned no hits. python_qt_binding 0.2.19 does not declare individual classes. It imports whole binding modules and re-exports them. In binding_helper.py, _select_qt_binding (lines 49-98) tries the loaders in DEFAULT_BINDING_ORDER ['pyqt', 'pyside'] (line 53), which can be overridden via sys.SELECT_QT_BINDING / sys.SELECT_QT_BINDING_ORDER (lines 268-271). _load_pyqt imports PyQt4.<module> (line 144) and _load_pyside imports PySide.<module> (line 181) for required_modules ['QtCore', 'QtGui'] (lines 62-65) and for the optional modules. _register_binding_module (lines 101-105) registers each module both as a top-level sys.modules entry under its own name (for example 'QtGui'; the comment calls this legacy compatibility) and in QT_BINDING_MODULES. Line 90 sets QT_BINDING_MODULES['QtWidgets'] = QT_BINDING_MODULES['QtGui'] 'for forward compatibility with Qt5'. __init__.py (lines 58-60) then exposes every QT_BINDING_MODULES entry as python_qt_binding.<name>. So api:QtGui.QAction and api:QtGui.QMessageBox reach consumers through the top-level 'QtGui' module or through python_qt_binding.QtGui; api:python_qt_binding.QtGui.QToolButton goes through python_qt_binding.QtGui, and api:python_qt_binding.QtCore.QSize through python_qt_binding.QtCore. Whether each class exists in those modules depends on the installed PyQt4 or PySide QtGui/QtCore module. That content is outside the allowed sources (it is not a .msg/.srv/.action/.idl definition), so I could not determine from allowed sources whether any element is declared, and all four are in neither declares nor not_declared. The code does rely on QtGui holding widget classes: line 167 has 'from QtGui import QFileDialog', and line 90 aliases QtWidgets to QtGui. The ports are listed because the package re-exports the modules that contain these paths. msg_type, frame, units, QoS, rate and definition_id do not apply to Python API symbols and are null (QoS is also null for ROS 1). references is empty because every packet element is on the provides side. The code also references non-packet binding symbols (QtGui.QFileDialog getOpenFileNameAndFilter/getSaveFileNameAndFilter at lines 167-169, QtCore pyqtSignal/Signal aliases at lines 149-151 and 186-188, PySide.QtCore.QMetaObject and PySide.QtUiTools.QUiLoader in _loadUi); these are not recorded as references. QtBindingHelper.py only prints a deprecation notice. The import-time fallback from pyqt to pyside is binding selection, not declared recovery behaviour, so recovery is recorded as absent. No hardware or exclusive resources are claimed."
+}

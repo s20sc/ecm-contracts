@@ -1,0 +1,92 @@
+{
+  "task_id": "u0197",
+  "package": "kobuki_dashboard",
+  "manifest_version": "0.5.1",
+  "ports": [
+    {
+      "element": "api:QtGui.QAction",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:QtGui.QMessageBox",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:python_qt_binding.QtCore.QSize",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:python_qt_binding.QtGui.QToolButton",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:QtWidgets.QMessageBox",
+    "api:QtWidgets.QAction",
+    "api:python_qt_binding.QtCore.QSize",
+    "api:QtWidgets.QToolButton"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_dashboard/package.xml:3",
+    "ports[0].element": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8 (from QtWidgets import QMessageBox, QAction) -- the class QAction is imported from the bare module QtWidgets, not from QtGui; no other occurrence of QAction in the package",
+    "ports[0].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8 (import only; the name is not used further in dashboard.py)",
+    "ports[0].frame": "API symbol (Qt class import); carries no spatial data",
+    "ports[1].element": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8 (from QtWidgets import QMessageBox, QAction) -- the class QMessageBox is imported from the bare module QtWidgets, not from QtGui; no other occurrence of QMessageBox in the package",
+    "ports[1].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8 (import only; the name is not used further in dashboard.py)",
+    "ports[1].frame": "API symbol (Qt class import); carries no spatial data",
+    "ports[2].element": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:9; snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:7; snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:7 (from python_qt_binding.QtCore import QSize)",
+    "ports[2].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:20; snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:19 (self.setFixedSize(QSize(40,40)))",
+    "ports[2].frame": "API symbol (Qt class used for widget size in pixels); carries no spatial data",
+    "ports[3].element": "snapshot:kobuki_dashboard/src/kobuki_dashboard/battery_widget.py:3 (from QtWidgets import QToolButton) -- the class QToolButton is imported from the bare module QtWidgets, not from python_qt_binding.QtGui; no other occurrence of QToolButton in the package",
+    "ports[3].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/battery_widget.py:3 (import only; the name is not used further in battery_widget.py)",
+    "ports[3].frame": "API symbol (Qt class import); carries no spatial data",
+    "references[api:QtWidgets.QMessageBox]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8",
+    "references[api:QtWidgets.QAction]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:8",
+    "references[api:python_qt_binding.QtCore.QSize]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/dashboard.py:9; snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:7,20; snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:7,19",
+    "references[api:QtWidgets.QToolButton]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/battery_widget.py:3",
+    "exclusive": "searched package.xml, CMakeLists.txt, setup.py, plugins/plugin.xml, scripts/kobuki_dashboard, src/kobuki_dashboard/*.py: no exclusive resource or device handle is claimed",
+    "perm_requires.state": "searched package.xml, CMakeLists.txt, setup.py, plugins/plugin.xml, scripts/kobuki_dashboard, src/kobuki_dashboard/*.py: no permission requirement declared (grep for perm matches only LICENSE text)",
+    "perm_grants.state": "searched the same files: no permission grant declared",
+    "recovery.state": "searched the same files: no recovery behaviour or policy declared"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "For a kinetic (Qt5) target the code imports QAction, QMessageBox and QToolButton from QtWidgets, their Qt5 module, and QSize from python_qt_binding.QtCore; none of the QtGui paths named in the packet is referenced. The bare 'QtWidgets' module name (rather than python_qt_binding.QtWidgets) resolves only through python_qt_binding's top-level module aliases, which I did not verify."
+  },
+  "confidence": "high",
+  "notes": "All four packet elements are consumed Qt API symbols; the package provides none of them, so declares and not_declared are empty. Only api:python_qt_binding.QtCore.QSize is referenced under the exact packet name. The other three are referenced under a different module path: QAction and QMessageBox via 'from QtWidgets import QMessageBox, QAction' (dashboard.py:8) and QToolButton via 'from QtWidgets import QToolButton' (battery_widget.py:3), i.e. the bare top-level module 'QtWidgets', not 'QtGui' or 'python_qt_binding.QtGui'. No file in the package mentions QtGui. QAction, QMessageBox and QToolButton are imported but never used after import; the imports still execute at module load. In both files an rqt_robot_dashboard import precedes the bare QtWidgets import (dashboard.py:6-7, battery_widget.py:2). For the port entries I mapped each packet element to the same-named Qt class that the code imports; the references list gives the names exactly as the code writes them. ROS 1 package, so all QoS values are null; API symbols have no .msg/.srv/.action/.idl definition, so definition_id and msg_type are null. Other external references in the code that are not packet elements (not listed in references): topics '/mobile_base/commands/motor_power' (kobuki_msgs/MotorPower, published, motor_widget.py:11 via dashboard.py:22), '/mobile_base/commands/led1' and '/mobile_base/commands/led2' (kobuki_msgs/Led, published, led_widget.py:11 via dashboard.py:29), 'diagnostics_agg' (diagnostic_msgs.msg.DiagnosticArray, subscribed, dashboard.py:26), and rqt_robot_dashboard classes Dashboard, MonitorDashWidget, ConsoleDashWidget, MenuDashWidget, IconToolButton, BatteryDashWidget. package.xml does not list python_qt_binding or diagnostic_msgs as dependencies. The snapshot is the kobuki_desktop repository (meta-package kobuki_desktop 0.5.1); the sibling kobuki_qtestsuite still imports from python_qt_binding.QtGui, which is outside this task's package."
+}

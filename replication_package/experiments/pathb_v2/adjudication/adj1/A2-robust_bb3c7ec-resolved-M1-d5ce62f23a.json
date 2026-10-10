@@ -1,0 +1,31 @@
+{
+  "item_id": "A2-robust_bb3c7ec-resolved-M1-d5ce62f23a",
+  "kind": "A2",
+  "case_id": "robust_bb3c7ec",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "missing_permission",
+  "values": [
+    {
+      "path": "consumer.perm_requires[android.permission.ACCESS_WIFI_STATE]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0133/snapshot/library/AndroidManifest.xml:8\n\"  <uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>\""
+    },
+    {
+      "path": "producer.perm_grants",
+      "verdict": "unverifiable",
+      "source_excerpt": "snapshot:s2_work/tasks/u0135/snapshot/kobuki_node/src/node/kobuki_node.cpp:80-81\n\"  updater.setHardwareID(\"Kobuki\");\n  updater.add(battery_diagnostics);\""
+    },
+    {
+      "path": "consumer.perm_grants",
+      "verdict": "unverifiable",
+      "source_excerpt": "snapshot:s2_work/tasks/u0133/snapshot/library/AndroidManifest.xml:6-9\n\"\t<uses-sdk android:minSdkVersion=\"9\"/>\n  <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>\n  <uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>\n  <uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>\""
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specification declares PAIR and explicitly includes the aggregated diagnostic topic: snapshot:specs/robust_bb3c7ec.json:62-66\n\"  \"operation\": \"PAIR\",\n  \"consumer_built_against\": {\"broken\": null, \"resolved\": null, \"basis\": null},\n  \"inventory\": [\n    {\"element\": \"topic:/diagnostics_agg\", \"sides\": {\"kobuki_node\": \"provides\", \"android_app_manager\": \"consumes\"}},\n    {\"element\": \"msg:diagnostic_msgs/DiagnosticArray\", \"sides\": {\"kobuki_node\": \"provides\", \"android_app_manager\": \"consumes\"}},\"\nThe dashboard subscribes to that DiagnosticArray input: snapshot:s2_work/tasks/u0133/snapshot/library/src/ros/android/views/TurtlebotDashboard.java:121\n\"      diagnosticSubscriber = node.newSubscriber(\"diagnostics_agg\", \"diagnostic_msgs/DiagnosticArray\");\"\nIt routes the robot battery status to its robotBattery view: snapshot:s2_work/tasks/u0133/snapshot/library/src/ros/android/views/TurtlebotDashboard.java:155-159\n\"  private void handleDiagnosticArray(DiagnosticArray msg) {\n    String mode = null;\n    for (DiagnosticStatus status : msg.status) {\n      if (status.name.equals(\"/Power System/Battery\")) {\n        populateBatteryFromStatus(robotBattery, status);\"\nThe resolved provider registers and updates battery diagnostics: snapshot:s2_work/tasks/u0135/snapshot/kobuki_node/src/node/kobuki_node.cpp:80-81\n\"  updater.setHardwareID(\"Kobuki\");\n  updater.add(battery_diagnostics);\"\nsnapshot:s2_work/tasks/u0135/snapshot/kobuki_node/src/node/kobuki_node.cpp:241\n\"    updater.update();\"\nIts battery task publishes the consumed battery quantities: snapshot:s2_work/tasks/u0135/snapshot/kobuki_node/src/node/diagnostics.cpp:72-75\n\"  stat.add(\"Voltage (V)\", status.voltage);\n  stat.add(\"Percent\", status.percent());\n  stat.add(\"Charge (Ah)\", (2.2*status.percent())/100.0);\n  stat.add(\"Capacity (Ah)\", 2.2); // TODO: how can we tell which battery is in use?\"\nThe provider deployment launches the diagnostic aggregator and loads the configuration: snapshot:s2_work/tasks/u0135/snapshot/kobuki_bringup/resources/launch/minimal.launch:13-15\n\"  <node pkg=\"diagnostic_aggregator\" type=\"aggregator_node\" name=\"diagnostic_aggregator\" >\n    <rosparam command=\"load\" file=\"$(find kobuki_bringup)/resources/yaml/diagnostics.yaml\" />\n  </node>\"\nThe Power System analyzer matches Battery and strips mobile_base: snapshot:s2_work/tasks/u0135/snapshot/kobuki_bringup/resources/yaml/diagnostics.yaml:4-9\n\"  power:\n    type: diagnostic_aggregator/GenericAnalyzer\n    path: 'Power System'\n    timeout: 5.0\n    contains: ['Battery', 'Laptop Battery']\n    remove_prefix: mobile_base\"\nThe ports are connected through the provider deployment aggregator, not by a direct raw /diagnostics-to-dashboard hop; static source/configuration evidence is not a live connection trace."
+  },
+  "notes": "The manifest requirement is verified for android.permission.ACCESS_WIFI_STATE. For both perm_grants paths the supplied provenance is null: there is no cited grant-set location to open. Those two source_excerpt fields quote inspected context only, not grant-state evidence: provider updater registration and the consumer SDK/uses-permission declarations. The available source snapshots contain no installed-package permission-grant report or explicit denial, and their lack of such a report cannot establish that an operating-system grant set is empty. Both encoded absent states are therefore unverifiable, not verified negatives. The item does not substantiate a missing-permission failure or connect this permission to the robot diagnostic payload problem. The operation/edge agreement is limited to the specified DiagnosticArray composition; it does not endorse the permission finding. The additional DiagnosticStatus/KeyValue elements in also_covers reuse these same unverified grant states, not independent permission evidence."
+}

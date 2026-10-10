@@ -1,0 +1,68 @@
+{
+  "item_id": "A1-robust_c0067f9",
+  "kind": "A1",
+  "case_id": "robust_c0067f9",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "python: fix import error of goto service",
+    "url": "https://github.com/mavlink/mavros/commit/c0067f9f27a5a6ef5354e06fea18279541934520",
+    "reason": "E1/E4: the maintainer identifies a concrete import error. E2: separately built mavros and mavros_msgs packages interact through generated Python service definitions; the provider removed a symbol still imported by the consumer. This is neither deployment binding nor a packaging-only fix. E3: UPGRADE is supported by the earlier removal and subsequent consumer repair."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "plugin: waypoint fix #414: remove GOTO service.\n\nIt is replaced with more standard global setpoint messages.",
+      "url": "https://github.com/mavlink/mavros/commit/b3ef10ff8f0567019ee10b1d24fd0e5b85d04112",
+      "reason": "The provider deletes WaypointGOTO.srv. The class and implicated definition are correct; retain the specification's documented msg: canonicalization of service definitions."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "python: fix import error of goto service",
+      "url": "https://github.com/mavlink/mavros/commit/c0067f9f27a5a6ef5354e06fea18279541934520",
+      "reason": "Removing the stale WaypointGOTO import confirms the same removed-element class and the same definition. This is duplicate evidence for condition 0, not an independent second failed condition."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "python: fix import error of goto service",
+    "url": "https://github.com/mavlink/mavros/commit/c0067f9f27a5a6ef5354e06fea18279541934520",
+    "reason": "A documented Python import error is an explicit diagnostic; a traceback is not necessary to identify its kind."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "python: fix import error of goto service",
+    "url": "https://github.com/mavlink/mavros/commit/c0067f9f27a5a6ef5354e06fea18279541934520",
+    "reason": "The error occurs when importing/initializing the consumer module, so activate is appropriate, rather than a ROS service-connection mismatch."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "python: fix import error of goto service",
+    "url": "https://github.com/mavlink/mavros/commit/c0067f9f27a5a6ef5354e06fea18279541934520",
+    "reason": "recommended is justified by the accepted import repair, not by demonstrated operation of the pinned pair. The purported resolved module still contains the stale proxy reference at line 145."
+  },
+  "notes": "Consolidate the two failed_conditions rows when counting distinct conditions. No additional independent condition is established: the residual initialization reference is the same removed definition at a second use site. The later mavwp CLI cleanup concerns another interaction. Do not interpret recommended as proof that the whole mission library works at c0067f9.",
+  "supporting_evidence": [
+    {
+      "quote": "    goto = _get_proxy('goto', WaypointGOTO)",
+      "url": "https://raw.githubusercontent.com/mavlink/mavros/c0067f9f27a5a6ef5354e06fea18279541934520/mavros/src/mavros/mission.py#L145"
+    },
+    {
+      "quote": "scripts: mavwp #465: Remove WaypointGOTO from scrips and python library",
+      "url": "https://github.com/mavlink/mavros/commit/86f32ca9efd32486bd19a8eea8de9932c06149a2"
+    }
+  ]
+}

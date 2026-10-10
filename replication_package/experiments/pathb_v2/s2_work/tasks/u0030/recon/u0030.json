@@ -1,0 +1,95 @@
+{
+  "task_id": "u0030",
+  "package": "kobuki_auto_docking",
+  "manifest_version": "0.3.6",
+  "ports": [
+    {
+      "element": "field:geometry_msgs/Twist.angular.z",
+      "side": "provides",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": "rad/s",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "9f195f881246fdfa2798d1d3eebca84a"}
+    },
+    {
+      "element": "field:geometry_msgs/Twist.linear.x",
+      "side": "provides",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": "m/s",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "9f195f881246fdfa2798d1d3eebca84a"}
+    },
+    {
+      "element": "msg:geometry_msgs/Twist",
+      "side": "provides",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "9f195f881246fdfa2798d1d3eebca84a"}
+    },
+    {
+      "element": "topic:mobile_base/commands/velocity",
+      "side": "provides",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": "m/s (linear.x), rad/s (angular.z)",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "9f195f881246fdfa2798d1d3eebca84a"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "field:geometry_msgs/Twist.angular.z": "field geometry_msgs/Twist.angular.z: float64",
+    "field:geometry_msgs/Twist.linear.x": "field geometry_msgs/Twist.linear.x: float64",
+    "msg:geometry_msgs/Twist": "msg geometry_msgs/Twist: 9f195f881246fdfa2798d1d3eebca84a",
+    "topic:mobile_base/commands/velocity": "topic mobile_base/commands/velocity: geometry_msgs/Twist"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_auto_docking/package.xml:3 | <version>0.3.6</version>",
+    "ports[0].side": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:126 | cmd_vel->angular.z = self->dock_.getWZ();",
+    "ports[0].msg_type": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:124 | geometry_msgs::TwistPtr cmd_vel(new geometry_msgs::Twist);",
+    "ports[0].units": "snapshot:kobuki_auto_docking/src/dock_drive.cpp:334 | // wz: in rad/s",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 geometry_msgs/Twist <dir> over Twist.msg and Vector3.msg fetched from https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/hydro/geometry_msgs/1.10.6-0/msg/Twist.msg and .../msg/Vector3.msg",
+    "ports[1].side": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:125 | cmd_vel->linear.x = self->dock_.getVX();",
+    "ports[1].msg_type": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:124 | geometry_msgs::TwistPtr cmd_vel(new geometry_msgs::Twist);",
+    "ports[1].units": "snapshot:kobuki_auto_docking/src/dock_drive.cpp:333 | // vx: in m/s",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 geometry_msgs/Twist <dir> over Twist.msg and Vector3.msg fetched from https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/hydro/geometry_msgs/1.10.6-0/msg/Twist.msg and .../msg/Vector3.msg",
+    "ports[2].side": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:45 | velocity_commander_ = nh.advertise<geometry_msgs::Twist>(\"velocity\", 10);",
+    "ports[2].msg_type": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:45 | velocity_commander_ = nh.advertise<geometry_msgs::Twist>(\"velocity\", 10);",
+    "ports[2].definition_id": "python3 definition_hash.py ros1 geometry_msgs/Twist <dir> over Twist.msg and Vector3.msg fetched from https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/hydro/geometry_msgs/1.10.6-0/msg/Twist.msg and .../msg/Vector3.msg",
+    "ports[3].element": "snapshot:kobuki_auto_docking/launch/minimal.launch:10 | <remap from=\"dock_drive/velocity\" to=\"mobile_base/commands/velocity\"/> (same remap at launch/compact.launch:16 and launch/standalone.launch:11; scripts/DockDriveControl.py:97 | 'cmd_vel':rospy.Publisher('/mobile_base/commands/velocity',Twist),)",
+    "ports[3].side": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:127 | velocity_commander_.publish(cmd_vel);",
+    "ports[3].msg_type": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:45 | velocity_commander_ = nh.advertise<geometry_msgs::Twist>(\"velocity\", 10);",
+    "ports[3].units": "snapshot:kobuki_auto_docking/src/dock_drive.cpp:333-334 | // vx: in m/s // wz: in rad/s (vx, wz copied into linear.x, angular.z at src/auto_docking_ros.cpp:125-126)",
+    "ports[3].definition_id": "python3 definition_hash.py ros1 geometry_msgs/Twist <dir> over Twist.msg and Vector3.msg fetched from https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/hydro/geometry_msgs/1.10.6-0/msg/Twist.msg and .../msg/Vector3.msg",
+    "declares[field:geometry_msgs/Twist.angular.z]": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:126 | cmd_vel->angular.z = self->dock_.getWZ(); field type from dependency definitions at release/hydro/geometry_msgs/1.10.6-0: Twist.msg:3 | Vector3  angular ; Vector3.msg:5 | float64 z",
+    "declares[field:geometry_msgs/Twist.linear.x]": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:125 | cmd_vel->linear.x = self->dock_.getVX(); field type from dependency definitions at release/hydro/geometry_msgs/1.10.6-0: Twist.msg:2 | Vector3  linear ; Vector3.msg:3 | float64 x",
+    "declares[msg:geometry_msgs/Twist]": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:45 | velocity_commander_ = nh.advertise<geometry_msgs::Twist>(\"velocity\", 10); hash: definition_hash.py ros1 output 9f195f881246fdfa2798d1d3eebca84a on the hydro release definitions",
+    "declares[topic:mobile_base/commands/velocity]": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:45 | velocity_commander_ = nh.advertise<geometry_msgs::Twist>(\"velocity\", 10); with private handle at src/nodelet.cpp:64 | auto_dock_->init(this->getPrivateNodeHandle()); remapped at launch/minimal.launch:10 | <remap from=\"dock_drive/velocity\" to=\"mobile_base/commands/velocity\"/>",
+    "perm_requires": "searched kobuki_auto_docking package.xml, CMakeLists.txt, src/, include/, launch/, param/, plugins/, scripts/: no permission or capability requirement declared",
+    "perm_grants": "searched the same files: no permission or capability grant declared",
+    "recovery": "searched the same files: no declared recovery policy, hook or parameter; only internal docking-state handling (src/dock_drive.cpp:209-229 bumper back-off states; src/auto_docking_ros.cpp:139-144 action abort when dock_drive is disabled unexpectedly)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All four provided elements are declared consistently: the nodelet publishes geometry_msgs/Twist with linear.x and angular.z set (units stated as m/s and rad/s), and the shipped launch files map its private velocity topic to mobile_base/commands/velocity; nothing in the snapshot conflicts with the hydro Twist/Vector3 definitions. Only build-hygiene oddities are visible (Twist header not included directly, geometry_msgs absent from find_package)."
+  },
+  "confidence": "high",
+  "notes": "Topic path: the nodelet advertises Twist on the private-relative name \"velocity\" (src/auto_docking_ros.cpp:45) using the nodelet's private NodeHandle (src/nodelet.cpp:64), i.e. <nodelet name>/velocity; launch/minimal.launch:10, compact.launch:16 and standalone.launch:11 remap dock_drive/velocity to mobile_base/commands/velocity. launch/auto_dock_with_safe_keyop.launch:15 instead routes it to cmd_vel_mux/auto_docking and remaps the external cmd_vel_mux output to mobile_base/commands/velocity (line 7). scripts/DockDriveControl.py:97 (a keyboard tool) also publishes Twist directly on '/mobile_base/commands/velocity', from a 0.1 s rospy.Timer (line 129) while its motor flag is on. Rate: the nodelet publishes event-driven inside the ApproximateTime sync callback of odom/core/dock_ir, only while dock_ is enabled and canRun (src/auto_docking_ros.cpp:101,123); no rate is set there, so rate_hz is null (the 10 Hz loop in src/nodelet.cpp:75 belongs to an update thread whose start is commented out at lines 65-69; the script's 10 Hz timer is a separate publisher). Queue size 10 is a ROS 1 publisher queue, not QoS; qos null for ROS 1. Frame null for all ports: Twist carries no header and the code hard-codes no frame. Units null for the msg port: Twist.msg and Vector3.msg state none; the m/s and rad/s values come from code comments on vx/wz (src/dock_drive.cpp:333-334). Field types are the leaf type float64 from Vector3.msg; Twist.msg declares linear and angular as Vector3. Dependency definitions: Twist.msg and Vector3.msg fetched from ros-gbp/common_msgs-release at tag release/hydro/geometry_msgs/1.10.6-0 (highest release/hydro/geometry_msgs tag that resolved when probing 1.10.2-0 through 1.10.10-1); they were stored in a session scratch directory with a locally written package.xml containing only <name>geometry_msgs</name> so definition_hash.py resolves the package name; nothing else was taken from that repository. Vector3 ros1_md5 = 4a842b65f413084dc2b10fb484ea7f17. references is empty because no packet element is consumed; consumed names outside the packet: message_filters subscriptions odom, core, dock_ir (src/auto_docking_ros.cpp:50-52; kobuki_msgs/SensorState, kobuki_msgs/DockInfraRed, nav_msgs/Odometry), subscription debug/mode_shift (line 48), publication debug/feedback (line 46), action server name_+\"_action\" (line 24, kobuki_msgs/AutoDockingAction); the header declares motor_power_enabler_ (include/kobuki_auto_docking/auto_docking_ros.hpp:79) but it is never advertised, although every launch file remaps dock_drive/motor_power. geometry_msgs::Twist is used without a direct #include <geometry_msgs/Twist.h> in the package (presumably reached through nav_msgs/Odometry.h; not verified), and geometry_msgs is in package.xml build/run_depend but not in CMakeLists.txt find_package COMPONENTS or CATKIN_DEPENDS. exclusive is empty: param/cmd_vel_mux.yaml gives the \"Auto docking\" source priority 15 (highest of three) in a mux configuration, which is arbitration rather than an exclusive claim."
+}

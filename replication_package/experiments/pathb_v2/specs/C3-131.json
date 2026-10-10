@@ -1,0 +1,55 @@
+{
+  "case_id": "C3-131",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/1855",
+    "https://github.com/CPRT/cprt_rover_24/pull/39",
+    "https://github.com/eProsima/Fast-DDS/pull/3194",
+    "https://github.com/eProsima/Fast-DDS/pull/3195",
+    "https://github.com/eProsima/Fast-DDS/pull/3087",
+    "https://github.com/ros2/rmw_fastrtps/issues/656",
+    "https://github.com/ros2/rmw_fastrtps/issues/650",
+    "https://github.com/ros2/rmw_fastrtps/issues/635"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Weak pass. The report itself has no reproducer or log (\"I am using the Moveit2  \\\"Pick and Place with MoveIt Task Constructor\\\" tutorial which only works with the Cyclone DDS.\"), but MoveIt maintainer tylerjw confirms an incompatibility (\"Right now, it seems like FastDDS has issues we don't understand. Interestingly if you build fastDDS from source with some of the older versions of it, it works fine. The problem is with some of the newer versions of fastDDS.\"), the Fast DDS maintainer names the defect (\"I think all those issues might have been solved by eProsima/Fast-DDS#3194 and its corresponding backports (eProsima/Fast-DDS#3195) for Humble.\"), and the reporter confirms after building Fast-DDS 2.6.x from source: \"It seems working now. Thanks!\" (https://github.com/moveit/moveit2/issues/1855)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "moveit2 (MoveIt Task Constructor pick-and-place tutorial / move_group)",
+        "Fast-DDS (fastrtps library, via rmw_fastrtps_cpp)"
+      ],
+      "interface_kind": null,
+      "evidence": "The defect identified as the cause is inside Fast DDS: PR #3194 \"[16192] Fix notification lost\" (\"This is a re-work of #3087, using the original approach by @iuhilnehc-ynos and fixing the deadlocks on ReadConditionImpl.\", https://github.com/eProsima/Fast-DDS/pull/3194); its Humble backport #3195 changes only src/cpp/fastdds/core/condition/WaitSetImpl.cpp and a WaitSetImpl unit test. The linked rmw_fastrtps issues reproduce the symptom with no MoveIt involvement, e.g. #650 with a plain rclcpp publisher on a MultiThreadedExecutor (\"Running this simple example with a `MultiThreadedExecutor` eventually causes a deadlock (typically within a few seconds). From the debugger it seems to be stuck on `WaitSetImpl::wait`\", https://github.com/ros2/rmw_fastrtps/issues/650) and #656 with a plain publisher/subscriber pair. A lost waitset notification in the middleware's own logic occurs with any correct application; it depends on no assumption between MoveIt and Fast DDS. The MoveIt maintainer's hypothesis \"There is a chance the problem is the code in MoveIt and we are not using ROS correctly in some way\" was not borne out: the resolution changed no MoveIt code. Classification confidence: medium. Context: Environment stated: ROS2 Humble, MoveIt2 Humble, Ubuntu 22.04. The reporter also mentions a second composition, a micro-ROS action server that \"seems not compatible with the Cyclone DDS and not working as expected\"; no details were given and it was not pursued. The packet's fix reference https://github.com/CPRT/cprt_rover_24/pull/39 (\"Cyclone dds\", \"Added cyclone dds to first install script.\", merged 2025-02-27 as b40fa4985baf245fb8bea482a1980849717bb18b) is a third-party project's install-script change (firstTimeInstall.sh) that switches to Cyclone DDS; it is a workaround in an unrelated repository, not a fix of this defect. Fast-DDS #3194 merged to master as df2857a5fc2c2b4a661500843629c08dde08ab1c; #3195 merged to 2.6.x as 0cf75bd0c1fe0bd8b8f6001d80a699bf70369272; per MiguelCompany the fix was to ship in Fast DDS v2.6.3 binaries (\"It will be available with  V2.6.3, which will be out next week, and available on the next humble sync\"). E1 is marginal: the MoveIt-side report never states what fails with Fast DDS."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stops at step 2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stops at step 2."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): the failure is a lost-notification race inside Fast DDS WaitSetImpl (fixed by eProsima/Fast-DDS#3194, Humble backport #3195), reproduced independently of MoveIt with plain rclcpp nodes; no assumption between MoveIt and the middleware is involved.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

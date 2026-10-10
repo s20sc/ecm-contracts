@@ -1,0 +1,12 @@
+{"item_id": "P-u0195-0", "kind": "P", "task_id": "u0195", "element": "msg:ur_driver/MSG_JOINT_STATES", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "ur_driver/MSG_JOINT_STATES", "verdict": "verified",
+   "source_excerpt": "prog:6: MSG_JOINT_STATES = 3 | prog:48: socket_send_int(MSG_JOINT_STATES)",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "prog:43-45: q = get_joint_positions() / qdot = get_joint_speeds() / tau = get_joint_torques() | prog:48-49: socket_send_int(MSG_JOINT_STATES) / socket_send_int(floor(MULT_jointstate * q[0])) | prog:66: socket_send_int(floor(MULT_jointstate * tau[5]))",
+   "qos_basis": null},
+  {"field": "units", "recorded": "q[0..5], qdot[0..5], tau[0..5] each sent as floor(MULT_jointstate * value), MULT_jointstate = 10000.0; physical units not stated in code", "verdict": "verified",
+   "source_excerpt": "prog:20: MULT_jointstate = 10000.0 | prog:49: socket_send_int(floor(MULT_jointstate * q[0]))",
+   "qos_basis": null}],
+ "notes": "ur_driver/prog opened; all cited line numbers re-checked with single-line sed. Line 6 states the identifier MSG_JOINT_STATES = 3 in the ur_driver package's prog, and line 48 sends it as the message marker. Lines 48-66 contain exactly socket_send_int(MSG_JOINT_STATES) followed by 18 socket_send_int(floor(MULT_jointstate * ...)) sends: q[0..5] at 49-54, qdot[0..5] at 55-60, tau[0..5] at 61-66, matching the claimed wire payload. grep -i frame over lines 42-66: no match, so no frame is sent, named or referenced (frame=none supported). MULT_jointstate = 10000.0 verbatim at line 20; no physical-unit statement appears anywhere in the section read, matching the recorded caveat."}

@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-127",
+  "kind": "A1",
+  "case_id": "C3-127",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 3,
+    "reason_code": "deployment_wiring",
+    "quote": "I've found the issue. Actually the default ROS2 humble DDS is fine. I forgot that I had specific DDS setting in my `~/.bashrc` (`FASTRTPS_DEFAULT_PROFILES_FILE`) ... By removing that specific config and by re-running the test above, I have now similar results than with ROS1",
+    "url": "https://github.com/ros2/geometry2/issues/727#issuecomment-2481510627"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "n/a",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "n/a",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Issue #727 body (reproducer with lookup 'would require extrapolation into the future' logs and 'for almost 3 seconds of TF waiting, the TF Buffer didn't get updated once') and matlabbe's resolution comment 2481510627 verified verbatim; the reporter also withdrew the per-RMW comparison ('I didn't re-rerun the test on all other DDS, maybe that config also affected their results'). The ineligibility decision is correct: the minimal resolving change is removing a user-local middleware profile (FASTRTPS_DEFAULT_PROFILES_FILE in ~/.bashrc), with no change to any unit's declared or referenced interface, and the source never states what the profile contained or which mechanism caused the delay. reason_code 'deployment_wiring' is a loose fit (the spec's notes transparently flag that step 3 is worded for name binding and that 'internal' at step 2 is the alternative reading); either way the case is ineligible. failed_conditions/loudness/resolution are correctly absent (null in the spec)."
+}

@@ -1,0 +1,45 @@
+{
+ "item_id": "A1-C3-011",
+ "kind": "A1",
+ "case_id": "C3-011",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "When the node is put under a namespace, the plugin will add a dot character to the parameter names:\r\n```\r\n.camera.image_raw.format\r\n.camera.image_raw.jpeg_quality                                                                         \r\n.camera.image_raw.png_level\r\n```",
+  "url": "https://github.com/ros-perception/image_transport_plugins/issues/109"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "When the node is put under a namespace, the plugin will add a dot character to the parameter names:\r\n```\r\n.camera.image_raw.format\r\n.camera.image_raw.jpeg_quality                                                                         \r\n.camera.image_raw.png_level\r\n```",
+   "url": "https://github.com/ros-perception/image_transport_plugins/issues/109"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "   uint ns_len = node->get_effective_namespace().length();\n-  std::string param_base_name = base_topic.substr(ns_len);\n+  uint ns_prefix_len = ns_len > 1 ? ns_len + 1 : ns_len;\n+  std::string param_base_name = base_topic.substr(ns_prefix_len);",
+   "url": "https://github.com/ros-perception/image_transport_plugins/pull/188/files"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "The source shows only the declared parameter names; no consumer-side effect (a parameter override or 'ros2 param set' that did not take effect) and no diagnostic is shown.",
+  "url": "https://github.com/ros-perception/image_transport_plugins/issues/109"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Fix inconsistent parameter names when running under a namespace"
+ },
+ "notes": "Agree with all case specifications and classifications for C3-011."
+}

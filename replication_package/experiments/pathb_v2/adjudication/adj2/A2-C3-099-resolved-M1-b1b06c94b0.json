@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-C3-099-resolved-M1-b1b06c94b0",
+ "kind": "A2",
+ "case_id": "C3-099",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[field:rmw_dds_common/Gid.data]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1 = `char[24] data` (rmw_dds_common 1.6.0); running: s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1 = `char[16] data` (3.1.0). Both locations opened this session; the provenance tail '| char[16] data' matches the running side, and the built side shows the different value char[24] exactly as a changed-field record requires."
+  },
+  {
+   "path": "ver_delta.consumer_reads[field:rmw_dds_common/Gid.data]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171-174 = `if (std::memcmp( / reinterpret_cast<char *>(common_context->gid.data), / reinterpret_cast<char *>(&msg.gid.data), / RMW_GID_STORAGE_SIZE) == 0)`; the deserialized message is declared at :156 `rmw_dds_common::msg::ParticipantEntitiesInfo msg;`, so `msg.gid.data` is the field under the running provider's definition."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[field:rmw_dds_common/Gid.data]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1: `char[24] data`",
+   "running_excerpt": "s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1: `char[16] data`"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The encoding is UPGRADE with built=u0353 (rmw_dds_common 1.6.0), running=u0354 (3.1.0), consumer=u0355 (rmw_fastrtps 6.2.7), which matches the specification's operation (humble consumer built against 1.6.0, jazzy provider running 3.1.0). The consumer port is real: s2_work/tasks/u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:118-125 creates the subscription `rmw_fastrtps_cpp::create_subscription(... rosidl_typesupport_cpp::get_message_type_support_handle<ParticipantEntitiesInfo>(), \"ros_discovery_info\", ...)` with the topic literal at :122 (publisher side with the same type handle and topic at :94), and listener_thread.cpp:171-174 reads msg.gid.data from the taken sample. The provider supplies the definition the running revision serializes with (u0354 Gid.msg:1, verified). Note: the topic-level pair_view was separately recorded unassessable (port_missing) because rmw_dds_common is a definition library with no port of its own; the upgrade unit the finding sits on is faithful to the spec."
+ },
+ "notes": "Substance is the case's core mechanism: the field's array bound changed 24 -> 16 between the revision the consumer was built against and the running revision, and the consumer memcmps msg.gid.data against a buffer of its built-in RMW_GID_STORAGE_SIZE (the constant is used throughout u0355, e.g. rmw_fastrtps_shared_cpp/src/rmw_take.cpp:62 `memset(sender_gid->data, 0, RMW_GID_STORAGE_SIZE);`; its numeric value is not defined inside the u0355 snapshot, so I do not assert 24 as observed). No discrepancies found in any cited location."
+}

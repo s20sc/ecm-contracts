@@ -1,0 +1,99 @@
+{
+  "case_id": "robust_a2f8eea",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/issues/46",
+    "https://github.com/ros/geometry2/commit/a2f8eea04f95c9abb0e4d7557d796e84fb13a32a",
+    "https://github.com/ros/geometry2/blob/17e57137dda28bf7e1d23a007e44e0eee404d26d/tf2_ros/src/tf2_ros/transform_listener.py",
+    "https://github.com/ros/geometry2/blob/17e57137dda28bf7e1d23a007e44e0eee404d26d/tf2_ros/src/static_transform_broadcaster.cpp",
+    "https://github.com/ros/geometry2/blob/17e57137dda28bf7e1d23a007e44e0eee404d26d/tf2_ros/src/static_transform_broadcaster_program.cpp",
+    "https://github.com/ros/geometry2/blob/17e57137dda28bf7e1d23a007e44e0eee404d26d/tf2_tools/scripts/view_frames.py",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/a2f8eea/a2f8eea.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #46 (chadrockey, 2013-11-07) gives a two-command reproducer and the observed effect: 'To duplicate issue: rosrun tf2_ros static_transform_publisher  1 2 3 0 0 0 1 parent child / rosrun tf2_tools view_frames.py / It doesn't show the parent and child in this case, just shows no frames received.' (https://github.com/ros/geometry2/issues/46). The maintainer tfoote fixed it in a2f8eea ('adding support for static transforms in python listener. Fixes #46')."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "tf2_ros",
+        "tf2_tools"
+      ],
+      "interface_kind": "topic",
+      "evidence": "Step 1: the units are two ROS nodes that interact only through a ROS topic: the static_transform_publisher executable of tf2_ros (tf2_ros/src/static_transform_broadcaster_program.cpp, whose StaticTransformBroadcaster does 'publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf_static\", 100, true);') and the view_frames.py node of tf2_tools, which runs the in-process tf2_ros python TransformListener ('listener = tf2_ros.TransformListener(buffer)'); the python listener thread only does 'rospy.Subscriber(\"/tf\", TFMessage, self.callback)'. Step 2: the failure is a topic-name mismatch crossing the boundary: the provider publishes the transform on /tf_static and the consumer subscribes only to /tf, so the transform never reaches the consumer; a consumer that subscribes to /tf_static (the C++ tf2_ros::TransformListener at the same revision does: 'message_subscriber_tf_static_ = node_.subscribe<tf2_msgs::TFMessage>(\"/tf_static\", 100, ...)') receives it. Step 3: not deployment wiring: the minimal resolving change adds a subscription to /tf_static and a static-aware buffer entry point (tf2_py set_transform_static) to the consumer side, i.e. the consumer's referenced interface changed; a remap of /tf_static onto /tf would deliver the message but insert it as a non-static transform that expires from the buffer, so it is not the resolution taken. Steps 4-5: not build or firmware. Step 6: eligible, interface kind topic."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the provider's published TFMessage on /tf_static is meant to feed the consumer's listener; the failure was observed with both nodes running and the data never arriving. No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure (no data): 'It doesn't show the parent and child in this case, just shows no frames received.' (https://github.com/ros/geometry2/issues/46); view_frames.py emits 'digraph G { \"No tf data received\" }' when the buffer is empty."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2_ros",
+      "role": "provider",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "17e57137dda28bf7e1d23a007e44e0eee404d26d",
+      "resolved_rev": "17e57137dda28bf7e1d23a007e44e0eee404d26d",
+      "pinned": true,
+      "revision_basis": "The reporter names no version. 17e5713 is the hydro-devel commit the fix was applied to (parent of a2f8eea; the ROBUST record's bugzoo bug-commit). It is one commit after tag 0.4.9 (2013-11-06, the day before the report); tf2_ros/src/static_transform_broadcaster.cpp, static_transform_broadcaster_program.cpp, tf2_ros/src/tf2_ros/transform_listener.py, tf2_tools/scripts/view_frames.py and tf2_py/src/tf2_py.cpp are identical between 0.4.9 and 17e5713 (the diff touches only tf2/include/tf2/LinearMath/Vector3.h and tf2/src/buffer_core.cpp). The static_transform_publisher node is not changed by the resolution, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "tf2_tools",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "17e57137dda28bf7e1d23a007e44e0eee404d26d",
+      "resolved_rev": "a2f8eea04f95c9abb0e4d7557d796e84fb13a32a",
+      "pinned": true,
+      "revision_basis": "view_frames.py (tf2_tools 0.4.9) runs the tf2_ros python TransformListener and the tf2_py binding in its own process; all three packages live in this repository at the same revision. Broken: 17e5713 (see provider). Resolved: a2f8eea (2013-12-26, 'adding support for static transforms in python listener. Fixes #46'), which edits tf2_ros/src/tf2_ros/transform_listener.py and tf2_py/src/tf2_py.cpp used by the node; released in 0.4.10 (2013-12-26). view_frames.py itself is unchanged.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "topic:/tf_static", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}},
+    {"element": "topic:/tf", "sides": {"tf2_tools": "consumes"}},
+    {"element": "msg:tf2_msgs/TFMessage", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "topic:/tf_static",
+        "topic:/tf"
+      ],
+      "quote": "tf2_tools view_frames.py doesn't listen to /tf_static",
+      "url": "https://github.com/ros/geometry2/issues/46"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic at build, connection, or activation: the publisher advertises /tf_static and the listener subscribes to /tf, both succeed, and the consumer simply reports an empty graph at run time: 'It doesn't show the parent and child in this case, just shows no frames received.' (https://github.com/ros/geometry2/issues/46).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Commit a2f8eea: the tf2_ros python TransformListenerThread additionally subscribes 'rospy.Subscriber(\"/tf_static\", TFMessage, self.static_callback)' and forwards each transform with 'self.buffer.set_transform_static(transform, who)'; tf2_py gains the binding 'set_transform_static' (setTransformStatic), which calls 'bc->setTransform(transform, authority, true);' so the static transform is stored as static in the BufferCore.",
+    "status": "recommended",
+    "evidence": "Diff of a2f8eea: '+        rospy.Subscriber(\"/tf_static\", TFMessage, self.static_callback)' ... '+    def static_callback(self, data):' / '+        who = data._connection_header.get('callerid', \"default_authority\")' / '+        for transform in data.transforms:' / '+            self.buffer.set_transform_static(transform, who)' and '+  {\"set_transform_static\", setTransformStatic, METH_VARARGS},' with '+  // only difference to above is is_static == True' / '+  bc->setTransform(transform, authority, true);' (https://github.com/ros/geometry2/commit/a2f8eea04f95c9abb0e4d7557d796e84fb13a32a). The issue was closed by the commit ('Fixes #46'); no run of the reproducer against the fixed listener is shown in the source."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Failed-condition class: the provider publishes on a topic (/tf_static, latched) that the consumer's listener did not subscribe to, while the consumer listened on /tf, which this provider never publishes; no named class covers a consumer lacking a subscription to the provider's topic, so 'other' is used (element_removed_or_renamed would only fit if the provider had moved the data from /tf to /tf_static relative to what the consumer was written against, which the source does not document). The inventory lists topic:/tf with only the consumer side because the static_transform_publisher does not publish it; it is included because the consumer's subscription to it is the element the failed condition contrasts with. The C++ tf2_ros::TransformListener already subscribed to both /tf and /tf_static at 17e5713, so C++ consumers of the same publisher were unaffected (a different composition). The ROBUST record classifies the case as 'Incomplete implementation of an API (no CWE)' in package tf2_py and notes the fix 'was released as part of version 0.4.10'. The reporter's hydro release is not stated; the report is dated one day after tags 0.4.8 and 0.4.9, and the relevant files are unchanged between 0.4.9 and the fix parent."
+}

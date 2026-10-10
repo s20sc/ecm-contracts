@@ -1,0 +1,112 @@
+{
+  "task_id": "u0365",
+  "package": "mavros",
+  "manifest_version": "2.14.0",
+  "ports": [
+    {
+      "element": "api:mavlink::common::msg::GPS_GLOBAL_ORIGIN",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "latitude, longitude / 1E7; altitude / 1E3 (height amsl, converted to height above the ellipsoid)",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:mavlink::common::msg::GPS_RAW_INT",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "lat, lon / 1E7 -> deg; alt / 1E3 -> meters; vel / 1E2 -> m/s; cog / 1E2 -> degrees (then rad); h_acc, v_acc / 1E3; eph, epv / 1E2",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:mavlink::common::msg::LOCAL_POSITION_NED_SYSTEM_GLOBAL_OFFSET",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "x, y, z treated as NED and converted to ENU (ftf::transform_frame_ned_enu); roll, pitch, yaw converted via ftf::transform_orientation_ned_enu and ftf::transform_orientation_aircraft_baselink",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:mavlink::common::msg::SET_GPS_GLOBAL_ORIGIN",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "latitude, longitude * 1E7; altitude (+ ellipsoid_to_geoid_height) * 1E3; time_usec from header stamp",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:mavlink::mavlink_message_t",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:mavlink::standard::msg::GLOBAL_POSITION_INT",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "lat, lon / 1E7 -> deg; alt / 1E3 -> meters; relative_alt / 1E3 -> meters; hdg / 1E2 -> degrees; vx, vy, vz / 1E2 -> m/s",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:mavlink::common::msg::GPS_GLOBAL_ORIGIN",
+    "api:mavlink::common::msg::GPS_RAW_INT",
+    "api:mavlink::common::msg::LOCAL_POSITION_NED_SYSTEM_GLOBAL_OFFSET",
+    "api:mavlink::common::msg::SET_GPS_GLOBAL_ORIGIN",
+    "api:mavlink::mavlink_message_t",
+    "api:mavlink::standard::msg::GLOBAL_POSITION_INT"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "Router reconnect_timer: create_wall_timer(30s, std::bind(&Router::periodic_reconnect_endpoints, this)) re-opens endpoints that are not open"},
+  "provenance": {
+    "manifest_version": "snapshot:mavros/package.xml:5",
+    "ports[0].units": "snapshot:mavros/src/plugins/global_position.cpp:289 (g_origin.position.latitude = glob_orig.latitude / 1E7;) to :292 (// convert height amsl to height above the ellipsoid)",
+    "ports[1].units": "snapshot:mavros/src/plugins/global_position.cpp:194-196 (fill_lla: msg.lat / 1E7; // deg, msg.lon / 1E7; // deg, msg.alt / 1E3 + geoid_to_ellipsoid_height // in meters), :230-231 (eph / 1E2F, epv / 1E2F), :240 (h_acc / 1E3, v_acc / 1E3), :260-261 (raw_gps.vel / 1E2; // m/s, angles::from_degrees(raw_gps.cog / 1E2); // rad)",
+    "ports[2].units": "snapshot:mavros/src/plugins/global_position.cpp:454-457 (ftf::transform_frame_ned_enu(Eigen::Vector3d(offset.x, offset.y, offset.z)); ftf::transform_orientation_aircraft_baselink(ftf::transform_orientation_ned_enu(ftf::quaternion_from_rpy(offset.roll, offset.pitch, offset.yaw))))",
+    "ports[3].units": "snapshot:mavros/src/plugins/global_position.cpp:548-553 (gpo.time_usec = get_time_usec(req->header.stamp); gpo.latitude = req->position.latitude * 1E7; gpo.longitude = req->position.longitude * 1E7; gpo.altitude = (req->position.altitude + uas->data.ellipsoid_to_geoid_height(req->position)) * 1E3;)",
+    "ports[4].frame": "snapshot:mavros/src/plugins/global_position.cpp:209 (const mavlink::mavlink_message_t * msg [[maybe_unused]]) -- raw MAVLink message envelope passed to handlers; used only for msg->magic check at :235, no spatial meaning",
+    "ports[5].units": "snapshot:mavros/src/plugins/global_position.cpp:194-196 (fill_lla: / 1E7 // deg, / 1E3 // in meters), :323 (gpos.relative_alt / 1E3; // in meters), :324 (gpos.hdg / 1E2 : NAN; // in degrees), :332-334 (VX/VY/VZ ... vel (m/s)), :345 (Eigen::Vector3d(gpos.vy, gpos.vx, gpos.vz) / 1E2)",
+    "references[api:mavlink::common::msg::GPS_GLOBAL_ORIGIN]": "snapshot:mavros/src/plugins/global_position.cpp:283",
+    "references[api:mavlink::common::msg::GPS_RAW_INT]": "snapshot:mavros/src/plugins/global_position.cpp:210",
+    "references[api:mavlink::common::msg::LOCAL_POSITION_NED_SYSTEM_GLOBAL_OFFSET]": "snapshot:mavros/src/plugins/global_position.cpp:448",
+    "references[api:mavlink::common::msg::SET_GPS_GLOBAL_ORIGIN]": "snapshot:mavros/src/plugins/global_position.cpp:546",
+    "references[api:mavlink::mavlink_message_t]": "snapshot:mavros/src/plugins/global_position.cpp:209 (also :282, :300, :447; 103 occurrences of mavlink_message_t under snapshot/mavros)",
+    "references[api:mavlink::standard::msg::GLOBAL_POSITION_INT]": "snapshot:mavros/src/plugins/global_position.cpp:301",
+    "perm_requires.state": "searched snapshot/mavros (source, launch, config, package.xml) for permission declarations; none found (only match is a license text line in mavros/include/mavros/px4_custom_mode.hpp:17)",
+    "perm_grants.state": "searched snapshot/mavros (source, launch, config, package.xml) for permission declarations; none found",
+    "recovery.state": "snapshot:mavros/include/mavros/mavros_router.hpp:165-167",
+    "recovery.value": "snapshot:mavros/include/mavros/mavros_router.hpp:166-167; snapshot:mavros/src/lib/mavros_router.cpp:267-290"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The code takes GLOBAL_POSITION_INT from the mavlink::standard namespace while the other GPS messages come from mavlink::common, and the packet lists GLOBAL_POSITION_INT under both namespaces, which suggests a namespace move is at issue; whether this revision builds depends on which namespace the paired mavlink release puts that message in, which I did not check."
+  },
+  "confidence": "high",
+  "notes": "Package scope is snapshot/mavros (package.xml name mavros, version 2.14.0); the snapshot also holds libmavconn, mavros_extras, mavros_msgs and others, which are separate packages. All seven packet elements are MAVLink C++ API symbols that this package consumes; none is provided, so declares and not_declared are empty. The MAVLink handlers for GPS_RAW_INT, GPS_GLOBAL_ORIGIN, GLOBAL_POSITION_INT and LOCAL_POSITION_NED_SYSTEM_GLOBAL_OFFSET are registered in GlobalPositionPlugin::get_subscriptions (global_position.cpp:149-158, plugin global_position, mavros_plugins.xml:39); SET_GPS_GLOBAL_ORIGIN is built and sent in set_gp_origin_cb (global_position.cpp:544-556). api:mavlink::common::msg::GLOBAL_POSITION_INT is not referenced anywhere in snapshot/mavros: grep for GLOBAL_POSITION finds only the @todo comment at global_position.cpp:297 and mavlink::standard::msg::GLOBAL_POSITION_INT at :301; it therefore has no port and is not in references (it is a consumed element, so it is not put in not_declared either). The same package also uses mavlink::standard for AUTOPILOT_VERSION (sys_status.cpp:823, 851, 1078) and MAV_PROTOCOL_CAPABILITY (mavros_uas.hpp:72, plugin.hpp:40, mission_protocol_base.hpp:52). The mavlink headers come from the external mavlink package (find_package(mavlink REQUIRED), mavros/CMakeLists.txt:30; libmavconn generates the dialect header from mavlink_dialect.hpp.em); they are not in the snapshot. msg_type is null for every port because these are MAVLink message structs, not ROS pkg/Type messages; definition_id is null because the MAVLink XML definitions are not in the snapshot and are not among the allowed dependency definition file types (.msg/.srv/.action/.idl). QoS is null for all ports: these messages travel over MAVLink links (libmavconn), with no DDS QoS applied in code. Frame is null for the MAVLink message ports because the code assigns no frame identifier to the MAVLink data itself; the ROS messages derived from them take header frames from parameters: child_frame_id (default base_link) for raw/fix and global fix, frame_id (default map) for raw/gps_vel and local odometry, tf.global_frame_id (default earth) for gp_origin and gp_lp_offset (global_position.cpp:70-108, 218, 266, 288, 309, 340-341, 452). No rate is set for these elements. No exclusive resource claim found in snapshot/mavros (grep for exclusive/TIOCEXCL/flock/lockf matched only rclcpp MutuallyExclusive callback groups in command.cpp:87 and sys_status.cpp:589). Launch files also expose respawn_mavros (default false; node.launch:13)."
+}

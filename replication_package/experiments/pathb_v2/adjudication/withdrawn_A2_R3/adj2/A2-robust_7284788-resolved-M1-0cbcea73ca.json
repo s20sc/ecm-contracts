@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_7284788-resolved-M1-0cbcea73ca",
+ "kind": "A2",
+ "case_id": "robust_7284788",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::canTransform]",
+   "verdict": "verified",
+   "source_excerpt": "Item evidence.provenance is null; locations taken from assembled/robust_7284788.json resolved upgrade unit (built u0099, running u0101). built: s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102 'virtual bool canTransform(const std::string& target_frame, const std::string& source_frame, const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;' (using-declaration at :50 'using tf2::BufferCore::canTransform;'; second overload at :114-117). running: s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:50 'using tf2::BufferCore::canTransform;', :100-102 and :114-117 with identical declarations; inherited base overloads at u0099 and u0101 tf2/include/tf2/buffer_core.h:196-197,208-210 are byte-identical in both snapshots."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::canTransform]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:361 'return tf2_buffer_.canTransform(strip_leading_slash(target_frame),' (:362 'strip_leading_slash(source_frame), time, error_msg);')."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::canTransform]",
+   "verdict": "transcription_only",
+   "built_excerpt": "s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102 'virtual bool canTransform(const std::string& target_frame, const std::string& source_frame, [tab-indented continuation] const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;'",
+   "running_excerpt": "s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102 'virtual bool canTransform(const std::string& target_frame, const std::string& source_frame, [space-indented continuation] const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;'"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Producer port: tf2_ros::Buffer (u0101) declares canTransform at buffer.h:100-102/114-117 and pulls in the tf2::BufferCore overloads via 'using tf2::BufferCore::canTransform;' at buffer.h:50. Consumer port: tf::Transformer (u0032) calls tf2_buffer_.canTransform(...) at tf/src/tf.cpp:361 on its member 'tf2_ros::Buffer tf2_buffer_' (tf.h:387). The PAIR edge joins the same role on both sides and the connection exists in code."
+ },
+ "notes": "Both revisions' buffer.h lines 40-120 were opened side by side: the using-declarations (49-50) exist at BOTH u0099 and u0101, both canTransform overloads (100-102, 114-117) and the inherited base overloads (buffer_core.h:196-197, 208-210) are identical in signature and text; the only textual difference is continuation-line indentation (tabs in u0099 vs spaces in u0101), i.e. whitespace. The built-side record cites only buffer.h:100 while the running-side record cites 50,100-102,114-117 plus the base overloads — a difference in how much of the same unchanged declaration set was transcribed, not a change in what the consumer depends on."
+}

@@ -1,0 +1,10 @@
+{"item_id": "P-u0185-1", "kind": "P", "task_id": "u0185", "element": "topic:/tf", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "tf2_msgs/TFMessage", "verdict": "unverifiable",
+   "source_excerpt": "Node.cc:56: static tf::TransformBroadcaster tf_broadcaster; 57: tf_broadcaster.sendTransform(tf::StampedTransform(transform, current_frame_time_, map_frame_id_param_, camera_frame_id_param_));",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "map", "verdict": "verified",
+   "source_excerpt": "Node.cc:12: node_handle_.param<std::string>(name_of_node_+\"/pointcloud_frame_id\", map_frame_id_param_, \"map\"); | 57: tf::StampedTransform(transform, current_frame_time_, map_frame_id_param_, camera_frame_id_param_) | launch:13: <param name=\"pointcloud_frame_id\" type=\"string\" value=\"map\" />",
+   "qos_basis": null}
+ ],
+ "notes": "All cited files opened under s2_work/tasks/u0185/snapshot (ORB_SLAM2); line numbers confirmed with awk. msg_type=unverifiable: the cited location names only tf::TransformBroadcaster / tf::StampedTransform (lines 56-57); the string tf2_msgs/TFMessage appears nowhere in the cited lines, and a grep -rn over the entire snapshot returns zero matches for both 'TFMessage' and 'tf2_msgs' (the tf/tf2 packages are not in this snapshot). The provenance itself concedes 'the snapshot does not name the wire type'; the tf::TransformBroadcaster -> tf2_ros::TransformBroadcaster -> TFMessage delegation is external knowledge, not a statement at the cited location. README.md:53 mentions only Ubuntu 16.04/ROS Kinetic and Ubuntu 18.04/ROS Melodic, no wire type. frame=map verified: line 57 passes map_frame_id_param_ as the parent frame of the broadcast transform; line 12 defaults that parameter to \"map\" (parameter name is pointcloud_frame_id); launch line 13 sets the same parameter to \"map\". Minor range note: the cited launch range 12-13 includes reset_map (bool) at line 12; the map default is at line 13, and the child default camera_link cited from Node.cc:13 appears at launch line 14, outside the cited launch range — this does not affect the recorded frame value 'map'."}

@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-robust_89145c4",
+  "kind": "A1",
+  "case_id": "robust_89145c4",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I think this is why plans fail reasonably often when using the full joint limits of the UR5.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/265",
+    "reason": "E1/E4: the report explains disjoint collision-free regions, planning failures, and the proposed model change; maintainers accept the linked fix. E2: ur_description supplies joint-range data consumed by MoveIt's planning/IK pipeline. Failure depends on how that peer selects targets from the supplied range, rather than occurring with every correct peer. The fix changes declared model values, not deployment names. E3: PAIR fits model-to-planner consumption."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-        <limit lower=\"${-2.0 * pi}\" upper=\"${2.0 * pi}\" effort=\"150.0\" velocity=\"3.15\"/>\n+        <limit lower=\"${-pi}\" upper=\"${pi}\" effort=\"150.0\" velocity=\"3.15\"/>",
+      "url": "https://github.com/ros-industrial/universal_robot/commit/2e078f5e3e9b3ec52dac83c096e90e7cd3edd0f2.patch",
+      "reason": "This is a planning-domain/geometry incompatibility in the supplied robot model, not a physical-unit or frame mismatch. other is appropriate, and robot_description is the model interface implicated. The manufacturer's mechanical limits need not themselves be incorrect for this integration to fail."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Yip! This is why the planning works sometimes. It fails if the IK solution is in the 'unreachable' space.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/265#issuecomment-252886259",
+    "reason": "The report describes planning-query failures dependent on the chosen IK solution, without an early interface diagnostic for the model limits: silent_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "For someone using the Moveit interface the joint limited version works best.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/265#issuecomment-252883955",
+    "reason": "The effect concerns executing planning queries through MoveIt: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Merging straight away as this is not tested by CI.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/320",
+    "reason": "The linked PRs and patch establish an accepted model-limit remedy, not a working run with both the ur_description and MoveIt revisions identified. recommended is supported; lack of CI by itself is not the deciding factor."
+  },
+  "notes": "Read the first 15 of 42 issue timeline entries exposed by GitHub, PR #268/#320 comments, and the UR5 hunk of the backport patch. Later issue comments, including the exact timeout/test statement quoted by the specification, were not independently retrieved and are not used as evidence here. Early reporter comments independently document intermittent planning failure. Eligibility is a boundary judgment: this is a consumer-sensitive planning-domain restriction, not proof that the manufacturer's joint limits are intrinsically erroneous. The broader MoveIt pipeline includes IK as well as OMPL; the report does not isolate an OMPL implementation defect."
+}

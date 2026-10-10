@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-12",
+  "kind": "A1",
+  "case_id": "CAL-12",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "If two or more transforms are sended from the same node using successive calls to: tf2_ros.TransformBroadcaster().sendTransform() Even with different TransformBroadcaster objects, only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+    "url": "https://github.com/ros/geometry2/issues/89"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It looks like the c++ broadcaster as [a sending queue of 100](https://github.com/ros/geometry_experimental/blob/indigo-devel/tf2_ros/src/transform_broadcaster.cpp#L42)\nwhile the python implementation has [a send queue of 1](https://github.com/ros/geometry_experimental/blob/indigo-devel/tf2_ros/src/tf2_ros/transform_broadcaster.py#L44)\n\nThe python should be made to match the c++ as this is causing a problem. It's a magic number and should probably be parameterized but just making them match would be better. ",
+      "url": "https://github.com/ros/geometry2/issues/89#issuecomment-83259331"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+    "url": "https://github.com/ros/geometry2/issues/89"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed in #90 ",
+    "url": "https://github.com/ros/geometry2/issues/89#issuecomment-84090881"
+  },
+  "notes": "Sources opened: issue #89 body and comments (gh api) - marbosjo's report (quoted) with 'This bug does not happen in the tf2 cpp implementation neither in tf.'; tfoote's diagnosis (comment 83259331, quoted verbatim); mrath's 'Fixed with queue_size 100 in pull request #90.' and tfoote's closing 'Fixed in #90 '; transform_broadcaster.py at 1bbf9108 line 44 ('self.pub_tf = rospy.Publisher(\"/tf\", TFMessage, queue_size=1)'), transform_listener.py line 52 ('rospy.Subscriber(\"/tf\", TFMessage, self.callback)'), transform_broadcaster.cpp line 42 ('publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf\", 100);') all via raw.githubusercontent; fix commit ede2646d (gh api): 'Merge pull request #90 from mrath/indigo-devel\\n\\nsame queue size of transform boradcaster in c++ and Python' (2015-03-20). Eligibility: agree, stop 6. E2 step 1: the broadcasting process (reporter's node hosting the tf2_ros Python TransformBroadcaster) and the subscribing process (tf2_tools view_frames hosting the tf2_ros TransformListener) interact only through the /tf topic and are separate units ('two nodes that interact only through ROS interfaces are separate units even when they ship in one package'; here in one repository, two packages). Step 2: the loss is a property of the interaction - the provider's outgoing queue depth versus the burst the consumer must receive; the C++ broadcaster (queue 100) with the same consumer does not lose messages, so the failure depends on the provider's queue property crossing the boundary, not on either unit alone. Steps 3-5: the fix changes the publisher's queue-depth value, not names, build, or firmware. Stop 6, topic. Failed condition: class DISAGREED - the recorded class qos_reliability is wrong: rospy Publisher queue_size is the outgoing message queue depth (history), and no reliability policy differs between the sides (ROS 1 transports are reliable); the spec's own notes state the class should be 'other' ('a history/queue-depth property with no dedicated class in the schema ... so it is recorded as other'), contradicting its own failed_conditions entry - proposed 'other'. Elements (topic:/tf) agreed. Loudness silent_documented/run agreed: the loss is visible only as missing frames in the view_frames graph, with no diagnostic from ROS tooling. Resolution recommended agreed: PR #90 merged as ede2646d and the issue closed, but neither the reporter nor the source shows the reproducer re-run against the merged revision, so the resolved composition is not shown working."
+}

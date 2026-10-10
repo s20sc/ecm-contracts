@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-095",
+  "kind": "A1",
+  "case_id": "C3-095",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "there are a lot of compile warnings for `using deprecated function`, we should try to upgrade/move away from these moving forward, while maybe keeping some around for backward compatibility?",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/152"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "They were `avcodec_register_all`, `avpicture_alloc`, and other `av`-related warnings.",
+      "url": "https://github.com/ros-drivers/usb_cam/pull/170"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "add_compile_options(-Wall -Wextra -Wpedantic -Wno-overflow -Wno-deprecated-declarations -Wno-switch)",
+    "url": "https://github.com/ros-drivers/usb_cam/pull/170"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-  avcodec_register_all();\n+  av_image_alloc(",
+    "url": "https://github.com/ros-drivers/usb_cam/pull/207"
+  },
+  "notes": "Independently verified against primary sources. usb_cam.cpp at 90d4d59e calls all five functions (avcodec_register_all line 402, avpicture_alloc 419, avpicture_get_size 435/436/488, avcodec_decode_video2 469, avpicture_layout 514). FFmpeg headers: n2.8 libavcodec/avcodec.h declares none of the five with attribute_deprecated (avcodec_register_all line 3850, avpicture_alloc 5061, avpicture_get_size 5132, avpicture_layout 5116, avcodec_decode_video2 4492); n4.2 marks all five attribute_deprecated (lines 4158-4159, 5482-5483, 5509-5510, 5501-5502, 4827-4828). The five implicated elements exactly match the n4.2 deprecated set; av_init_packet (also called at 90d4d59e line 463) is correctly excluded — it is not deprecated in n4.2's avcodec.h. element_retyped fits S1's parenthetical \"(declaration changed, element still present)\": the declarations gained attribute_deprecated while the functions remain present. E1/E4 hold via documented compiler warnings (outcome warning_only); the resolving edit is in consumer source (PR #207 replaces avpicture_alloc→av_image_alloc, avpicture_get_size→av_image_get_buffer_size, avpicture_layout→av_image_copy_to_buffer, removes avcodec_register_all/av_init_packet/avcodec_decode_video2), not build-only, so stop_step 6 with library-API interface is right; UPGRADE operation is documented (\"Do you have mavlink...\" style version dichotomy is absent here, but the provider at 4.2-era vs consumer written against pre-3.0 APIs is the spec's inferred n2.8, explicitly marked inferred). Loudness loud_documented/build is right: compiler deprecation warnings are diagnostics from existing tooling at build, and PR #170 needed -Wno-deprecated-declarations for a clean build. Resolution recommended is right: no source shows a warning-free build of the resolved revision against an identified FFmpeg revision."
+}

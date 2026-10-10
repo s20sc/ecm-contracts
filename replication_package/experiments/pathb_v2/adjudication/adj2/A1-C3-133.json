@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-133",
+  "kind": "A1",
+  "case_id": "C3-133",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "When trying to populate a ROS message that includes a float32[] field, if the JSON data for that field is a list of integer values, the conversion raises an error instead of converting the integer values to floats.\n\nThis can become problematic when the library on the JS side decides to truncate float values, such as with this:\nlet joy_msg = new ROSLIB.Message({ axes: [ 0.0 ] });\njoy_publisher.publish(joy_msg)",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "AssertionError: The 'axes' field must be a set or sequence and each value of type 'float' and each float in [-340282299999994960115009090224128000.000000, 340282299999999994960115009090224128000.000000]",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The following error is raised:\nAssertionError: The 'axes' field must be a set or sequence and each value of type 'float' and each float in [-340282299999994960115009090224128000.000000, 340282299999999994960115009090224128000.000000]",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+        inst.extend(msg)  # accepts both ints and floats which may come from json",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/pull/777/files"
+  },
+  "notes": "Verified this session: issue 764 body (2022-07-16, 'Library Version: 1.2.0', 'ROS Version: Humble') contains the runnable python reproducer with msg_json '{ ... \"axes\": [0], \"buttons\": [] }', the full traceback ending in the quoted AssertionError from '/opt/ros/humble/local/lib/python3.10/dist-packages/sensor_msgs/msg/_joy.py', line 165, in axes, and both quoted description sentences verbatim. message_conversion.py at 1.2.0 lines 361-362 read: '    if isinstance(inst, array.array) or isinstance(inst, np.ndarray):' / '        return msg' (https://raw.githubusercontent.com/RobotWebTools/rosbridge_suite/1.2.0/rosbridge_library/src/rosbridge_library/internal/message_conversion.py). PR 777 'Allow integers in conversion to float array messages' merged 2022-08-16, merge_commit_sha 4de99bcf66fdd067aee8dfeb6856aded5a788d2f; patch replaces the early 'return msg' with 'if isinstance(inst, array.array): del inst[:] / inst.extend(msg)  # accepts both ints and floats which may come from json' and 'inst[:] = msg' for np.ndarray, and adds List[int] test cases. E2: the composition reporter_js_client <-> rosbridge_suite over the rosbridge protocol is the one the reporter asks about; the observed traceback comes from a Python stand-in for the client payload, which the spec discloses honestly in its notes; the failure depends on the encoding of an integral float as a JSON integer crossing the boundary (0.0 vs 0), so not internal; fix is rosbridge conversion code -> stop 6. representation_convention with field:sensor_msgs/Joy.axes alone agrees (the other inventory fields are not implicated). Loudness loud_documented/run: the rosidl-generated message validation raises a hard refusal with a precise diagnostic at runtime; not one of S1's build/connect/activate examples but a diagnostic from platform code that the source shows, and the spec states the stage plainly. Resolution recommended: PR 777's tests drive rosbridge_test_msgs from Python, not the reporter's JS client; nobody shows the reporter's composition working against the fixed revision."
+}

@@ -1,0 +1,97 @@
+{
+  "task_id": "u0153",
+  "package": "rospy",
+  "manifest_version": "1.9.55",
+  "ports": [
+    {
+      "element": "api:rospy.Publisher",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.ROSInterruptException",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.Subscriber",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.init_node",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.spin",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rospy.Publisher": "api rospy.Publisher: class Publisher(Topic):",
+    "api:rospy.ROSInterruptException": "api rospy.ROSInterruptException: class ROSInterruptException(ROSException, KeyboardInterrupt):",
+    "api:rospy.Subscriber": "api rospy.Subscriber: class Subscriber(Topic):",
+    "api:rospy.init_node": "api rospy.init_node: def init_node(name, argv=None, anonymous=False, log_level=None, disable_rostime=False, disable_rosout=False, disable_signals=False, xmlrpc_port=0, tcpros_port=0):",
+    "api:rospy.spin": "api rospy.spin: def spin():"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:clients/rospy/package.xml:3",
+    "ports[0]": "snapshot:clients/rospy/src/rospy/__init__.py:70",
+    "ports[1]": "snapshot:clients/rospy/src/rospy/__init__.py:61",
+    "ports[2]": "snapshot:clients/rospy/src/rospy/__init__.py:70",
+    "ports[3]": "snapshot:clients/rospy/src/rospy/__init__.py:49",
+    "ports[4]": "snapshot:clients/rospy/src/rospy/__init__.py:49",
+    "declares[api:rospy.Publisher]": "snapshot:clients/rospy/src/rospy/topics.py:736",
+    "declares[api:rospy.ROSInterruptException]": "snapshot:clients/rospy/src/rospy/exceptions.py:55",
+    "declares[api:rospy.Subscriber]": "snapshot:clients/rospy/src/rospy/topics.py:446",
+    "declares[api:rospy.init_node]": "snapshot:clients/rospy/src/rospy/client.py:189",
+    "declares[api:rospy.spin]": "snapshot:clients/rospy/src/rospy/client.py:117",
+    "perm_requires": "grep -rniE 'recover|permission|exclusive|flock|O_EXCL|security|sros' over snapshot:clients/rospy/ (package.xml, CMakeLists.txt, setup.py, rosdoc.yaml, epydoc.config, src/, rosbuild/, test_nodes/) matched only BSD license header lines; no permission declarations",
+    "perm_grants": "same search as perm_requires; no permission grants declared",
+    "recovery": "same search as perm_requires; no recovery declaration in code or configuration"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All five listed symbols exist and are exported at this revision. The only point I would flag is that Publisher.__init__ (topics.py:741) takes (name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None) with no queue_size keyword, while the packet names ros_distro indigo and the manifest says 1.9.55; a caller passing queue_size= to rospy.Publisher would get a TypeError against this revision. Whether that counts as a defect depends on the paired code, which I was not shown."
+  },
+  "confidence": "high",
+  "notes": "All packet elements are Python API symbols that rospy provides (none consumed), so references is empty and not_declared is empty (all five were found). The api ports carry no message type, frame, units, rate, or definition hash, so those fields are null; QoS is null because this is ROS 1. The declaration recorded for each class is its class line; the constructor signatures are: Publisher.__init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None) at topics.py:741, and Subscriber.__init__(self, name, data_class, callback=None, callback_args=None, queue_size=None, buff_size=DEFAULT_BUFF_SIZE, tcp_nodelay=False) at topics.py:451-452. The symbols reach the rospy namespace via __init__.py:49 (spin, init_node from .client), :61 (from .exceptions import *, and exceptions.py has no __all__), and :70 (Publisher, Subscriber from .topics). ROSInterruptException subclasses both ROSException and KeyboardInterrupt. spin() catches KeyboardInterrupt and calls signal_shutdown (client.py:117-131). Outside the listed elements: rospy/__init__.py __all__ lists 'NodeProxy' (line 106), which nothing in src defines, and lines 96-97 read 'FATAL' 'is_shutdown' with no comma between them (string concatenation to 'FATALis_shutdown'); both would make 'from rospy import *' raise AttributeError, though attribute access such as rospy.Publisher is unaffected. The manifest version 1.9.55 is shared by ros_comm/package.xml and roscpp/package.xml in the same snapshot. exclusive is empty: rospy claims no hardware command interfaces or exclusive device handles (see the perm_requires search)."
+}

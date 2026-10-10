@@ -1,0 +1,94 @@
+{
+  "case_id": "B-Beh-02",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/551",
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/551#issuecomment-990399891",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/690",
+    "https://github.com/RobotWebTools/rosbridge_suite/commit/adfa4d6335462e321d774400a6ffbf285cb28531",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/1a2c386455067b00a9e67fb70cc711add38c3582/rosbridge_library/src/rosbridge_library/internal/subscribers.py",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/adfa4d6335462e321d774400a6ffbf285cb28531/rosbridge_library/src/rosbridge_library/internal/subscribers.py",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/adfa4d6335462e321d774400a6ffbf285cb28531/rosbridge_server/test/websocket/best_effort_publisher.test.py",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/adfa4d6335462e321d774400a6ffbf285cb28531/rosbridge_server/test/websocket/transient_local_publisher.test.py",
+    "https://github.com/RobotWebTools/rosbridge_suite/releases/tag/1.1.1"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #551 (2021-01-22) gives a three-step reproducer (\"1. Run a ROS2 node that publishes data to a topic using **Best Effort** reliability. 2. Run `rosbridge_server` and attempt to subscribe to that topic using a rosbridge client library (roslibpy, roslibjs). The subscriber should not receive any data. 3. Change the reliability policy on the publisher to **Reliable** and repeat step 2. The subscriber should now receive data from the publisher.\") and a log excerpt (\"[INFO] [1611352926.636802670] [rosbridge_websocket]: [Client 1] Subscribed to /my_topic\") with the statement that \"no data is ever received in the subscriber callback\". Maintainer jtbandes (MEMBER) closed it with \"Should be fixed by #690\"; PR #690 was merged 2021-12-09 as adfa4d6 with \"Fixes #551\" in its body."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rosbridge_server", "publisher_node"],
+      "interface_kind": "topic",
+      "evidence": "Step 1: the two units are rosbridge_server (the rosbridge_websocket node; the subscription is created in rosbridge_library's MultiSubscriber, released in the same rosbridge_suite repository) and the peer ROS 2 publisher node of the subscribed topic (the reporter's unnamed node publishing /my_topic with Best Effort reliability). They interact only through a ROS 2 topic. Step 2: the failure depends on an assumption between them: the reporter states \"For the reliability QoS policy, all combinations are compatible except for when the publisher uses **Best Effort** and the subscriber uses **Reliable**\" and \"It looks like `rosbridge_server` uses the default reliability QoS policy (which in my case ends up being **Reliable**) and only specifies the depth.\" Either unit works with a differently configured peer (step 3 of the reproducer: switching the publisher to Reliable makes data flow), so this is a QoS attribute mismatch crossing the topic boundary, not a crash or wrong arithmetic inside one unit; the resolving edit is inside rosbridge_library but the mismatch is at the boundary. Step 3: no remap, namespace, or name binding resolves it. Step 4: no build or packaging change. Step 5: not firmware. Step 6: eligible; interface kind topic (QoS reliability, and durability per the fixing PR)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the publisher's output on the topic feeds rosbridge_server's subscription input; the failure is that the pair never delivers data (\"no data is ever received in the subscriber callback\"). Both units were running at the same time, but the source documents no failure attributable to concurrency itself; no upgrade or switch is involved."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"The `rosbridge_server` logs indicate that the client connected and that the subscription was created, but no data is ever received in the subscriber callback.\" (issue #551). The fixing PR also records the mismatch at code level: \"Certain combinations of publisher and subscriber QoS parameters are incompatible.\" (subscribers.py at adfa4d6, lines 119-120)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rosbridge_server",
+      "role": "consumer",
+      "repo": "https://github.com/RobotWebTools/rosbridge_suite",
+      "broken_rev": "1a2c386455067b00a9e67fb70cc711add38c3582",
+      "resolved_rev": "adfa4d6335462e321d774400a6ffbf285cb28531",
+      "pinned": true,
+      "ros_distro": "foxy"
+    },
+    {
+      "name": "publisher_node",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "as-reported-2021-01",
+      "resolved_rev": "adfa4d6335462e321d774400a6ffbf285cb28531",
+      "pinned": false,
+      "ros_distro": "foxy"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null},
+  "inventory": [
+    {"element": "topic:/my_topic", "sides": {"publisher_node": "provides", "rosbridge_server": "consumes"}},
+    {"element": "topic:/a_topic", "sides": {"publisher_node": "provides", "rosbridge_server": "consumes"}},
+    {"element": "topic:/tf_static", "sides": {"publisher_node": "provides", "rosbridge_server": "consumes"}},
+    {"element": "msg:std_msgs/String", "sides": {"publisher_node": "consumes", "rosbridge_server": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "qos_reliability",
+      "implicated_elements": ["topic:/my_topic", "topic:/a_topic"],
+      "quote": "`rosbridge_server` silently fails to subscribe to topics with publishers that use **Best Effort** reliability instead of **Reliable.** The `rosbridge_server` logs indicate that the client connected and that the subscription was created, but no data is ever received in the subscriber callback.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/551"
+    },
+    {
+      "class": "qos_durability",
+      "implicated_elements": ["topic:/tf_static", "topic:/a_topic"],
+      "quote": "When looking into https://github.com/foxglove/studio/issues/1987 I discovered that rosbridge was not receiving \"latched\" `/tf_static` messages. This led us to learn that subscribers need specific qos profile settings for certain publishers (https://github.com/ros2/ros2cli/issues/523#issuecomment-987107534).",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/pull/690"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "\"The `rosbridge_server` logs indicate that the client connected and that the subscription was created, but no data is ever received in the subscriber callback.\" and \"Based on my recent experience, it would seem that a failure to connect based on QoS compatibility either fails silently or requires more verbose logging than I currently have configured.\" (issue #551). The only diagnostics shown are two INFO lines (\"Client connected. 1 clients total.\" and \"[Client 1] Subscribed to /my_topic\"); no incompatible-QoS event or warning appears in the source.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "PR #690 (merged as adfa4d6, first released in tag 1.1.1) changes rosbridge_library's MultiSubscriber.__init__ to query `node_handle.get_publishers_info_by_topic(topic)` and, starting from a RELIABLE/VOLATILE profile with depth 10, to set `qos.reliability = ReliabilityPolicy.BEST_EFFORT` if any existing publisher uses BEST_EFFORT and `qos.durability = DurabilityPolicy.TRANSIENT_LOCAL` if any existing publisher uses TRANSIENT_LOCAL, passing that profile to `create_subscription` instead of the bare depth `10`. Two launch tests were added (best_effort_publisher.test.py, transient_local_publisher.test.py), each publishing std_msgs/String on /a_topic with the respective QoS and asserting that a websocket client receives {\"op\": \"publish\", \"topic\": \"/a_topic\", \"msg\": {\"data\": \"hello\"}}.",
+    "status": "recommended",
+    "evidence": "Maintainer comment: \"Should be fixed by #690\" (2021-12-09). The PR was approved by jtbandes and merged; its body says \"This PR attempts to use a qos profile that would accept any published message.\" The repository's CI workflow at adfa4d6 (.github/workflows/ci.yml) runs action-ros-ci on foxy, galactic and rolling, but the GitHub Actions API returns 0 workflow runs and an empty status rollup for both the PR head 6b7ba83 and the merge commit adfa4d6, so the source does not show the new tests passing, and the reporter never confirmed on their composition."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "high",
+  "notes": "Provider unit: the reporter's publisher is unnamed and has no public repository (\"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability\"), hence excerpt_based=true and the artifacts file. In the resolved composition the only provider shown is the PR's own test publisher (rosbridge_server/test/websocket/best_effort_publisher.test.py, and transient_local_publisher.test.py for durability) at adfa4d6, publishing std_msgs/String on /a_topic; the unit's resolved_rev points to that commit, and pinned=false because the broken instance has no commit. Reported rosbridge version: \"1.0.2 (more specifically 1a2c386)\"; 1a2c386 is the ros2-branch commit \"Adaptations to Eloquent [Again] (#533)\" (2020-09-19) whose rosbridge_server/package.xml reads <version>1.0.2</version>; the release tag 1.0.2 (85ca9d4, 2019-09-24) is a different commit, so the exact commit given by the reporter is used. adfa4d6's package.xml reads 1.1.0; tag 1.1.1 (2021-12-09T23:55Z) is 2 commits ahead of adfa4d6 and is the first release containing it. The second failed condition (qos_durability) is documented in the fixing PR, not in issue #551, and was observed against a transient-local /tf_static publisher via Foxglove Studio, not against the reporter's Best Effort publisher; both defects are the same mechanism (rosbridge subscribing with the default RELIABLE/VOLATILE profile). Inventory sides for msg:std_msgs/String are both 'consumes' because the definition is owned by std_msgs; the reporter's /my_topic type is not stated (they first suspected custom message definitions, then edited the issue). Code observation not discussed in the source: at adfa4d6 the second subscription created in MultiSubscriber.subscribe() (lines 172-175, `self._new_sub_callback, 10`) still uses the bare depth-10 default profile. E3: CONCURRENT is not listed as an alternative because the source attributes nothing to concurrency; the failure is the pair connection."
+}

@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_4ea5ea7",
+  "kind": "A1",
+  "case_id": "robust_4ea5ea7",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Error arises because kobuki.urdf.xacro just defines a component tag `<kobuki/>` that can be used by other xacros (e.g. turtlebot). I've added a kobuki standalone xacro there now.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Error arises because kobuki.urdf.xacro just defines a component tag `<kobuki/>` that can be used by other xacros (e.g. turtlebot).",
+      "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "process[robot_state_publisher-1]: started with pid [5377]\n[ERROR] [1356608164.609420111]: No link elements found in urdf file\n[ERROR] [1356608164.609850822]: Could not generate robot model\n[ERROR] [1356608164.610010689]: Failed to extract kdl tree from xml robot description\n[robot_state_publisher-1] process has died [pid 5377, exit code 255, cmd /opt/ros/fuerte/stacks/robot_model/robot_state_publisher/bin/state_publisher __name:=robot_state_publisher __log:=/home/robotnik/.ros/log/6462c884-5017-11e2-ae82-0008ca469279/robot_state_publisher-1*.log].\nlog file: /home/robotnik/.ros/log/6462c884-5017-11e2-ae82-0008ca469279/robot_state_publisher-1*.log\nall processes on machine have died, roslaunch will exit",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've added a kobuki standalone xacro there now."
+  },
+  "notes": "Independently verified. (1) E1: stonier's reproduced log (comment 11710175) matches the spec verbatim, including the fuerte binary path '/opt/ros/fuerte/stacks/robot_model/robot_state_publisher/bin/state_publisher'; explanation comment 11710515 matches verbatim. (2) E2: broken-side provider read directly at 87c39d2d — kobuki.urdf.xacro contains '<robot name=\"kobuki\" ...>' with '<xacro:macro name=\"kobuki\">' (line 10) closed at line 192 and no instantiation of <kobuki/>; consumer side read at tag robot_model-1.8.1 (tag -> a30908a22ae1a84c4d6e68a309e0fa089548905f confirmed): joint_state_listener.cpp line 127 'if (!kdl_parser::treeFromParam(\"robot_description\", tree)){' / line 128 'ROS_ERROR(\"Failed to extract kdl tree from xml robot description\");' and urdf_parser.cpp line 158 'ROS_ERROR(\"No link elements found in urdf file\");' — both messages match the log. Not deployment_wiring: no loadable standalone artifact existed and the resolution creates one (new provider artifact), so the provider's interface artifact changed. (3) Fix commit 4ea5ea7f verified: parent 87c39d2d, message 'view_model launcher for kobuki, closes #207', adds kobuki_standalone.urdf.xacro, launch/view_model.launch, rviz/model.rviz; view_model.launch loads '<param name=\"robot_description\" command=\"$(arg urdf_file)\" />' with urdf_file default \"$(find xacro)/xacro.py '$(find kobuki_description)/urdf/kobuki_standalone.urdf.xacro'\". (4) Loudness loud_documented/activate: ROS_ERROR diagnostics at startup plus roslaunch's process-death and exit — a launch-time diagnostic. (5) Resolution recommended: no run of the viewer with the new launcher is shown in the issue."
+}

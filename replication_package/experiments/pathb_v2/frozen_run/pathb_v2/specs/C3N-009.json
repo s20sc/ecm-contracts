@@ -1,0 +1,87 @@
+{
+  "case_id": "C3N-009",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/1311",
+    "https://github.com/ros-controls/ros2_control/pull/1293",
+    "https://github.com/saikishor/ros2_control/commit/201fd47c67e3174c76314aa15955586d8273e925",
+    "https://github.com/ros-controls/ros2_control/pull/1332",
+    "https://github.com/ros-controls/ros2_controllers/blob/e08dcb91123a511fbf8233161d4f8d5ffad854be/joint_trajectory_controller/src/joint_trajectory_controller.cpp#L1136-L1138"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #1311 (opened by a ros2_control maintainer, saikishor) gives printed values showing the controller node clock jumping from system time to sim time and the resulting unpublished state topic, plus before/after screenshots; the fix PR #1293 states \"Fixes: https://github.com/ros-controls/ros2_control/issues/1311\" and was merged (master 5d4f6e72, humble backport #1332 merged as fe5b4f16)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["controller_manager", "joint_trajectory_controller"],
+      "interface_kind": "parameter",
+      "evidence": "The controller plugin (joint_trajectory_controller, ros2_controllers) and its host (controller_manager, ros2_control) are separate units. At the broken revision the controller_manager creates the controller node through controller.c->init(controller.info.name, get_namespace()) and only afterwards applies the use_sim_time parameter with controller.c->get_node()->set_parameter(use_sim_time); the controller's node clock is therefore system time when the controller stamps last_state_publish_time_, and later switches to the simulation clock. The time source of the controller node (a value crossing the host/plugin boundary through the use_sim_time parameter) is wrong for the first cycles; the resolving edit is inside controller_manager (pass use_sim_time as a NodeOptions argument at node creation). Not deployment wiring (the change is in controller_manager code, not in a launch/config name binding), not build, not firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the controller_manager's output (the use_sim_time parameter it applies to the controller node it creates) feeds the controller's input (its node clock, read by get_node()->now() in publish_state). The failure was observed when the controllers are loaded and started by the controller_manager in the TIAGo Gazebo simulation."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"the JTC doesn't publish the `state` or the `controller_state` topic after starting TIAGo simulation\", with printed get_node()->now() values jumping from 1.7055e+09 to 0.672."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "controller_manager",
+      "role": "provider",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "a3bf2801be9b592deebf810611b048870b1402a4",
+      "resolved_rev": "fe5b4f160026c233936ccf9120a94808195ece5e",
+      "pinned": false,
+      "revision_basis": "The reporter states only \"Version Humble\" for ros2_control. a3bf2801 is the head of the ros2_control humble branch at the time the issue was opened (2024-01-17T17:33Z; last humble commit 2024-01-17T15:51Z); at that revision add_controller_impl calls controller.c->init(controller.info.name, get_namespace()) and afterwards controller.c->get_node()->set_parameter(use_sim_time), the behaviour the issue describes. The exact build the reporter ran is not stated. resolved_rev fe5b4f16 is the humble merge commit of the backport PR #1332 of #1293 (merged 2024-01-25), which moves use_sim_time into the NodeOptions arguments given to init. On master the fix is merge commit 5d4f6e7277fcd0d9a2a65b1366663e4cbf3047f2 (PR #1293).",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "joint_trajectory_controller",
+      "role": "consumer",
+      "repo": "https://github.com/ros-controls/ros2_controllers",
+      "broken_rev": "e08dcb91123a511fbf8233161d4f8d5ffad854be",
+      "resolved_rev": "e08dcb91123a511fbf8233161d4f8d5ffad854be",
+      "pinned": true,
+      "revision_basis": "The reporter links joint_trajectory_controller.cpp at ros2_controllers commit e08dcb91 (lines 1136-1138); e08dcb91 is also the ros2_controllers humble branch head at the issue date (committed 2024-01-12, no later humble commit before 2024-01-17T17:33Z). The resolution does not change this unit, so the resolved composition keeps e08dcb91.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "param:use_sim_time", "sides": {"controller_manager": "provides", "joint_trajectory_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::init", "sides": {"joint_trajectory_controller": "provides", "controller_manager": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::get_node", "sides": {"joint_trajectory_controller": "provides", "controller_manager": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["param:use_sim_time", "api:controller_interface::ControllerInterfaceBase::init"],
+      "quote": "when the controllers are loaded and launched in the simulation, their node clock tends to stay in the RCL_SYSTEM_TIME` for some cycle time instead of switching to the clock of the gazebo.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1311"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from existing tooling; the reporter found the cause with added print statements: \"We have been facing an issue for several months that the JTC doesn't publish the `state` or the `controller_state` topic after starting TIAGo simulation.\" and \"I've added some print statements and found out the following\" (https://github.com/ros-controls/ros2_control/issues/1311).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "controller_manager builds the controller's rclcpp::NodeOptions in a new determine_controller_node_options() and, when its own use_sim_time is true, appends \"--ros-args -p use_sim_time:=true\" to the arguments passed to controller.c->init(...), so the controller node is created with the simulation clock; the post-init set_parameter(use_sim_time) is removed (PR #1293, commit 201fd47c \"implement logic of use_sim_time as arguments to solve #1311\"; humble backport #1332).",
+    "status": "recommended",
+    "evidence": "The reporter shows a screenshot \"AFTER APPLYING THE ABOVE SOLUTION\" and the expected monotone sim-time values, but that was a local change passing use_sim_time in NodeOptions, not an identified revision; the merged backport #1332 was reported working in simulation by Noel215 (\"Tested on simulation with https://github.com/ros-controls/ros2_controllers/pull/978, as in the original PR. It is working for me.\") for the parameter-loading issue, with a different ros2_controllers revision, not shown for this clock composition."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class 'other' is used because the mismatch is the time source of the controller node (system time vs simulation time) caused by the order in which the host applies use_sim_time relative to node creation; none of the listed classes (frame, unit, QoS, representation) names a clock-source/initialization-order mismatch. At e08dcb91 the controller stamps last_state_publish_time_ = get_node()->now() in on_configure (L904) and on_activate (L985), and publish_state returns early while get_node()->now() < (last_state_publish_time_ + state_publisher_period_) (L1136), so a system-time stamp followed by a switch to sim time suppresses publishing indefinitely. Inventory uses the api: form for the controller_interface base-class methods through which the host creates the plugin's node (init) and sets its parameter (get_node()->set_parameter). The /clock topic is published by Gazebo (a third unit) and is not listed. The same fix (PR #1293) also addresses other compositions that are not conditions of this case: the spawner's params-file loading into the controller node (ros2_controllers issue #966, read_only parameters and generate_parameter_library validation in on_init, ros2_controllers PRs #795/#698). Master fix: PR #1293 merge 5d4f6e72; iron backport #1331 merge 75ff3476."
+}

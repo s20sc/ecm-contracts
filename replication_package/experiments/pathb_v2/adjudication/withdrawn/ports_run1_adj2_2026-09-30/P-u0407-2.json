@@ -1,0 +1,13 @@
+{"item_id": "P-u0407-2", "kind": "P", "task_id": "u0407", "element": "msg:rcl_interfaces/GetParameters", "side": "consumes",
+ "values": [
+  {"field": "msg_type", "recorded": "rcl_interfaces/srv/GetParameters", "verdict": "unverifiable",
+   "source_excerpt": "ros2param/api/__init__.py:90  future = client.get_parameters(parameter_names) ; get.py:60  assert len(response.values) <= 1 ; dump.py:58  return [get_value(parameter_value=i) for i in response.values]",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "unverifiable",
+   "source_excerpt": "provenance cites 'rcl_interfaces 1.6.0 srv/GetParameters.srv' with no packet path; no GetParameters.srv exists under s2_work (find -L: no match)",
+   "qos_basis": null},
+  {"field": "definition_id", "recorded": "{\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"26ee1ade1bf916d0168a458f829b75d705a69d0b5b690ac650ec3462a4e3b5be\"}", "verdict": "unverifiable",
+   "source_excerpt": "provenance cites only https://raw.githubusercontent.com/ros2/rcl_interfaces/1.6.0/rcl_interfaces/srv/GetParameters.srv; no local copy exists to hash; network access prohibited",
+   "qos_basis": null}
+ ],
+ "notes": "All three cited ros2param snapshot lines were opened and match the provenance excerpts (api/__init__.py:90 inside call_get_parameters; response.values consumed at get.py:60 and dump.py:58). However, none of them states the recorded value: grep for 'GetParameters' over the whole ros2param snapshot returns no matches; the client is rclpy.parameter_client.AsyncParameterClient (imported at api/__init__.py:23) and the service type name never appears in the packet, so msg_type is readable-but-not-mentioned -> unverifiable. The rcl_interfaces srv file cited for frame and the URL cited for definition_id are both absent from the packet (find -L over s2_work finds no GetParameters.srv, no rcl_interfaces dir); definition_hash.py exists at the workspace root but has no input file, so the hash cannot be recomputed offline."}

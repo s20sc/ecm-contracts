@@ -1,0 +1,103 @@
+{
+  "case_id": "C3N-022",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/4110",
+    "https://github.com/ros-navigation/navigation2/pull/4300",
+    "https://github.com/ros-navigation/navigation2/commit/d0a65d5afbab3b758408b79ebf5cd344b3377b00",
+    "https://github.com/ros-navigation/navigation2/pull/4622",
+    "https://github.com/ros-navigation/navigation2/pull/4766",
+    "https://github.com/ros-navigation/navigation2/commit/507b3659e6c622d9339b61b53810320b600526a2",
+    "https://github.com/ros-navigation/navigation2/commit/7b3dac8be775a8941cae15592c9de67c94913240",
+    "https://github.com/ros-navigation/navigation2/commit/ad3469315c88e577e2645fdbaada50a2d6175707",
+    "https://github.com/BehaviorTree/BehaviorTree.CPP/commit/51f92c49c2ed258b773960d3762c7cbbcf748f78",
+    "https://github.com/ros/rosdistro/blob/4f8aea8473950f7bba4c2883e4fce93b819f18a7/iron/distribution.yaml",
+    "https://github.com/ros/rosdistro/blob/d3f6d2452f97088d8133b1a69db4deb33f36c859/rolling/distribution.yaml"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer (Iron, nav2_gps_waypoint_follower_demo, BT XML with <PathLongerOnApproach path=\"{path}\" prox_len=\"6.0\" length_factor=\"1.2\">, obstacle added in Gazebo) and a GIF of the behaviour (https://github.com/ros-navigation/navigation2/issues/4110). Maintainer confirmation: \"Alright, in any case, it doesn't work @kevinpretell thanks for reporting.\" and \"Resolved by the PR linked above!\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["nav2_behavior_tree", "behaviortree_cpp_v3"],
+      "interface_kind": "library API",
+      "evidence": "Units: the PathLongerOnApproach decorator plugin (library nav2_path_longer_on_approach_bt_node in package nav2_behavior_tree, derived from BT::DecoratorNode) and its host framework BehaviorTree.CPP v3 (package behaviortree_cpp_v3), which ticks and halts it inside a ReactiveSequence. The decorator resets its state whenever its own status is IDLE (\"if (status() == BT::NodeStatus::IDLE) {\" / \"first_time_ = true;\", nav2 1.2.6). BehaviorTree.CPP 3.8.6 changed ReactiveSequence so that, when a child is RUNNING, all previous children are reset: \"// reset the previous children, to make sure that they are in IDLE state\" / \"for (size_t i = 0; i < index; i++)\" / \"haltChild(i);\" (commit 51f92c49, 'backport changes in 4.x and fix #643'), where haltChild calls resetStatus(). The status value set by the host crosses the boundary, so step 2 (internal) does not apply; no deployment name binding (3), build change (4) or firmware (5) is involved."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the decorator was written (nav2 #2802, merged 2022-03-30) when BehaviorTree.CPP 3.6.0 was the rolling release, whose ReactiveSequence halted only subsequent children (\"for(size_t i=index+1; i < childrenCount(); i++)\"); the reporter ran Iron in February 2024, when the Iron distribution listed behaviortree_cpp_v3 3.8.6-1. Maintainer: \"Last year, when I had implemented, the status ended up to success and went IDLE only when the entire BT was IDLE.\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"the robot does not stop when a longer path is recalculated waiting for the obstacle to go away, and takes the longer path\" (https://github.com/ros-navigation/navigation2/issues/4110)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "nav2_behavior_tree",
+      "role": "consumer",
+      "repo": "https://github.com/ros-navigation/navigation2",
+      "broken_rev": "1.2.6",
+      "resolved_rev": "507b3659e6c622d9339b61b53810320b600526a2",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter states only 'ROS2 Iron' on Ubuntu 22.04 (2024-02-09); the Iron distribution file on that date (rosdistro 4f8aea84) lists navigation2 release 1.2.6-1, upstream tag 1.2.6 (57093ecc, 'Iron Sync 4: Jan 23, 2024'). The decorator source on the iron branch is unchanged from ad346931 (2022-03-30) through 1.2.6 and the iron head on the report date (5c78e9b0), so any Iron revision of that period carries the same code. Resolved: PR #4300 (the fix for this failure) merged to main as d0a65d5a (2024-05-06), but main by then built against behaviortree_cpp v4; the iron branch never received it (Iron Sync 6, 4cb6aba4, only changed the pose comparison). The same logic reached the v3-based humble branch in 507b3659 ('fixing path longer on approach (#4622) (#4766)', 2024-11-26), which is used here as the resolved revision of this unit.",
+      "excerpt": false,
+      "ros_distro": "iron"
+    },
+    {
+      "name": "behaviortree_cpp_v3",
+      "role": "provider",
+      "repo": "https://github.com/BehaviorTree/BehaviorTree.CPP",
+      "broken_rev": "3.8.6",
+      "resolved_rev": "3.8.6",
+      "pinned": true,
+      "revision_basis": "Not stated by the reporter. The Iron distribution file on the report date (rosdistro 4f8aea84) lists behaviortree_cpp_v3 release 3.8.6-1 (bloomed into Iron 2023-12-19, rosdistro fac85bb3); upstream tag 3.8.6 is the first v3 release containing 51f92c49. The resolution changes only the decorator, so this unit keeps its broken revision. (3.8.7 keeps the reset of earlier children.)",
+      "excerpt": false,
+      "ros_distro": "iron"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "3.6.0",
+    "resolved": "3.8.6",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:BT::DecoratorNode", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}},
+    {"element": "api:BT::TreeNode::status", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}},
+    {"element": "api:BT::TreeNode::setStatus", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}},
+    {"element": "api:BT::TreeNode::getInput", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}},
+    {"element": "api:BT::InputPort", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}},
+    {"element": "api:BT::TreeNode::executeTick", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}},
+    {"element": "api:BT::NodeStatus", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}},
+    {"element": "api:BT::ReactiveSequence", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}},
+    {"element": "api:BT::BehaviorTreeFactory::registerNodeType", "sides": {"behaviortree_cpp_v3": "provides", "nav2_behavior_tree": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:BT::ReactiveSequence", "api:BT::TreeNode::status"],
+      "quote": "Crux of the issue seems that the status of the node is set to IDLE. Last year, when I had implemented, the status ended up to success and went IDLE only when the entire BT was IDLE. This IDLE state was blocking the logic of the intended decorator going forward.",
+      "url": "https://github.com/ros-navigation/navigation2/issues/4110"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The failure is behavioural and was observed in simulation without any diagnostic: \"But nav2 seems to ignore the new beaviour xml by following its path without stopping at the obstacle.\" The maintainer's question \"did you verify that you are actually using the new BT or see any log errors?\" received no error log; nothing in the thread shows a warning or error from BehaviorTree.CPP or bt_navigator.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "The decorator stops using its own IDLE status as the reset signal and instead resets when the goal of the path changes: \"if (first_time_ == false) {\" / \"if (old_path_.poses.back() != new_path_.poses.back()) {\" / \"first_time_ = true;\" (PR #4300, d0a65d5a on main); refined by #4375 (empty-path guard) and #4622 (compare .pose / .position rather than stamped poses); the combined logic was backported to humble as 507b3659.",
+    "status": "recommended",
+    "evidence": "PR #4300 was merged and the maintainer closed the issue (\"Resolved by the PR linked above!\"); the author lists \"Robotic platform tested on | Neobotix ROX\" without showing the result, and no one confirmed the fix in the reporter's Iron composition (Iron never received it). The issue was then reopened because the fix did not work with the Smac planners, and closed again after #4622 (\"merged fix\")."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Attribution of the IDLE status to BehaviorTree.CPP 3.8.6 is inferred from source: the maintainer states the node's status is now set to IDLE where it previously stayed SUCCESS, and BehaviorTree.CPP commit 51f92c49 (first released in 3.8.6) changed ReactiveSequence from halting children after the running one (3.6.0-3.8.5) to resetting children before it; in the reported BT, PathLongerOnApproach is the first child of the ReactiveSequence 'MonitorAndFollowPath' and FollowPath (RUNNING) the second. No commenter names BehaviorTree.CPP explicitly. The demo the reporter used (navigation2_tutorials c13f3a6d, nav2_no_map_params.yaml) configures planner 'GridBased' as \"nav2_navfn_planner/NavfnPlanner\". A second composition, not specified here: the decorator against the Smac planners (nav2_smac_planner) through the per-pose header stamps of the nav_msgs/Path it receives; isPathUpdated compared whole PoseStamped values. StetroF's #4344: \"Fix the bug that isPathUpdated function will return false for the reason that it compare the timestaped between new path and old path's last pose\"; padhupradheep on reopening: \"doesn't work with the smac planners.. headers have proper stamps while the solution that was given for this was developed only for the NavFN (which doesnt have stamps)\"; fixed by #4622 (de4fd786 on main). A commenter also noted \"`SequenceStar` is replaced by `SequenceWithMemory` in the BTCpp library\", which concerns the BehaviorTree.CPP 4 migration of the XML and was not the cause. Another user reports the same problem on Humble. The resolved-side consumer_built_against '3.8.6' is inferred: the fixed decorator no longer depends on the host keeping a finished child's status, i.e. it is written for the reset behaviour introduced in 3.8.6; the humble backport was released when Humble listed 3.8.7-1."
+}

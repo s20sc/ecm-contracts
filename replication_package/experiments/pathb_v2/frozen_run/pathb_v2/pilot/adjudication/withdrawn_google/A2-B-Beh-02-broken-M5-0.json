@@ -1,0 +1,25 @@
+{
+  "item_id": "A2-B-Beh-02-broken-M5-0",
+  "kind": "A2",
+  "case_id": "B-Beh-02",
+  "composition": "broken",
+  "method_label": "M5",
+  "rule": "qos_reliability",
+  "values": [
+    {
+      "path": "producer.outputs[0].qos.reliability",
+      "verdict": "verified",
+      "source_excerpt": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\""
+    },
+    {
+      "path": "consumer.inputs[0].qos.reliability",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:107-108 | # TODO(@jubeira): add support for other QoS. / self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10)"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "In the broken composition for B-Beh-02, the PAIR operation models the reporter's best-effort publisher node outputting on /my_topic and rosbridge_server subscribing to /my_topic with default QoS (reliable). The ports are actually connected via topic /my_topic."
+  },
+  "notes": "Absence of perm_requires is verified: no security/permission requirements declared in the rosbridge_server snapshot."
+}

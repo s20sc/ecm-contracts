@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-C3-115-resolved-M5-ece8e889be",
+ "kind": "A2",
+ "case_id": "C3-115",
+ "composition": "resolved",
+ "method_label": "M5",
+ "rule": "di_definition_mismatch",
+ "values": [
+  {
+   "path": "producer.outputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "u0371/snapshot/nav2_msgs/action/FollowPath.action (controller_server 1.2.9 provider side), lines 17-24: \"--- / #result definition / std_msgs/Empty result / uint16 error_code / --- / #feedback definition / float32 distance_to_goal / float32 speed\" — I ran `python3 definition_hash.py sha256 snapshot/nav2_msgs/action/FollowPath.action` in s2_work/tasks/u0371 and got {\"algorithm\": \"sha256_normalised\", \"kind\": \"action\", \"value\": \"e019de7b50bb059127fee0663d1495d72b8c8e7faf121d40c9e547a611a8ec57\"}, matching the producer value."
+  },
+  {
+   "path": "consumer.inputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "u0370/snapshot/nav2_msgs/action/FollowPath.action (bt_navigator 640196af consumer side), lines 5-6: \"string path_handler_id / ---\" and lines 23-24: \"std_msgs/Empty result / uint16 error_code / string error_msg\" and line 29: \"nav2_msgs/TrackingFeedback tracking_feedback\" — I ran `python3 definition_hash.py sha256 snapshot/nav2_msgs/action/FollowPath.action` in s2_work/tasks/u0370 and got {\"algorithm\": \"sha256_normalised\", \"kind\": \"action\", \"value\": \"b789a494a89017d4245cc676ca334897f4d4416d307e31b78757d69041b1a228\"}, matching the consumer value."
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Same encoding and same verification as the M2 item on this composition: spec PAIR operation at resolved revisions (producer u0371 = controller_server 1.2.9 creating the \"follow_path\" action server at controller_server.cpp:244; consumer u0370 = bt_navigator 640196af whose FollowPathAction BT node binds to \"follow_path\" at follow_path_action.cpp:137 and creates the client at bt_action_node.hpp:99 \"action_client_ = node_->create_action_client<ActionT>(action_name, callback_group_);\"). Same action name and type on both sides, opposite roles."
+ },
+ "notes": "Identical trigger values and encoding to the M2 item; verified independently. Same caveats: the definition difference is inherent to composing two navigation2 revisions (each bundling its own nav2_msgs) and the case's spec attributes the failure to action timing, not a definition mismatch; the spec resolution (PR #5895) does not change FollowPath.action. Absent states (producer perm_requires, both perm_grants) supported by grep over the producer and consumer packages returning only license boilerplate."
+}

@@ -1,0 +1,28 @@
+{
+  "task_id": "u0390",
+  "package": "rclcpp",
+  "status": "evidence_inadequate",
+  "status_detail": "None of the six packet elements (all consumed rmw symbols) is named anywhere in the snapshot. Searched all 443 files under snapshot/ (all readable, none empty) with grep -rn for each literal token: rmw_create_subscription, rmw_return_loaned_message_from_subscription, rmw_take_loaned_message, rmw_take_with_info, rmw_wait, can_loan_messages; also grep for rmw_subscription_t, rmw_take, rmw_return, rmw_wait, rmw_create, and a census of every rmw_*( call token. Zero hits for any packet element name. The only can_loan_messages hits are rclcpp's own methods (SubscriptionBase::can_loan_messages, PublisherBase::can_loan_messages) and calls to rcl_subscription_can_loan_messages / rcl_publisher_can_loan_messages, never the rmw_subscription_t field. rclcpp reaches the middleware through rcl wrappers (rcl_subscription_init, rcl_take, rcl_take_loaned_message, rcl_return_loaned_message_from_subscription, rcl_wait, rcl_subscription_can_loan_messages), whose implementation is outside the snapshot, so any use of the packet elements is transitive through rcl and cannot be established from this snapshot.",
+  "manifest_version": "16.0.7",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "perm_requires": "grep -rniE 'permission|enclave|security' over snapshot/: only license boilerplate and snapshot:rclcpp/QUALITY_DECLARATION.md:224 ('## Security' heading); no permission files or permission declarations in code or configuration",
+    "perm_grants": "same search as perm_requires; no grants declared",
+    "recovery": "grep -rniE 'recovery' over snapshot/: no hits; no recovery behaviour declared",
+    "exclusive": "grep -rniE 'exclusive' over snapshot/: only rclcpp::CallbackGroupType::MutuallyExclusive in tests (a callback scheduling option, not a resource claim); no hardware command interfaces or exclusive device handles"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "rclcpp names none of the listed rmw symbols directly; it goes through rcl. The only hint of trouble in the loaned-message path is a self-acknowledged TODO at snapshot:rclcpp/src/rclcpp/subscription_base.cpp:234-238 saying loaned messages are unsafe with shared_ptr callbacks and returned via rcl_return_loaned_message_from_subscription, but that is an rclcpp-level caveat, not evidence about the rmw elements."
+  },
+  "confidence": "high",
+  "notes": "All packet elements have side consumes, so declares and not_declared are empty by definition. No ports are recorded because ports cover elements this package calls, and the snapshot never calls or names the rmw symbols; references is empty for the same reason. Observed indirect path (for context, not recorded as ports): subscription creation via rcl_subscription_init (snapshot:rclcpp/src/rclcpp/subscription_base.cpp:67); copy take via rcl_take (snapshot:rclcpp/src/rclcpp/subscription_base.cpp:152); loaned take via rcl_take_loaned_message (snapshot:rclcpp/src/rclcpp/executor.cpp:615) guarded by subscription->can_loan_messages() (snapshot:rclcpp/src/rclcpp/executor.cpp:603), which calls rcl_subscription_can_loan_messages (snapshot:rclcpp/src/rclcpp/subscription_base.cpp:232); loan return via rcl_return_loaned_message_from_subscription (snapshot:rclcpp/src/rclcpp/executor.cpp:629); waiting via rcl_wait (snapshot:rclcpp/src/rclcpp/executor.cpp:761, snapshot:rclcpp/src/rclcpp/graph_listener.cpp:175, snapshot:rclcpp/include/rclcpp/wait_set_policies/thread_safe_synchronization.hpp:300, snapshot:rclcpp/include/rclcpp/wait_set_policies/sequential_synchronization.hpp:280, snapshot:rclcpp/src/rclcpp/executors/static_executor_entities_collector.cpp:258). rclcpp does include <rmw/rmw.h> (for example snapshot:rclcpp/include/rclcpp/subscription.hpp:19) and depends on rmw (snapshot:rclcpp/package.xml:37), but an include is not a reference to the packet symbols. The field element names a C struct (rmw_subscription_t in rmw), not a .msg/.srv/.action/.idl definition, so no definition_id could be computed under the allowed sources and no rmw headers were fetched. QoS, frame, units, and rates do not apply to these API elements. The snapshot also contains rclcpp_action, rclcpp_components and rclcpp_lifecycle (all version 16.0.7); they were included in the search and name none of the elements either."
+}

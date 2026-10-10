@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-112",
+  "kind": "A1",
+  "case_id": "C3-112",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This seems to have broken `rmw_fastrtps_dynamic_cpp`, as the methods were not implemented for it.",
+    "url": "https://github.com/ros2/rmw_fastrtps/pull/468#issuecomment-1106847128"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "'failed to resolve symbol 'rmw_service_set_on_new_request_callback' in shared library '/home/ivanpauno/ros2_ws/install/rmw_fastrtps_dynamic_cpp/lib/librmw_fastrtps_dynamic_cpp.so'",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/599"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Crashes while trying to load the rmw implementation.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/599"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixes https://github.com/ros2/rmw_fastrtps/issues/599\n\nTwo commits:\n  * Copy the implementation done in #468 for dynamic version\n  * Add some check to parameters passed to fastrtps_cpp to keep both implementations in sync",
+    "url": "https://github.com/ros2/rmw_fastrtps/pull/600"
+  },
+  "notes": "Independently verified: issue #599 (ivanpauno, a ROS 2 core maintainer) names the reproducer \"RMW_IMPLEMENTATION=rmw_fastrtps_dynamic_cpp ros2 run demo_nodes_cpp listener\" and commit 7a191c348554233a9e1eea9295166e86ce094b1b; the log shows failed symbol resolution for all four functions (rmw_subscription_set_on_new_message_callback, rmw_service_set_on_new_request_callback, rmw_client_set_on_new_response_callback, rmw_event_set_callback) in librmw_fastrtps_dynamic_cpp.so and \"Crashes while trying to load the rmw implementation.\". rmw_implementation functions.cpp at 31843adc17f28a4af0dc5f160e9e3b4dfb9710ea contains exactly GET_SYMBOL lines 832-835 for the four functions — the consumer resolves them by name at load. PR #468 comment (fetched by id 1106847128) is verbatim. PR #600 \"Add EventsExecutor API for dynamic_fastrtps\" is MERGED with the quoted description and ci.ros2.org badges. Eligibility: two separately built units (rmw_implementation loader; rmw_fastrtps_dynamic_cpp library); the failure is elements the consumer resolves that the provider never defined — crosses the library boundary; PAIR (not UPGRADE: the provider is not at a newer revision than the consumer was written against; both are contemporaneous master, the provider lags the new API) is the right call, and the spec's reasoning is sound. Class `other` is right — the elements were never present at the provider, so element_removed_or_renamed does not fit. Loudness loud_documented/activate: the loader's own symbol-resolution error at RMW library load time is a load/activation diagnostic from the runtime machinery; \"Crashes while trying to load the rmw implementation.\" confirms the stage. Resolution recommended is right: CI passes but the runs do not identify the rmw_implementation revision, and no one reports the listener working with the fixed library in the thread."
+}

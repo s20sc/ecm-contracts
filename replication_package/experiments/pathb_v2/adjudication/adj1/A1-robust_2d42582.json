@@ -1,0 +1,65 @@
+{
+  "item_id": "A1-robust_2d42582",
+  "kind": "A1",
+  "case_id": "robust_2d42582",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: maintainer-reported observed near-limit motion failure and corrective commit. E2 stops at 6: wrong URDF limits supplied by the support package are accepted by the separately deployed MoveIt consumer, creating invalid plans. This is a numeric interface value error rather than deployment wiring. E3: PAIR.",
+    "quote": "MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error, refusing to complete the motion.",
+    "url": "https://github.com/ros-industrial/motoman/issues/102#issuecomment-232274026"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "Both sides use radians; the defect is excessive numeric position bounds rather than unit_mismatch or representation_convention. other and param:/robot_description correctly identify the condition and transport.",
+      "quote": "It would appear the values in the urdf are _rounded up_, while they should'be been either _floored_ or written out with more digits.",
+      "url": "https://github.com/ros-industrial/motoman/issues/102"
+    }
+  ],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "param:/robot_description"
+      ],
+      "reason": "The accepted fix explicitly documents a further correction of all joint limits, including the other position bounds (L/E/U/B) and velocity bounds, in the same SIA20 description consumed by MoveIt. Restricting conditions to the three joints in the opening report omits this primary code-level evidence. No separate failed-motion observation is claimed for those extra bounds.",
+      "outcome_class": "undocumented",
+      "quote": "7cfd872 makes all joint limits consistent with values given in this spec sheet. Degrees converted to radians and floats truncated after the fourth decimal digit.",
+      "url": "https://github.com/ros-industrial/motoman/pull/109",
+      "supporting_evidence": [
+        {
+          "quote": "-    <limit effort=\"100\" lower=\"-1.91\" upper=\"1.91\" velocity=\"2.26\"/>\n+    <limit effort=\"100\" lower=\"-1.9198\" upper=\"1.9198\" velocity=\"2.2689\"/>",
+          "url": "https://github.com/ros-industrial/motoman/commit/2d42582c692191f67f1e986467822fcd3b3935b9.patch"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "Agree for the selected support-package/MoveIt boundary: the planner accepts the invalid value without a build/connect/activation diagnostic. A downstream robot error is explicitly reported and must not be described as absent, but that controller is not one of the selected units.",
+    "quote": "MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error, refusing to complete the motion.",
+    "url": "https://github.com/ros-industrial/motoman/issues/102#issuecomment-232274026"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "Planning and attempted motion reveal the error: run.",
+    "quote": "This has actually caused problems when planning motions close to the joint limits.",
+    "url": "https://github.com/ros-industrial/motoman/issues/102#issuecomment-232274026"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The accepted fix is identified, but the sources do not show successful replanning and near-limit execution of the corrected composition; recommended.",
+    "quote": "Fixed in 2d42582.",
+    "url": "https://github.com/ros-industrial/motoman/issues/102#issuecomment-243097653"
+  },
+  "notes": "The existing three-joint rounding condition is sound. However, S1 includes every documented condition within the chosen composition, not only the opening reporter list: PR #109 explicitly corrects further bounds on the same parameter path. The SIA10 sister fix is a different composition and is excluded."
+}

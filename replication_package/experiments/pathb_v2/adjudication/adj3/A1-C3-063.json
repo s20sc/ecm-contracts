@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-063",
+  "kind": "A1",
+  "case_id": "C3-063",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "image_geometry/cameramodels.py uses deprecated numpy.matrix subclass causing runtime PendingDeprecationWarning .",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/524"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:numpy.matrix"],
+      "quote": "image_geometry/cameramodels.py uses deprecated numpy.matrix subclass causing runtime PendingDeprecationWarning .",
+      "url": "https://github.com/ros-perception/vision_opencv/issues/524"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "image_geometry/cameramodels.py uses deprecated numpy.matrix subclass causing runtime PendingDeprecationWarning .",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/524"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "These are the fixes for: image_geometry/cameramodels.py uses deprecated numpy.matrix subclass #524 ... No supported API members result in a numpy.matrix() call"
+  },
+  "notes": "Eligibility holds: two separately released units (image_geometry library and numpy), the PendingDeprecationWarning depends on the numpy revision (numpy.matrix subclass deprecated from v1.15.0 on), and the effect is an observed warning while the composition keeps working. Issue body verbatim confirms the title text. class element_retyped is defensible for a deprecation where the constructor now warns while the element remains; the spec's own notes acknowledge this is a stretch and `other` would be an alternative. outcome warning_only and detection_stage run are correct: the warning is a runtime diagnostic from numpy, not build/connect/activate. Resolution recommended is correct: PR #527 was merged but no source shows the fixed consumer running against an identified numpy revision without the warning."
+}

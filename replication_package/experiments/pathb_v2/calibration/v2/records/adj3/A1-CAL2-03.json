@@ -1,0 +1,13 @@
+{
+ "item_id": "A1-CAL2-03",
+ "kind": "A1",
+ "case_id": "CAL2-03",
+ "eligibility": {"verdict": "agree", "stop_step": 2, "reason_code": "internal",
+  "quote": "[rviz2-4] [ERROR] [1649066982.936072797] [rviz2]: Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?",
+  "url": "https://github.com/moveit/moveit2/issues/1164"},
+ "failed_conditions": [],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null, "quote": "", "url": ""},
+ "resolution": {"verdict": "agree", "proposed": null, "quote": ""},
+ "notes": "I agree with 'internal' (stop_step 2). The fix (PR #672, 'mesh_shape: Fix resource group for meshes', merged) is entirely within moveit2's own vendored rendering code: it adds the \"rviz_rendering\" resource group to moveit2's mesh_shape.cpp begin()/setMaterialName() calls. Both the material creation (moveit2's own material manager, which mirrors rviz's 'rviz_rendering' group) and the material reference are moveit2's own code; the material name crossing is valid, and the defect is moveit2's internal resource-group bookkeeping, not a two-unit interface mismatch. No failed conditions, loudness, or resolution fields exist for an ineligible case, so those agree trivially."
+}

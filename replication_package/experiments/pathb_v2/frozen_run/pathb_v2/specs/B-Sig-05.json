@@ -1,0 +1,46 @@
+{
+  "case_id": "B-Sig-05",
+  "corpus": "C2",
+  "source_refs": [
+    "https://answers.ros.org/question/299519",
+    "https://robotics.stackexchange.com/questions/88324/question-about-odometry-and-radians-unit"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The thread (answers.ros.org/question/299519, now served as Robotics Stack Exchange question 88324; read through the Stack Exchange API) is a conceptual question about units in the asker's own wheel-odometry code: \"why  vth unit is m/s  ?   if ' th' is an angle it should  be in radians\". The accepted answer establishes that the code is correct: \"vth describes an angular speed and it's unit is rad/s\" and \"vth unit as per that equation is not m/s but just s^-1 (or 1/s) which is actually correct\". The only failure mentioned is vague and disowned by the asker: \"i'm confused why it's not working with navigation stack ... but i guess my problem is no comming from odmetry\"; the other (\"when i transform 'vth' to rd/s ... the odometry is not working\") is the asker's own experimental edit, not a documented defect. No reproducer, log, or confirmation of a defect."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated past E1. For the record: the posted code publishes nav_msgs/Odometry with odom.twist.twist.angular.z = vth and a tf odom->base_link, and the answer confirms these are in the expected units; the navigation-stack symptom is never described or tied to any interface."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: no defect (E1)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: no defect (E1)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: no concrete defect; the accepted answer confirms the posted odometry code uses the correct unit (rad/s) and the asker withdraws the navigation-stack symptom as unrelated to odometry",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "answers.ros.org/question/299519 now redirects (301) to https://robotics.stackexchange.com/questions/88324/question-about-odometry-and-radians-unit, which the Stack Exchange web front end serves behind a JavaScript challenge; the question, accepted answer (Mehdi., 2018-08-03) and its comments were read from api.stackexchange.com (site=robotics). Asked by kesuke on ROS Answers, 2018-08-03. The asker closes with \"@Mehdi thank i got it\". Had a defect existed it would have been a physical-unit question inside one node's own computation (the odometry node both computes and publishes vth), i.e. likely E2 step 2 internal."
+}

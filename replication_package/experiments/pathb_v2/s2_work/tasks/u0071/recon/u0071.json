@@ -1,0 +1,90 @@
+{
+  "task_id": "u0071",
+  "package": "kobuki_gazebo_plugins (model instance 1)",
+  "manifest_version": "0.4.1",
+  "ports": [
+    {
+      "element": "resource:bumpers",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:cliff_sensor_front",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "m",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:cliff_sensor_left",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "m",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:cliff_sensor_right",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "m",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:imu",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "base_footprint",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "wheel speed commands forced to 0.0 when no velocity command arrives within velocity_command_timeout or motors are disabled"},
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_gazebo_plugins/package.xml:3",
+    "ports[0].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:270",
+    "ports[1].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:217",
+    "ports[1].units": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:206",
+    "ports[2].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:215",
+    "ports[2].units": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:206",
+    "ports[3].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:219",
+    "ports[3].units": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:206",
+    "ports[4].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:297",
+    "ports[4].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:298",
+    "perm_requires": "searched kobuki_gazebo_plugins (package.xml, CMakeLists.txt, include/, src/) and kobuki_gazebo launch/param/world files; no permission declaration",
+    "perm_grants": "searched kobuki_gazebo_plugins (package.xml, CMakeLists.txt, include/, src/) and kobuki_gazebo launch/param/world files; no permission grant",
+    "recovery.value": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_updates.cpp:174"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The bumper and the three cliff sensors are looked up by bare, unscoped sensor names through SensorManager::GetSensor(name), while only the IMU lookup is scoped to the model instance (world::<model name>::base_footprint::<imu_name>); with more than one Kobuki instance in a world the unscoped lookups are ambiguous and can bind to another instance's sensors or fail."
+  },
+  "confidence": "medium",
+  "notes": "Snapshot is the kobuki_desktop metapackage tree; the unit is kobuki_gazebo_plugins (Gazebo ModelPlugin GazeboRosKobuki). All five packet elements are Gazebo sensors consumed through the Gazebo C++ API (sensors::ContactSensor for the bumper, sensors::RaySensor for the cliff sensors, sensors::ImuSensor for the IMU), not ROS topics, so msg_type and definition_id are null and QoS is null (ROS 1). No rate is set; sensors are read on every world update (event::Events::ConnectWorldUpdateBegin, gazebo_ros_kobuki.cpp:84). Sensor names are not written in the code: they arrive at run time from SDF plugin elements bumper_name (loads.cpp:260-262), cliff_sensor_left_name (185-187), cliff_sensor_center_name (195-197), cliff_sensor_right_name (205-207) and imu_name (287-289), supplied by the robot model description (kobuki_description urdf/kobuki_standalone.urdf.xacro via kobuki_gazebo/launch/includes/robot.launch.xml:7, not in the snapshot); therefore none of the elements is placed in references. resource:cliff_sensor_front is mapped to the plugin's center cliff sensor, which the code calls the frontal cliff sensor (loads.cpp:201, gazebo_ros_kobuki.h:192). Lookup scoping: bumper and cliff sensors use sensors::SensorManager::Instance()->GetSensor(<bare name>) (loads.cpp:216, 218, 220, 271); the IMU uses sensors::get_sensor(world_->GetName()+\"::\"+node_name_+\"::base_footprint::\"+imu_name) (loads.cpp:298), where node_name_ is the model name (gazebo_ros_kobuki.cpp:56-58); the recorded IMU frame is the link name hard-coded in that scoped lookup, not a frame_id string. Bumper contact positions and normals are treated as world coordinates and rotated by the model world yaw (updates.cpp:274-288); no frame string is declared, so frame is null. Cliff units come from the header comment on cliff_detection_threshold_ ('measured distance in meter'), against which GetRange(0) is compared (updates.cpp:193). If any sensor is missing, Load logs ROS_ERROR and returns without retry (loads.cpp:221-235, 272-276, 299-303). The plugin commands the wheel joints (SetVelocity/SetMaxForce, updates.cpp:179-182) whose names come from SDF (left_wheel_joint_name/right_wheel_joint_name), but claims no resource exclusively. Interfaces outside the packet: publishes joint_states, odom, <base_prefix>/events/cliff, <base_prefix>/events/bumper, <base_prefix>/sensors/imu_data; subscribes <base_prefix>/commands/motor_power, /commands/reset_odometry, /commands/velocity; base_prefix is a private param with default mobile_base (loads.cpp:311-355). No dependency definition files were fetched because no packet element is a ROS message type."
+}

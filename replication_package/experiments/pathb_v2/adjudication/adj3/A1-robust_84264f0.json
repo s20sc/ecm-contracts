@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_84264f0",
+  "kind": "A1",
+  "case_id": "robust_84264f0",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 3,
+    "reason_code": "deployment_wiring",
+    "quote": "Move `~visualization/visualization/xxx` → `~visualization/xxx`.",
+    "url": "https://github.com/mavlink/mavros/issues/207"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Issue #207 (\"Fix param names in visualization plugin\", self-filed by maintainer vooon) is the one-line instruction quoted above. I read the issue body and commit 84264f0 (\"uncrustify and fix #207\"), whose diff changes viz_nh.param<std::string>(\"visualization/fixed_frame_id\", ...), \"visualization/child_frame_id\", \"visualization/marker_scale\" to \"fixed_frame_id\", \"child_frame_id\", \"marker_scale\" (leaf names, types, and defaults \"local_origin\"/\"fcu\"/2.0 unchanged). This is purely where the three parameter names bind in the namespace tree (the doubled ~visualization/visualization/... prefix), i.e. a name/namespace binding, which step 3 excludes as deployment_wiring. No peer (launch/YAML) sets these parameters, so no two-unit interaction actually failed. I did not independently re-verify the claim that no config in the repo sets these parameters, but the classification does not depend on it. Agree with stop_step=3, deployment_wiring. Loudness/resolution correctly null."
+}

@@ -1,0 +1,105 @@
+{
+  "case_id": "B-Ver-01",
+  "corpus": "C2",
+  "source_refs": [
+    "https://answers.ros.org/question/226746",
+    "https://answers.ros.org/question/226746/subcribe-and-publish-md5-error/",
+    "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error",
+    "https://robotics.stackexchange.com/a/72069",
+    "https://api.stackexchange.com/2.3/questions/72068?site=robotics",
+    "https://api.stackexchange.com/2.3/questions/72068/answers?site=robotics&filter=withbody",
+    "https://web.archive.org/web/20170720033340/http://answers.ros.org/question/226746/subcribe-and-publish-md5-error/"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public ROS Answers thread (question 226746, migrated to robotics.stackexchange.com/questions/72068) with an error log printed by the publisher on the Raspberry Pi, repeated four times: \"[WARN] [WallTime: 1455522139.729356] Could not process inbound connection: Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection.\" Confirmed in the accepted answer (ahendrix): \"This message usually means that the message definitions are not the same on both computers.\" There is no fix commit (user-built package with no public repository), which does not by itself fail E1."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["os5000_imu", "control_panel"],
+      "interface_kind": "definition",
+      "evidence": "Step 1: the two units are the publisher of /imu running on the Raspberry Pi 2 (package os5000_imu, identified from the message type os5000_imu/imu_data; the node name is not stated: \"The following error appeared on the program on the pi when my computer try to subscribe to it\") and the subscriber node /control_panel on the Ubuntu 14.04 computer (\"Client [/control_panel] wants topic [/imu]\"). They run on different machines, were built in separate workspaces (\"Were the messages the same when you compiled the nodes on both machines?\"), and interact only through the ROS topic /imu. Step 2: the failure is a mismatch of the os5000_imu/imu_data definition crossing the boundary (the subscriber presents md5sum 20a63a1c6bab175e3bbe310358cd3614 with the definition 'std_msgs/String raw\\nstd_msgs/Float32 heading\\n...'; the publisher holds cb87164d6e531601e0b13c83388dee16); each unit works with a peer built against the same definition, so it is not internal. Step 3: no remap, namespace, or name binding is involved. Step 4: the resolving change is rebuilding the consumer because the provider's message definition changed (\"If you change the messages after you compile, you need to recompile to use the new message.\"), which the rule counts as an interface change, not a build-only change. Step 5: not firmware. Step 6: eligible; interface kind: definition (the message definition os5000_imu/imu_data carried on topic /imu)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (the publisher on the Pi) runs a newer revision of the os5000_imu/imu_data definition (the five-field float32 definition the reporter quotes as the current msg file; ROS 1 md5sum cb87164d6e531601e0b13c83388dee16) while the consumer /control_panel was compiled against, and still references, the earlier definition (std_msgs/String raw plus five std_msgs/Float32 fields; md5sum 20a63a1c6bab175e3bbe310358cd3614). Maintainer: \"That message definition doesn't match the one in your error message (it's in there, but it's hard to read).\nWere the messages the same when you compiled the nodes on both machines? If you change the messages after you compile, you need to recompile to use the new message.\" Reporter: \"Yes I double checked that the message file is the same on both the computer and the Pi, I copy it then run. But the problem still exists.\" The observed failure is the stale consumer connecting to the newer provider. The interaction itself is a publish/subscribe PAIR; see notes."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure at connection, logged by the publisher for every connection attempt: \"Could not process inbound connection: Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection.\" The subscriber received no data until the rebuild: \"Oh I don't know we need to recompile when we change the msg file, now it can receive.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "os5000_imu",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "md5:cb87164d6e531601e0b13c83388dee16",
+      "resolved_rev": "md5:cb87164d6e531601e0b13c83388dee16",
+      "pinned": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "control_panel",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2016-02",
+      "resolved_rev": "as-reported-2016-02",
+      "pinned": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved": "md5:cb87164d6e531601e0b13c83388dee16"
+  },
+  "inventory": [
+    {"element": "topic:/imu", "sides": {"os5000_imu": "provides", "control_panel": "consumes"}},
+    {"element": "msg:os5000_imu/imu_data", "sides": {"os5000_imu": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.raw", "sides": {"os5000_imu": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.heading", "sides": {"os5000_imu": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.pitch", "sides": {"os5000_imu": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.roll", "sides": {"os5000_imu": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.temp", "sides": {"os5000_imu": "provides", "control_panel": "consumes"}},
+    {"element": "field:os5000_imu/imu_data.depth", "sides": {"os5000_imu": "provides", "control_panel": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": ["msg:os5000_imu/imu_data", "topic:/imu"],
+      "quote": "Could not process inbound connection: Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection. ... This message usually means that the message definitions are not the same on both computers.",
+      "url": "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error"
+    },
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["field:os5000_imu/imu_data.raw"],
+      "quote": "'message_definition': 'std_msgs/String raw\\nstd_msgs/Float32 heading\\nstd_msgs/Float32 pitch\\nstd_msgs/Float32 roll\\nstd_msgs/Float32 temp\\nstd_msgs/Float32 depth\\n ... This is in the msg file:\nfloat32 heading\nfloat32 pitch\nfloat32 roll\nfloat32 temp\nfloat32 depth ... That message definition doesn't match the one in your error message (it's in there, but it's hard to read).",
+      "url": "https://robotics.stackexchange.com/a/72069"
+    },
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["field:os5000_imu/imu_data.heading", "field:os5000_imu/imu_data.pitch", "field:os5000_imu/imu_data.roll", "field:os5000_imu/imu_data.temp", "field:os5000_imu/imu_data.depth"],
+      "quote": "std_msgs/Float32 heading\\nstd_msgs/Float32 pitch\\nstd_msgs/Float32 roll\\nstd_msgs/Float32 temp\\nstd_msgs/Float32 depth\\n ... This is in the msg file:\nfloat32 heading\nfloat32 pitch\nfloat32 roll\nfloat32 temp\nfloat32 depth ... That message definition doesn't match the one in your error message (it's in there, but it's hard to read).",
+      "url": "https://robotics.stackexchange.com/a/72069"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "ROS 1 datatype/md5sum check at TCPROS connection, logged by the publisher: \"[WARN] [WallTime: 1455522139.729356] Could not process inbound connection: Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection.\"",
+  "detection_stage": "connect",
+  "resolution": {
+    "summary": "Rebuild the consumer's workspace so that /control_panel is compiled against the current os5000_imu/imu_data definition (md5sum cb87164d6e531601e0b13c83388dee16), the revision the publisher on the Pi already runs; no change to the provider.",
+    "status": "observed",
+    "evidence": "Reporter: \"Oh I don't know we need to recompile when we change the msg file, now it can receive. Thank you very much! :D\" and \"Yes I rebuilt the workspace then it works. Thank you! :D\" (comments on the accepted answer, 2016-02-16)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "high",
+  "notes": "Operation: the interaction is a publish/subscribe PAIR (the Pi publisher's /imu feeds /control_panel), recorded as UPGRADE because the consumer was compiled against an earlier revision of the provider's os5000_imu/imu_data definition and still referenced it when the provider ran the newer one. Revision assignment was verified by recomputing the ROS 1 genmsg md5sums from the two verbatim definitions: 'std_msgs/String raw' + five 'std_msgs/Float32' fields (std_msgs/String 992ce8a1687cec8c8bd883ec73ca41d1, std_msgs/Float32 73fcbf46b49191e672908e50842a83d4) hashes to 20a63a1c6bab175e3bbe310358cd3614, the value in the /control_panel connection header; the five-field float32 definition quoted as the current msg file hashes to cb87164d6e531601e0b13c83388dee16, the value the Pi publisher reports. So the Pi was already at the newer definition and the stale build was the computer's; 'rebuilt the workspace' therefore applies to the consumer side. consumer_built_against.resolved (md5:cb87164d6e531601e0b13c83388dee16) is not printed in the source; it follows from ROS 1 accepting a connection only when md5sums match plus the observed 'now it can receive'. The consumer's own source did not change (only its build), so its revision label is the same in both compositions and the difference is carried by consumer_built_against. Field-level classes (element_removed_or_renamed for raw; element_retyped for heading/pitch/roll/temp/depth, std_msgs/Float32 to float32) come from the diff of the two verbatim definitions; the direction (which is earlier) follows from the reporter stating the float32-only text is the current msg file on both machines and the maintainer's 'If you change the messages after you compile, you need to recompile'. Units: provider node name not stated ('the program on the pi'); package os5000_imu taken from the message type; no public repository found (GitHub searches for os5000_imu and imu_data.msg returned nothing; tdenewiler/os5000 is package 'os5000' with no custom message and Jean-Emile/os5000 has no package.xml, so neither is this package). Consumer /control_panel package unknown. Both units on ROS indigo; Pi on Debian Jessie with ROS-Comm, computer on Ubuntu 14.04 with ROS Desktop. Source access: answers.ros.org redirects to robotics.stackexchange.com/questions/72068 (403 to curl), so the thread was read through the Stack Exchange API; the original ROS Answers comments are embedded in the migrated answer body. Cross-checked against the Wayback snapshot of 2017-07-20, identical content; timestamps there: question 2016-02-15 21:23:36 -0500, answer 2016-02-15 22:22:41 -0500, last comment 2016-02-16 07:25:01 -0500. NEngelhard's comment ('Rebuilding the workspace often solves this kind of problems for me.') is consistent with the accepted answer and adds no further defect."
+}

@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-C3-098",
+  "kind": "A1",
+  "case_id": "C3-098",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.",
+    "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2099261802",
+    "reason": "E1/E4: the public consumer reproducer and CPU measurements establish the effect, and the maintainer confirms the ownership convention. E2: the reporter node calls the rclpy library with an incorrect destruction API; the lifecycle assumption crosses the library boundary, so this is not a leak independent of the caller. E3: PAIR. Stop at 6."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).  Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.",
+      "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2099261802",
+      "reason": "Agree other: this is ownership/lifecycle misuse, not a frame, type, QoS, or resource-claim conflict. create_rate, Rate.destroy and Node.destroy_rate are precisely the creation, incorrect destruction and required destruction APIs involved."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The CPU usage explodes and ros becomes laggy.",
+    "url": "https://github.com/ros2/rclpy/issues/1278",
+    "reason": "The failure was discovered from CPU use, not a reported build/connection/activation diagnostic. The reproducer says measurements came from top. The documentation warning added later is not a diagnostic in the broken run."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The CPU usage explodes and ros becomes laggy.",
+    "url": "https://github.com/ros2/rclpy/issues/1278",
+    "reason": "The documented failure is detected at run, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Ok I understood how to use it now thank you. I did the same benchmark with the code below. Conclusion: Yes this works as intended and the CPU usage stays low.",
+    "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2101738111",
+    "reason": "Disagree only with revision-qualified observed status, not with the reported successful fix. The resolved callback is shown, but the reporter identifies the library only as Humble binaries; the specification infers 3.3.12. Therefore both resolved units are not source-identified by revision as required by S1. Use recommended, retaining the successful unversioned observation.",
+    "additional_evidence": [
+      {
+        "quote": "Ros2 humble (I don't know where the .git is for the binary)",
+        "url": "https://github.com/ros2/rclpy/issues/1278"
+      },
+      {
+        "quote": "    self.destroy_rate(myRate)",
+        "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2101738111"
+      }
+    ]
+  },
+  "notes": "Read the complete report/comments and documentation PR #1286 and its diff. No missed condition. The correction is consumer-side use of Node.destroy_rate; #1286 only clarifies the API. An inferred release tag is not evidence that the reporter tested that exact library revision."
+}

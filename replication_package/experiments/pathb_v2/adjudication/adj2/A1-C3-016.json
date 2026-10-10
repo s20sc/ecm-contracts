@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3-016",
+ "kind": "A1",
+ "case_id": "C3-016",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "## recognize\n- [X] branch: ros2\n- [X] commit: c052be03fe0bc067fdf0941394a62dcc81925ae8\n- [X] pixel_format: \"uyvy2rgb\"",
+  "url": "https://github.com/ros-drivers/usb_cam/issues/298"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "+  // Check if given device name is an available v4l2 device\n+  auto available_devices = usb_cam::utils::available_devices();\n+  if (available_devices.find(m_parameters.device_name) == available_devices.end()) {",
+   "url": "https://github.com/ros-drivers/usb_cam/commit/af45135da45cf93dfa663f6bb022e5858a028b78"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "\"Device specified is not available or is not a vaild V4L2 device: `\"\n        << m_parameters.device_name << \"`\"\n    );\n    RCLCPP_INFO(this->get_logger(), \"Available V4L2 devices are:\");\n    ... rclcpp::shutdown();",
+  "url": "https://github.com/ros-drivers/usb_cam/blob/c052be03fe0bc067fdf0941394a62dcc81925ae8/src/ros2/usb_cam_node.cpp"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "In the startup file, add a command to solve this problem：    \n`parameters[\"video_device\"] = os.path.realpath(parameters[\"video_device\"])`"
+ },
+ "notes": "Independently verified this session. Issue 298 body (zymouse, 2023-11-16) verified verbatim (branch/commit checklist, udev rule file with 'SYMLINK+=\"camera/top_3mm\"', 'In the case of multiple usb cameras, the computer will cause `/dev/video0` to change after each reboot'). The screenshot asset 167112d3 was downloaded and inspected as an image this session: it shows 'ros2 launch robobus_sensor_kit_launch camera_top_6mm.launch.py', the ERROR 'Device specified is not available or is not a ... V4L2 device' for /dev/camera/top_6mm, 'Available V4L2 devices are:' listing /dev/video0../dev/video5, '[WARN] ... Shutting down', and 'lrwxrwxrwx 1 root root 9 ... /dev/camera/top_6mm -> ../video0' (log dated 2023-11-16) -- the runtime observation matches; note the source code spells 'vaild' and the OCR-style transcription normalized it, the code string at c052be03 line 151 is authoritative. Commit af45135d (2023-10-28, 'Check if given device name exists before opening it') diff verified verbatim including the RCLCPP_ERROR_STREAM and rclcpp::shutdown(); the same check is present in src/ros2/usb_cam_node.cpp at c052be03 lines 146-161; utils.hpp at c052be03 line 156 shows the enumeration 'std::string device_str = \"/dev/video\" + std::to_string(i);', supporting the symlink-vs-canonical-path representation reading. UPGRADE support verified: issue 310 (firesurfer, 2024-01-15) 'This worked fine until recently (unfortunately I am not sure which update broke that).' with the same error for /dev/camera00; PR 311 'Resolve Symlinks' merged 2024-01-20 as e2b11abfd5b337311fa6c5fc79ed6f6768b78649. Downstream attribution verified verbatim in rt-net/sciurus17_ros PR 153 comment by ShotaAk: 'usb_camパッケージの変更により`/dev/video*/`以外のデバイス名を認識できなくなりました。' plus the realpath recommendation; PR 153 merged 2024-02-21 as 22ba7f8113d217e43853ca0a79ef5599b8d9877d with diff \"-                {'video_device': '/dev/chestcamera'},\" \"+                {'video_device': os.path.realpath('/dev/chestcamera')},\". Reporter's resolution comment (2023-11-29) verified. Eligibility stop at 6 is right: the provider's acceptance domain for param:video_device changed (PR 286) and the consumer must follow -- the tree's deployment_wiring step does not apply because a unit's referenced interface changed, and the provider later changed too. loud_documented/activate is right per the S1 rule that runtime-enforced refusals are loud; resolution observed is right: the reporter's own composition (usb_cam c052be03 + realpath launch) shown solved by the reporter, provider revision unchanged and identified."
+}

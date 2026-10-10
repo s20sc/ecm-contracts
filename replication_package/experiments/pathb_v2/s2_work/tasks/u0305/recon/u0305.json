@@ -1,0 +1,49 @@
+{
+  "task_id": "u0305",
+  "package": "mavros",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "msg:common/DISTANCE_SENSOR",
+      "side": "consumes",
+      "msg_type": "common/DISTANCE_SENSOR",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:common/DISTANCE_SENSOR.orientation",
+      "side": "consumes",
+      "msg_type": "common/DISTANCE_SENSOR",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "field:common/DISTANCE_SENSOR.orientation"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].msg_type": "parent type taken from the packet element name; consumption evidenced by artifact.txt:13-16: if (sensor->orientation >= 0 && dist_sen.orientation != sensor->orientation) { ROS_ERROR_NAMED(\"distance_sensor\", \"DS: %s: received sensor data has different orientation (%s) than in config (%s)!\",",
+    "ports[1].msg_type": "parent type taken from the packet element name; field read at artifact.txt:13: if (sensor->orientation >= 0 && dist_sen.orientation != sensor->orientation) {",
+    "references[field:common/DISTANCE_SENSOR.orientation]": "artifact.txt:13: if (sensor->orientation >= 0 && dist_sen.orientation != sensor->orientation) { ; artifact.txt:17: utils::to_string_enum<MAV_SENSOR_ORIENTATION>(dist_sen.orientation).c_str(),"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The orientation of received data is compared with the configured orientation, which sensor_orientation_from_str returns as an index into sensor_orientations (artifact.txt:88-96). The table has 42 slots and places CUSTOM in slot 41 although it is commented /* 100 */ (artifact.txt:63). A sensor configured as CUSTOM therefore gets 41 and never equals a received orientation of 100, so the check at artifact.txt:13 drops its data, and to_string/sensor_orientation_matching index by enum value, so 100 is reported as out of range (artifact.txt:67-70, 79-83). The numeric fallback bound check uses > instead of >= (artifact.txt:102), which admits index 42."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task; only artifact.txt was used. The element common/DISTANCE_SENSOR is a MAVLink message defined in MAVLink XML, not in a .msg/.srv/.action/.idl file, and no definition text is in the artifact, so definition_id is null for both ports. The excerpt does not show the declaration of the variable dist_sen; binding it to common/DISTANCE_SENSOR rests on the packet element name, the logger name \"distance_sensor\", the message text 'received sensor data has different orientation', and the use of MAV_SENSOR_ORIENTATION on dist_sen.orientation (artifact.txt:13-18). The code does not name DISTANCE_SENSOR in the excerpt, so msg:common/DISTANCE_SENSOR is not listed under references. Frame: the configuration block rangefinder_pub4 sets frame_id: \"lidar4\" with id: 4 and orientation: YAW_45 (artifact.txt:1-7); this frame_id labels the ROS output for that configured sensor instance and is not a frame the MAVLink message itself carries, so frame is recorded as null. Units: the orientation table lists roll/pitch/yaw values such as 45.0 and 180.0 (artifact.txt:22-63) but the excerpt does not state their unit, so units is null. QoS is null (ROS 1); no rate is set in the excerpt. The fields current_distance, id, max_distance, min_distance, time_boot_ms and type do not appear in the excerpt (the configuration key id: 4 is a mavros parameter; the code that matches it against the received message is not shown), so whether this package reads them could not be determined and they have no ports. All packet elements are on the consumes side, so declares and not_declared are empty. Permissions and recovery could not be checked from an excerpt and are recorded as unknown."
+}

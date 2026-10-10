@@ -1,0 +1,59 @@
+{
+  "task_id": "u0386",
+  "package": "rclcpp",
+  "manifest_version": "16.2.0",
+  "ports": [
+    {
+      "element": "resource:node_notify_guard_condition",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [
+    "associated_with_executor_",
+    "in_use_by_wait_set_"
+  ],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "resource:node_notify_guard_condition"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "ports[0].frame": "snapshot:rclcpp/include/rclcpp/guard_condition.hpp:30 (\"A condition that can be waited on in a single wait set and asynchronously triggered.\"; trigger() at src/rclcpp/guard_condition.cpp:75-88 carries only a trigger count, no spatial data)",
+    "exclusive[associated_with_executor_]": "snapshot:rclcpp/include/rclcpp/node_interfaces/node_base.hpp:144 (std::atomic_bool associated_with_executor_;), enforced at src/rclcpp/executor.cpp:255-258 (\"' has already been added to an executor.\"); interface doc include/rclcpp/node_interfaces/node_base_interface.hpp:140 (\"Return the atomic bool which is used to ensure only one executor is used.\")",
+    "exclusive[in_use_by_wait_set_]": "snapshot:rclcpp/include/rclcpp/guard_condition.hpp:117 (std::atomic<bool> in_use_by_wait_set_{false};), doc at :87-99 (\"used to ensure this guard condition is not used by multiple wait sets at the same time\"), enforced at src/rclcpp/guard_condition.cpp:101-103 (\"guard condition has already been added to a wait set.\")",
+    "references[resource:node_notify_guard_condition]": "snapshot:rclcpp/src/rclcpp/executor.cpp:219 (const auto & gc = node_ptr->get_notify_guard_condition();) and :232 (memory_strategy_->add_guard_condition(gc);); triggered at src/rclcpp/node_interfaces/node_topics.cpp:73-75, :121-123; accessor declared include/rclcpp/node_interfaces/node_base_interface.hpp:155 (get_notify_guard_condition() = 0;), member include/rclcpp/node_interfaces/node_base.hpp:148 (rclcpp::GuardCondition notify_guard_condition_;)",
+    "perm_requires": "searched snapshot for permission|enclave|sros|security outside license text: only graph introspection get_node_names_with_enclaves (src/rclcpp/node_interfaces/node_graph.cpp:321) and QUALITY_DECLARATION.md:224 heading; no permission requirement declared",
+    "perm_grants": "same search as perm_requires; no permission grant declared",
+    "recovery": "searched src/rclcpp/executor.cpp, src/rclcpp/guard_condition.cpp, src/rclcpp/node_interfaces/node_base.cpp for recover|retry|fallback: none; guard-condition trigger failures throw (e.g. src/rclcpp/node_interfaces/node_topics.cpp:76-79)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "rclcpp does not call any of the listed rmw_* functions directly (it goes through rcl), so none of them can be mis-declared here; its use of the node notify guard condition (get, add to executor wait set, trigger on entity creation) looks internally consistent."
+  },
+  "confidence": "medium",
+  "notes": "All eight packet elements are on the consumes side, so declares and not_declared are empty by rule. The seven api:rmw_* elements (rmw_create_guard_condition, rmw_create_subscription, rmw_create_wait_set, rmw_destroy_subscription, rmw_take_with_info, rmw_trigger_guard_condition, rmw_wait) are not named anywhere in the snapshot: an exact grep -rn over all files of snapshot/ (rclcpp, rclcpp_action, rclcpp_components, rclcpp_lifecycle, including tests and CMake) returned zero hits for each symbol. rclcpp reaches the corresponding functionality only through rcl: rcl_guard_condition_init (src/rclcpp/guard_condition.cpp:33), rcl_trigger_guard_condition (src/rclcpp/guard_condition.cpp:82), rcl_wait_set_init (src/rclcpp/executor.cpp:71, src/rclcpp/graph_listener.cpp:56, include/rclcpp/wait_set_policies/detail/storage_policy_common.hpp:95), rcl_wait (src/rclcpp/executor.cpp:750), rcl_subscription_init (src/rclcpp/subscription_base.cpp:67), rcl_subscription_fini (src/rclcpp/subscription_base.cpp:53), rcl_take (src/rclcpp/subscription_base.cpp:152). Because the code does not call the rmw_* symbols, they get no port and are in neither references nor declares; they are consumed only transitively via the rcl dependency. resource:node_notify_guard_condition is not one of the listed canonical-name kinds, but the packet names it and the code references it via NodeBaseInterface::get_notify_guard_condition(), so it is recorded in references and given a port. Its msg_type and definition_id are null because a guard condition has no message definition; QoS is null because the GuardCondition API has no QoS parameters (only rcl_guard_condition_options_t, include/rclcpp/guard_condition.hpp:50-54). The executor adds node notify guard conditions to its wait set through rclcpp::detail::add_guard_condition_to_rcl_wait_set (include/rclcpp/strategies/allocator_memory_strategy.hpp:235-236), which does not check in_use_by_wait_set_; GuardCondition::add_to_wait_set (the exclusive path) has no non-test caller in the snapshot, while rclcpp::WaitSet uses exchange_in_use_by_wait_set_state for guard conditions (include/rclcpp/wait_set_template.hpp:284). The exclusive tokens are software single-owner claims (node-to-executor, guard-condition-to-wait-set), not hardware or device handles."
+}

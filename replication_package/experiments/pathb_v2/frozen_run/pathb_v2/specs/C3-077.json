@@ -1,0 +1,52 @@
+{
+  "case_id": "C3-077",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/3162",
+    "https://gist.github.com/matt-shinfang/2a58f8749f58f356ee403442dcb5dd2c",
+    "https://github.com/moveit/moveit2/pull/3164",
+    "https://github.com/moveit/moveit2/pull/3166",
+    "https://github.com/moveit/moveit2/pull/3167"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer, console log, backtrace and maintainer confirmation: steps \"1. Use docker image: `moveit/moveit2:main-humble-tutorial-source`\" ... \"4. Press reset\"; log \"[rviz2-4] terminate called after throwing an instance of 'Ogre::RuntimeAssertionException'\" (https://github.com/moveit/moveit2/issues/3162); maintainer sea-bass: \"That seems sensical. I've fixed similar issues with rviz plugins this way in the past.\" (same URL)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "moveit_ros_visualization (rviz_plugin_render_tools: MeshShape / RenderShapes, planning_scene_rviz_plugin)",
+        "Ogre 1.12.1 (rviz_ogre_vendor) MeshManager"
+      ],
+      "interface_kind": null,
+      "evidence": "The crash is MoveIt's own render-object teardown removing an Ogre mesh resource that is no longer registered: \"RViz appears to attempt to clear a mesh that has already been removed.\" and \"RuntimeAssertionException: attempting to remove unknown resource: ConvertedMeshShape@70 in group General\" (https://github.com/moveit/moveit2/issues/3162). The backtrace runs entirely through MoveIt code from its own main-loop job down to the throw: \"moveit_rviz_plugin::PlanningSceneDisplay::clearRobotModel\" -> \"moveit_rviz_plugin::PlanningSceneRender::~PlanningSceneRender\" -> \"moveit_rviz_plugin::RenderShapes::clear\" -> \"rviz_rendering::MeshShape::~MeshShape\" -> \"rviz_rendering::MeshShape::clear (this=0x55555988c180) at /root/ws_moveit/src/moveit2/moveit_ros/visualization/rviz_plugin_render_tools/src/mesh_shape.cpp:143\" (https://gist.github.com/matt-shinfang/2a58f8749f58f356ee403442dcb5dd2c). The mesh name is generated and owned by MoveIt's MeshShape (\"std::string name = \\\"ConvertedMeshShape@\\\" + std::to_string(count++);\", https://github.com/moveit/moveit2/blob/d13d835ebb66111fda80569547b729f43b2ecb49/moveit_ros/visualization/rviz_plugin_render_tools/src/mesh_shape.cpp). Ogre's refusal to remove an unknown resource is its own assertion, so any correct Ogre would fail the same way; no public source names another unit as having removed or renamed the mesh. The fix guards MoveIt's own call: \"+    if (Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().getByName(mesh_name))\" (https://github.com/moveit/moveit2/pull/3164/files)."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 2)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 2)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Exit step: E2 step 2 (internal). ROS 2 Humble, source build on the humble branch, CycloneDDS, Ubuntu 22.04 per the issue. Which code removed the mesh resource before MeshShape::clear() ran is not established in any public source; the reporter says only that it \"has already been removed\". If it were shown that RViz (the host) or Ogre removed MoveIt's mesh resource during Reset, the case would instead be a plugin/host lifecycle conflict (candidate class recovery_conflict or other, operation SWITCH-like reset); the sources do not support that reading. The Reset trigger reaches MoveIt through rviz_common::VisualizationManager::onUpdate -> DisplayGroup::update -> PlanningSceneDisplay::update, but the failing teardown is MoveIt's own. Fix PR #3164 merged 2024-12-16 on main (f91a650368b64386ba4d191d6aad111fc2b3d1dd, parent abb440d1134ebab83ae3a87e46c45456247b2349); backports #3166 humble (06184b29b4f867a48a26c9e6cadfe362eb2f19ce, parent d13d835ebb66111fda80569547b729f43b2ecb49) and #3167 jazzy (ccc75f100224d9afe8f5d12c5d6658e7eccfaa7b)."
+}

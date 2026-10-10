@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-10",
+  "kind": "A1",
+  "case_id": "CAL-10",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93\n\n```\n  serial.block(4000); // blocks by default, but just to be clear!\n  try {\n    serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);  // this will throw exceptions - NotFoundError, OpenError\n    is_connected = true;\n  }\n```\n\nIn the version 0.3.9, which I confirmed that working fine,  the block() was called after open().",
+      "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have a new version of mangled output - this time all is CAPTIAL LETTERS! :-)",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21840623"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Thus, the proposed patch is going to call serial.block() function after serial.open() in kobuki.cpp",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+  },
+  "notes": "Eligibility agreed (stop_step 6, PAIR, library API ecl::Serial). Issue #272 body ('ROS log gets somehow horribly mangled ... And prevents Ctrl+C to work') and the maintainer's diagnosis comment (jihoonl, 21917240) carry the quoted root cause: serial.block() before serial.open() in Kobuki::init, and the 0.3.9 working order. Class 'other' (a documented call-order precondition of the provider API, no dedicated class) agreed. Loudness silent/activate agreed (no tooling diagnostic; the mangled, all-uppercase console is a side effect; jihoonl notes 'ecl serial.block() should warn user if file_descriptor is not initialized'). Resolution 'recommended' agreed (PR #278 merged, issue closed without showing the terminal problem gone)."
+}

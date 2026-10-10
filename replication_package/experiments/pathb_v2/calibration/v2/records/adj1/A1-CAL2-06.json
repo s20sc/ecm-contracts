@@ -1,0 +1,66 @@
+{
+  "item_id": "A1-CAL2-06",
+  "kind": "A1",
+  "case_id": "CAL2-06",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "proposed_eligible": true,
+    "proposed_operation": "PAIR",
+    "quote": "I misconfigured the version macro with #3080. It is a GTE and not a GT macro",
+    "url": "https://github.com/ros-controls/ros2_control/pull/3198",
+    "reason": "Agree with E1, E2 step 6, E4, and the overall existence of an eligible library-interface failure; disagree with the specification's E3 justification and UPGRADE operation. The failing consumer selects the newer const-reference declaration while paired with the older provider. S1 defines UPGRADE in the opposite direction. This is eligible as PAIR: the installed provider declaration is consumed by the test package's override at build time, not as a forward provider upgrade.",
+    "supporting_evidence": [
+      {
+        "quote": "The breaking PR was released with 31.0.0",
+        "url": "https://github.com/ros-controls/ros2_control/pull/3198"
+      },
+      {
+        "quote": "  add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);",
+        "url": "https://raw.githubusercontent.com/ros2/rclcpp/30.1.5/rclcpp/include/rclcpp/executor.hpp"
+      }
+    ]
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override",
+      "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579",
+      "reason": "add_node remains present, but its provider declaration differs between the by-value and const-reference revisions. The consumer selects the wrong signature. element_retyped captures this declaration mismatch, even though the observed skew is not a forward UPGRADE.",
+      "supporting_evidence": [
+        {
+          "quote": "  add_node(\n    const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr,\n    bool notify = true);",
+          "url": "https://raw.githubusercontent.com/ros2/rclcpp/31.0.0/rclcpp/include/rclcpp/executor.hpp"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "marked ‘override’, but does not override",
+    "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579",
+    "reason": "The compiler explicitly rejects the incompatible override."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "gmake[2]: *** [CMakeFiles/test_resource_manager.dir/build.make:76: CMakeFiles/test_resource_manager.dir/test/test_resource_manager.cpp.o] Error 1",
+    "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579",
+    "reason": "The failure is compilation, hence build, not a running ABI failure."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-#if RCLCPP_VERSION_GTE(30, 1, 5)\n+#if RCLCPP_VERSION_GTE(31, 0, 0)",
+    "url": "https://github.com/ros-controls/ros2_control/pull/3198.diff",
+    "reason": "The fix changes the guard to the actual release boundary. The examined primary evidence supports the correction but does not identify both installed/tested revisions of a successful resolved pair, so recommended is warranted."
+  },
+  "notes": "The eligibility disagreement is specifically the invalid UPGRADE assignment, not an internal/build-only exclusion. A declaration/override incompatibility is an interface failure even when it prevents compilation. Do not turn the earlier, distinct forward-upgrade incident into this case."
+}

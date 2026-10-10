@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-068",
+  "kind": "A1",
+  "case_id": "C3-068",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: a running talker and a five-second backwards system-clock step reproduce the pause. E2 reaches step 6: rcl computes a timer timeout and rmw_fastrtps waits against a different clock domain; changing the peer behavior changes the failure. E3: PAIR across rmw_wait. The fix history also changes the declared rmw_wait timing contract, so this is not merely deployment naming or a build-only defect.",
+    "quote": "However, condition_variable->wait_for eventually executes futex system call that uses the system clock and can be affected by the system's time adjustment.",
+    "url": "https://github.com/ros2/ros2/issues/1080"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "if `rmw_wait` uses the system clock, a rcl timer using steady time isn't going to work fine (issue happens when system time is adjusted backwards)...",
+      "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-763000000",
+      "reason": "The shared timeout has inconsistent clock semantics across rcl/rmw_fastrtps. No listed specific class names that mismatch; other and api:rmw_wait are appropriate. A missed timer invocation is an effect, not independent proof of a requested publisher-rate contract."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+    "url": "https://github.com/ros2/ros2/issues/1080",
+    "reason": "The report shows ordinary publishing logs and an observed timing discontinuity, with no early diagnostic of the clock mismatch."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Adjust system time manually in another terminal.",
+    "url": "https://github.com/ros2/ros2/issues/1080",
+    "reason": "The reproducer changes time while the talker is already running."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have confirmed that the bug is fixed in the following environments.",
+    "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-1122131046",
+    "reason": "The confirmation names Ubuntu22.04, rolling, rmw_fastrtps_cpp and a nightly image digest, not both specified unit revisions. It establishes an environment-level successful fix but not observed status under S1's stricter two-revision criterion; recommended remains appropriate."
+  },
+  "notes": "The compiler/libstdc++ change supplies the runtime behavior fix, while rmw PR #316 updates the declared clock expectation. Do not claim the documentation edit alone removes the pause. The cited discussion also considers system-time and accelerated ROS-time timers; those are not additional reproduced failures in this steady-timer composition. The quoted comment fragment #issuecomment-763000000 was opened and is valid."
+}

@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_9c8abeb-broken-M1-6ba8355e6e",
+ "kind": "A2",
+ "case_id": "robust_9c8abeb",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:boost::shared_dynamic_cast]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0116/snapshot/include/boost/smart_ptr/shared_ptr.hpp:538 'template<class T, class U> shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r)' (preceded at :531 by '// shared_*_cast names are deprecated. Use *_pointer_cast instead.'). running: grep -rn 'shared_dynamic_cast' over s2_work/tasks/u0117/snapshot/ hits only compatibility.htm:35 '<b>shared_static_cast</b> and <b>shared_dynamic_cast</b> function templates are' (historical prose); u0117 include/boost/smart_ptr/shared_ptr.hpp declares only 'template<class T, class U> shared_ptr<T> static_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT' (:788), 'const_pointer_cast' (:798), 'dynamic_pointer_cast' (:808), 'reinterpret_pointer_cast' (:818)."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:boost::shared_dynamic_cast]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0118/snapshot/kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251 '  cliff_sensor_left_ = boost::shared_dynamic_cast<sensors::RaySensor>(' (:253 'cliff_sensor_center_ = boost::shared_dynamic_cast<sensors::RaySensor>(', :255 'cliff_sensor_right_ = boost::shared_dynamic_cast<sensors::RaySensor>(', :301 'bumper_ = boost::shared_dynamic_cast<sensors::ContactSensor>(', :325 'imu_ = boost::shared_dynamic_cast<sensors::ImuSensor>('); include at s2_work/tasks/u0118/snapshot/kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:41 '#include <boost/shared_ptr.hpp>'."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:boost::shared_dynamic_cast]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0116/snapshot/include/boost/smart_ptr/shared_ptr.hpp:538-539 'template<class T, class U> shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r)' / '{'",
+   "running_excerpt": "s2_work/tasks/u0117/snapshot/include/boost/smart_ptr/shared_ptr.hpp:788 'template<class T, class U> shared_ptr<T> static_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT' ... :808 'template<class T, class U> shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT' — no shared_dynamic_cast declaration anywhere in the running snapshot (grep: only compatibility.htm:35 prose)"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The broken upgrade unit records provider boost_smart_ptr built=u0116 (boost-1.48.0) and running=u0117 (boost-1.54.0) with consumer kobuki_gazebo_plugins=u0118. The producer port is the shared_dynamic_cast function template declared in the built header (shared_ptr.hpp:538) and absent from the running header; the consumer port is the unqualified use 'boost::shared_dynamic_cast<...>' at gazebo_ros_kobuki.cpp:251/253/255/301/325 in a translation unit that includes boost/shared_ptr.hpp (gazebo_ros_kobuki.h:41). Both ports are real and name the same element, so the assembled composition represents the UPGRADE operation with the two ports actually connected."
+ },
+ "notes": "Every embedded claim of the running-side provenance reproduced this session: whole-snapshot grep returning only compatibility.htm:35, the four *_pointer_cast line numbers (788/798/808/818), and the absence of shared_static_cast/shared_polymorphic_cast from code. The element's presence differs between the built and running revisions (deprecated alias template removed), a presence difference under the substance criterion."
+}

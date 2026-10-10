@@ -1,0 +1,46 @@
+{
+ "item_id": "A1-robust_001fca6",
+ "kind": "A1",
+ "case_id": "robust_001fca6",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "#7  0x00007ffff397714c in tf2_ros::Buffer::canTransform(std::string const&, std::string const&, ros::Time const&, ros::Duration, std::string*) const ()\n   from /opt/ros/hydro/lib/libtf2_ros.so\n#8  0x00007ffff4ae6aea in tf::Transformer::waitForTransform(std::string const&, std::string const&, ros::Time const&, ros::Duration const&, ros::Duration const&, std::string*) const () from /opt/ros/hydro/lib/python2.7/dist-packages/tf/_tf.so",
+  "url": "https://github.com/ros/geometry/issues/30"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "terminate called after throwing an instance of 'ros::TimeNotInitializedException'\n  what():  Cannot use ros::Time::now() before the first NodeHandle has been created or ros::start() has been called.  If this is a standalone app or test that just uses ros::Time and does not communicate over ROS, you may also call ros::Time::init()\nAborted (core dumped)",
+   "url": "https://github.com/ros/geometry/issues/30"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "There was a second issue with the sleep failing due to being uninitialized.",
+   "url": "https://github.com/ros/geometry/issues/30"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "terminate called after throwing an instance of 'ros::TimeNotInitializedException'",
+  "url": "https://github.com/ros/geometry/issues/30"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Awesome, it works for me, thanks for fixing it!",
+  "url": "https://github.com/ros/geometry/issues/30"
+ },
+ "notes": "Independently re-decided and agree. E1: issue 30 (liborw, 2013-08-22) gives a minimal rospy reproducer ('listener.waitForTransform('test_1', 'test_2', rospy.Time(0), rospy.Duration(0))'), the exception text and gdb backtrace; maintainer tfoote confirmed and fixed ('Actually a problem in tf2_ros fixed here: https://github.com/ros/geometry_experimental/commit/5e41627775cb5d2ce536a5127261d41a57f0a3d7', comment 2013-08-28). E2 stop 6: tf (its _tf.so extension wrapping tf::Transformer) and tf2_ros (libtf2_ros.so) are separately released packages in different repositories; the backtrace shows the failing call crossing from tf into tf2_ros::Buffer::canTransform; the failure depends on the peer -- tf2_ros::Buffer::canTransform's polling loop presupposes the calling process initialised C++ ros::Time, true for a roscpp caller and false for the rospy process loading only the tf extension -- so the internal test ('would occur with any correct peer') does not apply and the precondition crosses the library-API boundary; the fix is a source change inside tf2_ros (steps 3-5 do not stop). Both conditions class 'other' agree: an initialisation-precondition mismatch crossing the API boundary fits no named class; both implicate api:tf2_ros::Buffer::canTransform, whose polling loop contains both the ros::Time::now() call and the ros::Duration(0.01).sleep() -- verified in the 0a034c5 patch context (both canTransform overloads changed 'ros::Duration(0.01).sleep()' to 'sleep_fallback_to_wall(ros::Duration(0.01))'). E3 PAIR agree. E4: observed abort plus the maintainer's code-level statement for the second condition. Loudness silent_documented / detection_stage run agree: the exception message is the runtime failure itself, not a tooling diagnostic at build, connection, or activation, and none precedes it. Resolution observed agree: jdddog (2013-11-12) verified after checking out geometry_issue_30 (tfoote: 'You will need to checkout geometry_experimental into your workspace from geometry_issue_30 branch.') running listener.waitForTransform('camera_link', 'camera_rgb_frame', rospy.Time(), rospy.Duration(5.0)) with the hydro binary tf; I verified commit 0a034c5 ('fixing pytf failing to sleep https://github.com/ros/geometry/issues/30') adds sleep_fallback_to_wall catching ros::TimeNotInitializedException, commit 5e41627 adds now_fallback_to_wall, and 001fca6f is the merge of PR #42 (API: message 'Merge pull request #42 from ros/geometry_issue_30', parents 79873aa6 and 0a034c5b), matching the resolution summary. The extrapolation error discussed later in the thread (liborw/jonbinney, tf2_ros python Buffer) is a different composition and correctly excluded."
+}

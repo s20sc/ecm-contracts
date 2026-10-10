@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-C3-046-broken-M1-2e6e577ea2",
+  "kind": "A2",
+  "case_id": "C3-046",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:cv_bridge/cv_bridge.h]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0302/snapshot/cv_bridge/include/cv_bridge/cv_bridge.h:37\n#ifndef CV_BRIDGE__CV_BRIDGE_H_\n#define CV_BRIDGE__CV_BRIDGE_H_\n\nsnapshot:s2_work/tasks/u0303/snapshot/cv_bridge/include/cv_bridge/cv_bridge.hpp:37\n#ifndef CV_BRIDGE__CV_BRIDGE_HPP_\n#define CV_BRIDGE__CV_BRIDGE_HPP_\n\nsnapshot:s2_work/tasks/u0303/snapshot/cv_bridge/CMakeLists.txt:89\n# install the include folder\ninstall(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})\n\nsnapshot:s2_work/tasks/u0303/snapshot/cv_bridge/src/CMakeLists.txt:8\ngenerate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${PROJECT_NAME}/${PROJECT_NAME}_export.h)\n\nsnapshot:s2_work/tasks/u0303/snapshot/cv_bridge/src/CMakeLists.txt:30\ninstall(FILES\n  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}_export.h\n  DESTINATION include/${PROJECT_NAME}/${PROJECT_NAME})"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:cv_bridge/cv_bridge.h]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0300/snapshot/perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/shape_draw.hpp:19\n#include <cv_bridge/cv_bridge.h>"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:cv_bridge/cv_bridge.h]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0302/snapshot/cv_bridge/include/cv_bridge/cv_bridge.h:37\n#ifndef CV_BRIDGE__CV_BRIDGE_H_\n#define CV_BRIDGE__CV_BRIDGE_H_",
+      "running_excerpt": "snapshot:s2_work/tasks/u0303/snapshot/cv_bridge/include/cv_bridge/cv_bridge.hpp:37\n#ifndef CV_BRIDGE__CV_BRIDGE_HPP_\n#define CV_BRIDGE__CV_BRIDGE_HPP_\n\nsnapshot:s2_work/tasks/u0303/snapshot/cv_bridge/CMakeLists.txt:89\n# install the include folder\ninstall(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})\n\nsnapshot:s2_work/tasks/u0303/snapshot/cv_bridge/src/CMakeLists.txt:8\ngenerate_export_header(${PROJECT_NAME} EXPORT_FILE_NAME ${PROJECT_NAME}/${PROJECT_NAME}_export.h)\n\nsnapshot:s2_work/tasks/u0303/snapshot/cv_bridge/src/CMakeLists.txt:30\ninstall(FILES\n  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}_export.h\n  DESTINATION include/${PROJECT_NAME}/${PROJECT_NAME})"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE maps provider u0302 (3.2.1) to u0303 (4.1.0) while the broken consumer u0300 still directly includes the removed header. This is a compiler include dependency, not a runtime topic. Consumer evidence:\nsnapshot:s2_work/tasks/u0300/snapshot/perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/shape_draw.hpp:19\n#include <cv_bridge/cv_bridge.h>\nProvider install evidence:\nsnapshot:s2_work/tasks/u0303/snapshot/cv_bridge/CMakeLists.txt:90\ninstall(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})"
+  },
+  "notes": "Substantive presence change: cv_bridge.h exists in u0302 but is absent from the inspected u0303 snapshot. A whole-snapshot find for *.h returned only include/cv_bridge/visibility_control.h; the include directory has cv_bridge.hpp, cv_mat_sensor_msgs_image_type_adapter.hpp, rgb_colors.hpp and visibility_control.h. Whole-snapshot searches found no cv_bridge.h (excluding .hpp) references or configure_file generation. The install directives copy that include tree plus the generated cv_bridge_export.h, not a cv_bridge.h compatibility shim. The running excerpts support the bounded absence check; they are not fabricated text from a nonexistent file. Header disappearance is not merely a changed include-guard spelling. No permission-grant absence is involved."
+}

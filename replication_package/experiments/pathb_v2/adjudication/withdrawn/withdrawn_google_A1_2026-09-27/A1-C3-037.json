@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-037",
+  "kind": "A1",
+  "case_id": "C3-037",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The issue gives the two message definitions, a complete rclcpp node, and the published vs received output (\"bool_field_1: true\" published, \"bool_field_1: false\" received); a maintainer reproduces it (\"I'm also able to observe this behavior, when the publisher and subscriber are in the same process.\") and the Fast DDS maintainer identifies the cause (\"In short, the generated code for the message is wrongly considered plain.\").",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/715"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The root cause is mismatch between CDR representation and in-memory representation due to different alignment of fields.",
+      "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/108"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The subscriber prints the wrong values with no diagnostic: \"Received: 'inner:\r\n  float_field: 1.23457\r\n  bool_field: true\r\nbool_field_1: false\r\nbool_field_2: false\r\nbool_field_3: false\" (issue #715); a reproducer calls it \"extremely concerning\".",
+    "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/108"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "A maintainer tested the PR: \"@MiguelCompany This seems to fix the problem for me using `rmw_fastrtps_cpp`, thanks for that.\" (Iron/Rolling tester, revisions of both units not stated). An integration test with the same Inner/Outer messages was added in system_tests PR #530 and run in CI with #108 and #716 on rolling. The issue was closed after the Humble and Iron backports; no one reports the reporter's Iron composition working with 3.0.2."
+  },
+  "notes": "Adjudicated case C3-037: fully agrees with specification eligibility (E1-E4 step 6), failed conditions, loudness (silent_documented), and resolution status (recommended)."
+}

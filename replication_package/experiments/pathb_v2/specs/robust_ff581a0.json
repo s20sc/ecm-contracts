@@ -1,0 +1,50 @@
+{
+  "case_id": "robust_ff581a0",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847",
+    "https://github.com/mavlink/mavros/pull/296",
+    "https://github.com/mavlink/mavros/commit/5dd2e1e5742cea77e6b133bca753b4d8f3e404c6",
+    "https://github.com/mavlink/mavros/commit/a3b593479c7909cce66cc10b0e02e7608101df0a",
+    "https://github.com/mavlink/mavros/commit/4ec5cb71bc3cba8d4b2250df51901eb00a807adb",
+    "https://github.com/mavlink/mavros/blob/ff581a0752107f7ad875c16f83f7b75ccd92f847/mavros/launch/px4_config.yaml"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The defect is concrete in the author's own commit ff581a07 (TSC21, 2015-05-18, \"distance_sensor: minor correction\"): in mavros_extras/src/plugins/distance_sensor.cpp, DistanceSensorItem::create_item read '\t\t\tpnh.param(\"sensor_position/x\", x, 0.0);' / '-\t\t\tpnh.param(\"sensor_position/x\", y, 0.0);' / '-\t\t\tpnh.param(\"sensor_position/x\", z, 0.0);' and the fix changes the last two to '+\t\t\tpnh.param(\"sensor_position/y\", y, 0.0);' / '+\t\t\tpnh.param(\"sensor_position/z\", z, 0.0);'. No issue, reproducer, log or maintainer statement beyond the diff exists; the commit is one of 30 in the author's PR #296 (\"distance_sensor: small enhancements\", merged 2015-05-21), and the wrong lines were introduced in the same PR by a3b59347 (\"distance_sensor: define sensor position through param config\", 2015-05-16) with the configuration added in 4ec5cb71 (\"distance_sensor: updated config file\"), so the defect never reached the master branch or a release."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["mavros_extras distance_sensor plugin", "mavros launch configuration (px4_config.yaml distance_sensor section)"],
+      "interface_kind": null,
+      "evidence": "The candidate composition is the distance_sensor plugin (package mavros_extras) reading per-sensor parameters under ~distance_sensor/<name>/ and the configuration that provides them (mavros/launch/px4_config.yaml at ff581a07 lines 115-122: 'distance_sensor:' / '  hrlv_ez4_pub:' / ... / '    send_tf: true' / '    sensor_position: {x:  0.0, y:  0.0, z:  -0.3}'). Both sides agree on the interface: the configuration declares sensor_position/x, /y, /z and the plugin's own configuration documents the same keys; the plugin's code simply reads the x key three times (a copy-paste error inside one function of one unit). The failure (position y and z taking the value of x, hence a wrong TF translation) does not depend on any assumption between the two units and occurs with any correct configuration; the resolving edit corrects the plugin's own logic. Step 2 therefore stops the walk: internal."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached (ineligible at E2). Had it been eligible the operation would be PAIR (configuration values feeding the plugin)."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect is documented: the commit says only \"minor correction\"; no run, warning or wrong TF is recorded anywhere in the source."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): the plugin reads parameter sensor_position/x for all three coordinates because of a copy-paste error in its own code; the parameter interface declared by the configuration (sensor_position/x, /y, /z) is not in dispute between the units and the failure would occur with any correct configuration. Additionally the broken code existed only inside PR #296 before its merge (a3b59347..ff581a07, 2015-05-16 to 2015-05-18) and no effect was ever documented.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Alternative reading recorded for the record: if a parameter name typed by the consumer is treated as a name crossing the boundary, the case would be a PAIR with class 'other' on param:~distance_sensor/<name>/sensor_position/y and /z (declared by the configuration, never read by the plugin), outcome undocumented, resolution recommended (fix commit only). That reading was not adopted because a checker comparing the plugin's referenced parameters with the configuration's provided ones sees only the provided-but-unused y and z keys, which is not a contract violation, and because the defect is a wrong key inside the plugin's own logic rather than a disagreement between the units. Parent revision 5dd2e1e5 (2015-05-17, 'distance_sensor: sensor position cond changed') and fix ff581a07 are both commits of PR #296 (head TSC21:external_sensors_connect, base master, merged 2015-05-21 as 3b5e6dff). No ROS distro is stated."
+}

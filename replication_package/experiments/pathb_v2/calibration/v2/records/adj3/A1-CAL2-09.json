@@ -1,0 +1,20 @@
+{
+ "item_id": "A1-CAL2-09",
+ "kind": "A1",
+ "case_id": "CAL2-09",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+  "quote": "The 'disjoint-ness' shown in Fig. 2 means that it is _impossible_ to plan a path where the elbow joint position starts in one of the sets A, B, or C and finishes in another. I think this is why plans fail reasonably often when using the full joint limits of the UR5.",
+  "url": "https://github.com/ros-industrial/universal_robot/issues/265"},
+ "failed_conditions": [
+  {"index": 0, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+   "quote": "This could be fixed by limiting the elbow joint to [-Pi, Pi) when full joint limits are used. The other joints will be fine to use their full [-2Pi, 2Pi) range of motion.",
+   "url": "https://github.com/ros-industrial/universal_robot/issues/265"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+  "quote": "Now when the robot is tested (without limiting the elbow joint) it times out (fails) on many queries, this will be because of the elbow self collisions. The planners then work when the elbow is limited to -pi, pi.",
+  "url": "https://github.com/ros-industrial/universal_robot/issues/265"},
+ "resolution": {"verdict": "agree", "proposed": null,
+  "quote": "+1 to restrict the elbow joint in the not-limited URDF in this repo."},
+ "notes": "Verified: issue body (disjoint CFree, self-collision at +-pi), the fix backport 2e078f5 ('Backport #268 to Indigo', parent 68d76b2), and ur5.urdf.xacro at 68d76b2 declaring `<limit lower=\"${-2.0 * pi}\" upper=\"${2.0 * pi}\" .../>` for elbow_joint. Eligibility is a borderline judgment call (the declared range matches the manufacturer's spec, so one could read it as internal), but the spec's reading is defensible: the declared range is the value crossing the boundary into MoveIt's planning, and a consumer with careful IK selection would not fail, so the failure depends on the consumer's use of the declared value. Class 'other' (no listed class covers a too-wide declared range), loudness silent_documented/run, and resolution recommended (fix merged, but the reporter's working observation used a locally modified model and an unidentified MoveIt revision) all agree. Confidence 'low' is appropriate."
+}

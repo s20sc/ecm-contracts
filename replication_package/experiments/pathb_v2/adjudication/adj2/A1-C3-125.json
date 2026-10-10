@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-125",
+  "kind": "A1",
+  "case_id": "C3-125",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "according to the following gdb debug, it seems that created subscription is not added to `rmw_wait` to be executed for Fast-DDS case. So subscription will never be executed by executer.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[Conclusion](https://github.com/ros2/rmw_fastrtps/issues/606#issuecomment-1125824269) was that if a node is assigned to multiple executors running asynchronously, it is unable to notify all of them about creating/destroying subscriptions etc..",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1191507077"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "#### Actual behavior\n* subscriber keeps not working",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I confirmed that this problem has been addressed by https://github.com/ros2/rmw_fastrtps/pull/619. please feel free to reopen if you still have this issue in rolling.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1226795803"
+  },
+  "notes": "Verified this session: issue 613 body (2022-06-16, Rolling binaries, Ubuntu 22.04) has the reproducer repo link and command 'ros2 launch ros2_test_subscriber test_subscriber.launch.py use_dedicated_thread:=True', '* subscriber keeps not working', and 'by the way, it works well under ubuntu20.04 ROS Galactic.' The gezp README at 01cca8e (https://raw.githubusercontent.com/gezp/ros2_test_subscriber/01cca8e45fca0b984e11193a228d9c5f4831e823/README.md) shows the dedicated-thread output under ubuntu22.04 Rolling with only 'activate'/'client success' lines and no 'recv data', while the normal case lists 'recv data' lines. rmw.h at f9f4ef4 lines 2400-2401: 'It is not safe to wait for the same entity using different wait sets in two or more threads concurrently.' (https://raw.githubusercontent.com/ros2/rmw/f9f4ef46f8dd3ef938526a1140a3c57c155a259f/rmw/include/rmw/rmw.h). guard_condition.hpp at f3eed521 attachCondition stores single pointers: 'conditionMutex_ = conditionMutex;' / 'conditionVariable_ = conditionVariable;' (lines 56-57). rclcpp executor.cpp at 491475f2 line 219 'const auto & gc = node_ptr->get_notify_guard_condition();' and line 232 'memory_strategy_->add_guard_condition(gc);'. gezp comment: 'i test locally with cyclonedds under Humble/Rolling Ubuntu22.04, and  it also fixes the problem.' afrixs comment id 1191507077 contains the spec's quote verbatim. PR 619 'Use Fast-DDS Waitsets instead of listeners' merged 2022-08-24, merge_commit_sha 1dcfe806874956158e1d93a77034c740e8790e19; body: 'The main motivation is to fix bugs related to the current \"waitset\" mechanism implemented on top of Fast-DDS listeners, like #613.' E2: the failure depends on the documented RMW cross-unit usage constraint (rclcpp waits on one guard condition from two wait sets; rmw_fastrtps keeps one attached condition variable), disappears with a different provider -> interface failure at step 6, agree; the spec records the maintainer disagreement about which side violates the contract. exclusive_resource_conflict with the three implicated elements (all in inventory) is a fair reading of a single-attachment resource contended by two wait sets. Loudness silent/run: no diagnostic anywhere; cause needed gdb. Resolution recommended is the strict-but-correct application of S1: the maintainer confirmation names no rclcpp/rmw_fastrtps revisions tested, so it is not an observation of the composition specified here."
+}

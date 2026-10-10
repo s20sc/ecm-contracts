@@ -1,0 +1,13 @@
+{"item_id": "P-u0194-0", "kind": "P", "task_id": "u0194", "element": "msg:ur_driver/MSG_JOINT_STATES", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "ur_driver/MSG_JOINT_STATES", "verdict": "verified",
+   "source_excerpt": "ur_driver/prog:6: MSG_JOINT_STATES = 3",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "ur_driver/prog:48: socket_send_int(MSG_JOINT_STATES) ; ur_driver/prog:49: socket_send_int(floor(MULT_jointstate * q[0]))",
+   "qos_basis": null},
+  {"field": "units", "recorded": "floor(MULT_jointstate * value), MULT_jointstate = 10000.0", "verdict": "verified",
+   "source_excerpt": "ur_driver/prog:20: MULT_jointstate = 10000.0 ; ur_driver/prog:49: socket_send_int(floor(MULT_jointstate * q[0]))",
+   "qos_basis": null}
+ ],
+ "notes": "Snapshot read through symlink; ur_driver/prog is a URScript program in package ur_driver. msg_type: line 6 defines the identifier MSG_JOINT_STATES (message code 3) — the element's identifier is stated at the cited line. frame: line 48 sends the joint-states message as a bare integer code, followed (lines 49-67) by integer quantizations of q, qdot and tau only; grep -i frame over the whole prog file returns no matches — no frame anywhere, supporting none. units: line 20 states MULT_jointstate = 10000.0; the floor(MULT_jointstate * value) quantization is directly observable at lines 49-67 for positions, speeds and torques (the provenance cited only line 20; I quote line 49 as the floor() evidence I opened)."}

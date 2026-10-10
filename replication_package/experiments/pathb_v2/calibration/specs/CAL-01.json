@@ -1,0 +1,175 @@
+{
+ "case_id": "CAL-01",
+ "corpus": "C1",
+ "source_refs": [
+  "https://github.com/ros/geometry2/issues/84",
+  "https://github.com/ros/geometry2/pull/74",
+  "https://github.com/ros/geometry2/pull/86",
+  "https://github.com/ros/geometry2/commit/04810475f249e3f067701288388b82ff0dd686ba",
+  "https://github.com/ros/geometry2/commit/cbcc785cae3a191d18a49128f8bef13b74e02335",
+  "https://github.com/ros/geometry2/blob/indigo-devel/tf2/CHANGELOG.rst",
+  "https://github.com/ros/geometry/blob/indigo-devel/tf/CHANGELOG.rst",
+  "https://github.com/ros/geometry/blob/1.11.4/tf/src/tf.cpp",
+  "https://github.com/robust-rosin/robust/blob/master/geometry2/0481047/0481047.bug"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue ros/geometry2#84 (bricerebsamen, 2015-03-11): \"after #74 I get this error\\n/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'\\n\\nto reproduce: create a workspace with the ros/velodyne repo and the ros/geometry_experimental repo, both of them checked out to the latest version.\\n\\nI bisected on ros/geometry_experimental and I confirmed #74 is the culprit\". Maintainer tfoote reworked the change (\"I've also attempted a rework to overload instead of have a default method. Can you try the fix_84 branch?\", \"I patched fix_84 for _allFramesAsDOT as well.\") and the reporter confirmed \"yep that fixes it!\"; PR #86 'Use overloading instead of default arguments' ('Fixes #84') was merged as 04810475 on 2015-03-12."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "tf",
+    "tf2"
+   ],
+   "interface_kind": "library API",
+   "evidence": "Step 1: tf (package tf in ros/geometry; the indigo binary /opt/ros/indigo/lib/libtf.so, whose tf::Transformer::allFramesAsDot is `return tf2_buffer_._allFramesAsDot();`) and tf2 (package tf2 in ros/geometry2; libtf2.so and tf2/buffer_core.h, built from the reporter's source overlay). Separately released packages from different repositories. Step 2: the failing value is the symbol the consumer references across the library boundary: libtf.so needs `tf2::BufferCore::_allFramesAsDot() const` and the overlay's tf2 no longer exports it; with the provider at its earlier declaration the same consumer links, so it is an interface failure. Step 3: no names rebound. Step 4: the resolution is a source change to the provider's declarations (overloads instead of a default argument), not a build-system change, although the trigger was a binary consumer mixed with a source-overlay provider (tfoote: \"You shouldn't be using symbols from /opt/ros that depend on a source overlay.\"). Step 5: no firmware. Step 6: eligible; library API (C++ ABI of tf2::BufferCore)."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "UPGRADE: the provider (tf2, source overlay at the indigo-devel head of 2015-03-11, which contains PR #74) runs at a newer revision than the one the binary consumer (tf 1.11.4 deb) was built against (tf2 0.5.7); the consumer still references `_allFramesAsDot()` as declared at that earlier revision. No other operation is supported."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed failure: link error \"/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'\" reported by the reporter, bisected to #74."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "tf2",
+   "role": "provider",
+   "repo": "https://github.com/ros/geometry2",
+   "broken_rev": "2fd8395d92763b4727c0ab94bdc6f3fc39694246",
+   "resolved_rev": "04810475f249e3f067701288388b82ff0dd686ba",
+   "pinned": true,
+   "revision_basis": "The reporter built ros/geometry_experimental (now ros/geometry2) 'checked out to the latest version' on 2015-03-11T19:11Z; the indigo-devel head at that time was 2fd8395d (2015-03-03T09:03:23Z, merge of #76), which contains PR #74 'change _allFramesAsDot() -> _allFramesAsDot(double current_time)' merged as cbcc785c on 2015-03-03T08:59:34Z (GitHub's merge_commit_sha 4bfd657e for #74 does not exist in the repository). At 2fd8395d tf2/include/tf2/buffer_core.h declares `std::string _allFramesAsDot(double current_time = 0) const;` and `std::string allFramesAsYAML(double current_time = 0) const;`. The reporter bisected the regression to #74. The resolved revision is the merge of PR #86 (fix_84) on indigo-devel, 2015-03-12T01:53:32Z; the reporter verified the fix_84 branch head de715513 ('fix DOT as well'), whose tf2/include/tf2/buffer_core.h (blob c2ea7c2e) and tf2/src/buffer_core.cpp (blob 4fa055ef) are identical to those at 04810475. Both #74 and #86 were first released together in tf2 0.5.8 (2015-03-17).",
+   "excerpt": false,
+   "ros_distro": "indigo"
+  },
+  {
+   "name": "tf",
+   "role": "consumer",
+   "repo": "https://github.com/ros/geometry",
+   "broken_rev": "1.11.4",
+   "resolved_rev": "1.11.4",
+   "pinned": true,
+   "revision_basis": "The consumer is the indigo binary /opt/ros/indigo/lib/libtf.so, pulled into the link of a velodyne target in the reporter's workspace ('So tf is pulled from `/opt/ros/indigo`'); per tf/CHANGELOG.rst, 1.11.4 (2014-12-23) was the geometry indigo release current on 2015-03-11 (1.11.5 followed on 2015-03-17). At 1.11.4 tf/src/tf.cpp contains `std::string Transformer::allFramesAsDot() const { return tf2_buffer_._allFramesAsDot(); }`. The resolution does not change tf.",
+   "excerpt": false,
+   "ros_distro": "indigo"
+  }
+ ],
+ "operation": "UPGRADE",
+ "consumer_built_against": {
+  "broken": "0.5.7",
+  "resolved": "0.5.7",
+  "basis": "inferred"
+ },
+ "inventory": [
+  {
+   "element": "api:tf2::BufferCore::_allFramesAsDot",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::allFramesAsString",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::canTransform",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::lookupTransform",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::setTransform",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::clear",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::_chainAsVector",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::_frameExists",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::_getFrameStrings",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  },
+  {
+   "element": "api:tf2::BufferCore::_getLatestCommonTime",
+   "sides": {
+    "tf2": "provides",
+    "tf": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "element_retyped",
+   "implicated_elements": [
+    "api:tf2::BufferCore::_allFramesAsDot"
+   ],
+   "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+   "url": "https://github.com/ros/geometry2/pull/74/files"
+  },
+  {
+   "class": "element_removed_or_renamed",
+   "implicated_elements": [
+    "api:tf2::BufferCore::_allFramesAsDot"
+   ],
+   "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+   "url": "https://github.com/ros/geometry2/issues/84"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "loud_documented",
+ "loudness_evidence": "The linker reports \"undefined reference to `tf2::BufferCore::_allFramesAsDot() const'\" while building the reporter's workspace (catkin_tools); tfoote's reproduction shows the same class of error for tf2_ros: \"/tmp/catkin_workspace/devel_isolated/tf2_ros/lib/libtf2_ros.so: undefined reference to `tf2::BufferCore::allFramesAsYAML() const'\\ncollect2: error: ld returned 1 exit status\".",
+ "detection_stage": "build",
+ "resolution": {
+  "summary": "Use overloading instead of default arguments (PR #86): tf2::BufferCore declares `std::string _allFramesAsDot(double current_time) const;` plus `std::string _allFramesAsDot() const;` implemented as `return _allFramesAsDot(0.0);`, and likewise `allFramesAsYAML(double current_time) const` plus `allFramesAsYAML() const` (\"Backwards compatibility for #84\"), so the zero-argument symbols referenced by consumers built against the earlier declaration are exported again. The consumer is unchanged.",
+  "status": "observed",
+  "evidence": "Reporter bricerebsamen, 2015-03-12T01:23:13Z: \"yep that fixes it!\" after tfoote's \"I patched fix_84 for _allFramesAsDOT as well.\" (fix_84 head de715513, tf2 files identical to the merge 04810475), with the unchanged indigo binary libtf.so (tf 1.11.4)."
+ },
+ "ros_generation": "ROS1",
+ "excerpt_based": false,
+ "confidence": "high",
+ "notes": "Two entries describe one declaration change from two sides: at source level the declaration was retyped (a defaulted parameter added), and at the binary level the zero-argument symbol the consumer's compiled code references (default arguments are expanded in the caller) is no longer exported, which is what the linker reports. consumer_built_against is inferred: libtf.so's reference matches the declaration `std::string _allFramesAsDot() const;` at tf2 0.5.7 (2014-12-23, released the same day as tf 1.11.4 and current until 0.5.8 on 2015-03-17). The reporter's third unit, ros/velodyne, is the workspace package whose executable link pulled in libtf.so; it is not a party to the failed interface. tfoote's allFramesAsYAML observations concern tf2_ros inside the same overlay linking against stale devel/install artifacts of tf2 (\"First pass is producing a void argument symbol, rming devel and build produces double\"), a different composition (tf2_ros <-> tf2) that PR #86 also covers; not a condition of this case. Binary users were never exposed because 0.5.8 shipped #74 and #86 together. Dataset codes: EVOLUTION:LIBRARY, SOFTWARE:BUILD."
+}

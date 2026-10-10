@@ -1,0 +1,80 @@
+{
+  "task_id": "u0120",
+  "package": "tf2_ros",
+  "manifest_version": "0.4.9",
+  "ports": [
+    {
+      "element": "msg:tf2_msgs/TFMessage",
+      "side": "provides",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    },
+    {
+      "element": "topic:/tf",
+      "side": "provides",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    },
+    {
+      "element": "topic:/tf_static",
+      "side": "provides",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "msg:tf2_msgs/TFMessage": "msg tf2_msgs/TFMessage: 94810edda583a504dfda3829e70d7eec",
+    "topic:/tf": "topic /tf: tf2_msgs/TFMessage",
+    "topic:/tf_static": "topic /tf_static: tf2_msgs/TFMessage"
+  },
+  "not_declared": [],
+  "references": [
+    "msg:geometry_msgs/TransformStamped",
+    "field:geometry_msgs/TransformStamped.child_frame_id"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:tf2_ros/package.xml:3 | <version>0.4.9</version>",
+    "ports[0].msg_type": "snapshot:tf2_msgs/msg/TFMessage.msg:1 | geometry_msgs/TransformStamped[] transforms (definition of tf2_msgs/TFMessage in the snapshot; tf2_ros build/run-depends on tf2_msgs, snapshot:tf2_ros/package.xml:25,37, and builds after it, snapshot:tf2_ros/CMakeLists.txt:46 | add_dependencies(${PROJECT_NAME} tf2_msgs_gencpp))",
+    "ports[0].frame": "snapshot:tf2_msgs/msg/TFMessage.msg:1 | geometry_msgs/TransformStamped[] transforms (each element carries its own header.frame_id and child_frame_id, per the fetched geometry_msgs/TransformStamped.msg: Header header / string child_frame_id)",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 tf2_msgs/TFMessage snapshot <deps> -> 94810edda583a504dfda3829e70d7eec; deps: geometry_msgs/msg/{TransformStamped,Transform,Vector3,Quaternion}.msg from https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/hydro/geometry_msgs/1.10.6-0/msg/ and std_msgs/msg/Header.msg from https://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/hydro/std_msgs/0.5.8-0/msg/",
+    "ports[1].msg_type": "snapshot:tf2_ros/src/transform_broadcaster.cpp:42 | publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf\", 100); also snapshot:tf2_ros/src/tf2_ros/transform_broadcaster.py:44 | self.pub_tf = rospy.Publisher(\"/tf\", TFMessage)",
+    "ports[1].frame": "snapshot:tf2_ros/src/transform_broadcaster.cpp:58 | message.transforms.push_back(*it); (caller-supplied geometry_msgs::TransformStamped copied unchanged; snapshot:tf2_ros/include/tf2_ros/transform_broadcaster.h:62 | The stamped data structure includes frame_id, and time, and parent_id already.)",
+    "ports[1].definition_id": "same definition as ports[0].definition_id (tf2_msgs/TFMessage, snapshot:tf2_msgs/msg/TFMessage.msg:1)",
+    "ports[2].msg_type": "snapshot:tf2_ros/src/static_transform_broadcaster.cpp:42 | publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf_static\", 100, true);",
+    "ports[2].frame": "snapshot:tf2_ros/src/static_transform_broadcaster.cpp:62 | *it_msg = *it_in; and :68 | net_message_.transforms.push_back(*it_in); (frames come from each caller-supplied TransformStamped; the static_transform_publisher program sets them from argv, snapshot:tf2_ros/src/static_transform_broadcaster_program.cpp:57-58 | msg.header.frame_id = argv[8]; msg.child_frame_id = argv[9];)",
+    "ports[2].definition_id": "same definition as ports[0].definition_id (tf2_msgs/TFMessage, snapshot:tf2_msgs/msg/TFMessage.msg:1)",
+    "declares[msg:tf2_msgs/TFMessage]": "snapshot:tf2_msgs/msg/TFMessage.msg:1 | geometry_msgs/TransformStamped[] transforms; hash as in ports[0].definition_id",
+    "declares[topic:/tf]": "snapshot:tf2_ros/src/transform_broadcaster.cpp:42 | publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf\", 100);",
+    "declares[topic:/tf_static]": "snapshot:tf2_ros/src/static_transform_broadcaster.cpp:42 | publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf_static\", 100, true);",
+    "references[msg:geometry_msgs/TransformStamped]": "snapshot:tf2_ros/include/tf2_ros/transform_broadcaster.h:63 | void sendTransform(const geometry_msgs::TransformStamped & transform);",
+    "references[field:geometry_msgs/TransformStamped.child_frame_id]": "snapshot:tf2_ros/src/static_transform_broadcaster.cpp:60 | if (it_in->child_frame_id == it_msg->child_frame_id)",
+    "perm_requires": "searched all files under snapshot:tf2_ros/ (src, include, package.xml, CMakeLists.txt, rosdoc.yaml, test launch) for permission/security declarations; none (only BSD licence text matches 'permission')",
+    "perm_grants": "same search as perm_requires; no grants declared",
+    "recovery": "searched snapshot:tf2_ros/ for recover|retry|reconnect and for any declared fallback on the /tf or /tf_static publishers; none found"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The provided elements are consistent: C++ and Python broadcasters both publish tf2_msgs/TFMessage on /tf, the static broadcaster publishes the accumulated set latched on /tf_static, and the TFMessage definition hashes to the usual 94810edda583a504dfda3829e70d7eec. The only gap I noticed is on the consuming side inside this package (the Python TransformListener subscribes to /tf only, not /tf_static), which is not a provided element."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the whole geometry_experimental repository; the unit is tf2_ros (snapshot/tf2_ros). tf2_ros has no msg/ directory of its own: the TFMessage definition it publishes lives in the sibling package tf2_msgs in the same snapshot (same repository revision; tf2_ros build/run-depends on tf2_msgs and CMake orders it after tf2_msgs_gencpp). Following the packet (side=provides), the msg element is recorded in declares with the md5 of that snapshot definition; a run that treats msg ownership strictly by package would instead see tf2_ros as a user of tf2_msgs/TFMessage. /tf: C++ TransformBroadcaster advertises with queue size 100 and no latch (transform_broadcaster.cpp:42); Python TransformBroadcaster uses rospy.Publisher(\"/tf\", TFMessage) with no queue_size argument (transform_broadcaster.py:44); publication is on demand, no rate set. /tf_static: C++ StaticTransformBroadcaster advertises with queue size 100 and latch=true (static_transform_broadcaster.cpp:42), keeps one net_message_ in which transforms are replaced by matching child_frame_id or appended, and republishes the whole set on each sendTransform; ROS 1, so QoS fields are null and the latch is noted here only. There is no Python static broadcaster at this revision. The static_transform_publisher executable (static_transform_broadcaster_program.cpp) takes x y z qx qy qz qw frame_id child_frame_id and publishes once. tf2_ros also consumes both topics: the C++ TransformListener subscribes to /tf and /tf_static (queue 100, transform_listener.cpp:72-73, 79-83); the Python TransformListener subscribes to /tf only (transform_listener.py:52). Not in the packet and not recorded: service tf2_frames (buffer.cpp:46, only when debug), action server tf2_buffer_server (buffer_server_main.cpp:66), param buffer_size (buffer_server_main.cpp:61). Units: neither TFMessage nor the fetched geometry_msgs definitions state units and the code does not invoke REP-103, so units are null. Dependency definitions: fetched only .msg files from the ros-gbp hydro release tags geometry_msgs 1.10.6-0 and std_msgs 0.5.8-0. To identify the latest hydro tag I checked HTTP status codes (no content read) for release/hydro/geometry_msgs/1.10.5-0, 1.10.6-1, 1.10.7-0, 1.10.8-0 and release/hydro/std_msgs/0.5.7-0, 0.5.8-1, 0.5.9-0, and once for ros/common_msgs tag 1.10.6; 1.10.6-0 and 0.5.8-0 were the highest that exist. To let definition_hash.py resolve package names I placed one-line stub package.xml files (<name> only) next to the fetched definitions in a scratch directory outside the workspace; nothing was fetched besides .msg files. Cosmetic: snapshot:tf2_ros/package.xml:40 has a stray 'g' after </test_depend>."
+}

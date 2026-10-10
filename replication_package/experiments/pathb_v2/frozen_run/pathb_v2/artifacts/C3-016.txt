@@ -1,0 +1,86 @@
+[[robobus_sensor_kit_launch (reporter's camera_top_6mm launch)@as-reported-2023-11-16]]
+"Soft link `/dev/camera/top_6mm`" -- https://github.com/ros-drivers/usb_cam/issues/298
+pixel_format: "uyvy2rgb"
+image_width: 1920
+image_height: 1080
+SUBSYSTEM==video4linux, SUBSYSTEMS==usb, KERNELS==2-6:1.0, ATTRS{idVendor}==04b4, ATTRS{idProduct}==00c3, SYMLINK+="camera/front_6mm"
+SUBSYSTEM==video4linux, SUBSYSTEMS==usb, KERNELS==2-4:1.0, ATTRS{idVendor}==04b4, ATTRS{idProduct}==00c3, SYMLINK+="camera/top_3mm"
+"In the case of multiple usb cameras, the computer will cause `/dev/video0` to change after each reboot, in order to avoid this situation using udev rule file" -- https://github.com/ros-drivers/usb_cam/issues/298
+
+[[robobus_sensor_kit_launch (reporter's camera_top_6mm launch)@as-reported-2023-11-29]]
+import argparse
+import os
+import sys
+
+from launch import LaunchDescription  # noqa: E402
+from launch.actions import GroupAction  # noqa: E402
+from launch_ros.actions import Node  # noqa: E402
+from ament_index_python.packages import get_package_share_directory
+
+def generate_launch_description():
+    ld = LaunchDescription()
+    
+    parser = argparse.ArgumentParser(description='usb_cam demo')
+    parser.add_argument('-n', '--node-name', dest='node_name', type=str,
+                        help='name for device', default='usb_cam')
+
+    parameters={
+        "video_device": "/dev/video0",
+        "framerate": 30.0,
+        "io_method": "mmap",
+        "frame_id": "test_camera",
+        "pixel_format": "uyvy2rgb",  
+        "image_width": 1920,
+        "image_height": 1080,
+        "camera_name": "test_camera",
+        # reusing same camera intrinsics only for demo, should really be unique for camera2"
+        "camera_info_url": "package://usb_cam/config/camera_info.yaml",
+        "brightness": -1,
+        "contrast": -1,
+        "saturation": -1,
+        "sharpness": -1,
+        "gain": -1,
+        "auto_white_balance": True,
+        "white_balance": 4000,
+        "autoexposure": True,
+        "exposure": 100,
+        "autofocus": False,
+        "focus": -1,
+        # resize
+        "image_resize": 2,
+        "camera_lifetime": 33,
+    }
+    
+    parameters["video_device"] = os.path.realpath(parameters["video_device"])
+
+    node = Node(
+        package='usb_cam', executable='usb_cam_node_exe', output='screen',
+        name="usb_cam_node",
+        namespace='gmsl',
+        parameters=[parameters]
+    )
+
+    ld.add_action(node)
+    return ld
+
+[[usb_cam@0.7.0]]
+  this->declare_parameter("camera_name", "default_cam");
+  this->declare_parameter("camera_info_url", "");
+  this->declare_parameter("framerate", 30.0);
+  this->declare_parameter("frame_id", "default_cam");
+  this->declare_parameter("image_height", 480);
+  this->declare_parameter("image_width", 640);
+  this->declare_parameter("io_method", "mmap");
+  this->declare_parameter("pixel_format", "yuyv");
+  this->declare_parameter("video_device", "/dev/video0");
+  this->declare_parameter("brightness", 50);  // 0-255, -1 "leave alone"
+  this->declare_parameter("contrast", -1);    // 0-255, -1 "leave alone"
+  this->declare_parameter("saturation", -1);  // 0-255, -1 "leave alone"
+  this->declare_parameter("sharpness", -1);   // 0-255, -1 "leave alone"
+  this->declare_parameter("gain", -1);        // 0-100?, -1 "leave alone"
+  this->declare_parameter("auto_white_balance", true);
+  this->declare_parameter("white_balance", 4000);
+  this->declare_parameter("autoexposure", true);
+  this->declare_parameter("exposure", 100);
+  this->declare_parameter("autofocus", false);
+  this->declare_parameter("focus", -1);  // 0-255, -1 "leave alone"

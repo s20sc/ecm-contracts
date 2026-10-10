@@ -1,0 +1,60 @@
+{
+  "item_id": "A1-C3-016",
+  "kind": "A1",
+  "case_id": "C3-016",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 3,
+    "reason_code": "deployment_wiring",
+    "quote": "parameters[\"video_device\"] = os.path.realpath(parameters[\"video_device\"])",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/298#issuecomment-1831120952",
+    "reason": "The reported regression and startup refusal satisfy E1/E4. However, for the specified launch-package/usb_cam composition, the minimal resolving change canonicalizes a device path in deployment configuration. It changes neither the video_device parameter name/type nor the referenced ROS interface. E2 step 3 explicitly excludes device-path binding repairs. The historical implementation regression and an alternative provider-side fix do not override the minimal-change test for this composition.",
+    "supporting_evidence": [
+      {
+        "quote": "this->declare_parameter(\"video_device\", \"/dev/video0\");",
+        "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/c052be03fe0bc067fdf0941394a62dcc81925ae8/src/ros2/usb_cam_node.cpp"
+      }
+    ]
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "if (available_devices.find(m_parameters.device_name) == available_devices.end()) {",
+      "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/c052be03fe0bc067fdf0941394a62dcc81925ae8/src/ros2/usb_cam_node.cpp",
+      "reason": "The source shows rejection of an alias by an exact device-name membership test, not a payload component-order, handedness or value-encoding mismatch. If retained despite E2, this is a device-path validation defect of class other. video_device is correctly implicated by the reporter's realpath repair."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "\"Device specified is not available or is not a vaild V4L2 device: `\" <<",
+    "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/c052be03fe0bc067fdf0941394a62dcc81925ae8/src/ros2/usb_cam_node.cpp",
+    "reason": "The exact reported provider revision emits RCLCPP_ERROR_STREAM and then calls rclcpp::shutdown() when validation fails. This is an explicit startup refusal, corroborated by the textual reproduction in issue 310."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "void UsbCamNode::init()",
+    "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/c052be03fe0bc067fdf0941394a62dcc81925ae8/src/ros2/usb_cam_node.cpp",
+    "reason": "The rejecting availability check is inside init(), before camera startup, supporting activate."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "In the startup file, add a command to solve this problem：",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/298#issuecomment-1831120952",
+    "reason": "The posted code recommends realpath but uses an already-canonical /dev/video0 demo value and supplies no successful run of the reported /dev/camera/top_6mm configuration. Even with the broken provider commit known, this is not sufficient revision-identified evidence that the resolved composition worked.",
+    "supporting_evidence": [
+      {
+        "quote": "\"video_device\": \"/dev/video0\",",
+        "url": "https://github.com/ros-drivers/usb_cam/issues/298#issuecomment-1831120952"
+      }
+    ]
+  },
+  "notes": "The remaining fields assess the specification's claims even though I would exclude this composition at E2 step 3. Read issue 298 and its sole comment, the introducing validation diff, the exact reported provider source, issue 310's textual cross-version reproduction, and the PR 311 symlink fix. The original screenshot was not visually inspected; no screenshot transcription is claimed as independently verified."
+}

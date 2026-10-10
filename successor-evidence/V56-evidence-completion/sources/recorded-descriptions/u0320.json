@@ -1,0 +1,83 @@
+{
+  "task_id": "u0320",
+  "package": "numpy",
+  "manifest_version": "1.21.5",
+  "ports": [
+    {
+      "element": "api:numpy.matrix",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:numpy.matrix.resize",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:numpy.ndarray",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:numpy.zeros",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:numpy.matrix": "api numpy.matrix: class matrix(N.ndarray):",
+    "api:numpy.matrix.resize": "api numpy.matrix.resize: a.resize(new_shape, refcheck=True)",
+    "api:numpy.ndarray": "api numpy.ndarray: ndarray(shape, dtype=float, buffer=None, offset=0, strides=None, order=None)",
+    "api:numpy.zeros": "api numpy.zeros: zeros(shape, dtype=float, order='C', *, like=None)"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:numpy/_version.py:25",
+    "ports[0].frame": "snapshot:numpy/matrixlib/defmatrix.py:73",
+    "ports[1].frame": "snapshot:numpy/core/_add_newdocs.py:3673",
+    "ports[2].frame": "snapshot:numpy/core/_add_newdocs.py:2094",
+    "ports[3].frame": "snapshot:numpy/core/_add_newdocs.py:1216",
+    "declares[api:numpy.matrix]": "snapshot:numpy/matrixlib/defmatrix.py:73",
+    "declares[api:numpy.matrix.resize]": "snapshot:numpy/core/_add_newdocs.py:3673",
+    "declares[api:numpy.ndarray]": "snapshot:numpy/core/_add_newdocs.py:2094",
+    "declares[api:numpy.zeros]": "snapshot:numpy/core/_add_newdocs.py:1216",
+    "perm_requires": "searched the whole snapshot: no package.xml, no .msg/.srv/.action/.idl files, no SROS2 permissions or policy files (find/grep for package.xml, permissions.xml, <permissions, sros returned nothing)",
+    "perm_grants": "same search as perm_requires; nothing found",
+    "recovery": "grep -i recovery over numpy/matrixlib, numpy/core/_add_newdocs.py, numpy/core/src/multiarray/methods.c and shape.c returned nothing; no recovery declaration for any listed element"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "numpy.matrix enforces a 2-D shape only in __new__ and __array_finalize__ (defmatrix.py:115-187) and defines no resize of its own, so matrix.resize is the inherited in-place ndarray.resize (methods.c:1188), which does not pass through __array_finalize__; a matrix can apparently be resized to a non-2-D shape, which breaks the class invariant."
+  },
+  "confidence": "medium",
+  "notes": "The snapshot is the NumPy Python/C library source, not a ROS package: no package.xml and no interface definition files exist, so msg_type, units, QoS, rates and definition_id do not apply and are null (no ROS communication API is involved, so no QoS default exists to cite). frame is 'none' because all four elements are generic numeric array APIs with no spatial meaning. manifest_version comes from the versioneer keywords substituted by git archive (_version.py:25 git_refnames ' (tag: v1.21.5)', git_date 2021-12-19; setup.cfg:10 tag_prefix = v; setup.py:49 FULLVERSION = versioneer.get_version()). Declaration source choice: numpy.matrix is a Python class, so its class statement is used (defmatrix.py:72 @set_module('numpy'), :73 class matrix(N.ndarray):; exported through defmatrix.py:1 __all__ and numpy/__init__.py:165). numpy.ndarray and numpy.zeros are implemented in C in _multiarray_umath, so the runtime signature documented by add_newdoc is used; it matches the C argument parsers: ndarray type tp_name \"numpy.ndarray\" at arrayobject.c:1759, tp_new array_new with kwlist shape, dtype, buffer, offset, strides, order at arrayobject.c:1597-1598 (docstring signature spans _add_newdocs.py:2094-2095, whitespace collapsed); zeros is registered at multiarraymodule.c:4296 with array_zeros at :2114 parsing shape, |dtype, |order, $like at :2125-2129; zeros.__module__ = 'numpy' at core/multiarray.py:70 and exported via core/numeric.py:20/43. Typing stubs also declare these: __init__.pyi:660 class matrix(ndarray[_ShapeType, _DType_co]):, :1674 class ndarray(_ArrayOrScalarCommon, Generic[_ShapeType, _DType_co]):, :1738-1741 two overloads of def resize(...) -> None, :3516-3522 def zeros(...) -> ndarray. numpy.matrix.resize: defmatrix.py defines no resize method (grep for resize in numpy/matrixlib finds only the test list at tests/test_defmatrix.py:284, where 'resize' is excluded from the return-type check), and the matrix stub (__init__.pyi:660-700) has no resize either; the attribute resolves by inheritance to ndarray.resize (methods.c:2860 method table entry, array_resize at :1188 taking varargs shape and keyword refcheck). It is recorded in declares with the inherited ndarray.resize signature (_add_newdocs.py:3673), not in not_declared, because the package does provide it. No packet element is consumed, so references is empty."
+}

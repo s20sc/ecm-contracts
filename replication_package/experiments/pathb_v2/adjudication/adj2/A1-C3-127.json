@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-127",
+  "kind": "A1",
+  "case_id": "C3-127",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 3,
+    "reason_code": "deployment_wiring",
+    "quote": "I've found the issue. Actually the default ROS2 humble DDS is fine. I forgot that I had specific DDS setting in my `~/.bashrc` (`FASTRTPS_DEFAULT_PROFILES_FILE`), based on the accepted answer of https://answers.ros.org/question/370595/ros2-foxy-nodes-cant-communicate-through-docker-container-border/ for an issue I had a couple of months ago that nodes between host and docker containers couldn't talk to each other. By removing that specific config and by re-running the test above, I have now similar results than with ROS1 ... Closing this issue as solved.",
+    "url": "https://github.com/ros2/geometry2/issues/727#issuecomment-2481510627"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] ... Lookup would require extrapolation into the future.  Requested time 1731371281.299778 but the latest data is at time 1731371281.283326 ... and [WARN] ... Received 22 frames in the past 2.044 seconds (max interval=1.344)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "By removing that specific config and by re-running the test above, I have now similar results than with ROS1, here ROS2 default DDS: ... Closing this issue as solved."
+  },
+  "notes": "Independently verified: issue #727 body (tf2_buffer_lag reproducer: camera_node 1920x1080 @30 Hz, broadcaster_node odom->base_link @30 Hz, listener_node lookupTransform with 0.5 s timeout from image callback, `stress -c 16`; the two log lines quoted in the spec appear verbatim; E4 quote \"In this example, for almost 3 seconds of TF waiting, the TF Buffer didn't get updated once.\" confirmed); reporter's resolution comment 2481510627 confirmed verbatim; the withdrawal of the per-RMW comparison (\"I didn't re-rerun the test on all other DDS, maybe that config also affected their results\") confirmed; rtabmap_ros PR #1225 body does reference this issue (grep hit) and its title \"ROS2 various QOL updates (preparing new binary release)\" matches the spec's claim that it is not a fix of this composition. My independent reading: the minimal resolving change removed a user-shell environment variable selecting a Fast DDS transport profile — purely deployment-environment configuration, no unit's code or declared/referenced interface changed, and the source never identifies a wrong element crossing the broadcaster/listener boundary. That is deployment wiring in substance, so I stop at step 3 as the spec does; the spec's own note that internal@2 (delay in the listener's own middleware receive path, any correct /tf publisher) is an equally defensible strict-text reading is fair, but either stop yields ineligible, so the recorded decision stands."
+}

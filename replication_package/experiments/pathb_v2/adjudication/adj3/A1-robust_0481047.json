@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_0481047",
+  "kind": "A1",
+  "case_id": "robust_0481047",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "after #74 I get this error\n/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'\n\nto reproduce: create a workspace with the ros/velodyne repo and the ros/geometry_experimental repo, both of them checked out to the latest version.\n\nI bisected on ros/geometry_experimental and I confirmed #74 is the culprit",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+      "url": "https://github.com/ros/geometry2/pull/74/files"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+      "url": "https://github.com/ros/geometry2/issues/84"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "yep that fixes it!"
+  },
+  "notes": "All key claims verified. (1) Issue 84 body verbatim: 'after #74 I get this error /opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const' ... I bisected on ros/geometry_experimental and I confirmed #74 is the culprit'. (2) PR 74 'change _allFramesAsDot() -> _allFramesAsDot(double current_time)' (merged cbcc785c, 2015-03-03); its files diff contains exactly '-  std::string _allFramesAsDot() const; / +  std::string _allFramesAsDot(double current_time = 0) const;' (failed condition #0 quote verbatim). (3) PR 86 'Use overloading instead of default arguments' ('Fixes #84') merged as commit 04810475 (2015-03-12), whose parents are 12605ab6 (indigo-devel) and de715513 (fix_84 head) — matching the spec's resolved_rev and revision_basis. Note: the GitHub API's PR 86 merge_commit_sha (eeed80d7) returns 'No commit found' (HTTP 422), but the actual merge commit 04810475 is verified directly. (4) Comments: tfoote 78404867 'You shouldn't be using symbols from /opt/ros that depend on a source overlay. However I've also attempted a rework to overload instead of have a default method.'; 78406186 'I patched fix_84 for _allFramesAsDOT as well.'; reporter 78407496 'yep that fixes it!'. tfoote's reproduction shows the same linker class for allFramesAsYAML ('undefined reference to `tf2::BufferCore::allFramesAsYAML() const' / collect2: error: ld returned 1 exit status'). (5) E2 library-API (C++ ABI) eligible at step 6: the failing value is the zero-arg symbol the binary consumer references; not internal/deployment/build/firmware. (6) Two failed conditions describe one declaration change from two sides: source-level element_retyped (defaulted parameter added, element still present) and binary-level element_removed_or_renamed (default args expand in the caller, so the zero-arg symbol is no longer exported); both classes and the single implicated element _allFramesAsDot are correct. (7) Loudness loud_documented + build (linker error). (8) Resolution 'observed': reporter confirms the fix_84 branch (byte-identical to 04810475) fixes the unchanged indigo binary libtf.so. No missed conditions in this composition (the allFramesAsYAML/tf2_ros failure is a different tf2_ros<->tf2 composition)."
+}

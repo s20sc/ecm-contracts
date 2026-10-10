@@ -1,0 +1,98 @@
+{
+  "task_id": "u0248",
+  "package": "MATLAB Robotics System Toolbox",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "action:/arm_controller/follow_joint_trajectory",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/arm_controller/follow_joint_trajectory/cancel",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/arm_controller/follow_joint_trajectory/feedback",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/arm_controller/follow_joint_trajectory/goal",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/arm_controller/follow_joint_trajectory/result",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/arm_controller/follow_joint_trajectory/status",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "action:arm_controller/follow_joint_trajectory"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "references[action:arm_controller/follow_joint_trajectory]": "[urArm, urGoalMsg] = rosactionclient('arm_controller/follow_joint_trajectory');",
+    "ports[0]": "[urArm, urGoalMsg] = rosactionclient('arm_controller/follow_joint_trajectory');",
+    "ports[1]": "derived by the ROS 1 actionlib client from the action name in: [urArm, urGoalMsg] = rosactionclient('arm_controller/follow_joint_trajectory');",
+    "ports[2]": "derived by the ROS 1 actionlib client from the action name in: [urArm, urGoalMsg] = rosactionclient('arm_controller/follow_joint_trajectory');",
+    "ports[3]": "derived by the ROS 1 actionlib client from the action name in: [urArm, urGoalMsg] = rosactionclient('arm_controller/follow_joint_trajectory');",
+    "ports[4]": "derived by the ROS 1 actionlib client from the action name in: [urArm, urGoalMsg] = rosactionclient('arm_controller/follow_joint_trajectory');",
+    "ports[5]": "derived by the ROS 1 actionlib client from the action name in: [urArm, urGoalMsg] = rosactionclient('arm_controller/follow_joint_trajectory');",
+    "blinding_guess": "artifact.txt line 2 (quoted answer, URL not followed): \"replace the standard messages that MATLAB uses\""
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "Line 2 of the artifact says the fix is to replace the standard message definitions MATLAB uses so they match the external ROS installation, which implies MATLAB's bundled FollowJointTrajectory action message definitions (including the ActionGoal it publishes) differ from the action server's, so the client and server disagree on the message definition when rosactionclient connects."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task; the only source is artifact.txt (2 lines): line 1 is the MATLAB call, line 2 is a quoted sentence attributed to a MathWorks Answers post (the URL was not followed). No snapshot, no manifest; the MATLAB release is not stated, so manifest_version is null. ros_distro is null and excerpt tasks are restricted to the artifact, so no dependency definition was fetched and no definition_id was computed. (1) The action client is created with the action name only and no action-type argument; per the documented behaviour of rosactionclient(actionname) the type is looked up from the ROS master at run time, so the excerpt states no msg_type for the action or for any of its topics. (2) The name is written relative, 'arm_controller/follow_joint_trajectory' (no leading slash); it resolves against the MATLAB node namespace, while the packet element is '/arm_controller/follow_joint_trajectory'. The reference is recorded verbatim as written. (3) The five topic ports (goal and cancel published, feedback, status and result subscribed) are the ROS 1 actionlib client wire topics derived from the action name; they are not written in the excerpt. Under actionlib the cancel topic carries actionlib_msgs/GoalID and the status topic actionlib_msgs/GoalStatusArray regardless of action type, but the excerpt does not state these, so msg_type is left null. (4) The provided topics goal and cancel are created implicitly by the client; their type is not statically stated, so they have no declares entry (the template requires a type) and are not in not_declared either. (5) The msg elements msg:control_msgs/FollowJointTrajectoryActionGoal (provides), msg:control_msgs/FollowJointTrajectoryActionResult and msg:control_msgs/FollowJointTrajectoryResult (consumes) and field:control_msgs/FollowJointTrajectoryResult.error_code (consumes) are not named anywhere in the excerpt: no message type, goal construction, result handling or error_code access appears. Whether the client uses these definitions depends on the type resolved at run time, so they get no port, no declares or not_declared entry (msg:...ActionGoal could not be determined either way; no definition text is available to hash) and no references entry. Line 2 indicates that MATLAB carries its own copies of standard message definitions, but their text and version are not in the artifact. (6) QoS is null throughout (ROS 1). Frames and units are null: the excerpt shows no message content. (7) exclusive is empty: the excerpt claims no exclusive resource. Permissions and recovery are unknown because the excerpt is a one-line fragment, not the complete code or configuration."
+}

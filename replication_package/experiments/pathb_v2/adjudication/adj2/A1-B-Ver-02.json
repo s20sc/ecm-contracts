@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-B-Ver-02",
+ "kind": "A1",
+ "case_id": "B-Ver-02",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+  "url": "https://answers.ros.org/question/318190/"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "This is usually the case when messages change between versions. `FrankaState`actually changed a while back and this change hasn't been released yet.",
+   "url": "https://answers.ros.org/question/318190/"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+  "url": "https://answers.ros.org/question/318190/"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I find the solution: I forget to rework the CMakeList.txt to add the line franka_msgs in the find_package part ... Thank you for all your help."
+ },
+ "notes": "Independently verified this session. (1) Thread: answers.ros.org blocks curl (Anubis); read via r.jina.ai of https://answers.ros.org/question/318190/ (markdown + full HTML with comments). Error line, reporter subscriber code, mgruhler answer, and all cited comments verified verbatim: 'No this Node is my own, because i need some data from the robot for my application.' (MarkusHHN 2019-03-12 02:50:56), 'Thats the reason, that i rebuild the full current franka_ros package yesterday with no sucess.', and the doubt quote 'even though this is required for the code to compile, this should not lead to the problem of shown above... franka_msgs was obviously found, otherwise it could not have been included in your code. How remains a mystery to me, however :-)' (mgruhler 2019-03-12 03:35:30). (2) Recomputed the genmsg md5s myself (algorithm reproduced from ros/genmsg noetic-devel gentools.py; implementation validated against known std_msgs/Header 2176decaecbce78abc3b96ef049fabed and actionlib_msgs/GoalStatus d388f9b87b3c471f784434d671988d4a): FrankaState@0.6.0 -> ed28b9cbecdc83fa7d31efb59f1ce010 (client's), FrankaState@2489b6c -> 7782ef1d208d3efc42f6a4cc3c41c065 (publisher's). Both match the error log, confirming the UPGRADE story and the inferred consumer_built_against 0.6.0. (3) GitHub: commit 3991f55 (2018-08-24) adds 'uint8 robot_mode' + ROBOT_MODE_* constants to FrankaState.msg with CHANGELOG '## 0.7.0 - UNRELEASED ... * Publish robot_mode in franka_state_controller'; FrankaState.msg at tag 0.6.0 lacks robot_mode, at 2489b6c has it. (4) Revision spot-check: gh api shows commit 3fd3397 (2019-05-27) has parents [2489b6c, 3ee2184], confirming the develop first-parent head before it was 2489b6c; FrankaState.msg at develop-reachable 4498d62 (2019-03-11T12:58Z) is byte-identical to 2489b6c, so the md5 inference is insensitive to that ambiguity. Eligibility stop at 6 is correct: the resolving find_package edit rebuilds the consumer against the provider's changed definition, which the tree counts as interface change, not build-only. Resolution 'observed' is justified: the reporter's own first-person confirmation of the resolved composition (same provider source build, subscriber rebuilt 2019-03-12)."
+}

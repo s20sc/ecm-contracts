@@ -1,0 +1,53 @@
+{
+  "case_id": "C3-022",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/832",
+    "https://github.com/ros2/geometry2/pull/896",
+    "https://github.com/ros2/geometry2/pull/897",
+    "https://github.com/ros2/geometry2/pull/898",
+    "https://github.com/ros2/geometry2/pull/899",
+    "https://github.com/NoeFontana/tf_tree/pull/166"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue geometry2#832 gives a complete reproducer package (CMakeLists.txt, package.xml, tf2_bug_repro_ros2.cpp) and the expected and actual error lines; maintainer kscottz: \"the team took a look at this issue and determined that it is indeed a bug.\" (https://github.com/ros2/geometry2/issues/832#issuecomment-3362275379)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "tf2 (BufferCore, used via tf2_ros::Buffer)",
+        "reporter's tf2_bug_demo_ros2 node"
+      ],
+      "interface_kind": null,
+      "evidence": "The wrong value is an error string that tf2 computes and returns to its own caller from its own traversal logic: \"This happens because TF2's error reporting always prioritizes the error found during the first walk (source to root) over the second walk (target to ancestor).\" (https://github.com/ros2/geometry2/issues/832#issuecomment-3945955866); fix PR #896: \"extrapolation errors incorrectly prioritize metadata gathered during the initial source-to-root traversal (Phase 1). By comparing timestamps from both traversal phases, the error now correctly reports the 'latest data' time for the specific link\". The transforms published into the buffer are correct (the reproducer's broadcaster and listener are in the same process), the canTransform result (false) is correct, and the same wrong message is produced for any client and any transform source with this tree shape, so it is an internal defect of tf2's BufferCore, not a mismatch between two units. The fix is ros2/geometry2#896 (rolling, merge 876d31e6) with backports #897 (kilted), #898 (jazzy), #899 (humble). The NoeFontana/tf_tree refs in the packet (PR #166 and commits 8a63758b, ab3bf9ea, b0499743) are README documentation commits in a separate project that mention \"ros2/geometry2#832 fixed via PR #896\"; they are not part of the fix."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E2 step 2)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E2 step 2). The issue shows the misleading message (\"the latest data is at time 1758300895.486031\" instead of the 100 ms-old stamp)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

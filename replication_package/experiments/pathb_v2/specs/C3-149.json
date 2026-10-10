@@ -1,0 +1,96 @@
+{
+  "case_id": "C3-149",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/761",
+    "https://github.com/ros2/rclcpp/pull/2556",
+    "https://github.com/ros2/rclcpp/pull/2580",
+    "https://github.com/ros2/rmw_fastrtps/pull/770",
+    "https://github.com/ros2/rmw_fastrtps/blob/8.5.0/rmw_fastrtps_shared_cpp/src/rmw_service.cpp",
+    "https://github.com/ros2/rmw_fastrtps/blob/8.5.0/rmw_fastrtps_shared_cpp/src/rmw_publish.cpp",
+    "https://github.com/moveit/moveit_task_constructor/blob/bb047c894cd2a395a672abdd47ec76d709d1cb1e/core/src/introspection.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter gives reproduction steps (moveit_task_constructor at bb047c8 in the moveit/moveit2:rolling-source image) and the log \"cannot publish data, at ./src/rmw_publish.cpp:66 during '__function__'\" / \"Fail in delete datareader, at ./src/rmw_service.cpp:89 during '__function__'\" with \"process has died [pid 5393, exit code -11 ...]\"; maintainer Barry-Xu-2018 reproduced it (\"I can produce this issue\") and traced it with a backtrace (https://github.com/ros2/rmw_fastrtps/issues/761)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rclcpp", "rmw_fastrtps"],
+      "interface_kind": "library API",
+      "evidence": "Two separately released libraries in one process: rclcpp's executor keeps ownership of node entities after cancel and releases them only when the (static) executor is destroyed; the destruction then calls into the rmw implementation (through rcl) to publish/destroy entities, after Fast DDS's DomainParticipantFactory singleton used by rmw_fastrtps has already been torn down by its own static destructor. Maintainer: \"For fastdds, when the program ends, fastdds resources start to release by Destructor. Note that the destruction of the static executor happens after this process.\" The failure depends on the peer: \"when I switched to CycloneDDS, no issues came up\" and \"I believe it's because cyclonedds doesn't release its resources when the program exits (fastdds use Destructor).\" A lifetime/teardown-order assumption crosses the rmw API boundary, so it is not internal; no wiring, build, or firmware change resolves it."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: rclcpp (via rcl) drives rmw_fastrtps's rmw API calls (rmw_publish, rmw_destroy_service) during process teardown; the calls reach rmw_fastrtps after its Fast DDS factory is gone."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"Binary throws error message and segfaults\" at shutdown (https://github.com/ros2/rmw_fastrtps/issues/761)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclcpp",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rclcpp",
+      "broken_rev": "d8d83a0ee67b7b6427defc802005c382b218459d",
+      "resolved_rev": "069a0018935b33a14632a1cdf4074984a1cf80fe",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter ran the moveit/moveit2:rolling-source image in late May 2024 and gives no rclcpp revision. The maintainer's diagnosis links rolling commit d8d83a0ee67b7b6427defc802005c382b218459d (2024-05-30) as the executor code responsible (executor_entities_collector.cpp L110-L133, executor.cpp L888); it is used as the broken revision. Between the report date's rolling head 22df1d59 (2024-05-24) and d8d83a0e the only change is LifecycleNode destructor handling (#2545). Resolved: merge commit of ros2/rclcpp#2556 on rolling (2024-07-10); jazzy backport #2580 = d73fc2a86a73f52346682d9ad01cf3544d3f0f01.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "rmw_fastrtps",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rmw_fastrtps",
+      "broken_rev": "8.5.0",
+      "resolved_rev": "8.5.0",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter states \"Installation type: deb package\" and \"Version or commit hash: 8.5.0\" in the rmw_fastrtps issue template; tag 8.5.0 = 21e6a44a2ef25ce51ece019b255427a0248fad65 (2024-04-26), whose rmw_service.cpp line 89 is RMW_SET_ERROR_MSG(\"Fail in delete datareader\") and whose rmw_publish.cpp sets \"cannot publish data\", matching the log. Resolved: the minimal resolving change (rclcpp#2556) does not touch rmw_fastrtps, so it keeps 8.5.0. The later provider-side mitigation ros2/rmw_fastrtps#770 (merge 9d2150ffc1b549d0adc71971b7f350e325b61340, 2024-10-14) is recorded in notes.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:rmw_create_node", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_destroy_node", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_create_publisher", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_publish", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_destroy_publisher", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_create_service", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_destroy_service", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_create_subscription", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_destroy_subscription", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_wait", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:rmw_publish", "api:rmw_destroy_service"],
+      "quote": "For fastdds, when the program ends, fastdds resources start to release by Destructor. \nNote that the destruction of the static executor happens after this process. This results in an exception when the executor tries to access fastdds resources during its destruction.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/761#issuecomment-2146876252"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only diagnostics are runtime error prints from the rmw layer and a crash at process exit: \"cannot publish data, at ./src/rmw_publish.cpp:66 during '__function__'\", \"Fail in delete datareader, at ./src/rmw_service.cpp:89 during '__function__'\", \"process has died [pid 5393, exit code -11, ...]\" (https://github.com/ros2/rmw_fastrtps/issues/761). No build, connection, or activation diagnostic flags the teardown-order assumption.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "rclcpp executors reset wait_result_ in the scope-exit of spin/spin_some/spin_once/spin_until_future_complete, so entity ownership is released as soon as spinning is cancelled rather than at executor destruction (ros2/rclcpp#2556, backport #2580).",
+    "status": "recommended",
+    "evidence": "Maintainer: \"Before return, `wait_result_.reset()` should be called. ... The above modification can also fix this issue.\" (https://github.com/ros2/rmw_fastrtps/issues/761#issuecomment-2154398672); #2556 adds test release_ownership_entity_after_spinning_cancel. The reporter's own confirmation is for a different change in a third unit: \"Removing the static executor resolves the issue for me.\" No run of the MTC test with rclcpp 069a0018 and rmw_fastrtps is shown."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Three components are involved: moveit_task_constructor's static IntrospectionExecutor (core/src/introspection.cpp L160 at bb047c89) triggers the late destruction; rclcpp's executor keeps entity ownership after cancel (maintainer attributes the Rolling-only regression to ros2/rclcpp#2143: \"While removing node, it will be put into pending_removed_nodes_ ... This leads node isn't removed. While executor is destructed, this node will be removed.\"); rmw_fastrtps/Fast DDS releases its factory in a static destructor. The composition specified is rclcpp <-> rmw_fastrtps because both listed fixes act on that boundary. Other compositions/fixes: MTC <-> rclcpp (the reporter removed the static executor, which resolved it for him; could be read as an UPGRADE of rclcpp from humble/iron behaviour, since \"Humble and Iron don't exhibit this issue\"); rmw_fastrtps#770 makes each CustomParticipantInfo hold DomainParticipantFactory::get_shared_instance() so the factory outlives all contexts (provider-side mitigation, merged after the issue was closed; its description does not cite #761). rclcpp reaches the rmw functions through rcl and rmw_implementation; the api: elements name the rmw symbols. The maintainer also observed an execution freeze in his environment, which the reporter never saw. A workaround noted by the reporter was calling quick_exit()."
+}

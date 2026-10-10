@@ -1,0 +1,52 @@
+{
+ "case_id": "C3-043",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/moveit/moveit2/issues/2911",
+  "https://github.com/moveit/moveit/pull/3624",
+  "https://github.com/moveit/moveit/pull/3621",
+  "https://github.com/moveit/moveit2/pull/2920",
+  "https://github.com/moveit/moveit2/pull/2921"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Reporter gives a backtrace ending \"[move_group-3] #0    Object \"/home/graeme/ws_moveit2/install/chomp_motion_planner/lib/libchomp_motion_planner.so.2.5.5\", at 0x76759dbaa094, in chomp::ChompOptimizer::initialize()\" and \"[move_group-3] Segmentation fault (Address not mapped to object [0x28])\" (https://github.com/moveit/moveit2/issues/2911); a second user reproduces with CHOMP and Pilz (https://github.com/moveit/moveit2/issues/2911#issuecomment-2238068468); maintainer confirms and links fixes: \"This looks like https://github.com/moveit/moveit/issues/2542. Please try https://github.com/moveit/moveit/pull/3621 for CHOMP.\" (https://github.com/moveit/moveit2/issues/2911#issuecomment-2238571476)."
+  },
+  "E2": {
+   "pass": false,
+   "stop_step": 2,
+   "reason_code": "internal",
+   "units_identified": [
+    "chomp_motion_planner (CHOMP planner plugin)",
+    "moveit_ros_move_group (move_group host)"
+   ],
+   "interface_kind": null,
+   "evidence": "The crash is in the planner's own traversal of the robot model. The CHOMP fix (PR #3621, forward-ported in moveit2 PR #2920) rewrites the loop in ChompOptimizer::initialize(); the removed code unconditionally stepped to the parent: \"-          parent_model = parent_model->getParentLinkModel()->getParentJointModel();\" and the fix adds a root check: \"+        if (parent_model->getParentLinkModel() == nullptr) / +          break;\" (https://github.com/moveit/moveit2/pull/2920/files). The same PR also fixes CHOMP's own mimic-joint handling: \"-  state_.setJointGroupPositions(planning_group_, joint_states); / +  state_.setJointGroupActivePositions(planning_group_, joint_states);\". The Pilz crash reported in a comment is a null dereference inside the planner when the group has no IK solver: \"-    info.link_name = robot_model_->getJointModelGroup(req.group_name)->getSolverInstance()->getTipFrame();\" with the fix \"+      ROS_ERROR_STREAM(\"No IK solver defined for group '\" << req.group_name << \"'\");\" (https://github.com/moveit/moveit/pull/3624/files). In both, no value crossing a unit boundary is wrong: the robot model / group configuration is valid (a gripper group without an IK solver, a chain whose root is not in the group), and any correct peer would expose the same model; the planner's own logic dereferences past the root or a null solver. This is a crash in one unit's own logic."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: RViz MotionPlanning panel sends a MoveGroup plan request that move_group forwards to the planner: \"Planning request received for MoveGroup action. Forwarding to planning pipeline.\" (https://github.com/moveit/moveit2/issues/2911)."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed crash: \"[ERROR] [move_group-3]: process has died [pid 12214, exit code -11, cmd '/home/graeme/ws_moveit2/install/moveit_ros_move_group/lib/moveit_ros_move_group/move_group --ros-args --params-file /tmp/launch_params_tgxu72eh --params-file /tmp/launch_params_gj6cqp77'].\" (https://github.com/moveit/moveit2/issues/2911)."
+  }
+ },
+ "eligible": false,
+ "ineligible_reason": "E2 step 2 (internal): segmentation faults inside the planner plugins' own logic (CHOMP kinematic-tree traversal past the root; Pilz dereferencing a null IK solver for a group that has none) for a valid planning-group configuration; no value crossing a unit boundary is wrong.",
+ "units": null,
+ "operation": null,
+ "consumer_built_against": null,
+ "inventory": null,
+ "failed_conditions": null,
+ "outcome_class": null,
+ "loudness": null,
+ "loudness_evidence": null,
+ "detection_stage": null,
+ "resolution": null,
+ "ros_generation": null,
+ "excerpt_based": null,
+ "confidence": null,
+ "notes": "ROS 2 Humble, MoveIt 2.5.5 from source (reporter) and binary (commenter). The issue title says OMPL/CHOMP but the reporter's log shows the crash in chomp::ChompOptimizer::initialize() (CHOMP), and the reporter later says \"the segmentation fault issue happens no matter the planner. Same error occurs using Pilz\" (https://github.com/moveit/moveit2/issues/2911#issuecomment-2229688690). Fixes: moveit PR #3621 (CHOMP, merge 7a51eeae283512e8f4364bdd1fab009bd7e7a93d), moveit PR #3624 (Pilz LIN, merge ad2ce6a27d0790aa0da32c38c95cbcf8b042f6bf), moveit2 PR #2920 (forward ports incl. CHOMP fix and CHOMP mimic-joint fix, merge cd59367e939c2b01c94b73fd68afaf7f59134fd1, body \"Fixes #2911 (OMPL part)\"), moveit2 PR #2921 (Pilz part on humble, merge d583c0403b4a6c5c93b3ddceb17b5899854ed5d5). An alternative reading of the Pilz part as a moveit_core API contract issue (getSolverInstance() may return null) was considered and rejected: the null return is the provider's correct behaviour for a group without a solver, so the crash would occur with any correct peer. Confidence in ineligibility: medium-high."
+}

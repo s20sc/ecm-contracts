@@ -1,0 +1,125 @@
+{
+  "case_id": "C3-062",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/image_transport_plugins/issues/140",
+    "https://github.com/ros-perception/image_transport_plugins/pull/142",
+    "https://github.com/ros-perception/image_transport_plugins/pull/143",
+    "https://github.com/ros-perception/image_transport_plugins/pull/144",
+    "https://github.com/ros-perception/image_transport_plugins/pull/145",
+    "https://github.com/ros-perception/image_transport_plugins/pull/146",
+    "https://github.com/ros-perception/image_transport_plugins/commit/9965df17c242440fdbebc3d5f359bf71b840ba93",
+    "https://github.com/ros-perception/image_transport_plugins/commit/56d4a65878b2f4b58bdb8707838356756efdbd0b",
+    "https://github.com/Extend-Robotics/image_transport_plugins/commit/55cfc45293ffbad533ea3b3cc282e478944d84bc",
+    "https://github.com/Extend-Robotics/image_transport_plugins/commit/58b7f6fd9b34bea6442f6c1207af715c73325fef",
+    "https://github.com/Extend-Robotics/image_transport_plugins/commit/9cc9441f2d2cef84bd6c43003af70f8bef2eec97",
+    "https://github.com/Extend-Robotics/image_transport_plugins/commit/dfdf48bc85f757434f8eefe6702e84ee21db5a81",
+    "https://github.com/Extend-Robotics/image_transport_plugins/commit/b7d409f3d2778c6b5d5dd086893888d3f8357308",
+    "https://github.com/Extend-Robotics/image_transport_plugins/commit/0aab36f4eef2c07cd1c2d37fda8dc06403954402"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #140 shows the declared names with `ros2 param list` on the reporter's camera node (\".color.image_raw.format\", \".color.image_raw.jpeg_quality\", \".color.image_raw.png_level\") against the documented `<base topic>/<transport name>/<parameter name>` form, and maintainers confirm the defect: \"I had no intention to declare parameters against documentation. Most probably a mistake.\" (lukaszmitka) and \"I would agree that this is likely a mistake.\" (mjcarroll)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "compressed_image_transport",
+        "transport_parameter_consumer"
+      ],
+      "interface_kind": "parameter",
+      "evidence": "Step 1: compressed_image_transport (the publisher plugin that declares its parameters on the host node) and a separately built consumer that sets those parameters by the documented, transport-scoped names (host-node configuration or parameter client; not identified in the source). Step 2: the defect is a parameter name crossing the boundary: at the humble revision the plugin declares `param_base_name + \".format\"` / `\".png_level\"` / `\".jpeg_quality\"` without the transport name, whereas the documented convention (and the ROS1 revision of the same plugin, whose dynamic_reconfigure server lives in the transport's own namespace) places them under `<base>/compressed/`. Step 3: the resolving change renames the provider's declared parameters (a provider rename the consumer must follow), not deployment wiring. Step 4/5: not build or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the reporter frames the defect as a ROS1-to-ROS2 migration deviation (\"Is there a reason this was not taken into account when migrating from ROS1 to ROS2?\"); a consumer written against the ROS1 compressed_image_transport interface (parameters under the transport namespace) meets the ROS2 humble provider whose names dropped the transport segment. Other readings are listed in notes (PAIR with a configuration following the documentation; CONCURRENT name clash between two transport plugins)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "No failed interaction is observed; the mismatch is stated at code level and confirmed by maintainers (\"I had no intention to declare parameters against documentation. Most probably a mistake.\"). Outcome class undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "compressed_image_transport",
+      "role": "provider",
+      "repo": "https://github.com/ros-perception/image_transport_plugins",
+      "broken_rev": "ef9442d8e92c14dcb5ed9023b9577e6d9e5cad39",
+      "resolved_rev": "3.2.0",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distros (\"Current behavior (ROS2 foxy and humble)\"); the humble branch head on the issue date (2023-03-30) was ef9442d8e92c14dcb5ed9023b9577e6d9e5cad39 (2022-11-10, after tag 2.5.0), whose compressed_publisher.cpp declares `param_base_name + \".format\"`, `\".png_level\"`, `\".jpeg_quality\"`. The fix (#143 publisher, merge 2bc3a64117c78df7c43898d099914134caf65f3e; #144 subscriber, merge b8ac0b4f67ecd2fe544fd1182c280cc7382d401c) was merged to rolling and released for rolling as tag 3.2.0 (b95daa8e7517bde3ef90d6f698f6e55149e3e336, 2023-05-08); iron tag 3.1.0 also contains #143 and #144. It was never merged to the humble branch (compare humble...#143 merge = diverged), so there is no humble resolved revision.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "transport_parameter_consumer",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2023-03",
+      "resolved_rev": "as-reported-2023-03",
+      "pinned": false,
+      "revision_basis": "No consuming configuration or tool is identified or quoted; the reporter's host node is a RealSense camera node (/camera/camera, per the PR #142 example with realsense2_camera), whose own configuration of these parameters is not shown. The resolution does not change the consumer.",
+      "excerpt": true,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "1.15.0",
+    "resolved": "1.15.0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {
+      "element": "param:.color.image_raw.compressed.format",
+      "sides": {
+        "compressed_image_transport": "provides",
+        "transport_parameter_consumer": "consumes"
+      }
+    },
+    {
+      "element": "param:.color.image_raw.compressed.jpeg_quality",
+      "sides": {
+        "compressed_image_transport": "provides",
+        "transport_parameter_consumer": "consumes"
+      }
+    },
+    {
+      "element": "param:.color.image_raw.compressed.png_level",
+      "sides": {
+        "compressed_image_transport": "provides",
+        "transport_parameter_consumer": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": [
+        "param:.color.image_raw.compressed.format",
+        "param:.color.image_raw.compressed.jpeg_quality",
+        "param:.color.image_raw.compressed.png_level"
+      ],
+      "quote": "I had no intention to declare parameters against documentation. Most probably a mistake.",
+      "url": "https://github.com/ros-perception/image_transport_plugins/issues/140"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No failure is observed; the report compares `ros2 param list` output with the documented names (\"# this is artificial, what I would expect\").",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Declare transport-scoped parameters `<image>.<transport>.<param>` (e.g. `.color.image_raw.compressed.jpeg_quality`) in the compressed publisher and subscriber, keep the unscoped names as deprecated aliases synchronized to the scoped ones, and warn when a deprecated name is set (#143, #144; analogous changes for compressed_depth_image_transport #145 and theora_image_transport #146). Released for rolling (3.2.0) and iron (3.1.0); not backported to humble.",
+    "status": "recommended",
+    "evidence": "No consumer configuration is shown working against the fixed provider. PR #142 (foxy-devel variant, not merged) shows realsense2_camera_node declaring both forms and warning, e.g. \"parameter `.color.image_raw.format` is deprecated; use transport qualified name `.color.image_raw.compressed.format`\"; PR #144 shows a screenshot with a camera driver, rqt_image_view and rqt_reconfigure \"dynamically changing through deprecated and new parameter\", without revisions."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "low",
+  "notes": "Choice of composition: the issue reports one plugin's parameter names deviating from the documented convention and asks why this was not followed \"when migrating from ROS1 to ROS2\"; no consuming unit or failure is documented, so the consumer is an unidentified excerpt unit with an empty section and the ROS1 revision 1.15.0 (7825def310eaab518da912bc491266e76eda8742, noetic) is an inferred built-against revision whose declarations match the documented form. The provider section for 1.15.0 quotes compressed_image_transport/cfg/CompressedPublisher.cfg (https://github.com/ros-perception/image_transport_plugins/blob/1.15.0/compressed_image_transport/cfg/CompressedPublisher.cfg) and the reconfigure-server line of compressed_image_transport/src/compressed_publisher.cpp (https://github.com/ros-perception/image_transport_plugins/blob/1.15.0/compressed_image_transport/src/compressed_publisher.cpp), plus the documentation lines the reporter quotes in #140 from the ROS1 image_transport wiki. Inventory names use the reporter's expected form on its camera node; ROS 2 uses '.' where ROS 1 uses '/'. Other compositions: (1) PAIR with a ROS 2 configuration that follows the documentation, same mismatch; (2) CONCURRENT clash between two transport plugins sharing `<base>.<param>` names, which the reporter raises with a hypothetical peer plugin named `my_transport` (\"There is a clash between transports on parameter namespace.\") and which the fix PRs give as a reason (\"avoiding clash between parameters from image_transport plugins\"). No such clash existed among the released plugins at the broken revision: compressed_depth_image_transport then read an undeclared root-level parameter (`node->get_parameter_or<int>(\"png_level\", config_.png_level, kDefaultPngLevel);`) and theora uses different names; PR #145 notes that the deprecated names it introduces do clash (\"Both plugins use `png_level` and clash on deprecated parameter name as mentioned in #140\"). The Extend-Robotics fork commits are the PR branch commits; ros-perception 9965df17 is the iron cherry-pick of the compressedDepth change and 56d4a658 a cherry-pick of the theora change. The issue was reopened and finally closed 2023-05-12 after #145/#146."
+}

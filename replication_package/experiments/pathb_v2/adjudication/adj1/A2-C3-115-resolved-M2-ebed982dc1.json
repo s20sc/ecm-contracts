@@ -1,0 +1,26 @@
+{
+  "item_id": "A2-C3-115-resolved-M2-ebed982dc1",
+  "kind": "A2",
+  "case_id": "C3-115",
+  "composition": "resolved",
+  "method_label": "M2",
+  "rule": "di_definition_mismatch",
+  "values": [
+    {
+      "path": "producer.outputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0371/snapshot/nav2_msgs/action/FollowPath.action:1 [lines 1-24]\n```\n# Error codes\n# Note: The expected priority order of the errors should match the message order\nuint16 NONE=0\nuint16 UNKNOWN=100\nuint16 INVALID_CONTROLLER=101\nuint16 TF_ERROR=102\nuint16 INVALID_PATH=103\nuint16 PATIENCE_EXCEEDED=104\nuint16 FAILED_TO_MAKE_PROGRESS=105\nuint16 NO_VALID_CONTROL=106\n\n#goal definition\nnav_msgs/Path path\nstring controller_id\nstring goal_checker_id\nstring progress_checker_id\n---\n#result definition\nstd_msgs/Empty result\nuint16 error_code\n---\n#feedback definition\nfloat32 distance_to_goal\nfloat32 speed\n```\nRecomputed sha256_normalised: e019de7b50bb059127fee0663d1495d72b8c8e7faf121d40c9e547a611a8ec57."
+    },
+    {
+      "path": "consumer.inputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0370/snapshot/nav2_msgs/action/FollowPath.action:1 [lines 1-29]\n```\n# goal definition\nnav_msgs/Path path\nstring controller_id\nstring goal_checker_id\nstring progress_checker_id\nstring path_handler_id\n---\n# result definition\n\n# Error codes\n# Note: The expected priority order of the errors should match the message order\nuint16 NONE=0\nuint16 UNKNOWN=100\nuint16 INVALID_CONTROLLER=101\nuint16 TF_ERROR=102\nuint16 INVALID_PATH=103\nuint16 PATIENCE_EXCEEDED=104\nuint16 FAILED_TO_MAKE_PROGRESS=105\nuint16 NO_VALID_CONTROL=106\nuint16 CONTROLLER_TIMED_OUT=107\n\nstd_msgs/Empty result\nuint16 error_code\nstring error_msg\n---\n# feedback definition\n# Real-time tracking error indicating which side of the path the robot is on\n# If the tracking_error is positive, the robot is to the left of the path\nnav2_msgs/TrackingFeedback tracking_feedback\n```\nRecomputed sha256_normalised: b789a494a89017d4245cc676ca334897f4d4416d307e31b78757d69041b1a228."
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specification pairs controller_server 1.2.9 with the revised bt_navigator commit. The server offers follow_path and the BT plugin constructs a client for that same action name; the provider-to-consumer view describes the server action interface, including result/feedback, not the goal-request direction. The revisions match the specified recommended resolved composition. Matching names establish the intended source-level edge, not successful discovery or wire compatibility across these changed definitions.\nsnapshot:specs/C3-115.json:58 [lines 58-58]\n```\n  \"operation\": \"PAIR\",\n```\nsnapshot:s2_work/tasks/u0371/snapshot/nav2_controller/src/controller_server.cpp:242 [lines 242-245]\n```\n    action_server_ = std::make_unique<ActionServer>(\n      shared_from_this(),\n      \"follow_path\",\n      std::bind(&ControllerServer::computeControl, this),\n```\nsnapshot:s2_work/tasks/u0370/snapshot/nav2_behavior_tree/plugins/action/follow_path_action.cpp:136 [lines 136-141]\n```\n      return std::make_unique<nav2_behavior_tree::FollowPathAction>(\n        name, \"follow_path\", config);\n    };\n\n  factory.registerBuilder<nav2_behavior_tree::FollowPathAction>(\n    \"FollowPath\", builder);\n```"
+  },
+  "notes": "Hashes were recomputed from the actual two task snapshots. The fixed main-branch snapshot also changes the action definition (including path_handler_id, error_msg and tracking_feedback); it is not an isolated timeout patch applied to the Iron action definition. This does not establish an observed successful fixed runtime, nor does it change the evidence for the original timeout. No changed_fields trigger is present, so substance is empty.\nsnapshot:definition_hash.py:94 [lines 94-96]\n```\ndef sha256_normalised(path):\n    lines = [l.split(\"#\", 1)[0].rstrip() for l in open(path).read().splitlines()]\n    return hashlib.sha256(\"\\n\".join(l for l in lines if l.strip()).encode()).hexdigest()\n```"
+}

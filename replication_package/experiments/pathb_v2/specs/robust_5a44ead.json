@@ -1,0 +1,47 @@
+{
+  "case_id": "robust_5a44ead",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/270",
+    "https://github.com/yujinrobot/kobuki/issues/270#issuecomment-18727228",
+    "https://github.com/yujinrobot/kobuki/commit/5a44eadd3b6ef0f2cb29f057b3e1cdb93205c954"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Report by yichoe (Yujin): \"For hydro-devel in Windnows, Kobuki does not give a beep when we run one of sample  - demo_kobuki_initialisation.exe. However, Kobuki gives a beep when we add a spin function calling sleep repeatedly after initialization of Kobuki.\"; maintainer diagnosis: \"Ah, program finishes and closes the serial device before it transmits the commands in the buffer?\"; fix 5a44eadd 'delay demo program finish so kobuki can beep alive, closes #270' adds '#include <ecl/time.hpp>' and 'ecl::Sleep()(5);' before 'return 0;' in kobuki_driver/src/test/initialisation.cpp."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["kobuki_driver", "kobuki firmware"],
+      "interface_kind": null,
+      "evidence": "Step 1: the demo program (kobuki_driver/src/test/initialisation.cpp) and the driver library it links are both part of the kobuki_driver package and interact through direct linking, not through ROS interfaces, so they form one unit; the only other unit in the composition is the robot's firmware on the serial link. Step 2: the failure does not depend on any assumption between kobuki_driver and the firmware and would occur with any correct firmware peer: the demo's main() constructs KobukiManager (which calls kobuki.init(parameters)) and returns immediately, so the process closes the serial device before the driver's own thread has written the buffered command; nothing reaches the robot at all (\"program finishes and closes the serial device before it transmits the commands in the buffer\"). The resolving change is a 5-second sleep inside the same package's demo, i.e. the defect is in the unit's own control flow."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Not reached (E2 stops at step 2). The composition kobuki_driver -> firmware would be PAIR."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Not reached (E2 stops at step 2). The effect is documented: no beep from the robot."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): the demo program and the driver library are the same package (kobuki_driver) linked directly, hence one unit; against the only separate unit, the robot firmware, no interface assumption is violated because the command is never transmitted (the process exits and closes the port first). Evidence: parent revision 2feee068 initialisation.cpp ends 'int main() {\\n  KobukiManager kobuki_manager;\\n  return 0;\\n}' and the fix inserts 'ecl::Sleep()(5);' before the return.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Alternative reading: if the demo program were treated as a separate consumer of the kobuki_driver library API (as an external program would be), the case would be a PAIR with a timing assumption on the library API (init() and command transmission are asynchronous on the driver's serial thread; a caller must keep the process alive), class 'other', outcome failure, silent, run-stage, resolution recommended. It is rejected here because the demo ships inside the driver package (kobuki_driver/src/test/initialisation.cpp) and is not separately deployable. The report concerns the Windows build of hydro-devel (\"For hydro-devel in Windnows\"); the fix (2013-05-31, parent 2feee068) is contained in tag 0.4.0 and later. The observation that adding a sleep loop restores the beep is the reporter's own experiment, not a statement about the firmware interface."
+}

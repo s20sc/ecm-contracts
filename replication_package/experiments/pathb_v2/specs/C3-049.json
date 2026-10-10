@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-049",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/864",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/883",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/882",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/b0d0d711931d8ab7a5f079f948ced8875b4dc5d9/rosbridge_library/src/rosbridge_library/internal/cbor_conversion.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #864 gives a full reproducer (roslaunch rosbridge_websocket, rostopic pub of sensor_msgs/NavSatFix, a Python autobahn client subscribing with 'compression': 'cbor') and the error log: \"[MultiSubscriber.callback]: Exception calling subscribe callback: 'float' object has no attribute '__slots__'\". Reporter: \"Library Version: 0.11.16 - ROS Version: ROS 1 Noetic\". https://github.com/RobotWebTools/rosbridge_suite/issues/864"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rosbridge_server/rosbridge_library (cbor_conversion)", "sensor_msgs/NavSatFix publisher (rostopic pub) and the CBOR-requesting WebSocket client"],
+      "interface_kind": null,
+      "evidence": "The crash is in rosbridge_library's own CBOR encoder. It matches the genpy slot type string against a fixed table that only lists variable-length array spellings: \"TAGGED_ARRAY_FORMATS = { ... 'float32[]': (85, '<{}f'), 'float64[]': (86, '<{}d'), }\" (cbor_conversion.py at b0d0d711). A fixed-length field such as NavSatFix.position_covariance has slot type 'float64[9]', which is the correct ROS 1 spelling, so it falls through to the \"array of messages\" branch \"out[slot] = [extract_cbor_values(i) for i in val]\" and recurses into floats. Reporter: \"in that dict, the syntax supported is only for variable length arrays ... While in this case, the variable `slot_type` has the value: `float64[9]`\" and \"Replacing `float64[]` by `float64[9]` works but is obviously not generic.\" Nothing wrong crosses the boundary: the publisher, the message definition and the client request are all correct, and any correct publisher of a message with a fixed-length numeric array (with any correct client requesting cbor) triggers the same crash. This is a missing case in one unit's own serialization logic."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: rosbridge subscribes to /nav (published by rostopic pub) and forwards it CBOR-encoded to the WebSocket client; the failure occurs in the subscribe callback."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"The rosbridge server fails wit the error: [MultiSubscriber.callback]: Exception calling subscribe callback: 'float' object has no attribute '__slots__'\"."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: rosbridge_library's CBOR encoder does not recognise fixed-length array slot types (e.g. 'float64[9]') and crashes on any correct message containing one; no mismatched value, name, frame or timing crosses a unit boundary.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "The packet's fix reference PR #883 ('Handle ROS 2 types properly', merged 2023-10-27 into ros2 as 910163bd) changes only rosapi/objectutils.py typedef building and does not touch cbor_conversion.py; its body says 'Fixes #834 #822 #821'. Issue #864 was closed by the stale bot as not_planned on 2024-07-31 with no fix. PR #882 (501a926c, ros2 branch) rewrote the table keys to 'sequence<double>' etc., which still would not match a fixed-length ROS 2 array type string such as 'double[9]'; later ros2 commits (97a2434f 'Replace cbor with cbor2 library, remove inline implementation') were not examined because the case stops at E2. Alternative reading considered: the genpy slot-type string crossing from the generated message class into rosbridge could be treated as a representation convention, but the string is correct per the ROS 1 type system and the defect is rosbridge's incomplete handling, so it is classified internal. ROS 1 Noetic, rosbridge 0.11.16; reporter states the ros2 branch has the same issue."
+}

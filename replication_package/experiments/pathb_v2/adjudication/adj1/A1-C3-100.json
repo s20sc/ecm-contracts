@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-C3-100",
+  "kind": "A1",
+  "case_id": "C3-100",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This issue happens when a single node subscribes to a topic multiple times and each subscriber has a different message type.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/111",
+    "reason": "E1/E4: a five-step rviz reproducer and RCLError are provided. E2: rviz requests differently typed subscriptions through the separately released Cyclone RMW; the refusal depends on the requested topic/type combinations, not an arbitrary correct peer. It is not a mere remap: the backend rejects the requested same-name multi-type interface composition. E3: PAIR at the rviz-to-RMW library API. Stop at 6."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "This issue happens when a single node subscribes to a topic multiple times and each subscriber has a different message type.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/111",
+      "reason": "Agree nominal_type_mismatch and the /test subscription API with PoseStamped and Marker. The reproduced Pose and Marker displays request different nominal message types on the same topic. This is a local API/topic-creation refusal, not proof that a wrong-typed publisher was connected.",
+      "additional_evidence": [
+        {
+          "quote": "3. Change the Pose plugin's topic to `/test`\r\n4. Change the Marker plugin's topic to `/test`",
+          "url": "https://github.com/ros2/rmw_cyclonedds/issues/111"
+        },
+        {
+          "quote": "  rviz_common::MessageFilterDisplay<geometry_msgs::msg::PoseStamped>",
+          "url": "https://raw.githubusercontent.com/ros2/rviz/7.0.4/rviz_default_plugins/include/rviz_default_plugins/displays/pose/pose_display.hpp"
+        },
+        {
+          "quote": "  : public rviz_common::MessageFilterDisplay<visualization_msgs::msg::Marker>",
+          "url": "https://raw.githubusercontent.com/ros2/rviz/7.0.4/rviz_default_plugins/include/rviz_default_plugins/displays/marker/marker_display.hpp"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "what():  could not create subscription: failed to create topic, at /tmp/binarydeb/ros-eloquent-rmw-cyclonedds-cpp-0.4.4/src/rmw_node.cpp:1446, at /tmp/binarydeb/ros-eloquent-rcl-0.8.4/src/rcl/subscription.c:168",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/111",
+    "reason": "The second subscription creation raises an explicit RCLError before message exchange. Therefore loud_documented at activation, not silent runtime message corruption."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "what():  could not create subscription: failed to create topic, at /tmp/binarydeb/ros-eloquent-rmw-cyclonedds-cpp-0.4.4/src/rmw_node.cpp:1446, at /tmp/binarydeb/ros-eloquent-rcl-0.8.4/src/rcl/subscription.c:168",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/111",
+    "reason": "The documented failure is detected at activate, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Given the age of this, and that we think there was a fix, I'm going to go ahead and close it out.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/111#issuecomment-1589913147",
+    "reason": "Agree recommended: the maintainer recommends the Cyclone/#96/#114 changes, but the reporter tests only older binaries and still sees the crash. Related ros1_bridge success involves same-message C/C++ mappings, not this rviz Pose/Marker composition. Closure does not demonstrate the proposed resolved pair working."
+  },
+  "notes": "Read #111 and all comments, #72, #96, #114, Cyclone #382, and the rviz 7.0.4 Pose/Marker display declarations. The library API restriction explains eligibility even though both subscription requests originate in one application. Related cross-language fixes must not be promoted into observed resolution of two different nominal types."
+}

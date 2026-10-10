@@ -1,0 +1,96 @@
+{
+  "case_id": "C3-141",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/2121",
+    "https://github.com/ros-controls/ros2_control/pull/2129",
+    "https://github.com/ros-controls/ros2_control/commit/def08f0b01b328dc8d8b3312f8094e1d64986b57",
+    "https://github.com/ros-controls/ros2_control/pull/2038",
+    "https://github.com/ros-controls/ros2_control/commit/465e5d0264dcaca71858022ec907a85cba45f811"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue with a crash log (\"[ros2_control_node-2] Segmentation fault (Address not mapped to object [0x80])\" in \"four_wheel_steering::OdometryProvider::update_and_write_commands\" -> \"hardware_interface::Handle::set_value<double>(double const&)\") and the reporter's exporting code. Maintainer confirmation: \"You are right. This was recently introduced in https://github.com/ros-controls/ros2_control/commit/465e5d0264dcaca71858022ec907a85cba45f811.\" (https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747220409)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["ros2_control", "drive_controller"],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the reporter's chainable controller plugin (four_wheel_steering::OdometryProvider in libodometry_provider.so, package drive_controller, built in the reporter's workspace) and its host framework ros2_control (controller_interface / hardware_interface, installed from /opt/ros/jazzy) are separate units (a plugin and its host framework). Step 2: the key under which the framework stores the plugin's exported state interfaces crosses the boundary; the plugin indexes the framework-owned map exported_state_interfaces_ with a key in the older convention. PR #2038 (465e5d02) changed the provider from \"const auto interface_name = state_interface->get_interface_name();\" to \"const auto interface_name = state_interface->get_name();\" before \"exported_state_interfaces_.insert({interface_name, state_interface});\". A consumer using the full name works (the reporter's resolution), so it does not occur with any correct peer. Step 3/4/5: no deployment rename, build, or firmware change."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: reporter: \"Though before the last update it worked without the node name perfectly fine.\" (https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747169475); maintainer: \"This was recently introduced in ... 465e5d0264dcaca71858022ec907a85cba45f811\" and \"We merged this kind of breaking change in Jazzy.\" (https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747238062)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"[ERROR] [ros2_control_node-2]: process has died [pid 242339, exit code -11, cmd '/opt/ros/jazzy/lib/controller_manager/ros2_control_node ...\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "ros2_control",
+      "role": "provider",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "4.27.0",
+      "resolved_rev": "4.27.0",
+      "pinned": true,
+      "revision_basis": "The reporter runs Jazzy binaries (/opt/ros/jazzy/lib/libcontroller_interface.so, /opt/ros/jazzy/lib/controller_manager/ros2_control_node) and reports on 2025-03-20 without a version number. The crash trace instantiates the templated \"hardware_interface::Handle::set_value<double>(double const&)\" and the reporter calls \"->get_optional()\"; neither exists at tag 4.26.0 (handle.hpp has \"[[nodiscard]] bool set_value(double value)\" and no get_optional) and both exist at tag 4.27.0 (38392008, 2025-03-01). The next tag, 4.28.0, is dated 2025-04-10, after the report. 4.27.0 contains 465e5d02 (PR #2038). The resolution changes only the reporter's controller, so the provider keeps 4.27.0 in the resolved composition; the accompanying provider PR #2129 (def08f0b) edits only doc/migration.rst.",
+      "excerpt": false,
+      "ros_distro": "jazzy"
+    },
+    {
+      "name": "drive_controller",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2025-03-20",
+      "resolved_rev": "as-reported-2025-03-24",
+      "pinned": false,
+      "revision_basis": "The reporter's package (libodometry_provider.so under /home/leipscheru/ros2_ws/install/drive_controller) is not public; its interface is described from the code quoted in the issue body (2025-03-20) and in the reporter's comment of 2025-03-21. The resolved state is the reporter's unpublished edit reported on 2025-03-24 (\"The issue is solved, it was the interface_name being incomplete. I did not add the node name to it.\"); no code of that state is quoted.",
+      "excerpt": true,
+      "ros_distro": "jazzy"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "4.26.0",
+    "resolved": "4.27.0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:controller_interface::ChainableControllerInterface::exported_state_interfaces_", "sides": {"ros2_control": "provides", "drive_controller": "consumes"}},
+    {"element": "api:controller_interface::ChainableControllerInterface::on_export_state_interfaces", "sides": {"drive_controller": "provides", "ros2_control": "consumes"}},
+    {"element": "api:controller_interface::ChainableControllerInterface::update_and_write_commands", "sides": {"drive_controller": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::StateInterface", "sides": {"ros2_control": "provides", "drive_controller": "consumes"}},
+    {"element": "api:hardware_interface::Handle::set_value", "sides": {"ros2_control": "provides", "drive_controller": "consumes"}},
+    {"element": "api:hardware_interface::Handle::get_value", "sides": {"ros2_control": "provides", "drive_controller": "consumes"}},
+    {"element": "api:hardware_interface::Handle::get_optional", "sides": {"ros2_control": "provides", "drive_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::get_node", "sides": {"ros2_control": "provides", "drive_controller": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": ["api:controller_interface::ChainableControllerInterface::exported_state_interfaces_"],
+      "quote": "The ``exported_state_interfaces_`` and ``exported_reference_interfaces_`` now uses the the full interface name as the key to the unordered_map, instead of the interface type. This is related to (`#2038 <https://github.com/ros-controls/ros2_control/pull/2038>`_). For instance, the key would be ``joint_1/position`` instead of ``position``.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/2129"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The mismatch surfaces only as a runtime crash in the controller update, with no build, load, or activation diagnostic: \"[ros2_control_node-2] Segmentation fault (Address not mapped to object [0x80])\" (https://github.com/ros-controls/ros2_control/issues/2121).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "The consumer indexes exported_state_interfaces_ with the full interface name (\"<controller name>/<interface name>\") instead of the bare interface name; the provider keeps the new key convention and documents it in the migration notes (PR #2129, documentation only).",
+    "status": "observed",
+    "evidence": "Reporter, same installation: \"Hey, never mind. \\nThe issue is solved, it was the interface_name being incomplete. I did not add the node name to it.\" (https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747169475). The provider in the working composition is the unchanged Jazzy install (4.27.0, inferred as for the broken composition); the consumer is the reporter's edited, unpublished controller (label as-reported-2025-03-24, no code quoted)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "The same key change applies to exported_reference_interfaces_ (not used by the reporter). consumer_built_against is inferred: the reporter's unprefixed key matches the provider's declarations up to the parent of 465e5d02 (c302212822acc735cdb6dd2ab67d4e967c201bcf); 4.26.0 (e574645f, 2025-02-07) is the last release before that commit and the plausible pre-update Jazzy binary (\"before the last update it worked\"), but an earlier Jazzy release cannot be excluded. The consumer was compiled against 4.27.0 headers (the trace shows the templated set_value<double> introduced after 4.26.0) while its source still uses the pre-465e5d02 key convention. Class choice: the map member's declaration is unchanged (std::unordered_map<std::string, hardware_interface::StateInterface::SharedPtr>); what changed is the convention for the key string, so representation_convention is used; from the consumer's view the entry it looks up is effectively renamed, so element_removed_or_renamed is an alternative reading. The crash mechanism (operator[] default-inserting an entry whose set_value dereferences a null handle) is inferred from the trace and not stated in the source. Resolution status 'observed' rests on the reporter's statement; the consumer's resolved revision is only an as-reported label with an empty artifact section, so an adjudicator applying the revision-identification requirement strictly could downgrade it to 'recommended'."
+}

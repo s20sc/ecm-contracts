@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-147",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/2507",
+    "https://github.com/fujitatomoya/ros2_test_prover/commit/886f1da5cbdacc150eb2ffae9fa56504557bb499",
+    "https://github.com/ros2/rclcpp/pull/2510"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter gives a reproducer (`const auto negative_ns = rclcpp::Time(-1);` vs `rclcpp::Time(-1, 0)`) and the log showing only the second throws: \"terminate called after throwing an instance of 'std::runtime_error'\\n  what():  cannot store a negative time point in rclcpp::Time\"; merged fix ros2/rclcpp#2510 (https://github.com/ros2/rclcpp/issues/2507)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rclcpp", "reporter's dummy node (application calling rclcpp::Time)"],
+      "interface_kind": null,
+      "evidence": "The defect is an inconsistency between two constructors of the same class inside rclcpp: the (int32_t seconds, uint32_t nanoseconds) constructor rejects negative time, the (int64_t nanoseconds) constructor does not. PR #2510: \"rclcpp::Time currently allows a negative time when constructing with int64_t nanoseconds (but not with int32_t seconds even though both can possibly hold a negative value).\" The fix adds `if (nanoseconds < 0) { throw std::runtime_error(\"cannot store a negative time point in rclcpp::Time\"); }` inside rclcpp's own time.cpp. The behaviour is the same for any caller; no value, frame, unit, name, or timing crosses a boundary between two separately deployable units in a way that depends on a mutual assumption. The only 'second unit' is a test program invoking the API."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated beyond E2: there is no failing composition of two units; the reporter's program only calls the library constructor."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The missing check is observed: \"`negative_ns` does not throw, only `negative_s_ns` does\" (https://github.com/ros2/rclcpp/issues/2507)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Reporter environment: \"ros-iron-rclcpp/jammy,now 21.0.5-1jammy.20240213.155845 amd64\". Fix merged on rolling as de666d2bf41806d150744d7c5dcd7a07ad3ffcd0 (2024-04-23); maintainers leaned against backporting (\"IMO, this could possibly break the user application. so i would not backport this to released distros...\"). The fix also adds negative-result checks to operator+= and operator-= and removes tests that allowed negative rclcpp::Time. A behaviour change that could affect downstream callers (API contract tightening) is a consequence of the fix, not a documented failed interaction."
+}

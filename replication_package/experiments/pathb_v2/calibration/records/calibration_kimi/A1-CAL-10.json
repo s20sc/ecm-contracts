@@ -1,0 +1,38 @@
+{
+ "item_id": "A1-CAL-10",
+ "kind": "A1",
+ "case_id": "CAL-10",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "ROS log gets somehow horribly mangled\nAnd prevents Ctrl+C to work.\nStrange thing is that it happens only sometimes.",
+  "url": "https://github.com/yujinrobot/kobuki/issues/272"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93\n\n```\n  serial.block(4000); // blocks by default, but just to be clear!\n  try {\n    serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);  // this will throw exceptions - NotFoundError, OpenError\n    is_connected = true;\n  }\n```\n\nIn the version 0.3.9, which I confirmed that working fine,  the block() was called after open().",
+   "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": "activate",
+  "quote": "If block() is called without initializing serial, it uses default value for file_descriptor in serial_pos.cpp:line 320. Which I think causes the problem.\n\n```\n    tcsetattr(file_descriptor, TCSAFLUSH, &options);\n```",
+  "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Thus, the proposed patch is going to call serial.block() function after serial.open() in kobuki.cpp\nAlso, ecl serial.block() should warn user if file_descriptor is not initialized.",
+  "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+ },
+ "notes": "Verified via gh api: issue #272 body (mangled log, Ctrl+C dead, intermittent) and jihoonl's diagnosis comment-21917240 in full, including the code excerpt with serial.block(4000) preceding serial.open(...), the 0.3.9 comparison, the serial_pos.hpp line-153 documentation reference, and the tcsetattr on an uninitialised file_descriptor at serial_pos.cpp:320. Eligible at step 6 (library API): a documented call-order precondition of the provider's ecl::Serial API violated by the consumer is a timing/order failure crossing the library boundary, and with the consumer that opened first (0.3.9) the same provider works. Class 'other' agreed (no listed class names a call-order precondition). Silent agreed, and detection_stage 'activate' is the right reading since the misuse runs in Kobuki::init during node start-up; the maintainer's own wish ('ecl serial.block() should warn user if file_descriptor is not initialized') confirms no existing diagnostic fired. Resolution 'recommended' agreed: the patch was proposed and merged (PR #278), but the source shows no run of the fixed composition; the 'working fine' observation belongs to the older 0.3.9 consumer, which the schema counts as evidence for a recommended status, not observed."
+}

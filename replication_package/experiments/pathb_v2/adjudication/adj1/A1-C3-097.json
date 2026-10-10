@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-097",
+  "kind": "A1",
+  "case_id": "C3-097",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "reason": "E1 is supported by the shutdown reproducer and launch errors. For the reported container/loaded-component composition, the container waits for its own already-terminated executor thread; no component output or component-specific requirement causes the failure. E2 stops at internal. The executor-library API discussion does not establish a failed assumption between the reported container and its loaded components.",
+    "quote": "The issue is that there is a race where the executor is already shutdown/cancelled (so is_spinning is always false), causing an infinite loop.",
+    "url": "https://github.com/ros2/rclcpp/pull/2085"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [component_container_isolated-13]: process[component_container_isolated-13] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'",
+    "url": "https://github.com/ros2/rclcpp/issues/2083",
+    "reason": "Agree with null as not applicable after exclusion, not as an assertion that no diagnostic exists. The report explicitly contains launch-supervisor errors."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "after that, I typed `ctrl+c` to exit the process. but it takes too long to terminate(more than 10 seconds), and it does not terminate properly sometimes.",
+    "url": "https://github.com/ros2/rclcpp/issues/2083",
+    "reason": "The observed symptom is during shutdown of a running process, but the specification correctly leaves the eligible-case stage unpopulated."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The same test passes with this change.",
+    "url": "https://github.com/ros2/rclcpp/pull/3282",
+    "reason": "Null is appropriate for an excluded case; it does not deny the documented regression-test success or the accepted fixes."
+  },
+  "notes": "No conditions were listed. Read the issue and comments, PR 2085 and its diff and relevant comments, and PR 3282. The ABI/backport limitation is not an additional failed interaction in the reported composition. All downstream agree/null verdicts mean not applicable under the S1 ineligible-case rule."
+}

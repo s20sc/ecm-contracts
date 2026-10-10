@@ -1,0 +1,49 @@
+{
+  "case_id": "C3N-012",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/650",
+    "https://github.com/eProsima/Fast-DDS/pull/3087",
+    "https://github.com/eProsima/Fast-DDS/pull/3194",
+    "https://github.com/eProsima/Fast-DDS/pull/3195",
+    "https://github.com/ros2/rmw_fastrtps/pull/633"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #650 gives a minimal reproducer (a timer publishing node spun by rclcpp::executors::MultiThreadedExecutor) and a stack trace; a second developer reproduced it on the humble repos (Fast-DDS dfe8204a, rmw_fastrtps 8955d4e5) with a full gdb backtrace, and the reporter confirmed the released fix: \"Yes, I can confirm that the released version has resolved the issue.\""
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["fastrtps (Fast-DDS)", "rmw_fastrtps_cpp"],
+      "interface_kind": "library API",
+      "evidence": "The root cause is a lost wake-up inside Fast-DDS's own WaitSetImpl: the fix (Fast-DDS #3194, 2.6.x backport #3195, \"Fix notification lost\") adds `std::lock_guard<std::mutex> guard(mutex_);` to WaitSetImpl::wake_up() before `cond_.notify_one();` and adds the unit test `fix_wait_notification_lost`, which reproduces the race with the WaitSet alone and no ROS layer. The race is in one library's own synchronisation logic and would occur with any correct user of the DDS WaitSet; it surfaced in ROS 2 because rmw_fastrtps PR #633 (\"[Humble] Use Fast-DDS Waitsets instead of listeners\") began using the WaitSet, and the issue analysis traces the symptom to a lost rclcpp interrupt_guard_condition_ trigger (\"The notification of ... interrupt_guard_condition_.trigger(); might be lost.\"). No value, frame, unit, name, or timing assumption between two units is wrong."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated as an interface operation; the defect is internal to Fast-DDS. (The report attributes onset to an rmw_fastrtps upgrade: \"This behavior seems to be introduced by #633\".)"
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed hang: \"Running this simple example with a `MultiThreadedExecutor` eventually causes a deadlock (typically within a few seconds).\" A maintainer later clarified: \"Yes, it's not a deadlock.\" (a wait-forever caused by the lost notification)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): a lost condition-variable notification inside Fast-DDS WaitSetImpl (wake_up notified without holding the wait mutex); it occurs with any correct WaitSet user and was fixed entirely inside Fast-DDS.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Reporter environment: Ubuntu 22.04, Humble binaries, rmw_fastrtps v6.2.2; building rmw_fastrtps 6.2.1 (pre-#633, listener-based) from source avoided the hang, and Fast DDS v2.6.3 did not fix it. Fix merges: Fast-DDS #3087 master a9e49cda (2023-01-06), rework #3194 master df2857a5 (2023-01-10), 2.6.x backport #3195 0cf75bd0 (2023-01-10), released in the Humble binaries by 2023-02-07. One could read the case as an UPGRADE of rmw_fastrtps (6.2.1 -> 6.2.2) exposing a latent Fast-DDS race, but the defect itself is a synchronisation bug inside Fast-DDS that needs no cross-unit assumption, so it is recorded as internal. Medium confidence because the onset was an rmw_fastrtps change."
+}

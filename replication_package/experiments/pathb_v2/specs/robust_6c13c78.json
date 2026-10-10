@@ -1,0 +1,50 @@
+{
+  "case_id": "robust_6c13c78",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/commit/6c13c78a9fd4a9220867f8433243deb00a8d7eb6",
+    "https://github.com/ros/geometry2/pull/25",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/6c13c78/6c13c78.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #25 by the maintainer wjwwood, titled 'Fixes a crash in tf's view_frames related to dot code generation', reviewed and merged by the maintainer tfoote as 6c13c78 (https://github.com/ros/geometry2/pull/25); the PR body is empty and the only comment is '@tfoote for review'. There is no public issue ('issue: N/A' in the ROBUST record), no reproducer, and no crash log; the ROBUST record says 'Most likely a NULL pointer dereference bug.  Precise place hard to establish before we reproduce it.' The maintainer-authored fix naming the crash is taken as the maintainer's confirmation; E1 passes only on that basis."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "tf2 (BufferCore library, geometry2)",
+        "tf (view_frames tool and tf::Transformer wrapper, geometry)"
+      ],
+      "interface_kind": null,
+      "evidence": "Step 1: tf's view_frames reaches tf2 through tf::Transformer::allFramesAsDot(), which at geometry 1.10.5 is 'return tf2_buffer_._allFramesAsDot();', so the units are the tf package (caller) and the tf2 library (BufferCore). Step 2: the crash is inside tf2's own logic and would occur with any correct caller. At the parent revision d5eba17, BufferCore::_allFramesAsDot dereferences the cache pointer unconditionally: 'if(  getFrame(counter)->getData(ros::Time(), temp))', while BufferCore::lookupOrInsertFrameNumber inserts a null placeholder for every frame name it has seen ('frames_.push_back(TimeCacheInterfacePtr());//Just a place holder for iteration') and allocateFrame only replaces it when a transform with that child frame is set; a frame referenced only as a parent therefore has a null TimeCacheInterfacePtr and the dot generation dereferences it. The merged change adds the missing null checks: '+    TimeCacheInterfacePtr counter_frame = getFrame(counter);' / '+    if (!counter_frame) {' / '+      continue;' / '+    }' (https://github.com/ros/geometry2/commit/6c13c78a9fd4a9220867f8433243deb00a8d7eb6). No value, frame, name, definition, or timing crossing the tf/tf2 boundary is wrong; the caller passes nothing that could avoid it, and the fix changes no declared or referenced interface. The ROBUST record locates it likewise: 'calling BufferCore::lookupOrInsertFrameNumber with some messy string will put a NULL object in the back that should cause the trouble'."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2. (No crash log, warning, or observation appears in the public source; only the PR title names 'a crash in tf's view_frames'.)"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): a null-pointer dereference inside tf2::BufferCore::_allFramesAsDot (frames_ holds null placeholders for frames that were named but never received data, and the dot generator dereferenced getFrame(counter) without a check); it crashes for any correct caller of the API and the fix only adds null checks inside tf2. E1 is marginal: the only public documentation is the maintainer-authored PR #25 with the title 'Fixes a crash in tf's view_frames related to dot code generation'; no issue, log, or reproducer exists.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

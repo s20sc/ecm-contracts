@@ -1,0 +1,43 @@
+{
+  "task_id": "u0125",
+  "package": "kobuki_bumper2pc",
+  "manifest_version": "0.3.8",
+  "ports": [
+    {
+      "element": "api:EIGEN_MAKE_ALIGNED_OPERATOR_NEW",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:EIGEN_MAKE_ALIGNED_OPERATOR_NEW"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_bumper2pc/package.xml:3",
+    "ports[0]": "snapshot:kobuki_bumper2pc/include/kobuki_bumper2pc/kobuki_bumper2pc.hpp:76",
+    "ports[0].frame": "snapshot:kobuki_bumper2pc/include/kobuki_bumper2pc/kobuki_bumper2pc.hpp:76 | macro used inside class Bumper2PcNodelet body (public section, after virtual void onInit();); it concerns heap allocation alignment of the class, not spatial data",
+    "references[api:EIGEN_MAKE_ALIGNED_OPERATOR_NEW]": "snapshot:kobuki_bumper2pc/include/kobuki_bumper2pc/kobuki_bumper2pc.hpp:76",
+    "exclusive": "searched snapshot:kobuki_bumper2pc/{src/kobuki_bumper2pc.cpp,include/kobuki_bumper2pc/kobuki_bumper2pc.hpp,launch/standalone.launch,plugins/nodelet_plugins.xml,package.xml,CMakeLists.txt}; no hardware command interface or exclusive device handle claimed",
+    "perm_requires": "searched the same package files; no permission requirement declared",
+    "perm_grants": "searched the same package files; no permission grant declared",
+    "recovery": "searched the same package files; no recovery behaviour declared (callbacks at src/kobuki_bumper2pc.cpp:40-43 and 68-71 only ROS_WARN and ignore unknown sensor ids)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "Bumper2PcNodelet holds a pcl::PointCloud<pcl::PointXYZ> by value (hpp:88) and is heap-created by pluginlib; the class carries EIGEN_MAKE_ALIGNED_OPERATOR_NEW (hpp:76), which is what such a class needs, so nothing in the listed elements looks wrong at this revision."
+  },
+  "confidence": "high",
+  "notes": "All three packet elements are consumed; this package provides none, so declares and not_declared are empty. Only EIGEN_MAKE_ALIGNED_OPERATOR_NEW is named in the package code (grep of kobuki_bumper2pc for eigen/Quaternion/Vector4/ALIGNED: single hit at hpp:76). Eigen::Quaternionf and Eigen::Vector4f are not named anywhere in kobuki_bumper2pc (nor is any Eigen header included directly; the macro reaches the header transitively via pcl/point_types.h and pcl_ros/point_cloud.h, hpp:52-53). The class member pcl::PointCloud<pcl::PointXYZ> pointcloud_ (hpp:88) may carry such Eigen members inside PCL, but PCL headers are outside the allowed sources, so those two elements are recorded neither as ports nor as references. ROS 1 package: QoS null. Non-packet interfaces observed but not recorded as ports: publisher 'pointcloud' (pcl::PointCloud<pcl::PointXYZ>, queue 10, frame_id hard-coded \"/base_link\", cpp:91,97), subscribers 'cliff_events' (kobuki_msgs/CliffEvent) and 'bumper_events' (kobuki_msgs/BumperEvent) at cpp:99-100, private param pointcloud_radius (double, default 0.25, cpp:86)."
+}

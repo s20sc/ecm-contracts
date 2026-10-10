@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-C3-063",
+  "kind": "A1",
+  "case_id": "C3-063",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the issue documents a concrete runtime warning and the maintainer accepts replacing the API use. E2 reaches step 6: separately released image_geometry consumes the NumPy library API. E3 is supported at least as PAIR; the introduction of the warning supports an inferred newer-provider interpretation, but does not independently identify the installed NumPy version or a precise built-against tag. This uncertainty does not invalidate the documented library interaction.",
+    "quote": "image_geometry/cameramodels.py uses deprecated `numpy.matrix` subclass causing runtime `PendingDeprecationWarning`.",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/524"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "def __new__(subtype, data, dtype=None, copy=True):",
+      "url": "https://raw.githubusercontent.com/numpy/numpy/v1.15.0/numpy/matrixlib/defmatrix.py",
+      "reason": "NumPy retains the same constructor signature and matrix result as v1.14.6; the added code emits PendingDeprecationWarning. This is deprecated-API use, not a demonstrated retyping/declaration-shape change. numpy.matrix is the correct implicated element. The later ndarray-returning methods belong to the consumer-side fix and must not be attributed to a retyping of the provider API.",
+      "evidence": [
+        {
+          "quote": "def __new__(subtype, data, dtype=None, copy=True):",
+          "url": "https://raw.githubusercontent.com/numpy/numpy/v1.14.6/numpy/matrixlib/defmatrix.py"
+        },
+        {
+          "quote": "PendingDeprecationWarning, stacklevel=2)",
+          "url": "https://raw.githubusercontent.com/numpy/numpy/v1.15.0/numpy/matrixlib/defmatrix.py"
+        },
+        {
+          "quote": "image_geometry/cameramodels.py uses deprecated `numpy.matrix` subclass causing runtime `PendingDeprecationWarning`.",
+          "url": "https://github.com/ros-perception/vision_opencv/issues/524"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "This will cause the warning during initialization every time the public API members below are called:",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/524",
+    "reason": "The documented diagnostic occurs when runtime camera-model API methods construct a matrix. S1 defines loud_documented by existing-tool diagnostics at build, connection, or activation, not arbitrary runtime warnings. Object initialization inside fromCameraInfo is not evidence of component activation. Unknown is safer than claiming a qualifying early diagnostic or a silent failure; outcome remains warning_only."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "image_geometry/cameramodels.py uses deprecated `numpy.matrix` subclass causing runtime `PendingDeprecationWarning`.",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/524",
+    "reason": "Run is explicitly supported, independently of the loudness correction."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "No supported API members result in a numpy.matrix() call",
+    "url": "https://github.com/ros-perception/vision_opencv/pull/527",
+    "reason": "The fix is supplied and its tests are reported passing, but the two revision-identified units of the nominated resolved composition are not shown running together. Recommended is supported."
+  },
+  "notes": "Keep the deprecated wrappers separate from the new supported ndarray API: retained wrappers may still construct numpy.matrix and warn. The inferred NumPy tags are not observed installation versions. Buildfarm packaging failures and the ROS 1/ROS 2 CameraInfo test mismatch concern other compositions and are not added here."
+}

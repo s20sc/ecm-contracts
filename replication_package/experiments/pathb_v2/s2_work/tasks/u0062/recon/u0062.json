@@ -1,0 +1,57 @@
+{
+  "task_id": "u0062",
+  "package": "kobuki_auto_docking",
+  "manifest_version": "0.3.5",
+  "ports": [
+    {
+      "element": "param:cmd_vel_mux/yaml_cfg_file",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:cmd_vel_mux/auto_docking",
+      "side": "provides",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": "linear.x in m/s; angular.z in rad/s",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:cmd_vel_mux/yaml_cfg_file": "param cmd_vel_mux/yaml_cfg_file: string",
+    "topic:cmd_vel_mux/auto_docking": "topic cmd_vel_mux/auto_docking: geometry_msgs/Twist"
+  },
+  "not_declared": [],
+  "references": ["topic:cmd_vel_mux/mux_cmd_vel"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "on action goal abort, cancel, or node shutdown: dock_.disable() then publish kobuki_msgs/MotorPower OFF on motor_power"},
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_auto_docking/package.xml:3",
+    "ports[0].frame": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:6 | <param name=\"yaml_cfg_file\" value=\"$(find kobuki_auto_docking)/param/cmd_vel_mux.yaml\"/> (value is a filesystem path, no spatial meaning)",
+    "ports[1].msg_type": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:47 | velocity_commander_ = nh.advertise<geometry_msgs::Twist>(\"velocity\", 10); with nh = getPrivateNodeHandle() at snapshot:kobuki_auto_docking/src/nodelet.cpp:64, remapped at snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:15 | <remap from=\"dock_drive/velocity\" to=\"cmd_vel_mux/auto_docking\"/>",
+    "ports[1].units": "snapshot:kobuki_auto_docking/src/dock_drive.cpp:333-334 | // vx: in m/s  // wz: in rad/s ; assigned to cmd_vel->linear.x and cmd_vel->angular.z at snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:129-130",
+    "declares[param:cmd_vel_mux/yaml_cfg_file]": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:5-6 | <node pkg=\"nodelet\" type=\"nodelet\" name=\"cmd_vel_mux\" ...> <param name=\"yaml_cfg_file\" value=\"$(find kobuki_auto_docking)/param/cmd_vel_mux.yaml\"/> (private param of node cmd_vel_mux; no type attribute, roslaunch auto-typing of a path value gives a string)",
+    "declares[topic:cmd_vel_mux/auto_docking]": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:47 + snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:15; the mux config file lists the same source at snapshot:kobuki_auto_docking/param/cmd_vel_mux.yaml:22-25 | name: \"Auto docking\" topic: \"auto_docking\" timeout: 0.2 priority: 15",
+    "references[topic:cmd_vel_mux/mux_cmd_vel]": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:7 | <remap from=\"cmd_vel_mux/mux_cmd_vel\" to=\"mobile_base/commands/velocity\"/>",
+    "perm_requires": "searched all files under snapshot:kobuki_auto_docking (src, include, scripts, launch, param, plugins, package.xml) for permission/capability declarations; none found",
+    "perm_grants": "same search as perm_requires; none found",
+    "recovery.value": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:36-41 (destructor: setAborted, dock_.disable(), toggleMotor(false)); :92-96 (cancel: setPreempted, dock_.disable(), toggleMotor(false)); :144-150 (unexpected disable: setAborted, dock_.disable(), toggleMotor(false)); toggleMotor publishes MotorPower OFF at :166-171"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The cmd_vel_mux node configured in this package's launch file remaps cmd_vel_mux/mux_cmd_vel, while every other launch file in the same snapshot (kobuki_keyop/launch/safe_keyop.launch:7, kobuki_node/launch/webop.launch:26) remaps cmd_vel_mux/output for the same mux output; if the mux output is named output at this revision, this remap is a no-op and the mux output never reaches mobile_base/commands/velocity."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (catkin, package.xml format 1); QoS fields are null for ROS 1. definition_id is null for both ports: packet ros_distro is null, so no dependency release tag is defined and geometry_msgs/Twist.msg was not fetched (the snapshot's kobuki.rosinstall mentions groovy, but that was not used to pick a tag); the param port has no message definition. The dock_drive nodelet publishes Twist on private topic 'velocity' (queue 10) only from the message_filters ApproximateTime sync callback (odom, core, dock_ir) when dock_.canRun(); no publish rate is set (the 10 Hz update thread in nodelet.cpp:73-81 is never started, lines 65-69 commented out). Twist has no header and the code sets no frame for the velocity command, so frame is null. The topic cmd_vel_mux/auto_docking exists only via launch/auto_dock_with_safe_keyop.launch; minimal.launch, compact.launch and standalone.launch remap dock_drive/velocity to mobile_base/commands/velocity instead. The param cmd_vel_mux/yaml_cfg_file is set in this package's launch file for node cmd_vel_mux (package cmd_vel_mux, not in the snapshot); its value points to param/cmd_vel_mux.yaml, which registers subscribers safety_controller (priority 10), keyboard_teleop (7) and auto_docking (15), each timeout 0.2 s. Consumed element topic:cmd_vel_mux/output: this package does not subscribe to it and does not name it anywhere (searched the whole package); the launch file names cmd_vel_mux/mux_cmd_vel for the mux output instead, recorded in references as the name the code uses, so no port entry is recorded for topic:cmd_vel_mux/output. Whether mux_cmd_vel is an old name of output cannot be confirmed from the snapshot, since the cmd_vel_mux package is not in it. Other names this code consumes (odom, core, dock_ir, debug/mode_shift, action dock_drive_action) are not packet elements and are not listed in references. No exclusive resource claims found. Recovery is recorded as present on the basis of the explicit failure path (disable docking, motor power OFF); the mux timeout of 0.2 s in the param file is a mux-side inactivity rule, not counted as this package's recovery."
+}

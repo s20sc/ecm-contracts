@@ -1,0 +1,101 @@
+{
+ "case_id": "CAL2-01",
+ "corpus": "C1",
+ "source_refs": [
+  "https://github.com/yujinrobot/kobuki/issues/207",
+  "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175",
+  "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515",
+  "https://github.com/yujinrobot/kobuki/commit/4ea5ea7ff535323baeada165764b5b8ceb7bfa87",
+  "https://github.com/ros/robot_model/blob/robot_model-1.8.1/urdf_parser/src/urdf_parser.cpp#L158",
+  "https://github.com/ros/robot_model/blob/robot_model-1.8.1/robot_state_publisher/src/joint_state_listener.cpp#L127"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Error log reproduced by the maintainer (stonier): \"Roman at Robotnik is getting errors from a very vanilla view_model.launch style launcher (I just reproduced):\\n\\nprocess[robot_state_publisher-1]: started with pid [5377]\\n[ERROR] [1356608164.609420111]: No link elements found in urdf file\\n[ERROR] [1356608164.609850822]: Could not generate robot model\\n[ERROR] [1356608164.610010689]: Failed to extract kdl tree from xml robot description\\n[robot_state_publisher-1] process has died [pid 5377, exit code 255, cmd /opt/ros/fuerte/stacks/robot_model/robot_state_publisher/bin/state_publisher __name:=robot_state_publisher ...\"; cause stated by the maintainer and fixed in 4ea5ea7f 'view_model launcher for kobuki, closes #207'."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "kobuki_description",
+    "robot_state_publisher"
+   ],
+   "interface_kind": "parameter",
+   "evidence": "Step 1: kobuki_description (kobuki repository) provides the robot model that the launcher expands with xacro into the robot_description parameter; robot_state_publisher (fuerte robot_model stack, ros/robot_model repository) is a separately released node that reads that parameter (kdl_parser::treeFromParam(\"robot_description\", tree) at joint_state_listener.cpp:127). Step 2: the failure crosses the boundary: the consumer requires a URDF with link elements, while the provider's kobuki.urdf.xacro expands to a <robot> that only defines the xacro macro 'kobuki' and never instantiates it (\"kobuki.urdf.xacro just defines a component tag `<kobuki/>` that can be used by other xacros (e.g. turtlebot)\"); the same file is valid when included by turtlebot, so the defect is not intrinsic to one unit but to this pairing. Step 3: the resolution is not a name binding; it adds a new model artifact (kobuki_standalone.urdf.xacro instantiating <kobuki/>) and a launcher that loads it, because no standalone model existed to wire to. Steps 4-5 do not apply. Interface kind: parameter (robot_description)."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: the provider's expanded model is the value of robot_description that the consumer reads at start-up."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed failure: \"[ERROR] [1356608164.609420111]: No link elements found in urdf file\" ... \"[robot_state_publisher-1] process has died [pid 5377, exit code 255, ...]\"."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "kobuki_description",
+   "role": "provider",
+   "repo": "https://github.com/yujinrobot/kobuki",
+   "broken_rev": "87c39d2d591e16ae0227cd97621b83772837ea57",
+   "resolved_rev": "4ea5ea7ff535323baeada165764b5b8ceb7bfa87",
+   "pinned": true,
+   "revision_basis": "87c39d2d (2012-12-27 02:41 +0900, 'better debugging comments.') is the parent of the fix and the repository head when the issue was opened and reproduced the same day; at this revision kobuki_description/urdf/ holds only common_properties.urdf.xacro, kobuki.urdf.xacro (a <robot> containing <xacro:macro name=\"kobuki\"> and no instantiation) and kobuki_gazebo.urdf.xacro. 4ea5ea7f (2012-12-27 15:43 UTC) adds urdf/kobuki_standalone.urdf.xacro, launch/view_model.launch and rviz/model.rviz; contained in tag 0.2.2 (2013-01-02) and later.",
+   "excerpt": false,
+   "ros_distro": "fuerte"
+  },
+  {
+   "name": "robot_state_publisher",
+   "role": "consumer",
+   "repo": "https://github.com/ros/robot_model",
+   "broken_rev": "a30908a22ae1a84c4d6e68a309e0fa089548905f",
+   "resolved_rev": "a30908a22ae1a84c4d6e68a309e0fa089548905f",
+   "pinned": true,
+   "revision_basis": "The log shows the fuerte binary /opt/ros/fuerte/stacks/robot_model/robot_state_publisher/bin/state_publisher; no version is stated. a30908a2 is tag robot_model-1.8.1 (2012-08-13), the last release of the fuerte robot_model stack before the 2012-12-27 report (the 'fuerte' tag 4994cd8d is of the same day; the robot_model-1.8 branch has no later tag before the report). At this tag robot_state_publisher/src/joint_state_listener.cpp:127 calls kdl_parser::treeFromParam(\"robot_description\", tree) and line 128 emits 'Failed to extract kdl tree from xml robot description', and urdf_parser/src/urdf_parser.cpp:158 emits 'No link elements found in urdf file', matching the log. The resolution does not change this unit.",
+   "excerpt": false,
+   "ros_distro": "fuerte"
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "param:robot_description",
+   "sides": {
+    "kobuki_description": "provides",
+    "robot_state_publisher": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "representation_convention",
+   "implicated_elements": [
+    "param:robot_description"
+   ],
+   "quote": "Error arises because kobuki.urdf.xacro just defines a component tag `<kobuki/>` that can be used by other xacros (e.g. turtlebot). I've added a kobuki standalone xacro there now.",
+   "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "loud_documented",
+ "loudness_evidence": "Launch-time diagnostic from the consumer at start-up: \"[ERROR] [1356608164.609420111]: No link elements found in urdf file\\n[ERROR] [1356608164.609850822]: Could not generate robot model\\n[ERROR] [1356608164.610010689]: Failed to extract kdl tree from xml robot description\\n[robot_state_publisher-1] process has died [pid 5377, exit code 255, ...]\\n...\\nall processes on machine have died, roslaunch will exit\" (https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175).",
+ "detection_stage": "activate",
+ "resolution": {
+  "summary": "Add kobuki_description/urdf/kobuki_standalone.urdf.xacro, a <robot name=\"kobuki_standalone\"> that includes kobuki.urdf.xacro and instantiates <kobuki/>, and kobuki_description/launch/view_model.launch that loads it into robot_description (param command=\"$(find xacro)/xacro.py '$(find kobuki_description)/urdf/kobuki_standalone.urdf.xacro'\") before starting robot_state_publisher, joint_state_publisher and rviz (kobuki 4ea5ea7f).",
+  "status": "recommended",
+  "evidence": "\"I've added a kobuki standalone xacro there now.\" (https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515) and commit 'view_model launcher for kobuki, closes #207'; the source does not show the viewer running with the new launcher."
+ },
+ "ros_generation": "ROS1",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "The broken launcher is not in any public repository: it is Roman's (Robotnik) 'very vanilla view_model.launch style launcher', reproduced by the maintainer; only its effect (loading kobuki.urdf.xacro as robot_description) is documented, so the provider artifact of the broken composition is kobuki.urdf.xacro at 87c39d2d and the resolved composition uses kobuki_description's own view_model.launch. The 'No link elements found in urdf file' message is emitted by urdf_parser and 'Could not generate robot model' by kdl_parser, both packages of the same fuerte robot_model stack linked into the robot_state_publisher process. joint_state_publisher and rviz are also part of the launcher but are not the failing units. Classification 'other' is used because the provided value is structurally empty for this consumer (no <link>), which is neither a type, frame, unit, QoS, nor rename mismatch; an alternative reading as deployment_wiring (the user pointed robot_description at the wrong file) was rejected because no loadable standalone artifact existed and the resolution created one. The distro (fuerte) is stated only by the log path of the consumer's binary; the provider was run from source at the same time."
+}

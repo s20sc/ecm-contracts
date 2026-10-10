@@ -1,0 +1,39 @@
+{
+  "item_id": "A1-C3-033",
+  "kind": "A1",
+  "case_id": "C3-033",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "swscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [
+        "api:sws_getContext",
+        "api:AVCodecContext.pix_fmt"
+      ],
+      "quote": "swscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/FFmpeg/FFmpeg/blob/n2.8.15/libswscale/utils.c"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "av_log_set_level(AV_LOG_ERROR);"
+  },
+  "notes": "E1 confirmed: issue #109 gives the reproduction command and the emitted diagnostic. E2 stop_step 6 (library API): usb_cam.cpp@0c3c7cb6 line 448 passes avcodec_context_->pix_fmt into sws_getContext, and the pixel-format/colour-range convention crosses the library boundary. The failed condition representation_convention is correct and the implicated elements (sws_getContext + AVCodecContext.pix_fmt) are the boundary elements. Verified in FFmpeg n2.8.15: mjpegdec.c line 545 \"if (s->bits <= 8) s->avctx->pix_fmt = s->cs_itu601 ? AV_PIX_FMT_YUV422P : AV_PIX_FMT_YUVJ422P;\", utils.c line 1148 \"av_log(c, AV_LOG_WARNING, \\\"deprecated pixel format used, make sure you did set range correctly\\n\\\");\", pixfmt.h line 76 \"AV_PIX_FMT_YUVJ422P,  ///< planar YUV 4:2:2, 16bpp, full scale (JPEG), deprecated in favor of AV_PIX_FMT_YUV422P and setting color_range\". Outcome warning_only and loudness loud_documented/activate match the provider's own sws_init_context warning. Resolution recommended is right: PR #115 (commit 7ea4124f, \"av_log_set_level(AV_LOG_ERROR);\" per spec) suppresses the diagnostic but no FFmpeg revision is identified for the working composition."
+}

@@ -1,0 +1,55 @@
+{
+  "case_id": "C3-015",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/856",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/882",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1044",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1045",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/861",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/460",
+    "https://github.com/CMU-cabot/rosbridge_suite/commit/60bb5ab5b2dedc514e0d3df97b10985cf2aa1be5",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/7bbe58ba95b2bdf4003a2ee7c1bb76691ba6d405/rosbridge_library/src/rosbridge_library/internal/pngcompression.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer and error log: \"1. Publish a map using map_server. 2. Run rosbridge_websocket. 3. Start a JS app that listens to the created map topic.\" and \"[rosbridge_websocket-1] [ERROR] [1682343826.795809774] [rosbridge_websocket]: Exception calling subscribe callback: a bytes-like object is required, not 'str'\" (https://github.com/RobotWebTools/rosbridge_suite/issues/856); maintainer PR 882 \"Closes https://github.com/RobotWebTools/rosbridge_suite/issues/856\"."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "rosbridge_library / rosbridge_server (ROS 2 branch)",
+        "ros2djs OccupancyGridClient / roslibjs Topic (web client)"
+      ],
+      "interface_kind": null,
+      "evidence": "The exception is raised inside rosbridge's own PNG-compression routine, which on the ROS 2 branch still used Python 2 string idioms: at 7bbe58ba (ros2 head on the report date) rosbridge_library/src/rosbridge_library/internal/pngcompression.py has `i = Image.frombytes(\"RGB\", (int(width), int(height)), string)` and `buff = StringIO()` with a `str` argument. A commenter identifies the cause as a missing Python 3 port: \"I got the same error and found that the ros2 branch needs to include a part of #460.\" (https://github.com/RobotWebTools/rosbridge_suite/issues/856#issuecomment-1571345660); PR 460 had \"update[d] PNG compression code to use bytes wherever applicable\" on the ROS 1 branch. The crash occurs for any correct client that requests PNG compression; the remaining defect fixed later (PR 1044: \"`pngcompression.encode()` returns `bytes` object\" / \"`bytes` objects are not JSON serializable\") is rosbridge's own encoder output consumed by rosbridge's own JSON serializer. No assumption between the client and rosbridge is violated."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "The subscribe operation fails, but the failure is internal to rosbridge's compression code rather than a mismatch between the two units."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"Exception calling subscribe callback: a bytes-like object is required, not 'str'\" and no map data delivered (issue 856); after PR 882 a JSON error remained: \"Causes `TypeError: Object of type bytes is not JSON serializable` when requesting robot maps via rosbridge\" (https://github.com/RobotWebTools/rosbridge_suite/pull/1044)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: rosbridge's ROS 2 PNG-compression routine (pngcompression.encode) still used Python 2 str/StringIO handling, so it raised a TypeError for every subscription that requested PNG compression (ros2djs's src/maps/OccupancyGridClient.js subscribes with `compression : 'png'`, https://github.com/RobotWebTools/ros2djs/blob/develop/src/maps/OccupancyGridClient.js), and after the first fix still returned bytes that rosbridge's own JSON serializer could not encode. The defect lies entirely inside rosbridge_library and would occur with any correct client requesting PNG compression.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Fix history: PR 882 (merged into ros2 as 501a926cee2bedebf1417dc1aac9c876faf91b9b, 2023-10-26) switched encode/decode to bytes/BytesIO but left `encoded = standard_b64encode(buff.getvalue())` / `return encoded` returning bytes; a user then reported the map still failed (\"i built from the repo and installed from apt and i get same errors\", https://github.com/RobotWebTools/rosbridge_suite/issues/856#issuecomment-2967706426), fixed by PR 1044 (ros2, fb157a07668233aca8e4784a2baea0afcef07f0a) and PR 1045 (humble, 1d82b2dfa361e908b63babe9dd7e16408ac6727f), both `return encoded.decode()` (\"Robot map requests now work (confirmed locally)\"). CMU-cabot commit 60bb5ab5 is a fork fix (unmerged PR 861) combining both changes. I also considered a rosbridge_library <-> Pillow reading (a Python 3 str passed to PIL.Image.frombytes, which needs bytes) but that is a Python-2-to-3 porting defect inside rosbridge's code, not a change in Pillow's interface. A separate error in the thread (\"Unable to import msg class OccupencyGrid from package nav_msgs\") came from the reporter's client asking for a misspelled type name (\"I think it is a typo, OccupencyGrid != OccupancyGrid\") and is a different composition. Reporter: ROS Humble, Ubuntu 22.04, \"Library Version: latest\"."
+}

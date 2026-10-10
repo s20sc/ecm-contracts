@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-125",
+  "kind": "A1",
+  "case_id": "C3-125",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "subscriber keep waiting for the message even if the publisher published the message.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[Conclusion](https://github.com/ros2/rmw_fastrtps/issues/606#issuecomment-1188179374) is that fastrtps currently only supports 1 waitset per entity. Waitsets are created in rclcpp via Executor, and the static executor currently will recreate the waitset on every loop, which creates a race condition for fastrtps and it drops the event completely.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/613"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "subscriber keep waiting for the message even if the publisher published the message.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I confirmed that this problem has been addressed by https://github.com/ros2/rmw_fastrtps/pull/619. please feel free to reopen if you still have this issue in rolling."
+  },
+  "notes": "Eligible PAIR library API exclusive resource conflict between rclcpp StaticSingleThreadedExecutor wait sets and rmw_fastrtps guard condition listeners."
+}

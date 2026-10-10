@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-057",
+  "kind": "A1",
+  "case_id": "C3-057",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: a concrete speed reproducer and subsequent fix explanation are public. E2 reaches step 6: controller and odometry-producing process interact through robot velocity; the failure depends on feedback lag rather than occurring with every peer. E3: PAIR is supported by the reported odom_topic and controller input. E4: reduced commanded speed is observed. The odometry process identity and revision remain unspecified.",
+    "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command",
+    "url": "https://github.com/ros-navigation/navigation2/pull/6336"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command",
+      "url": "https://github.com/ros-navigation/navigation2/pull/6336",
+      "reason": "The condition is a latency/dynamics assumption about the consumed odometry twist, not a documented publication-rate or DDS-deadline violation. The reported YAML names /odometry/filtered. The optimizer patch changes the seed from robot_speed to the previous command when open_loop is enabled."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "On Ubuntu 24.04, maximum speed is limited to \\~0.25 m/s.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386",
+    "reason": "The report observes reduced motion/command velocity, without a build, connection, or activation diagnostic for this condition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Observe `/cmd_vel` and compare the `linear.x` output on both OS versions.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386",
+    "reason": "The discrepancy is detected during running navigation, not before activation."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Tested: Ubuntu 24.04, MuJoCo sim. Our measurement on a simulated Ridgeback mecanum base, vx_max: 0.5: commanded speed 0.165 to 0.466 m/s; ground truth 0.138 to 0.452",
+    "url": "https://github.com/ros-navigation/navigation2/pull/6336",
+    "reason": "Recommended is appropriate: the explicit successful observation is on a different simulated peer, not the original reporter composition with both units revision-identified."
+  },
+  "notes": "The original reporter attributed the slowdown to acceleration parameters taking effect on Jazzy; the later backport connects this symptom class to lagged feedback. Treat that causal attribution as the fix author's explanation, not as an instrumented measurement of the original odometry source. No additional failed condition is established for this pairing."
+}

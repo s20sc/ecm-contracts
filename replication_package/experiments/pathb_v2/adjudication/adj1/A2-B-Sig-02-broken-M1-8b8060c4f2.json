@@ -1,0 +1,26 @@
+{
+  "item_id": "A2-B-Sig-02-broken-M1-8b8060c4f2",
+  "kind": "A2",
+  "case_id": "B-Sig-02",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "type_mismatch",
+  "values": [
+    {
+      "path": "producer.outputs[0].msg_type",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0184/artifact.txt:1\ntopic=/box\ntype=obstacle_detection/GDXBoxMessage"
+    },
+    {
+      "path": "consumer.inputs[0].msg_type",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0183/artifact.txt:2\ntopic=/box\ntype=idfa_msgs/GDXBoxesMessage"
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specification is PAIR, and the two artifacts put both ports on /box with obstacle_detection publishing and GPUPlanarRegionSubscriber consuming. Evidence:\nsnapshot:s2_work/tasks/u0184/artifact.txt:1\ntopic=/box\ntype=obstacle_detection/GDXBoxMessage\n\nsnapshot:s2_work/tasks/u0183/artifact.txt:1\ncallerid=/GPUPlanarRegionSubscriber\ntopic=/box\ntype=idfa_msgs/GDXBoxesMessage\nThe differing nominal types are on the same attempted topic connection. This does not claim that the rejected connection delivered messages."
+  },
+  "notes": "The triggering nominal type names are directly verified. The artifacts are supplied excerpts, not complete private source repositories. The consumer message body and its definition hash are not established by this verdict. No absent permission-grant state is triggered."
+}

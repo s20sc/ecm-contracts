@@ -1,0 +1,79 @@
+{
+  "task_id": "u0199",
+  "package": "python_qt_binding",
+  "status": "evidence_inadequate",
+  "searched": "All 13 files of the snapshot (package.xml, CMakeLists.txt, setup.py, Makefile, MANIFEST.in, .gitignore, cmake/*.cmake, cmake/sip_configure.py, cmake/python_qt_binding-extras.cmake.em, src/python_qt_binding/{__init__,binding_helper,QtBindingHelper}.py) were read in full and grepped for QAction, QMessageBox, QToolButton, QSize, QtGui, QtWidgets, QtCore. None of the four symbols occurs anywhere in the snapshot. The package declares only module namespaces (QtCore, QtGui, QtWidgets and optional modules) as aliases of the PyQt5.* or PySide2.* modules; whether a given class name is an attribute of those modules is fixed by the external Qt 5 binding library, which is neither in the snapshot nor an allowed source. The provided/not-provided status of each element therefore cannot be established from allowed evidence.",
+  "manifest_version": "0.3.1",
+  "ports": [
+    {
+      "element": "api:QtGui.QAction",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:QtGui.QMessageBox",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:python_qt_binding.QtCore.QSize",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:python_qt_binding.QtGui.QToolButton",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "binding fallback: each binding in binding_order (default ['pyqt', 'pyside']) is tried in turn, an ImportError moves to the next one, and ImportError('Could not find Qt binding ...') is raised if none loads; optional Qt modules and Qwt are skipped silently on ImportError"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3",
+    "ports[0].side": "packet.json elements[0]; top-level namespace QtGui is registered by snapshot:src/python_qt_binding/binding_helper.py:103 (sys.modules[module_name] = module), module = PyQt5.QtGui (binding_helper.py:131) or PySide2.QtGui (binding_helper.py:163), 'QtGui' listed in required_modules at binding_helper.py:64",
+    "ports[1].side": "packet.json elements[1]; same top-level QtGui namespace as ports[0]: snapshot:src/python_qt_binding/binding_helper.py:103, :131, :163, :64",
+    "ports[2].side": "packet.json elements[2]; namespace python_qt_binding.QtCore is registered by snapshot:src/python_qt_binding/__init__.py:59-60 from QT_BINDING_MODULES (binding_helper.py:105), module = PyQt5.QtCore (binding_helper.py:131) or PySide2.QtCore (binding_helper.py:163), 'QtCore' listed at binding_helper.py:63",
+    "ports[3].side": "packet.json elements[3]; namespace python_qt_binding.QtGui is registered by snapshot:src/python_qt_binding/__init__.py:59-60, module = PyQt5.QtGui (binding_helper.py:131) or PySide2.QtGui (binding_helper.py:163)",
+    "perm_requires.state": "searched all snapshot code and configuration (package.xml, CMakeLists.txt, setup.py, cmake/*, src/python_qt_binding/*.py); no permission requirement declared",
+    "perm_grants.state": "searched all snapshot code and configuration (package.xml, CMakeLists.txt, setup.py, cmake/*, src/python_qt_binding/*.py); no permission grant declared",
+    "recovery.value": "snapshot:src/python_qt_binding/binding_helper.py:53 DEFAULT_BINDING_ORDER = ['pyqt', 'pyside']; :85-95 loop with 'except ImportError as e:' appending to error_msgs; :97-98 raise ImportError(\"Could not find Qt binding ...\"); :118-122 _named_optional_import swallows ImportError; :141-145 and :173-177 Qwt import optional"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "At this revision QtGui is a bare alias of the Qt 5 module PyQt5.QtGui / PySide2.QtGui with QtWidgets split out as a separate module, and no shim copies widget classes back into QtGui. In Qt 5 QAction, QMessageBox and QToolButton belong to QtWidgets, so QtGui.QAction, QtGui.QMessageBox and python_qt_binding.QtGui.QToolButton would no longer resolve for code written against the Qt 4 layout; python_qt_binding.QtCore.QSize would still resolve. This rests on background knowledge of the Qt 5 module layout, not on snapshot evidence."
+  },
+  "confidence": "medium",
+  "notes": "ROS 1 (kinetic) Python library package; none of the four elements is a ROS topic/service/message, so msg_type, frame, units, QoS, rates and definition_id are not applicable and recorded null. What the snapshot declares: binding_helper.py selects a Qt 5 binding (PyQt5 first, then PySide2; overridable via sys.SELECT_QT_BINDING / sys.SELECT_QT_BINDING_ORDER, binding_helper.py:250-253), imports required modules QtCore, QtGui, QtWidgets (binding_helper.py:62-66) and optional modules, and registers each one twice: as a top-level module under its own name (sys.modules['QtGui'], marked 'TODO: legacy compatibility', binding_helper.py:102-103), which is the namespace of the elements api:QtGui.QAction and api:QtGui.QMessageBox, and as python_qt_binding.<name> (__init__.py:57-62), the namespace of api:python_qt_binding.QtCore.QSize and api:python_qt_binding.QtGui.QToolButton. The only attributes the package itself adds to a binding module are Signal/Slot/Property (PyQt5) or pyqtSignal/pyqtSlot/pyqtProperty (PySide2) on QtCore (binding_helper.py:136-138, :168-170); nothing is added to QtGui. The class names QAction, QMessageBox, QToolButton and QSize are not declared, aliased or mentioned in any snapshot file, so whether each resolves depends entirely on the contents of the external PyQt5/PySide2 modules, which cannot be read under the allowed sources; for this reason all four elements are in neither declares nor not_declared and status is evidence_inadequate. package.xml depends on qtbase5-dev and python-qt5-bindings (package.xml:28-29, 31). The code also references binding-library symbols that are not packet elements (PyQt5.QtCore.PYQT_VERSION_STR, pyqtSignal/pyqtSlot/pyqtProperty, PyQt5.uic.loadUi, PyQt5.Qwt5, PySide2.QtUiTools.QUiLoader, PySide2.QtCore.QMetaObject, PySide2.__version__, PySideQwt, QtCore.qDebug); they are not listed in references. Unrelated observation: a missing comma after 'QtScriptTools' (binding_helper.py:74-75) concatenates it with 'QtSql' into 'QtScriptToolsQtSql', so neither optional module is registered. QtBindingHelper.py only prints a deprecation message. No exclusive resources are claimed."
+}

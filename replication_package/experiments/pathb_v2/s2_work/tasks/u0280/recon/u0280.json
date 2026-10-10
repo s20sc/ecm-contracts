@@ -1,0 +1,80 @@
+{
+  "task_id": "u0280",
+  "package": "rosapi",
+  "manifest_version": "2.2.0",
+  "ports": [
+    {
+      "element": "api:__slots__",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:_fields_and_field_types",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:builtin_interfaces/Time",
+      "side": "consumes",
+      "msg_type": "builtin_interfaces/Time",
+      "frame": "none",
+      "units": "sec: seconds, nanosec: nanoseconds",
+      "qos": {"reliability": "reliable", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "msg", "value": "b8329581487eec9a7e72c0898b6b124cb01e98cea623d8e620afa57ff5063ef8"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:__slots__",
+    "api:_fields_and_field_types",
+    "msg:builtin_interfaces/Time",
+    "msg:std_msgs/Header"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "present", "values": ["topics_glob", "services_glob", "params_glob"]},
+  "recovery": {
+    "state": "present",
+    "value": "get_typedef logs and returns None on InvalidModuleException/InvalidClassException; _get_typedef returns None for an instance lacking __slots__ or _fields_and_field_types; slots whose key is not in _fields_and_field_types are skipped; get_typedef_full_text returns a '# failed to get full definition text' comment on any Exception"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rosapi/package.xml:4",
+    "ports[0].frame": "snapshot:rosapi/src/rosapi/objectutils.py:204 (for slot in instance.__slots__: the attribute is a list of slot names of a runtime-loaded message instance; no spatial meaning)",
+    "ports[1].frame": "snapshot:rosapi/src/rosapi/objectutils.py:206 (if key not in instance._fields_and_field_types: a name-to-type-string mapping; no spatial meaning)",
+    "ports[2].msg_type": "snapshot:rosapi/scripts/rosapi_node:412 (response.time = Clock(clock_type=ClockType.ROS_TIME).now().to_msg()) into the GetTime response whose field is declared at snapshot:rosapi_msgs/srv/GetTime.srv:2 (builtin_interfaces/Time time)",
+    "ports[2].frame": "builtin_interfaces/Time carries a time stamp only (int32 sec, uint32 nanosec); no spatial meaning",
+    "ports[2].units": "https://raw.githubusercontent.com/ros2/rcl_interfaces/2.0.3/builtin_interfaces/msg/Time.msg:4 '# The seconds component, valid over all int32 values.' and :7 '# The nanoseconds component, valid in the range [0, 1e9), to be added to the seconds component.'",
+    "ports[2].qos.reliability": "snapshot:rosapi/scripts/rosapi_node:186 (self.create_service(GetTime, \"~/get_time\", self.get_time), no qos_profile passed); documented rclpy default for Node.create_service is qos_profile=qos_profile_services_default (rmw_qos_profile_services_default: KEEP_LAST depth 10, RELIABLE, VOLATILE, default deadline)",
+    "ports[2].qos.durability": "snapshot:rosapi/scripts/rosapi_node:186 (no qos_profile passed); documented rclpy default qos_profile_services_default has durability VOLATILE",
+    "ports[2].definition_id": "python3 definition_hash.py sha256 on builtin_interfaces/msg/Time.msg fetched from https://raw.githubusercontent.com/ros2/rcl_interfaces/2.0.3/builtin_interfaces/msg/Time.msg; the files at tag 2.0.2 and branch jazzy give the identical normalised hash",
+    "exclusive": "searched snapshot:rosapi/ (scripts, src, test, package.xml, CMakeLists.txt, mapping_rules.yaml) for exclusive resource claims; none (the node only creates services)",
+    "references[api:__slots__]": "snapshot:rosapi/src/rosapi/objectutils.py:192 (or not hasattr(instance, \"__slots__\")), :204 (for slot in instance.__slots__:), :265 (attribute[0] not in instance.__slots__)",
+    "references[api:_fields_and_field_types]": "snapshot:rosapi/src/rosapi/objectutils.py:193 (or not hasattr(instance, \"_fields_and_field_types\")), :206 (if key not in instance._fields_and_field_types:), :224 (field_type = instance._fields_and_field_types[name[1:]])",
+    "references[msg:builtin_interfaces/Time]": "snapshot:rosapi/test/test_stringify_field_types.py:59 (builtin_interfaces/Time stamp.*), :63 (MSG: builtin_interfaces/Time); runtime use at snapshot:rosapi/scripts/rosapi_node:412; package dependency snapshot:rosapi/package.xml:22 (<exec_depend>builtin_interfaces</exec_depend>)",
+    "references[msg:std_msgs/Header]": "snapshot:rosapi/test/test_stringify_field_types.py:45 (std_msgs/Header header.*), :57 (MSG: std_msgs/Header), :72, :94",
+    "perm_requires.state": "searched snapshot:rosapi/ code, package.xml and README.md; no security enclave, permission file or permission requirement declared",
+    "perm_grants.values": "snapshot:rosapi/scripts/rosapi_node:84-86 (declare_parameter(\"topics_glob\", \"[*]\"), declare_parameter(\"services_glob\", \"[*]\"), declare_parameter(\"params_glob\", \"[*]\")); snapshot:rosapi/README.md:10 'You must specify a list of allowed resources.'",
+    "recovery.value": "snapshot:rosapi/src/rosapi/objectutils.py:93-95, :178/:187-194, :205-207, :172-173"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "objectutils reads __slots__ and _fields_and_field_types defensively: it checks both attributes exist and skips any slot whose key is not in _fields_and_field_types, and test_typedefs.py covers an extra internal slot (_check_fields). The only oddity is objectutils.py:224 indexing _fields_and_field_types[name[1:]] even for a slot without a leading underscore, which generated ROS 2 message classes do not produce."
+  },
+  "confidence": "medium",
+  "notes": "All five packet elements are consumed; rosapi provides none of them, so declares and not_declared are empty. sensor_msgs/JointState is not named anywhere in the snapshot (grep for JointState over the whole snapshot returns nothing); rosapi introspects arbitrary message types whose names arrive at run time in service requests (e.g. MessageDetails.type -> objectutils.get_typedef_recursive, rosapi_node:290; TopicsAndRawTypes -> get_typedef_full_text, rosapi_node:211-213), so JointState could be processed at run time but has no port or reference. std_msgs/Header is named only in the test expectations of test_stringify_field_types.py (as the nested header of sensor_msgs/Image and CameraInfo), not in runtime code, so it is listed in references without a port. The two api elements are Python attributes of rosidl-generated message classes loaded at run time via rosbridge_library ros_loader.get_message_instance; they are not communication entities, so QoS, rate and definition_id are null for those ports. The builtin_interfaces/Time port's QoS is that of the ~/get_time service which carries it; the create_service call sets no qos_profile, and the recorded values are the rclpy documented default (qos_profile_services_default) cited from the API documentation, not fetched (only definition files may be fetched). Default service deadline is unspecified, so deadline_ms is null. perm_grants records the glob allow-list parameters that restrict which topics, services and params rosapi exposes; they are not SROS2 permissions. The builtin_interfaces release tag for jazzy was not listed (only raw definition files may be fetched); tags 2.0.2 and 2.0.3 and the jazzy branch all resolve and give the same normalised hash."
+}

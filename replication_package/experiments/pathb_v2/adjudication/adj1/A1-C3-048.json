@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-C3-048",
+  "kind": "A1",
+  "case_id": "C3-048",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the reporter gives sensor poses, MAVROS configuration and explicit errors; the maintainer confirms the lookup bug. E2: PX4 supplies a declared DISTANCE_SENSOR wire field consumed by MAVROS. The enum interpretation and configured-orientation check are cross-unit conditions, with an additional internal lookup defect in that composition. E3: PAIR is observed. The substantive enum-handling fix is not just a deployment-name binding or undeclared firmware fix.",
+    "quote": "You have to modify simulator code to send different orientation because mavros plugin just checks if it matches config (like sanity check).",
+    "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1011160733"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "DS: rangefinder_pub4: received sensor data has different orientation (CUSTOM) than in config (YAW_45)!",
+      "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1010921466",
+      "reason": "The transmitted orientation encoding is CUSTOM while the consumer expects the discrete YAW_45 representation. This supports representation_convention on DISTANCE_SENSOR.orientation. It does not establish the reporter's suspected degree/radian conversion error."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "I found bug in enum_sensor_orientation.cpp introduced by CUSTOM entry.",
+      "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1008431926",
+      "reason": "The array lookup mishandles sparse enum value 100; the patch replaces it with a keyed map. This internal defect belongs to the same composition and the same incoming field and fits other."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "DS: rangefinder_pub4: received sensor data has different orientation (100) than in config (YAW_45)!",
+    "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1007988240",
+    "reason": "MAVROS explicitly diagnoses and enforces the received/configured orientation mismatch: loud_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [1641647988.732717328, 4.408000000]: SENSOR: wrong orientation index: 100",
+    "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1007988240",
+    "reason": "The errors are generated while receiving sensor data: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've built master and I don't get the `SENSOR: wrong orientation index: 100` message anymore. My sensor orientation is now recognized as CUSTOM and it seems to be working.",
+    "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1010921466",
+    "reason": "This confirms improvement of the lookup condition only; the same comment still reports the YAW_45 refusal. The later CUSTOM/TF advice has no subsequent demonstrated full-composition test, and master/latest do not pin both unit revisions. Recommended is supported."
+  },
+  "notes": "The two conditions must remain separate: correcting the enum lookup does not make CUSTOM equal YAW_45. The checkid script's Python iteritems error is also visible and fixed in the PR, but is a separate diagnostic-script composition, not an additional distance-sensor condition."
+}

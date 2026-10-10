@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_566092b",
+  "kind": "A1",
+  "case_id": "robust_566092b",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The issue is with the action client, not with BufferClient (state is available before result).",
+    "url": "https://github.com/ros/geometry2/issues/178#issuecomment-431801344"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The issue is with the action client, not with BufferClient (state is available before result). I created a simplified case without using bufferclient, which I will post along with an issue in actionlib when I have cleaned it up.",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-431801344"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Cranking the rate up to 100000 I was also able to get a double answer: \n\n[ERROR] [WallTime: 1464801977.428899] Received comm state ACTIVE when in simple state DONE with SimpleActionClient in NS /tf2_buffer_server\n[ERROR] [WallTime: 1464801978.438880] SimpleActionClient received DONE twice",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-223066155"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "raise tf2.TransformException(\"The BufferServer returned None for result or result.error!  Something is likely wrong with the server.\")",
+    "url": "https://github.com/ros/geometry2/issues/178"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "From this short test I believe that the problem was partially mitigated. In fact, no more tf errors are thrown, however there is still something wrong with the tf state machine."
+  },
+  "notes": "All quotes verified verbatim against the issue body and comments 223066155 (tfoote), 431658241 (g-gemignani), 431801344 (jorgenfb), and the fix commit 566092b (diff matches '- state == GoalStatus.SUCCEEDED or state == GoalStatus.LOST:' -> '+ state == GoalStatus.LOST:' and '+ if state == GoalStatus.SUCCEEDED and self.client.get_result(): return True'). Both failed conditions are genuinely class 'other' (state/result ordering and the provider's internal DONE-twice state machine have no matching named class). Loudness silent/run is correct: the only diagnostic is the consumer's own TransformException at run time. Resolution 'observed' is defensible because the reporter re-ran the reproducer with/without the patch; the spec honestly notes the residual actionlib state-machine errors and the unstated actionlib revision."
+}

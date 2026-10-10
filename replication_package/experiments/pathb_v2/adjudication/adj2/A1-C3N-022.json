@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3N-022",
+  "kind": "A1",
+  "case_id": "C3N-022",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Crux of the issue seems that the status of the node is set to IDLE. Last year, when I had implemented, the status ended up to success and went IDLE only when the entire BT was IDLE. This IDLE state was blocking the logic of the intended decorator going forward.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4110 (padhupradheep comment, read this session via API; also in PR #4300 body)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Crux of the issue seems that the status of the node is set to IDLE. Last year, when I had implemented, the status ended up to success and went IDLE only when the entire BT was IDLE. This IDLE state was blocking the logic of the intended decorator going forward.",
+      "url": "https://github.com/ros-navigation/navigation2/issues/4110 (padhupradheep comment, read this session via API)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "But nav2 seems to ignore the new beaviour xml by following its path without stopping at the obstacle.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4110 (issue body, read this session)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Resolved by the PR linked above! Thanks for the report @kevinpretell"
+  },
+  "notes": "Independently verified: (1) E1 — reproducer verified in the issue body (BT XML with '<PathLongerOnApproach path=\"{path}\" prox_len=\"6.0\" length_factor=\"1.2\">' as the first child of ReactiveSequence 'MonitorAndFollowPath', FollowPath as the second; nav2_gps_waypoint_follower_demo; obstacle added in Gazebo; GIF), plus observed failure 'the robot does not stop when a longer path is recalculated waiting for the obstacle to go away, and takes the longer path' and maintainer confirmation 'Alright, in any case, it doesn't work @kevinpretell thanks for reporting.'. (2) E2 stop 6 — both sides verified in source: the decorator at nav2 1.2.6 reads 'if (status() == BT::NodeStatus::IDLE) {' / '// Reset the starting point since we're starting a new iteration of' / '// PathLongerOnApproach (moving from IDLE to RUNNING)' / 'first_time_ = true;' (path_longer_on_approach.cpp L65-68, fetched at tag 1.2.6 whose commit I confirmed is 57093ecc); BehaviorTree.CPP commit 51f92c49 (message verified: 'backport changes in 4.x and fix #643') changed ReactiveSequence from halting children after the running one to resetting children before it — the patch I read removes 'for (size_t i = index + 1; i < childrenCount(); i++)' and adds '// reset the previous children, to make sure that they are in IDLE state' / 'for (size_t i = 0; i < index; i++)' / 'haltChild(i);'. The status value maintained by the host crosses the plugin boundary (the plugin's own status() read), so it is not internal; no wiring/build/firmware change is involved. The attribution of the IDLE behavior to 3.8.6 is inferred but each link is source-verified and the spec labels it as inferred. (3) E3 UPGRADE with consumer_built_against.broken = 3.6.0, basis inferred: the removed 'index + 1' loop read in 51f92c49's diff is direct evidence of the pre-change (3.6.0-era) halting semantics, and the iron distribution.yaml at 4f8aea84 verified listing behaviortree_cpp_v3 'version: 3.8.6-1' and navigation2 'version: 1.2.6-1' on the report date — the definition's clause for a consumer still referencing provider elements as they existed at an earlier provider revision applies. (4) Class 'other' is right: the host's child-reset/status semantics changed behaviorally with no declaration/type/encoding change; implicating api:BT::ReactiveSequence and api:BT::TreeNode::status matches the crossing elements. (5) Loudness silent_documented/run: the failure is behavioural; the maintainer's question 'Your BT probably isn't being changed, did you verify that you are actually using the new BT or see any log errors?' received no error log and nothing in the thread shows a warning from BehaviorTree.CPP or bt_navigator. (6) Resolution recommended: PR 4300 verified merged to main (merge_commit_sha d0a65d5afbab3b758408b79ebf5cd344b3377b00) with the patch I read removing the IDLE-status reset and adding 'if (first_time_ == false) {' / 'if (old_path_.poses.back() != new_path_.poses.back()) {' / 'first_time_ = true;'; PR body lists 'Robotic platform tested on | Neobotix ROX' without showing a result; the issue was reopened ('reopening, doesn't work with the smac planners.. headers have proper stamps while the solution that was given for this was developed only for the NavFN (which doesnt have stamps).') and closed again after 'merged fix'; no one confirmed the fix in the reporter's Iron composition, which never received it; the resolved nav2 revision 507b3659 verified ('fixing path longer on approach (#4622) (#4766)', fetched from the humble branch). The smac/stamped-pose mismatch is correctly recorded as a separate composition in notes, not a condition of this case."
+}

@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-CAL2-12",
+  "kind": "A1",
+  "case_id": "CAL2-12",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Seem to have a problem in 32 bit alignment for eigen classes in bumper2pc. Probably missing that eigen macro in a class somewhere.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257",
+    "reason": "E1/E4: the concrete assertion, failed nodelet loading, and maintainer fix establish a defect. E2: the plugin's allocated object must satisfy the separately supplied Eigen library's alignment requirement. The corrective class declaration is an interface precondition fix, not packaging or deployment wiring. E3: PAIR through Eigen object construction."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Case 1: Structures having Eigen objects as members\nAdding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem",
+      "url": "https://github.com/yujinrobot/kobuki/issues/257#issuecomment-18128700",
+      "reason": "This is an allocation/address-alignment requirement for fixed-size Eigen storage. It is not component order, byte order, handedness, or value encoding, so other is more precise than representation_convention. The selected Vector4f storage and aligned-allocation macro are consistent with the float/Size=4 assertion and the class fix.",
+      "supporting_evidence": [
+        {
+          "quote": "[with T = float, int Size = 4, int MatrixOrArrayOptions = 0]",
+          "url": "https://github.com/yujinrobot/kobuki/issues/257"
+        },
+        {
+          "quote": "+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW",
+          "url": "https://github.com/yujinrobot/kobuki/commit/18b46dc557676adc00b9f17c09c3af5281b5ea88.diff"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[FATAL] [1368451090.542690660]: Service call failed!",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257",
+    "reason": "An explicit Eigen assertion accompanies fatal nodelet-load service errors and process termination during activation."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[bumper2pointcloud-9] process has died [pid 27236, exit code 255, cmd /opt/ros/groovy/lib/nodelet/nodelet load kobuki_bumper2pc/Bumper2PcNodelet mobile_base_nodelet_manager",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257",
+    "reason": "The failing command loads the nodelet, and the fix supplies aligned allocation for constructing it. activate is supported, rather than topic connection or later message processing."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Adding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257#issuecomment-18128700",
+    "reason": "This supports the corrective edit and a maintainer success claim, but it does not identify the Eigen revision and the tested plugin revision together. The strict observed criterion is therefore not met; recommended is the supported status. The code diff confirms what changed without supplying the missing two-revision runtime observation."
+  },
+  "notes": "The later ecl/auto-docking discussion concerns another composition and does not establish an additional failed condition for the bumper2pc/Eigen pair. The specification's own explanatory note describes alignment as other, consistent with the source-based class correction here. No inference about the exact reporter Eigen release is needed for these verdicts."
+}

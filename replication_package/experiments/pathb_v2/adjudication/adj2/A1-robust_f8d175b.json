@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_f8d175b",
+  "kind": "A1",
+  "case_id": "robust_f8d175b",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 4,
+    "reason_code": "build",
+    "quote": "00:08:02 /tmp/binarydeb/ros-indigo-ur-kinematics-1.1.6/include/ur_kinematics/ur_moveit_plugin.h:97:74: fatal error: moveit/kdl_kinematics_plugin/chainiksolver_pos_nr_jl_mimic.hpp: No such file or directory",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/274"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "fatal error: moveit/kdl_kinematics_plugin/chainiksolver_pos_nr_jl_mimic.hpp: No such file or directory (a loud build-time diagnostic exists in the source; loudness null in the spec conforms to the ineligible-case schema, under which no loudness field is recorded)",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/274"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Prerelease test against Indigo-Trusty succeeded. (recorded in a PR #275 comment; the spec carries resolution status only in notes as null, which conforms to the ineligible-case schema)"
+  },
+  "notes": "Independently verified: issue #274 (tfoote, 2016-12-29, 'ur_kinematics fails to build on indigo') quotes the build log and the build.ros.org job URL exactly as the spec states (issue body read via gh api, no comments). Fix commit 8f7f2418edc1d507853c1c766b6a79123393007b ('Fix #274', patch read in full) touches only ur_kinematics/CMakeLists.txt — '+find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs moveit_core moveit_kinematics' and '+  CATKIN_DEPENDS roscpp geometry_msgs moveit_core moveit_kinematics moveit_ros_planning' — and ur_kinematics/package.xml ('+  <build_depend>moveit_kinematics</build_depend>', '+  <run_depend>moveit_kinematics</run_depend>'); no source or include line changes. PR #275 merged 2016-12-29 as f8d175b09ea955ebe83aecbe19105c28f0225524 (parents include 8f7f241, confirmed). moveit PR #247 body (read via gh api, repo ros-planning/moveit, davetcoleman, merged 2016-09-28) contains verbatim: 'I have changed no code for any of the plugins, simply moved them to a new location within the moveit repo.' E2 step 4 is the correct stop: the provider's definitions are unchanged (headers moved verbatim, include path identical — corroborated by the fix working through a dependency addition alone, with the contributor's prerelease succeeding), and the resolving change is purely dependency-resolution. The tree's parenthetical '(Rebuilding a consumer because a provider's definition changed is an interface change)' does not apply because no definition changed. Notes-level claims also verified: 'Prerelease test against Indigo-Trusty succeeded.' and 'moveit_kinematics is not yet available on buildfarm's public repo' both appear in PR #275 comments."
+}

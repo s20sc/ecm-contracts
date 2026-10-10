@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-robust_9682b9a",
+  "kind": "A1",
+  "case_id": "robust_9682b9a",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This problem is due to the combination of new qt_gui_core packages with \"old\" rqt packages.\nI committed changes to both repos, but only the qt_gui_core was tagged and released, the latest tag on the rqt repo is 3 month old...",
+    "url": "https://github.com/ros-visualization/qt_gui_core/issues/16#issuecomment-16019816",
+    "reason": "The separately released Python plugin provider and GUI framework disagree on the descriptor interface. This is an UPGRADE interaction, not merely dependency installation or an absent icon file."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-        base_path = plugin_descriptor.attributes().get('plugin_path')\n+        base_path = plugin_descriptor.attributes().get('package_path')",
+      "url": "https://github.com/ros-visualization/qt_gui_core/commit/295a040845dd2290de9c22e80bd41d7c53f413db",
+      "reason": "Both dictionary-key accessors identify the rename. The issue's printed Python descriptor dictionaries still contain plugin_path, whereas package_path is present only for the C++ plugins shown."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "UserWarning: icon \"../src/kobuki_qtestsuite/resources/images/kobuki_icon.png\" not found",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/10"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "  File \"/opt/ros/groovy/lib/python2.7/dist-packages/qt_gui/plugin_manager.py\", line 108, in discover\n    self._plugin_menu.add_plugin(plugin_descriptor)",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/10",
+    "reason": "The framework raises the diagnostic during startup plugin discovery/menu construction, before normal plugin operation: activate."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Just dropped down the latest source for qt_gui_core and rqt and recompiled kobuki_qtestsuite against them with relative icons.\n\nAll seems ok :+1:!",
+    "url": "https://github.com/ros-visualization/qt_gui_core/issues/16#issuecomment-18817746",
+    "reason": "This is an actual joint test of the two selected repositories, not just a merge. Historical groovy-devel commit queries through 2013-06-03 independently returned ffae1f756dbf23194a2628922939d9633df947f6 and 9682b9af78eecd368004fe7596e341eb84abc719, consistent with the specified latest-source pair. The SHA attribution is inferred, not explicitly printed by the tester."
+  },
+  "notes": "Read both issue threads and the original and final fixing diffs. Read historical head metadata via https://api.github.com/repos/ros-visualization/qt_gui_core/commits?sha=groovy-devel&until=2013-06-03T23:59:59Z&per_page=1 and the corresponding rqt endpoint. Their commit messages were 'make plugin resources relative to plugin.xml, fix help provider (#16)' and 'make plugin resources relative to plugin.xml (ros-visualization/qt_gui_core#16)'. The interim rollback and opposite old/new pairing are not the selected resolved pair. The plugin-relative versus package-relative XML discussion concerns an additional plugin/framework pairing, not another established condition in the originally broken descriptor pair."
+}

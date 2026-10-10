@@ -1,0 +1,163 @@
+{
+  "task_id": "u0332",
+  "package": "rosbridge_suite",
+  "manifest_version": "4.0.0",
+  "ports": [
+    {
+      "element": "field:rosbridge_protocol/advertise.latch",
+      "side": "consumes",
+      "msg_type": "rosbridge_protocol/advertise",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:rosbridge_protocol/advertise.queue_size",
+      "side": "consumes",
+      "msg_type": "rosbridge_protocol/advertise",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:rosbridge_protocol/call_service.args",
+      "side": "provides",
+      "msg_type": "rosbridge_protocol/call_service",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:rosbridge_protocol/service_response.values",
+      "side": "provides",
+      "msg_type": "rosbridge_protocol/service_response",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:rosbridge_protocol/subscribe.queue_length",
+      "side": "consumes",
+      "msg_type": "rosbridge_protocol/subscribe",
+      "frame": "none",
+      "units": "messages",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:rosbridge_protocol/advertise",
+      "side": "consumes",
+      "msg_type": "rosbridge_protocol/advertise",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:rosbridge_protocol/call_service",
+      "side": "provides",
+      "msg_type": "rosbridge_protocol/call_service",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:rosbridge_protocol/service_response",
+      "side": "provides",
+      "msg_type": "rosbridge_protocol/service_response",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:rosbridge_protocol/subscribe",
+      "side": "consumes",
+      "msg_type": "rosbridge_protocol/subscribe",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "field:rosbridge_protocol/call_service.args": "field rosbridge_protocol/call_service.args: object or list",
+    "field:rosbridge_protocol/service_response.values": "field rosbridge_protocol/service_response.values: object or string",
+    "msg:rosbridge_protocol/call_service": "msg rosbridge_protocol/call_service: null",
+    "msg:rosbridge_protocol/service_response": "msg rosbridge_protocol/service_response: null"
+  },
+  "not_declared": [],
+  "references": [
+    "msg:rosbridge_protocol/advertise",
+    "field:rosbridge_protocol/advertise.latch",
+    "field:rosbridge_protocol/advertise.queue_size",
+    "msg:rosbridge_protocol/subscribe",
+    "field:rosbridge_protocol/subscribe.queue_length"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "present", "values": ["topics_glob", "services_glob", "actions_glob", "/rosapi/*"]},
+  "recovery": {"state": "present", "value": "launch node respawn=\"$(var respawn)\" (arg default \"false\"); WebSocket server bind retried every retry_startup_delay seconds until it succeeds"},
+  "provenance": {
+    "manifest_version": "snapshot:rosbridge_suite/package.xml:4",
+    "ports[0].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise.py:115 | protocol.register_operation(\"advertise\", self.advertise)",
+    "ports[0].frame": "snapshot:ROSBRIDGE_PROTOCOL.md:255 | | `latch` | optional | boolean | Whether to latch the last message published on this topic. Defaults to `false`. |",
+    "ports[1].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise.py:115 | protocol.register_operation(\"advertise\", self.advertise)",
+    "ports[1].frame": "snapshot:ROSBRIDGE_PROTOCOL.md:256 | | `queue_size` | optional | integer | Size of the internal publisher queue (QoS depth policy). Defaults to `100`. |",
+    "ports[2].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise_service.py:58 | \"op\": \"call_service\",",
+    "ports[3].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/call_service.py:142 | \"op\": \"service_response\",",
+    "ports[4].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:260 | protocol.register_operation(\"subscribe\", self.subscribe)",
+    "ports[4].frame": "snapshot:ROSBRIDGE_PROTOCOL.md:336 | | `queue_length` | optional | integer | Size of the queue to buffer messages when throttled. ...",
+    "ports[4].units": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:131 | :param queue_length: The number of messages that can be buffered.",
+    "ports[5].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise.py:115 | protocol.register_operation(\"advertise\", self.advertise)",
+    "ports[5].frame": "snapshot:ROSBRIDGE_PROTOCOL.md:249-256 | fields op, id, topic, type, latch, queue_size (control message, no spatial data)",
+    "ports[6].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise_service.py:58 | \"op\": \"call_service\",",
+    "ports[7].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/call_service.py:142 | \"op\": \"service_response\",",
+    "ports[8].msg_type": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:260 | protocol.register_operation(\"subscribe\", self.subscribe)",
+    "ports[8].frame": "snapshot:ROSBRIDGE_PROTOCOL.md:329-338 | fields op, id, topic, type, throttle_rate, queue_length, fragment_size, compression (control message, no spatial data)",
+    "declares[field:rosbridge_protocol/call_service.args]": "snapshot:ROSBRIDGE_PROTOCOL.md:404 | | `args` | optional | object or list | The arguments to pass to the service. ... | ; emitted at snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise_service.py:61 | \"args\": message_conversion.extract_values(req),",
+    "declares[field:rosbridge_protocol/service_response.values]": "snapshot:ROSBRIDGE_PROTOCOL.md:424 | | `values` | conditional | object or string | ... | ; emitted at snapshot:rosbridge_library/src/rosbridge_library/capabilities/call_service.py:144 | \"values\": message, and :158 | \"values\": str(exc),",
+    "declares[msg:rosbridge_protocol/call_service]": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise_service.py:57-63 | request_message = {\"op\": \"call_service\", \"id\": request_id, \"service\": self.service_name, \"args\": ...}; self.protocol.send(request_message); spec snapshot:ROSBRIDGE_PROTOCOL.md:395-413 (no .msg/.srv/.action/.idl definition exists, so no definition hash)",
+    "declares[msg:rosbridge_protocol/service_response]": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/call_service.py:141-150 and 155-163 | outgoing_message = {\"op\": \"service_response\", \"service\": service, \"values\": ..., \"result\": True|False}; spec snapshot:ROSBRIDGE_PROTOCOL.md:415-431 (no IDL definition, so no definition hash)",
+    "references[msg:rosbridge_protocol/advertise]": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise.py:115 | protocol.register_operation(\"advertise\", self.advertise)",
+    "references[field:rosbridge_protocol/advertise.latch]": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise.py:125 | latch: bool = message.get(\"latch\", False)",
+    "references[field:rosbridge_protocol/advertise.queue_size]": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/advertise.py:126 | queue_size: int = message.get(\"queue_size\", 100)",
+    "references[msg:rosbridge_protocol/subscribe]": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:260 | protocol.register_operation(\"subscribe\", self.subscribe)",
+    "references[field:rosbridge_protocol/subscribe.queue_length]": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:308 | \"queue_length\": msg.get(\"queue_length\", 0), (type check at :246 | (False, \"queue_length\", int),)",
+    "perm_requires": "searched rosbridge_library/src, rosbridge_server (py, xml, yaml) for auth/permission/security settings: no authentication op, no SROS2 enclave or required permission declared",
+    "perm_grants.values[0]": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:87 | (\"topics_glob\", str, \"\", \"Glob patterns for topics publish/subscribe.\"), enforced at advertise.py:128-144 and subscribe.py:275-291",
+    "perm_grants.values[1]": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:88 | (\"services_glob\", str, \"\", \"Glob patterns for services call/advertise.\"), enforced at call_service.py:94-112",
+    "perm_grants.values[2]": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:89 | (\"actions_glob\", str, \"\", \"Glob patterns for actions send/advertise.\"),",
+    "perm_grants.values[3]": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:131-132 | if self.protocol_parameters[\"services_glob\"] is not None: self.protocol_parameters[\"services_glob\"].append(\"/rosapi/*\")",
+    "recovery.value": "snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:31 | <arg name=\"respawn\" default=\"false\"/> and :60 respawn=\"$(var respawn)\"; snapshot:rosbridge_server/scripts/rosbridge_websocket.py:222-226 | except OSError ... time.sleep(self.retry_startup_delay)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "On the provided side the emitted call_service (args = extracted dict) and service_response (values = dict on success, str(exc) on failure) match the in-snapshot protocol spec, and advertise.latch/queue_size and subscribe.queue_length are all read with the spec defaults. The one inconsistency seen is on the inbound path of service_response.values: the ServiceResponse capability type-checks values as dict and always reads message[\"values\"] ignoring result, while the spec allows a string or absent values when result is false. Whether that counts for the listed provides-side element is unclear."
+  },
+  "confidence": "medium",
+  "notes": "The elements are rosbridge JSON protocol operations (op codes) and their fields, not ROS IDL types. msg_type uses the packet's rosbridge_protocol/<op> naming. The code names the operations by op string (register_operation / \"op\" literals). No .msg/.srv/.action/.idl definition exists for them in the snapshot, and ros_distro is null, so definition_id is null for every port and the msg declares entries carry null in the hash slot. Their field types are taken from the prose definition tables in ROSBRIDGE_PROTOCOL.md (protocol v2.0.0, line 1). Side mapping: the package emits call_service to clients that advertised a service (advertise_service.py:57-63) and emits service_response after proxying a client's call (call_service.py:141-163). It also accepts both ops inbound (CallService capability consumes call_service.args as list or dict, services.py:121-125; ServiceResponse capability consumes service_response.values as dict, service_response.py:16,37), but these are not listed in references because the packet assigns them the provides side. QoS is null on all ports because the ports are WebSocket/JSON protocol messages, not DDS entities. For context, the ROS entities these fields configure are: advertise creates a publisher with QoSProfile(depth=queue_size, durability=TRANSIENT_LOCAL) whatever latch is; latch=false adds lifespan 1 s; latch=true sets depth=1 and no lifespan (publishers.py:125-136). Reliability is not set in code; the spec documents reliable (ROSBRIDGE_PROTOCOL.md:236). subscribe creates a subscription with depth=10 and VOLATILE/BEST_EFFORT by default. It switches to TRANSIENT_LOCAL+RELIABLE when all discovered publishers are transient local, and to BEST_EFFORT when any discovered publisher is best effort (subscribers.py:137-151). That choice depends on discovered peers, so it is not statically determined. subscribe.queue_length is not a QoS depth: it sizes rosbridge's outbound throttle queue (deque maxlen, subscription_modifiers.py:127), and the minimum is taken across a client's subscriptions to one topic (subscribe.py:220). Unlike the publish op (publish.py:51-52), the advertise op does not type-check latch or queue_size (advertise.py:103). Defaults in code: latch False, queue_size 100, queue_length 0, call_service timeout default_call_service_timeout 5.0. The glob permission parameters default to \"\" (no restriction) and are read at run time. exclusive is empty: no hardware command interface or device handle is claimed; the WebSocket listening port (param port, default 9090) is bound with bind_sockets but is not recorded as an exclusive device resource. All seven package.xml files in the snapshot are version 4.0.0; manifest_version is taken from the rosbridge_suite metapackage."
+}

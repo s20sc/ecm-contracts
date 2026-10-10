@@ -1,0 +1,60 @@
+{
+  "item_id": "A1-C3-017",
+  "kind": "A1",
+  "case_id": "C3-017",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "statistics include `NaN` data in the message, when it is being converted with `rosidl_python`, it detects the following.",
+    "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1304061993",
+    "reason": "The reproducer publishes statistics successfully to a C++ reader while the separate Python echo process cannot consume them. The failed numeric-domain assumption crosses the topic boundary. This is a PAIR failure rather than an internal defect or deployment issue; the conversion fix confirms the mismatch."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "statistics include `NaN` data in the message, when it is being converted with `rosidl_python`, it detects the following.",
+      "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1304061993",
+      "reason": "The numerical-domain validation of data excludes NaN, without a nominal type, unit or definition disagreement. other fits. The /statistics reproduction and the fixed echo output identify the data field.",
+      "supporting_evidence": [
+        {
+          "quote": "- data_type: 1\r\n  data: .nan",
+          "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1306087432"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Unable to convert call argument to Python object (compile in debug mode for details)",
+    "url": "https://github.com/ros2/ros2/issues/1341",
+    "reason": "The source documents a runtime conversion exception, not a build/connection/activation compatibility diagnostic. silent_documented follows S1's narrow taxonomy and does not mean the runtime error text was absent."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "At this point, `ros2 topic list` shows all the topics correctly, and echoing `/topic_statistics_chatter` is working, but echoing `/statistics` does not work.",
+    "url": "https://github.com/ros2/ros2/issues/1341",
+    "reason": "Discovery works; the failure is during message consumption at run time."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I just confirmed that the backports work when building humble from sources with @clalancette's PR.",
+    "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1306798327",
+    "reason": "There is real success evidence, but the supplied successful Dockerfile imports the Humble workspace, whereas the specified provider stays at an inferred Rolling demos commit. Thus success of the exact specified resolved pair is not established; recommended is appropriate for that pair.",
+    "supporting_evidence": [
+      {
+        "quote": "vcs import --input https://raw.githubusercontent.com/ros2/ros2/humble/ros2.repos src",
+        "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1306798327"
+      }
+    ]
+  },
+  "notes": "Read the issue discussion, successful output/Dockerfile, PR 188 and its numerical-bound changes. rosidl_generator_py describes the generator responsible for the failing runtime classes; the actual receiving process is ros2 topic echo/rclpy, not the generator itself. No separate Inf failure in this reported composition is established merely because the fix also permits Inf."
+}

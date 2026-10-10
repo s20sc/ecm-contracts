@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-B-Res-03", "kind": "A1", "case_id": "B-Res-03",
+  "eligibility": {
+    "verdict": "agree", "stop_step": 6, "reason_code": null,
+    "reason": "Public reproduction documents a client/controller-manager PAIR service interaction. A false success crosses the service boundary, so an implementation-local cause does not make this internal under E2. No deployment-only, build-only or firmware exclusion applies.",
+    "quote": "Calling the service **/controller_manager/switch_controller** return always true even if it could not switch the controllers.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1179"
+  },
+  "failed_conditions": [
+    {"index": 0, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+     "quote": "response->ok = switch_controller(\n                   activate_controllers, deactivate_controllers, request->strictness, activate_asap,\n                   request->timeout) == controller_interface::return_type::OK;",
+     "url": "https://github.com/ros-controls/ros2_control/blob/945d64ed3640e8fcda6050958e020ca17ef1eb8b/controller_manager/src/controller_manager.cpp#L1741-L1744",
+     "reason": "Wrong response semantics are other, not a type or definition mismatch. The service result and strictness handling are implicated."},
+    {"index": 1, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+     "quote": "[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists",
+     "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833",
+     "element_evidence": {"quote": "ros2 service call /controller_manager/switch_controller controller_manager_msgs/srv/SwitchController \"{start_controllers: [\"dummy_controller\"]}\"", "url": "https://github.com/ros-controls/ros2_control/issues/1179"},
+     "reason": "A deliberately nonexistent controller produces a documented refusal in this composition; the tree explicitly includes such refusals. This is not evidence that a previously declared interface element was removed."}
+  ],
+  "missed_conditions": [],
+  "loudness": {"verdict": "agree", "proposed": null, "quote": "[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists", "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833"},
+  "detection_stage": {"verdict": "agree", "proposed": null, "quote": "[controller_manager]: Empty activate and deactivate list, not requesting switch", "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833"},
+  "resolution": {"verdict": "agree", "proposed": null, "quote": "Please try with the `strictness` set to `STRICT` when sending the service request. I think it should respond with false.", "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1911700097"},
+  "notes": "Agree with recommended, not observed. The source does not confirm the reporter's successful retest. The later STRICT resource-conflict report limits the workaround's scope. Loudness describes the diagnosed refusal, not a diagnostic explicitly detecting the incorrect ok=True response. The two-controller exclusive-resource conflict belongs to the other composition already acknowledged in the specification, not an additional resource condition for the service client/provider pair."
+}

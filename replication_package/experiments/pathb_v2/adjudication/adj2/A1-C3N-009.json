@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3N-009",
+  "kind": "A1",
+  "case_id": "C3N-009",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "their node clock tends to stay in the RCL_SYSTEM_TIME` for some cycle time instead of switching to the clock of the gazebo.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1311 (issue body, read this session)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "We have been facing an issue for several months that the JTC doesn't publish the `state` or the `controller_state` topic after starting TIAGo simulation. After taking a close look today, I found out that the issue is coming from the controller_interface itself when the controllers are loaded and launched in the simulation, their node clock tends to stay in the RCL_SYSTEM_TIME` for some cycle time instead of switching to the clock of the gazebo.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1311 (issue body, read this session)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've added some print statements and found out the following",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1311 (issue body, read this session)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "implement logic of use_sim_time as arguments to solve #1311"
+  },
+  "notes": "Independently verified: (1) E1 — issue by maintainer saikishor with the printed last_state_publish_time_/get_node()->now() values showing the jump from 1.7055e+09 to 0.672 and before/after screenshots; fix PR 1293 body verified to state 'Fixes: https://github.com/ros-controls/ros2_control/issues/1311'. (2) E2 stop 6 — both sides of the boundary verified in source: controller_manager at a3bf2801 L1202-1211 applies use_sim_time only after the controller node exists ('// ensure controller's `use_sim_time` parameter matches controller_manager's' ... 'controller.c->get_node()->set_parameter(use_sim_time);'), and joint_trajectory_controller at e08dcb91 L1136-1138 suppresses publishing while 'if (get_node()->now() < (last_state_publish_time_ + state_publisher_period_)) / { / return; / };' — a system-time stamp followed by the switch to sim time makes the guard true forever. The timing/order of the parameter application relative to node creation crosses the host-plugin boundary; with a host passing use_sim_time at node creation there is no failure, so it is not internal; the resolving edit is controller_manager code (NodeOptions argument at init), not a deployment name binding, build, or firmware change. Interface kind parameter. (3) Class 'other' is right: a clock-source/initialization-order mismatch is not a frame, unit, QoS, rate, or representation mismatch; implicating param:use_sim_time and api:init matches the crossing elements. (4) Loudness silent_documented/run: the symptom is a silently unpublished topic; the cause was found with print statements the reporter added, and nothing in the source shows a tooling diagnostic. (5) Resolution recommended: PR 1293 verified merged (merge_commit_sha 5d4f6e7277fcd0d9a2a65b1366663e4cbf3047f2) and commit 201fd47c message verified as 'implement logic of use_sim_time as arguments to solve #1311'; humble backport PR 1332 verified merged (fe5b4f160026c233936ccf9120a94808195ece5e). The reporter's 'AFTER APPLYING THE ABOVE SOLUTION' evidence was a local NodeOptions change, not an identified revision, and the merged backport's reported success (Noel215) concerns the parameter-loading issue with a different ros2_controllers revision — recommended, not observed, is correct."
+}

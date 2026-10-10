@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-050",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-drivers/usb_cam/issues/356",
+    "https://github.com/ros-drivers/usb_cam/commit/6a1019e00c851080cec54ec50f8645ebaecc4396",
+    "https://github.com/ros-drivers/usb_cam/pull/359",
+    "https://github.com/kiwicampus/usb_cam/commit/9f5fe90b2013bc6a28571550e6ebac1cbb98c664"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #356 (title \"remap rule '__ns:=/usb_cam0'. This syntax is deprecated.\"): \"I am using ros2 jazzy, and there is a line that uses deprecated args in README\" and proposes \"ros2 run usb_cam usb_cam_node_exe --ros-args --remap __ns:=/usb_cam0 --params-file usb_cam/usb_cam_param_00.yaml\". Maintainer confirmed by commit 6a1019e0 \"Update README removing deprecated args / Closes #356\". https://github.com/ros-drivers/usb_cam/issues/356"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": ["usb_cam (usb_cam_node_exe)", "ROS 2 command-line argument handling (rcl / ros2 run)"],
+      "interface_kind": null,
+      "evidence": "The only resolving change is to the documented command line that starts the node with a namespace remap and a parameter file. Commit 6a1019e0 changes README.md only: \"-ros2 run usb_cam usb_cam_node_exe --remap __ns:=/usb_cam_0 --params-file /path/to/usb_cam/config/params_0.yaml\" to \"+ros2 run usb_cam usb_cam_node_exe --ros-args --remap __ns:=/usb_cam_0 --params-file /path/to/usb_cam/config/params_0.yaml\". No unit's declared or referenced interface (topics, services, parameters, definitions, APIs) changed; the edit only binds a namespace at deployment."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "The documented command targets a newer CLI convention (the reporter runs Jazzy), i.e. deployment-time invocation of the node; no inter-unit operation beyond starting the node is involved."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The issue title reproduces the deprecation message: \"remap rule '__ns:=/usb_cam0'. This syntax is deprecated.\" (a warning; no failure of the node is reported)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring: the resolving change only edits the README's ros2 run command line (adding --ros-args before the namespace remap and params file); no interface of any unit changed.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Fix PR #359 (merged 2025-02-08 into main) contains the single README commit 6a1019e0. The packet's kiwicampus/usb_cam commit 9f5fe90b is a squashed fork port ('[USBCam][SubmoduleMigration]: Port robot-com-projects feature/shm-image-publisher into kiwicampus (#2)') that carries many upstream commits, including this one; it adds nothing to the case. The report is a documentation defect about ROS 2 CLI syntax; no runtime failure of the camera driver is reported."
+}

@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-032",
+  "kind": "A1",
+  "case_id": "C3-032",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "ros2 service call /rosapi/message_details rosapi_msgs/srv/MessageDetails \"{'type': 'sensor_msgs/JointState'}\" ... [rosapi_node-5] KeyError: 'check_fields' ... [ERROR] [rosapi_node-5]: process has died [pid 6530, exit code 1, cmd '/opt/ros/jazzy/lib/rosapi/rosapi_node --ros-args -r __node:=rosapi ...",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Iron’s `rosidl_generator_py` templates now inject extra private slots (e.g. [_check_fields](https://github.com/ros2/rosidl_python/blob/iron/rosidl_generator_py/resource/_msg.py.em#L212)) into every message’s `__slots__`. Those names don’t appear in the message’s `_fields_and_field_types` dict, so code that blindly walks `__slots__` will hit a KeyError.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976#issuecomment-2880232385"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rosapi_node-5] KeyError: 'check_fields'\n[ERROR] [rosapi_node-5]: process has died [pid 6530, exit code 1, ...",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This seems to fix the issue:\n$ ros2 service call /rosapi/message_details rosapi_msgs/srv/MessageDetails \"{'type': 'sensor_msgs/JointState'}\" ... response:\nrosapi_msgs.srv.MessageDetails_Response(typedefs=[rosapi_msgs.msg.TypeDef(type='sensor_msgs/JointState', fieldnames=['header', 'name', 'position', 'velocity', 'effort'], ...",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976#issuecomment-2880232385"
+  },
+  "notes": "独立核验：(1) issue #976 正文逐字确认（Library Version: 2.1.0、Jazzy、Ubuntu 24.04.1、复现命令、traceback 至 objectutils.py line 194 \"field_type = instance._fields_and_field_types[name[1:]]\"、process died）。(2) 评论 2880232385 引文逐字确认，其尾部确有 \"This seems to fix the issue:\" 及 MessageDetails_Response 输出，但该运行未标明 rosapi 修订与生成器版本——与 recommended 的定义吻合（修复生效但两单元未按修订识别）。(3) PR #1031 \"Handle extra IDL slots when doing array introspection\" 合并于 2025-05-18（merge 005747b7）。(4) 提供方提交 6d5d5048 \"Hides the assertions that checks the data types of the message fields. (#194)\" 的 _msg.py.em diff 确在 __slots__ 列表尾部加入 \"'_check_fields',\"，element_retyped（声明变化、元素仍在）分类成立；无 .msg 定义变化，不取 definition_mismatch，理由充分。loudness 判 silent 正确：KeyError 为运行期未捕获异常，非 build/connect/activate 期工具诊断。未发现遗漏条件。"
+}

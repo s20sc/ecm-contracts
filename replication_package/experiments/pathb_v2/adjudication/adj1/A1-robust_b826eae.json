@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-robust_b826eae",
+  "kind": "A1",
+  "case_id": "robust_b826eae",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "-  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin\">\n+  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin has_podest\">",
+    "url": "https://github.com/ipa320/schunk_modular_robotics/commit/779ce503e0f6b868f04253a75590f7e10c086427",
+    "reason": "A separately maintained macro-provider package changes a required interface parameter while the consumer still calls its earlier signature. The observed UPGRADE is an API change even though the error is caught in a build test; E2's build-only exclusion does not apply."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  <xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\">\n+  <xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\" has_podest=\"false\">",
+      "url": "https://github.com/ipa320/cob_robots/commit/b826eaeae5c8dc548ac2c97002725c7a8131137e",
+      "reason": "The macro still exists and has a changed required signature, hence element_retyped, not element_removed_or_renamed. The provider declaration change independently confirms the diagnosis."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "xacro.XacroException: Parameters [has_podest] were not set for macro xacro:schunk_pg70",
+    "url": "https://github.com/ipa320/cob_robots/issues/552"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "from travis (`Parameters [has_podest] were not set for macro xacro:schunk_pg70`):",
+    "url": "https://github.com/ipa320/cob_robots/issues/552",
+    "reason": "The quoted CI transcript runs roslaunch-check during the catkin build/test phase. Its launch-check implementation does not make the observed stage a robot runtime activation."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This is a hotfix which is blocking Travis also with other repositories. I'll merge now",
+    "url": "https://github.com/ipa320/cob_robots/pull/553#issuecomment-259913100",
+    "reason": "The consumer patch is accepted and the issue is closed, but the fetched source contains no successful rerun of the specified resolved pair. recommended is appropriate."
+  },
+  "notes": "Read issue #552, PR #553, provider PR #177, their comments and both interface/fix diffs. The invalid robot_description parameter and xacro exception are one causal failure, not separate conditions. No inference about method identity or unseen CI scores was made."
+}

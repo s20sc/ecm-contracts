@@ -1,0 +1,51 @@
+{
+  "case_id": "C3-038",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_cyclonedds/issues/364",
+    "https://github.com/ros2/rmw_cyclonedds/pull/365",
+    "https://github.com/ros2/rmw_cyclonedds/commit/43856655830359e74027b8b376a82313b5aeeae7",
+    "https://github.com/ros2/rmw_cyclonedds/blob/cb129b5859e4c1793757d71f521540ae67a4fb20/rmw_cyclonedds_cpp/src/serdata.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter (who also wrote the fix) gives reproduction steps (\"Make the subscriber callback significantly time-consuming\" ... \"the shared memory chunks pile up and eventually leading to\"out of chunks\" error\"), the version (\"`rmw_cyclonedds` version - 1.1.1 cb129b5859e4c1793757d71f521540ae67a4fb20\"), and the code location; the fix PR #365 was approved by a reviewer (\"As far as I am concerned, this is good to go.\") and merged on 2022-02-16."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "rmw_cyclonedds_cpp",
+        "Cyclone DDS (ddsc, with iceoryx shared memory)"
+      ],
+      "interface_kind": null,
+      "evidence": "The defect is a leak inside the subscriber process's rmw_cyclonedds_cpp: its serdata free callback deletes the sample wrapper without releasing the shared-memory chunk it holds (at cb129b58: \"static void serdata_rmw_free(struct ddsi_serdata * dcmn)\n{\n  auto * d = static_cast<const serdata_rmw *>(dcmn);\n  delete d;\n}\"), and it discards the subscriber handle it would need to do so (\"static_cast<void>(sub);  // unused\"). Cyclone DDS dropping samples from the reader history cache when the callback is slow is correct behaviour (\"based on the history depth the samples in the reader history cache will be lost without being processed by the executor\"), so the leak would occur with any correct Cyclone DDS; the reporter locates it in rmw_cyclonedds alone (\"The essence is in `serdata_rmw_free` the loan is not returned to the middleware if there is an outstanding loan.\"). The fix releases the chunk in serdata_rmw_free and closes several other leaks on rmw_cyclonedds' own publish/take paths (\"I did a code walkthrough for memory audit in the shared memory case and fixed a couple of memory leaks\"). Alternative reading considered: an ownership convention for the chunk handed from Cyclone DDS to the rmw's serdata_from_iox callback; not chosen because the source attributes the failure to rmw_cyclonedds' own release logic and the peer behaves correctly."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: a shared-memory publisher and a slow rclcpp subscriber over rmw_cyclonedds_cpp."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"When the subscriber callback is expensive and takes significant time to complete, the shared memory chunks are lost\", ending in an \"out of chunks\" error."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

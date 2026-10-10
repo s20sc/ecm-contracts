@@ -1,0 +1,383 @@
+{
+ "case_id": "C3-120",
+ "corpus": "C3",
+ "operation": "PAIR",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "topic:/mavros/global_position/global",
+     "status": "done",
+     "direction": {
+      "producer": "mavros",
+      "consumer": "rosbridge_suite"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/mavros/global_position/global",
+         "msg_type": "sensor_msgs/NavSatFix",
+         "frame": "base_link",
+         "units": "degrees (latitude, longitude); m (altitude above the WGS 84 ellipsoid)",
+         "qos": {
+          "reliability": "best_effort",
+          "durability": "volatile",
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "0d3762ba2837e052a90a47e64939616010e5ecbda9411b5248ea68e0e9b680c6"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/mavros/global_position/global",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [
+        "topics_glob",
+        "services_glob",
+        "params_glob"
+       ],
+       "perm_limits": {},
+       "recovery": "WebSocket server bind failure (OSError) is retried every retry_startup_delay seconds until the socket binds or the context shuts down",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "present",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "topic:/mavros/global_position/global",
+       "in_role": "topic:/mavros/global_position/global"
+      }
+     },
+     "provenance": {
+      "consumer.recovery": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:157 | except OSError as e: ... \"Unable to start server: {} \" \"Retrying in {}s.\" ... time.sleep(retry_startup_delay); retry_startup_delay default 2.0 at :127, launch default 5.0 at snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:8",
+      "producer.outputs[0].element": "snapshot:mavros/src/plugins/global_position.cpp:121 (gp_fix_pub = node->create_publisher<sensor_msgs::msg::NavSatFix>(\"~/global\", sensor_qos)); sub-node \"global_position\" (snapshot:mavros/src/plugins/global_position.cpp:60) created with namespace = UAS node FQN (snapshot:mavros/include/mavros/plugin.hpp:86-87); UAS node named \"mavros\" in root namespace (snapshot:mavros/src/mavros_node.cpp:76-78) -> /mavros/global_position/global; python client corroborates (snapshot:mavros/mavros/base.py:21 DEFAULT_NAMESPACE = \"mavros\"; snapshot:mavros/mavros/global_position.py:47)",
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:121",
+      "producer.outputs[0].frame": "snapshot:mavros/src/plugins/global_position.cpp:73-76 (node_declare_and_watch_parameter(\"child_frame_id\", \"base_link\", ...)); snapshot:mavros/src/plugins/global_position.cpp:322 (auto header = uas->synchronized_header(child_frame_id, gpos.time_boot_ms);); snapshot:mavros/src/plugins/global_position.cpp:325 (fix.header = header;)",
+      "producer.outputs[0].units": "snapshot:mavros/src/plugins/global_position.cpp:192-194 (fix.latitude = msg.lat / 1E7; // deg | fix.longitude = msg.lon / 1E7; // deg | fix.altitude = msg.alt / 1E3 + uas->data.geoid_to_ellipsoid_height(fix); // in meters); NavSatFix.msg: 'Latitude [degrees]', 'Longitude [degrees]', 'Altitude [m]. Positive is above the WGS 84 ellipsoid'",
+      "producer.outputs[0].qos.reliability": "snapshot:mavros/src/plugins/global_position.cpp:111 (auto sensor_qos = rclcpp::SensorDataQoS();), snapshot:mavros/src/plugins/global_position.cpp:121; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+      "producer.outputs[0].qos.durability": "snapshot:mavros/src/plugins/global_position.cpp:111, snapshot:mavros/src/plugins/global_position.cpp:121; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/2.2.4/sensor_msgs/msg/NavSatFix.msg (byte-identical at tags 2.2.1-2.2.4 and branch galactic) via python3 definition_hash.py sha256",
+      "consumer.inputs[0]": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:132 | self.subscriber = node_handle.create_subscription( msg_class, topic, self.callback, qos, raw=raw ) (topic name comes from the client's JSON 'topic' field: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:243)"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "topic:/mavros/local_position/pose",
+     "status": "done",
+     "direction": {
+      "producer": "mavros",
+      "consumer": "rosbridge_suite"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/mavros/local_position/pose",
+         "msg_type": "geometry_msgs/PoseStamped",
+         "frame": "map",
+         "units": null,
+         "qos": {
+          "reliability": "best_effort",
+          "durability": "volatile",
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "e8a61300bec35c90affaa8108ed0a1e02899ea24f382d1e8d272c72e0d1929fd"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/mavros/local_position/pose",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [
+        "topics_glob",
+        "services_glob",
+        "params_glob"
+       ],
+       "perm_limits": {},
+       "recovery": "WebSocket server bind failure (OSError) is retried every retry_startup_delay seconds until the socket binds or the context shuts down",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "present",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "topic:/mavros/local_position/pose",
+       "in_role": "topic:/mavros/local_position/pose"
+      }
+     },
+     "provenance": {
+      "consumer.recovery": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:157 | except OSError as e: ... \"Unable to start server: {} \" \"Retrying in {}s.\" ... time.sleep(retry_startup_delay); retry_startup_delay default 2.0 at :127, launch default 5.0 at snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:8",
+      "producer.outputs[0].element": "snapshot:mavros/src/plugins/local_position.cpp:84 (local_position = node->create_publisher<geometry_msgs::msg::PoseStamped>(\"~/pose\", sensor_qos);); sub-node \"local_position\" (snapshot:mavros/src/plugins/local_position.cpp:53) under /mavros (snapshot:mavros/include/mavros/plugin.hpp:86-87; snapshot:mavros/src/mavros_node.cpp:76-78) -> /mavros/local_position/pose; python client corroborates (snapshot:mavros/mavros/local_position.py:30)",
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/local_position.cpp:84",
+      "producer.outputs[0].frame": "snapshot:mavros/src/plugins/local_position.cpp:60-65 (// default to map (world-fixed, ENU as per REP-105). node_declare_and_watch_parameter(\"frame_id\", \"map\", ...)); snapshot:mavros/src/plugins/local_position.cpp:163 (odom.header = uas->synchronized_header(frame_id, pos_ned.time_boot_ms);); snapshot:mavros/src/plugins/local_position.cpp:178 and snapshot:mavros/src/plugins/local_position.cpp:263 (pose.header = odom.header;)",
+      "producer.outputs[0].qos.reliability": "snapshot:mavros/src/plugins/local_position.cpp:82 (auto sensor_qos = rclcpp::SensorDataQoS();), snapshot:mavros/src/plugins/local_position.cpp:84; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+      "producer.outputs[0].qos.durability": "snapshot:mavros/src/plugins/local_position.cpp:82, snapshot:mavros/src/plugins/local_position.cpp:84; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/2.2.4/geometry_msgs/msg/PoseStamped.msg (byte-identical at tags 2.2.1-2.2.4 and branch galactic) via python3 definition_hash.py sha256",
+      "consumer.inputs[0]": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:132 | self.subscriber = node_handle.create_subscription( msg_class, topic, self.callback, qos, raw=raw ) (topic name comes from the client's JSON 'topic' field: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:243)"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "topic:/mavros/global_position/global",
+     "status": "done",
+     "direction": {
+      "producer": "mavros",
+      "consumer": "rosbridge_suite"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/mavros/global_position/global",
+         "msg_type": "sensor_msgs/NavSatFix",
+         "frame": "base_link",
+         "units": "degrees (latitude, longitude); m (altitude above the WGS 84 ellipsoid)",
+         "qos": {
+          "reliability": "best_effort",
+          "durability": "volatile",
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "0d3762ba2837e052a90a47e64939616010e5ecbda9411b5248ea68e0e9b680c6"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/mavros/global_position/global",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "rosbridge_websocket retries bind_sockets on OSError every retry_startup_delay seconds (parameter default 2.0; launch arg default 5.0)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "topic:/mavros/global_position/global",
+       "in_role": "topic:/mavros/global_position/global"
+      }
+     },
+     "provenance": {
+      "consumer.recovery": "snapshot:rosbridge_server/scripts/rosbridge_websocket:156-172 (while not connected ... except OSError ... time.sleep(retry_startup_delay)); default snapshot:rosbridge_server/scripts/rosbridge_websocket:136 (2.0), launch default snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:11 (5.0)",
+      "producer.outputs[0].element": "snapshot:mavros/src/plugins/global_position.cpp:121 (gp_fix_pub = node->create_publisher<sensor_msgs::msg::NavSatFix>(\"~/global\", sensor_qos)); sub-node \"global_position\" (snapshot:mavros/src/plugins/global_position.cpp:60) created with namespace = UAS node FQN (snapshot:mavros/include/mavros/plugin.hpp:86-87); UAS node named \"mavros\" in root namespace (snapshot:mavros/src/mavros_node.cpp:76-78) -> /mavros/global_position/global; python client corroborates (snapshot:mavros/mavros/base.py:21 DEFAULT_NAMESPACE = \"mavros\"; snapshot:mavros/mavros/global_position.py:47)",
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:121",
+      "producer.outputs[0].frame": "snapshot:mavros/src/plugins/global_position.cpp:73-76 (node_declare_and_watch_parameter(\"child_frame_id\", \"base_link\", ...)); snapshot:mavros/src/plugins/global_position.cpp:322 (auto header = uas->synchronized_header(child_frame_id, gpos.time_boot_ms);); snapshot:mavros/src/plugins/global_position.cpp:325 (fix.header = header;)",
+      "producer.outputs[0].units": "snapshot:mavros/src/plugins/global_position.cpp:192-194 (fix.latitude = msg.lat / 1E7; // deg | fix.longitude = msg.lon / 1E7; // deg | fix.altitude = msg.alt / 1E3 + uas->data.geoid_to_ellipsoid_height(fix); // in meters); NavSatFix.msg: 'Latitude [degrees]', 'Longitude [degrees]', 'Altitude [m]. Positive is above the WGS 84 ellipsoid'",
+      "producer.outputs[0].qos.reliability": "snapshot:mavros/src/plugins/global_position.cpp:111 (auto sensor_qos = rclcpp::SensorDataQoS();), snapshot:mavros/src/plugins/global_position.cpp:121; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+      "producer.outputs[0].qos.durability": "snapshot:mavros/src/plugins/global_position.cpp:111, snapshot:mavros/src/plugins/global_position.cpp:121; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/2.2.4/sensor_msgs/msg/NavSatFix.msg (byte-identical at tags 2.2.1-2.2.4 and branch galactic) via python3 definition_hash.py sha256",
+      "consumer.inputs[0].side": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:140 (node_handle.create_subscription(msg_class, topic, self.callback, qos, raw=raw, ...)); topic name comes from the client 'subscribe' op: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:238"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "topic:/mavros/local_position/pose",
+     "status": "done",
+     "direction": {
+      "producer": "mavros",
+      "consumer": "rosbridge_suite"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/mavros/local_position/pose",
+         "msg_type": "geometry_msgs/PoseStamped",
+         "frame": "map",
+         "units": null,
+         "qos": {
+          "reliability": "best_effort",
+          "durability": "volatile",
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "e8a61300bec35c90affaa8108ed0a1e02899ea24f382d1e8d272c72e0d1929fd"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/mavros/local_position/pose",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "rosbridge_websocket retries bind_sockets on OSError every retry_startup_delay seconds (parameter default 2.0; launch arg default 5.0)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "topic:/mavros/local_position/pose",
+       "in_role": "topic:/mavros/local_position/pose"
+      }
+     },
+     "provenance": {
+      "consumer.recovery": "snapshot:rosbridge_server/scripts/rosbridge_websocket:156-172 (while not connected ... except OSError ... time.sleep(retry_startup_delay)); default snapshot:rosbridge_server/scripts/rosbridge_websocket:136 (2.0), launch default snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:11 (5.0)",
+      "producer.outputs[0].element": "snapshot:mavros/src/plugins/local_position.cpp:84 (local_position = node->create_publisher<geometry_msgs::msg::PoseStamped>(\"~/pose\", sensor_qos);); sub-node \"local_position\" (snapshot:mavros/src/plugins/local_position.cpp:53) under /mavros (snapshot:mavros/include/mavros/plugin.hpp:86-87; snapshot:mavros/src/mavros_node.cpp:76-78) -> /mavros/local_position/pose; python client corroborates (snapshot:mavros/mavros/local_position.py:30)",
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/local_position.cpp:84",
+      "producer.outputs[0].frame": "snapshot:mavros/src/plugins/local_position.cpp:60-65 (// default to map (world-fixed, ENU as per REP-105). node_declare_and_watch_parameter(\"frame_id\", \"map\", ...)); snapshot:mavros/src/plugins/local_position.cpp:163 (odom.header = uas->synchronized_header(frame_id, pos_ned.time_boot_ms);); snapshot:mavros/src/plugins/local_position.cpp:178 and snapshot:mavros/src/plugins/local_position.cpp:263 (pose.header = odom.header;)",
+      "producer.outputs[0].qos.reliability": "snapshot:mavros/src/plugins/local_position.cpp:82 (auto sensor_qos = rclcpp::SensorDataQoS();), snapshot:mavros/src/plugins/local_position.cpp:84; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+      "producer.outputs[0].qos.durability": "snapshot:mavros/src/plugins/local_position.cpp:82, snapshot:mavros/src/plugins/local_position.cpp:84; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/2.2.4/geometry_msgs/msg/PoseStamped.msg (byte-identical at tags 2.2.1-2.2.4 and branch galactic) via python3 definition_hash.py sha256",
+      "consumer.inputs[0].side": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:140 (node_handle.create_subscription(msg_class, topic, self.callback, qos, raw=raw, ...)); topic name comes from the client 'subscribe' op: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:238"
+     }
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-053",
+  "kind": "A1",
+  "case_id": "C3-053",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "The NaN value should be converted to a NaN in python.\n\nThe [BatteryState](https://github.com/ros2/common_interfaces/blob/b7e2ad503e1648468b1dc766c43aac12cc9aee5a/sensor_msgs/msg/BatteryState.msg) message, for example, uses NaNs to flag values that are not measured.",
+    "url": "https://github.com/ros2/rosidl_python/issues/162"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Issue #848 (\"pybind11 error during subscription take_message() when message has NaN value\") documents that an rclpy subscriber crashes with \"make_tuple(): unable to convert argument of type 'object' to Python object\" when a NaN value is published on /nan. I read the issue body, the thread (fujitatomoya: \"https://github.com/ros2/rosidl_python/pull/167 can fix this problem.\"; clalancette: \"Yes, good call. I'm actually going to close this one as a duplicate, since it is already fixed in Rolling...\"), rosidl_python PR #167 (\"Allow NaN values to pass floating point bounds check.\", which changes the generated assertion from \"value >= -bound and value <= bound\" to \"not (value < -bound or value > bound) or math.isinf(value)\"), and rosidl_python #162 (quoted above). NaN/inf are valid values for the declared float types (BatteryState uses NaN to flag unmeasured values), so the value crossing the topic boundary is not wrong; the defect is the generated Python setter rejecting a valid value plus rclpy's unchecked error path, both inside the subscribing process. E2 stops at step 2 (internal), which is correct. Loudness/resolution correctly null."
+}

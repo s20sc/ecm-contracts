@@ -1,0 +1,46 @@
+{
+  "case_id": "C3-085",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/1095",
+    "https://github.com/ros2/rclpy/pull/1096"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Bug report on macOS Ventura 13.2.1 arm64 building rclpy from source ('std::atomic fails to link'); fix PR merged by maintainers."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": ["rclpy (_rclpy_pybind11)", "system toolchain / libatomic (Apple Clang)"],
+      "interface_kind": null,
+      "evidence": "The failure is a link error in colcon build and the only change is in rclpy/CMakeLists.txt: '-if(CMAKE_C_COMPILER_ID MATCHES \"Clang\")' / '+if(CMAKE_C_COMPILER_ID MATCHES \"Clang\" AND NOT APPLE)' around 'target_link_libraries(_rclpy_pybind11 PRIVATE atomic)'. No unit's declared interface changes."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated beyond E2; the failure is at build time of a single package."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed build failure: 'std::atomic fails to link'."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build (E2 step 4): CMake link-library condition for Apple Clang only.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

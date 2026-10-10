@@ -1,0 +1,120 @@
+{
+  "task_id": "u0170",
+  "package": "ur5_moveit_config",
+  "manifest_version": "1.0.3",
+  "ports": [
+    {
+      "element": "action:follow_joint_trajectory",
+      "side": "consumes",
+      "msg_type": "control_msgs/FollowJointTrajectory",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "sha256_normalised",
+        "kind": "action",
+        "value": "3bd3b9b759eaa42b90e5aaa4b47aee5d3c8ce38fc575c3ad06e689976bee60bb"
+      }
+    },
+    {
+      "element": "field:trajectory_msgs/JointTrajectory.joint_names",
+      "side": "provides",
+      "msg_type": "trajectory_msgs/JointTrajectory",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "65b4f94a94d1ed67169da35a02f33d3f"
+      }
+    },
+    {
+      "element": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+      "side": "provides",
+      "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "f3cd1e1c4d320c79d6985c904ae5dcd3"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "field:trajectory_msgs/JointTrajectory.joint_names": "field trajectory_msgs/JointTrajectory.joint_names: string[]",
+    "field:trajectory_msgs/JointTrajectoryPoint.velocities": "field trajectory_msgs/JointTrajectoryPoint.velocities: float64[]"
+  },
+  "not_declared": [],
+  "references": [
+    "action:follow_joint_trajectory",
+    "action:/arm_controller/follow_joint_trajectory",
+    "api:moveit_simple_controller_manager/MoveItSimpleControllerManager",
+    "api:default_planner_request_adapters/AddTimeParameterization",
+    "topic:/move_group/fake_controller_joint_states"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "robot_state_publisher node launched with respawn=\"true\" (demo.launch); no other recovery/fallback declared"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:ur5_moveit_config/package.xml:4 | <version>1.0.3</version>",
+    "ports[0].side": "snapshot:ur5_moveit_config/config/controllers.yaml:1-4 | controller_list: - name: \"\" action_ns: follow_joint_trajectory type: FollowJointTrajectory; loaded as the move_group controller list by snapshot:ur5_moveit_config/launch/ur5_moveit_controller_manager.launch.xml:2,5 (MoveItSimpleControllerManager, an action client)",
+    "ports[0].msg_type": "snapshot:ur5_moveit_config/config/controllers.yaml:4 | type: FollowJointTrajectory ; qualified as the FollowJointTrajectory action of control_msgs (only definition of that name in the hydro dependency set), https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action",
+    "ports[0].frame": "none: goal is a joint-space trajectory (controllers.yaml:5-11 lists joint names only); no frame is set anywhere in the package (grep of snapshot/ur5_moveit_config)",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 FollowJointTrajectory.action fetched from https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action (control_msgs package.xml <version>1.2.0</version>)",
+    "ports[1].side": "snapshot:ur5_moveit_config/config/controllers.yaml:5-11 | joints: - shoulder_pan_joint - shoulder_lift_joint - elbow_joint - wrist_1_joint - wrist_2_joint - wrist_3_joint (joint set carried in the trajectory goals the controller manager sends)",
+    "ports[1].msg_type": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg:2 | string[] joint_names ; carried as FollowJointTrajectory goal field 'trajectory_msgs/JointTrajectory trajectory' (https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action:2)",
+    "ports[1].frame": "none: joint_names is a list of joint identifiers, no spatial frame",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectory <common_msgs 1.10.6> <std_msgs 0.5.8>; sources https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg, https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg, https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg",
+    "ports[2].side": "snapshot:ur5_moveit_config/launch/ompl_planning_pipeline.launch.xml:8 | <arg name=\"planning_adapters\" value=\"default_planner_request_adapters/AddTimeParameterization ; velocity bounds snapshot:ur5_moveit_config/config/joint_limits.yaml:3-4 | has_velocity_limits: true max_velocity: 3.15 (loaded by snapshot:ur5_moveit_config/launch/planning_context.launch:19-20)",
+    "ports[2].msg_type": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg:6 | float64[] velocities",
+    "ports[2].frame": "none: per-joint velocities in joint space, no spatial frame",
+    "ports[2].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectoryPoint <common_msgs 1.10.6> <std_msgs 0.5.8>; source https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg",
+    "declares[field:trajectory_msgs/JointTrajectory.joint_names]": "snapshot:ur5_moveit_config/config/controllers.yaml:5 | joints: (six joint names, lines 6-11) ; field type from https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg:2 | string[] joint_names",
+    "declares[field:trajectory_msgs/JointTrajectoryPoint.velocities]": "snapshot:ur5_moveit_config/launch/ompl_planning_pipeline.launch.xml:8 | default_planner_request_adapters/AddTimeParameterization ; field type from https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg:6 | float64[] velocities",
+    "references[action:follow_joint_trajectory]": "snapshot:ur5_moveit_config/config/controllers.yaml:3 | action_ns: follow_joint_trajectory ; snapshot:ur5_moveit_config/launch/ur5_moveit_planning_execution.launch:7 | from=\"/follow_joint_trajectory\"",
+    "references[action:/arm_controller/follow_joint_trajectory]": "snapshot:ur5_moveit_config/launch/ur5_moveit_planning_execution.launch:7 | <remap if=\"$(arg sim)\" from=\"/follow_joint_trajectory\" to=\"/arm_controller/follow_joint_trajectory\"/>",
+    "references[api:moveit_simple_controller_manager/MoveItSimpleControllerManager]": "snapshot:ur5_moveit_config/launch/ur5_moveit_controller_manager.launch.xml:5 | <param name=\"moveit_controller_manager\" value=\"moveit_simple_controller_manager/MoveItSimpleControllerManager\"/>",
+    "references[api:default_planner_request_adapters/AddTimeParameterization]": "snapshot:ur5_moveit_config/launch/ompl_planning_pipeline.launch.xml:8 | default_planner_request_adapters/AddTimeParameterization",
+    "references[topic:/move_group/fake_controller_joint_states]": "snapshot:ur5_moveit_config/launch/demo.launch:23 | <rosparam param=\"/source_list\">[/move_group/fake_controller_joint_states]</rosparam>",
+    "perm_requires": "searched all files under snapshot/ur5_moveit_config (package.xml, CMakeLists.txt, config/*.yaml, config/ur5.srdf, launch/*) for permission/capability/authorization declarations; none",
+    "perm_grants": "same search as perm_requires; none",
+    "recovery": "snapshot:ur5_moveit_config/launch/demo.launch:27 | <node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" respawn=\"true\" output=\"screen\" /> ; move_group is respawn=\"false\" (move_group.launch:43)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "Both provided fields are supplied by this configuration: controllers.yaml lists the six joint names for the follow_joint_trajectory controller, and the OMPL pipeline includes AddTimeParameterization with velocity limits in joint_limits.yaml, so executed trajectory points carry velocities; the action name matches the remap in ur5_moveit_planning_execution.launch."
+  },
+  "confidence": "medium",
+  "notes": "Configuration-only package (MoveIt Setup Assistant output, no source code). The consumed action is called by move_group through MoveItSimpleControllerManager with controller name \"\" and action_ns follow_joint_trajectory (resolves to /follow_joint_trajectory, matching the remap source in ur5_moveit_planning_execution.launch). Type string 'FollowJointTrajectory' is unqualified in the config; qualification to control_msgs/FollowJointTrajectory is by the only action of that name in the hydro dependency set. package.xml declares no dependency on control_msgs, moveit_simple_controller_manager or moveit_fake_controller_manager although the launch files load both controller-manager plugins. The two field elements are 'provided' only indirectly: the package contains no code that fills them; it configures move_group so that goals carry joint_names from the planning group/controller joint list and point velocities from the AddTimeParameterization request adapter bounded by joint_limits.yaml (units of max_velocity are not stated, so units left null). topic:joint_states is not named anywhere in snapshot/ur5_moveit_config; its consumption happens inside nodes this package launches (move_group, robot_state_publisher) under their built-in default names, which are not in the snapshot, so it has no port and is in neither declares/not_declared nor references. demo.launch additionally launches joint_state_publisher with source_list /move_group/fake_controller_joint_states. Other plugin and capability symbols referenced (ompl_interface/OMPLPlanner, the other FixStart*/FixWorkspaceBounds adapters, kdl_kinematics_plugin/KDLKinematicsPlugin, moveit_fake_controller_manager/MoveItFakeControllerManager, the nine move_group capabilities, rviz topics /move_group/display_planned_path and /move_group/monitored_planning_scene) are not listed in references because they do not bear on the packet elements. Dependency tags used: common_msgs 1.10.6 (last 1.10.x tag; 1.10.0 lacks JointTrajectoryPoint.effort and would give md5 84fd2dcf68773c3dc0e9db894f4e8b40 for JointTrajectoryPoint), std_msgs 0.5.8, control_msgs 1.2.0. ROS 1: QoS null. No rates set. No exclusive resource claims in this package."
+}

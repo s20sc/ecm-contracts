@@ -1,0 +1,55 @@
+{
+  "task_id": "u0217",
+  "package": "urdfdom_headers",
+  "manifest_version": "1.0.0",
+  "ports": [
+    {
+      "element": "api:urdf::ModelInterface",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:urdf::ModelInterfaceSharedPtr",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:urdf::ModelInterface": "api urdf::ModelInterface: class ModelInterface",
+    "api:urdf::ModelInterfaceSharedPtr": "api urdf::ModelInterfaceSharedPtr: typedef std::shared_ptr<ModelInterface> ModelInterfaceSharedPtr;"
+  },
+  "not_declared": [],
+  "references": ["api:TiXmlElement"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:CMakeLists.txt:6-8 | set (URDF_MAJOR_VERSION 1) / set (URDF_MINOR_VERSION 0) / set (URDF_PATCH_VERSION 0); no package.xml in snapshot (README.md says it is added during the ROS release process)",
+    "declares[api:urdf::ModelInterface]": "snapshot:urdf_model/include/urdf_model/model.h:48 | class ModelInterface (inside namespace urdf { at line 46)",
+    "declares[api:urdf::ModelInterfaceSharedPtr]": "snapshot:urdf_world/include/urdf_world/types.h:48 | typedef std::shared_ptr<ModelInterface> ModelInterfaceSharedPtr; (inside namespace urdf{ at line 43, after forward declaration class ModelInterface; at line 45)",
+    "references[api:TiXmlElement]": "snapshot:urdf_world/include/urdf_world/world.h:103 | void initXml(TiXmlElement* config); (header <tinyxml.h> included at line 76)",
+    "exclusive": "searched all 26 files of the snapshot: header-only C++ library (CMake INSTALL of include dirs only), no hardware interfaces or device handles",
+    "perm_requires.state": "searched all 26 files of the snapshot (CMakeLists.txt, cmake/*.in, headers): no permission declarations",
+    "perm_grants.state": "searched all 26 files of the snapshot (CMakeLists.txt, cmake/*.in, headers): no permission declarations",
+    "recovery.state": "searched all 26 files of the snapshot (CMakeLists.txt, cmake/*.in, headers): no recovery declarations"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "urdf::ModelInterfaceSharedPtr is declared only in urdf_world/types.h, which urdf_model/model.h does not include, and urdf_model/types.h generates SharedPtr/ConstSharedPtr/WeakPtr for every other model class but not for ModelInterface; code that includes urdf_model/model.h and uses urdf::ModelInterfaceSharedPtr (or ModelInterfaceConstSharedPtr) would not compile."
+  },
+  "confidence": "high",
+  "notes": "Header-only, non-catkin CMake package (ROS 1, lunar); API elements have no message type, frame, units, QoS, rate or definition hash, so those port fields are null. urdf::ModelInterface is a class in urdf_model/include/urdf_model/model.h:48. urdf::ModelInterfaceSharedPtr is a typedef to std::shared_ptr<ModelInterface> in urdf_world/include/urdf_world/types.h:48 only; it is not produced by the URDF_TYPEDEF_CLASS_POINTER list in urdf_model/include/urdf_model/types.h:53-68 (ModelInterface is absent there), and urdf_model/model.h (includes link.h, types.h, exception.h) does not include urdf_world/types.h. No ModelInterfaceConstSharedPtr or ModelInterfaceWeakPtr is declared anywhere in the snapshot. The only header that brings both together is urdf_world/world.h (lines 78 and 81). manifest_version is taken from the CMake project version because the snapshot has no package.xml. references lists the one external-package symbol the code names (TiXmlElement from tinyxml); no packet element is consumed."
+}

@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-121",
+  "kind": "A1",
+  "case_id": "C3-121",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "If launching the same node with pixel_format =\"mjpeg\"  the terminal outputs a continuing stream of these warnings:\n\n`[swscaler @ 0x1545460]  deprecated pixel format used, make sure you did set range correctly`\n\nBut the frames seem to be captured normally otherwhise, and the live image works fine.",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/67"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[swscaler @ 0x1545460]  deprecated pixel format used, make sure you did set range correctly",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/67"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the terminal outputs a continuing stream of these warnings: `[swscaler @ 0x1545460]  deprecated pixel format used, make sure you did set range correctly`",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/67"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This warning can be safely ignored at present. Long term libjpeg-turbo could be used instead of libav to decode mjpeg frames.",
+    "url": "https://github.com/ros-drivers/usb_cam/pull/115"
+  },
+  "notes": "Verified this session: issue 67 body (2017-04-25) contains the reproducer (pixel_format mjpeg) and the quoted warning stream verbatim. usb_cam.cpp at f80cff39 line 448 'video_sws_ = sws_getContext(xsize, ysize, avcodec_context_->pix_fmt, xsize, ysize, PIX_FMT_RGB24, SWS_BILINEAR, NULL,' with sws_getContext/sws_freeContext inside the per-frame MJPEG conversion (https://raw.githubusercontent.com/ros-drivers/usb_cam/f80cff39db58a4ab884a9dad4bf4413a22555d75/src/usb_cam.cpp), consistent with a continuing stream of warnings. FFmpeg libswscale/utils.c at tag n2.8 line 1134 'av_log(c, AV_LOG_WARNING, \"deprecated pixel format used, make sure you did set range correctly\\n\");' (https://raw.githubusercontent.com/FFmpeg/FFmpeg/n2.8/libswscale/utils.c). PR 115 'Suppress libav \"deprecated pixel format used\" mjpeg warnings' merged 2022-10-25 into develop with merge_commit_sha 37451954a7f73af99428b0712aaa609c11464b53; patch adds '+  av_log_set_level(AV_LOG_ERROR);' with comment '+  // Suppress warnings of the following form:'; PR 189 backport merged 2022-08-10 (4ab2952d). E2 is the judgment call the spec itself flags: the offending pix_fmt is produced by FFmpeg's own decoder and usb_cam passes it through; I nevertheless side with the spec's reading because usb_cam is the caller of sws_getContext, the provider's deprecation diagnostic is addressed to that call, the fix is consumer-side code, and per the E2 tree a wrong value crossing the consumer/provider API boundary is an interface failure even when the resolving edit is inside one unit; the internal-to-FFmpeg alternative is honestly recorded in the spec's notes. FFmpeg broken_rev null is accurate (no FFmpeg version named anywhere in the thread). Loudness loud_documented is defensible: the provider library's own av_log emits the diagnostic; note S1's stage examples are build/connect/activate while this fires at run, which the spec states plainly. Resolution recommended agrees with S1: merged PR but no source shows the resolved composition running with an identified FFmpeg revision; the fix suppresses rather than changes the value, accurately summarized."
+}

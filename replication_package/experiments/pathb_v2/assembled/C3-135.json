@@ -1,0 +1,633 @@
+{
+ "case_id": "C3-135",
+ "corpus": "C3",
+ "operation": "UPGRADE",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [
+        "api:importlib.metadata.EntryPoint.name",
+        "api:importlib.metadata.SelectableGroups.get",
+        "api:importlib.metadata.SelectableGroups.select",
+        "api:importlib.metadata.entry_points"
+       ],
+       "consumer_reads": [
+        "api:importlib.metadata.EntryPoint.load",
+        "api:importlib.metadata.EntryPoint.name",
+        "api:importlib.metadata.SelectableGroups.get",
+        "api:importlib.metadata.entry_points"
+       ],
+       "semver_old": "3.9.0",
+       "semver_new": "3.10.0"
+      }
+     },
+     "provenance": {
+      "ver_delta.changed_fields[api:importlib.metadata.EntryPoint.name]": "built: snapshot:Lib/importlib/metadata.py:42 | collections.namedtuple('EntryPointBase', 'name value group')): (base of class EntryPoint at line 41 'class EntryPoint('; 'name' is the first namedtuple field; documented at snapshot:Doc/library/importlib.metadata.rst:79 | each ``EntryPoint`` has a ``.name``, ``.group``, and ``.value`` attributes) || running: snapshot:Lib/importlib/metadata/__init__.py:125 | class EntryPoint( (line 124) / collections.namedtuple('EntryPointBase', 'name value group')): (line 125)",
+      "ver_delta.changed_fields[api:importlib.metadata.SelectableGroups.get]": "built: Searched the whole snapshot (4365 files) with grep -rIl 'SelectableGroups': 0 hits. importlib.metadata exists only as snapshot:Lib/importlib/metadata.py (586 lines); its classes are PackageNotFoundError, EntryPoint, PackagePath, FileHash, Distribution, DistributionFinder, FastPath, Prepared, MetadataPathFinder, PathDistribution; no SelectableGroups class. entry_points() at line 554 returns a built-in dict (line 564). || running: snapshot:Lib/importlib/metadata/__init__.py:399 | def get(self, name, default=None): in class Deprecated (line 365); inherited via class SelectableGroups(Deprecated, dict): (line 420)",
+      "ver_delta.changed_fields[api:importlib.metadata.SelectableGroups.select]": "built: Searched the whole snapshot with grep -rIl 'SelectableGroups': 0 hits; grep -n 'select' Lib/importlib/metadata.py: 0 hits. No SelectableGroups class and no select method anywhere in importlib.metadata at this revision. || running: snapshot:Lib/importlib/metadata/__init__.py:454",
+      "ver_delta.changed_fields[api:importlib.metadata.entry_points]": "built: snapshot:Lib/importlib/metadata.py:554 | def entry_points(): (listed in __all__ at line 29; body lines 559-567 return a plain dict {group: tuple(eps)}) || running: snapshot:Lib/importlib/metadata/__init__.py:949",
+      "ver_delta.consumer_reads[api:importlib.metadata.EntryPoint.load]": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:79 | loaded_entry_points[name] = entry_point.load()",
+      "ver_delta.consumer_reads[api:importlib.metadata.EntryPoint.name]": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:40 | name = entry_point.name",
+      "ver_delta.consumer_reads[api:importlib.metadata.SelectableGroups.get]": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:39 | for entry_point in importlib_metadata.entry_points().get(group_name, []):",
+      "ver_delta.consumer_reads[api:importlib.metadata.entry_points]": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:39 | for entry_point in importlib_metadata.entry_points().get(group_name, []):  (module bound at snapshot:rosidl_cli/rosidl_cli/entry_points.py:18 | import importlib.metadata as importlib_metadata; fallback at :20 | import importlib_metadata)",
+      "ver_delta.semver_old": "snapshot:Include/patchlevel.h:26 | #define PY_VERSION              \"3.9.0\" (also snapshot:README.rst:1 | This is Python version 3.9.0); CPython has no package.xml/setup manifest for itself, patchlevel.h is the tree's version declaration",
+      "ver_delta.semver_new": "snapshot:Include/patchlevel.h:26 | #define PY_VERSION              \"3.10.0\""
+     },
+     "unknown_delta": [],
+     "tasks": {
+      "built": "u0395",
+      "running": "u0394",
+      "consumer": "u0396"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.entry_points",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:importlib.metadata.entry_points",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:importlib.metadata.entry_points",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:importlib.metadata.entry_points",
+       "in_role": "api:importlib.metadata.entry_points"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:949",
+      "consumer.inputs[0].frame": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:39 | for entry_point in importlib_metadata.entry_points().get(group_name, []):  (Python library call; no spatial meaning)"
+     },
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0396",
+      "built": "u0395"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.SelectableGroups.get",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {},
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0396",
+      "built": "u0395"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.SelectableGroups.select",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {},
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0396",
+      "built": "u0395"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.EntryPoint.name",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:importlib.metadata.EntryPoint.name",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:importlib.metadata.EntryPoint.name",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:importlib.metadata.EntryPoint.name",
+       "in_role": "api:importlib.metadata.EntryPoint.name"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:125",
+      "consumer.inputs[0].frame": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:40 | name = entry_point.name  (Python attribute access; a string with no spatial meaning)"
+     },
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0396",
+      "built": "u0395"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.EntryPoint.load",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:importlib.metadata.EntryPoint.load",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:importlib.metadata.EntryPoint.load",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:importlib.metadata.EntryPoint.load",
+       "in_role": "api:importlib.metadata.EntryPoint.load"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:156",
+      "consumer.inputs[0].frame": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:79 | loaded_entry_points[name] = entry_point.load()  (Python library call; the loaded object has no spatial meaning)"
+     },
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0396",
+      "built": "u0395"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [],
+       "consumer_reads": [
+        "api:importlib.metadata.EntryPoint.load",
+        "api:importlib.metadata.EntryPoint.name",
+        "api:importlib.metadata.SelectableGroups.get",
+        "api:importlib.metadata.SelectableGroups.select",
+        "api:importlib.metadata.entry_points"
+       ],
+       "semver_old": "3.10.0",
+       "semver_new": "3.10.0"
+      }
+     },
+     "provenance": {
+      "ver_delta.consumer_reads[api:importlib.metadata.EntryPoint.load]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:84 | loaded_entry_points[name] = entry_point.load()",
+      "ver_delta.consumer_reads[api:importlib.metadata.EntryPoint.name]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:45 | name = entry_point.name",
+      "ver_delta.consumer_reads[api:importlib.metadata.SelectableGroups.get]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:39-42 | if hasattr(entry_points_impl, 'select'): ... else: groups = entry_points_impl.get(group_name, [])",
+      "ver_delta.consumer_reads[api:importlib.metadata.SelectableGroups.select]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:39-40 | if hasattr(entry_points_impl, 'select'): groups = entry_points_impl.select(group=group_name)",
+      "ver_delta.consumer_reads[api:importlib.metadata.entry_points]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:17-20,38 | import importlib.metadata as importlib_metadata (except ModuleNotFoundError: import importlib_metadata); entry_points_impl = importlib_metadata.entry_points()",
+      "ver_delta.semver_old": "snapshot:Include/patchlevel.h:26 | #define PY_VERSION              \"3.10.0\"",
+      "ver_delta.semver_new": "snapshot:Include/patchlevel.h:26 | #define PY_VERSION              \"3.10.0\""
+     },
+     "unknown_delta": [],
+     "tasks": {
+      "built": "u0394",
+      "running": "u0394",
+      "consumer": "u0397"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.entry_points",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:importlib.metadata.entry_points",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:importlib.metadata.entry_points",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:importlib.metadata.entry_points",
+       "in_role": "api:importlib.metadata.entry_points"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:949",
+      "consumer.inputs[0].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:38",
+      "consumer.inputs[0].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:38 | entry_points_impl = importlib_metadata.entry_points() (metadata query; no spatial data)"
+     },
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0397",
+      "built": "u0394"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.SelectableGroups.get",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:importlib.metadata.SelectableGroups.get",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:importlib.metadata.SelectableGroups.get",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:importlib.metadata.SelectableGroups.get",
+       "in_role": "api:importlib.metadata.SelectableGroups.get"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:399",
+      "consumer.inputs[0].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:42",
+      "consumer.inputs[0].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:42 | groups = entry_points_impl.get(group_name, []) (entry-point group lookup; no spatial data)"
+     },
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0397",
+      "built": "u0394"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.SelectableGroups.select",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:importlib.metadata.SelectableGroups.select",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:importlib.metadata.SelectableGroups.select",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:importlib.metadata.SelectableGroups.select",
+       "in_role": "api:importlib.metadata.SelectableGroups.select"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:454",
+      "consumer.inputs[0].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:40",
+      "consumer.inputs[0].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:40 | groups = entry_points_impl.select(group=group_name) (entry-point group selection; no spatial data)"
+     },
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0397",
+      "built": "u0394"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.EntryPoint.name",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:importlib.metadata.EntryPoint.name",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:importlib.metadata.EntryPoint.name",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:importlib.metadata.EntryPoint.name",
+       "in_role": "api:importlib.metadata.EntryPoint.name"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:125",
+      "consumer.inputs[0].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:45",
+      "consumer.inputs[0].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:45 | name = entry_point.name (string attribute; no spatial data)"
+     },
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0397",
+      "built": "u0394"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:importlib.metadata.EntryPoint.load",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:importlib.metadata.EntryPoint.load",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:importlib.metadata.EntryPoint.load",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:importlib.metadata.EntryPoint.load",
+       "in_role": "api:importlib.metadata.EntryPoint.load"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:156",
+      "consumer.inputs[0].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:84",
+      "consumer.inputs[0].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:84 | loaded_entry_points[name] = entry_point.load() (Python plugin-loading call; no spatial data)"
+     },
+     "tasks": {
+      "producer": "u0394",
+      "consumer": "u0397",
+      "built": "u0394"
+     }
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,66 @@
+{
+  "item_id": "A1-robust_054c753",
+  "kind": "A1",
+  "case_id": "robust_054c753",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: startup reproduction, terminal symptoms and maintainer diagnosis. E2 stops at 6: kobuki_driver violates the separately packaged ECL Serial API ordering requirement; not an internal algorithm defect or name binding. E3: PAIR.",
+    "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The documented temporal precondition is open before block, precisely the two implicated APIs. No dedicated class represents this API ordering defect, so other is appropriate.",
+      "quote": "timeout of 5s. Use the block() method after opening to alter the behaviour.",
+      "url": "https://raw.githubusercontent.com/stonier/ecl_core/0.60.5/ecl_devices/include/ecl/devices/serial_pos.hpp"
+    }
+  ],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:ecl::Serial::open",
+        "api:ecl::Serial::block"
+      ],
+      "reason": "The same fix separately adds block(4000) after the reconnecting open in Kobuki::spin. The ECL declaration states that each successful open configures a 5s timeout, so the consumer failed to reapply its 4s policy after reconnect. This is a documented code-level condition in the same kobuki_driver/ecl_devices PAIR, not evidence for recovery_conflict and not a proven additional terminal symptom.",
+      "outcome_class": "undocumented",
+      "quote": "Subject: [PATCH 2/2] block was called in init. but not in spin.",
+      "url": "https://github.com/yujinrobot/kobuki/commit/054c753b40b56b20c39051e14bdab71bc50e1ae8.patch",
+      "supporting_evidence": [
+        {
+          "quote": "timeout of 5s. Use the block() method after opening to alter the behaviour.",
+          "url": "https://raw.githubusercontent.com/stonier/ecl_core/0.60.5/ecl_devices/include/ecl/devices/serial_pos.hpp"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The maintainer asks for a currently missing guard/diagnostic. Mangled terminal output and unrelated battery warnings are not an interface diagnostic: silent_documented.",
+    "quote": "Also, ecl serial.block() should warn user if file_descriptor is not initialized.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The reproduction is the driver startup/initialization sequence, and the wrong call is in Kobuki::init: activate.",
+    "quote": "[ INFO] [1375247350.853728793]: KOBUKI : INITIALISED.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21840623"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The patch is accepted, but the identified working version is the earlier 0.3.9 consumer, not a shown successful run of the resolved revision; recommended.",
+    "quote": "Thus, the proposed patch is going to call serial.block() function after serial.open() in kobuki.cpp",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+  },
+  "notes": "The main listed ordering condition is correct. The separately documented reconnect-time policy restoration was omitted as a condition, although the specification mentions it in the resolution summary. No independent observed impact is claimed for that omission."
+}

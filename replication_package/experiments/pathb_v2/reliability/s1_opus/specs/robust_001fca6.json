@@ -1,0 +1,93 @@
+{
+  "case_id": "robust_001fca6",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/commit/001fca6f33c108c83da4416db3bf43dfeffbe7dd",
+    "https://github.com/ros/geometry2/pull/42",
+    "https://github.com/ros/geometry2/commit/0a034c5b21d7025f24b25051e0ab758f614efa5f",
+    "https://github.com/ros/geometry2/commit/5e41627775cb5d2ce536a5127261d41a57f0a3d7",
+    "https://github.com/ros/geometry/issues/30",
+    "https://github.com/ros/geometry/blob/1.10.5/tf/src/tf.cpp",
+    "https://github.com/ros/geometry/blob/1.10.5/tf/src/pytf.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "ros/geometry issue #30 gives a minimal rospy reproducer (tf.TransformListener().waitForTransform(...)) and the error \"terminate called after throwing an instance of 'ros::TimeNotInitializedException'\" plus a gdb backtrace through tf2_ros::Buffer::canTransform; the maintainer (tfoote) confirms \"There was a second issue with the sleep failing due to being uninitialized\" and fixes it in 0a034c5 (merged as 001fca6)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["tf2_ros", "tf"],
+      "interface_kind": "library API",
+      "evidence": "tf2_ros (geometry_experimental/geometry2) and tf (ros/geometry) are separately released packages. tf's Python binding (_tf.so, pytf.cpp) calls tf::Transformer::waitForTransform, which delegates to tf2_ros::Buffer::canTransform with a timeout. tf2_ros's polling loop calls ros::Time::now() and ros::Duration::sleep(), which assume the caller has initialized roscpp time; the tf binding running inside a rospy process never does. The failure depends on this caller-side precondition (a roscpp caller with a NodeHandle does not hit it), so it is not internal to one unit. The fix changes tf2_ros's API behaviour (fallback to wall time), not deployment names or build files."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the tf Python binding's waitForTransform call feeds tf2_ros::Buffer::canTransform(target, source, time, timeout, errstr) in the same rospy process; the crash occurs on that call."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"terminate called after throwing an instance of 'ros::TimeNotInitializedException' ... Aborted (core dumped)\" (issue #30); maintainer names the sleep variant of the mismatch in the commit comment \"This is a workaround for the case that we're running inside of rospy and ros::Time is not initialized inside the c++ instance.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2_ros",
+      "role": "provider",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "0.4.5",
+      "resolved_rev": "001fca6f33c108c83da4416db3bf43dfeffbe7dd",
+      "pinned": true,
+      "revision_basis": "The reporter ran Hydro binaries (/opt/ros/hydro/lib/libtf2_ros.so) on 2013-08-22 and names no version; the latest tf2_ros release tag before that date is 0.4.5 (c317a247, 2013-07-11; 0.4.6 was tagged 2013-08-28), whose Buffer::canTransform calls both ros::Time::now() and ros::Duration(0.01).sleep() unguarded, so both failed conditions are present. The Time::now() part was patched in 5e41627 (released in 0.4.6); the sleep part was fixed by 0a034c5 on branch geometry_issue_30, merged into hydro-devel as 001fca6 (PR #42) and released in 0.4.8 (\"This change is in 0.4.8\", tfoote). Resolved revision is the merge commit 001fca6, which contains both fixes.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "tf",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry",
+      "broken_rev": "1.10.5",
+      "resolved_rev": "1.10.5",
+      "pinned": true,
+      "revision_basis": "Reporter names only Hydro; the latest tf release tag before the 2013-08-22 report is 1.10.5 (f2dd18c9, 2013-07-19), whose Transformer::waitForTransform delegates to tf2_buffer_.canTransform. The resolution does not change tf, so the resolved revision is the broken revision (the confirming user on 2013-11-12 did not state a tf version).",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:tf2_ros::Buffer::canTransform", "sides": {"tf2_ros": "provides", "tf": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:tf2_ros::Buffer::canTransform"],
+      "quote": "terminate called after throwing an instance of 'ros::TimeNotInitializedException'\n  what():  Cannot use ros::Time::now() before the first NodeHandle has been created or ros::start() has been called.",
+      "url": "https://github.com/ros/geometry/issues/30"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["api:tf2_ros::Buffer::canTransform"],
+      "quote": "There was a second issue with the sleep failing due to being uninitialized. \n\nI believe that I have fixed the issue here: 0a034c5",
+      "url": "https://github.com/ros/geometry/issues/30"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The rostime runtime refuses the call with a diagnostic naming the violated precondition: \"terminate called after throwing an instance of 'ros::TimeNotInitializedException'\n  what():  Cannot use ros::Time::now() before the first NodeHandle has been created or ros::start() has been called.\" (https://github.com/ros/geometry/issues/30). This is a runtime-enforced refusal, raised when the call is made rather than at build or connection.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "tf2_ros::Buffer::canTransform falls back to wall time when ros::Time is not initialized: now_fallback_to_wall() replaces ros::Time::now() (5e41627) and sleep_fallback_to_wall() catches ros::TimeNotInitializedException around ros::Duration::sleep() and sleeps with ros::WallDuration instead (0a034c5, merged as 001fca6).",
+    "status": "recommended",
+    "evidence": "A user confirmed the geometry_issue_30 branch works with a rospy tf.TransformListener waitForTransform/lookupTransform script: \"Awesome, it works for me, thanks for fixing it!\" (jdddog, https://github.com/ros/geometry/issues/30). The tf2_ros side is identified (branch geometry_issue_30, head 0a034c5), but the tf revision in that test is not stated, so the resolved composition is not identified by revision on both sides."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Two failed conditions in the one composition: the Time::now() throw in the canTransform polling loop (the reporter's backtrace, fixed first by 5e41627, released 0.4.6) and the Duration::sleep() throw in the same loop (this case's fix 0a034c5/001fca6, released 0.4.8). The maintainer notes this is a recurrence of an issue earlier patched in old tf (70defb15) and that \"The cleaner solution is to use the python tf2 buffer class.\" The packet's description refers to the host as rospy; the unit that calls tf2_ros is tf's Python binding (_tf.so) running in the rospy process, so tf is named as the consumer unit. Later comments on the issue about extrapolation errors with tf2_ros Python lookup_transform concern a different composition (tf2_py buffer) and are not conditions of this case. Class 'other' is used because the mismatch is an unmet caller-side initialization precondition, which none of the specific classes names."
+}

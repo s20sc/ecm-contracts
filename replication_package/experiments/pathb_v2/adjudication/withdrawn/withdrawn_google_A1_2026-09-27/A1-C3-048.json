@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-C3-048",
+  "kind": "A1",
+  "case_id": "C3-048",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Reporter's reproducer (PX4 SITL in Gazebo, lidar model rotated 0.785398163 rad, mavros distance_sensor config) and log \"[ERROR] [1641489853.571286350, 184.549000000]: SENSOR: wrong orientation index: 100\" (https://github.com/mavlink/mavros/issues/1688); with orientation YAW_45 in the config: \"DS: rangefinder_pub4: received sensor data has different orientation (100) than in config (YAW_45)!\" (https://github.com/mavlink/mavros/issues/1688#issuecomment-1007988240). Maintainer confirmation: \"I found bug in enum_sensor_orientation.cpp introduced by CUSTOM entry.\" (https://github.com/mavlink/mavros/issues/1688#issuecomment-1008431926) and on the remaining mismatch: \"You have to modify simulator code to send different orientation because mavros plugin just checks if it matches config (like sanity check).\" (https://github.com/mavlink/mavros/issues/1688#issuecomment-1011160733).",
+    "url": "https://github.com/mavlink/mavros/issues/1688"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "But normally is should be recognized as YAW_45 and indeed I get the error message `DS: rangefinder_pub4: received sensor data has different orientation (CUSTOM) than in config (YAW_45)!`. Any clue to solve this ?",
+      "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1010921466"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "I found bug in enum_sensor_orientation.cpp introduced by CUSTOM entry.",
+      "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1008431926"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "mavros's distance_sensor plugin enforces its configured orientation at run time and refuses the reading with an error: \"DS: rangefinder_pub4: received sensor data has different orientation (100) than in config (YAW_45)!\" (https://github.com/mavlink/mavros/issues/1688#issuecomment-1007988240); the plugin code returns before publishing on this check (\"return;\" after the ROS_ERROR_NAMED in handle_distance_sensor). The internal lookup defect also logs \"SENSOR: wrong orientation index: 100\".",
+    "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1010921466"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The reporter rebuilt master and saw the lookup error disappear: \"I've built master and I don't get the `SENSOR: wrong orientation index: 100` message anymore. My sensor orientation is now recognized as CUSTOM and it seems to be working.\" (https://github.com/mavlink/mavros/issues/1688#issuecomment-1010921466), but the configuration used for that observation is not stated, the YAW_45 configuration still failed, and the PX4 revision is known only as \"latest\"; the reporter's last reply is \"Ok thanks !\" without a further test (https://github.com/mavlink/mavros/issues/1688#issuecomment-1011186558)."
+  },
+  "notes": "Adjudicated case C3-048: fully agrees with specification eligibility (E1-E4 step 6), failed conditions, loudness (loud_documented), and resolution status (recommended)."
+}

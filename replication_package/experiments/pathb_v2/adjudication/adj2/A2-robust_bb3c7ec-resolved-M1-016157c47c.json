@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_bb3c7ec-resolved-M1-016157c47c",
+ "kind": "A2",
+ "case_id": "robust_bb3c7ec",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "missing_permission",
+ "element": "msg:diagnostic_msgs/DiagnosticArray",
+ "token": "android.permission.WRITE_EXTERNAL_STORAGE",
+ "values": [
+  {
+   "path": "consumer.perm_requires[android.permission.WRITE_EXTERNAL_STORAGE]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0133/snapshot/library/AndroidManifest.xml:7 = `  <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>` (opened this session; manifest root at :2-3 = `<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"` / `package=\"ros.android.activity\"`). The packet's provenance path snapshot:library/AndroidManifest.xml:7 resolves against the consumer task u0133's snapshot and matches verbatim."
+  },
+  {
+   "path": "producer.perm_grants",
+   "verdict": "verified",
+   "source_excerpt": "Absence verified by exhaustive search: `rg -n \"uses-permission|grant|permission\" s2_work/tasks/u0134/snapshot s2_work/tasks/u0135/snapshot` returns only BSD license boilerplate such as s2_work/tasks/u0135/snapshot/kobuki_node/src/node/kobuki_node.cpp:15 = ` *       this software without specific prior written permission.` and main.cpp:15, diagnostics.cpp:15, odometry.cpp:82's file header etc. No permission-grant artifact (uses-permission grant record, pm grant, whitelist, permissions.xml, or equivalent) exists in either producer revision's snapshot (abf4e852 = u0134, bb3c7ec8 = u0135); the producer is a ROS C++/Python node set with no Android permission model at all."
+  },
+  {
+   "path": "consumer.perm_grants",
+   "verdict": "verified",
+   "source_excerpt": "Absence verified by exhaustive search: `rg -n \"uses-permission|grant\" s2_work/tasks/u0133/snapshot` returns exactly 6 declaration lines and nothing else - library/AndroidManifest.xml:7-9 (the three app permissions incl. this item's token) and android_create:36-38 (`<uses-permission android:name=\"android.permission.INTERNET\"/>`, `...ACCESS_WIFI_STATE\"/>`, `...CHANGE_WIFI_STATE\"/>`, a project-creation script template). All hits are permission *requests* (uses-permission declarations); no record of any grant exists in the consumer snapshot."
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Encoding is PAIR with consumer=u0133 (android_app_manager @ f080cd93) and producer=kobuki_node at the resolved commit bb3c7ec8 (u0135; u0134 @ abf4e852 included as the earlier revision), consistent with the case's resolved composition. Both sides of the edge check out against sources: consumer input role diagnostic_msgs/DiagnosticArray at s2_work/tasks/u0133/snapshot/library/src/ros/android/views/TurtlebotDashboard.java:121 = `      diagnosticSubscriber = node.newSubscriber(\"diagnostics_agg\", \"diagnostic_msgs/DiagnosticArray\");`; producer output role at s2_work/tasks/u0135/snapshot/kobuki_node/scripts/laptop_battery.py:173 = `        self._diag_pub  = rospy.Publisher('/diagnostics', DiagnosticArray)` (byte-identical at u0134:173). The producer recovery text is a faithful paraphrase of s2_work/tasks/u0135/snapshot/kobuki_node/src/node/kobuki_node.cpp:209-226: `bool timed_out = false; // stops warning spam when vel_cmd flags as timed out more than once in a row` (:212), `if ( (kobuki.isEnabled() == true) && odometry.commandTimeout()) {` (:216), `if ( !timed_out ) {` (:217), `kobuki.setBaseControl(0, 0);` (:220), `timed_out = true;` (:221), `} else { timed_out = false; }` (:224-226) - the !timed_out guard is exactly the 'once per timeout episode' qualifier. consumer.perm_requires enumerates precisely the app manifest's three permissions (AndroidManifest.xml:7-9)."
+ },
+ "notes": "No triggering value sits at a ver_delta.changed_fields[...] path, so substance is empty. Context notes from the same reads: (1) android_create:36-38 additionally lists INTERNET for projects it generates; INTERNET is not in consumer.perm_requires and is not this item's token, so it does not affect the verdict. (2) At topic level the consumer subscribes 'diagnostics_agg' while the producer unit publishes '/diagnostics'; the bridge is the diagnostic_aggregator configured by s2_work/tasks/u0135/snapshot/kobuki_bringup/resources/yaml/diagnostics.yaml (GenericAnalyzer, path 'Power System', contains ['Battery', 'Laptop Battery'], remove_prefix mobile_base at :9). That topic-level bridging question is separate from this msg-level edge and from the permission dimension adjudicated here."
+}

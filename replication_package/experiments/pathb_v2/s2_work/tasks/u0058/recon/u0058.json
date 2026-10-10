@@ -1,0 +1,39 @@
+{
+  "task_id": "u0058",
+  "package": "moveit_ros_move_group",
+  "manifest_version": "0.7.14",
+  "ports": [
+    {
+      "element": "param:/robot_description",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": ["param:/robot_description"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:moveit_ros/move_group/package.xml:3",
+    "ports[0].side": "snapshot:moveit_ros/move_group/src/move_group.cpp:47-48 (static const std::string ROBOT_DESCRIPTION = \"robot_description\"; // name of the robot description (a param name, so it can be changed externally)) and snapshot:moveit_ros/move_group/src/move_group.cpp:179 (new planning_scene_monitor::PlanningSceneMonitor(ROBOT_DESCRIPTION, tf)); the parameter is read, not set, via snapshot:moveit_ros/planning/rdf_loader/src/rdf_loader.cpp:50 (nh.searchParam(robot_description, robot_description_) || !nh.getParam(robot_description_, content))",
+    "references[param:/robot_description]": "snapshot:moveit_ros/move_group/src/move_group.cpp:47-48 hard-codes the relative name \"robot_description\", passed at snapshot:moveit_ros/move_group/src/move_group.cpp:179 to PlanningSceneMonitor -> RobotModelLoader (snapshot:moveit_ros/planning/planning_scene_monitor/src/planning_scene_monitor.cpp:120) -> RDFLoader, which resolves it with ros::NodeHandle(\"~\").searchParam (snapshot:moveit_ros/planning/rdf_loader/src/rdf_loader.cpp:47,50); for a node in the root namespace with no private override this resolves to /robot_description",
+    "perm_requires": "searched all files under snapshot:moveit_ros/move_group (package.xml, CMakeLists.txt, src/, include/, scripts/, default_capabilities_plugin_description.xml): no permission, security or access-control declarations",
+    "perm_grants": "searched all files under snapshot:moveit_ros/move_group: no permission grants declared",
+    "recovery": "snapshot:moveit_ros/move_group/src/move_group.cpp:181-212: if the planning scene (which needs the robot description) is not configured, main logs ROS_ERROR(\"Planning scene not configured\") and returns 0; no retry, wait or fallback for the parameter; snapshot:moveit_ros/planning/rdf_loader/src/rdf_loader.cpp:50-53 logs \"Robot model parameter not found! Did you remap '%s'?\" and returns"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The consumer side looks standard: the name robot_description is hard-coded as a relative param name and resolved with searchParam from the private namespace, which yields /robot_description in the usual root-namespace launch; nothing in this package contradicts the packet element. Any defect would have to lie in the pairing, which is not visible here."
+  },
+  "confidence": "high",
+  "notes": "The snapshot is the whole moveit repository; the package is at snapshot/moveit_ros/move_group (package.xml name moveit_ros_move_group, version 0.7.14). The only packet element is consumed, so declares and not_declared are empty. The parameter holds URDF XML read into a std::string (rdf_loader.cpp:48,50); it is a parameter, not a message, so msg_type and definition_id are null. frame is null: the code attaches no frame to this parameter, and the URDF content does carry spatial meaning, so 'none' does not apply. units null (not stated). QoS null because this is ROS 1. No rate. The name in code is the relative string \"robot_description\" (verbatim), not the absolute \"/robot_description\"; resolution goes through NodeHandle(\"~\").searchParam in moveit_ros_planning (rdf_loader), so it resolves to /robot_description only when the move_group node runs in the root namespace and no closer robot_description parameter exists. The same resolved name is also used to derive robot_description_semantic (rdf_loader.cpp:64) and robot_description_planning/* parameters (planning_scene_monitor.cpp:238,1367,1416-1420); those are in moveit_ros_planning and not packet elements, so they are not listed. Other params this package reads (private ~allow_trajectory_execution, ~capabilities, ~disable_capabilities in move_group.cpp) are not packet elements and are not listed. No exclusive resources are claimed."
+}

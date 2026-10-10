@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL2-10",
+ "kind": "A1",
+ "case_id": "CAL2-10",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "So recently, collada scaling stuff has changed, see #603 and #618. Most likely, TurtleBot needs to be fixed because the scaling is incorrect.  (maintainer confirmation read verbatim: 'Oh well, I was worried already that this would cause trouble. We didn't test this with the turtlebot meshes, sorry.'; rviz PR 603 'Collada loader units fix' verified merged 2013-03-08 with body 'This patch introduces the ability to read the unit scaling factor from Collada mesh resources.')",
+  "url": "https://github.com/ros-visualization/rviz/issues/622"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-\t\t<unit meter=\"0.01\" name=\"centimeter\"/>\n+\t\t<unit meter=\"1.0\" name=\"meter\"/>",
+   "url": "https://github.com/turtlebot/turtlebot_create/commit/9299530eb77b9e8a2a18160fb6ece325d38abfbc"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "disagree",
+  "proposed": "silent_documented (run)",
+  "quote": "I just updated my Groovy debian installation with the release that was posted today on ros-users and now collada meshes no longer appear in RViz.  In particular, the TurtleBot is now basically invisible.  ... mikeferguson: '(whole robot is just a few speckles of gray and white scattered around)' — no diagnostic from existing tooling is logged anywhere in the rviz#622 or turtlebot#65 threads (all comments read this session)",
+  "url": "https://github.com/ros-visualization/rviz/issues/622"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "turtlebot_create version 2.0.1 fixes this issue. It's now available on shadow-fixed.  (merge 9299530 verified this session: 'Merge pull request #7 from bit-pirate/master / Fixes broken Turtlebot 1 visualisation - part 2', parents 54f896e6 + b6cbcb86, changing create_body.dae's unit declaration and removing the unused M_PI/SCALE properties from create.urdf.xacro — a statement of the fix, not a shown observation of 2.0.1 rendering correctly in a named rviz revision)"
+ },
+ "notes": "Sources opened this session: rviz#622 body and every comment (pirobot's report, 'Yes, 1.9.28 is what I meant.', the scale workaround list 'kinect: 100 / create_body: 100 / plate_0/1/2: 100', dgossow's confirmation, bit-pirate's ROS Answers link and PR announcements); turtlebot#65 comments (jihoonl 'unit aware issue?', bit-pirate's PR links and the 2.0.1 statement); rviz PR 603 metadata and body (including 'Previously, it was acceptable to simply ignore this attribute as nothing else used it, but the current version of Gazebo does, and so it must be used to maintain consiste' — read truncated at 500 chars); turtlebot_create commit 9299530 diff verbatim. Eligibility agree: UPGRADE — rviz's unit-aware release changed how the mesh's unit declaration is consumed while the mesh declarations were authored against the unit-ignoring behaviour; the unit value crosses the boundary; the fix edits the provider-side declaration, not a deployment name binding. Class unit_mismatch fits exactly; elements agree. LOUDNESS DISAGREEMENT: the spec records loud_documented/connect with the same template evidence text as CAL2-07 ('The mismatch is reported when the two units connect: the consumer logs an incompatibility error naming the element before any data is exchanged'), but the threads contain no logged diagnostic at all — the failure is wrong rendering observed at display time (the model becomes invisible/tiny). Proposed: silent_documented, detection_stage run. Resolution recommended agree. The spec's role framing (rviz as the unit at the newer revision, create_description as the unit whose declarations were written against the earlier behaviour, data flowing provider->consumer) is coherent and documented."
+}

@@ -1,0 +1,49 @@
+{
+  "case_id": "robust_1f01916",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/72",
+    "https://github.com/mavlink/mavros/commit/1f019166ccedf8ce5151944f5e33302afaf82679"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #72 (maintainer vooon, 2014-07-31) gives a reproducer chain `uvc_camera -ros-> gcs_image_bridge -mavlink-> mavros` with three `rosrun` lines and the observation \"Connection done, but no data transfers until mavros sends some data (e.g. mavsafety arm). After that it works some time and hangs again.\" Comments record \"UDP: fails with std::system_error:  Resource deadlock avoide.\", \"TCP-L: don't send data back!\", and \"Also unit test get segfault on buildfarm.\" Commit 1f01916 (\"mavconn: Fix TCP server client deletion. Issue #72.\") is one of the fixes."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "mavros (mavros_node; libmavconn MAVConnTCPServer in src/mavconn/mavconn_tcp.cpp)",
+        "mavros_extras (gcs_image_bridge, the MAVLink TCP peer in the reporter's chain)"
+      ],
+      "interface_kind": null,
+      "evidence": "The two units exchange MAVLink over a TCP link (`_gcs_url:=tcp-l://` on gcs_image_bridge, `_fcu_url:=tcp://` on mavros). The documented failure is a transport hang/deadlock/segfault inside libmavconn itself: the reporter's diagnosis is \"Improper use of libev (strace shows EPOLLOUT state on socket)\", the same symptoms appear \"with UDP ... and serial (using socat PTY PTY)\", and the resolution was to \"return to ASIO\". The listed fix changes only the server's own lifetime handling of a client object: `client_closed(boost::shared_ptr<MAVConnTCPClient> instp)` becomes `client_closed(boost::weak_ptr<MAVConnTCPClient> weak_instp)` with `if (auto instp = weak_instp.lock()) { lock_guard lock(mutex); ... client_list.remove(instp); }`. No value, name, type, frame, or timing crossing the MAVLink/TCP boundary is involved; the hang and the crash would occur with any correct TCP peer. Stop at step 2: `internal`."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached (the failure is inside one unit's transport implementation)."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "Not reached."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: libmavconn transport hang/deadlock and TCP-server client-object lifetime bug (shared_ptr cycle fixed with weak_ptr in MAVConnTCPServer::client_closed); occurs regardless of the MAVLink peer and does not involve any interface element crossing the boundary.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Issue #72 is a \"global issue\" (vooon's words on close, 2014-08-05) covering the whole libev-to-ASIO rewrite of mavconn; the packet's fix commit 1f01916 (parent 2caee4543d130b74cd3d349c04684d236dde838b, 2014-08-04) is only the TCP-server client-deletion part. The reporter's chain also involves uvc_camera -> gcs_image_bridge over ROS (`image_raw:=/mavlink/gcs_image`), but no failure of that ROS composition is documented. Related issue #74 is mentioned in the comments (\"Yep seems to be #74 related.\") but not read for this case."
+}

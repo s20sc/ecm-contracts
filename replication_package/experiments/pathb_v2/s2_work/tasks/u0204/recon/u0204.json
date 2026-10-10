@@ -1,0 +1,58 @@
+{
+ "task_id": "u0204",
+ "package": "ur_description",
+ "manifest_version": "1.1.10",
+ "ports": [
+  {
+   "element": "param:/robot_description",
+   "side": "provides",
+   "msg_type": null,
+   "frame": null,
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  }
+ ],
+ "exclusive": [],
+ "declares": {
+  "param:/robot_description": "param robot_description: string"
+ },
+ "not_declared": [],
+ "references": [
+  "param:/joint_state_publisher/use_gui"
+ ],
+ "perm_requires": {
+  "state": "absent",
+  "values": []
+ },
+ "perm_grants": {
+  "state": "absent",
+  "values": []
+ },
+ "recovery": {
+  "state": "absent",
+  "value": null
+ },
+ "provenance": {
+  "manifest_version": "snapshot:ur_description/package.xml:4 | <version>1.1.10</version>",
+  "ports[0].element": "snapshot:ur_description/launch/ur5_upload.launch:5 | <param unless=\"$(arg limited)\" name=\"robot_description\" command=\"$(find xacro)/xacro --inorder '$(find ur_description)/urdf/ur5_robot.urdf.xacro'\" />",
+  "ports[0].side": "snapshot:ur_description/launch/ur5_upload.launch:5-6, ur3_upload.launch:5-6, ur10_upload.launch:5-6 | each upload launch sets <param name=\"robot_description\" command=\"$(find xacro)/xacro --inorder '...'\"/> (provides the parameter value)",
+  "declares[param:/robot_description]": "snapshot:ur_description/launch/ur5_upload.launch:5 | <param unless=\"$(arg limited)\" name=\"robot_description\" command=\"$(find xacro)/xacro --inorder '$(find ur_description)/urdf/ur5_robot.urdf.xacro'\" /> (same name/command form at ur5_upload.launch:6, ur3_upload.launch:5-6, ur10_upload.launch:5-6); no type attribute is given, and a roslaunch <param> set via the command attribute stores the command output as a string",
+  "references[param:/joint_state_publisher/use_gui]": "snapshot:ur_description/launch/test.launch:3-4 | <node name=\"joint_state_publisher\" pkg=\"joint_state_publisher\" type=\"joint_state_publisher\" > <param name=\"use_gui\" value=\"true\"/> (private parameter of node joint_state_publisher; resolves to /joint_state_publisher/use_gui when launched at the root namespace)",
+  "perm_requires.state": "searched snapshot/ur_description (package.xml, CMakeLists.txt, launch/*.launch, urdf/*.xacro): no permission or access-requirement declarations",
+  "perm_grants.state": "searched snapshot/ur_description (package.xml, CMakeLists.txt, launch/*.launch, urdf/*.xacro): no permission grants",
+  "recovery.state": "searched snapshot/ur_description (package.xml, CMakeLists.txt, launch/*.launch, urdf/*.xacro): no recovery behaviour declared"
+ },
+ "blinding_guess": {
+  "defective": "cannot_tell",
+  "why": "The parameter is declared as expected (name robot_description, xacro output string) in all three upload launch files and all referenced xacro/mesh files exist and parse as XML. Minor oddities (package.xml has no run_depend on xacro although the launch files call $(find xacro)/xacro --inorder; ur5 wrist link inertials use radius=\"0.6\" while other links use ~0.06) do not clearly make the param defective; nothing in the snapshot alone shows a contract break."
+ },
+ "confidence": "high",
+ "notes": "ROS1 package; QoS fields are null by rule. The only packet element (param:/robot_description, provides) is set by snapshot:ur_description/launch/{ur3,ur5,ur10}_upload.launch lines 5-6 as <param name=\"robot_description\" command=\"$(find xacro)/xacro --inorder '...'\"/>, choosing <model>_robot.urdf.xacro or <model>_joint_limited_robot.urdf.xacro via arg limited (default false). The name is written relative ('robot_description'); it resolves to /robot_description only when the launch file is run or included in the root namespace; the declares signature copies the name verbatim. msg_type and definition_id are null: a parameter has no message definition. frame is null: the value is a URDF document defining a tree of link frames rooted at link 'world' (world_joint -> base_link, prefix=\"\"), with links base_link, shoulder_link, upper_arm_link, forearm_link, wrist_1_link, wrist_2_link, wrist_3_link, ee_link, base, tool0 and revolute joints shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint, wrist_3_joint (ur5.urdf.xacro:81-336; same structure in ur3/ur10), so no single frame applies. units null: the code does not state units (URDF itself uses SI). exclusive is empty: ur.transmission.xacro:9-59 declares <hardwareInterface>PositionJointInterface</hardwareInterface> for each ${prefix}*_joint via transmission_interface/SimpleTransmission, which exposes a command interface for the simulated hardware (common.gazebo.xacro:5 loads libgazebo_ros_control.so) but is not itself an exclusive claim. Other external references not expressible in the canonical forms: test.launch:6-7 runs robot_state_publisher/state_publisher and rviz with $(find urdf_tutorial)/urdf.rviz; launch files depend on the xacro package (--inorder flag), which package.xml (run_depend only urdf) does not list. ur10.urdf.xacro:66-72 macro uses name:=default parameters (needs xacro --inorder, which the launch files pass). ros_distro is null, so no distro-specific default was needed."
+}

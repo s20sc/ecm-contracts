@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3N-008",
+  "kind": "A1",
+  "case_id": "C3N-008",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "/home/runner/work/ros2_control/ros2_control/.work/target_ws/src/ros2_control/hardware_interface_testing/test/test_resource_manager.cpp:1361:8: error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override",
+    "url": "https://github.com/ros-controls/ros2_control/issues/3193 (christophfroehlich comment, read this session via API)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "1361 |   void add_node(\n        |        ^~~~~~~~",
+      "url": "https://github.com/ros-controls/ros2_control/issues/3193 (christophfroehlich comment, read this session via API)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Failed   <<< hardware_interface_testing [45.3s, exited with code 2]",
+    "url": "https://github.com/ros-controls/ros2_control_ci/issues/733 (christophfroehlich comment, read this session via API)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I misconfigured the version macro with #3080. It is a GTE and not a GT macro ... The breaking PR was released with 31.0.0"
+  },
+  "notes": "Independently verified: (1) E1 — scheduled CI failure with the compiler error posted by the maintainer (read verbatim); the same error appears in ros2_control_ci#733 with the colcon summary 'Failed   <<< hardware_interface_testing [45.3s, exited with code 2]'. (2) E2 stop 6 — both halves of the skew verified in source: rclcpp 30.1.5 executor.hpp L199-200 declares 'virtual void / add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);' (by value) while 31.0.0 L199-202 declares 'virtual void / add_node( / const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, / bool notify = true);' (const reference), changed in f145c9ee 'perf: Optimized out shared_ptr copies (#3079)' (message verified); the consumer at bb07fdd5 L1360-1365 verified selecting the const-reference override under '#if RCLCPP_VERSION_GTE(30, 1, 5)' with the by-value override in the #else — the guard's selected branch matches the 31.0.0 declaration, so against a 30.1.5 provider it overrides nothing. The resolving edit (PR 3198, raising the guard to GTE(31,0,0)) changes which provider declaration the consumer references per provider version — an interface adaptation, not a build-system-only change; stop 6 is right. (3) Class element_retyped fits: the element (virtual Executor::add_node) is still present with a changed declaration between provider revisions. (4) E3 caveat, which the spec itself documents: the provider (30.1.5, apt rolling main, with 31.0.0 blocked on the build farm — verified christophfroehlich comment on PR 3080: 'New release is out: https://github.com/ros2/rclcpp/commit/048e47ec105e34def37770ef1dba33955e3a6999 ... but blocked by an upstream failure') is OLDER than the revision the consumer's selected code was written against (31.0.0); strictly neither UPGRADE clause (provider-newer) nor the earlier-revision-reference clause applies, and the spec flags this openly ('If UPGRADE is applied strictly as provider-newer-than-consumer, this case should be re-classified'). Eligibility (stop 6) does not hinge on this, so I agree; the operation label is a documented judgment call. (5) CI runs verified via API: 24018250241 (2026-04-06, head_sha bb07fdd55a59ea750f06bb2fee7a3a1c113b10dd, conclusion failure), 24063312146 (2026-04-07, same head, failure), 24116710553 (2026-04-08, head_sha 64f9645a6c948ad9ecf4bb1a51746f7227c45e38, success). (6) Resolution recommended: PR 3198 verified merged (merge_commit_sha 64f9645a6c948ad9ecf4bb1a51746f7227c45e38); the next scheduled run at 64f9645a succeeded in both jobs, but the rclcpp revision installed in that run is not identifiable from any readable source (job logs expired), so the resolved composition is not identified by revision on the provider side and 'observed' cannot be claimed — recommended is correct."
+}

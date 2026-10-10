@@ -1,0 +1,81 @@
+{
+  "case_id": "C3-126",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_cyclonedds/issues/469",
+    "https://github.com/ros2/rclcpp/pull/2335",
+    "https://github.com/ros2/rcl/pull/1110",
+    "https://github.com/ros2/rcl/pull/1116",
+    "https://github.com/ros2/rclcpp/pull/2364",
+    "https://github.com/ros2/rclcpp/pull/2092",
+    "https://github.com/ros2/rclcpp/pull/2336",
+    "https://github.com/ros2/rclcpp/pull/864",
+    "https://github.com/ros2/ros2_documentation/pull/5068",
+    "https://github.com/ros2/rclcpp/blob/52327dd3a3b0fc47446ce86ecaf16fdde4fc4a60/rclcpp/src/rclcpp/time_source.cpp",
+    "https://github.com/ros2/rclcpp/blob/52327dd3a3b0fc47446ce86ecaf16fdde4fc4a60/rclcpp/include/rclcpp/subscription.hpp",
+    "https://github.com/ros2/rmw_cyclonedds/blob/7cb3b38a21e14fbcc84aadcc460e4d812d0c7a7f/rmw_cyclonedds_cpp/src/rmw_node.cpp"
+  ],
+  "eligibility": {
+    "E1": {"pass": true, "evidence": "Dockerfile-based reproducer (ros:humble, rmw_cyclonedds_cpp with CYCLONEDDS_URI SharedMemory enabled, iox-roudi, `ros2 topic pub /clock ... -r 10000`, repeated `ros2 run rclcpp_components component_container --ros-args -p use_sim_time:=true`), the crash text \"what():  cannot store a negative time point in rclcpp::Time\", a Valgrind use-after-free trace, and maintainer agreement (\"once the memory is returned to the underlying middleware, they should be considered invalid\")."},
+    "E2": {"pass": true, "stop_step": 6, "reason_code": null, "units_identified": ["rclcpp", "rmw_cyclonedds_cpp"], "interface_kind": "library API (RMW message-loan API)", "evidence": "With shared memory enabled, rmw_cyclonedds_cpp marks the subscription loan-capable (\"rmw_subscription->can_loan_messages = sub->is_loaning_available;\") and hands out a loaned sample that it frees when the loan is returned (comment: \"will be released when `rmw_return_loaned_message_from_subscription()` is called\"; Valgrind: freed by dds_data_allocator_free in rmw_return_loaned_message_from_subscription). rclcpp wraps the loan in a non-owning shared_ptr (subscription.hpp: \"// message is loaned, so we have to make sure that the deleter does not deallocate the message\"), its TimeSource caches that pointer (\"last_msg_set_ = msg;\"), and its executor returns the loan right after the callback; a later read of the cached clock message reads memory rmw_cyclonedds_cpp has already freed. The defect is the timing of the loan return relative to rclcpp's use of provider-owned memory, i.e. it depends on the loan-lifetime agreement across the rclcpp/RMW boundary and does not occur when the peer does not loan (reporter: only with Iceoryx enabled; maintainer: \"if you use the non-loaned APIs, it works exactly as you expect\"). Not wiring or build."},
+    "E3": {"pass": true, "evidence": "PAIR: rmw_cyclonedds_cpp's loaned /clock sample (output) is consumed by rclcpp's subscription/TimeSource; the crash is observed during node startup while the two run together."},
+    "E4": {"pass": true, "evidence": "Observed: \"Random nodes fail startup with the following exception:\" followed by \"terminate called after throwing an instance of 'std::runtime_error'\", plus a Valgrind \"Invalid read of size 8\" whose block was \"free'd\" in rmw_return_loaned_message_from_subscription."}
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclcpp",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rclcpp",
+      "broken_rev": "16.0.5",
+      "resolved_rev": "16.0.7",
+      "pinned": true,
+      "revision_basis": "The reporter uses the official ros:humble Docker image (digest sha256:12cc6355..., report 2023-09-18) with apt binaries; the digest's manifest could not be retrieved from the registry (MANIFEST_SCHEMA_UNSUPPORTED). The latest rclcpp Humble release before the report is 16.0.5 (52327dd3, 2023-07-17); 16.0.6 was tagged 2023-09-19, after the report; if the image predates the July 2023 Humble sync it would carry 16.0.4, but time_source.cpp, executor.cpp and subscription.hpp are unchanged between 16.0.4 and 16.0.5. The reporter's links point at humble head 724b4588 (2023-09-16) for reading the code, not as the installed version. Resolved: 16.0.7 (47712ecf, 2023-11-13), the Humble release containing backport #2364 (24f059c5), released together with rcl 5.3.6.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "rmw_cyclonedds_cpp",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rmw_cyclonedds",
+      "broken_rev": "1.3.4",
+      "resolved_rev": "1.3.4",
+      "pinned": true,
+      "revision_basis": "Installed by `apt-get install -y ros-$ROS_DISTRO-rmw-cyclonedds-cpp` in the ros:humble image in September 2023; tag 1.3.4 (7cb3b38a, 2022-11-07) is the last Humble release and the humble branch has no commits between 2022-11-08 and 2023-11-30. The resolution does not change this unit.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:rmw_create_subscription", "sides": {"rmw_cyclonedds_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "field:rmw/rmw_subscription_t.can_loan_messages", "sides": {"rmw_cyclonedds_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_take_loaned_message", "sides": {"rmw_cyclonedds_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_return_loaned_message_from_subscription", "sides": {"rmw_cyclonedds_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_take_with_info", "sides": {"rmw_cyclonedds_cpp": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_wait", "sides": {"rmw_cyclonedds_cpp": "provides", "rclcpp": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:rmw_take_loaned_message", "api:rmw_return_loaned_message_from_subscription", "field:rmw/rmw_subscription_t.can_loan_messages"],
+      "quote": "That said, I see exactly what you mean about the loaned APIs.  They do not work like that; once the memory is returned to the underlying middleware, they should be considered invalid.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1724283083"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No tooling diagnoses the lifetime mismatch; the symptom is an unrelated-looking crash from garbage data: \"terminate called after throwing an instance of 'std::runtime_error'\" / \"  what():  cannot store a negative time point in rclcpp::Time\" (https://github.com/ros2/rmw_cyclonedds/issues/469). The use-after-free was found only with Valgrind (\"Invalid read of size 8\" ... \"Address 0x61084f0 is 0 bytes inside a block of size 8 free'd\"), and a team member notes \"the application may happily run reading forbidden memory without any error\".",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Humble: rcl makes disable_loaned_message true by default (loans only if ROS_DISABLE_LOANED_MESSAGES=0; rcl#1116, backport of rcl#1110, in rcl 5.3.6), so rclcpp no longer takes loaned messages; rclcpp adds a one-time warning when loans are still enabled (\"Loaned messages are only safe with const ref subscription callbacks.\"; rclcpp#2364, backport of #2335, in 16.0.7). Alternative confirmed by the reporter: rclcpp#2092 (rolling only), which makes ClocksState::cache_last_msg store a copy instead of the loaned pointer.",
+    "status": "recommended",
+    "evidence": "Maintainer closing note: \"We disabled loans by default via https://github.com/ros2/rclcpp/pull/2335 and https://github.com/ros2/rcl/pull/1110\" / \"We backported the above to Humble and Iron.\" / \"The above works around the issue.\" (https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1877574593). No source shows the Humble fix running in this composition. For rclcpp#2092 the reporter answers \"Yes, it does fix the issue for us.\" (https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1723688992) without naming the revisions tested, and the initial report says \"It doesn't happen in ros:iron and ros:rolling\" (different revisions of both units)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "low",
+  "notes": "Eligibility is a judgement call: all of the faulty logic is in rclcpp (a maintainer calls it \"probably a bug in rclcpp\"), and it would hit any loan-capable RMW (the rclcpp#2335 description cites the same effect with Fast-DDS from Nav2); I treat it as an interface failure because it is rclcpp returning a loan across the RMW API while still using the loaned memory, and it only occurs when the peer loans. The failed-condition class is `other` (ownership/lifetime of loaned memory; no specific class exists). The resolution's decisive change is in rcl (a third unit between rclcpp and the RMW: 5.3.4 -> 5.3.6, commit 2c83ad3a), not in either specified unit; rclcpp 16.0.7's own change only warns. Other compositions/defects addressed by the same fixes and not conditions of this case: rclcpp's MessagePoolMemoryStrategy reusing messages still referenced by user shared_ptrs (demonstrated by the reporter with a standalone publisher/subscriber; fixed in rclcpp#2336), and the loaned-message path ignoring a custom memory strategy (mentioned in rclcpp#2335). Iceoryx (RouDi) and Cyclone DDS provide the shared-memory chunk underneath rmw_cyclonedds_cpp; the /clock publisher (`ros2 topic pub`) only supplies traffic. Of the packet's fix_refs, rclcpp#864 is the 2019 \"Zero copy api\" PR that introduced the loan path (origin, not a fix) and ros2_documentation#5068 (2025) is documentation of loaned messages. Re-enabling loans with shared_ptr callbacks is tracked in rclcpp#2401. The field element uses the C struct form field:rmw/rmw_subscription_t.can_loan_messages (package rmw, struct rmw_subscription_t). detection_stage is `activate` because the crash occurs during node startup (NodeTimeSource construction reading the cached clock message)."
+}

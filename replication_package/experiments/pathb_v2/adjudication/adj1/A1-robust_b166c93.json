@@ -1,0 +1,59 @@
+{
+  "item_id": "A1-robust_b166c93",
+  "kind": "A1",
+  "case_id": "robust_b166c93",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "[kobuki_driver] isnan -> std::isnan",
+    "url": "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964",
+    "reason": "Agree with E1 and the specification's E2 step 6, but disagree with its final E3/E4 exclusion. The concrete interaction is the kobuki_driver call consuming the standard-library isnan API: PAIR can be identified from the source call and explicit <cmath>/std::isnan repair without inventing a provider UPGRADE. E3 does not require a documented upgrade or exact compiler revision for a PAIR. The maintainer-confirmed fix names the symbol mismatch, satisfying E4 at code level with outcome undocumented. This is a source API-reference edit, not build-system-only repair. The exact failing toolchain and runtime/build manifestation remain unknown.",
+    "proposed_eligible": true
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:isnan",
+        "api:std::isnan"
+      ],
+      "quote": "-            if (isnan(heading_offset) == true)\n+            if (std::isnan(heading_offset) == true)",
+      "url": "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964",
+      "reason": "Incorrectly qualified/declared standard-library API reference, corrected by explicitly including <cmath> and using std::isnan. No provider release is shown removing or renaming an element, so element_removed_or_renamed and an UPGRADE would overstate the evidence.",
+      "additional_evidence": [
+        {
+          "quote": "+#include <cmath>",
+          "url": "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964"
+        },
+        {
+          "quote": "Cherried in b166c939.\n\nComing soon to indigo in v0.6.4.",
+          "url": "https://github.com/yujinrobot/kobuki_core/issues/22#issuecomment-226705247"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "[kobuki_driver] isnan -> std::isnan",
+    "url": "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964",
+    "reason": "Neither the issue and its comments nor the two fixing diffs give an actual compiler error or observed runtime failure. A likely compile error must not be promoted to loud_documented."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "[kobuki_driver] isnan -> std::isnan",
+    "url": "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964",
+    "reason": "The source API edit suggests build-time relevance but does not establish an observed detection stage."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Cherried in b166c939.\n\nComing soon to indigo in v0.6.4.",
+    "url": "https://github.com/yujinrobot/kobuki_core/issues/22#issuecomment-226705247",
+    "reason": "The maintainer accepted the backport; no successful build/run identifies both this consumer and the standard-library provider by revision."
+  },
+  "notes": "Proposed operation PAIR; outcome undocumented. Keep the provider/compiler revision unspecified. Do not adopt the specification's unverified glibc-macro/libstdc++-undef explanation as established source evidence. The kinetic-to-indigo backport is not itself proof of a provider upgrade. Eligibility follows the confirmed code-level API correction, not an invented failing platform, diagnostic, or provider removal."
+}

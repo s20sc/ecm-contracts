@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-066",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/783",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/803",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/741"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #783 gives a reproduction (\"if i keep refreshing my webpage, it eventually crashes rosbridge server\") and a launch log ending in \"[ERROR] [rosbridge_websocket-1]: process has died [pid 75242, exit code -11, ...\" (rosbridge 1.2.0, Foxy); merged PR #803 says \"Fixes #783\" and a maintainer (zflat) confirmed \"I did a quick test locally to confirm that these changes address the issues seen in https://github.com/RobotWebTools/rosbridge_suite/issues/783\"."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rosbridge_server (rosbridge_websocket, with rosbridge_library)", "web client (reporter's webpage over the rosbridge WebSocket protocol)"],
+      "interface_kind": null,
+      "evidence": "The defect is a concurrency fault inside rosbridge's own multi-client subscription bookkeeping and would occur with any correct WebSocket client that connects, subscribes and disconnects quickly. PR #803: \"This PR improves multi-client connection robustness by - avoiding unregistering of subscribers if one client disconnects while all others are still waiting for the [initial callback](...) - avoiding a deadlock that could occur when new clients connect, subscribe to a topic and then immediately disconnect again\". A related symptom found during review was also internal: \"RuntimeError: dictionary changed size during iteration\" with the explanation \"we only create a reference to the callbacks, not a deep copy\" (achim-k, PR #803). No value, frame, name, or timing assumption between the client and the server is wrong; the client uses the protocol correctly (standard subscribe ops). The reporter's segfault has no stack trace; the reporter asked whether a tornado version mismatch was involved, but no source confirms a tornado or rclpy version mismatch as the cause. PR #803 (supersedes #741, also fixes #758) was merged into ros2 on 2022-10-17 as fada151f45bcfd68483a369684a0aa0a80d180ca; an intermittent tornado WebSocketClosedError trace seen during review was downgraded to a warning."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated past E2. The triggering pattern is repeated SWITCH/CONCURRENT client sessions (disconnect and reconnect of the page), but the failure is inside rosbridge_server."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"process has died [pid 75242, exit code -11, ...\" in the issue log."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: deadlock and unsynchronized callback-dictionary handling inside rosbridge_library/rosbridge_server when several WebSocket clients connect, subscribe and disconnect in quick succession; the fix (PR #803) replaces the Lock with an RLock, holds it across the callback loop, counts pending new subscriptions in has_subscribers(), destroys the pending new subscriber on unregister, and stops re-raising WebSocketClosedError. The crash would occur with any correct client.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

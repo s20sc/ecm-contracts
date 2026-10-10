@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_4115400",
+  "kind": "A1",
+  "case_id": "robust_4115400",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The basic problem is that the sensor name, as obtained on [line 289 of gazebo_ros_kobuki_loads.cpp](...), is not scoped. Thus it is the same when multiple models are spawned using the same URDF file ... Hence, the sensor obtained by `sensors::SensorManager::Instance()->GetSensor()` is subject to a race condition.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76669013"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The basic problem is that the sensor name, as obtained on line 289 of gazebo_ros_kobuki_loads.cpp is not scoped. Thus it is the same when multiple models are spawned using the same URDF file, namely kobuki_gazebo.urdf.xacro ... Hence, the sensor obtained by `sensors::SensorManager::Instance()->GetSensor()` is subject to a race condition.",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76669013"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "KGP does not post rotations to the odom topic (translations are there)\n- **KGP does not publish rotation information on base_footprint-odom tf.**",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have confirmed that it resolves #38. Thanks @slivingston!!!"
+  },
+  "notes": "All key claims verified. (1) Issue 38 body: 'Start two gazebo kobukis ... **KGP does not post rotations to the odom topic (translations are there)** ... **KGP does not publish rotation information on base_footprint-odom tf.**'. (2) Diagnosis comment 76669013 (slivingston) verbatim: 'The basic problem is that the sensor name, as obtained on line 289 of gazebo_ros_kobuki_loads.cpp is not scoped ... Hence, the sensor obtained by sensors::SensorManager::Instance()->GetSensor() is subject to a race condition.'; the same comment's diff shows the fix '- sensors::SensorManager::Instance()->GetSensor(imu_name)' -> '+ sensors::get_sensor(world_->GetName()+\"::\"+node_name_+\"::base_footprint::\"+imu_name)'. Earlier comment 76666000 'The bug is due to the different Kobuki plugins using the same ImuSensor.' (3) Fix 4115400a 'Merge pull request #39 ... kobuki_gazebo_plugins: Resolve IMU sensor using fully scoped name' (2015-03-02; the API merge_commit_sha 9bb27fff differs, but the actual merge commit 4115400a is verified directly). (4) Resolution comments: PR #39 comment 76671612 (jihoonl) 'I have confirmed that it resolves #38. Thanks @slivingston!!!'; issue comment 76671649 'This has been resolved witih #39'. (5) E2 exclusive-resource eligible at step 6: two co-active instances of the same plugin each resolve the unscoped 'imu' name and bind the same ImuSensor; the failure exists only with a second instance ('apparently correct behavior in the case of a single Kobuki', comment 76661468), so it depends on the peer, not internal. (6) Class exclusive_resource_conflict correct; implicated element resource:imu correct. (7) Loudness silent_documented + run: the wrong orientation is visible only in the published odom/tf data; GetSensor('imu') succeeds (returns the other model's sensor), so the plugin's 'Couldn't find the IMU in the model!' branch is not taken. (8) Resolution 'observed': the maintainer confirms the fully-scoped lookup resolves the issue in the two-instance composition. No missed conditions (the setEuler/setRPY patch was tested and found 'not sufficient' — a separate earlier hypothesis, not a condition)."
+}

@@ -1,0 +1,124 @@
+{
+ "task_id": "u0155",
+ "package": "PX4 Firmware",
+ "manifest_version": "1.0.0",
+ "ports": [
+  {
+   "element": "field:mavlink/COMMAND_LONG.confirmation",
+   "side": "consumes",
+   "msg_type": "mavlink/COMMAND_LONG",
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "field:mavlink/HEARTBEAT.autopilot",
+   "side": "provides",
+   "msg_type": "mavlink/HEARTBEAT",
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 1.0,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "msg:mavlink/COMMAND_INT",
+   "side": "consumes",
+   "msg_type": "mavlink/COMMAND_INT",
+   "frame": null,
+   "units": "x, y: 1e7 scaled integers",
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "msg:mavlink/COMMAND_LONG",
+   "side": "consumes",
+   "msg_type": "mavlink/COMMAND_LONG",
+   "frame": null,
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  }
+ ],
+ "exclusive": [],
+ "declares": {
+  "field:mavlink/HEARTBEAT.autopilot": "field mavlink/HEARTBEAT.autopilot: uint8_t"
+ },
+ "not_declared": [
+  "field:mavlink/COMMAND_ACK.command",
+  "field:mavlink/COMMAND_ACK.result",
+  "msg:mavlink/COMMAND_ACK"
+ ],
+ "references": [
+  "msg:mavlink/COMMAND_LONG",
+  "field:mavlink/COMMAND_LONG.confirmation",
+  "msg:mavlink/COMMAND_INT"
+ ],
+ "perm_requires": {
+  "state": "absent",
+  "values": []
+ },
+ "perm_grants": {
+  "state": "absent",
+  "values": []
+ },
+ "recovery": {
+  "state": "present",
+  "value": "UDP (POSIX) link: each HEARTBEAT is additionally sent to the broadcast address while no GCS heartbeat has been received for more than 3 s"
+ },
+ "provenance": {
+  "manifest_version": "snapshot:package.xml:4",
+  "ports[0].side": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:344 | vcmd.confirmation =  cmd_mavlink.confirmation;",
+  "ports[0].msg_type": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:284-285 | mavlink_command_long_t cmd_mavlink; mavlink_msg_command_long_decode(msg, &cmd_mavlink);",
+  "ports[0].frame": "snapshot:Tools/mavlink_px4.py:4400 | confirmation : 0: First transmission of this command. 1-255: Confirmation transmissions (e.g. for kill command) (uint8_t)",
+  "ports[1].side": "snapshot:src/modules/mavlink/mavlink_messages.cpp:327,330 | msg.autopilot = MAV_AUTOPILOT_PX4; ... _mavlink->send_message(MAVLINK_MSG_ID_HEARTBEAT, &msg);",
+  "ports[1].msg_type": "snapshot:src/modules/mavlink/mavlink_messages.cpp:321 | mavlink_heartbeat_t msg;",
+  "ports[1].frame": "snapshot:Tools/mavlink_px4.py:2398 | autopilot : Autopilot type / class. defined in MAV_AUTOPILOT ENUM (uint8_t)",
+  "ports[1].rate_hz": "snapshot:src/modules/mavlink/mavlink_main.cpp:1648-1649 | /* HEARTBEAT is constant rate stream, rate never adjusted */ configure_stream(\"HEARTBEAT\", 1.0f);",
+  "ports[2].side": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:161-162 | case MAVLINK_MSG_ID_COMMAND_INT: handle_message_command_int(msg);",
+  "ports[2].msg_type": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:360-361 | mavlink_command_int_t cmd_mavlink; mavlink_msg_command_int_decode(msg, &cmd_mavlink);",
+  "ports[2].units": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:398-400 | /* these are coordinates as 1e7 scaled integers to work around the 32 bit floating point limits */ vcmd.param5 = ((double)cmd_mavlink.x) / 1e7; vcmd.param6 = ((double)cmd_mavlink.y) / 1e7;",
+  "ports[3].side": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:157-158 | case MAVLINK_MSG_ID_COMMAND_LONG: handle_message_command_long(msg);",
+  "ports[3].msg_type": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:284-285 | mavlink_command_long_t cmd_mavlink; mavlink_msg_command_long_decode(msg, &cmd_mavlink);",
+  "declares[field:mavlink/HEARTBEAT.autopilot]": "provided: snapshot:src/modules/mavlink/mavlink_messages.cpp:327 | msg.autopilot = MAV_AUTOPILOT_PX4; ; field type from the only MAVLink definition text in the snapshot: snapshot:Tools/mavlink_px4.py:2398 | autopilot : Autopilot type / class. defined in MAV_AUTOPILOT ENUM (uint8_t)",
+  "not_declared[field:mavlink/COMMAND_ACK.command]": "searched the whole snapshot (grep -rnI 'COMMAND_ACK|command_ack|mavlink_command_ack_t|mavlink_msg_command_ack|MAVLINK_MSG_ID_COMMAND_ACK'): 0 hits under src/ (firmware); the only hits are in Tools/mavlink_px4.py, a host-side auto-generated binding ('Generated from: common.xml') imported by nothing in the snapshot. The firmware's command-ack paths are stubs: snapshot:src/modules/commander/commander.cpp:916-920 '/* send any requested ACKs */ ... /* send acknowledge command */ // XXX TODO' and :3412-3417 (same TODO); answer_command() (commander.cpp:3110-3140) only emits mavlink_log_critical text and tunes.",
+  "not_declared[field:mavlink/COMMAND_ACK.result]": "searched the whole snapshot (grep -rnI 'COMMAND_ACK|command_ack|mavlink_command_ack_t|mavlink_msg_command_ack|MAVLINK_MSG_ID_COMMAND_ACK'): 0 hits under src/ (firmware); the only hits are in Tools/mavlink_px4.py, a host-side auto-generated binding ('Generated from: common.xml') imported by nothing in the snapshot. The firmware's command-ack paths are stubs: snapshot:src/modules/commander/commander.cpp:916-920 '/* send any requested ACKs */ ... /* send acknowledge command */ // XXX TODO' and :3412-3417 (same TODO); answer_command() (commander.cpp:3110-3140) only emits mavlink_log_critical text and tunes.",
+  "not_declared[msg:mavlink/COMMAND_ACK]": "searched the whole snapshot (grep -rnI 'COMMAND_ACK|command_ack|mavlink_command_ack_t|mavlink_msg_command_ack|MAVLINK_MSG_ID_COMMAND_ACK'): 0 hits under src/ (firmware); the only hits are in Tools/mavlink_px4.py, a host-side auto-generated binding ('Generated from: common.xml') imported by nothing in the snapshot. The firmware's command-ack paths are stubs: snapshot:src/modules/commander/commander.cpp:916-920 '/* send any requested ACKs */ ... /* send acknowledge command */ // XXX TODO' and :3412-3417 (same TODO); answer_command() (commander.cpp:3110-3140) only emits mavlink_log_critical text and tunes.",
+  "references[msg:mavlink/COMMAND_LONG]": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:157,284-285 | case MAVLINK_MSG_ID_COMMAND_LONG: ... mavlink_msg_command_long_decode(msg, &cmd_mavlink);",
+  "references[field:mavlink/COMMAND_LONG.confirmation]": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:344 | vcmd.confirmation =  cmd_mavlink.confirmation;",
+  "references[msg:mavlink/COMMAND_INT]": "snapshot:src/modules/mavlink/mavlink_receiver.cpp:161,360-361 | case MAVLINK_MSG_ID_COMMAND_INT: ... mavlink_msg_command_int_decode(msg, &cmd_mavlink);",
+  "perm_requires": "searched src/modules/mavlink and src/modules/commander command paths: acceptance is by addressing only (target_system/target_component checks, mavlink_receiver.cpp:288-301, 363-364); no permission or authorization declaration found",
+  "perm_grants": "same search as perm_requires; nothing granted",
+  "recovery.value": "snapshot:src/modules/mavlink/mavlink_main.cpp:897-902 | /* resend heartbeat via broadcast */ if (((hrt_elapsed_time(&tstatus.heartbeat_time) > 3 * 1000 * 1000) || (tstatus.heartbeat_time == 0)) && msgid == MAVLINK_MSG_ID_HEARTBEAT) { int bret = sendto(_socket_fd, buf, packet_len, 0, (struct sockaddr *)&_bcast_addr, sizeof(_bcast_addr));"
+ },
+ "blinding_guess": {
+  "defective": "yes",
+  "why": "The package is listed as providing COMMAND_ACK (command, result), but at this revision the firmware never emits COMMAND_ACK: both 'send any requested ACKs' branches in commander are '// XXX TODO', even though COMMAND_LONG.confirmation is consumed and forwarded into vehicle_command. A peer that waits for COMMAND_ACK gets none."
+ },
+ "confidence": "medium",
+ "notes": "MAVLink is not ROS: no .msg/.srv definitions exist for these elements. The firmware's MAVLink C headers live in the submodule mavlink/include/mavlink/v1.0, which is empty in the snapshot; MAVLink XML is not a permitted fetch type and ros_distro is null, so definition_id is null for every port and QoS is null (ROS1 rule; MAVLink has no QoS). The HEARTBEAT.autopilot field type (uint8_t) is taken from Tools/mavlink_px4.py, a host-side pymavlink binding generated from common.xml that nothing in the snapshot imports; it lacks COMMAND_INT, so it predates the headers the firmware compiles against. The type is therefore medium-confidence. The same binding defines COMMAND_ACK (command uint16_t, result uint8_t) at Tools/mavlink_px4.py:1650-1662; I did not count that as the firmware declaring COMMAND_ACK, because no firmware code builds or sends it. COMMAND_LONG is also transmitted by the package (MavlinkStreamCommandLong forwards vehicle_command for other systems, stream configured at 100 Hz at mavlink_main.cpp:1654-1655; CAMERA_CAPTURE stream sends COMMAND_LONG with confirmation = 0 at mavlink_messages.cpp:2420-2435); the port keeps the packet side 'consumes' and rate_hz stays null because the 100 Hz applies to the outgoing stream. COMMAND_INT handler ignores the message's frame field (cmd_mavlink.frame is never read) and does not set vcmd.confirmation, so ports[2].frame is null. COMMAND_LONG params pass through unchanged and may carry positions depending on the command; the code declares no frame, so ports[3].frame is null. handle_message_set_mode sets vcmd.confirmation = 1 (mavlink_receiver.cpp:552). Commander checks cmd->confirmation > 0 (commander.cpp:917, 3413) but the ack send is a TODO. HEARTBEAT: const_rate() returns true (mavlink_messages.cpp); no ROMFS/posix-config script changes the HEARTBEAT rate (grep 'HEARTBEAT' in ROMFS and posix-configs: 0 hits). exclusive: no exclusive device claims in the mavlink/commander paths (serial opened O_RDWR | O_NOCTTY at mavlink_main.cpp:664)."
+}

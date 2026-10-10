@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_0481047-broken-M1-66cf574393",
+  "kind": "A2",
+  "case_id": "robust_0481047",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+      "verdict": "verified",
+      "source_excerpt": "Built-against revision:\nsnapshot:s2_work/tasks/u0033/snapshot/tf2/include/tf2/buffer_core.h:296 [lines 296-296]\n```\n  std::string _allFramesAsDot() const;\n```\nRunning broken revision:\nsnapshot:s2_work/tasks/u0035/snapshot/tf2/include/tf2/buffer_core.h:296 [lines 296-296]\n```\n  std::string _allFramesAsDot(double current_time = 0) const;\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:tf2::BufferCore::_allFramesAsDot]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:439 [lines 439-442]\n```\nstd::string Transformer::allFramesAsDot() const\n{\n  return tf2_buffer_._allFramesAsDot();\n}\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0033/snapshot/tf2/include/tf2/buffer_core.h:296 [lines 296-296]\n```\n  std::string _allFramesAsDot() const;\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0035/snapshot/tf2/include/tf2/buffer_core.h:296 [lines 296-296]\n```\n  std::string _allFramesAsDot(double current_time = 0) const;\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE compares tf2 0.5.7 against broken commit 2fd8395d for the unchanged tf 1.11.4 consumer. The consumer calls the zero-argument member. Although the new default argument permits newly compiled source calls, it does not preserve the zero-argument function symbol used by already-built callers.\nsnapshot:specs/robust_0481047.json:63 [lines 63-63]\n```\n  \"operation\": \"UPGRADE\",\n```\nsnapshot:s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:439 [lines 439-442]\n```\nstd::string Transformer::allFramesAsDot() const\n{\n  return tf2_buffer_._allFramesAsDot();\n}\n```\nsnapshot:s2_work/tasks/u0035/snapshot/tf2/include/tf2/buffer_core.h:296 [lines 296-296]\n```\n  std::string _allFramesAsDot(double current_time = 0) const;\n```"
+  },
+  "notes": "Substantive arity/default and C++ symbol change. A defaulted double parameter is not the same declaration as a zero-argument overload; this is not a parameter-name or macro transcription difference."
+}

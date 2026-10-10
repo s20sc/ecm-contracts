@@ -1,0 +1,38 @@
+{
+  "task_id": "u0311",
+  "package": "nav2_mppi_controller",
+  "status": "evidence_inadequate",
+  "searched": "Case-insensitive grep over the whole snapshot/nav2_mppi_controller/ tree (src/, include/, test/, benchmark/, package.xml, CMakeLists.txt, mppic.xml, critics.xml, README.md) for 'odom', 'Odometry', 'twist', 'filtered', 'nav_msgs', 'create_subscription', 'Subscriber'. No match for nav_msgs/Odometry, nav_msgs::msg::Odometry, the Odometry twist field, or /odometry/filtered; 'odom' occurs only as frame strings in test/ and benchmark/ and in the README row for open_loop. The package creates no subscriptions; its only publishers are /trajectories, transformed_global_plan and optimal_trajectory (src/trajectory_visualizer.cpp:28-31).",
+  "manifest_version": "1.3.12",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "Optimizer::fallback(bool fail): on critics fail_flag, reset(false) and re-run optimize(); after more than retry_attempt_limit (int, default 1) consecutive failures throw nav2_core::NoValidControl(\"Optimizer fail to compute path\")"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:nav2_mppi_controller/package.xml:5",
+    "perm_requires": "searched snapshot/nav2_mppi_controller/ (package.xml, CMakeLists.txt, mppic.xml, critics.xml, src/, include/) for permission, sros, security, enclave; only license boilerplate matched (LICENSE.md:7,14 and file headers)",
+    "perm_grants": "searched snapshot/nav2_mppi_controller/ (package.xml, CMakeLists.txt, mppic.xml, critics.xml, src/, include/) for permission, sros, security, enclave; only license boilerplate matched (LICENSE.md:7,14 and file headers)",
+    "recovery.state": "snapshot:nav2_mppi_controller/src/optimizer.cpp:178",
+    "recovery.value": "snapshot:nav2_mppi_controller/src/optimizer.cpp:203 (fallback body 203-220; retry_attempt_limit default at snapshot:nav2_mppi_controller/src/optimizer.cpp:88)",
+    "exclusive": "searched snapshot/nav2_mppi_controller/ for exclusive device handles or hardware command interfaces; none (only in-process mutexes, e.g. snapshot:nav2_mppi_controller/src/controller.cpp:86,92)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "This package touches none of the three listed elements; it receives robot velocity only as a geometry_msgs::msg::Twist argument from its host, so any mismatch on the odometry topic, message or twist field would sit in the host or its configuration, which this record does not describe."
+  },
+  "confidence": "high",
+  "notes": "Status evidence_inadequate is set because none of the three packet elements (all side consumes) can be found in this package after an exhaustive search; the package itself is present and complete in the snapshot, so the absence is a positive finding, not missing evidence. nav2_mppi_controller is a nav2_core::Controller plugin (mppic.xml; PLUGINLIB_EXPORT_CLASS at src/controller.cpp:132). Robot velocity reaches it at run time as the argument 'const geometry_msgs::msg::Twist & robot_speed' of computeVelocityCommands (include/nav2_mppi_controller/controller.hpp:88; src/controller.cpp:77-80). The optimizer copies it into state_.speed unless the parameter open_loop (bool, default false, src/optimizer.cpp:89) is true, in which case the last command is used instead (src/optimizer.cpp:230); it reads speed.linear.x, speed.angular.z, and speed.linear.y only for holonomic motion models (src/optimizer.cpp:327-331). The Twist argument carries no frame or units in this package. In the same snapshot, the host package nav2_controller creates the subscription: controller_server.cpp:226 constructs nav_2d_utils::OdomSubscriber, which subscribes to nav_msgs::msg::Odometry on the parameter odom_topic (default \"odom\") with rclcpp::SystemDefaultsQoS() and copies msg->twist.twist.linear.x, .linear.y and .angular.z (nav2_dwb_controller/nav_2d_utils/include/nav_2d_utils/odom_subscriber.hpp:69-99); controller_server.cpp:660-668 passes that twist to computeVelocityCommands via nav_2d_utils::twist2Dto3D. That subscription belongs to other packages and is not recorded as a port of this unit. The three consumed elements are therefore in neither ports nor references: this package's code never names the topic, the message type or the field, and the topic name is not supplied to it at run time either. No dependency definition files were fetched because no port needs a definition_id. The elements are all consumed, so declares and not_declared are empty by rule."
+}

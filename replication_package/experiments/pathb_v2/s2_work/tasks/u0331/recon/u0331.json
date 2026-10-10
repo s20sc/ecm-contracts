@@ -1,0 +1,51 @@
+{
+  "task_id": "u0331",
+  "package": "libmavconn",
+  "manifest_version": "1.14.0",
+  "ports": [
+    {
+      "element": "field:mavlink/mavlink_message_t.magic",
+      "side": "provides",
+      "msg_type": "mavlink/mavlink_message_t",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": ["field:mavlink/mavlink_message_t.magic"],
+  "references": [
+    "field:mavlink/mavlink_message_t.magic",
+    "msg:mavlink/mavlink_message_t",
+    "api:MAVLINK_STX"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "UDP transport: on boost::asio::error::network_unreachable from async_send_to, log 'retrying' and keep sending the queue; any other send/receive error on serial, TCP or UDP calls close(), which invokes port_closed_cb"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:libmavconn/package.xml:4",
+    "ports[0].msg_type": "snapshot:libmavconn/include/mavconn/interface.h:102 (using ReceivedCb = std::function<void (const mavlink::mavlink_message_t *message, const Framing framing)>;); field read at snapshot:libmavconn/src/interface.cpp:123 (msg.magic)",
+    "ports[0].frame": "snapshot:libmavconn/src/interface.cpp:123 (const char *proto_version_str = (msg.magic == MAVLINK_STX) ? \"v2.0\" : \"v1.0\";) -- magic is the MAVLink start-of-frame byte used only to tell protocol v2.0 from v1.0; it has no spatial meaning",
+    "not_declared[field:mavlink/mavlink_message_t.magic]": "Searched all 25 files under snapshot/libmavconn (and the whole snapshot) for 'magic', '__mavlink_message', 'struct mavlink_message', 'typedef struct' and a MAVLINK_STX definition: no definition of mavlink_message_t or its magic field exists in libmavconn. The type comes from the external mavlink package via #include <mavlink/v2.0/@(dialect)/@(dialect).hpp> (snapshot:libmavconn/include/mavconn/mavlink_dialect.h.em:29), <depend>mavlink</depend> (snapshot:libmavconn/package.xml:26) and find_package(mavlink REQUIRED) (snapshot:libmavconn/cmake/Modules/MavrosMavlink.cmake:3). The only occurrences of the field are reads at snapshot:libmavconn/src/interface.cpp:123 and :134",
+    "references[field:mavlink/mavlink_message_t.magic]": "snapshot:libmavconn/src/interface.cpp:123 (msg.magic == MAVLINK_STX); snapshot:libmavconn/src/interface.cpp:134 (msg->magic == MAVLINK_STX)",
+    "references[msg:mavlink/mavlink_message_t]": "snapshot:libmavconn/src/interface.cpp:31 (using mavlink::mavlink_message_t;); snapshot:libmavconn/include/mavconn/interface.h:143 (virtual void send_message(const mavlink::mavlink_message_t *message) = 0;)",
+    "references[api:MAVLINK_STX]": "snapshot:libmavconn/src/interface.cpp:123 and :134 (comparison of magic against MAVLINK_STX; the macro is not defined in the snapshot)",
+    "perm_requires.state": "Checked package.xml, CMakeLists.txt, cmake/, include/ and src/ of snapshot/libmavconn for permission/capability declarations (grep -i permission|capabilit|setuid|chmod): none",
+    "perm_grants.state": "Same search as perm_requires: no permission grants declared in snapshot/libmavconn",
+    "recovery.state": "snapshot:libmavconn/src/udp.cpp:284-291 (if (error == boost::asio::error::network_unreachable) { ... \"sendto: %s, retrying\" ... // do not return, try to resend } else if (error) { ... sthis->close(); return; })",
+    "recovery.value": "snapshot:libmavconn/src/udp.cpp:284-291; close() invokes port_closed_cb at snapshot:libmavconn/src/udp.cpp:163-164, snapshot:libmavconn/src/serial.cpp:149-150, snapshot:libmavconn/src/tcp.cpp:167-168; close() on I/O error at snapshot:libmavconn/src/serial.cpp:221,249 and snapshot:libmavconn/src/tcp.cpp:242,270"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "libmavconn does not define mavlink_message_t.magic; it only reads it to label frames v2.0/v1.0 in debug logging and passes mavlink_message_t through its callback and send_message API. Nothing in this snapshot alone shows whether that use is consistent with the mavlink definition it builds against."
+  },
+  "confidence": "medium",
+  "notes": "The packet lists the element with side 'provides', but mavlink_message_t is a C struct defined by the external mavlink package (C headers pulled in through mavlink_dialect.h), not by libmavconn; libmavconn reads msg.magic (interface.cpp:123, :134) and hands mavlink_message_t objects to and from its users via ReceivedCb (interface.h:102) and send_message (interface.h:143). The port entry is kept with the packet's side because libmavconn relays the struct through its public API; the element is recorded in not_declared (no definition in the package) and in references (the code names the field). definition_id is null: the parent is a C header struct, not a .msg/.srv/.action/.idl file, it is absent from the snapshot, and fetching C headers is outside the allowed sources. ROS 1 and not a ROS topic, so QoS is null; no rate is set. exclusive is empty: the serial device is opened with boost::asio serial_port::open (serial.cpp:54) with no exclusive-lock flag (no TIOCEXCL/flock/O_EXCL found); UDP/TCP use ordinary sockets. The generated files mavlink_dialect.h and mavlink_helpers.cpp are not in the snapshot (listed in .gitignore); their templates contain only includes and message-entry tables, no struct definitions. The recovery entry describes package-level connection error handling; nothing is specific to the magic field."
+}

@@ -1,0 +1,51 @@
+{
+  "task_id": "u0212",
+  "package": "rviz",
+  "manifest_version": "1.9.24",
+  "ports": [
+    {
+      "element": "param:robot_description",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:package://create_description/meshes/create_body.dae",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": ["param:robot_description"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3",
+    "ports[0].side": "snapshot:src/rviz/default_plugin/robot_model_display.cpp:142 (update_nh_.getParam( robot_description_property_->getStdString(), content )), fallback searchParam at :145; value parsed as URDF XML at :174-183",
+    "ports[1].side": "snapshot:src/rviz/robot/robot_link.cpp:425-426 (std::string model_name = mesh.filename; loadMeshFromResource(model_name);) -> snapshot:src/rviz/mesh_loader.cpp:573 loadMeshFromResource; non-.mesh/.stl extensions (e.g. .dae) go to Assimp::Importer with ResourceIOSystem (resource_retriever) at :643-652",
+    "references[param:robot_description]": "snapshot:src/rviz/default_plugin/robot_model_display.cpp:82 (robot_description_property_ = new StringProperty( \"Robot Description\", \"robot_description\", \"Name of the parameter to search for to load the robot description.\", ...))",
+    "perm_requires.state": "grep -rni for recover/permission/exclusive over snapshot src/, *.xml, *.rviz (excluding src/test and BSD license headers): no permission declarations",
+    "perm_grants.state": "same search as perm_requires: none found",
+    "recovery.state": "grep -rni recover over snapshot src/, *.xml, *.rviz (excluding src/test): no matches"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Both elements are consumed at run time with no contract written down. The one thing in the code that could matter for a .dae mesh is in mesh_loader.cpp:216-225: buildMesh skips the Assimp root node transform ('Don't convert to y-up orientation'). Any scale or axis data carried there would be dropped. Whether that affects create_body.dae depends on the mesh file, which is not in the snapshot."
+  },
+  "confidence": "high",
+  "notes": "rviz 1.9.24 (ROS1 groovy) provides neither packet element; both are consumed, so declares and not_declared are empty. param:robot_description: the name is the default value of the RobotModelDisplay 'Robot Description' StringProperty, which a user can change at run time. The display reads it with getParam and falls back to searchParam, then parses it as URDF XML with urdf::Model::initXml. It is a string parameter, not a message, so msg_type and definition_id are null. frame is null because link frames come from the URDF content at run time (link name plus the optional 'TF Prefix' property); the code hard-codes none. resource:package://create_description/meshes/create_body.dae: the code never names this URI or the create_description package. The mesh path comes at run time from the URDF <mesh filename> (robot_link.cpp:425), so the resource is in neither declares nor references. Loading goes through resource_retriever, which accepts package:// URIs. The .dae extension goes to the Assimp importer (mesh_loader.cpp:643-652). The only scaling the code applies is the URDF mesh scale (robot_link.cpp:423, 446), with no unit handling for Collada meshes. buildMesh (mesh_loader.cpp:216-225) multiplies parent transforms but leaves out the root node's transform. units and frame for the mesh are therefore null. QoS is null because this is ROS 1. No exclusive resources, permissions or recovery declarations were found. No dependency definition files were needed, because neither element is a message, service or action type."
+}

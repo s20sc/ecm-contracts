@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_55e84a6-broken-M1-325f834f87",
+  "kind": "A2",
+  "case_id": "robust_55e84a6",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+      "verdict": "verified",
+      "source_excerpt": "built: snapshot:s2_work/tasks/u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:138: \"    def redraw(self):\". The old module path is absent from the running snapshot's inspected file inventory. The method remains only at the relocated path: snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:133-135: \"    def redraw(self):\n        self._canvas.axes.grid(True, color='gray')\n        self._canvas.draw()\". snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/setup.py:7-8: \"    packages=['rqt_plot', 'rqt_plot.data_plot'],\n    package_dir={'': 'src'},\"; snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/__init__.py:47: \"    from mat_data_plot import MatDataPlot\". The top-level package initializer was opened and is empty (0 bytes); no alias restoring rqt_plot.mat_data_plot was found."
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+      "verdict": "wrong",
+      "source_excerpt": "snapshot:s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:43: \"    def redraw(self):\"; line 50: \"        self._canvas.axes.grid(True, color='gray')\"; line 73: \"        self._canvas.draw()\". The complete body at lines 43-73 defines the consumer's override; it neither reads nor calls MatDataPlot.redraw, and contains no super(...).redraw call. The cited line is a method definition, not a read of the provider method."
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:138: \"    def redraw(self):\"",
+      "running_excerpt": "snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/setup.py:7-8: \"    packages=['rqt_plot', 'rqt_plot.data_plot'],\n    package_dir={'': 'src'},\"; snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/__init__.py:47: \"    from mat_data_plot import MatDataPlot\"; snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:133: \"    def redraw(self):\". The original module was absent from the inspected running inventory and its package initializer was empty, with no old-path alias found. This is substantive disappearance of the old qualified element, not a parameter/signature change in the identically named method at the relocated path."
+    }
+  ],
+  "operation_edge": {
+    "verdict": "disagree",
+    "reason": "The revision selection and overall UPGRADE operation match the specification, but this finding's directed consumer-read edge for the provider's redraw implementation is unsupported. snapshot:s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:20: \"class FullSizeDataPlot(MatDataPlot):\" and line 43: \"    def redraw(self):\" show an overriding implementation. The callback is installed at snapshot:s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/battery_profile_frame.py:51: \"        self._plot_widget.switch_data_plot_widget(FullSizeDataPlot(self._plot_widget))\". The provider accepts that object at snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/plot_widget.py:148: \"        self.data_plot = data_plot\" and invokes its callback at line 243: \"                self.data_plot.redraw()\". Thus the relevant call direction is PlotWidget to the consumer override, not the consumer reading the provider's base redraw. Inheritance establishes the class dependency but does not supply the claimed member read."
+  },
+  "notes": "The old module's relocation is a real qualified-name change, so the changed-field source and substantive disappearance are verified independently of the incorrect consumer-read attribution. The method signature at the relocated path remains def redraw(self); this is not evidence of an arity change. A caller/callback relationship must not be substituted for the specific base-method read claimed by this finding. No triggering permission-grant absence state is present."
+}

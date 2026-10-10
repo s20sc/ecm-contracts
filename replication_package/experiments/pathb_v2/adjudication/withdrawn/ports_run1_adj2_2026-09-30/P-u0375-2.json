@@ -1,0 +1,10 @@
+{"item_id": "P-u0375-2", "kind": "P", "task_id": "u0375", "element": "field:mavlink/SET_MODE.custom_mode", "side": "consumes",
+ "values": [
+  {"field": "msg_type", "recorded": "mavlink/SET_MODE", "verdict": "verified",
+   "source_excerpt": "GCS_Common.cpp:1453: void GCS_MAVLINK::handle_set_mode(mavlink_message_t* msg, set_mode_fn set_mode) | 1456: mavlink_set_mode_t packet; 1457: mavlink_msg_set_mode_decode(msg, &packet);",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "GCS_Common.cpp:1459: // only accept custom modes because there is no easy mapping from Mavlink flight modes to AC flight modes | 1461: if (set_mode(packet.custom_mode)) {",
+   "qos_basis": null}
+ ],
+ "notes": "Lines 1452-1464 opened under s2_work/tasks/u0375/snapshot (ArduPilot); line numbers confirmed with awk. msg_type: the handler decodes the MAVLink SET_MODE message into mavlink_set_mode_t via mavlink_msg_set_mode_decode (lines 1456-1457), the canonical 'mavlink/SET_MODE' rendering. frame: custom_mode is gated by MAV_MODE_FLAG_CUSTOM_MODE_ENABLED and passed to set_mode() as a flight-mode number (line 1461); comment at 1459 confirms it is a mode mapping with no spatial meaning. frame=none supported."}

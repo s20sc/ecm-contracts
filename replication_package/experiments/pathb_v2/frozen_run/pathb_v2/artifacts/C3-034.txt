@@ -1,0 +1,151 @@
+[[env_bug@as-reported-2022-02]]
+#include <cstdlib>
+#include <iostream>
+
+const char* str_or_null(const char* str)
+{
+  return str != nullptr ? str : "<nullptr>";
+}
+
+int main(int argc, char ** argv)
+{
+  (void) argc;
+  (void) argv;
+
+  auto* my_env_var = std::getenv("my_env_var");
+
+  std::cerr << "my_env_var = '" << str_or_null(my_env_var) << "'" << std::endl;
+  return 0;
+}
+
+<launch>
+  <set_env name="my_env_var" value="1"/>
+  <group>
+    <set_env name="my_env_var" value="2"/>
+    <include file="$(find-pkg-share env_bug)/launch/inner.launch.ros2.xml"/>
+    <set_env name="my_env_var" value="3"/>
+  </group>
+  <group>
+    <set_env name="my_env_var" value="4"/>
+  </group>
+</launch>
+
+<launch>
+  <set_env name="my_env_var" value="5"/>
+  <node pkg="env_bug" exec="env_bug_node">
+    <!--<env name="my_env_var" value="6"/>-->
+  </node>
+</launch>
+
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME})
+
+my_env_var=7 ros2 launch env_bug outer.launch.ros2.xml
+
+[[launch@0.10.7]]
+@expose_action('set_env')
+class SetEnvironmentVariable(Action):
+    """Action that sets an environment variable."""
+
+    def __init__(
+        self,
+        name: SomeSubstitutionsType,
+        value: SomeSubstitutionsType,
+        **kwargs
+    ) -> None:
+        """Create a SetEnvironmentVariable action."""
+        super().__init__(**kwargs)
+        self.__name = normalize_to_list_of_substitutions(name)
+        self.__value = normalize_to_list_of_substitutions(value)
+
+    @classmethod
+    def parse(
+        cls,
+        entity: Entity,
+        parser: Parser,
+    ):
+        """Parse a 'set_env' entity."""
+        _, kwargs = super().parse(entity, parser)
+        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
+        kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
+        return cls, kwargs
+
+    def execute(self, context: LaunchContext) -> None:
+        """Execute the action."""
+        os.environ[perform_substitutions(context, self.name)] = \
+            perform_substitutions(context, self.value)
+        return None
+
+@expose_action('group')
+class GroupAction(Action):
+    """
+    Action that yields other actions, optionally scoping launch configurations.
+
+    This action is used to nest other actions without including a separate
+    launch description, while also optionally having a condition (like all
+    other actions), scoping launch configurations, and/or declaring launch
+    configurations for just the group and its yielded actions.
+    """
+
+    def __init__(
+        self,
+        actions: Iterable[Action],
+        *,
+        scoped: bool = True,
+        launch_configurations: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        **left_over_kwargs
+    ) -> None:
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Return `GroupAction` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+        scoped = entity.get_attr('scoped', data_type=bool, optional=True)
+        if scoped is not None:
+            kwargs['scoped'] = scoped
+        kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
+        return cls, kwargs
+
+    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
+        """Return subentities."""
+        if self.__actions_to_return is None:
+            self.__actions_to_return = []  # type: List[Action]
+            self.__actions_to_return += [
+                SetLaunchConfiguration(k, v) for k, v in self.__launch_configurations.items()
+            ]
+            self.__actions_to_return += list(self.__actions)
+            if self.__scoped:
+                self.__actions_to_return = [
+                    PushLaunchConfigurations(),
+                    *self.__actions_to_return,
+                    PopLaunchConfigurations()
+                ]
+        return self.__actions_to_return
+
+        if check_is_list_entity(data_type):
+            return_list = filter(lambda x: x.tag == name, self.__xml_element)
+            if not return_list:
+                if optional:
+                    return None
+                else:
+                    raise attr_error
+            return [Entity(item) for item in return_list]
+
+        if 'additional_env' not in ignore:
+            # Conditions won't be allowed in the `env` tag.
+            # If that feature is needed, `set_enviroment_variable` and
+            # `unset_enviroment_variable` actions should be used.
+            env = entity.get_attr('env', data_type=List[Entity], optional=True)
+            if env is not None:
+                env = {
+                    tuple(parser.parse_substitution(e.get_attr('name'))):
+                    parser.parse_substitution(e.get_attr('value')) for e in env
+                }
+                kwargs['additional_env'] = env
+
+        if self.__additional_env is not None:
+            if env is None:
+                env = dict(os.environ)
+            for key, value in self.__additional_env:
+                env[''.join([context.perform_substitution(x) for x in key])] = \
+                    ''.join([context.perform_substitution(x) for x in value])

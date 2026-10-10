@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-C3-093-broken-M1-ab57a4ddb1",
+  "kind": "A2",
+  "case_id": "C3-093",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:yaml.load]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0338/snapshot/lib/yaml/__init__.py:64\ndef load(stream, Loader=Loader):\n    \"\"\"\n    Parse the first YAML document in a stream\n    and produce the corresponding Python object.\n    \"\"\"\n    loader = Loader(stream)\n    try:\n        return loader.get_single_data()\n    finally:\n        loader.dispose()\n\nsnapshot:s2_work/tasks/u0338/snapshot/lib3/yaml/__init__.py:65\ndef load(stream, Loader=Loader):\n\nsnapshot:s2_work/tasks/u0339/snapshot/lib/yaml/__init__.py:103\ndef load(stream, Loader=None):\n    \"\"\"\n    Parse the first YAML document in a stream\n    and produce the corresponding Python object.\n    \"\"\"\n    if Loader is None:\n        load_warning('load')\n        Loader = FullLoader\n\n    loader = Loader(stream)\n    try:\n        return loader.get_single_data()\n    finally:\n        loader.dispose()"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:yaml.load]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0340/snapshot/tools/roslaunch/src/roslaunch/loader.py:412\n                data = yaml.load(text)"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:yaml.load]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0338/snapshot/lib/yaml/__init__.py:64\ndef load(stream, Loader=Loader):\n    \"\"\"\n    Parse the first YAML document in a stream\n    and produce the corresponding Python object.\n    \"\"\"\n    loader = Loader(stream)\n    try:\n        return loader.get_single_data()\n    finally:\n        loader.dispose()\n\nsnapshot:s2_work/tasks/u0338/snapshot/lib3/yaml/__init__.py:65\ndef load(stream, Loader=Loader):",
+      "running_excerpt": "snapshot:s2_work/tasks/u0339/snapshot/lib/yaml/__init__.py:103\ndef load(stream, Loader=None):\n    \"\"\"\n    Parse the first YAML document in a stream\n    and produce the corresponding Python object.\n    \"\"\"\n    if Loader is None:\n        load_warning('load')\n        Loader = FullLoader\n\n    loader = Loader(stream)\n    try:\n        return loader.get_single_data()\n    finally:\n        loader.dispose()"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE compares PyYAML 3.13 (u0338) with 5.1 (u0339) for ros_comm 1.14.3 (u0340). roslaunch binds yaml and calls the changed function with the Loader argument omitted, so the changed default is exercised:\nsnapshot:s2_work/tasks/u0340/snapshot/tools/roslaunch/src/roslaunch/loader.py:43\nimport yaml\n\nsnapshot:s2_work/tasks/u0340/snapshot/tools/roslaunch/src/roslaunch/loader.py:412\n                data = yaml.load(text)"
+  },
+  "notes": "Substantive: Loader=Loader becomes Loader=None, and the None branch selects FullLoader. The old one-argument call remains syntactically valid; this verdict concerns changed default loader behavior, not a removed argument or an obligatory Loader parameter. The consumer actually omits Loader, so the changed default is not an irrelevant parameter-name transcription."
+}

@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-C3-046-broken-M1-2e6e577ea2",
+ "kind": "A2",
+ "case_id": "C3-046",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:cv_bridge/cv_bridge.h]",
+   "verdict": "verified",
+   "source_excerpt": "built u0302 (3.2.1) snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:37 '#ifndef CV_BRIDGE__CV_BRIDGE_H_' (header present; dir also holds rgb_colors.h) || running u0303 (4.1.0): re-ran the searches this session - 'find . -name *.h' over s2_work/tasks/u0303/snapshot returns only './cv_bridge/include/cv_bridge/visibility_control.h'; 'ls cv_bridge/include/cv_bridge/' returns exactly cv_bridge.hpp, cv_mat_sensor_msgs_image_type_adapter.hpp, rgb_colors.hpp, visibility_control.h; 'grep -rn cv_bridge\\.h[^p]' = 0 hits; cv_bridge/CMakeLists.txt:90 'install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})' and cv_bridge/src/CMakeLists.txt:8 'generate_export_header( ... EXPORT_FILE_NAME ${PROJECT_NAME}/${PROJECT_NAME}_export.h )' with :30-32 installing only cv_bridge_export.h - absence supported"
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:cv_bridge/cv_bridge.h]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0300/snapshot/perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/shape_draw.hpp:19 (opened this session): '#include <cv_bridge/cv_bridge.h>'"
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:cv_bridge/cv_bridge.h]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0302/snapshot/cv_bridge/include/cv_bridge/cv_bridge.h:37-38: '#ifndef CV_BRIDGE__CV_BRIDGE_H_ / #define CV_BRIDGE__CV_BRIDGE_H_' - the header exists at 3.2.1",
+   "running_excerpt": "s2_work/tasks/u0303/snapshot: 'find . -iname cv_bridge.h' = 0 results; include/cv_bridge/ holds only cv_bridge.hpp, cv_mat_sensor_msgs_image_type_adapter.hpp, rgb_colors.hpp, visibility_control.h - the header is absent at 4.1.0, an element-presence change"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The upgrade unit encodes built=u0302 (cv_bridge 3.2.1; package.xml:3 '<version>3.2.1</version>'), running=u0303 (4.1.0; package.xml:3 '<version>4.1.0</version>'), consumer=u0300 (autoware_traffic_light_visualization @ e274c98f), matching the spec's UPGRADE with consumer_built_against.broken=3.2.1. The consumer's dependence on the removed header is read directly at shape_draw.hpp:19, and the provider-side removal is independently confirmed by the exhaustive searches above."
+ },
+ "notes": "The spec records this case's failed-condition class as element_removed_or_renamed while the method's rule label is field_break; per my remit I judge the evidence, which fully supports a removal: header present in 3.2.1 (installed by CMakeLists install(DIRECTORY include/...)), gone in 4.1.0, consumer still including it at the broken revision. Corroboration of the spec's note that node.hpp already carried the guard at the broken revision: u0300 node.hpp:26-29 shows '#if __has_include(<cv_bridge/cv_bridge.hpp>) / #include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer / #else / #include <cv_bridge/cv_bridge.h>  // for ROS 2 Humble or older', so shape_draw.hpp:19 was indeed the remaining unguarded .h include."
+}

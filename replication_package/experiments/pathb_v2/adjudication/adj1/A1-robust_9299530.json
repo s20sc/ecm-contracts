@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-robust_9299530",
+  "kind": "A1",
+  "case_id": "robust_9299530",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I just updated my Groovy debian installation with the release that was posted today on ros-users and now collada meshes no longer appear in RViz.  In particular, the TurtleBot is now basically invisible.",
+    "url": "https://github.com/ros-visualization/rviz/issues/622",
+    "reason": "The independently released viewer changed its interpretation of a mesh declaration consumed from another package. Wrong scale crosses the model/viewer boundary; changing the unit declaration is neither deployment wiring nor build-only. The observed operation is UPGRADE."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-\t\t<unit meter=\"0.01\" name=\"centimeter\"/>\n+\t\t<unit meter=\"1.0\" name=\"meter\"/>",
+      "url": "https://github.com/turtlebot/turtlebot_create/commit/9299530eb77b9e8a2a18160fb6ece325d38abfbc",
+      "reason": "This hunk is in create_description/meshes/create_body.dae. The resource's declared unit, rather than a message definition or nominal type, is the mismatch."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Actually, it doesn't look like scaling, but it is pretty messed up on my machine as well (whole robot is just a few speckles of gray and white scattered around)",
+    "url": "https://github.com/ros-visualization/rviz/issues/622#issuecomment-15330155",
+    "reason": "Visual failure is reported, not a loader diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "In particular, the TurtleBot is now basically invisible.",
+    "url": "https://github.com/ros-visualization/rviz/issues/622"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "turtlebot_create version 2.0.1 fixes this issue. It's now available on shadow-fixed.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/65#issuecomment-15744659",
+    "reason": "The release/fix statement is not an observation of the specified resolved pair. The earlier successful scale workaround used the reporter's own older meshes, explicitly not guaranteed to match the packaged meshes."
+  },
+  "notes": "Read turtlebot#65 and rviz#622 with all comments, rviz#603, turtlebot_create#7 and its empty comments list, and merge 9299530's diff. Other robot meshes mentioned in rviz#622 do not add conditions to the selected create_body composition. rviz#603 says: 'This patch introduces the ability to read the unit scaling factor from Collada mesh resources.'"
+}

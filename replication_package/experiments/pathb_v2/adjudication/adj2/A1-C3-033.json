@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-033",
+  "kind": "A1",
+  "case_id": "C3-033",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I'm having problems with ROS Kinetic + Ubuntu 16.04 + pixel_format=mjpeg. ... When I run the command:\n\nroslaunch usb_cam  usb_cam-test.launch\n\nthe following message appears:\n\nswscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "swscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "loud_documented（不变）；detection_stage 应为 run 而非 activate",
+    "quote": "video_sws_ = sws_getContext(xsize, ysize, avcodec_context_->pix_fmt, xsize, ysize, AV_PIX_FMT_RGB24, SWS_BILINEAR, NULL,\n\t\t      NULL,  NULL);\n  sws_scale(video_sws_, ...);\n  sws_freeContext(video_sws_);   ← 位于逐帧调用的 mjpeg2rgb()（avcodec_decode_video 之后，src/usb_cam.cpp:441-452），不在 init_mjpeg_decoder 中",
+    "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/0c3c7cb65ce5bcbd8033f728b0d701825c87f9a0/src/usb_cam.cpp"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This disables the useless warnings, but it took some time to find:\n\ndiff --git a/src/usb_cam.cpp ... +  av_log_set_level(AV_LOG_ERROR);",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/109#issuecomment-542366876"
+  },
+  "notes": "loudness 分级同意（loud_documented：libswscale 自身打印的诊断命名了问题），仅 detection_stage 不同意。核验：0.3.6（0c3c7cb6）源码中 sws_getContext 位于 mjpeg2rgb()（第 441-452 行，紧跟 avcodec_decode_video），且逐帧创建后即 sws_freeContext；init_mjpeg_decoder（约第 380-400 行，avcodec_open2）不创建 sws 上下文。故首条警告出现在第一帧解码时——运行期，而非激活期。issue 评论亦证其为持续现象：\"the constant stream of USELESS warnings makes the whole purpose of usb_cam/kinetic on the ONLY platform (Ubuntu 16.04) that it will EVER be used on a complete nightmare.\"（normanhendrich）。其余核验：(1) FFmpeg n2.8.15 三处代码确认：libswscale/utils.c:1148 警告行；libavcodec/mjpegdec.c:545 \"s->avctx->pix_fmt = s->cs_itu601 ? AV_PIX_FMT_YUV422P : AV_PIX_FMT_YUVJ422P;\"；libavutil/pixfmt.h:76 YUVJ422P 弃用注释。representation_convention 分类成立（YUVJ 全量程约定值跨界）。(2) PR #115 \"Suppress libav \\\"deprecated pixel format used\\\" mjpeg warnings\" 合并于 2022-10-25（merge 37451954），twdragon 确认 \"closed by merging #115\"。(3) 分辨率 recommended 成立：normanhendrich 自行应用同一行并报告警告消失，但未给出其 FFmpeg 修订，两单元未按修订识别。(4) tanshiheng 方案 \"does NOT work for me. Node crashes.\" 系对提议方案的否定，非本组合的额外失败交互，不构成遗漏条件。"
+}

@@ -1,0 +1,48 @@
+{
+  "task_id": "u0315",
+  "package": "compressed_image_transport",
+  "manifest_version": "2.5.0",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [
+    "param:.color.image_raw.compressed.format",
+    "param:.color.image_raw.compressed.jpeg_quality",
+    "param:.color.image_raw.compressed.png_level"
+  ],
+  "references": [
+    "msg:sensor_msgs/CompressedImage",
+    "msg:sensor_msgs/Image",
+    "msg:rcl_interfaces/ParameterDescriptor",
+    "msg:rcl_interfaces/IntegerRange",
+    "api:image_transport::SimplePublisherPlugin",
+    "api:image_transport::SimpleSubscriberPlugin"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "on rclcpp::exceptions::ParameterAlreadyDeclaredException each parameter declaration falls back to reading the already-declared value with node->get_parameter(<name>)"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:compressed_image_transport/package.xml:3",
+    "not_declared[param:.color.image_raw.compressed.format]": "Searched every declare_parameter call in snapshot/compressed_image_transport (src/compressed_publisher.cpp:80,98,117,130,142,154; src/compressed_subscriber.cpp:90; no launch/yaml/config files exist in the snapshot). The format parameter name is built at snapshot:compressed_image_transport/src/compressed_publisher.cpp:69-72 as `param_base_name + \".format\"`, where `param_base_name = base_topic.substr(ns_len)` with '/' replaced by '.'. No transport-name segment is inserted (getTransportName() \"compressed\" at include/compressed_image_transport/compressed_publisher.h:55 is never used in a parameter name), so base topic <ns>/color/image_raw yields `.color.image_raw.format`, not `.color.image_raw.compressed.format`.",
+    "not_declared[param:.color.image_raw.compressed.jpeg_quality]": "Same search as for format. Name built at snapshot:compressed_image_transport/src/compressed_publisher.cpp:105 as `param_base_name + \".jpeg_quality\"` and declared at :117-118; no transport-name segment, so base topic <ns>/color/image_raw yields `.color.image_raw.jpeg_quality`, not `.color.image_raw.compressed.jpeg_quality`.",
+    "not_declared[param:.color.image_raw.compressed.png_level]": "Same search as for format. Name built at snapshot:compressed_image_transport/src/compressed_publisher.cpp:86 as `param_base_name + \".png_level\"` and declared at :98-99; no transport-name segment, so base topic <ns>/color/image_raw yields `.color.image_raw.png_level`, not `.color.image_raw.compressed.png_level`.",
+    "references[msg:sensor_msgs/CompressedImage]": "snapshot:compressed_image_transport/include/compressed_image_transport/compressed_publisher.h:47",
+    "references[msg:sensor_msgs/Image]": "snapshot:compressed_image_transport/include/compressed_image_transport/compressed_publisher.h:65",
+    "references[msg:rcl_interfaces/ParameterDescriptor]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:73",
+    "references[msg:rcl_interfaces/IntegerRange]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:92",
+    "references[api:image_transport::SimplePublisherPlugin]": "snapshot:compressed_image_transport/include/compressed_image_transport/compressed_publisher.h:47",
+    "references[api:image_transport::SimpleSubscriberPlugin]": "snapshot:compressed_image_transport/include/compressed_image_transport/compressed_subscriber.h:46",
+    "perm_requires": "Checked package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/*.cfg, src/*.cpp, include/*.h in snapshot/compressed_image_transport: no permission or security-policy declarations.",
+    "perm_grants": "Same files checked as for perm_requires: no permission grants declared.",
+    "recovery.value": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:81"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The three listed parameter names carry a transport-name segment (`.compressed.`), but at this revision the publisher builds its parameter names as base-topic prefix plus `.format` / `.png_level` / `.jpeg_quality` with no transport segment, so a user or launch configuration setting the listed names would not reach this plugin; the ParameterAlreadyDeclaredException fallbacks also suggest these unscoped names collide with other declarations on the same node."
+  },
+  "confidence": "medium",
+  "notes": "ROS 2 (humble) image_transport plugin package; no message definitions of its own, so no definition_id applies to the listed elements. The package does declare three parameters corresponding to the listed ones, but under different names: `<P>.format` (string, default \"jpeg\", descriptor constraint \"Supported values: [jpeg, png, tiff]\", compressed_publisher.cpp:72-80), `<P>.png_level` (integer, default 3, IntegerRange 0..9 step 1, cpp:86-99), `<P>.jpeg_quality` (integer, default 95, IntegerRange 1..100 step 1, cpp:105-118), plus `<P>.tiff.res_unit` (string, default \"inch\"), `<P>.tiff.xdpi` and `<P>.tiff.ydpi` (integer, default -1), and on the subscriber side `<P>.mode` (string, default \"unchanged\", compressed_subscriber.cpp:79-90). <P> is computed at run time as base_topic.substr(node->get_effective_namespace().length()) with '/' replaced by '.', so the exact prefix depends on the base topic and namespace at run time (a non-root namespace leaves a leading '.'; the root namespace '/' strips the leading slash and leaves no leading '.'). The not_declared judgement rests on the fixed part of the construction: the code never inserts the transport name between the base-topic prefix and the parameter leaf; the listed names would only arise if image_transport passed a base topic ending in '/compressed', which I could not confirm or exclude from allowed sources (image_transport source is not an allowed source), hence medium confidence. Because the listed elements are not declared, no ports are recorded; QoS, rate, frame and units do not apply to ROS 2 parameters in any case. cfg/CompressedPublisher.cfg and cfg/CompressedSubscriber.cfg are ROS 1 dynamic_reconfigure files not referenced by CMakeLists.txt (not built); they list format/jpeg_quality/png_level with different defaults (80, 9) and ranges (png 1..9) from the C++ declarations. Unrelated to the listed elements: compressed_publisher.cpp:158 reads tiff_xdpi_param_name when recovering tiff_ydpi. Recovery is recorded as present only in the sense of code-level exception handling for parameter declaration; no declared recovery policy exists. Other fallbacks: unknown tiff.res_unit defaults to 'inch' with a warning (cpp:324-328); unknown subscriber mode defaults to 'unchanged' (compressed_subscriber.cpp:102-104); unknown format logs an error and publishes nothing (cpp:379-381). No network fetches were made."
+}

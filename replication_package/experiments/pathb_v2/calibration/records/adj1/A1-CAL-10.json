@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-CAL-10",
+  "kind": "A1",
+  "case_id": "CAL-10",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240",
+    "reason": "Maintainer analysis and corrupted-terminal output establish E1/E4. kobuki_driver violates the separately built ecl_devices library's call-order precondition. The API interaction is PAIR, not an internal-only driver defect or a device-path remapping."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "* timeout of 5s. Use the block() method after opening to alter the behaviour.",
+      "url": "https://raw.githubusercontent.com/stonier/ecl_core/0.60.5/ecl_devices/include/ecl/devices/serial_pos.hpp#L199",
+      "reason": "The source documents ordering between Serial::open and Serial::block. The taxonomy has no call-order class, so other is appropriate."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Also, ecl serial.block() should warn user if file_descriptor is not initialized.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240",
+    "reason": "The source asks for a missing precondition warning; the observed uppercase output and unresponsive terminal are symptoms, not an activation refusal."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ INFO] [1375247350.853728793]: KOBUKI : INITIALISED.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21840623",
+    "reason": "The output is already mangled during initialization, and the fixing diff places the offending calls in Kobuki::init. activate is the best supplied stage for this startup symptom, though no diagnostic detects it."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Thus, the proposed patch is going to call serial.block() function after serial.open() in kobuki.cpp",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240",
+    "reason": "The patch implements that ordering. A previously working 0.3.9 version is mentioned, but the patched composition with both unit revisions is not shown working."
+  },
+  "notes": "The commit also sets blocking timeout after reconnect; the issue documents the startup ordering failure, not a separately reproduced recovery conflict. No additional recovery condition is inferred from the broader fix."
+}

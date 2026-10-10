@@ -1,0 +1,48 @@
+{
+  "case_id": "robust_b3c2c21",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/pull/157",
+    "https://github.com/ros-industrial/universal_robot/commit/b3c2c215b4fc46bb66ca61e6e693920540d0daef",
+    "https://github.com/ros-industrial/universal_robot/commit/bcac4f5f3c4e4eea27b24f37b900f6da24a87e48",
+    "https://github.com/ros-industrial/universal_robot/blob/1e0904c38934fe09c9647825caf3b58dda2636f9/ur_driver/src/ur_driver/driver.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #157 (Jmeyer1292) reports a reproduction with ur_driver's test_move.py test_interrupt routine: \"when interrupted with a new trajectory while still executing a previous trajectory, the robot would immediately jump to the first point of the new trajectory.\" Maintainer abubeck: \"I have tested this. Therefore I will merge it.\""
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["ur_driver/driver.py"],
+      "interface_kind": null,
+      "evidence": "The defect is a wrong argument to driver.py's own helper: in URTrajectoryFollower.on_goal() the parent revision calls point0 = sample_traj(self.traj, now) with now = time.time(), while sample_traj(traj, t) expects an offset into the trajectory (every other call passes now - self.traj_t0). The wrong sample is computed and consumed inside the driver node when it splices the new goal; the action client's goal and the robot-side program behave correctly and any correct peer would receive the same wrong setpoint. Fix bcac4f5: point0 = sample_traj(self.traj, now - self.traj_t0). PR text: \"It used the absolute time (from time.time()) instead of the offset into the previous trajectory which is used in every other call of this particular function.\""
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated as a composition: E2 stopped at step 2 (internal)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "PR #157: \"running the test_interrupt routine caused a UR10 arm to emergency stop fairly consistently\" and \"the robot would immediately jump to the first point of the new trajectory.\""
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Reporter environment: \"I did my testing on a UR5 running firmware version 3.0.x and the Hydro-devel branch of universal robot.\" Fix commit bcac4f5 (2015-01-29) merged into hydro-devel as b3c2c21 (2015-03-12)."
+}

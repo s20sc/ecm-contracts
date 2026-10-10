@@ -1,0 +1,63 @@
+{
+  "task_id": "u0230",
+  "package": "nav2_bt_navigator",
+  "manifest_version": "0.2.4",
+  "ports": [
+    {
+      "element": "api:BT::Blackboard",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:BT::Tree",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:BT::Blackboard",
+    "api:BT::Tree"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "shipped tree behavior_trees/navigate_w_replanning_and_recovery.xml: RecoveryNode number_of_retries=\"6\" name=\"NavigateRecovery\" with SequenceStar RecoveryActions (ClearEntireCostmap local, ClearEntireCostmap global, Spin spin_dist=\"1.57\", Wait wait_duration=\"5\"); the tree actually run is chosen at run time by parameter bt_xml_filename"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:nav2_bt_navigator/package.xml:5",
+    "ports[0].element": "snapshot:nav2_bt_navigator/include/nav2_bt_navigator/bt_navigator.hpp:113",
+    "ports[0].side": "snapshot:nav2_bt_navigator/src/bt_navigator.cpp:80",
+    "ports[0].frame": "snapshot:nav2_bt_navigator/include/nav2_bt_navigator/bt_navigator.hpp:113 | BT::Blackboard::Ptr blackboard_; (C++ library class used as a key/value store; the element itself carries no spatial data)",
+    "ports[1].element": "snapshot:nav2_bt_navigator/include/nav2_bt_navigator/bt_navigator.hpp:122",
+    "ports[1].side": "snapshot:nav2_bt_navigator/src/bt_navigator.cpp:108",
+    "ports[1].frame": "snapshot:nav2_bt_navigator/src/bt_navigator.cpp:112 | tree_ = std::make_unique<BT::Tree>(); (C++ library struct holding tree nodes; no spatial data)",
+    "references[api:BT::Blackboard]": "snapshot:nav2_bt_navigator/src/bt_navigator.cpp:80 | blackboard_ = BT::Blackboard::create();",
+    "references[api:BT::Tree]": "snapshot:nav2_bt_navigator/src/bt_navigator.cpp:108 | BT::Tree temp_tree = bt_->buildTreeFromText(xml_string_, blackboard_);",
+    "perm_requires": "searched snapshot/nav2_bt_navigator (package.xml, CMakeLists.txt, src/, include/, behavior_trees/) for permission/security/sros/enclave declarations; only Apache license text matched",
+    "perm_grants": "searched snapshot/nav2_bt_navigator (package.xml, CMakeLists.txt, src/, include/, behavior_trees/) for permission/security/sros/enclave declarations; only Apache license text matched",
+    "exclusive": "searched snapshot/nav2_bt_navigator for exclusive resource claims (hardware interfaces, device handles, locks); none found",
+    "recovery.value": "snapshot:nav2_bt_navigator/behavior_trees/navigate_w_replanning_and_recovery.xml:7 | <RecoveryNode number_of_retries=\"6\" name=\"NavigateRecovery\">; lines 23-28 SequenceStar RecoveryActions; run-time selection at snapshot:nav2_bt_navigator/src/bt_navigator.cpp:91 | get_parameter(\"bt_xml_filename\", bt_xml_filename);"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The package uses BT::Blackboard::create() and reaches into BT::Tree's public data members (tree_->root_node, tree_->nodes, temp_tree.root_node = nullptr at bt_navigator.cpp:113-115), which ties it to one specific behaviortree_cpp_v3 layout of BT::Tree; this is consistent with a v3.0-era API but would break if the Tree struct changed, and I cannot tell which library version it is built against."
+  },
+  "confidence": "high",
+  "notes": "The snapshot is the whole navigation2 repository; only snapshot/nav2_bt_navigator was described (package.xml, CMakeLists.txt, README.md, include/nav2_bt_navigator/bt_navigator.hpp, src/bt_navigator.cpp, src/main.cpp, behavior_trees/*.xml, all read in full). All ten packet elements are consumed APIs of behaviortree_cpp_v3, so declares and not_declared are empty by rule. nav2_bt_navigator code names only BT::Blackboard (bt_navigator.hpp:113, bt_navigator.cpp:80, used via blackboard_->set at cpp:83-87 and cpp:235) and BT::Tree (bt_navigator.hpp:122, bt_navigator.cpp:108, 112-115). The other eight elements (BT::BehaviorTreeFactory, BT::ConditionNode, BT::ControlNode, BT::CoroActionNode, BT::DecoratorNode, BT::FallbackNode, BT::SequenceNode, BT::SequenceStarNode) are not named anywhere in nav2_bt_navigator's code. BT::BehaviorTreeFactory is used only indirectly, as the factory_ member of the sibling package's nav2_behavior_tree::BehaviorTreeEngine (snapshot:nav2_behavior_tree/include/nav2_behavior_tree/behavior_tree_engine.hpp:77), which this package includes and calls through bt_->buildTreeFromText / bt_->run / bt_->resetTree; ConditionNode, ControlNode, CoroActionNode and DecoratorNode appear as base classes only in sibling nav2_behavior_tree headers. The package's shipped XML trees use the node IDs Sequence, Fallback and SequenceStar (navigate_w_replanning.xml:7,9; navigate_w_replanning_and_recovery.xml:8,10,23); these are registration names resolved by the BT library at run time, not C++ symbol references in this code, so FallbackNode/SequenceNode/SequenceStarNode are not listed in references or ports (the name-to-class mapping is not verifiable inside the snapshot). QoS, rate and units are null for all ports because the elements are C++ library APIs, not ROS communication endpoints. ros_distro is null and no packet element is a message definition, so no dependency definition files were fetched and no definition_id was computed. Non-packet interfaces seen for context only: action server NavigateToPose (nav2_msgs::action::NavigateToPose, cpp:69-74), action client NavigateToPose (cpp:54-55), subscription /goal_pose geometry_msgs::msg::PoseStamped with rclcpp::SystemDefaultsQoS() (cpp:64-67), parameter bt_xml_filename declared without default (cpp:34)."
+}

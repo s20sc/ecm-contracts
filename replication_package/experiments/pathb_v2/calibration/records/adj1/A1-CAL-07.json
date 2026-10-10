@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-CAL-07",
+  "kind": "A1",
+  "case_id": "CAL-07",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Expected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u\n    Which is: 1",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440",
+    "reason": "A concrete test failure and maintainer analysis establish E1/E4. The consumer assumes graph-query visibility immediately after endpoint creation, while the separately built middleware updates discovery asynchronously. This is a PAIR API assumption, not an isolated arithmetic or test-logic defect independent of its peer."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "And then we are immediately calling `publisher->get_publishers_info_by_topic()`, which doesn't wait around at all; it just returns what it has right now.  So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629",
+      "reason": "The eventual-consistency timing of the publisher-information API is implicated, not incompatible endpoint QoS merely because the failing test concerns QoS. other is the appropriate available class."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Expected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u\n    Which is: 1",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440",
+    "reason": "The test detects an unexpected runtime query result. Its assertion is not a middleware connection, build, or activation diagnostic under the supplied loudness definition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "In line 120, we call `publisher->toggle()`, which is the first time that we are instantiating the underlying `rclcpp::Publisher`.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629",
+    "reason": "The failing query follows successful publisher creation during test execution."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I think @iuhilnehc-ynos already did this in https://github.com/ros2/system_tests/pull/513 .  Along with my documentation update in https://github.com/ros2/rmw/pull/352 , I think that should cover everything we talked about here.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1494753455",
+    "reason": "The source identifies the retry fix and contract documentation update, but does not identify both revisions in a successful rerun of the selected composition."
+  },
+  "notes": "The separately discussed subscription-information query and general graph consistency concerns do not establish additional failed conditions for the selected publisher-query failure."
+}

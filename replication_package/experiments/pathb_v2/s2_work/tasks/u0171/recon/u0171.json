@@ -1,0 +1,93 @@
+{
+  "task_id": "u0171",
+  "package": "ur_driver",
+  "manifest_version": "1.0.2",
+  "ports": [
+    {
+      "element": "action:follow_joint_trajectory",
+      "side": "provides",
+      "msg_type": "control_msgs/FollowJointTrajectoryAction",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "action", "value": "3bd3b9b759eaa42b90e5aaa4b47aee5d3c8ce38fc575c3ad06e689976bee60bb"}
+    },
+    {
+      "element": "field:trajectory_msgs/JointTrajectory.joint_names",
+      "side": "consumes",
+      "msg_type": "trajectory_msgs/JointTrajectory",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "65b4f94a94d1ed67169da35a02f33d3f"}
+    },
+    {
+      "element": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+      "side": "consumes",
+      "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "f3cd1e1c4d320c79d6985c904ae5dcd3"}
+    },
+    {
+      "element": "topic:joint_states",
+      "side": "provides",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": "From real-time state data",
+      "units": "position rad or m; velocity rad/s or m/s; effort Nm or N",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "3066dcd76a6cfaef579bd0f34173e9fd"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "action:follow_joint_trajectory": "action follow_joint_trajectory: control_msgs/FollowJointTrajectoryAction",
+    "topic:joint_states": "topic joint_states: sensor_msgs/JointState"
+  },
+  "not_declared": [],
+  "references": [
+    "field:trajectory_msgs/JointTrajectory.joint_names",
+    "field:trajectory_msgs/JointTrajectoryPoint.velocities"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "on loss of the robot connection the main loop re-sends the URScript program, waits for the robot to reconnect and re-attaches the service provider and action server (set_robot); on goal cancel the action server replaces the trajectory with a stop segment of STOP_DURATION = 0.5 s"},
+  "provenance": {
+    "manifest_version": "snapshot:ur_driver/package.xml:4",
+    "ports[0].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:15 (from control_msgs.msg import FollowJointTrajectoryAction); snapshot:ur_driver/src/ur_driver/driver.py:662-664 (self.server = actionlib.ActionServer(\"follow_joint_trajectory\", FollowJointTrajectoryAction, self.on_goal, self.on_cancel, auto_start=False))",
+    "ports[0].frame": "snapshot:ur_driver/src/ur_driver/driver.py:709-763 (on_goal reads only trajectory.joint_names and trajectory.points; the goal header/frame_id is never read or set; the goal carries joint-space positions/velocities with no spatial frame)",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 on https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action (control_msgs 1.2.0, the 1.2.x hydro release line)",
+    "ports[1].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:16 (from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint); snapshot:ur_driver/src/ur_driver/driver.py:719 (goal_handle.get_goal().trajectory.joint_names)",
+    "ports[1].frame": "field holds joint name strings; no spatial meaning (snapshot:ur_driver/src/ur_driver/driver.py:719, 561)",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectory over https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg, .../1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg and https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg",
+    "ports[2].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:16 (JointTrajectoryPoint); snapshot:ur_driver/src/ur_driver/driver.py:623-627 (has_velocities: for p in traj.points: if len(p.velocities) != len(p.positions))",
+    "ports[2].frame": "joint-space velocity values, no spatial frame; JointTrajectoryPoint has no header (common_msgs 1.10.6 trajectory_msgs/msg/JointTrajectoryPoint.msg:5-9)",
+    "ports[2].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectoryPoint over https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg",
+    "ports[3].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:14 (from sensor_msgs.msg import JointState); snapshot:ur_driver/src/ur_driver/driver.py:91 (pub_joint_states = rospy.Publisher('joint_states', JointState))",
+    "ports[3].frame": "snapshot:ur_driver/src/ur_driver/driver.py:333 (msg.header.frame_id = \"From real-time state data\")",
+    "ports[3].units": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/sensor_msgs/msg/JointState.msg:4-6 (# * the position of the joint (rad or m), # * the velocity of the joint (rad/s or m/s) and # * the effort that is applied in the joint (Nm or N).)",
+    "ports[3].definition_id": "python3 definition_hash.py ros1 sensor_msgs/JointState over https://raw.githubusercontent.com/ros/common_msgs/1.10.6/sensor_msgs/msg/JointState.msg (identical to ros-gbp/common_msgs-release tag release/hydro/sensor_msgs/1.10.6-0) and https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg",
+    "declares[action:follow_joint_trajectory]": "snapshot:ur_driver/src/ur_driver/driver.py:662-664 (actionlib.ActionServer(\"follow_joint_trajectory\", FollowJointTrajectoryAction, ...)); started at driver.py:706 (self.server.start())",
+    "declares[topic:joint_states]": "snapshot:ur_driver/src/ur_driver/driver.py:91 (rospy.Publisher('joint_states', JointState)); published at driver.py:340",
+    "references[field:trajectory_msgs/JointTrajectory.joint_names]": "snapshot:ur_driver/src/ur_driver/driver.py:719 (if set(goal_handle.get_goal().trajectory.joint_names) != set(joint_names):); driver.py:561 (order = [traj.joint_names.index(j) for j in joint_names])",
+    "references[field:trajectory_msgs/JointTrajectoryPoint.velocities]": "snapshot:ur_driver/src/ur_driver/driver.py:625 (if len(p.velocities) != len(p.positions):); driver.py:731-734 (goal rejected with text=\"Received a goal without velocities\"); driver.py:581-583 (interp_cubic uses p0.velocities[i], p1.velocities[i]); driver.py:618-619 (if math.fabs(v) > max_velocity)",
+    "perm_requires": "searched snapshot:ur_driver (driver.py, io_interface.py, test_*.py, package.xml, CMakeLists.txt, setup.py) and snapshot:ur_bringup launch files for permission / security / policy declarations; none found",
+    "perm_grants": "same search as perm_requires; no permission grants declared",
+    "recovery.value": "snapshot:ur_driver/src/ur_driver/driver.py:969-998 (print \"Disconnected.  Reconnecting\" ... connection.send_program() ... action_server.set_robot(r)); driver.py:765-784 (on_cancel: STOP_DURATION = 0.5 ... point1.velocities = [0] * 6)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "on_goal inserts the current setpoint with point0 = sample_traj(self.traj, now) using absolute wall time instead of now - self.traj_t0 (driver.py:755; on_cancel uses now - self.traj_t0), so preempting a running follow_joint_trajectory goal starts the new trajectory from the old trajectory's end point; the action also hard-rejects goals whose JointTrajectoryPoint.velocities are empty although the message definition makes velocities optional"
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (hydro) rospy/actionlib: QoS not applicable, recorded null. No rate is set for joint_states: it is published once per packet from the robot real-time port (comment at driver.py:40 says RT_PORT 125 Hz, set by the robot, not by the code); the 0.02 s rospy.Timer (driver.py:655, 674) streams servoj setpoints to the robot and is not the rate of any ROS port. rospy.Publisher is created without queue_size (hydro-era synchronous publish). joint_states: name = [prefix + name for name in JOINT_NAMES] with ~prefix param (driver.py:899-902); effort always [0]*6 (driver.py:339); positions include URDF calibration offsets. follow_joint_trajectory goal handling: requires exact set equality of joint names with the six prefixed UR joints, finite values, velocities for every point (len(velocities) == len(positions)), and |v| <= ~max_velocity (default 2.0, no unit stated); joints are reordered to the driver's order. Action type is recorded as imported in code (control_msgs/FollowJointTrajectoryAction); its definition_id is the sha256_normalised proxy of the FollowJointTrajectory.action source at control_msgs 1.2.0 (the ROS 1 md5 of the generated action messages could not be computed from raw definition files with the tool). Dependency tags: common_msgs 1.10.6 (highest 1.10.x upstream tag; ros-gbp release/hydro/sensor_msgs/1.10.6-0 exists and matches), std_msgs 0.5.8, control_msgs 1.2.0 (highest 1.2.x upstream tag); the ros-gbp control_msgs/std_msgs hydro release tags could not be fetched, so the hydro mapping for those two is by version line. exclusive left empty: the code binds a TCP server on reverse_port (default 50001) and uploads a URScript program to the controller, but declares no exclusive hardware command interface or device claim. Other ROS interfaces in the package outside the packet (wrench, io_states, set_io, ur_driver/setPayload) were not recorded."
+}

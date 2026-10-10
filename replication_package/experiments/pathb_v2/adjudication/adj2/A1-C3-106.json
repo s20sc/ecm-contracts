@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-106",
+  "kind": "A1",
+  "case_id": "C3-106",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "MAVLink move some of messages between dialects, that's not a problem for the protocol itself or C implementation, but for C++ it is because here i have a namespace for each dialect.",
+    "url": "https://github.com/mavlink/mavros/issues/2088"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: ‘mavlink::common::msg::GLOBAL_POSITION_INT’ has not been declared",
+      "url": "https://github.com/mavlink/mavros/issues/2088"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Do you have mavlink 2025.12.12? Looks like there yet another case of moved message.\nTry previous mavlink 2025.9.9.",
+    "url": "https://github.com/mavlink/mavros/issues/2088"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "fix: update GLOBAL_POSITION_INT message type to standard namespace\n-    mavlink::common::msg::GLOBAL_POSITION_INT & gpos,\n+    mavlink::standard::msg::GLOBAL_POSITION_INT & gpos,",
+    "url": "https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a"
+  },
+  "notes": "Independently verified against the release-tag files: common.xml at release/humble/mavlink/2025.9.9-1 line 5427 contains \"<message id=\"33\" name=\"GLOBAL_POSITION_INT\">\"; common.xml at 2025.12.12-1 no longer defines it (only textual references and GLOBAL_POSITION_INT_COV at line 5769); standard.xml at 2025.12.12-1 line 115 defines \"<message id=\"33\" name=\"GLOBAL_POSITION_INT\">\" — exactly the spec's claim, and it contradicts the maintainer's in-thread remark \"i've checked build, and 2025.12.12 has the same standard.xml as 2025.9.9\"; the spec correctly follows the primary files. Issue #2088: the compile error is verbatim (with curly quotes as in the source); the rosinstall block shows \"version: release/humble/mavlink/2025.12.12-1\"; reporter confirms \"Yes, it works with 2025.9.9.\"; maintainer: \"Ah, i overlooked https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a - so, i'll release 2.14.0 today.\". Commit 42d26080's message and patch are verbatim as quoted. Eligibility: the provider moved the message between dialects, changing the C++ symbol the consumer references — E2.4's parenthetical (rebuilding a consumer because a provider's definition changed is an interface change) makes stop_step 6 right; operation UPGRADE with consumer_built_against broken=2025.9.9-1 documented (\"Try previous mavlink 2025.9.9.\" + \"Yes, it works with 2025.9.9.\") is right. Class element_removed_or_renamed fits the symbol disappearing from the common namespace. Loudness loud_documented/build via the compiler error. Resolution recommended is right: the only working composition shown in the thread is the downgrade (2025.9.9); nothing shows mavros 2.14.0 building against mavlink 2025.12.12."
+}

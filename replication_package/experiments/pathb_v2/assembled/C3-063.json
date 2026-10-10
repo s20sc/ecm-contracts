@@ -1,0 +1,550 @@
+{
+ "case_id": "C3-063",
+ "corpus": "C3",
+ "operation": "UPGRADE",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [
+        "api:numpy.matrix.resize",
+        "api:numpy.ndarray",
+        "api:numpy.zeros"
+       ],
+       "consumer_reads": [
+        "api:numpy.matrix",
+        "api:numpy.matrix.resize",
+        "api:numpy.ndarray",
+        "api:numpy.zeros"
+       ],
+       "semver_old": "1.14.6",
+       "semver_new": "1.21.5"
+      }
+     },
+     "provenance": {
+      "ver_delta.changed_fields[api:numpy.matrix.resize]": "built: snapshot:numpy/core/src/multiarray/methods.c:1085 | array_resize(PyArrayObject *self, PyObject *args, PyObject *kwds); bound as ndarray method at methods.c:2675-2677 '{\"resize\", (PyCFunction)array_resize, METH_VARARGS | METH_KEYWORDS, NULL},'; class matrix (defmatrix.py:174-1093) defines no resize of its own, so numpy.matrix.resize resolves to the inherited ndarray.resize; documented signature numpy/add_newdocs.py:4154-4156 'a.resize(new_shape, refcheck=True)' || running: snapshot:numpy/core/_add_newdocs.py:3673",
+      "ver_delta.changed_fields[api:numpy.ndarray]": "built: snapshot:numpy/core/src/multiarray/arrayobject.c:1653 | NPY_NO_EXPORT PyTypeObject PyArray_Type = { ; tp_name at arrayobject.c:1660 '\"numpy.ndarray\", /* tp_name */'; re-exported in numpy/core/numeric.py:12-21 (from .multiarray import (... ndarray ...)) and numeric.py:49 __all__ entry 'ndarray'; numpy/__init__.py:159 'from .core import *'; documented signature numpy/add_newdocs.py:2430-2433 'ndarray(shape, dtype=float, buffer=None, offset=0, strides=None, order=None)' || running: snapshot:numpy/core/_add_newdocs.py:2094",
+      "ver_delta.changed_fields[api:numpy.zeros]": "built: snapshot:numpy/core/src/multiarray/multiarraymodule.c:2040 | array_zeros(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds); kwlist at :2042 'static char *kwlist[] = {\"shape\",\"dtype\",\"order\",NULL};'; bound at multiarraymodule.c:4310-4312 '{\"zeros\", (PyCFunction)array_zeros, METH_VARARGS|METH_KEYWORDS, NULL},'; re-exported numpy/core/numeric.py:21 and :50 __all__ entry 'zeros'; documented signature numpy/add_newdocs.py:899-901 'zeros(shape, dtype=float, order='C')' || running: snapshot:numpy/core/_add_newdocs.py:1216",
+      "ver_delta.consumer_reads[api:numpy.matrix]": "snapshot:image_geometry/image_geometry/cameramodels.py:7 | mat = numpy.matrix(L, dtype='float64')",
+      "ver_delta.consumer_reads[api:numpy.matrix.resize]": "snapshot:image_geometry/image_geometry/cameramodels.py:8 | mat.resize((rows,cols)); snapshot:image_geometry/image_geometry/cameramodels.py:102 | src.resize((1,1,2))",
+      "ver_delta.consumer_reads[api:numpy.ndarray]": "snapshot:image_geometry/image_geometry/cameramodels.py:83 and :85 | numpy.ndarray(shape=(self.height, self.width, 1), dtype='float32')",
+      "ver_delta.consumer_reads[api:numpy.zeros]": "snapshot:image_geometry/image_geometry/cameramodels.py:306 | self.Q = numpy.zeros((4, 4), dtype='float64')",
+      "ver_delta.semver_old": "snapshot:setup.py:68 | VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO) with MAJOR = 1 (line 64), MINOR = 14 (line 65), MICRO = 6 (line 66), ISRELEASED = True (line 67)",
+      "ver_delta.semver_new": "snapshot:numpy/_version.py:25"
+     },
+     "unknown_delta": [],
+     "tasks": {
+      "built": "u0319",
+      "running": "u0320",
+      "consumer": "u0318"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:numpy.matrix",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:numpy.matrix",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:numpy.matrix",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:numpy.matrix",
+       "in_role": "api:numpy.matrix"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:numpy/matrixlib/defmatrix.py:73",
+      "consumer.inputs[0].element": "snapshot:image_geometry/image_geometry/cameramodels.py:7",
+      "consumer.inputs[0].side": "snapshot:image_geometry/image_geometry/cameramodels.py:7 | mat = numpy.matrix(L, dtype='float64')"
+     },
+     "tasks": {
+      "producer": "u0320",
+      "consumer": "u0318",
+      "built": "u0319"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:numpy.matrix.resize",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:numpy.matrix.resize",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:numpy.matrix.resize",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:numpy.matrix.resize",
+       "in_role": "api:numpy.matrix.resize"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:numpy/core/_add_newdocs.py:3673",
+      "consumer.inputs[0].element": "snapshot:image_geometry/image_geometry/cameramodels.py:8",
+      "consumer.inputs[0].side": "snapshot:image_geometry/image_geometry/cameramodels.py:8 | mat.resize((rows,cols)) (mat is the numpy.matrix built on line 7); also snapshot:image_geometry/image_geometry/cameramodels.py:102 | src.resize((1,1,2)) (src = mkmat(1, 2, list(uv_raw)) on line 101)"
+     },
+     "tasks": {
+      "producer": "u0320",
+      "consumer": "u0318",
+      "built": "u0319"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:numpy.ndarray",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:numpy.ndarray",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:numpy.ndarray",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:numpy.ndarray",
+       "in_role": "api:numpy.ndarray"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:numpy/core/_add_newdocs.py:2094",
+      "consumer.inputs[0].element": "snapshot:image_geometry/image_geometry/cameramodels.py:83",
+      "consumer.inputs[0].side": "snapshot:image_geometry/image_geometry/cameramodels.py:83 | self.mapx = numpy.ndarray(shape=(self.height, self.width, 1), ; also line 85 | self.mapy = numpy.ndarray(shape=(self.height, self.width, 1),"
+     },
+     "tasks": {
+      "producer": "u0320",
+      "consumer": "u0318",
+      "built": "u0319"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:numpy.zeros",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:numpy.zeros",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:numpy.zeros",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:numpy.zeros",
+       "in_role": "api:numpy.zeros"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:numpy/core/_add_newdocs.py:1216",
+      "consumer.inputs[0].element": "snapshot:image_geometry/image_geometry/cameramodels.py:306",
+      "consumer.inputs[0].side": "snapshot:image_geometry/image_geometry/cameramodels.py:306 | self.Q = numpy.zeros((4, 4), dtype='float64')"
+     },
+     "tasks": {
+      "producer": "u0320",
+      "consumer": "u0318",
+      "built": "u0319"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [],
+       "consumer_reads": [
+        "api:numpy.matrix",
+        "api:numpy.ndarray",
+        "api:numpy.zeros"
+       ],
+       "semver_old": "1.21.5",
+       "semver_new": "1.21.5"
+      }
+     },
+     "provenance": {
+      "ver_delta.consumer_reads[api:numpy.matrix]": "snapshot:image_geometry/image_geometry/cameramodels.py:352 | return numpy.matrix(self._d, dtype=\"float64\") (also lines 357, 362, 372, 377, 382, 414, 465, 476, 569, and via alias np at 597, 656; all inside members decorated @deprecated(version=\"J-turtle\"))",
+      "ver_delta.consumer_reads[api:numpy.ndarray]": "snapshot:image_geometry/image_geometry/cameramodels.py:87 | self.mapx = numpy.ndarray(shape=(self._height, self._width, 1), (also line 89; used as return annotation at lines 9, 95, 215, 223, 231, 239, 247, 255, 631)",
+      "ver_delta.consumer_reads[api:numpy.zeros]": "snapshot:image_geometry/image_geometry/cameramodels.py:735 | self._q = numpy.zeros((4, 4), dtype='float64')",
+      "ver_delta.semver_old": "snapshot:numpy/_version.py:25",
+      "ver_delta.semver_new": "snapshot:numpy/_version.py:25"
+     },
+     "unknown_delta": [],
+     "tasks": {
+      "built": "u0320",
+      "running": "u0320",
+      "consumer": "u0317"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:numpy.matrix",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:numpy.matrix",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:numpy.matrix",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:numpy.matrix",
+       "in_role": "api:numpy.matrix"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:numpy/matrixlib/defmatrix.py:73",
+      "consumer.inputs[0]": "snapshot:image_geometry/image_geometry/cameramodels.py:352"
+     },
+     "tasks": {
+      "producer": "u0320",
+      "consumer": "u0317",
+      "built": "u0320"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:numpy.matrix.resize",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {},
+     "tasks": {
+      "producer": "u0320",
+      "consumer": "u0317",
+      "built": "u0320"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:numpy.ndarray",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:numpy.ndarray",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:numpy.ndarray",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:numpy.ndarray",
+       "in_role": "api:numpy.ndarray"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:numpy/core/_add_newdocs.py:2094",
+      "consumer.inputs[0]": "snapshot:image_geometry/image_geometry/cameramodels.py:87"
+     },
+     "tasks": {
+      "producer": "u0320",
+      "consumer": "u0317",
+      "built": "u0320"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:numpy.zeros",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:numpy.zeros",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:numpy.zeros",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:numpy.zeros",
+       "in_role": "api:numpy.zeros"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:numpy/core/_add_newdocs.py:1216",
+      "consumer.inputs[0]": "snapshot:image_geometry/image_geometry/cameramodels.py:735"
+     },
+     "tasks": {
+      "producer": "u0320",
+      "consumer": "u0317",
+      "built": "u0320"
+     }
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-B-Sig-04",
+  "kind": "A1",
+  "case_id": "B-Sig-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This component, however, uses different conventions from ROS and hence the most important task for interfacing then is to perform appropriate frame conversions.",
+    "url": "https://ar5iv.labs.arxiv.org/html/2106.11266"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It looks wrong tf between map and camera_link.",
+      "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Third, the transform should translate the results back to ROS’s FLU orientation. The code shown fails to accomplish the last step.",
+      "url": "https://ar5iv.labs.arxiv.org/html/2106.11266"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This is initial output of 'rostopic echo tf'. I can see a twisted rotation.",
+    "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I tested it, works well! Thanks for the contribution.",
+    "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/pull/15"
+  },
+  "notes": "独立核验通过。issue 14（'Wrong TF between map and camera_link'，2019-03-13）正文与全部评论逐字核到：复现命令 '$ roslaunch realsense2_camera rs_rgbd.launch'、'$ roslaunch orb_slam2_ros orb_slam2_d435_rgbd.launch'、'I can see the point cloud of the map above the camera, initially.'、twisted rotation 句；评论核到 saoto28 的修复代码与坐标系解释、tiagojdias 'The fix proposed by @saoto28 really works.'、lennarthaller '#15 is merged, your issue should be fixed now right?' 与 saoto28 'Yes.'、DepthMapFactor 5000 错 yaml 的独立配置问题（spec 正确排除到 notes）。Node.cc@399e75b8 逐行核到断裂版 TransformFromMat（rotation = position_mat.rowRange(0,3).colRange(0,3).t()、translation = rotation*... 的 R^T*t 形式、Rx/Rz/invX 矩阵）与 sendTransform( ... map_frame_id_param_, camera_frame_id_param_) 发布行；issue 评论中 saoto28 引用的修复版代码引入 matTrans 两次坐标系变换，与 PHYSFRAME 描述的缺失末步转换互补。PHYSFRAME（ar5iv 全文）核到三句关键引文：conventions 句、'However, the constructed transform is problematic as it forgets to further translate back to FLU.'、'The conversion implementation, however, is incorrect, and PhysFrame catches this error by type checking.' 以及 'Third, ...' 句（spec 条件引文逐字一致，含弯引号）。提交核到：0903bfa2 'modify transformation matrix of Node::TransformFromMat()'；PR15 标题 'Modify TF transformation'，正文 'Modify TF based on the issue \"Wrong TF between map and camera_link #14 \".'，merged，merge_commit_sha=62a40b29fdd8d42222e8e051fa3a1cbbaf6073bb。双条件分类（frame_mismatch 记录观测到的错误帧变换 + representation_convention 记录成因：ORB 轴系/手性约定未转回 FLU）认可，二者指向同一底层缺陷，与 spec 对重命名字段式双列规则的处理一致；元素均为 topic:/tf 正确（map_points 话题本身无误，未牵连正确）。silent_documented/run 认可（无工具诊断，仅可视化与 rostopic echo 观察；PhysFrame 为研究工具而非既有工具链）。recommended 认可：修复经维护者实测与报告者确认，但 rviz 修订从未被识别，不满足 observed 的双单元按版本识别要求。"
+}

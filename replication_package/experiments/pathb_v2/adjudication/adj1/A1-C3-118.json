@@ -1,0 +1,68 @@
+{
+  "item_id": "A1-C3-118",
+  "kind": "A1",
+  "case_id": "C3-118",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value",
+    "url": "https://github.com/moveit/moveit2/issues/2632",
+    "reason": "E1/E4: the composable-node setup produces an explicit constructor exception. E2: moveit_servo passes SystemDefaultsQoS and intra-process options to separately released rclcpp; the latter refuses the combination. Disabling an execution option is not merely binding a deployment name. E3: PAIR across this library API. Stop at 6."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "intraprocess communication is not allowed with a zero qos history depth value",
+      "url": "https://raw.githubusercontent.com/ros2/rclcpp/24.0.0/rclcpp/include/rclcpp/publisher.hpp",
+      "reason": "Agree other: history depth is outside the enumerated reliability/durability/deadline classes. The source maps default history to KeepLast with the supplied depth and Servo creates publishers with SystemDefaultsQoS. Thus use_intra_process_comms, SystemDefaultsQoS and create_publisher are implicated; no particular user topic or subscription is established as the first failing entity.",
+      "additional_evidence": [
+        {
+          "quote": "      return KeepLast(rmw_qos.depth, false);",
+          "url": "https://raw.githubusercontent.com/ros2/rclcpp/24.0.0/rclcpp/src/rclcpp/qos.cpp"
+        },
+        {
+          "quote": "      node_->create_publisher<moveit_msgs::msg::ServoStatus>(servo_params_.status_topic, rclcpp::SystemDefaultsQoS());",
+          "url": "https://raw.githubusercontent.com/moveit/moveit2/2.8.0/moveit_ros/moveit_servo/src/servo_node.cpp"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value",
+    "url": "https://github.com/moveit/moveit2/issues/2632",
+    "reason": "The component constructor emits the diagnostic while loading the composable node; no runtime message exchange is required."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value",
+    "url": "https://github.com/moveit/moveit2/issues/2632",
+    "reason": "The documented failure is detected at activate, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "You don't need to avoid the composable node. The only thing you need to avoid is following the warnings advice, since this will lead to an error.",
+    "url": "https://github.com/moveit/moveit2/issues/2632#issuecomment-2362965448",
+    "reason": "Disagree with none: the source explicitly recommends retaining intra-process communication disabled, which avoids the constructor refusal while keeping the same two units and PAIR operation. S1 does not require preserving the failing optional mode. Use recommended because the exact 2.8.0/rclcpp resolved pair is not demonstrated with both revisions. Agree that PR #2752 alone only removes misleading advice and does not repair the enabled intra-process path.",
+    "additional_evidence": [
+      {
+        "quote": "It simply removes the warning altogether.",
+        "url": "https://github.com/moveit/moveit2/pull/2752"
+      },
+      {
+        "quote": "This is a fix for Rolling as enabling this causes the component container to die with this error:",
+        "url": "https://github.com/moveit/moveit2/pull/722"
+      }
+    ]
+  },
+  "notes": "Read report #2632 and comments, #2752 description/diff, prior #722 description/diff, and relevant rclcpp/Servo code. The zero-depth cause is supported by primary code; the PR's KEEP_ALL explanation is not substituted for it. The remaining inability to run the enabled mode is distinguished from the documented disabled-mode workaround. No extra durability or reliability condition is demonstrated."
+}

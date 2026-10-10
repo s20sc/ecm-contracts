@@ -1,0 +1,127 @@
+{
+ "case_id": "CAL-07",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros2/rmw_cyclonedds/issues/440",
+  "https://github.com/ros2/system_tests/pull/513",
+  "https://github.com/ros2/rmw/pull/352",
+  "https://ci.ros2.org/job/ci_linux/18164/testReport/junit/test_quality_of_service/QosRclcppTestFixture__rmw_cyclonedds_cpp/test_best_available_policies_publisher/"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue #440 quotes the ROS 2 CI failure of QosRclcppTestFixture__rmw_cyclonedds_cpp.test_best_available_policies_publisher (test_best_available.cpp:128, \"Expected equality of these values:\\n  publishers_info.size()\\n    Which is: 0\\n  1u\") and gives a patch that makes it fail reliably (a 10 ms dds_sleepfor in handle_builtintopic_endpoint for \"rt/test_best_available_publisher\"); maintainers (eboasson, clalancette) confirmed the cause."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "test_quality_of_service",
+    "rmw_cyclonedds_cpp"
+   ],
+   "interface_kind": "library API",
+   "evidence": "The test (package test_quality_of_service in ros2/system_tests) creates a publisher and immediately queries the graph through rclcpp -> rcl -> rmw_get_publishers_info_by_topic, assuming the just-created publisher is already listed; rmw_cyclonedds_cpp fills its graph cache from a discovery thread, so the query can return an empty list. The failure depends on this timing/consistency assumption between the two units (with a middleware that updates the graph synchronously the assertion holds), and the resolution added the missing statement to the declared rmw API (rmw PR #352) as well as changing the consumer. Not deployment wiring, build, or firmware."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: rmw_cyclonedds_cpp's output (the publishers info list returned for the topic) feeds the test's input (its QoS assertions)."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed CI failure: `publishers_info.size()` \"Which is: 0\" where 1 was expected (https://github.com/ros2/rmw_cyclonedds/issues/440)."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "test_quality_of_service",
+   "role": "consumer",
+   "repo": "https://github.com/ros2/system_tests",
+   "broken_rev": "010c34ba963b071e88a5208d01dafc7dd9532bf7",
+   "resolved_rev": "6313065486c6db146356b63e63c52b0c1e844f13",
+   "pinned": true,
+   "revision_basis": "The failure was reported from ROS 2 CI (ci_linux build 18164) on rolling around 2023-03-06; the job's exact revisions are not quoted in the issue. 010c34ba is the rolling head of ros2/system_tests on the report date (committed 2023-02-13) and is also the parent of the fix commit. The issue links test_best_available.cpp at c21d78c8f3386a6081578303439c1c04d5433e29; the diff c21d78c8..010c34ba touches only CHANGELOG, CMakeLists and package.xml files, so the test source is identical. Resolved revision 6313065486c6 is the single-parent commit on rolling from merging PR #513 (2023-04-04), which wraps get_publishers_info_by_topic / get_subscriptions_info_by_topic in a 5 s wait_for retry.",
+   "excerpt": false,
+   "ros_distro": "rolling"
+  },
+  {
+   "name": "rmw_cyclonedds_cpp",
+   "role": "provider",
+   "repo": "https://github.com/ros2/rmw_cyclonedds",
+   "broken_rev": "c11d8cf4b307b3d6d6e7968b7dba51d764ece9a2",
+   "resolved_rev": "c11d8cf4b307b3d6d6e7968b7dba51d764ece9a2",
+   "pinned": true,
+   "revision_basis": "Not stated by the reporter; c11d8cf4 is the rolling head of ros2/rmw_cyclonedds on the report date (committed 2023-02-14). The issue's analysis links rmw_node.cpp at 4bec4c8c5c9a7bf7187a2681dc57b1d9395dce0e (2023-01-17), an earlier rolling commit; the graph-cache update path cited there is the behaviour at issue. The resolution does not change rmw_cyclonedds, so the broken revision is kept.",
+   "excerpt": false,
+   "ros_distro": "rolling"
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "api:rmw_get_publishers_info_by_topic",
+   "sides": {
+    "rmw_cyclonedds_cpp": "provides",
+    "test_quality_of_service": "consumes"
+   }
+  },
+  {
+   "element": "api:rmw_get_subscriptions_info_by_topic",
+   "sides": {
+    "rmw_cyclonedds_cpp": "provides",
+    "test_quality_of_service": "consumes"
+   }
+  },
+  {
+   "element": "api:rmw_count_subscribers",
+   "sides": {
+    "rmw_cyclonedds_cpp": "provides",
+    "test_quality_of_service": "consumes"
+   }
+  },
+  {
+   "element": "api:rmw_create_publisher",
+   "sides": {
+    "rmw_cyclonedds_cpp": "provides",
+    "test_quality_of_service": "consumes"
+   }
+  },
+  {
+   "element": "api:rmw_create_subscription",
+   "sides": {
+    "rmw_cyclonedds_cpp": "provides",
+    "test_quality_of_service": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "other",
+   "implicated_elements": [
+    "api:rmw_get_publishers_info_by_topic"
+   ],
+   "quote": "However, what we do next is suspicious.  In line 120, we call `publisher->toggle()`, which is the first time that we are instantiating the underlying `rclcpp::Publisher`.  And then we are immediately calling `publisher->get_publishers_info_by_topic()`, which doesn't wait around at all; it just returns what it has right now.  So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+   "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "silent_documented",
+ "loudness_evidence": "The middleware returns an empty list without any diagnostic; the wrong answer is caught only by the test's own assertion: \"test_best_available.cpp:128\\nExpected equality of these values:\\n  publishers_info.size()\\n    Which is: 0\\n  1u\\n    Which is: 1\" (https://github.com/ros2/rmw_cyclonedds/issues/440).",
+ "detection_stage": "run",
+ "resolution": {
+  "summary": "Consumer side: system_tests PR #513 (merged as 6313065486c6db146356b63e63c52b0c1e844f13) adds a wait_for helper and retries get_publishers_info_by_topic / get_subscriptions_info_by_topic for up to 5 s until exactly one endpoint is listed. Declared interface: rmw PR #352 (merged 2023-04-03 as bb044d59df89fac9fed8706aa58a8d7092fa31a2) adds to rmw_get_publishers_info_by_topic: \"Depending on the RMW in use, discovery may be asynchronous.  Therefore, creating a publisher and then calling this API may not show the newly created publisher immediately.\" (and the analogous note for subscriptions). rmw_cyclonedds is unchanged.",
+  "status": "recommended",
+  "evidence": "PR #513 lists ROS 2 CI runs (ci_linux 18374 and 18410, aarch64, Windows) as status badges only; the text does not state their outcome for this test or the revisions of rmw_cyclonedds used, so the resolved composition is not shown working with both units identified by revision."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "Class `other`: the mismatch is a consistency/timing assumption (the test assumes the graph query reflects a publisher created immediately before on the same thread; rmw_cyclonedds updates its graph cache asynchronously from its discovery thread); no listed class names this. The test reaches rmw_cyclonedds through rclcpp::Node::get_publishers_info_by_topic -> rcl_get_publishers_info_by_topic -> rmw_get_publishers_info_by_topic (and rcl_wait_for_subscribers -> rmw_count_subscribers); inventory entries use the rmw symbols, which are the elements rmw_cyclonedds provides. The declared rmw contract lives in ros2/rmw (resolved bb044d59), which is not one of the two unit repositories. Maintainers also discussed a provider-side alternative (processing built-in topic data or synchronising with the discovery thread inside rmw_get_publishers_info_by_topic, eboasson) that was not implemented. The reporter's first analysis attributed the race to data_readers_ and data_writers_ being updated separately after rcl_wait_for_subscribers; the maintainer's later analysis (quoted) places it on the newly created publisher not yet being discovered; both concern the same element."
+}

@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_61a75df",
+  "kind": "A1",
+  "case_id": "robust_61a75df",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "When trying \"rqt -s kobuki_dashboard\", I get \"ImportError: cannot import name QMessageBox\"",
+    "url": "https://github.com/turtlebot/turtlebot/issues/250"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/kobuki_dashboard/dashboard.py\", line 8, in <module>\n    from QtGui import QMessageBox, QAction\nImportError: cannot import name QMessageBox",
+      "url": "https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "in battery_widgets.py\r\nfrom python_qt_binding.QtGui import QToolButton\r\n->\r\nfrom QtWidgets import QToolButton",
+      "url": "https://github.com/turtlebot/turtlebot/issues/250#issuecomment-281542245"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PluginManager._load_plugin() could not load plugin \"kobuki_dashboard/KobukiDashboard\"\nTraceback (most recent call last):\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/plugin_handler.py\", line 99, in load\n    self._load()\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/plugin_handler_direct.py\", line 55, in _load\n    self._plugin = self._plugin_provider.load(self._instance_id.plugin_id, self._context)\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/composite_plugin_provider.py\", line 72, in load\n    instance = plugin_provider.load(plugin_id, plugin_context)\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/composite_plugin_provider.py\", line 72, in load\n    instance = plugin_provider.load(plugin_id, plugin_context)\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/rqt_gui_py/ros_py_plugin_provider.py\", line 60, in load\n    return super(RosPyPluginProvider, self).load(plugin_id, plugin_context)\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/composite_plugin_provider.py\", line 72, in load\n    instance = plugin_provider.load(plugin_id, plugin_context)\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/rqt_gui/ros_plugin_provider.py\", line 94, in load\n    return class_ref(plugin_context)\n  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/kobuki_dashboard/dashboard.py\", line 8, in <module>\n    from QtGui import QMessageBox, QAction\nImportError: cannot import name QMessageBox",
+    "url": "https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "As correcting following two lines, it looks like working as shown in the attached screenshot."
+  },
+  "notes": "python_qt_binding upgraded from Qt4 to Qt5 in Kinetic, moving widgets out of QtGui into QtWidgets."
+}

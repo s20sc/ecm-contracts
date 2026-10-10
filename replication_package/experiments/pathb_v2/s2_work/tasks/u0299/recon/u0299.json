@@ -1,0 +1,108 @@
+{
+  "task_id": "u0299",
+  "package": "rmw_zenoh_cpp",
+  "manifest_version": "0.8.2",
+  "ports": [
+    {
+      "element": "api:rmw_create_publisher",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_create_subscription",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_get_publishers_info_by_topic",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_get_subscriptions_info_by_topic",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rmw_create_publisher": "api rmw_create_publisher: rmw_publisher_t * rmw_create_publisher( const rmw_node_t * node, const rosidl_message_type_support_t * type_supports, const char * topic_name, const rmw_qos_profile_t * qos_profile, const rmw_publisher_options_t * publisher_options)",
+    "api:rmw_create_subscription": "api rmw_create_subscription: rmw_subscription_t * rmw_create_subscription( const rmw_node_t * node, const rosidl_message_type_support_t * type_supports, const char * topic_name, const rmw_qos_profile_t * qos_profile, const rmw_subscription_options_t * subscription_options)",
+    "api:rmw_get_publishers_info_by_topic": "api rmw_get_publishers_info_by_topic: rmw_ret_t rmw_get_publishers_info_by_topic( const rmw_node_t * node, rcutils_allocator_t * allocator, const char * topic_name, bool no_mangle, rmw_topic_endpoint_info_array_t * publishers_info)",
+    "api:rmw_get_subscriptions_info_by_topic": "api rmw_get_subscriptions_info_by_topic: rmw_ret_t rmw_get_subscriptions_info_by_topic( const rmw_node_t * node, rcutils_allocator_t * allocator, const char * topic_name, bool no_mangle, rmw_topic_endpoint_info_array_t * subscriptions_info)"
+  },
+  "not_declared": [
+    "topic:/camera/image"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "RELIABLE + TRANSIENT_LOCAL subscriptions activate lost-sample recovery: adv_sub_opts.recovery.emplace().last_sample_miss_detection = AdvancedSubscriberOptions::RecoveryOptions::Heartbeat{};"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rmw_zenoh_cpp/package.xml:5",
+    "declares[api:rmw_create_publisher]": "snapshot:rmw_zenoh_cpp/src/rmw_zenoh.cpp:336",
+    "declares[api:rmw_create_subscription]": "snapshot:rmw_zenoh_cpp/src/rmw_zenoh.cpp:883",
+    "declares[api:rmw_get_publishers_info_by_topic]": "snapshot:rmw_zenoh_cpp/src/rmw_get_topic_endpoint_info.cpp:31",
+    "declares[api:rmw_get_subscriptions_info_by_topic]": "snapshot:rmw_zenoh_cpp/src/rmw_get_topic_endpoint_info.cpp:65",
+    "not_declared[topic:/camera/image]": "Searched all 80 files of the snapshot (rmw_zenoh_cpp, zenoh_cpp_vendor, zenoh_security_tools, docs; 18020 lines, none empty or evicted) case-insensitively for 'camera' and 'image': 0 hits; rmw_zenoh_cpp is a type-agnostic RMW implementation (package.xml:6 'A ROS 2 middleware implementation using zenoh-cpp') and hard-codes no application topic names; topics reach it only as the topic_name argument of rmw_create_publisher/rmw_create_subscription at run time.",
+    "recovery.value": "snapshot:rmw_zenoh_cpp/src/detail/rmw_subscription_data.cpp:203",
+    "recovery.state": "snapshot:rmw_zenoh_cpp/src/detail/rmw_subscription_data.cpp:199-205 (subscriber) and snapshot:rmw_zenoh_cpp/src/detail/rmw_publisher_data.cpp:122-129 (publisher sample_miss_detection HeartbeatSporadic, SAMPLE_MISS_DETECTION_HEARTBEAT_PERIOD 500 at line 49)",
+    "perm_requires.state": "Checked rmw_zenoh_cpp/src (rmw_init.cpp, rmw_init_options.cpp, detail/*) and rmw_zenoh_cpp/config/*.json5: security_options/enclave are only copied and passed through (rmw_init_options.cpp:49,80-125; rmw_init.cpp:55,113); the zenoh access_control (ACL) block is commented out in DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5:391-394 and DEFAULT_RMW_ZENOH_ROUTER_CONFIG.json5:384; no permission is required by code.",
+    "perm_grants.state": "Same check as perm_requires: no permission grants declared in rmw_zenoh_cpp code or its default configs (ACL commented out, DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5:391-394)."
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "QoS::best_available_qos (detail/qos.cpp:78-151) maps SYSTEM_DEFAULT/UNKNOWN but leaves RMW_QOS_POLICY_RELIABILITY_BEST_AVAILABLE and RMW_QOS_POLICY_DURABILITY_BEST_AVAILABLE unresolved and explicitly ignores the rmw_get_*_info_by_topic callback it is handed (qos.cpp:84-93), while the liveliness QoS string maps (liveliness_utils.cpp:156-172) have no BEST_AVAILABLE entry for reliability/durability; a best-available subscriber (e.g. a CLI echo of /camera/image) would get an unmatched or unparsable QoS. Guess only, not verified."
+  },
+  "confidence": "high",
+  "notes": "Unit is the ROS 2 rolling RMW implementation rmw_zenoh_cpp 0.8.2; the snapshot also holds zenoh_cpp_vendor and zenoh_security_tools, which were not treated as the unit. The four api:* elements are C functions defined inside the extern \"C\" block of rmw_zenoh.cpp (lines 118-2724) and rmw_get_topic_endpoint_info.cpp (26-95); the prototypes they implement live in the rmw package headers (rmw/rmw.h, rmw/get_topic_endpoint_info.h), which are not in the snapshot and were not fetched (not a permitted source), so conformance of these signatures to the rmw headers was not checked. Ports for api:* elements carry msg_type/frame/units/qos/rate/definition_id = null because they are type-agnostic C API symbols, not data streams. QoS for publishers/subscriptions created through rmw_create_publisher/rmw_create_subscription is caller-supplied at run time, so it is not statically determined; the code's rule: detail/qos.cpp best_available_qos maps history SYSTEM_DEFAULT/UNKNOWN->KEEP_LAST, depth 0->42, reliability SYSTEM_DEFAULT/UNKNOWN->RELIABLE, durability SYSTEM_DEFAULT/UNKNOWN->VOLATILE, default deadline/lifespan/lease->RMW_DURATION_INFINITE, liveliness SYSTEM_DEFAULT/UNKNOWN->AUTOMATIC (qos.cpp:18-47,99-148); BEST_AVAILABLE reliability/durability fall through the switch unchanged, and the peer-discovery callback (rmw_get_subscriptions_info_by_topic for publishers, rmw_publisher_data.cpp:64-65; rmw_get_publishers_info_by_topic for subscriptions, rmw_subscription_data.cpp:68) is passed but deliberately unused (qos.cpp:84-93). Publisher transport: congestion control DROP, BLOCK only for RELIABLE+KEEP_ALL; zenoh reliability RELIABLE only when reliability==RELIABLE else BEST_EFFORT; TRANSIENT_LOCAL enables a publisher cache of depth samples (rmw_publisher_data.cpp:117-143). rmw_get_publishers_info_by_topic / rmw_get_subscriptions_info_by_topic delegate to GraphCache::get_entities_info_by_topic with EntityType::Publisher / Subscription (rmw_get_topic_endpoint_info.cpp:54-59, 88-93). No packet element is consumed, so references is empty; the code calls many rmw/rcutils/rosidl/zenoh-cpp APIs that are not packet elements and were not listed. No exclusive resource claims found. A second recovery-like behaviour exists at init: router connection check retried ZENOH_ROUTER_CHECK_ATTEMPTS times (detail/rmw_context_impl_s.cpp:93-120). publish() takes an std::optional<zenoh::ShmProvider> argument that is commented out/unused (rmw_publisher_data.cpp:209-211) and SHM_BUF_OK_SIZE is defined but a TODO (line 44-45); recorded only as observation. definition_hash.py not used: no msg/srv/action element in the packet."
+}

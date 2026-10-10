@@ -1,0 +1,90 @@
+{
+  "task_id": "u0302",
+  "package": "cv_bridge",
+  "manifest_version": "3.2.1",
+  "ports": [
+    {
+      "element": "api:cv_bridge/cv_bridge.h",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::CvImagePtr",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::Exception",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::toCvCopy",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:cv_bridge/cv_bridge.h": "api cv_bridge/cv_bridge.h: #ifndef CV_BRIDGE__CV_BRIDGE_H_",
+    "api:cv_bridge::CvImagePtr": "api cv_bridge::CvImagePtr: typedef std::shared_ptr<CvImage> CvImagePtr;",
+    "api:cv_bridge::Exception": "api cv_bridge::Exception: class CV_BRIDGE_EXPORT Exception : public std::runtime_error",
+    "api:cv_bridge::toCvCopy": "api cv_bridge::toCvCopy: CV_BRIDGE_EXPORT CvImagePtr toCvCopy( const sensor_msgs::msg::Image::ConstSharedPtr & source, const std::string & encoding = std::string());"
+  },
+  "not_declared": [
+    "api:cv_bridge/cv_bridge.hpp"
+  ],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:cv_bridge/package.xml:3",
+    "ports[0].element": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:37",
+    "ports[0].side": "snapshot:cv_bridge/CMakeLists.txt:82",
+    "ports[1].element": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:65",
+    "ports[1].side": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:65",
+    "ports[2].element": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:56",
+    "ports[2].side": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:56",
+    "ports[3].element": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:177",
+    "ports[3].side": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:177",
+    "declares[api:cv_bridge/cv_bridge.h]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:37",
+    "declares[api:cv_bridge::CvImagePtr]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:65",
+    "declares[api:cv_bridge::Exception]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:56",
+    "declares[api:cv_bridge::toCvCopy]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:177",
+    "not_declared[api:cv_bridge/cv_bridge.hpp]": "Searched all 63 files under snapshot/: `find -iname '*cv_bridge*'` finds only cv_bridge/include/cv_bridge/cv_bridge.h (no cv_bridge.hpp); `find -name '*.hpp' -o -name '*.h'` lists cv_bridge/include/cv_bridge/{cv_bridge.h,rgb_colors.h} and src/{module.hpp,pycompat.hpp} only; `grep -rn 'cv_bridge\\.hpp' .` returns no match. snapshot:cv_bridge/CMakeLists.txt:82 installs include/ unchanged, so no cv_bridge/cv_bridge.hpp header is installed.",
+    "perm_requires.state": "Searched snapshot/cv_bridge (code, CMake, package.xml) for permission|sros|security|enclave; only license boilerplate matches (e.g. snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:21).",
+    "perm_grants.state": "Same search as perm_requires; no permission grants declared in snapshot/cv_bridge.",
+    "recovery.state": "Searched snapshot/cv_bridge for recover; no match. Library code only throws cv_bridge::Exception on errors (e.g. snapshot:cv_bridge/src/cv_bridge.cpp:118); no recovery behaviour declared."
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The packet lists api:cv_bridge/cv_bridge.hpp as provided, but this revision (manifest 3.2.1) ships only cv_bridge/cv_bridge.h; with ros_distro jazzy a consumer including cv_bridge/cv_bridge.hpp would not find the header here."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the whole vision_opencv repository (cv_bridge, image_geometry, opencv_tests, vision_opencv); only snapshot/cv_bridge was described. All packet elements are C++ API elements (a header and symbols), not ROS communication entities, so msg_type, frame, units, QoS, rates and definition_id are null for every port: no topic/service/action or message definition is attached to them. The header is installed by install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME}) (CMakeLists.txt:82) with INSTALL_INTERFACE include/${PROJECT_NAME} (src/CMakeLists.txt:8), so consumers write #include <cv_bridge/cv_bridge.h>; its declaration is recorded as the include-guard line. cv_bridge::toCvCopy has four overloads in cv_bridge.h (lines 177, 181, 204, 208: Image::ConstSharedPtr, CompressedImage::ConstSharedPtr, const Image &, const CompressedImage &), all returning CvImagePtr, defined in src/cv_bridge.cpp:415, 422, 538, 545; declares records the first overload. CvImagePtr is also exposed as CvImage::Ptr (cv_bridge.h:145). cv_bridge::Exception derives from std::runtime_error with an explicit std::string constructor (cv_bridge.h:59). No packet element has side consumes, so references is empty (the code does use sensor_msgs Image/CompressedImage and std_msgs Header types, which are not packet elements). The manifest version 3.2.1 is recorded as found; the packet says ros_distro jazzy. No dependency definition files were fetched and definition_hash.py was not needed because no message/service/action element is involved."
+}

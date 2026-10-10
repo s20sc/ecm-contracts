@@ -1,0 +1,110 @@
+{
+  "case_id": "B-Sig-02",
+  "corpus": "C2",
+  "source_refs": [
+    "https://answers.ros.org/question/375062"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public ROS Answers thread (archive) with the verbatim connection error: \"[ERROR] [1617170692.958476152]: Client [/GPUPlanarRegionSubscriber] wants topic /box to have datatype/md5sum [idfa_msgs/GDXBoxesMessage/d41d8cd98f00b204e9800998ecf8427e], but our version has [obstacle_detection/GDXBoxMessage/bbc122c887def5dd8eda16d81d7d1109]. Dropping connection.\" and the maintainer-level diagnosis by gvdhoorn: \"It looks like idfa_msgs/GDXBoxesMessage is not the same package (and thus message) as obstacle_detection/GDXBoxMessage.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "obstacle_detection (roscpp project/node publishing /box as obstacle_detection/GDXBoxMessage)",
+        "GPUPlanarRegionSubscriber (rosjava node subscribing to /box as idfa_msgs/GDXBoxesMessage)"
+      ],
+      "interface_kind": "topic",
+      "evidence": "Reporter: \"I create two different Project on different workspace. One is idfa_msgs/GDXBoxesMessage under Rosjava 0.2.. The other is obstacle_detection/GDXBoxMessage under Roscpp.\" and \"The problem is that I have different message types send and receive on the same topic.\" The two separately built nodes interact only through topic /box and declare different message types for it; the topic name matches, so this is not a name-binding (wiring) problem."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the roscpp publisher's output on /box feeds the rosjava subscriber's input; the failure happens when the subscriber connects (\"when establishing the connection using customized message, the error pops up\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: the connection is dropped (\"Dropping connection.\"); standard messages work between the same two projects (\"They communicate good if using default message like\" standard message packages; the archive rendering drops the underscores of the package names that follow)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "obstacle_detection",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "as-reported-2021-03-31",
+      "resolved_rev": null,
+      "pinned": false,
+      "revision_basis": "Private project with no public repository; described from the definition and runtime record quoted in the question (asked 2021-03-31). The quoted GDXBoxMessage.msg is attributed to this unit because the error names obstacle_detection/GDXBoxMessage as the publisher's (\"our version\") type and the quoted body reproduces that side's hash. Resolved revision unknown: the thread does not settle which side changes.",
+      "excerpt": true,
+      "ros_distro": null
+    },
+    {
+      "name": "GPUPlanarRegionSubscriber",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2021-03-31",
+      "resolved_rev": null,
+      "pinned": false,
+      "revision_basis": "Private rosjava project (\"Rosjava 0.2\") with no public repository; described from the runtime record quoted in the question (caller id, topic, type). The definition of idfa_msgs/GDXBoxesMessage is not shown in the source. Resolved revision unknown: the thread does not settle which side changes.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "topic:/box",
+      "sides": {
+        "obstacle_detection": "provides",
+        "GPUPlanarRegionSubscriber": "consumes"
+      }
+    },
+    {
+      "element": "msg:obstacle_detection/GDXBoxMessage",
+      "sides": {
+        "obstacle_detection": "provides"
+      }
+    },
+    {
+      "element": "msg:idfa_msgs/GDXBoxesMessage",
+      "sides": {
+        "GPUPlanarRegionSubscriber": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "nominal_type_mismatch",
+      "implicated_elements": [
+        "topic:/box",
+        "msg:obstacle_detection/GDXBoxMessage",
+        "msg:idfa_msgs/GDXBoxesMessage"
+      ],
+      "quote": "It looks like idfa_msgs/GDXBoxesMessage is not the same package (and thus message) as obstacle_detection/GDXBoxMessage.",
+      "url": "https://answers.ros.org/question/375062"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "ROS 1 type/md5sum check at connection: \"Client [/GPUPlanarRegionSubscriber] wants topic /box to have datatype/md5sum [idfa_msgs/GDXBoxesMessage/...], but our version has [obstacle_detection/GDXBoxMessage/...]. Dropping connection.\"",
+  "detection_stage": "connect",
+  "resolution": {
+    "summary": "Use one message type on /box for both nodes (the rosjava subscriber uses the roscpp side's type, or the roscpp publisher uses the rosjava side's type), or insert a relay node that subscribes to one type and republishes the other.",
+    "status": "recommended",
+    "evidence": "gvdhoorn: \"Is there a reason you're trying to use two different messages?\" Reporter: \"Have java expect the lidar_obstacle_detection/gdxboxesmessage, have the c++ ros node use the java message, or create another node that subscribers to one and published the other. But I dont know how to do either of these\". No answer was posted and no resolved composition is shown."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "high",
+  "notes": "The quoted .msg body hashes to the publisher-side md5 bbc122c887def5dd8eda16d81d7d1109, confirming it is obstacle_detection/GDXBoxMessage. The subscriber-side md5 d41d8cd98f00b204e9800998ecf8427e is the MD5 of empty input; the source does not show the rosjava idfa_msgs/GDXBoxesMessage definition, and the reporter's \"Even if they have the same contents they are considered different types\" is a claim, not a quoted definition, so no definition_mismatch condition is recorded. Note the singular/plural difference in the two type names (GDXBoxMessage vs GDXBoxesMessage) and the reporter's later mention of \"lidar_obstacle_detection/gdxboxesmessage\", a third spelling. Artifact sections: key=value lines are the runtime record's fields with hashes removed; the provider's section also carries its definition body."
+}

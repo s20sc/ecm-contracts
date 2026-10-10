@@ -1,0 +1,111 @@
+{
+  "case_id": "robust_566092b",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/issues/178",
+    "https://github.com/ros/geometry2/pull/333",
+    "https://github.com/ros/geometry2/commit/566092b42e3c42b4745294124762f8d7e5176716",
+    "https://github.com/ros/geometry2/pull/337",
+    "https://github.com/ros/actionlib/issues/116",
+    "https://github.com/ros/actionlib/blob/1.11.5/src/actionlib/simple_action_client.py",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/566092b/566092b.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #178 (2016-06-01, g-gemignani) gives the error log ('tf2.TransformException: The BufferServer returned None for result or result.error!  Something is likely wrong with the server.' raised from buffer_client.py line 127 via __process_goal line 123) and a reproducer script (tf2_ros.BufferClient(\"/tf2_buffer_server\", check_frequency=1000) looping over can_transform/lookup_transform), later a package ('tf2_test.tar.gz'). Maintainer confirmation by tfoote: 'I can confirm that I saw this error once but cannot reproduce it again.' and 'I did some debugging into this and I definitely can see the issue.' (https://github.com/ros/geometry2/issues/178). Fix PR #333 merged as 566092b."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "tf2_ros",
+        "actionlib"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the units are the tf2_ros python BufferClient (tf2_ros/src/tf2_ros/buffer_client.py, which wraps 'self.client = actionlib.SimpleActionClient(ns, LookupTransformAction)') and the actionlib library package providing SimpleActionClient; the tf2_ros buffer_server node at the other end of the action is a third unit that the reporter's analysis exonerates (see notes). Step 2: the failure crosses the library-API boundary. BufferClient polls 'self.__is_done(self.client.get_state())' and, once get_state() reports SUCCEEDED, calls 'self.__process_result(self.client.get_result())', assuming the result is available whenever the state is SUCCEEDED; the provider delivers the two in a different order. jorgenfb: 'The issue is with the action client, not with BufferClient (state is available before result).' and in actionlib issue #116: 'Calling `get_state()` can give the SUCCEEDED state before a result is available.' A consumer that uses the provider's wait_for_result() (as PR #337 later did) does not fail, so the failure depends on the ordering assumption between the two units; it is a timing/ordering of values crossing the boundary, an interface failure even though the resolving edit is in the consumer. Steps 3-5: the resolving change is Python source in the consumer, not wiring, build, or firmware. Step 6: eligible, interface kind library API."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: outputs of the provider (the goal state returned by SimpleActionClient.get_state() and the result returned by get_result()) feed the consumer's polling loop in BufferClient.__process_goal, and the failure was observed in that data flow. CONCURRENT is also supported (the actionlib client's status/result subscriber callbacks update state and result on another thread while BufferClient polls at check_frequency, and tfoote notes 'Adding a sleep right before the get_result() call makes almost all the errors go away'), recorded in notes."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: 'tf2.TransformException: The BufferServer returned None for result or result.error!  Something is likely wrong with the server.' in the reporter's traceback and in tfoote's reproduction, and in the reporter's 2018-10-21 run without the patch: '[/tf_breaker ERROR 1540117570.008253]: The BufferServer returned None for result!  Something is likely wrong with the server.' (https://github.com/ros/geometry2/issues/178)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2_ros",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "0.5.13",
+      "resolved_rev": "566092b42e3c42b4745294124762f8d7e5176716",
+      "pinned": true,
+      "revision_basis": "The reporter's traceback (2016-06-01) is from '/opt/ros/indigo/lib/python2.7/dist-packages/tf2_ros/buffer_client.py' lines 66 ('return self.__process_goal(goal)'), 123 ('return self.__process_result(self.client.get_result())') and 127 (the raise). The indigo release current on that date was 0.5.13 (tagged 2016-03-04; next indigo tag 0.5.14 is 2017-01-16), and buffer_client.py at 0.5.13 has exactly those statements at those line numbers. The fix commit was applied on melodic-devel at parent 47b9dc7 (0.6.3); the diff of buffer_client.py between 0.5.13 and 47b9dc7 consists of added docstrings only, so the __is_done/__process_goal logic is the same. Resolved: 566092b is the merge of PR #333 (single commit aa03e36) on melodic-devel, released in 0.6.4 (2018-11-06); it is not contained in the indigo tag 0.5.19.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "actionlib",
+      "role": "provider",
+      "repo": "https://github.com/ros/actionlib",
+      "broken_rev": "1.11.5",
+      "resolved_rev": "1.11.5",
+      "pinned": true,
+      "revision_basis": "Not stated by the reporter; the traceback paths show an indigo installation and the indigo release of actionlib current on 2016-06-01 was 1.11.5 (tagged 2016-03-14; 1.11.6 was tagged 2016-06-22, after the report). At 1.11.5 simple_action_client.py provides get_state() ('status = self.gh.get_goal_status()'), get_result() ('return self.gh.get_result()') and wait_for_result() (a condition wait on done_condition until 'self.simple_state == SimpleGoalState.DONE'). Unchanged by the resolution, so resolved_rev equals broken_rev; the actionlib revision used in the reporter's 2018-10-21 re-test of the patch is not stated.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "api:actionlib.SimpleActionClient", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib.SimpleActionClient.wait_for_server", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib.SimpleActionClient.send_goal", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib.SimpleActionClient.get_state", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib.SimpleActionClient.get_result", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib.SimpleActionClient.cancel_goal", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:actionlib.SimpleActionClient.get_state",
+        "api:actionlib.SimpleActionClient.get_result"
+      ],
+      "quote": "The issue is with the action client, not with BufferClient (state is available before result).",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-431801344"
+    },
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:actionlib.SimpleActionClient.send_goal",
+        "api:actionlib.SimpleActionClient.get_state"
+      ],
+      "quote": "Cranking the rate up to 100000 I was also able to get a double answer: \n\n```\n$ python test.py \n[ERROR] [WallTime: 1464801977.428899] Received comm state ACTIVE when in simple state DONE with SimpleActionClient in NS /tf2_buffer_server\n[ERROR] [WallTime: 1464801978.438880] SimpleActionClient received DONE twice",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-223066155"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The failure surfaces only as the consumer's own exception at run time: 'File \"/opt/ros/indigo/lib/python2.7/dist-packages/tf2_ros/buffer_client.py\", line 127, in __process_result / raise tf2.TransformException(\"The BufferServer returned None for result or result.error!  Something is likely wrong with the server.\")' (https://github.com/ros/geometry2/issues/178). No build, connection, or activation tooling reports anything; the actionlib lines 'Received comm state ACTIVE when in simple state DONE ...' and 'SimpleActionClient received DONE twice' are run-time logerr output from the provider's state machine at very high polling rates, not connection- or activation-stage diagnostics.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "PR #333 (commit aa03e36, merged as 566092b): in tf2_ros/src/tf2_ros/buffer_client.py, __is_done no longer treats GoalStatus.SUCCEEDED alone as done; it returns True for SUCCEEDED only when self.client.get_result() is available, so __process_goal keeps polling until the result exists.",
+    "status": "observed",
+    "evidence": "Diff of 566092b: '-           state == GoalStatus.SUCCEEDED or state == GoalStatus.LOST:' / '+           state == GoalStatus.LOST:' ... '+        if state == GoalStatus.SUCCEEDED and self.client.get_result():' / '+            return True' (https://github.com/ros/geometry2/commit/566092b42e3c42b4745294124762f8d7e5176716). The reporter re-ran his reproducer with and without the patch (2018-10-21): 'I went on, checked out the pr and reran my test with and without the patch. Without the patch the output given by the node is: ... [/tf_breaker ERROR 1540117570.008253]: The BufferServer returned None for result!  Something is likely wrong with the server. ... with the patch the output is: ... [/tf_breaker ERROR 1540118138.341125]: Received comm state ACTIVE when in simple state DONE with SimpleActionClient in NS /tf2_buffer_server ... From this short test I believe that the problem was partially mitigated. In fact, no more tf errors are thrown, however there is still something wrong with the tf state machine.' (https://github.com/ros/geometry2/issues/178#issuecomment-431658241). The failed condition of this composition (result unavailable after SUCCEEDED) is shown gone; the remaining actionlib state-machine errors were tracked separately in actionlib issue #116 and the check_frequency polling was replaced by wait_for_result() in PR #337 (commit fd68b57, merged 2018-10-29, released in 0.6.4). Caveat: the actionlib revision of the 2018 re-test is not stated; the units table keeps actionlib at the broken revision because the resolution does not change it."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Third unit: the reproduction requires the tf2_ros buffer_server node (tfoote: 'Note for others reproducing you also need to run a buffer_server.'), which serves action:/tf2_buffer_server (tf2_msgs/LookupTransformAction) to the BufferClient through actionlib; jorgenfb's analysis places the defect in the SimpleActionClient's ordering of state and result, and the actionlib issue #116 reproduces it without BufferClient, so the buffer_server composition is not the failing one and is not implicated. Failed-condition classes: the first condition is an ordering of two values across the library API (the goal state reads SUCCEEDED before the result is readable), which none of the named classes covers, hence 'other'; the second condition (actionlib's own 'received DONE twice' / 'comm state ACTIVE when in simple state DONE' errors under high-rate goal submission) is an internal defect of the provider observed in this composition and persists after the fix, hence also 'other'. Alternative operation CONCURRENT (provider's subscriber callbacks vs. consumer's polling loop) is supported by tfoote's remark that inserting a sleep before get_result() removes almost all errors. The ROBUST record cites PR #337 as the full fix and PR #333 as the partial one; the packet's fix commit is 566092b (PR #333). The check_frequency constructor argument of BufferClient was deprecated by PR #337 ('This change makes constructor parameter check_frequency obsolute and deprecates it.'). The failing composition was reproduced on both loopback (tfoote) and an on-robot i7 (SCITOS base); reproducibility 'sometimes'."
+}

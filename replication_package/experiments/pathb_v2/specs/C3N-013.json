@@ -1,0 +1,50 @@
+{
+  "case_id": "C3N-013",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/2892",
+    "https://github.com/roncapat/rclcpp/commit/2b7da640548a0c643e5743d2ee709e06ea1fd320",
+    "https://github.com/ros2/rclcpp/pull/2897",
+    "https://github.com/ros2/rclcpp/pull/2908",
+    "https://github.com/ros2/rclcpp/pull/2909",
+    "https://github.com/ros/diagnostics/issues/519"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #2892 points at the code (node_type_descriptions.cpp L70-L84 at 7ebc9e4c): \"It uses a try/catch idiom, but does not catches `ParameterAlreadyDeclaredException`.\" The linked report ros/diagnostics#519 shows the crash log (\"terminate called after throwing an instance of 'rclcpp::exceptions::ParameterAlreadyDeclaredException'\"), PR #2897 states \"whithout the patch, it crashes like https://github.com/ros/diagnostics/issues/519\", and the fix was merged by rclcpp maintainers (rolling 4fb558ae, kilted a709d81a, jazzy ebdaf1f8)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rclcpp", "diagnostic_aggregator (or any node using automatically_declare_parameters_from_overrides)"],
+      "interface_kind": "library API",
+      "evidence": "Both colliding declarations are made by rclcpp itself: with NodeOptions::automatically_declare_parameters_from_overrides(true), rclcpp's parameter interface declares every override, and rclcpp's own NodeTypeDescriptionsImpl then calls declare_parameter(\"start_type_description_service\", ...) without a has_parameter() check, which throws ParameterAlreadyDeclaredException. The application node only uses a documented rclcpp option and a valid bool override (\"this happens both when set via YAML file or via `NodeOptions` parameter overrides\"); no value, name, type, or timing crossing the boundary is wrong, and the failure would occur with any correct node that uses that option and sets the parameter. The fix is entirely inside rclcpp (check has_parameter() first, as time_source.cpp does for use_sim_time)."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated as an interface operation; the defect is internal to rclcpp's node construction."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash at node construction in diagnostic_aggregator: \"terminate called after throwing an instance of 'rclcpp::exceptions::ParameterAlreadyDeclaredException' what():  parameter 'start_type_description_service' has already been declared\" (https://github.com/ros/diagnostics/issues/519)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): rclcpp declares start_type_description_service a second time after its own automatic declaration from overrides, throwing ParameterAlreadyDeclaredException; the fault is in rclcpp's own logic and occurs with any correct node that uses the documented automatically_declare_parameters_from_overrides option.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "The crash was observed in ros/diagnostics#519 (diagnostic_aggregator::Aggregator, whose constructor on the ros2 branch passes options.allow_undeclared_parameters(true).automatically_declare_parameters_from_overrides(true)); PR #2897 suggests testing with Nav2 bt_navigator or diagnostic_aggregator. The reporter closed #519 in favour of the rclcpp issue: \"Closed, since the root cause has been identified in https://github.com/ros2/rclcpp/issues/2892\". PR #2897 additionally unified the exception type thrown for a wrong-typed override (InvalidParameterTypeException in both code paths). The packet's fork commit 2b7da640 is an earlier version of the PR #2897 change. Medium confidence: one could argue the failure requires the application's choice of automatically_declare_parameters_from_overrides, but that choice is a documented rclcpp option, not a cross-unit assumption."
+}

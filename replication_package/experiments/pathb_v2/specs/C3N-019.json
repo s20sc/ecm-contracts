@@ -1,0 +1,49 @@
+{
+  "case_id": "C3N-019",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/2461",
+    "https://gist.github.com/bijoua29/67c97d1210afda907d3a082cc55a915e",
+    "https://github.com/ros2/rclcpp/pull/2492",
+    "https://github.com/ros2/rclcpp/commit/63c2e2ef6f7367b4420e4fd0eab5d78b551cb794",
+    "https://github.com/bartalor/rclcpp/commit/c5af35ce3e9f037115e48ae1729634098b7d9dbb"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Concrete reproducer and compiler log: \"Compile application that uses rclcpp::Publisher and calls publish(). This includes custom application packages as well as ros2_control packages compiled from source.\" and \"Compiler warning from rclcpp::experimental::IntraProcessManager::do_intra_process_publish\" with the log in the linked gist (https://github.com/ros2/rclcpp/issues/2461). A second user confirmed it and supplied the fix PR #2492 (\"this commit will fix the warning [-Wstringop-overflow=] #2461\")."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rclcpp", "any rclcpp client package that calls Publisher::publish() (e.g. ros2_controllers)"],
+      "interface_kind": null,
+      "evidence": "The warning is raised by GCC 13 on rclcpp's own header template code (intra_process_manager.hpp:256, copy-constructing a std::vector<uint64_t> from sub_ids.take_shared_subscriptions) when it is instantiated in any client that calls publish(). The report says it appears for any such application (\"Compile application that uses rclcpp::Publisher and calls publish()\"), so it does not depend on any assumption between rclcpp and a particular client: it would occur with any correct peer. The fix (PR #2492) only rewrites that internal line to use the iterator-range constructor; no declared interface (API symbol, message, parameter) of rclcpp changed."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stops at step 2 (internal). The trigger was a toolchain upgrade (\"after upgrading rolling to Ubuntu 24.04\"; the maintainer notes the binaries moved to Ubuntu 24.04), not a provider/consumer revision change."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 fails. (The effect is a compile-time warning, shown in the gist.)"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): a compiler warning from GCC 13 on rclcpp's own header implementation of IntraProcessManager::do_intra_process_publish, triggered by any client that calls publish(); the fix is an internal one-line rewrite with no interface change.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "The gist shows two GCC 13 diagnostics inlined from rclcpp/experimental/intra_process_manager.hpp:256: '-Warray-bounds=' (\"forming offset 8 is out of the bounds [0, 8]\") and '-Wstringop-overflow=' (\"writing between 9 and 9223372036854775807 bytes into a region of size 8 overflows the destination\"). Fix: rclcpp PR #2492 'fix: init concatenated_vector with begin() & end()', merged into rolling 2024-04-08 as 63c2e2ef6f7367b4420e4fd0eab5d78b551cb794; the bartalor/rclcpp commit c5af35ce is the same change carried in a fork (same message, parent 117343dc). An alternative reading treats the two units as rclcpp and the GCC 13 toolchain shipped with Ubuntu 24.04; there is still no declared interface between them that changed, and a compiler is not a robotics unit in the sense of the tree, so the case stays internal. One commenter reports the warning broke his build because warnings are treated as errors in his project; that is a consequence of his build flags, not a separate interface failure."
+}

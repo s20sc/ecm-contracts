@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-robust_9682b9a",
+ "kind": "A1",
+ "case_id": "robust_9682b9a",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "This problem is due to the combination of new qt_gui_core packages with \"old\" rqt packages.\nI committed changes to both repos, but only the qt_gui_core was tagged and released, the latest tag on the rqt repo is 3 month old...",
+  "url": "https://github.com/ros-visualization/qt_gui_core/issues/16#issuecomment-16019816"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "plugins_menu.py made a change:\n\n```\n-        base_path = plugin_descriptor.attributes().get('plugin_path')\n+        base_path = plugin_descriptor.attributes().get('package_path')\n```\n\nBut python plugin descriptors are not setting their package path.",
+   "url": "https://github.com/ros-visualization/qt_gui_core/issues/16"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "UserWarning: icon \"../src/kobuki_qtestsuite/resources/images/kobuki_icon.png\" not found",
+  "url": "https://github.com/yujinrobot/kobuki_desktop/issues/10"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Just dropped down the latest source for qt_gui_core and rqt and recompiled kobuki_qtestsuite against them with relative icons.\n\nAll seems ok :+1:!"
+ },
+ "notes": "Verified this session: kobuki_desktop#10 body (full traceback; frame lines plugin_menu.py 79/130, plugin_manager.py 108/118/124, rqt_gui/main.py 57), 130s's confirmation and yhju's 'It resolved now.'; qt_gui_core#16 body (the diff quote is verbatim) and all comments, including DorianScholz's diagnosis (comment 16019816) and stonier's test (comment 18817746, 2013-06-03T01:03:32Z). Code verified at both revisions: qt_gui tag 0.2.14 plugin_menu.py line 62 'base_path = plugin_descriptor.attributes().get(\\'package_path\\')' and line 130 the raise (matching the traceback's line numbers); rqt tag 0.2.8 ros_plugin_provider.py line 111 'plugin_path = os.path.dirname(os.path.abspath(xml_file_name))' and line 125 '\\'plugin_path\\': plugin_path,' with no 'package_path' set — the key mismatch crosses the library-API contract between two separately released packages, so E2 stops at 6 (not internal, not deployment wiring, not build-only; the descriptor-key contract changed). Commit 295a040 patch (the rename), ae478da revert patch (back to 'plugin_path'), rqt 9682b9a patch ('plugin_path': os.path.dirname(plugin_xml); <run_depend version_gte=\"0.2.16\">qt_gui</run_depend>) and qt_gui_core ffae1f7 patch (qt_gui_cpp provider sets plugin_path) all verified. Tag containment verified: 0.2.16 contains ffae1f7, 0.2.9 contains 9682b9a. Resolution = observed verified tightly: on the 0.2.16 line the next commit after ffae1f7 (2013-05-28T18:59:10Z) is fda5bb7f (2013-06-04T19:04:13Z), and on the 0.2.9 line 9682b9a (2013-05-28T19:03:01Z) has no successor until after 2013-06-05, so stonier's 2013-06-03 'latest source' of both repos is exactly ffae1f7 and 9682b9a. Composition choice (qt_gui x rqt_gui, kobuki_qtestsuite as input, other compositions in notes) follows the maintainers' primary-source diagnosis, as S1 requires. Loudness loud_documented/activate: the framework's own discovery check raises at rqt start-up before any plugin loads; the spec's caveat that the diagnostic names the symptom (unresolved icon path) rather than the key mismatch is accurate."
+}

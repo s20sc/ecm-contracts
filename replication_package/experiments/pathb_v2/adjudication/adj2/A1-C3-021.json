@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3-021",
+ "kind": "A1",
+ "case_id": "C3-021",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "We're seeing occasional failures in [test_subscription__rmw_cyclonedds_cpp::take_sequence](https://github.com/ros2/rmw_implementation/blob/master/test_rmw_implementation/test/test_subscription.cpp#L526) ... #1  0x0000ffff81ca9d68 in __GI_abort () at abort.c:79\n#2  0x0000ffff81af782c in sertype_rmw_realloc_samples (ptrs=0xaaaaca346c10, d=0xaaaaca027250, old=0x0, oldcount=0, count=1)\n    at /home/ubuntu/ros2_ws/src/ros2/rmw_cyclonedds/rmw_cyclonedds_cpp/src/serdata.cpp:458",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/279"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "As it stands, the take_sequence test fulfills the first part of that\r\n(it was initialized by rmw_message_sequence_init()), but doesn't fulfill\r\nthe second part (populated by ROS messages).  In certain situations,\r\nthis could lead to an aborted test later on.",
+   "url": "https://github.com/ros2/rmw_implementation/pull/175"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "In most cases, the sequence of bytes stored in that pointer is *not* zero, so we never end up trying to call `ddsi_sertype_realloc_samples` (and hence we don't `abort()`).",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/279"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I think not: from the changes in this PR I suspect I misread the `rmw_take_sequence` interface and the sequence of messages passed in actually conforms to what Cyclone DDS expects (an initialised array of pointers to messages), and https://github.com/ros2/rmw_implementation/pull/175 seems to clarify that.\n\nThat makes this one incorrect and the problem it tried to address a non-existent problem."
+ },
+ "notes": "Independently verified this session via gh api. Issue 279 body (clalancette, 2021-02-01T13:40:14Z) verified: the CI link, the full stack trace with frames #2 serdata.cpp:458, #5 dds_take, #6/#7 rmw_take_seq/rmw_take_sequence (rmw_node.cpp:2660/2780), #8 rmw_implementation functions.cpp:369, #9 test_subscription.cpp:538, and the root-cause analysis including 'What happens in there is that if `buf[0] == NULL`, we end up attempting to `ddsi_sertype_realloc_samples`.  However, `rmw_cyclonedds_cpp` sets the realloc callbacks to `abort()`'. test_subscription.cpp at c91768aaf674d71f88d74e4c43b5462285157e60 read directly: the take_sequence test (lines 526-547) initializes the sequence via rmw_message_sequence_init, never populates data pointers, calls rmw_take_sequence at the line matching frame #9 (538), and expects taken == 0 -- exactly as the spec's revision_basis and notes state. PR 175 'Make sure to initialize the rmw_message_sequence after init.' body quote verified verbatim; merged 2021-02-08 as ef0fcda0a98ce64ddd07ca9403c65b56b9b4f074. clalancette comment 772621695 verified verbatim including the rmw.h precondition text 'populated with ROS messages whose type matches the message type support registered with the `subscription` on creation.', the 'nullptr test' remark, and 'So I think that between the fix to rmw_cyclonedds and the fix to test_rmw_implementation, we can consider this issue fixed.'; closing comment 1589917827 'Closing this as we fixed it years ago.' verified. PR 280 'Fix dds_take buffer argument in rmw_take_sequence' is CLOSED unmerged and eboasson's withdrawal comment verified verbatim. Eligibility stop 6 (documented API precondition violated; caller-dependent, so not internal; fix is a code change in the caller, not wiring/build), class 'other' on api:rmw_take_sequence, silent_documented/run (intermittent runtime abort, no diagnostic flags the unpopulated sequence), and recommended (test fixed and issue closed, but no source shows the resolved composition running the test without the abort) all verified correct. The spec's flagging of the unrelated packet ref PR 408 is accurate."
+}

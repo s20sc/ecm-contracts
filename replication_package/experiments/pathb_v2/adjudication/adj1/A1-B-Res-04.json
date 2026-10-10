@@ -1,0 +1,60 @@
+{
+  "item_id": "A1-B-Res-04",
+  "kind": "A1",
+  "case_id": "B-Res-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Component 'panda_1_FrankaHardwareInterface' did not accept new command resource combination:",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1177",
+    "reason": "E1/E4: the public log shows panda_1 rejecting a request containing panda_3 interfaces. E2: the host/plugin callback boundary has incompatible assumptions about which interface keys are supplied. The units are separately deployable host and plugin; this is not a name collision or internal arithmetic. E3: PAIR describes the callback request/result interaction."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "   * \\note All starting and stopping interface keys are passed to all components, so the function\n   * should return return_type::OK by default when given interface keys not relevant for this\n   * component.",
+      "url": "https://raw.githubusercontent.com/ros-controls/ros2_control/2.35.0/hardware_interface/include/hardware_interface/system_interface.hpp",
+      "reason": "The declared callback contract permits foreign keys and requires the plugin to accept irrelevant ones. The reproduced refusal is an API behavioral-contract mismatch, so other is justified. prepare_command_mode_switch is the point of refusal; no observed perform_command_mode_switch failure is established.",
+      "supporting_evidence": [
+        {
+          "quote": "Switching between control modes without stopping it first is not supported.",
+          "url": "https://github.com/ros-controls/ros2_control/issues/1177"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Could not switch controllers since prepare command mode switch was rejected.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1177",
+    "reason": "This is an explicit controller activation refusal from existing tooling."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "using a second robot the initialization of the second controller (_panda_3_arm_controller_) fails:",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1177",
+    "reason": "The failure occurs while enabling the additional controller and preparing its command-mode switch."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This PR makes sure that the start and stop interfaces in perform_command_mode_switch and prepare_command_mode_switch methods of the Hardware components will receive only the interfaces they expose, instead of all of them as of now.",
+    "url": "https://github.com/ros-controls/ros2_control/pull/2120",
+    "reason": "Per-component filtering addresses the mismatch, but the inspected sources do not demonstrate this exact Franka plugin and resolved framework revision working together. The reported MoveIt controller-manager workaround is not that resolved composition. recommended remains appropriate.",
+    "supporting_evidence": [
+      {
+        "quote": "When I switch the controller manager to the moveit_simple_controller_manager/MoveItSimpleControllerManager this problem disappears.",
+        "url": "https://github.com/ros-controls/ros2_control/issues/1177"
+      }
+    ]
+  },
+  "notes": "The primary Humble header matters: passing all keys was documented behavior, so this should not be described as ros2_control violating its own then-current callback contract. The Franka plugin's assumption was incompatible with that contract. Distinct panda_1 and panda_3 interfaces do not establish an exclusive_resource_conflict. API rate limiting was bypassed by reading public issue/PR HTML and raw source, not by relying on specification quotations."
+}

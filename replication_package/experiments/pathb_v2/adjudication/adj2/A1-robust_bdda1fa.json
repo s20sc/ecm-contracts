@@ -1,0 +1,45 @@
+{
+ "item_id": "A1-robust_bdda1fa",
+ "kind": "A1",
+ "case_id": "robust_bdda1fa",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "I get the above error when running\n'rosrun mavros mavsetp local -p 2 2 2 2' (for example) It's associated to line 40 of the mavsetp script.",
+  "url": "https://github.com/mavlink/mavros/issues/478"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-\t\tguided_srv = cmd_nh.advertiseService(\"guided_enable\", &CommandPlugin::guided_cb, this);",
+   "url": "https://github.com/mavlink/mavros/commit/d7bd78574a0deb5f12ff7da529c784508ddba275"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "scripts fix #478: Remove guided_enable garbage.\n\nI'm missed this when do #407.",
+   "url": "https://github.com/mavlink/mavros/commit/bdda1fab32a9d084cfe980fe4f364b5eb35173e0"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "'module' object has no attribute 'guided_enable'",
+  "url": "https://github.com/mavlink/mavros/issues/478"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Works for me. Thanks for the fast turnaround!"
+ },
+ "notes": "Verified this session: mavros#478 body verbatim (the reproducer and 'line 40' statement quoted above) and both comments with timestamps — vooon '@srees can you check fix?' at 2016-01-22T06:13:52Z (https://github.com/mavlink/mavros/issues/478#issuecomment-173821917) and srees's confirmation used as the resolution quote at 2016-01-22T07:33:14Z (https://github.com/mavlink/mavros/issues/478#issuecomment-173834273). Commits verified: bdda1fab (2016-01-22T06:10:42Z) rewrites mavsetp's enable_offboard() to '+from mavros_msgs.srv import SetMode' / '+        set_mode = rospy.ServiceProxy(mavros.get_topic('set_mode'), SetMode)' / '+        ret = set_mode(custom_mode=\"OFFBOARD\")' replacing '-        command.guided_enable(value=True)', and removes guided_enable from the global line of mavros/src/mavros/command.py; d7bd7857 (2015-10-31) deletes the advertiseService line quoted above from mavros/src/plugins/command.cpp and removes the client proxy from command.py. At 18131c8cb55748214ad2b455cc2ecb30f7657b05 the script's enable_offboard() indeed calls 'command.guided_enable(value=True)' on line 40, matching the reporter's statement. Issue #407 body verified verbatim: 'Both APM and PX4 use custom mode for offboard. That service is unneeded and confuses users.' Eligibility: mavsetp (a separate rospy process) and the mavros node are separate units per S1 ('two nodes that interact only through ROS interfaces ... even when they ship in one package'); a declared service was removed by the provider while the consumer still referenced it as it existed at the earlier provider revision — not deployment wiring, not build-only — E2 stops at 6, interface kind service; UPGRADE is right and the same-package caveat is disclosed. Both conditions element_removed_or_renamed concur (the service and the client proxy, two elements of the same removal). Loudness loud_documented with detection_stage run concurs: the Python interpreter's AttributeError fires when publish_once() calls enable_offboard(), after startup — not an import-time or build diagnostic; the spec's nuance is accurate. Resolution observed: the reporter confirmed the fixed script working against the same provider checkout (both units at bdda1fab) within 83 minutes of the fix commit."
+}

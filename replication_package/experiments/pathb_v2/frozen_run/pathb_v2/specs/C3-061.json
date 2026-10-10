@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-061",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/image_common/issues/343",
+    "https://github.com/ros-perception/image_common/pull/344"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "Issue #343 is a backport request for an existing feature, not a defect report: \"From PR #288, I can see that this feature is available in the latest releases (starting from 5.0.0). However, it was never backported to Humble, where it is not possible to advertise and subscribe with custom qos. Is there a reason for this? Do you see it possible to backport the PR to Humble?\" No failure, reproducer, or log is given. PR #344 (\"I cherry-picked the original PR commit (#288) and tested it locally.\") adds QoS-taking advertise/subscribe overloads to image_transport on the humble branch. Additional context: PR #344 merged into humble 2025-02-12 (bd5ec458c011ccf9b4e398ebdbb0597723269847); the maintainer released and bloomed it (\"I created a new release and bloomed the package https://github.com/ros/rosdistro/pull/44440\"). Changes: image_transport/include/image_transport/image_transport.hpp +66, image_transport/src/image_transport.cpp +23, plus tests."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [
+        "image_transport (humble)"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Not evaluated beyond E1. No failed interaction between two units is described; the request concerns missing API overloads in image_transport's ImageTransport class."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E1."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E1."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: feature backport request (custom-QoS advertise/subscribe overloads for image_transport on Humble); no defect or failed interaction is documented.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

@@ -1,0 +1,54 @@
+{
+  "task_id": "u0149",
+  "package": "tf2_ros",
+  "manifest_version": "0.4.10",
+  "ports": [
+    {
+      "element": "api:tf2_py.BufferCore.can_transform_core",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2_py.BufferCore.can_transform_full_core",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:tf2_py.BufferCore.can_transform_core",
+    "api:tf2_py.BufferCore.can_transform_full_core"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:tf2_ros/package.xml:3",
+    "references[api:tf2_py.BufferCore.can_transform_core]": "snapshot:tf2_ros/src/tf2_ros/buffer.py:72 | not self.can_transform_core(target_frame, source_frame, time) and ; also snapshot:tf2_ros/src/tf2_ros/buffer.py:75 | return self.can_transform_core(target_frame, source_frame, time) ; reached via snapshot:tf2_ros/src/tf2_ros/buffer.py:32 | import tf2_py as tf2 and snapshot:tf2_ros/src/tf2_ros/buffer.py:37 | class Buffer(tf2.BufferCore, tf2_ros.BufferInterface):",
+    "references[api:tf2_py.BufferCore.can_transform_full_core]": "snapshot:tf2_ros/src/tf2_ros/buffer.py:82 | not self.can_transform_full_core(target_frame, target_time, source_frame, source_time, fixed_frame) and ; also snapshot:tf2_ros/src/tf2_ros/buffer.py:85 | return self.can_transform_full_core(target_frame, target_time, source_frame, source_time, fixed_frame) ; reached via snapshot:tf2_ros/src/tf2_ros/buffer.py:32 and :37",
+    "exclusive": "searched all of snapshot/tf2_ros (C++ sources, headers, Python sources, CMakeLists.txt, package.xml, setup.py); no exclusive hardware command interface or exclusive device handle is claimed. Only in-process boost::mutex locks in include/tf2_ros/message_filter.h (e.g. line 241), which are not exclusive resource claims.",
+    "perm_requires": "searched snapshot/tf2_ros code and configuration (package.xml, CMakeLists.txt, setup.py, rosdoc.yaml, src/, include/, test/) for permission declarations; none found (only BSD licence-header text matches 'permission').",
+    "perm_grants": "same search as perm_requires; none found.",
+    "recovery": "searched snapshot/tf2_ros for recovery/retry/fallback declarations; none found. The only related construct is the timeout polling loop in Buffer.can_transform / can_transform_full (snapshot:tf2_ros/src/tf2_ros/buffer.py:69-74, 79-84), which waits for data and is not a declared recovery behaviour."
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "tf2_ros Buffer uses the result of can_transform_core / can_transform_full_core as a boolean (not ... in the timeout loop, buffer.py:72/82) and returns it as the bool result of can_transform, while the tf2_py source in the same snapshot returns Py_BuildValue(\"bs\", can_transform, error_msg.c_str()), a 2-tuple (tf2_py.cpp:207, 229). A non-empty tuple is always truthy, so the wait loop never waits (timeout is effectively ignored, including in lookup_transform) and can_transform returns a tuple, not a bool."
+  },
+  "confidence": "high",
+  "notes": "Both packet elements are Python C-extension methods of tf2_py's _tf2.BufferCore (re-exported by tf2_py/__init__.py), consumed by tf2_ros.Buffer, which subclasses tf2.BufferCore and calls them via self. Consumer call forms: self.can_transform_core(target_frame, source_frame, time) (3 positional args) and self.can_transform_full_core(target_frame, target_time, source_frame, source_time, fixed_frame) (5 positional args); the positional order matches the keyword lists in the tf2_py source (tf2_py.cpp:200, 215). The consumer treats the return value as a bool (Buffer.can_transform returns it directly; the sibling BufferClient.can_transform in buffer_client.py returns True/False). The provider source in the snapshot (tf2_py/src/tf2_py.cpp:195-230, registered at :472-473, tf2_py package.xml version 0.4.10) returns a (bool-as-int, error string) tuple; the older PyBool_FromLong return is commented out at :206 and :228. No other tf2_ros file (C++ or Python) calls these methods; tests in test_tf2 belong to another package and were not treated as tf2_ros references. Port fields: msg_type and definition_id are null because these are Python API calls, not message/service/action definitions; frame is null because target_frame/source_frame/fixed_frame are caller-supplied arguments passed through at run time (neither hard-coded nor taken from a message header); units null (return is a bool/status); QoS null (ROS 1, and not a topic); no rates set. declares and not_declared are empty because tf2_ros provides neither packet element (both are consumed). Snapshot is the whole geometry_experimental repository; only snapshot/tf2_ros was treated as the package, with tf2_py read only to state the consumed signature in notes and blinding_guess."
+}

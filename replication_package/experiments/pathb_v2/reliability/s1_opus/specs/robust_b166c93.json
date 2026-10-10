@@ -1,0 +1,89 @@
+{
+  "case_id": "robust_b166c93",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_core/issues/22",
+    "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964",
+    "https://github.com/yujinrobot/kobuki_core/commit/2d943e14e99d6d645729b97c5f6dcb10d415f8ff",
+    "https://github.com/yujinrobot/kobuki_core/blob/0.6.3/kobuki_driver/src/driver/kobuki.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #22: \"The following commit fixed an issue with isnan for kinetic: https://github.com/yujinrobot/kobuki_core/commit/2d943e14e99d6d645729b97c5f6dcb10d415f8ff\nCould we have that fix backported to indigo as well?\"; the maintainer confirms and applies it: \"Cherried in b166c939.\n\nComing soon to indigo in v0.6.4.\" The concrete defect is the unqualified call `if (isnan(heading_offset) == true)` in kobuki_driver/src/driver/kobuki.cpp. No reproducer or error log is given."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_driver", "C++ toolchain math headers (<cmath>/<math.h>)"],
+      "interface_kind": "library API",
+      "evidence": "kobuki_driver calls an unqualified isnan that it obtains transitively (kobuki.cpp at 0.6.3 includes no math header itself; ecl/math.hpp -> ecl/math/fuzzy.hpp includes <cmath>, and the same ecl_core branch release/0.61-indigo-kinetic serves both distros). The fix makes the consumer include <cmath> and call std::isnan, i.e. it changes which provider API element the consumer references. Whether the unqualified name is available depends on the standard-library/C-library headers the consumer is compiled against, so the defect depends on an assumption between kobuki_driver and those headers and is not internal to one unit; the resolving change is source code, not a build-system, packaging, or name-binding change."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the fix was made \"for kinetic\", i.e. for the newer distro's toolchain, against code that had been used with earlier toolchains; the issue asks for the same change on the indigo branch. The toolchain versions are not named."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Only a code-level statement of the mismatch: the maintainer's commit \"[kobuki_driver] isnan -> std::isnan\" and the dataset record (\"a macro was being used instead of the proper function call to determine whether a value is NaN\"). No observed failure is documented, so the outcome is undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "C++ toolchain math headers",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "kinetic-toolchain-as-reported-2016-06",
+      "resolved_rev": "kinetic-toolchain-as-reported-2016-06",
+      "pinned": false,
+      "revision_basis": "The sources say only that the change fixed \"an issue with isnan for kinetic\"; no compiler, libstdc++, or glibc version is named, so the provider is described by a label for the (unspecified) Kinetic-era toolchain referred to in issue #22 (2016-06-17). The resolution does not change the provider.",
+      "excerpt": true,
+      "ros_distro": "kinetic"
+    },
+    {
+      "name": "kobuki_driver",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_core",
+      "broken_rev": "0.6.3",
+      "resolved_rev": "b166c93913e293c55a3faa7b298c5f52f6def964",
+      "pinned": true,
+      "revision_basis": "Broken: 0.6.3 (57b89147) is the parent of the indigo cherry-pick b166c93 and the indigo release current when the issue was filed; kobuki.cpp line 276 there reads `if (isnan(heading_offset) == true)`. Resolved: b166c93 (committed 2016-06-17, released in 0.6.4 per the maintainer), which adds #include <cmath> and calls std::isnan.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": "kinetic-toolchain-as-reported-2016-06",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:isnan", "sides": {"C++ toolchain math headers": "provides", "kobuki_driver": "consumes"}},
+    {"element": "api:std::isnan", "sides": {"C++ toolchain math headers": "provides", "kobuki_driver": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:isnan"],
+      "quote": "-            if (isnan(heading_offset) == true)\n+            if (std::isnan(heading_offset) == true)",
+      "url": "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No diagnostic or observed failure appears in the issue or either commit; the issue says only \"fixed an issue with isnan for kinetic\".",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "kobuki_driver includes <cmath> and calls std::isnan(heading_offset) instead of the unqualified isnan (kinetic commit 2d943e14, cherry-picked to indigo as b166c93).",
+    "status": "recommended",
+    "evidence": "Maintainer: \"Cherried in b166c939.\n\nComing soon to indigo in v0.6.4.\"; requester: \"Great, thanks!\". No build or run of the resolved composition is shown."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "low",
+  "notes": "The sources never state the failure mode or the toolchain; the provider unit is therefore named generically and has no quoted artifact (empty section in the artifact file), and consumer_built_against for the broken composition is null because no earlier provider revision is documented or recoverable. Class 'other' is used because no primary source says how the provider's declaration of isnan differs (for example whether the global name was withdrawn or became ambiguous); the only documented mismatch is the dataset's 'macro instead of the proper function call'. The same defect in the kinetic branch composition was fixed by 2d943e14 (same diff)."
+}

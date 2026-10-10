@@ -1,0 +1,111 @@
+{
+  "case_id": "C3N-005",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/1164",
+    "https://github.com/ros-controls/ros2_control/pull/1165",
+    "https://github.com/ros-controls/ros2_control/commit/75e7efd1ae2ce5316114f73345b182f600717aa3",
+    "https://github.com/ros-controls/ros2_control/commit/ee1e2e18963631129e16cb903b8363d7f5cdc4b4",
+    "https://github.com/ros-controls/ros2_control/commit/b30f27d3b83a0c5a64d068cc4c4a68762cbc8b17",
+    "https://github.com/ros-controls/ros2_control/commit/a8782f0c44134124298ca56f2fb1e31a2db719f6",
+    "https://github.com/ros-controls/ros2_control/commit/d63048dbe0996ad66f7c7135bf8417d4fd0a8a0e",
+    "https://github.com/ros/rosdistro/pull/38983",
+    "https://github.com/ros-controls/ros2_control/blob/0863acd6905af0eba4db1074f11edd60215758d5/controller_interface/include/controller_interface/controller_interface_base.hpp",
+    "https://raw.githubusercontent.com/ros-controls/ros2_control/b9cdcfe030bc5cfb1a9f865c7ecd32502329e2e0/controller_manager/src/controller_manager.cpp",
+    "https://raw.githubusercontent.com/ros-controls/ros2_controllers/6d75314400ddc781a73a3c471e5c7ed26129f6e6/force_torque_sensor_broadcaster/src/force_torque_sensor_broadcaster.cpp",
+    "https://github.com/ros-controls/ros2_controllers/blob/232154dab5f5363704c7f7640b2d42f5d6f3665b/force_torque_sensor_broadcaster/src/force_torque_sensor_broadcaster.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Labelled bug with reproducer: \"1. Make a hardware with a JS broadcaster and an FTS broadcaster. 2. Load both controllers 3. configure the JS broadcaster 4. controller_manager will die\" -- https://github.com/ros-controls/ros2_control/issues/1164 ; maintainer confirmation: \"Thank you for reporting the issue. I've addressed the above bug in the linked PR.\" -- https://github.com/ros-controls/ros2_control/issues/1164#issuecomment-1808709963"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "controller_manager",
+        "force_torque_sensor_broadcaster"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Plugin (force_torque_sensor_broadcaster, ros2_controllers) and host framework (controller_manager, ros2_control) are separate units. The failure depends on a documented call-order assumption across that boundary: controller_interface_base.hpp states \"The method is called only in `inactive` or `active` state, i.e., `on_configure` has to be called first.\" for both command_interface_configuration() and state_interface_configuration(), while the host's controller_sorting calls `ctrl_a.c->command_interface_configuration().names` and `ctrl_a.c->state_interface_configuration().names` on every loaded controller (controller_manager.cpp at humble b9cdcfe0). The plugin relies on that precondition: its state_interface_configuration() returns `force_torque_sensor_->get_state_interface_names()` where `force_torque_sensor_` is created only in on_configure. Not deployment wiring or build: the fix changes the host's calls (PR 1165)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the host consumes the plugin's interface-configuration output while sorting (\"the controller sorting in configuring the other controller will also check the FTS broadcasterf for sorting. For this it will try to fetch all state and command interfaces\" -- https://github.com/ros-controls/ros2_control/issues/1164)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"4. controller_manager will die\" and \"First of all I would expect things not to crash.\" -- https://github.com/ros-controls/ros2_control/issues/1164"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "controller_manager",
+      "role": "consumer",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "b9cdcfe030bc5cfb1a9f865c7ecd32502329e2e0",
+      "resolved_rev": "ee1e2e18963631129e16cb903b8363d7f5cdc4b4",
+      "pinned": true,
+      "revision_basis": "The reporter names only \"Version: Humble\" (issue opened 2023-11-13T15:45Z). Controller sorting reached the humble branch in d143a4f2077d3756d5037c7b91ad9db44d9d3286 (\"[Humble] Controller sorting (#1157)\", 2023-11-07, released as 2.34.0 at 9dd62feaae227800090ec4f867278c04125f4957); the humble branch head at report time was b9cdcfe030bc5cfb1a9f865c7ecd32502329e2e0 (2023-11-09), so the broken revision lies between d143a4f2 and b9cdcfe0 and I use the head. The reporter's request to fix before the Humble sync implies a source build rather than binaries. Resolved: the humble backport ee1e2e18963631129e16cb903b8363d7f5cdc4b4 (\"... (#1165) (#1166)\", parent b9cdcfe0), released in 2.35.0 (927ca588f98b7c044ead06ebcb3813e3f44dd0a9; rosdistro PR 38983). The master fix is 75e7efd1ae2ce5316114f73345b182f600717aa3 and the iron backport b30f27d3b83a0c5a64d068cc4c4a68762cbc8b17.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "force_torque_sensor_broadcaster",
+      "role": "provider",
+      "repo": "https://github.com/ros-controls/ros2_controllers",
+      "broken_rev": "6d75314400ddc781a73a3c471e5c7ed26129f6e6",
+      "resolved_rev": "6d75314400ddc781a73a3c471e5c7ed26129f6e6",
+      "pinned": true,
+      "revision_basis": "The reporter runs Humble and links the plugin code at master commit 232154dab5f5363704c7f7640b2d42f5d6f3665b; no humble revision is stated. I use the ros2_controllers humble branch head at report time, 6d75314400ddc781a73a3c471e5c7ed26129f6e6 (2023-11-12), whose force_torque_sensor_broadcaster.cpp likewise creates `force_torque_sensor_` in on_configure and dereferences it in state_interface_configuration(). The resolution does not change this unit, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "api:controller_interface::ControllerInterfaceBase::state_interface_configuration", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::command_interface_configuration", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::is_chainable", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::init", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::configure", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::get_state", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::assign_interfaces", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::release_interfaces", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::update", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::get_node", "sides": {"controller_manager": "consumes", "force_torque_sensor_broadcaster": "provides"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:controller_interface::ControllerInterfaceBase::state_interface_configuration",
+        "api:controller_interface::ControllerInterfaceBase::command_interface_configuration"
+      ],
+      "quote": "However that can lead to situations where when the FTS broadcaster is loaded but not yet configured and another controller is configured the controller sorting in configuring the other controller will also check the FTS broadcasterf for sorting. For this it will try to fetch all state and command interfaces which will use the [`force_torque_sensor_` object](https://github.com/ros-controls/ros2_controllers/blob/232154dab5f5363704c7f7640b2d42f5d6f3665b/force_torque_sensor_broadcaster/src/force_torque_sensor_broadcaster.cpp#L124) which unfortunately is a nullpointer before the FTS broadcaster has been configured.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The source reports the process dying (\"4. controller_manager will die\" -- https://github.com/ros-controls/ros2_control/issues/1164) with no diagnostic from existing tooling (no load/claim/activation error is emitted before the crash).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "controller_manager skips controllers that are not configured (neither active nor inactive) in get_following_controller_names, get_preceding_controller_names and controller_sorting before calling command_interface_configuration()/state_interface_configuration() (PR 1165; humble backport ee1e2e18, released in controller_manager 2.35.0).",
+    "status": "recommended",
+    "evidence": "Reporter's review of PR 1165: \"Looks good and I tested this locally as mentioned in #1164 on Humble. As expected, this fixes the crash there.\" -- https://github.com/ros-controls/ros2_control/pull/1165#pullrequestreview-1728326910. The fix is shown working in this composition, but the tested controller_manager revision (a local Humble build of the PR, whose head 155969dc0ad2c8f8c8bcc61c6aa3e0bad0cc6def is based on master) and the plugin revision are not identified, so the status is recommended rather than observed."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Canonical api forms: element names use the controller_interface base-class symbols through which controller_manager calls the plugin; command_interface_configuration, state_interface_configuration, is_chainable and update are pure virtuals implemented by the plugin, while init, configure, get_state, assign_interfaces, release_interfaces and get_node are implemented in the controller_interface library (ros2_control) and inherited by the plugin object, which is why the plugin is listed as providing them. The failed-condition class is `other` because the mismatch is a lifecycle call-order precondition (the documented statement \"The method is called only in `inactive` or `active` state, i.e., `on_configure` has to be called first.\"), which no listed class covers. The plugin's command_interface_configuration() returns NONE without touching `force_torque_sensor_`, so the crash itself comes from state_interface_configuration(); both calls violate the same documented precondition. Possible UPGRADE framing (not recorded as the operation because the source does not state it): controller sorting was newly backported to humble in d143a4f2 (#1157, 2023-11-07) six days before the report, and the reporter asked for the fix before \"the Humble sync\", while the plugin was unchanged. The reporter's alternative fix (read the interface parameters in on_init in the plugin) was not the adopted resolution. Commits a8782f0c44134124298ca56f2fb1e31a2db719f6 and d63048dbe0996ad66f7c7135bf8417d4fd0a8a0e are cherry-picks of 75e7efd1 with parents b9cdcfe0 (humble) and 0bcd9faa (iron), i.e. the backport branch heads; the packet's peterdavidfagan fork URL points to the same master commit 75e7efd1. The reporter notes the problem is probably also present on Iron and Rolling but tested only Humble."
+}

@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_7284788-resolved-M1-d7216b8ddd",
+  "kind": "A2",
+  "case_id": "robust_7284788",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "unverifiable",
+      "source_excerpt": "No source location is supplied for this triggering value: the packet provenance is null. The following quotes are supplementary inspection of the specified revisions, not a replacement for the missing finding provenance.\n\nsnapshot:adjudication/packets/A2_02.json:203\n```\n    \"ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]\": null,\n```\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:296\n```\n  std::string _allFramesAsDot() const;\n```\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301\n```\n  std::string _allFramesAsDot(double current_time) const;\n  std::string _allFramesAsDot() const;\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "unverifiable",
+      "source_excerpt": "No source location is supplied for this triggering value: the packet provenance is null. A consumer call was independently located, quoted below, but this does not supply a location for the selected finding record.\n\nsnapshot:adjudication/packets/A2_02.json:204\n```\n    \"ver_delta.consumer_reads[api:tf2_ros::Buffer::_allFramesAsDot]\": null\n```\n\nsnapshot:s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:439-442\n```\nstd::string Transformer::allFramesAsDot() const\n{\n  return tf2_buffer_._allFramesAsDot();\n}\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "unverifiable",
+      "built_excerpt": "No built location is cited in this item. Supplementary built u0099 inspection:\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:296\n```\n  std::string _allFramesAsDot() const;\n```",
+      "running_excerpt": "No running location is cited in this item. Supplementary running u0101 inspection:\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301\n```\n  std::string _allFramesAsDot(double current_time) const;\n  std::string _allFramesAsDot() const;\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "disagree",
+    "reason": "The selected evidence encoding is PAIR, whereas the specification requires UPGRADE against 0.5.7. This pair view has no ver_delta, so it cannot represent the selected field_break trigger. The full assembled file does contain a separate upgrade unit, but that is not the evidence unit attached to this item. The underlying API connection is real: tf holds a tf2_ros::Buffer and invokes this member. Disagreement concerns the attached operation/evidence, not the existence of the call.\n\nsnapshot:adjudication/packets/A2_02.json:207\n```\n    \"type\": \"PAIR\",\n```\n\nsnapshot:specs/robust_7284788.json:68-71\n```\n  \"operation\": \"UPGRADE\",\n  \"consumer_built_against\": {\n    \"broken\": \"0.5.7\",\n    \"resolved\": \"0.5.7\",\n```\n\nsnapshot:s2_work/tasks/u0032/snapshot/tf/include/tf/tf.h:387\n```\n  tf2_ros::Buffer tf2_buffer_;\n```\n\nsnapshot:s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:439-442\n```\nstd::string Transformer::allFramesAsDot() const\n{\n  return tf2_buffer_._allFramesAsDot();\n}\n```"
+  },
+  "notes": "Supplementary comparison: the running header adds a double-taking overload but preserves the zero-argument overload actually called by tf. The additional overload is real; it is not evidence that this consumer lost its zero-argument entry point. Per the missing-location rule, values and substance remain unverifiable for the packet as supplied. I also inspected the separate assembled upgrade provenance and both source revisions, but did not silently substitute that unit for this item."
+}

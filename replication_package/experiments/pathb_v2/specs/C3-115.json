@@ -1,0 +1,90 @@
+{
+  "case_id": "C3-115",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/4659",
+    "https://github.com/ros-navigation/navigation2/pull/5895",
+    "https://github.com/ros-navigation/navigation2/commit/640196af92900d073390b07bcd81935d486fd3bb",
+    "https://github.com/ros-navigation/navigation2/blob/1.2.9/nav2_behavior_tree/include/nav2_behavior_tree/bt_action_node.hpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The report gives a full runtime log from bt_navigator, controller_server and planner_server with the failing sequence, and the maintainer diagnoses it: \"That occurs here [1], so the server timeout doesn't cancel the action in time.\" -- https://github.com/ros-navigation/navigation2/issues/4659#issuecomment-2327562456 . A second user reports the same halt error on Jazzy and that raising the timeout removes it: \"Increasing `default_server_timeout` from 30 to even ~50ms solves this issue.\" -- https://github.com/ros-navigation/navigation2/issues/4659#issuecomment-2607122040"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["bt_navigator", "controller_server"],
+      "interface_kind": "action",
+      "evidence": "bt_navigator (its nav2_behavior_tree BtActionNode FollowPath client) and controller_server (the follow_path action server) are separate nodes that interact only through the follow_path action. The failure depends on timing that crosses that boundary: the client waits for the server's goal acknowledgement and for the cancel result only for server_timeout (reporter: \"Our `server_timeout` is currently set to 100ms.\" -- https://github.com/ros-navigation/navigation2/issues/4659#issuecomment-2340126891), and when the server's response arrives later the client gives up while the server keeps executing. Maintainer: \"If you have a server timeout of 10ms and you've just started a planning request that is 100ms in length, then it won't always cancel in time.\" -- https://github.com/ros-navigation/navigation2/issues/4659#issuecomment-2327562456 . The resolving edit (PR #5895) adds a separate cancel timeout parameter to the client; it is not a name binding, build change, or firmware fault."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: bt_navigator sends follow_path goals and cancel requests to controller_server and consumes its goal acknowledgement and result (\"[bt_navigator-12] [INFO]: Starting path following\\r\\n[controller_server-8] [INFO]: Received a goal, begin computing control effort.\" -- https://github.com/ros-navigation/navigation2/issues/4659)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"The `bt_navigator` gets a `Failed to get result for compute_path_to_pose in node halt!` or a `Failed to get result for follow_path in node halt!` error, and the `controller_server` keeps on trying to follow the last received path.\" -- https://github.com/ros-navigation/navigation2/issues/4659"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "bt_navigator",
+      "role": "consumer",
+      "repo": "https://github.com/ros-navigation/navigation2",
+      "broken_rev": "1.2.9",
+      "resolved_rev": "640196af92900d073390b07bcd81935d486fd3bb",
+      "pinned": true,
+      "revision_basis": "Reporter states \"navigation2 1.2.9\" on \"Iron 2024-07-12\"; tag 1.2.9 resolves to commit 3884d39d74487af84e753df5dda5333c22ac729f. The action client logic is nav2_behavior_tree/include/nav2_behavior_tree/bt_action_node.hpp, built into bt_navigator. Resolved revision is the merge commit of PR #5895 on main (merged 2026-01-26). The PR is labelled backport-jazzy and backport-kilted (automatic backports failed; manual backports were promised in the PR thread and not traced here); there is no Iron backport (Iron is EOL).",
+      "excerpt": false,
+      "ros_distro": "iron"
+    },
+    {
+      "name": "controller_server",
+      "role": "provider",
+      "repo": "https://github.com/ros-navigation/navigation2",
+      "broken_rev": "1.2.9",
+      "resolved_rev": "1.2.9",
+      "pinned": true,
+      "revision_basis": "Same navigation2 1.2.9 installation as stated by the reporter (package nav2_controller). The resolution does not change controller_server, so it keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": "iron"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "action:follow_path", "sides": {"controller_server": "provides", "bt_navigator": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["action:follow_path"],
+      "quote": "[bt_navigator-12] [WARN]: Timed out while waiting for action server to acknowledge goal request for follow_path",
+      "url": "https://github.com/ros-navigation/navigation2/issues/4659"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["action:follow_path"],
+      "quote": "[bt_navigator-12] [ERROR]: Failed to get result for follow_path in node halt!",
+      "url": "https://github.com/ros-navigation/navigation2/issues/4659"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only diagnostics are runtime log lines printed by bt_navigator's own BT node code (\"Timed out while waiting for action server to acknowledge goal request for follow_path\", \"Failed to get result for follow_path in node halt!\"); no build, connection or activation diagnostic from existing tooling. The effect is wrong motion: \"the `controller_server` keeps on trying to follow the last received path.\" -- https://github.com/ros-navigation/navigation2/issues/4659",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "PR #5895 adds a separate cancel timeout (blackboard key cancel_timeout, bt_navigator parameter default_cancel_timeout, default 50 ms) and uses it instead of server_timeout when BtActionNode::halt() waits for the cancelled goal's result. controller_server is unchanged. The goal-acknowledgement timeout path (condition 1) is not changed by the fix.",
+    "status": "recommended",
+    "evidence": "Merged into main as 640196af92900d073390b07bcd81935d486fd3bb and closes #4659; the reporter never confirmed it in the Iron composition. Related working observation with a different peer/distro (Jazzy, coverage navigator) using the timeout workaround: \"Increasing `default_server_timeout` from 30 to even ~50ms solves this issue.\" -- https://github.com/ros-navigation/navigation2/issues/4659#issuecomment-2607122040"
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class `other` is used for both conditions because the mismatch is a server response latency exceeding the client's wait timeout on an action; none of the listed classes fits (qos_deadline is the DDS deadline policy, rate_shortfall concerns a periodic publication rate). Condition 1 mechanism per a commenter: after the acknowledgement timeout the client resets future_goal_handle_ with goal_handle_ unset, so halt()'s should_cancel_goal() returns false and the follow_path goal is never cancelled (https://github.com/ros-navigation/navigation2/issues/4659#issuecomment-2556526828); the maintainer calls this \"a different issue\" from the cancel-timeout problem (https://github.com/ros-navigation/navigation2/issues/4659#issuecomment-2616870937). Other composition in the same report, not specified here: bt_navigator -> planner_server over action compute_path_to_pose (\"[bt_navigator-12] [ERROR]: Failed to get result for compute_path_to_pose in node halt!\"), which the maintainer attributes to Iron planners not checking cancel requests inside their planning loop (fixed on Jazzy+ through a cancel checker in the planner plugin API, not backportable). A commenter also mentions a hypothetical second publisher on cmd_vel from a recovery branch; not observed. The resolved composition pairs a main-branch bt_navigator with the Iron 1.2.9 controller_server only because the rule keeps unchanged units at their broken revision; no such deployment was reported."
+}

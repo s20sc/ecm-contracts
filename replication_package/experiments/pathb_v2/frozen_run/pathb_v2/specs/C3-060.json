@@ -1,0 +1,51 @@
+{
+  "case_id": "C3-060",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/3103",
+    "https://github.com/moveit/moveit2/pull/3105",
+    "https://github.com/moveit/moveit2/pull/3107",
+    "https://github.com/moveit/moveit2/pull/3108"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #3103 links failing CI jobs and gives the assertion log: \"test_robot_state: /home/runner/work/moveit2/moveit2/.work/target_ws/src/moveit2/moveit_core/robot_state/src/robot_state.cpp:1309: const Eigen::Isometry3d& moveit::core::RobotState::getFrameInfo(const std::string&, const moveit::core::LinkModel*&, bool&) const: Assertion `checkLinkTransforms()' failed.\"; PR #3105 identifies the cause."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "moveit_core (robot_state library)",
+        "moveit_core (robot_state_test, same package)"
+      ],
+      "interface_kind": null,
+      "evidence": "The failing code is a unit test in moveit_core/robot_state/test/robot_state_test.cpp that queries a freshly constructed RobotState without updating its link transforms; the assert that catches it is compiled only in Debug builds. Both the test and the RobotState implementation belong to the same package (moveit_core), so there is no second separately deployable unit, and the misuse would occur with any build of the library. PR #3105: \"Fixes #3103 by ensuring that the `dirty_link_transforms_` member is cleared before querying the `RobotState`\"; \"Setting the build type to Release causes tests to silently fail, whereas Debug does not (some tests rely on assert calls, which are enabled / disabled based on the presence of the `NDBUG` macro variable, which is set by CMake depending on the build type).\" The fix adds state.setToDefaultValues(); state.updateLinkTransforms(); to the test. Additional context: The issue title says rigidlyAttachedParent but the failing test is OneRobot.rigidlyConnectedParent. The CI dependence is on CMAKE_BUILD_TYPE (Debug in the SonarScan job via industrial_ci, Release elsewhere), which is a build-configuration difference, not an interface. Fix merged on main (#3105, f20265a5a2551b3270373d6ff6925c1299adc6c6) and backported to humble (#3107, c6a38fa6382a637149a58309cc1da8808817aaa2) and iron (#3108, 90f8de0dd6c0fbe7fc2fe193a3329aa6dc029a97). #3102 is referenced for more explanation."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E2."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): a unit test inside moveit_core misuses the package's own RobotState API (queries transforms while dirty); the Debug-only assertion exposes it. No cross-unit interface is involved.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

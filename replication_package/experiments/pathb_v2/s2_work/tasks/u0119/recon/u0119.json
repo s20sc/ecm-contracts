@@ -1,0 +1,61 @@
+{
+  "task_id": "u0119",
+  "package": "kobuki_gazebo_plugins",
+  "manifest_version": "0.3.1",
+  "ports": [
+    {
+      "element": "api:boost/shared_ptr.hpp",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:boost::dynamic_pointer_cast",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:boost/shared_ptr.hpp",
+    "api:boost::dynamic_pointer_cast"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "safe-stop on command loss: wheel_speed_cmd_[LEFT]/[RIGHT] set to 0.0 when (time_now - last_cmd_vel_time_).Double() > cmd_vel_timeout_ (sdf element velocity_command_timeout) or !motors_enabled_"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_gazebo_plugins/package.xml:3",
+    "ports[0]": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:41",
+    "ports[0].side": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:41 (#include <boost/shared_ptr.hpp>; header is included, not provided)",
+    "ports[1]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251",
+    "ports[1].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251,253,255,301,325 (boost::dynamic_pointer_cast<sensors::RaySensor|ContactSensor|ImuSensor>(sensors::SensorManager::Instance()->GetSensor(...)) called, not defined)",
+    "references[api:boost/shared_ptr.hpp]": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:41",
+    "references[api:boost::dynamic_pointer_cast]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251",
+    "perm_requires.state": "searched snapshot:kobuki_gazebo_plugins/{package.xml,CMakeLists.txt,include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h,src/gazebo_ros_kobuki.cpp}; no permission/capability declarations",
+    "perm_grants.state": "searched snapshot:kobuki_gazebo_plugins/{package.xml,CMakeLists.txt,include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h,src/gazebo_ros_kobuki.cpp}; no permission/capability grants",
+    "recovery.state": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:500",
+    "recovery.value": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:500 (timeout read from sdf at snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:206)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The code includes boost/shared_ptr.hpp and casts sensor pointers with boost::dynamic_pointer_cast; it never uses boost::shared_dynamic_cast, and boost::shared_ptr appears only in a commented-out line, so none of the listed boost elements shows a visible mismatch at this revision."
+  },
+  "confidence": "high",
+  "notes": "All four packet elements are consumed boost APIs; kobuki_gazebo_plugins provides none of them, so declares and not_declared are empty. The snapshot holds the whole kobuki_desktop repository; only snapshot/kobuki_gazebo_plugins (package.xml, CMakeLists.txt, one header, one source file) was examined for this package, and a grep of the entire snapshot for 'boost', 'shared_ptr', 'dynamic_pointer_cast' and 'shared_dynamic_cast' found hits only in that package. api:boost::shared_dynamic_cast: zero occurrences anywhere in the snapshot; being a consumed element that the code does not name, it is in neither references nor ports. api:boost::shared_ptr: named only in the commented-out member declaration at gazebo_ros_kobuki.h:97 ('//  boost::shared_ptr<boost::thread> ros_spinner_thread_; necessary?'), which is not active code, so it is not listed as a reference and has no port; the active code holds shared pointers only through Gazebo typedefs (physics::ModelPtr, sensors::RaySensorPtr, sensors::ContactSensorPtr, sensors::ImuSensorPtr, etc.) whose underlying type is defined in Gazebo headers outside the snapshot. Port fields msg_type, frame, units, qos, rate and definition_id are null because these are C++ library symbols with no ROS message definition, no spatial data and (ROS 1) no QoS. exclusive is empty: the plugin drives the wheel joints directly via physics::Joint SetVelocity/SetMaxForce (gazebo_ros_kobuki.cpp:505-508) without any exclusive-claim mechanism. recovery is recorded as present on the strength of the command-timeout / motors-disabled safe-stop at cpp:500-504; this is a judgment call (it is a fail-safe rather than a named recovery policy). The code also zeroes NaN wheel-distance increments (cpp:408-419). No definition_hash.py calls were needed (no msg/srv/action elements)."
+}

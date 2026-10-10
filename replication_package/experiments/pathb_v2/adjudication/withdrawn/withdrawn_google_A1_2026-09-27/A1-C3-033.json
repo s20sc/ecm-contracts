@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-033",
+  "kind": "A1",
+  "case_id": "C3-033",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Public issue with the reproduction command and the emitted diagnostic: \"When I run the command:\r\n\r\nroslaunch usb_cam  usb_cam-test.launch\r\n\r\nthe following message appears:\r\n\r\nswscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly\" (issue #109). A second user confirms the stream of warnings and posts a patch; the maintainer-merged PR #115 addresses it.",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "swscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The provider library's own diagnostic, emitted by libswscale's sws_init_context when the scaling context is created with a YUVJ (full-range JPEG) format: \"deprecated pixel format used, make sure you did set range correctly\" (issue #109; source line in libswscale/utils.c@n2.8.15). usb_cam creates and frees a scaling context for every decoded frame, so the diagnostic repeats throughout the run: \"the constant stream of USELESS warnings\" (issue #109 comment).",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PR #115 was merged on 2022-10-25 and the issue was closed \"by merging #115\". A commenter applied the same line to his own tree and reports \"This disables the useless warnings, but it took some time to find\", but neither he nor the PR author identifies the FFmpeg revision of that working composition, so the resolved composition is not shown working with both units identified by revision."
+  },
+  "notes": "Adjudicated case C3-033: fully agrees with specification eligibility (E1-E4 step 6), failed conditions, loudness (loud_documented), and resolution status (recommended)."
+}

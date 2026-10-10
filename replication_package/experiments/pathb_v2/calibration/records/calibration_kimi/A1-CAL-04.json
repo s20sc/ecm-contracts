@@ -1,0 +1,47 @@
+{
+ "item_id": "A1-CAL-04",
+ "kind": "A1",
+ "case_id": "CAL-04",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "there is just three gray windows (no image) and a [WARN] message as below",
+  "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "disagree",
+   "proposed_class": "rate_shortfall",
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "A second potential problem is that stereo_image_proc is not running at frame rate. You can see that stereo_view is getting less than one disparity image for every five image pairs. I guess the Prosilica images are too high resolution (or your computer not beefy enough :) for stereo_image_proc to keep up. stereo_view keeps a queue of size 5 (by default) on each input topic, which means the left/right image messages may drop off the queues by the time their matching disparity image arrives. The solution is to increase ~queue_size.",
+   "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "If you're running two prosilica_camera instances, probably they are not synchronized - that is, left and right image time stamps don't match up exactly. All the image_pipeline nodes assume exact synchronization for stereo (the ideal case) by default. Since you're getting disparity images from stereo_image_proc, you must have started it with ~approximate_sync set to True. You need to do the same with stereo_view, as the warning message recommends.",
+   "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": "run",
+  "quote": "[ WARN] [1297946062.739511145]: [stereo_view] Low number of synchronized left/right/disparity triplets received.\nLeft images received:      104 (topic '/stereo/left/image_rect')\nRight images received:     102 (topic '/stereo/right/image_rect')\nDisparity images received: 18 (topic '/stereo/disparity')\nSynchronized triplets: 0",
+  "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "rosrun image_view stereo_view stereo:=/stereo image:=image_rect _approximate_sync:=True _queue_size:=10",
+  "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+ },
+ "notes": "Verified via the Stack Exchange API (answers.ros.org question 9108 migrated to robotics.stackexchange.com 29632): the question body carries the WARN log verbatim with 'Synchronized triplets: 0', and the single accepted answer by Patrick Mihelich carries both quoted diagnoses and the tl;dr command line; no follow-up shows the resolved composition working, so 'recommended' is right. Failed condition 0 class disagree: the quoted condition is the disparity stream arriving well below the image-pair rate so the consumer's queues drop matches before the triplet forms — that is a delivered-rate shortfall on topic:/stereo/disparity, i.e. rate_shortfall; nothing was removed or renamed, so element_removed_or_renamed is wrong. The implicated elements (the three topics) are fine. Loudness agree: the WARN is the consumer node's own periodic run-time message, not a build/connection/activation diagnostic from the middleware."
+}

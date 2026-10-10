@@ -1,0 +1,50 @@
+{
+ "case_id": "C3-091",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros-controls/ros2_controllers/issues/1116",
+  "https://github.com/ros-controls/ros2_controllers/pull/1430",
+  "https://github.com/henrygerardmoore/ros2_controllers/commit/14e9e4f696f14209febf28316de8cbdd68659605"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "CI log in the issue: \"The difference between target_msg_count and echo_received_counter is 2, which exceeds 1, where target_msg_count evaluates to 10, echo_received_counter evaluates to 8\" (test_trajectory_controller.cpp:883); maintainer: \"I've seen that failing several times in different jobs.\" -- https://github.com/ros-controls/ros2_controllers/issues/1116"
+  },
+  "E2": {
+   "pass": false,
+   "stop_step": 2,
+   "reason_code": "internal",
+   "units_identified": [
+    "joint_trajectory_controller",
+    "joint_trajectory_controller gtest fixture (same package)"
+   ],
+   "interface_kind": null,
+   "evidence": "The failing check is a unit test inside the joint_trajectory_controller package itself (test/test_trajectory_controller.cpp), whose own subscriber counts state messages over a window equal to the time needed; the test comment states \"We may miss the last message since time allowed is exactly the time needed\". The test fixture is not a separately deployable unit, and the resolution (PR #1430, merged into humble 2024-12-23, merge commit ff2009982a07b215b06e420566d0e1d3d2edb8b0) only relaxes the test tolerance: \"-  EXPECT_NEAR(target_msg_count, echo_received_counter, 1);\" \"+  EXPECT_NEAR(target_msg_count, echo_received_counter, 2);\" and re-enables a lower-rate test case. PR description: \"The test is flaky, often only 8 messages are received.\" No controller code or interface changed; the flakiness is the test's own timing margin on CI runners. -- https://github.com/ros-controls/ros2_controllers/pull/1430. Maintainer: \"Only applicable to humble since it got removed https://github.com/ros-controls/ros2_controllers/pull/520\". The packet's fork commit 14e9e4f6 (\"Bump docker/login-action from 2 to 3 (#1116)\") is an unrelated CI workflow change that shares the number #1116."
+  },
+  "E3": {
+   "pass": null,
+   "evidence": "Not evaluated past E2."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Failing CI assertion quoted in the issue (8 of 10 messages received)."
+  }
+ },
+ "eligible": false,
+ "ineligible_reason": "internal",
+ "units": null,
+ "operation": null,
+ "consumer_built_against": null,
+ "inventory": null,
+ "failed_conditions": null,
+ "outcome_class": null,
+ "loudness": null,
+ "loudness_evidence": null,
+ "detection_stage": null,
+ "resolution": null,
+ "ros_generation": null,
+ "excerpt_based": null,
+ "confidence": null,
+ "notes": null
+}

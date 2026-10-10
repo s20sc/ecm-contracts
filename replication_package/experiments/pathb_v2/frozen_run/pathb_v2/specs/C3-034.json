@@ -1,0 +1,123 @@
+{
+  "case_id": "C3-034",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/ros2/issues/1244",
+    "https://github.com/ros2/ros2/files/8069144/ros-foxy-package-versions.txt",
+    "https://github.com/ros2/ros2/files/8077526/ros-foxy-pkg-working.txt",
+    "https://github.com/ros2/launch/pull/630",
+    "https://github.com/ros2/launch/pull/601",
+    "https://github.com/ros2/launch/pull/567",
+    "https://github.com/ros2/launch/pull/468",
+    "https://github.com/ros2/ros2_documentation/pull/2330",
+    "https://github.com/ros2/ros2_documentation/pull/2904",
+    "https://github.com/ros2/launch/blob/0.10.7/launch/launch/actions/set_environment_variable.py",
+    "https://github.com/ros2/launch/blob/0.10.7/launch/launch/actions/group_action.py",
+    "https://github.com/ros2/launch/blob/0.10.7/launch_xml/launch_xml/entity.py",
+    "https://github.com/ros2/launch/blob/0.10.7/launch/launch/actions/execute_process.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives a complete reproducer (node source, two XML launch files, build and run commands) with expected \"[env_bug_node-1] my_env_var = '2'\" and actual \"[env_bug_node-1] my_env_var = '4'\". A maintainer confirms the cause: \"https://github.com/ros2/launch/pull/567 seems to have introduced the behavior change in Foxy.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "launch",
+        "env_bug"
+      ],
+      "interface_kind": "library API (launch frontend actions set_env / group / include, as exposed to XML launch files by launch and launch_xml)",
+      "evidence": "The reporter's package env_bug (a node plus its XML launch files, one unit) is interpreted by the separately released launch framework (packages launch and launch_xml from ros2/launch). The failure depends on an assumption between them, namely that an environment change made by <set_env> inside <group> stays within that group; a launch description that does not rely on it is unaffected, so it is not internal. The resolving change is new behaviour in the framework (GroupAction pushes and pops the environment, launch PR #630), not a name binding in a launch file, a build change, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the launch files worked on older Foxy (\"When not having bug ... Foxy, any release before current\") and failed after package upgrades to launch/launch_xml 0.10.8 (reporter's package list: \"ros-foxy-launch/focal,focal,now 0.10.8-2focal.20220112.192334 amd64\", \"ros-foxy-launch-xml/focal,focal,now 0.10.8-2focal.20220112.192542 amd64\"). The maintainer places the earlier behaviour in \"Foxy patch 6; or specifically [launch 0.10.7](https://github.com/ros2/launch/tree/0.10.7)\" and the change in PR #567, which is in 0.10.8."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong value at run time: \"For included demo, actual result:\r\n```\r\n[env_bug_node-1] my_env_var = '4'\r\n```\"; the reporter uses the mechanism for ROS_DOMAIN_ID: \"we use it for `ROS_DOMAIN_ID` to improve the way we separate nodes in our system, and as such is also quite difficult to debug.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "launch",
+      "role": "provider",
+      "repo": "https://github.com/ros2/launch",
+      "broken_rev": "0.10.8",
+      "resolved_rev": "0.10.9",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter's attached package list shows ros-foxy-launch and ros-foxy-launch-xml at 0.10.8-2focal.20220112, i.e. upstream tag 0.10.8 (2af92708). Resolved: the fix is PR #630 (\"[foxy] Support scoping environment variables (#601)\"), merged into the foxy branch on 2022-07-25 as aabc2412; the GitHub compare API shows tag 0.10.8 behind that commit and tag 0.10.9 (cecc8e9d, 2022-09-13) 2 commits ahead of it, so 0.10.9 is the first release containing the fix. The unit covers both packages launch and launch_xml, which are released together from this repository.",
+      "excerpt": false,
+      "ros_distro": "foxy"
+    },
+    {
+      "name": "env_bug",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2022-02",
+      "resolved_rev": "as-reported-2022-02",
+      "pinned": false,
+      "revision_basis": "The reporter's minimal reproduction package, created with ros2 pkg create and quoted in full in the issue (2022-02-16); it has no public repository. The resolution does not change it.",
+      "excerpt": true,
+      "ros_distro": "foxy"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "0.10.7",
+    "resolved": "0.10.7",
+    "basis": "documented"
+  },
+  "inventory": [
+    {
+      "element": "api:set_env",
+      "sides": {
+        "launch": "provides",
+        "env_bug": "consumes"
+      }
+    },
+    {
+      "element": "api:group",
+      "sides": {
+        "launch": "provides",
+        "env_bug": "consumes"
+      }
+    },
+    {
+      "element": "api:include",
+      "sides": {
+        "launch": "provides",
+        "env_bug": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:set_env",
+        "api:group"
+      ],
+      "quote": "`set_env` behaviour seems to have changed. It now \"leaks\" - `set_env` now affects places that are sequentially before the tag, including overriding those that are set deeper. Now one can only override the last `set_env` with an `env` in `node`/`executable`.",
+      "url": "https://github.com/ros2/ros2/issues/1244"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic is shown; the node simply prints the wrong value (\"[env_bug_node-1] my_env_var = '4'\" where '2' was expected), and the reporter notes it \"is also quite difficult to debug\" (issue #1244).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "launch makes GroupAction scope environment changes: SetEnvironmentVariable writes to a per-context environment (\"context.environment[perform_substitutions(context, self.name)] = \\\") and a scoped group wraps its actions in \"PushEnvironment(),\" ... \"PopEnvironment(),\" (launch PR #630, backport of #601, released in 0.10.9). A release note documents the Patch 7 behaviour (ros2_documentation PR #2330) and the Patch 8 change with an opt-out \"you can set the argument ``scoped=False`` on the ``GroupAction``\" (PR #2904).",
+    "status": "recommended",
+    "evidence": "Maintainer: \"The change for Foxy has been merged and will be in the upcoming patch release.\" The issue was then closed; no one reports the reporter's env_bug launch files run against launch 0.10.9 with the expected output."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Class: the tag set_env keeps its name and attributes; what changed is the scope in which its effect applies relative to the enclosing group, which fits none of the specific classes, so `other` is used (definition_mismatch was considered but that class is defined for a nominal type whose definition differs). Maintainer analysis of the cause: \"scoping environment variables to group actions has never formally been supported. It just happened to work in earlier versions of Foxy (and only with frontend launch files) because of a bug that was fixed in https://github.com/ros2/launch/pull/468.\" and \"If the result of the `filter` is empty, the condition `not return_list` actually evaluates to `False`\"; PR #567 (in 0.10.8) replaced it with \"return_list = [x for x in self.__xml_element if x.tag == name]\". The Patch 7 release note (PR #2330) states \"Changes to environment variables using the ``set_env`` action are no longer scoped to parent ``group`` actions, and instead apply globally.\" and \"We consider this change a regression\". consumer_built_against basis: the working system's attached package list (ros-foxy-pkg-working.txt) does not list the launch packages; 0.10.7 is the pre-change launch release named by the maintainer (\"You can confirm by installing Foxy patch 6; or specifically launch 0.10.7\"), together with the reporter's statement that the launch files worked on \"Foxy, any release before current\". Other compositions and interactions not taken as conditions: (1) the reporter's production launch files also stopped launching after the same upgrade because 0.10.8 rejects attributes it does not parse (\"Noticed that after package upgrades that `required` was removed ... `doc` was also removed it seems. However, since these have errors and had no functional change, they are easy to resolve.\"); these are in the reporter's own launch files, not in the env_bug reproducer. (2) A possibly deeper leak across included files is reported but unconfirmed (\"I have yet to confirm this, but it seems this leaking issue might extend further in the tree of launch files\"). (3) The <node> tag and $(find-pkg-share) substitution used by env_bug are provided by launch_ros (reporter has 0.11.6), a third unit not part of this composition. Inventory canonical form: launch frontend tag names are written as api:<tag> (the symbols exposed with @expose_action), since no ROS interface form fits. Artifact sources: [[env_bug@as-reported-2022-02]] is quoted from https://github.com/ros2/ros2/issues/1244 (node source, outer and inner launch files, CMakeLists install lines, run command); [[launch@0.10.7]] holds excerpted lines from launch/launch/actions/set_environment_variable.py, launch/launch/actions/group_action.py (GroupAction __init__ body omitted), launch_xml/launch_xml/entity.py (Entity.get_attr list branch), and launch/launch/actions/execute_process.py (env parse and execute lines), all at https://github.com/ros2/launch/tree/0.10.7. The reporter's DDS is rmw_connextdds (not relevant to the composition)."
+}

@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-126",
+  "kind": "A1",
+  "case_id": "C3-126",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Random nodes fail startup with the following exception: terminate called after throwing an instance of 'std::runtime_error' what():  cannot store a negative time point in rclcpp::Time",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "That said, I see exactly what you mean about the loaned APIs.  They do not work like that; once the memory is returned to the underlying middleware, they should be considered invalid.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1724283083"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "terminate called after throwing an instance of 'std::runtime_error'\n  what():  cannot store a negative time point in rclcpp::Time",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "We disabled loans by default via https://github.com/ros2/rclcpp/pull/2335 and https://github.com/ros2/rcl/pull/1110"
+  },
+  "notes": "Eligible PAIR library API memory ownership / lifetime contract mismatch between rclcpp and rmw_cyclonedds_cpp loaned message APIs."
+}

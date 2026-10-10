@@ -1,0 +1,47 @@
+{
+  "case_id": "robust_493e3f9",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/271",
+    "https://github.com/yujinrobot/kobuki/issues/271#issuecomment-19584413",
+    "https://github.com/yujinrobot/kobuki/commit/493e3f9c9f65fbf0283571ca92b89a7203e5f287"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Maintainer report (bit-pirate): \"Currently the centre of mass is assumed to be in the centre of Kobuki's volume, which is wrong (mostly due to the battery being intentionally placed at the front). The result is that in Gazebo Kobuki is constantly bouncing from the front to the back and vice versa.\"; fix 493e3f9c 'corrects inertia and center of mass using an approximation (fixes #271)' changes kobuki_description/urdf/kobuki.urdf.xacro: '<origin xyz=\"0 0 0\"/>' -> '<origin xyz=\"0.01 0 0\"/>' and izz=\"0.006125\" -> izz=\"0.03675\"."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["kobuki_description", "gazebo"],
+      "interface_kind": null,
+      "evidence": "Step 1: the candidate units are kobuki_description (the URDF/xacro model, kobuki repository) and the Gazebo physics simulation that consumes the model's <inertial> block. Step 2: the failure does not depend on any assumption between the two units. The URDF's inertial values are consumed in the units and frame the URDF specification defines and Gazebo implements; they were simply wrong constants for the real robot: the centre-of-mass origin was left at the body centre although the battery sits at the front, and the izz value (0.006125) did not match the formula stated in the same comment (izz = 1/2*m*r^2 = 0.5*2.4*0.175^2 = 0.03675, the value the fix writes). A correct consumer of these values simulates exactly the body they describe, so the rocking would occur with any correct physics peer; nothing about the boundary (units, frame, naming, timing) is mismatched, and the resolving edit only changes the numbers inside one unit. This is wrong arithmetic / wrong model constants, an internal defect of kobuki_description."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Not reached (E2 stops at step 2). For reference the composition would be PAIR: kobuki_description's model feeds Gazebo's physics."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Not reached (E2 stops at step 2). The effect is documented: \"in Gazebo Kobuki is constantly bouncing from the front to the back and vice versa.\""
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): the defect is a wrong centre-of-mass origin and a miscomputed izz inside kobuki_description's URDF; any correct consumer of the inertial block would simulate the same wrong body, so no assumption between the two units is violated. Evidence: the fix changes only the numeric values and their explanatory comment ('COM experimentally determined'; 'Kobuki's inertia tensor is approximated by a cylinder with homogeneous mass distribution ... izz = 1/2 * m * r^2'), and the maintainer's guidance is a modelling estimate: \"it would be close to being halfway from the centre to the front of the robot. If you want to save time, just do that but make sure there is a comment next to it saying this is just a rough guess, not a calculation.\" Alternative reading rejected: the 'wrong value crossing the boundary' clause covers values that are wrong relative to the peer's expectation (unit, frame, order); here the peer's interpretation is correct and the values are wrong relative to the physical robot.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Fix commit 493e3f9c (2013-08-20, hydro-devel, parent 587ef6ad, contained in tag 0.5.0) also re-indents an unrelated <origin> line of the wheel link. The issue states no Gazebo or ROS version. If a reviewer reads the step-2 clause 'a wrong value ... that crosses the boundary is an interface failure' as covering physically wrong model constants, the case would instead be an eligible PAIR (kobuki_description -> gazebo) with a single 'other' condition on the URDF inertial block, outcome failure (wrong motion), silent, detection at run, resolution recommended (no statement that the bouncing stopped)."
+}

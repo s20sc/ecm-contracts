@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-110",
+  "kind": "A1",
+  "case_id": "C3-110",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "Issue #2007 title \"SEGFAULT in prune_requests_older_than() if pruned_requests are not provided\"; body: \"Segfault happens here: .../rclcpp/include/rclcpp/client.hpp#L772 , if `prune_requests_older_than()` is called with default argument, while there's matching request to prune\"; at dab9f5e client.hpp L772 is exactly \"        pruned_requests->push_back(it->first);\" with no null check; PR #2008 diff: \"-        pruned_requests->push_back(it->first);\\n+        if (pruned_requests) {\\n+          pruned_requests->push_back(it->first);\\n+        }\"",
+    "url": "https://github.com/ros2/rclcpp/issues/2007"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Title: \"SEGFAULT in prune_requests_older_than() if pruned_requests are not provided\""
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PR #2008 \"fix nullptr dereference in prune_requests_older_than\" merged into rolling 2022-12-13, changing rclcpp/include/rclcpp/client.hpp and adding regression tests in rclcpp/test/rclcpp/test_client.cpp."
+  },
+  "notes": "Independently verified: issue #2007 title and body verbatim, including the documented default-argument call \"client->prune_requests_older_than(someTimeAgo /*, nullptr by default */);\" and the documentation quote \"[inout] pruned_requests Removed requests id will be pushed to the vector if a pointer is provided.\"; the blob at dab9f5e0a331b9694c4b5aceb8263d49aa052ecb — client.hpp lines 765-780 show the loop whose line 772 is the unchecked \"pruned_requests->push_back(it->first);\"; PR #2008's title, merge (rolling, 2022-12-13), file list (client.hpp + test_client.cpp), and the null-check diff quoted above. My independent reading matches the spec: the crash is a null-pointer dereference in rclcpp's own implementation, reached by any caller that uses the documented default argument; the caller's use matches rclcpp's own declared API and documentation, so the mismatch is between rclcpp's documentation/default and its own code, and the failure would occur with any correct caller — tree step 2 internal. The spec's note that no crash log is quoted in the thread but the merged fix plus regression tests confirm the defect is accurate. Ineligible stands."
+}

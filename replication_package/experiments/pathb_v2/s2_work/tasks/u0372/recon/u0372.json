@@ -1,0 +1,84 @@
+{
+  "task_id": "u0372",
+  "package": "moveit_servo",
+  "manifest_version": "2.8.0",
+  "ports": [
+    {
+      "element": "api:rclcpp::Node::create_publisher",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Node::create_subscription",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::NodeOptions::use_intra_process_comms",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::SystemDefaultsQoS",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rclcpp::Node::create_publisher",
+    "api:rclcpp::Node::create_subscription",
+    "api:rclcpp::NodeOptions::use_intra_process_comms",
+    "api:rclcpp::SystemDefaultsQoS"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "on a stale incoming command (older than incoming_command_timeout) ServoNode calls servo_->smoothHalt(last_commanded_state_) and publishes the halting state"},
+  "provenance": {
+    "manifest_version": "snapshot:moveit_ros/moveit_servo/package.xml:5",
+    "ports[0].side": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:122 (trajectory_publisher_ = node_->create_publisher<trajectory_msgs::msg::JointTrajectory>(...)); also :127 (Float64MultiArray) and :132 (moveit_msgs::msg::ServoStatus); node_ is const rclcpp::Node::SharedPtr at snapshot:moveit_ros/moveit_servo/include/moveit_servo/servo_node.hpp:108",
+    "ports[1].side": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:106 (joint_jog_subscriber_ = node_->create_subscription<control_msgs::msg::JointJog>(...)); also :111 (geometry_msgs::msg::TwistStamped) and :116 (geometry_msgs::msg::PoseStamped)",
+    "ports[2].side": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:72 (if (!options.use_intra_process_comms())), options is const rclcpp::NodeOptions& at :64",
+    "ports[3].side": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:107,112,117,123,128,132 (rclcpp::SystemDefaultsQoS() passed to every create_subscription/create_publisher call)",
+    "references[api:rclcpp::Node::create_publisher]": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:122",
+    "references[api:rclcpp::Node::create_subscription]": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:106",
+    "references[api:rclcpp::NodeOptions::use_intra_process_comms]": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:72",
+    "references[api:rclcpp::SystemDefaultsQoS]": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:107",
+    "perm_requires": "searched snapshot/moveit_ros/moveit_servo (src, include, config, launch, tests, CMakeLists.txt, package.xml) for permission/security/sros declarations; none found",
+    "perm_grants": "same search as perm_requires; none found",
+    "recovery.value": "snapshot:moveit_ros/moveit_servo/src/servo_node.cpp:216-225 (joint jog), :248-257 (twist), :277-286 (pose); timeout parameter snapshot:moveit_ros/moveit_servo/config/servo_parameters.yaml:105-110",
+    "exclusive": "searched snapshot/moveit_ros/moveit_servo for exclusive/claim/command_interface; servo publishes to a controller topic (command_out_topic) and claims no hardware interface"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "ServoNode warns users to enable use_intra_process_comms (servo_node.cpp:72-76) yet creates every publisher and subscription with rclcpp::SystemDefaultsQoS(), whose history is SYSTEM_DEFAULT with depth 0; rclcpp's intra-process path requires keep-last history with non-zero depth, so following the node's own advice can make create_publisher/create_subscription throw."
+  },
+  "confidence": "high",
+  "notes": "Package source is snapshot/moveit_ros/moveit_servo (the snapshot is the whole moveit2 tree). All four packet elements are rclcpp APIs this package consumes; none is provided, so declares and not_declared are empty and the four names go into references. The production call sites are in src/servo_node.cpp (built into moveit_servo_lib_ros, CMakeLists.txt:59, registered as component servo_node); demos/cpp_interface/*.cpp, demos/servo_keyboard_input.cpp and tests/*.hpp|cpp also call create_publisher/create_subscription, the tests and cpp demos with rclcpp::SystemDefaultsQoS(). Port fields msg_type, frame, units, rate and definition_id are null because each element is an API symbol, not a topic: create_publisher is instantiated with trajectory_msgs::msg::JointTrajectory, std_msgs::msg::Float64MultiArray and moveit_msgs::msg::ServoStatus; create_subscription with control_msgs::msg::JointJog, geometry_msgs::msg::TwistStamped and geometry_msgs::msg::PoseStamped. All topic names arrive at run time from parameters (joint_command_in_topic, cartesian_command_in_topic, pose_command_in_topic, command_out_topic, status_topic; defaults in config/servo_parameters.yaml:33-73). QoS: the code fixes rclcpp::SystemDefaultsQoS() for every pub/sub; that profile (rmw_qos_profile_system_default, per rclcpp/rmw documentation, not in the snapshot) leaves reliability, durability and history at SYSTEM_DEFAULT and depth at RMW_QOS_POLICY_DEPTH_SYSTEM_DEFAULT (0), so the concrete reliability/durability are selected by the RMW implementation's configuration, which is not in the snapshot; recorded as null. No deadline is set. The nominal loop rate is 1/publish_period with publish_period default 0.034 s (servo_parameters.yaml:144-151, servo_node.cpp:295); not recorded as rate_hz because the ports are API symbols. Launch files in the snapshot (launch/demo_ros_api.launch.py:89-101, tests/launch/servo_ros_integration.test.py:75) launch ServoNode as a composable node without extra_arguments setting use_intra_process_comms. Side observation outside the listed elements: servo_params_.thread_priority is read at servo_node.cpp:82 before servo_params_ is assigned at :103 (the struct's default value would be used)."
+}

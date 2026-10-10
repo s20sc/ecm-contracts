@@ -1,0 +1,59 @@
+{
+  "case_id": "C3-111",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/1123",
+    "https://github.com/ros2/rclpy/pull/1308",
+    "https://github.com/ros2/rclpy/pull/1514",
+    "https://github.com/ros2/rclpy/pull/1517",
+    "https://github.com/ros2/rclpy/pull/1519",
+    "https://github.com/ros2/rclcpp/pull/2531",
+    "https://github.com/CMU-cabot/cabot-navigation/commit/136af463b5162cef29d965652da6bf421aedbdd8",
+    "https://github.com/CMU-cabot/cabot-navigation/commit/798b911fb77b3ee6e1409623af23b5e89a3d6d7c",
+    "https://github.com/CMU-cabot/cabot/commit/e13ddaaa9f9f5f8f8fa8eb3e2c0101b22b06c897",
+    "https://github.com/GOFIRST-Robotics/Lunabotics/commit/6ab52a34fce27c09ed383238bc47f7d5bfb822ae",
+    "https://github.com/nobleo/executive_smach/commit/31ccd607af1568935b2251a5c51f10c78d17a683",
+    "https://github.com/nobleo/executive_smach/pull/7"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter gives a client/server reproducer and the resulting warning \"[WARN] [1691123997.104652764] [action_client]: Ignoring unexpected goal response. There may be more than one action server for the action 'some_action'\"; maintainer fujitatomoya agrees on the cause (\"i think that is correct assumption we have here. `_pending_requests` is protected by `_lock` in the service client.\"), and rclpy PR #1308 (\"Closes #1123\") was merged."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "rclpy (rclpy.action.ActionClient)",
+        "action server node (reporter's rclpy ActionServer)"
+      ],
+      "interface_kind": "action",
+      "evidence": "The defect is a data race between two threads inside the client process: the user thread in send_goal_async and the executor thread in ActionClient.execute. Reporter: \"There is a race condition when sending goal requests, because the goal request can complete before the `sequence_number` is tracked in the `self._goal_sequence_number_to_goal_id` dictionary. Thus `execute` is called before it is tracked, and the `taken_data` is ignored, assumed to be a response from a duplicate action server.\" A correct server replying promptly triggers it; nothing the server assumes or provides is at issue. Contributor: \"the dictionaries like `_goal_sequence_number_to_goal_id` are being edited and read in two threads: the thread that user is sending the goal request in and the thread in which the node spins which calls `async def execute`. So the race condition here is evident from the code itself.\" The fix adds locking inside rclpy's action client/server Python code (PR #1308: \"due to a race condition on the rcl handles\")."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the client sends goal requests to the server and consumes its goal responses (\"result = self._action_client.send_goal(goal_msg)\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"The future never completes, and I see the following line in the logs ... Ignoring unexpected goal response. There may be more than one action server for the action '{ACTION_NAME}'\" (https://github.com/ros2/rclpy/issues/1123)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Reporter's environment: \"rclpy==3.3.7, python3.10\", CycloneDDS, Ubuntu 22.04 binaries (Humble). The maintainer could not reproduce with the tutorial client/server until the reporter pointed out the multi-threaded executor: \"I'm guessing this would only occur in a MultiThreadedExecutor case\". Fix merges: rolling 10f70c9674933159b348524d8872d4bc3d542116 (PR #1308, 2025-10-09), kilted 256d4a3c3bf3c93bd8408574558c9b02a8ef129c (#1514), jazzy e9427a201dbcf0d65ff7ca49b501d0d84ba32dad (#1517), humble 7b049cdf87503387390a56901ef36a7f0127ff04 (#1519); PR #1308 also touches rclpy/action/server.py. The remaining fix refs are downstream workarounds in other projects (CMU-cabot: \"use the same callback group for ActionClient execution and send goal process to avoid the issue https://github.com/ros2/rclpy/issues/1123\"; GOFIRST Lunabotics: \"Temporary Patch to fix rclpy:1123\"; nobleo executive_smach: \"Fix fast actionclients with a patch for https://github.com/ros2/rclpy/issues/1123\") and a separate rclcpp fix, PR #2531 \"fix: Fixed race condition in action server between is_ready and take\" (iron), cited by a commenter for the C++ side. A commenter also reports the same symptom when calling nav2's NavigateToPose action from rclpy, i.e. the same client-internal race with a different server."
+}

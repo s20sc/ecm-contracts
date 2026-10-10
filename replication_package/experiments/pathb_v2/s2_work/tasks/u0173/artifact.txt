@@ -1,0 +1,6 @@
+"The subscriber was set to "reliable"." -- https://answers.ros.org/question/371257
+rclcpp::SubscriptionOptions subscription_options;
+subscription_options.event_callbacks.incompatible_qos_callback = std::bind(&MinimalSubscriber::incompatible_qos_info_callback, this, _1);
+
+subscription_ = this->create_subscription<std_msgs::msg::String>(
+  "topic", qos, std::bind(&MinimalSubscriber::topic_callback, this, _1), subscription_options);

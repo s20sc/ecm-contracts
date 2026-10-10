@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-B-Sig-04",
+  "kind": "A1",
+  "case_id": "B-Sig-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "It looks wrong tf between map and camera_link.",
+    "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["topic:/tf"],
+      "quote": "It looks wrong tf between map and camera_link.",
+      "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["topic:/tf"],
+      "quote": "translate the results back to ROS's FLU orientation. The code shown fails to accomplish the last step.",
+      "url": "https://arxiv.org/abs/2106.11266"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This is initial output of 'rostopic echo tf'. I can see a twisted rotation.",
+    "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Modify TF based on the issue \"Wrong TF between map and camera_link #14 \"."
+  },
+  "notes": "E1 confirmed: issue #14 has reproduction commands (\"$ roslaunch realsense2_camera rs_rgbd.launch\", \"$ roslaunch orb_slam2_ros orb_slam2_d435_rgbd.launch\") and output. E2 stop_step 6 (topic): the wrong transform value crosses the node's /tf output boundary; the broken code at Node.cc@399e75b uses rotation = position_mat.rowRange(0,3).colRange(0,3).t() and translation = rotation*position_mat.rowRange(0,3).col(3), and the fix commit 0903bfa replaces both with a matTrans-based FLU conversion — an interface (frame) failure resolved inside the provider, not wiring/build. Both failed conditions are correct: frame_mismatch (\"It looks wrong tf\") and representation_convention (PHYSFRAME's own words about failing to translate back to FLU, verified in the arxiv HTML). Loudness silent_documented/run is right: the defect was seen only in visualization/rostopic echo, no tooling diagnostic. Resolution recommended is right: PR #15 was merged and the maintainer wrote \"I tested it, works well! Thanks for the contribution.\", but the consumer (rviz) revision is never identified, so the resolved composition is not identified by revision on both sides."
+}

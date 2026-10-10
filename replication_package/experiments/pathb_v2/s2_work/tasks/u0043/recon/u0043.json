@@ -1,0 +1,49 @@
+{
+  "task_id": "u0043",
+  "package": "cob_bringup",
+  "manifest_version": "0.6.5",
+  "ports": [
+    {
+      "element": "param:/sound_controller/mode",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:/sound_controller/mode": "param /sound_controller/mode: string"
+  },
+  "not_declared": [
+    "param:/sound_controller/cepstral_settings",
+    "param:/sound_controller/cepstral_voice"
+  ],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:cob_bringup/package.xml:3",
+    "ports[0].element": "snapshot:cob_bringup/robots/cob4-1.xml:206",
+    "ports[0].side": "snapshot:cob_bringup/robots/cob4-1.xml:206",
+    "ports[0].frame": "<param name=\"/sound_controller/mode\" value=\"cepstral\" /> (a mode selector string with no spatial meaning)",
+    "declares[param:/sound_controller/mode]": "snapshot:cob_bringup/robots/cob4-1.xml:206",
+    "not_declared[param:/sound_controller/cepstral_settings]": "case-insensitive grep for 'cepstral', 'voice', 'sound_controller' over every text file of the snapshot (all 6 packages, 677 files, incl. all launch/xml/yaml): the only 'cepstral'/'sound_controller' hits are the five '<param name=\"/sound_controller/mode\" value=\"cepstral\" />' lines; no 'cepstral_settings' anywhere",
+    "not_declared[param:/sound_controller/cepstral_voice]": "case-insensitive grep for 'cepstral', 'voice', 'sound_controller' over every text file of the snapshot (all 6 packages, 677 files, incl. all launch/xml/yaml): the only 'cepstral'/'sound_controller' hits are the five '<param name=\"/sound_controller/mode\" value=\"cepstral\" />' lines; no 'cepstral_voice' and no 'voice' anywhere",
+    "exclusive": "grep of cob_bringup (72 .launch, 15 .xml, env.sh) for '/dev/', 'hardware_interface', 'exclusive': no hits",
+    "perm_requires": "grep of cob_bringup for 'permission', 'capabilit': no hits",
+    "perm_grants": "grep of cob_bringup for 'permission', 'capabilit': no hits",
+    "recovery": "snapshot:cob_bringup/drivers/sound.launch:5 (the sound node started alongside the param is launched with respawn=\"false\"; no recovery declaration tied to the /sound_controller params)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Bringup sets only the global /sound_controller/mode=cepstral while the packet also names cepstral_voice and cepstral_settings, which it never sets; whether the consumer (cob_sound, launched as /sound/sound_node, not in the snapshot) needs them or reads this namespace at all cannot be seen from here."
+  },
+  "confidence": "high",
+  "notes": "ROS1 launch/XML-only package. /sound_controller/mode is set as an absolute-name <param> with value \"cepstral\" and no type attribute (roslaunch infers string) in five robot files: snapshot:cob_bringup/robots/cob3-2.xml:164, cob3-6.xml:155, cob3-9.xml:172, cob4-1.xml:206, cob4-2.xml:242; each is immediately followed by an include of $(find cob_bringup)/drivers/sound.launch. robots/raw3-4.xml:95 includes sound.launch without setting the param. drivers/sound.launch:5 starts pkg cob_sound type sound as ns=\"sound\" name=\"sound_node\", so the node's private namespace is /sound/sound_node, not /sound_controller; the param reader is outside this package and not in the snapshot. No packet element is consumed by this package, so references is empty. QoS null because ROS 1 params; msg_type/definition_id null because a parameter has no message definition. exclusive/permissions/recovery scoped to cob_bringup; package-wide there are unrelated recovery-like items (respawn=\"true\" on some drivers, drivers/base_driver.launch:19 remap of 'recover', robots/cob4-2.xml:86 recover_grippers node) that do not concern the packet elements. Other snapshot packages (cob_controller_configuration_gazebo) also include cob_bringup's sound.launch but are not this package."
+}

@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_0481047-broken-M1-66cf574393",
+ "kind": "A2",
+ "case_id": "robust_0481047",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "verified",
+   "source_excerpt": "built u0033 (tf2 d9d810ea, package version 0.5.7) snapshot/tf2/include/tf2/buffer_core.h:296: \"  std::string _allFramesAsDot() const;\" (namespace tf2 at :54 \"namespace tf2\", class BufferCore at :88 \"class BufferCore\", public at :90; definition at snapshot/tf2/src/buffer_core.cpp:1320 \"std::string BufferCore::_allFramesAsDot() const\"). running u0035 (tf2 2fd8395d) snapshot/tf2/include/tf2/buffer_core.h:296: \"  std::string _allFramesAsDot(double current_time = 0) const;\"."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "verified",
+   "source_excerpt": "u0032 (tf 1.11.4) snapshot/tf/src/tf.cpp:441: \"  return tf2_buffer_._allFramesAsDot();\" inside \"std::string Transformer::allFramesAsDot() const\" (:439-442), with tf2_ros::Buffer tf2_buffer_ declared at snapshot/tf/include/tf/tf.h:387."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "substantive",
+   "built_excerpt": "u0033 buffer_core.h:296: \"  std::string _allFramesAsDot() const;\" — zero-parameter member function.",
+   "running_excerpt": "u0035 buffer_core.h:296: \"  std::string _allFramesAsDot(double current_time = 0) const;\" — the function now takes one parameter (with a default argument). In C++ a default argument does not create an overload: the zero-argument symbol _allFramesAsDot() that the consumer's call at tf.cpp:441 requires no longer exists as a distinct declaration, so the consumer's dependency changes in arity and effectively in presence."
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The UPGRADE encoding matches the spec's operation: provider tf2 moved from built d9d810ea/0.5.7 (u0033) to running 2fd8395d (u0035) while consumer tf stays at 1.11.4 (u0032). Both ports are real and connected: the producer port is tf2::BufferCore::_allFramesAsDot declared in tf2/include/tf2/buffer_core.h (public member per :54/:88/:90), and the consumer port is the direct member call at tf.cpp:441 \"return tf2_buffer_._allFramesAsDot();\" on the tf2_ros::Buffer member declared at tf.h:387 — the consumer reads exactly the changed element across the library boundary."
+ },
+ "notes": "All cited locations verified verbatim, including the secondary anchors (namespace/class/public lines 54/88/90, definition at buffer_core.cpp:1320). Substance: arity change (0 -> 1 parameter) on the exact function the consumer calls, matching the spec's element_retyped failed condition (PR #74 diff 'std::string _allFramesAsDot() const;' -> 'std::string _allFramesAsDot(double current_time = 0) const;') and the spec's link-failure account. semver_old = semver_new = 0.5.7 (same released version on both sides of the delta); not a trigger value here."
+}

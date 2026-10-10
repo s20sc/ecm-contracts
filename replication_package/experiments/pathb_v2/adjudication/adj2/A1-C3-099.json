@@ -1,0 +1,55 @@
+{
+  "item_id": "A1-C3-099",
+  "kind": "A1",
+  "case_id": "C3-099",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The `ros2 topic echo` seems to cause unlimited memory consumption and makes the system run OOM in a matter of seconds.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/797"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Change Gid.msg to be 16 bytes.",
+      "url": "https://github.com/ros2/rmw_dds_common/pull/68"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "That matches what we have in the rmw/types.h define. Also update the tests to conform.",
+      "url": "https://github.com/ros2/rmw_dds_common/pull/68"
+    },
+    {
+      "index": 2,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The crash is triggered by an invalid (excessively large) size argument passed to `resize`.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/828"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "==139==ERROR: AddressSanitizer: allocator is out of memory trying to allocate 0x16f6337da8 bytes",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/828"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've just tested backporting this to Humble, compiling locally and indeed this fixes the issue reported in https://github.com/ros2/rmw_fastrtps/issues/797",
+    "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/130"
+  },
+  "notes": "Independently verified. #797 body: docker-compose with `image: ros:jazzy` / `command: \"ros2 topic list\"` and `image: ros:humble` / `command: \"ros2 topic echo /chatter std_msgs/String\"`, same ROS_DOMAIN_ID; the OOM quote is verbatim; reporter also notes \"we do see the error output caught in https://github.com/ros2/rmw_fastrtps/pull/737 on the humble node\" and that rmw_cyclone_cpp does not crash — confirming this is a rmw_fastrtps_cpp behaviour. #828: I read \"[ros2run]: Killed\", the ASAN stack (std::vector<rmw_dds_common::msg::Gid_<...> >::resize(unsigned long) called from rmw_dds_common::msg::typesupport_fastrtps_cpp::cdr_deserialize(... NodeEntitiesInfo_<...>&) via ParticipantEntitiesInfo cdr_deserialize and _ParticipantEntitiesInfo__cdr_deserialize), the mechanism quote \"The crash is triggered by an invalid (excessively large) size argument passed to `resize`.\" (reader_gid_seq.resize marked \"// <-- crash*\"), and the bad_alloc handler text \"'Bad alloc' exception deserializing message of type %s.\". rmw_dds_common PR #68 title is verbatim \"Change Gid.msg to be 16 bytes.\" (MERGED, clalancette). All three failed-condition quotes check out. element_retyped for field Gid.data follows S1's rule (declaration changed, element still present; definition_mismatch listed alongside). Condition 3 as `other` (unvalidated wire sequence length — an internal defect of the composition's deserializer) is per S1's treatment of internal defects. Loudness: silent_documented/run is right — the only messages are run-time deserialization errors that do not identify a type/definition mismatch; humble has no type-hash check at connection. Resolution: recommended is right — urfeex's working observation is a locally compiled Humble backport with a Rolling (not Jazzy) publisher, with the fix's output \"sequence size exceeds remaining buffer\" and \"No memory footprint increase observable :-)\"; per S1 a fix shown working with a different peer is recommended, and neither side's revision is identified; #828's later \"the issue no longer occurs\" states no versions."
+}

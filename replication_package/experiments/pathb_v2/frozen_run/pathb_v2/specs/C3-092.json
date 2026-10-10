@@ -1,0 +1,49 @@
+{
+ "case_id": "C3-092",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/moveit/moveit2/issues/1570",
+  "https://github.com/ament/ament_cmake/pull/395"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Reporter gives exact build steps (ROS 2 Humble, MoveIt2 humble branch from source, colcon build) and the error \"CMake Error at /home/adivekar/ws_moveit2/install/moveit_core/share/moveit_core/cmake/ament_cmake_export_targets-extras.cmake:18 (message): Failed to find exported target names in '/home/adivekar/ws_moveit2/install/moveit_core/share/moveit_core/cmake/export_moveit_coreExport.cmake'\"; several other users report the same error with other packages. -- https://github.com/moveit/moveit2/issues/1570"
+  },
+  "E2": {
+   "pass": false,
+   "stop_step": 4,
+   "reason_code": "build",
+   "units_identified": [
+    "CMake (>= 3.24)",
+    "ament_cmake_export_targets"
+   ],
+   "interface_kind": null,
+   "evidence": "The failure is between two build tools: CMake 3.24's generated export file and ament_cmake_export_targets' CMake-script regex that parses it. PR #395 (merged into rolling 2022-08-11, merge commit ca8c26ea3c89e69c0c636b7cd0c088674c689f5f): \"The latest CMake 3.24 has tweaked its export template, so the regular expression in `ament_cmake_export_targets-extra.cmake` no longer matches. This PR relaxes the regex to match both the old and the new template.\" The minimal resolving change is to the build-system script only: \"-    set(_regex \"foreach\\\\(_expectedTarget (.+)\\\\)\")\" replaced by \"+    set(_regex \"foreach\\\\((_cmake)?_expected_?[Tt]arget (IN ITEMS )?(.+)\\\\)\")\" in ament_cmake_export_targets/cmake/ament_cmake_export_targets-extras.cmake.in -- https://github.com/ament/ament_cmake/pull/395. No ROS runtime interface (topic, service, action, parameter, message definition, library API) of MoveIt or any other ROS unit is involved; moveit_core's own targets and interfaces are unchanged. A user confirms the workaround by editing the same file under /opt/ros/humble/share/ament_cmake_export_targets/cmake (issue comment 2022-10-08)."
+  },
+  "E3": {
+   "pass": null,
+   "evidence": "Not evaluated past E2 (the scenario is a build-tool upgrade: CMake 3.24 generating a changed export template)."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Build failure (CMake Error, colcon 'Failed <<< moveit_resources_prbt_ikfast_manipulator_plugin') documented in the issue."
+  }
+ },
+ "eligible": false,
+ "ineligible_reason": "build",
+ "units": null,
+ "operation": null,
+ "consumer_built_against": null,
+ "inventory": null,
+ "failed_conditions": null,
+ "outcome_class": null,
+ "loudness": null,
+ "loudness_evidence": null,
+ "detection_stage": null,
+ "resolution": null,
+ "ros_generation": null,
+ "excerpt_based": null,
+ "confidence": null,
+ "notes": null
+}

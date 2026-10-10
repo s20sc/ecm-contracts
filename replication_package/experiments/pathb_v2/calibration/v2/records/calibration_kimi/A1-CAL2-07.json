@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-CAL2-07",
+ "kind": "A1",
+ "case_id": "CAL2-07",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "There is a heavy mismatch here between the message/C++ types and Python types. `string` is 8-bit data which does not have encoding, neither does `std::string`. Message strings *ought* to be UTF-8, but this is not enforced. But Python strings always enforce an encoding. So it is perfectly possible to publish data from C++, which gets mangled when received in Python.",
+   "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1210405369"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "disagree",
+  "proposed": {"loudness": "silent_documented", "detection_stage": "run"},
+  "quote": "  File \"/opt/ros/foxy/lib/python3.8/site-packages/rclpy/executors.py\", line 347, in _take_subscription\n    msg_info = _rclpy.rclpy_take(capsule, sub.msg_type, sub.raw)\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "With https://github.com/ros2/rosidl_python/pull/176 merged, I believe this issue is resolved for Rolling.",
+  "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1209995906"
+ },
+ "notes": "Eligibility agreed at step 6 (topic interface; the encoding of the string value crossing the boundary is a representation_convention — arbitrary bytes from C++ vs strict UTF-8 decode in the generated Python type support). Elements field:std_msgs/String.data and topic:/topic are right. Loudness disagreement: the spec records loud_documented with detection_stage 'connect' and an evidence text claiming 'the consumer logs an incompatibility error naming the element before any data is exchanged' — no such connect-time error exists in this source. What the issue shows is a Python traceback raised inside _take_subscription during rclpy.spin, i.e. the failure itself observed while processing data at run time; there is no compiler/import error, md5/type mismatch at connection, incompatible-QoS event, claim error, or launch error. Per the definitions that is silent_documented with detection_stage run. Resolution recommended agreed: the maintainer's working demonstration was on a rolling source build with his own publisher (a different peer and distro), and the reporter's foxy composition with the backport was never shown working."
+}

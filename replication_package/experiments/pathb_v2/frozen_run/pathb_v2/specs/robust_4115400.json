@@ -1,0 +1,96 @@
+{
+  "case_id": "robust_4115400",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_desktop/issues/38",
+    "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76666000",
+    "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76669013",
+    "https://github.com/yujinrobot/kobuki_desktop/pull/39",
+    "https://github.com/yujinrobot/kobuki_desktop/pull/39#issuecomment-76671612",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/4115400a5a9b88bf65bb97a5d44a9a2a695faa55",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/494e73708ca02da29d6ea7c0a264bd4379a7ab78",
+    "https://github.com/yujinrobot/kobuki/blob/06e60c2bba4c73699f69ffc61250f1ad152a931a/kobuki_description/urdf/kobuki_gazebo.urdf.xacro#L186"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer in the issue body: \"- Start two gazebo kobukis (segbot + kobuki is ok)\\n- Send commands to cmd_vel of one kobuki\\n- KGP catches these and moves around properly in gazebo world\\n- **KGP does not post rotations to the odom topic (translations are there)**\\n- **KGP does not publish rotation information on base_footprint-odom tf.**\"; diagnosis by slivingston: \"The bug is due to the different Kobuki plugins using the same ImuSensor.\"; fix merged as PR #39 and confirmed by the maintainer."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_gazebo_plugins (model instance 1)", "kobuki_gazebo_plugins (model instance 2)"],
+      "interface_kind": "exclusive resource",
+      "evidence": "Step 1: the units are two deployed instances of the gazebo_ros_kobuki model plugin (package kobuki_gazebo_plugins), one per spawned robot model, both loaded into the same Gazebo process; they interact through Gazebo's global sensor registry. Step 2: the failure occurs only when a second instance is present (\"there is apparently correct behavior in the case of a single Kobuki\"): each instance resolves its IMU with the unscoped name 'imu' (sensors::SensorManager::Instance()->GetSensor(imu_name) at gazebo_ros_kobuki_loads.cpp:298), so both bind the same ImuSensor object and one robot's orientation is read from the other's sensor; the failure depends on the peer instance, so not internal. Step 3: the resolving change is in the plugin's code (fully scoped lookup), not a launch or parameter binding. Steps 4-5 do not apply. Interface kind: exclusive resource (the Gazebo sensor named 'imu', which each instance must own exclusively)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "CONCURRENT: two instances of the plugin active at the same time in one simulation (\"Start two gazebo kobukis\"); a single instance works."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"KGP does not post rotations to the odom topic (translations are there)\" and \"KGP does not publish rotation information on base_footprint-odom tf.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_gazebo_plugins (model instance 1)",
+      "role": "peer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "06d8fa710928ba5623939ce42f760838cd0f4667",
+      "resolved_rev": "4115400a5a9b88bf65bb97a5d44a9a2a695faa55",
+      "pinned": true,
+      "revision_basis": "06d8fa71 is tag 0.4.1 (2014-09-19, indigo), the parent of the fix merge and the revision slivingston's diagnosis links for the unscoped lookup (\"line 289 of gazebo_ros_kobuki_loads.cpp\" at 06d8fa71); the report (2014-09-23) names no revision, and this is the release current on the report date. 4115400a is the merge of PR #39 (commit 494e7370, 'kobuki_gazebo_plugins: Resolve IMU sensor using fully scoped name') into indigo on 2015-03-02, contained in tag 0.4.2 (same day).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "kobuki_gazebo_plugins (model instance 2)",
+      "role": "peer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "06d8fa710928ba5623939ce42f760838cd0f4667",
+      "resolved_rev": "4115400a5a9b88bf65bb97a5d44a9a2a695faa55",
+      "pinned": true,
+      "revision_basis": "Same package and revisions as instance 1: both robots are spawned from the same kobuki_gazebo.urdf.xacro and load the same libgazebo_ros_kobuki plugin; the reporter's second model (\"segbot + kobuki is ok\") also embeds the Kobuki plugin.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "CONCURRENT",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "resource:imu", "sides": {"kobuki_gazebo_plugins (model instance 1)": "consumes", "kobuki_gazebo_plugins (model instance 2)": "consumes"}},
+    {"element": "resource:bumpers", "sides": {"kobuki_gazebo_plugins (model instance 1)": "consumes", "kobuki_gazebo_plugins (model instance 2)": "consumes"}},
+    {"element": "resource:cliff_sensor_left", "sides": {"kobuki_gazebo_plugins (model instance 1)": "consumes", "kobuki_gazebo_plugins (model instance 2)": "consumes"}},
+    {"element": "resource:cliff_sensor_front", "sides": {"kobuki_gazebo_plugins (model instance 1)": "consumes", "kobuki_gazebo_plugins (model instance 2)": "consumes"}},
+    {"element": "resource:cliff_sensor_right", "sides": {"kobuki_gazebo_plugins (model instance 1)": "consumes", "kobuki_gazebo_plugins (model instance 2)": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "exclusive_resource_conflict",
+      "implicated_elements": ["resource:imu"],
+      "quote": "The basic problem is that the sensor name, as obtained on [line 289 of gazebo_ros_kobuki_loads.cpp](https://github.com/yujinrobot/kobuki_desktop/blob/06d8fa710928ba5623939ce42f760838cd0f4667/kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp#L289) is not scoped. Thus it is the same when multiple models are spawned using the same URDF file, namely kobuki_gazebo.urdf.xacro, which declares the imu name [at line 186](https://github.com/yujinrobot/kobuki/blob/06e60c2bba4c73699f69ffc61250f1ad152a931a/kobuki_description/urdf/kobuki_gazebo.urdf.xacro#L186). Hence, the sensor obtained by `sensors::SensorManager::Instance()->GetSensor()` is subject to a race condition.",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76669013"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "\"KGP does not post rotations to the odom topic (translations are there)\" and \"KGP does not publish rotation information on base_footprint-odom tf.\" (https://github.com/yujinrobot/kobuki_desktop/issues/38): the second instance's GetSensor('imu') succeeds and returns the other model's sensor, so no error is raised (the plugin's 'Couldn't find the IMU in the model!' branch is not taken); the wrong orientation is only visible in the published data.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "In GazeboRosKobuki::prepareIMU() resolve the IMU with its fully scoped name, sensors::get_sensor(world_->GetName()+\"::\"+node_name_+\"::base_footprint::\"+imu_name), instead of SensorManager::Instance()->GetSensor(imu_name), so each plugin instance binds the sensor of its own model (PR #39, commit 494e7370, merged as 4115400a).",
+    "status": "observed",
+    "evidence": "Maintainer jihoonl on PR #39: \"I have confirmed that it resolves #38. Thanks @slivingston!!!\" (https://github.com/yujinrobot/kobuki_desktop/pull/39#issuecomment-76671612), and on the issue: \"This has been resolved witih #39\" (https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76671649); resolved composition = two instances of kobuki_gazebo_plugins at 4115400a (PR head 494e7370 merged into indigo)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Alternative framing: kobuki_gazebo_plugins (consumer) against Gazebo's sensors API (provider), where GetSensor(name) with an unscoped name returns the first registered match; recorded as two co-active plugin instances because the failure only exists with a second model and the reporter's report is 'Multi-Gazebo Kobukis'. The name 'imu' is declared by a third, unchanged unit, kobuki_description's kobuki_gazebo.urdf.xacro (kobuki 06e60c2b: line 148 '<sensor type=\"imu\" name=\"imu\">' under gyro_link and line 186 '<imu_name>imu</imu_name>' passed to the plugin); the resolved lookup scopes it under '::base_footprint::' because Gazebo merges the fixed-joint links into base_footprint. The bumper and the three cliff sensors are resolved by the same unscoped GetSensor(name) calls at 06d8fa71 (lines 216-220, 271) and are listed in the inventory as shared names; no failure of theirs is documented and the fix does not change them. An earlier patch in the thread (tf::Quaternion::setRPY instead of setEuler in gazebo_ros_kobuki_updates.cpp) was tested and found \"not sufficient\" and is not part of the resolution. Issue #31 (tf_prefix / odom namespacing for multiple models) is a related but separate composition. The related Gazebo Answers thread on multiple robots with sensor plugins (http://answers.gazebosim.org/question/4878/) was linked but not fetched. The PR was made against the indigo branch and the concert examples in the thread are indigo; the reporter does not state the distro, so ros_distro is left null."
+}

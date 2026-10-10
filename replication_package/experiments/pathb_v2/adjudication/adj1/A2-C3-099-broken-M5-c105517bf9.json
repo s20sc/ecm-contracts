@@ -1,0 +1,26 @@
+{
+  "item_id": "A2-C3-099-broken-M5-c105517bf9",
+  "kind": "A2",
+  "case_id": "C3-099",
+  "composition": "broken",
+  "method_label": "M5",
+  "rule": "di_definition_mismatch",
+  "values": [
+    {
+      "path": "producer.outputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1 [lines 1-1]\n```\nchar[16] data\n```\nRecomputed sha256_normalised from this opened definition: 18019bf8a2c05fef0196d05cadc03652406576c373119867025c235b7265bc6f."
+    },
+    {
+      "path": "consumer.inputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1 [lines 1-1]\n```\nchar[24] data\n```\nRecomputed sha256_normalised from this opened definition: fe832c5cdf2e6149636fbfd2c4a2a341587e91a73072ab92578cecf493c233c2."
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specification is an UPGRADE (built-against rmw_dds_common 1.6.0, running 3.1.0). The PAIR view compares the running provider definition with the consumer built-against definition; it is not a standalone Gid topic. Gid is nested in ParticipantEntitiesInfo and is consumed through the real ros_discovery_info subscription. Thus the declaration-level dependency and revision pairing agree; this does not assert that mismatched samples deserialize successfully.\nsnapshot:specs/C3-099.json:68 [lines 68-68]\n```\n  \"operation\": \"UPGRADE\",\n```\nsnapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/ParticipantEntitiesInfo.msg:1 [lines 1-2]\n```\nGid gid\nNodeEntitiesInfo[] node_entities_info_seq\n```\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:91 [lines 91-94]\n```\n    rmw_fastrtps_cpp::create_publisher(\n      participant_info.get(),\n      rosidl_typesupport_cpp::get_message_type_support_handle<ParticipantEntitiesInfo>(),\n      \"ros_discovery_info\",\n```\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:119 [lines 119-122]\n```\n    rmw_fastrtps_cpp::create_subscription(\n      participant_info.get(),\n      rosidl_typesupport_cpp::get_message_type_support_handle<ParticipantEntitiesInfo>(),\n      \"ros_discovery_info\",\n```\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171 [lines 171-174]\n```\n          if (std::memcmp(\n              reinterpret_cast<char *>(common_context->gid.data),\n              reinterpret_cast<char *>(&msg.gid.data),\n              RMW_GID_STORAGE_SIZE) == 0)\n```"
+  },
+  "notes": "Both hashes were recomputed in this session, not copied from provenance. The task-local command provenance resolves to u0354 for the running provider and u0353 for the consumer built-against provider. These are normalized-definition proxies, not measured DDS wire type hashes.\nsnapshot:definition_hash.py:94 [lines 94-96]\n```\ndef sha256_normalised(path):\n    lines = [l.split(\"#\", 1)[0].rstrip() for l in open(path).read().splitlines()]\n    return hashlib.sha256(\"\\n\".join(l for l in lines if l.strip()).encode()).hexdigest()\n```"
+}

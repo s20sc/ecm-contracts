@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-110",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/2007",
+    "https://github.com/ros2/rclcpp/pull/2008",
+    "https://github.com/ros2/rclcpp/blob/dab9f5e0a331b9694c4b5aceb8263d49aa052ecb/rclcpp/include/rclcpp/client.hpp#L772"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue names the faulting line and the call that triggers it: \"Segfault happens here: https://github.com/ros2/rclcpp/blob/dab9f5e0a331b9694c4b5aceb8263d49aa052ecb/rclcpp/include/rclcpp/client.hpp#L772 , if `prune_requests_older_than()` is called with default argument, while there's matching request to prune\"; the fix PR #2008 (\"fix nullptr dereference in prune_requests_older_than\", \"Fixes #2007\") adds regression tests and was merged by the maintainers into rolling on 2022-12-13."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "rclcpp (rclcpp::Client)",
+        "application code calling rclcpp::Client::prune_requests_older_than"
+      ],
+      "interface_kind": "library API",
+      "evidence": "The crash is a null-pointer dereference in rclcpp's own implementation, reached by any caller that uses the documented default argument; the caller's use matches rclcpp's own declaration (\"[inout] pruned_requests Removed requests id will be pushed to the vector if a pointer is provided.\"), so the mismatch is between rclcpp's documentation/default and its own code, and it would occur with any correct caller. Fix inside rclcpp: \"-        pruned_requests->push_back(it->first);\\n+        if (pruned_requests) {\\n+          pruned_requests->push_back(it->first);\\n+        }\" (https://github.com/ros2/rclcpp/pull/2008)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the caller invokes the library API: \"client->prune_requests_older_than(someTimeAgo /*, nullptr by default */);\"."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Segmentation fault reported in the title and body (\"SEGFAULT in prune_requests_older_than() if pruned_requests are not provided\")."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "ROS 2 (rclcpp rolling at dab9f5e0a331b9694c4b5aceb8263d49aa052ecb per the linked line). Fix merged in rolling as 1ac37b692c4cce54f0ffeaad1f4fe3d5688322bd; no backport PR is among the given refs. The maintainer initially wrote \"It's hard for me to tell exactly what your problem is from the description\" before the reporter updated the description and opened the PR; no crash log is quoted in the thread, but the merged fix and tests confirm the defect."
+}

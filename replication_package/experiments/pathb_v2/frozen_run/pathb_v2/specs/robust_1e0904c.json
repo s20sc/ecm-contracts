@@ -1,0 +1,98 @@
+{
+  "case_id": "robust_1e0904c",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/pull/165",
+    "https://github.com/ros-industrial/universal_robot/commit/1e0904c38934fe09c9647825caf3b58dda2636f9"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #165 (de-vri-es, 2015-02-16) gives the error log from the robot controller when ur_driver uploads its program: \"TCPServer: Secondary client connected\\nNameError: name 'driverProg' is not defined\\n--------------------------------------\\nTCPReceiver::parseLine: Parse Error   \\ndriverProg()\". Maintainers gavanderhoorn (\"+1 to this change.\") and abubeck (\"This message was annoying me already :)\") confirm and merge it."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "ur_driver",
+        "ur-controller"
+      ],
+      "interface_kind": "wire protocol field (URScript program text uploaded by ur_driver to the controller's secondary client interface, port 30002)",
+      "evidence": "ur_driver (ROS node, ros-industrial/universal_robot) reads ur_driver/prog, fills in hostname and reverse port, and sends it to the UR controller (`PORT=30002`, `self.__sock.sendall(self.program)`). The program ends with a top-level call `driverProg()` after the `def driverProg(): ... end` definition. The controller executes an uploaded program definition by itself and rejects the extra statement (\"It is executed even if you don't. And apparently it's not just unnecessary but also not possible.\"). The text that crosses the boundary violates the controller's program-upload convention; the fix is inside ur_driver's script, but the defect concerns what the peer accepts, so it is an interface failure, not internal. Not deployment wiring, build, or a firmware fault."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: ur_driver's output (the uploaded URScript program) is the controller's input on the secondary client interface."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed controller error on upload: \"The last line in the driver UR script causes the robot controller to spit out an error message. Tested with the simulator versions 1.8, 3.0 and 3.1.\" followed by the log \"TCPReceiver::parseLine: Parse Error\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "ur_driver",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "3a5a13129eb482988c98a4d6311419158b37109f",
+      "resolved_rev": "1e0904c38934fe09c9647825caf3b58dda2636f9",
+      "pinned": true,
+      "revision_basis": "PR #165's commit b96e107 has parent 3a5a131 (hydro-devel head, 2015-01-21), which is also the first parent of the merge 1e0904c; ur_driver/prog at 3a5a131 ends with `driverProg()`. Resolved: merge 1e0904c (hydro-devel), which removes that line. abubeck: \"I will merge this into hydro and also add it for indigo.\"",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "ur-controller",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2015-02-16",
+      "resolved_rev": "as-reported-2015-02-16",
+      "pinned": false,
+      "revision_basis": "Proprietary UR controller software (URSim / robot controller), no public repository. The reporter states \"Tested with the simulator versions 1.8, 3.0 and 3.1\" (PR #165, 2015-02-16) without attributing the quoted log to one of them; the label stands for those reported simulator versions. Described from the source's statements (excerpt). The resolution does not change this unit.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "api:driverProg", "sides": {"ur_driver": "provides", "ur-controller": "consumes"}},
+    {"element": "resource:tcp/30002", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}},
+    {"element": "resource:tcp/30003", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}},
+    {"element": "api:socket_open", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}},
+    {"element": "api:socket_send_int", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}},
+    {"element": "api:socket_read_binary_integer", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}},
+    {"element": "api:servoj", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}},
+    {"element": "api:movej", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}},
+    {"element": "api:set_payload", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}},
+    {"element": "api:set_digital_out", "sides": {"ur-controller": "provides", "ur_driver": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:driverProg", "resource:tcp/30002"],
+      "quote": "The last line in the driver UR script causes the robot controller to spit out an error message. Tested with the simulator versions 1.8, 3.0 and 3.1. I'm not sure about older versions, but I know it's not necessary to call your program after sending it. It is executed even if you don't. And apparently it's not just unnecessary but also not possible.",
+      "url": "https://github.com/ros-industrial/universal_robot/pull/165"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The controller's program receiver reports a parse error when the program is uploaded: \"TCPServer: Secondary client connected\\nNameError: name 'driverProg' is not defined\\n--------------------------------------\\nTCPReceiver::parseLine: Parse Error   \\ndriverProg()\\n--------------------------------------\" (https://github.com/ros-industrial/universal_robot/pull/165). The program itself still runs (\"It is executed even if you don't\"); maintainer abubeck: \"This message was annoying me already :)\".",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Remove the trailing top-level `driverProg()` call from ur_driver/prog so that the uploaded program is only the function definition, which the controller executes on its own (merge 1e0904c of PR #165). Controller unchanged.",
+    "status": "recommended",
+    "evidence": "PR #165: \"If not this PR fixes the parse errors given by the robot controller.\"; merged by maintainer abubeck. The reporter's check that a program runs without the explicit call was made with URSim 1.5.8077 (\"That already executes the function if you don't call it, and it gives the same parse error if you do\"), a different controller version, using a test program rather than the resolved ur_driver revision."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Roles: in this PAIR ur_driver supplies the program and the controller consumes (parses and executes) it; the controller supplies the socket interfaces and URScript built-ins that the program and the driver use. Inventory uses `resource:tcp/<port>` for controller socket interfaces (driver.py: `PORT=30002       # 10 Hz, RobotState`, `RT_PORT=30003    #125 Hz, RobotStateRT`) and `api:` for URScript built-ins called in prog (a subset, capped at 10; prog also calls socket_send_string, stopj, sync, set_flag, set_analog_out, set_tool_voltage, sleep, sin, cos). The reverse-port socket (DEFAULT_REVERSE_PORT = 50001) connects ur_driver to its own program running on the controller and is not listed. Additional source statements: de-vri-es tested URSim 1.5.8077 and got the same parse error with a test program (\"NameError: name 'main' is not defined ... TCPReceiver::parseLine: Parse Error\") and quotes the version 1.2 script manual: \"A urscript program is declared as a function without parameters:\" followed by `def myProg():` / `end`; gavanderhoorn first assumed the call \"was indeed necessary on the older system versions\" (the line dates to 387bdaa1) and then agreed it was never required. de-vri-es also notes that RESET_PROGRAM in driver.py already omits the self-call. The eligibility call at E2 step 2 is a judgment: the defect is a line in ur_driver's own script, but it is a violation of the peer's program-upload convention by text that crosses the boundary, and whether older controllers required the call was the open question in the thread."
+}

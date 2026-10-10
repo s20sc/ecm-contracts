@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-140",
+  "kind": "A1",
+  "case_id": "C3-140",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "reason": "E1 documents a concrete marking/clearing defect. The incoming scan is not shown to violate an interface assumption. The obstacle layer compares metric distances for marking and discretized distances for clearing, consuming both calculations in its own grid. E2 therefore stops at internal for scan source to obstacle layer; a hypothetical downstream costmap consumer is not the reported failed composition.",
+    "quote": "Therefore, it can be the case that the point lies just outside the `obstacle_max_range` within a given cell and it isn't marked, but the clearance range still hits that same cell, so it gets cleared.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5476#issuecomment-3248253572"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Have observed that when reversing away from an obstacle, as it moves outside the `obstacle_max_range`, the obstacle is cleared away instead of persisting.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5476",
+    "reason": "Null is not applicable after exclusion. The report describes a visible wrong grid, not a documented interface diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Have observed that when reversing away from an obstacle, as it moves outside the `obstacle_max_range`, the obstacle is cleared away instead of persisting.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5476",
+    "reason": "The observation is at runtime; the null stage remains appropriate for an ineligible case."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "When marking obstacles from new observations, the check against `obstacle_max_range` is done in grid cell space for consistency with the ray tracing free space check  against `raytrace_max_range`",
+    "url": "https://github.com/ros-navigation/navigation2/pull/5697",
+    "reason": "Null is not applicable, not no fix. The primary fix and Jazzy backport document the internal correction and simulation testing."
+  },
+  "notes": "Read the report, all returned issue comments, PR 5697 and the obstacle_layer.cpp diff, and PR 5775. No listed conditions need adjudication. The two range calculations are within one layer, not a metres-versus-cells convention exchanged with the scan publisher."
+}

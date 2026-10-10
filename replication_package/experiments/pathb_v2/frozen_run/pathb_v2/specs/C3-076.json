@@ -1,0 +1,52 @@
+{
+  "case_id": "C3-076",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/2263",
+    "https://github.com/ros-controls/ros2_controllers/pull/2214",
+    "https://github.com/ros-controls/ros2_controllers/pull/2267",
+    "https://github.com/ros-controls/ros2_controllers/pull/2270",
+    "https://github.com/ros-controls/ros2_controllers/pull/2271"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Maintainer-filed (christophfroehlich) code-hygiene item naming concrete locations: \"We use pre-commit for linting. Therefore, there is no need to add any ament linters as dependency or in the CMakeLists.txt\" and \"present in the following three packages\" (https://github.com/ros-controls/ros2_controllers/issues/2263). Marginal: it records a redundancy, not a malfunction; the case exits at E2 step 4 either way."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": [
+        "gps_sensor_broadcaster / imu_sensor_broadcaster / omni_wheel_drive_controller",
+        "ament_lint_auto / ament_lint_common"
+      ],
+      "interface_kind": null,
+      "evidence": "The resolving change only removes test dependencies and CMake test-lint calls: in gps_sensor_broadcaster/package.xml and imu_sensor_broadcaster/package.xml \"-  <test_depend>ament_lint_auto</test_depend>\" / \"-  <test_depend>ament_lint_common</test_depend>\", and in omni_wheel_drive_controller/CMakeLists.txt \"-  find_package(ament_lint_auto REQUIRED)\" / \"-  ament_lint_auto_find_test_dependencies()\" (https://github.com/ros-controls/ros2_controllers/pull/2267/files). No interface of any unit changes; this is a build/packaging-only change."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 4)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 4). No failure or warning is reported."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Exit step: E2 step 4 (build). Origin: review comment on PR #2214 (new magnetometer_broadcaster) by bmagyar: \"Please remove ament_lint. We use pre-commit for that sort of stuff.\" (https://github.com/ros-controls/ros2_controllers/pull/2214#discussion_r3011702253); PR #2214 itself adds a new broadcaster and is not a fix of this issue. Fix PR #2267 merged 2026-03-31 into master (merge commit 7d3babc88467044ba1bd4ac90803c7d31ffb6ce7); Mergify backports #2270 (jazzy, 3b5e9b276985057e7d64eea37103bea7892db702) and #2271 (kilted, 6fd6ea91f9298b837ad59920f2ea74d78ee13cf1)."
+}

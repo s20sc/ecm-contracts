@@ -1,0 +1,124 @@
+{
+  "task_id": "u0135",
+  "package": "kobuki_node",
+  "manifest_version": "0.1.0",
+  "ports": [
+    {
+      "element": "field:diagnostic_msgs/DiagnosticStatus.name",
+      "side": "provides",
+      "msg_type": "diagnostic_msgs/DiagnosticStatus",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:diagnostic_msgs/DiagnosticStatus.values",
+      "side": "provides",
+      "msg_type": "diagnostic_msgs/DiagnosticStatus",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:diagnostic_msgs/KeyValue.key",
+      "side": "provides",
+      "msg_type": "diagnostic_msgs/KeyValue",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:diagnostic_msgs/KeyValue.value",
+      "side": "provides",
+      "msg_type": "diagnostic_msgs/KeyValue",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:diagnostic_msgs/DiagnosticArray",
+      "side": "provides",
+      "msg_type": "diagnostic_msgs/DiagnosticArray",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [
+    "topic:/diagnostics_agg"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "on velocity command timeout (odometry.commandTimeout()) the node zeroes base control with kobuki.setBaseControl(0, 0) once per timeout episode"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:CMakeLists.txt:17 | rosbuild_make_distribution(0.1.0)",
+    "ports[0].msg_type": "snapshot:kobuki_node/scripts/laptop_battery.py:51 | from diagnostic_msgs.msg import DiagnosticStatus, DiagnosticArray, KeyValue",
+    "ports[0].frame": "snapshot:kobuki_node/scripts/laptop_battery.py:150 | rv.name    = 'Laptop Battery'",
+    "ports[1].msg_type": "snapshot:kobuki_node/scripts/laptop_battery.py:51 | from diagnostic_msgs.msg import DiagnosticStatus, DiagnosticArray, KeyValue",
+    "ports[1].frame": "snapshot:kobuki_node/scripts/laptop_battery.py:156 | rv.values.append(KeyValue('Voltage (V)',          str(laptop_msg.voltage)))",
+    "ports[2].msg_type": "snapshot:kobuki_node/scripts/laptop_battery.py:51 | from diagnostic_msgs.msg import DiagnosticStatus, DiagnosticArray, KeyValue",
+    "ports[2].frame": "snapshot:kobuki_node/scripts/laptop_battery.py:156 | rv.values.append(KeyValue('Voltage (V)',          str(laptop_msg.voltage)))",
+    "ports[3].msg_type": "snapshot:kobuki_node/scripts/laptop_battery.py:51 | from diagnostic_msgs.msg import DiagnosticStatus, DiagnosticArray, KeyValue",
+    "ports[3].frame": "snapshot:kobuki_node/scripts/laptop_battery.py:156 | rv.values.append(KeyValue('Voltage (V)',          str(laptop_msg.voltage)))",
+    "ports[4].msg_type": "snapshot:kobuki_node/scripts/laptop_battery.py:173 | self._diag_pub  = rospy.Publisher('/diagnostics', DiagnosticArray)",
+    "ports[4].frame": "snapshot:kobuki_node/scripts/laptop_battery.py:221 | diag.header.stamp = rospy.get_rostime()",
+    "not_declared[topic:/diagnostics_agg]": "searched all files under snapshot/ (grep for 'diagnostics_agg', '_agg', 'aggregat'): no occurrence in kobuki_node; kobuki_node publishes DiagnosticArray only on '/diagnostics' (snapshot:kobuki_node/scripts/laptop_battery.py:173) and through diagnostic_updater::Updater (snapshot:kobuki_node/include/kobuki_node/kobuki_node.hpp:142, updater.update() at snapshot:kobuki_node/src/node/kobuki_node.cpp:241); the only aggregator in the snapshot is a diagnostic_aggregator node launched by another package (snapshot:kobuki_bringup/resources/launch/minimal.launch:13)",
+    "perm_requires.state": "searched snapshot:kobuki_node (manifest.xml, src, include, scripts) and kobuki_bringup launch/yaml for permission, security, sros, keystore, policy declarations: none",
+    "perm_grants.state": "searched snapshot:kobuki_node (manifest.xml, src, include, scripts) and kobuki_bringup launch/yaml for permission, security, sros, keystore, policy declarations: none",
+    "recovery.state": "snapshot:kobuki_node/src/node/kobuki_node.cpp:216 | if ( (kobuki.isEnabled() == true) && odometry.commandTimeout()) {",
+    "recovery.value": "snapshot:kobuki_node/src/node/kobuki_node.cpp:220 | kobuki.setBaseControl(0, 0);"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "kobuki_node does not publish /diagnostics_agg at this revision; it publishes DiagnosticArray on /diagnostics (laptop_battery.py and diagnostic_updater), and /diagnostics_agg comes from the diagnostic_aggregator node launched by kobuki_bringup, which is the normal ROS 1 arrangement rather than evidence of a defect. The status names and KeyValue keys it writes look coherent with the aggregator config, but some KeyValue values are hard-coded placeholders (Current (A) 3.14, Capacity (Ah) 2.2 marked TODO), and without the paired consumer's expectations I cannot say whether any listed element mismatches."
+  },
+  "confidence": "medium",
+  "notes": "Snapshot is the whole rosbuild kobuki stack; the task package is snapshot/kobuki_node (manifest.xml has no <version>; manifest_version 0.1.0 is the stack distribution version from the stack CMakeLists.txt, since rosbuild packages carry no own version). Two executables of kobuki_node publish diagnostic_msgs/DiagnosticArray: scripts/laptop_battery.py explicitly on '/diagnostics' (line 173; DiagnosticStatus.name set at line 150, DiagnosticStatus.values appended at lines 156-160 with KeyValue built positionally, so KeyValue.key/KeyValue.value are written through the constructor, not by field name), and the C++ kobuki_node through diagnostic_updater::Updater (kobuki_node.hpp:142; status names from DiagnosticTask(\"Battery\") etc. in diagnostics.hpp:67-176; KeyValue pairs from stat.add/stat.addf in diagnostics.cpp:72-162); the Updater's topic name and field writes live in the diagnostic_updater library, which is not in the snapshot. definition_id is null for all ports and the msg/field elements are in neither declares nor not_declared: the diagnostic_msgs definitions (DiagnosticArray, DiagnosticStatus, KeyValue, std_msgs/Header) are not in the snapshot, and the packet's ros_distro is null, so no release tag is defined for fetching them (the snapshot carries both electric and fuerte rosinstall files, so choosing one would be a guess). The code's usage (Python str assigned to name; KeyValue objects appended to values; string key/value pairs) is consistent with string / KeyValue[] / string / string, but the field types as written in the definition could not be read from an allowed source, so they are not recorded in declares. frame 'none': diagnostics carry no spatial meaning; laptop_battery.py sets only header.stamp (line 221), never header.frame_id. QoS null (ROS 1). rate_hz null: laptop_battery.py publishes once per iteration of a rospy.Rate(1.0) loop (line 251), while the C++ node calls updater.update() from a ros::Rate loop_rate(10) loop (kobuki_node.cpp:211, 241) and the actual publication period is set inside diagnostic_updater (not in the snapshot), so no single rate is statically fixed for these elements. exclusive empty: kobuki_node reads device_port at run time (kobuki_node.cpp:131; kobuki_bringup kobuki.yaml sets /dev/kobuki) and the serial open in kobuki_driver declares no exclusive lock. references empty: every packet element is on the provides side. Also relevant: laptop_battery.py reports stale battery data as DiagnosticStatus.ERROR 'Laptop battery data stale' (lines 237-239)."
+}

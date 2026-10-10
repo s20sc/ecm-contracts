@@ -1,0 +1,109 @@
+{
+  "case_id": "robust_6a7a506",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/motoman/issues/81",
+    "https://github.com/ros-industrial/motoman/issues/76",
+    "https://github.com/ros-industrial/motoman/commit/6a7a506290af111727ececa3baaee9f7afed58a7",
+    "https://github.com/ros-industrial/motoman/commit/ea6638bfff27f1ebab5685da4df54d72b6a282c9",
+    "https://github.com/ros-industrial/motoman/blob/6c89ebfa999aa750df9e215097563ce29f5e34db/motoman_sia5d_support/urdf/sia5d_macro.xacro"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue #81 by maintainer gavanderhoorn (2016-02-15): \"Current version of `sia5d_macro.xacro` still refers to mesh files in the `motoman_config` package ([here](https://github.com/ros-industrial/motoman/blob/6c89ebfa999aa750df9e215097563ce29f5e34db/motoman_sia5d_support/urdf/sia5d_macro.xacro#L13) fi). This would make `sia5d_macro.xacro` stop working as soon as #76 is fixed.\" Issue #76 is the maintainer's decision to \"Remove motoman_config pkg before releasing into Indigo\" (\"has been deprecated for quite some time now already\"). The fixing commit 6a7a506 (\"sia5d: use meshes in support pkg. Fix #81. Stop using those in the config package. That has been deprecated since 2014.\") rewrites all 16 mesh references. Concrete defect confirmed by the maintainer, with the exact lines named."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["motoman_config", "motoman_sia5d_support"],
+      "interface_kind": "resource (package-relative mesh file paths, package://motoman_config/meshes/sia5/...)",
+      "evidence": "Step 1: motoman_config (a catkin package that ships the sia5 mesh files) and motoman_sia5d_support (a catkin package whose URDF/xacro references those files by package:// URI) are separately built and separately released packages. Step 2: the failure is the consumer referencing provider resources that the provider's newer revision no longer declares; it depends entirely on the assumption that motoman_config still exists with meshes/sia5/{visual,collision}/*.dae, so it is not internal. Step 3: the resolving change edits the referenced resource URIs inside the URDF (the consumer's referenced interface), not a launch/config remap; and the provider's declared resources were removed outright, so this is not deployment wiring. Step 4: although the provider change is the deletion of a package, the consumer's referenced interface (16 mesh resources) ceases to exist, which is an interface change, not a build-only change. Step 5: not firmware. Step 6: eligible; interface kind is the package:// mesh resource."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (motoman_config, in the motoman repository) moves to a revision (ea6638b, the fix of #76) at which the package and its meshes/sia5 files are gone, while the consumer (sia5d_macro.xacro, unchanged since at least 6c89ebf of 2014-02-04) still references the meshes as they existed at the earlier provider revision. This matches \"a consumer that still references provider elements as they existed at an earlier provider revision is an UPGRADE\". No other operation is supported."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The effect was never observed in the source; the maintainer states the mismatch at code level: \"This would make `sia5d_macro.xacro` stop working as soon as #76 is fixed.\" and, in the fix commit, \"Stop using those in the config package. That has been deprecated since 2014.\" Outcome class is therefore undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "motoman_config",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/motoman",
+      "broken_rev": "ea6638bfff27f1ebab5685da4df54d72b6a282c9",
+      "resolved_rev": "ea6638bfff27f1ebab5685da4df54d72b6a282c9",
+      "pinned": true,
+      "revision_basis": "The issue predicts the failure \"as soon as #76 is fixed\"; #76 was fixed by ea6638b on indigo-devel (2016-06-15T11:54:23Z, \"Remove deprecated motoman_config pkg. Fix #76. Has been deprecated since 2014-01-28, see 1257a94b.\"), a 79-file commit that deletes the whole package. At that revision the path motoman_config/ does not exist, which is the broken provider state (git archive resolves the revision; the package directory is absent in it). At its parent 3c31e315f446145a2b6268ba4f26fe93423e5f80 the package still holds meshes/sia5/visual/{base,link_s,link_l,link_e,link_u,link_r,link_b,link_t}.dae and the same eight files under meshes/sia5/collision/. The resolution does not touch the provider (the consumer stops using it), so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "motoman_sia5d_support",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/motoman",
+      "broken_rev": "3c31e315f446145a2b6268ba4f26fe93423e5f80",
+      "resolved_rev": "6a7a506290af111727ececa3baaee9f7afed58a7",
+      "pinned": true,
+      "revision_basis": "broken_rev is the parent of the fix on indigo-devel; its sia5d_macro.xacro blob (b21f7fe5c265ba4f809578f4fc5b908f7e3183c0) is identical to the blob at the revision the reporter links (6c89ebfa999aa750df9e215097563ce29f5e34db, 2014-02-04), so the consumer file was unchanged from the reporter's citation to the fix parent. resolved_rev is the fixing commit named in the commit message (\"sia5d: use meshes in support pkg. Fix #81.\"), which rewrites the 16 package://motoman_config/meshes/sia5/... references to package://motoman_sia5d_support/meshes/sia5d/... in sia5d_macro.xacro and sia5d.urdf; the support package already contained meshes/sia5d/visual and meshes/sia5d/collision with the same eight file names at 3c31e31.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "3c31e315f446145a2b6268ba4f26fe93423e5f80",
+    "resolved": null,
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "resource:package://motoman_config/meshes/sia5/visual/base.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/visual/link_s.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/visual/link_l.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/visual/link_e.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/visual/link_u.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/visual/link_r.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/visual/link_b.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/visual/link_t.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/collision/base.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}},
+    {"element": "resource:package://motoman_config/meshes/sia5/collision/link_s.dae", "sides": {"motoman_config": "provides", "motoman_sia5d_support": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": [
+        "resource:package://motoman_config/meshes/sia5/visual/base.dae",
+        "resource:package://motoman_config/meshes/sia5/visual/link_s.dae",
+        "resource:package://motoman_config/meshes/sia5/visual/link_l.dae",
+        "resource:package://motoman_config/meshes/sia5/visual/link_e.dae",
+        "resource:package://motoman_config/meshes/sia5/visual/link_u.dae",
+        "resource:package://motoman_config/meshes/sia5/visual/link_r.dae",
+        "resource:package://motoman_config/meshes/sia5/visual/link_b.dae",
+        "resource:package://motoman_config/meshes/sia5/visual/link_t.dae",
+        "resource:package://motoman_config/meshes/sia5/collision/base.dae",
+        "resource:package://motoman_config/meshes/sia5/collision/link_s.dae"
+      ],
+      "quote": "Current version of `sia5d_macro.xacro` still refers to mesh files in the `motoman_config` package ([here](https://github.com/ros-industrial/motoman/blob/6c89ebfa999aa750df9e215097563ce29f5e34db/motoman_sia5d_support/urdf/sia5d_macro.xacro#L13) fi).\n\nThis would make `sia5d_macro.xacro` stop working as soon as #76 is fixed.",
+      "url": "https://github.com/ros-industrial/motoman/issues/81"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "The source contains no observation of the composition failing and no diagnostic; the issue only predicts that the xacro would \"stop working as soon as #76 is fixed\". On indigo-devel the consumer fix 6a7a506 (2016-06-15T11:46:34Z) landed eight minutes before the package removal ea6638b (2016-06-15T11:54:23Z), so the broken composition never existed as a repository snapshot and nobody reported loading the model against the removed package.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Repoint every mesh reference in motoman_sia5d_support (16 <mesh filename=...> entries in sia5d_macro.xacro and the same 16 in the generated sia5d.urdf) from package://motoman_config/meshes/sia5/{visual,collision}/<link>.dae to package://motoman_sia5d_support/meshes/sia5d/{visual,collision}/<link>.dae, the copies the support package already ships; motoman_config is then removed (ea6638b).",
+    "status": "recommended",
+    "evidence": "Commit 6a7a506 on indigo-devel (\"sia5d: use meshes in support pkg. Fix #81. Stop using those in the config package. That has been deprecated since 2014.\") closed the issue; the source does not show the SIA5D model being loaded or displayed after the change, so the resolved composition is not observed."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Inventory is capped at 10 elements; the remaining six consumed resources are package://motoman_config/meshes/sia5/collision/{link_l,link_e,link_u,link_r,link_b,link_t}.dae, all removed in the same provider revision and all rewritten by the same fix. consumer_built_against.broken is inferred: the consumer's references match the motoman_config tree at every revision from the reporter-linked 6c89ebf (2014-02-04) through 3c31e31 (the last revision before removal), and 3c31e31 is given as the label; consumer_built_against.resolved is null because the resolved consumer no longer references motoman_config at all (it uses its own meshes), so the provider drops out of the resolved composition. Alternative reading considered and rejected: E2 step 4 (build/packaging), since the provider change is a package deletion; rejected because the consumer's referenced resources cease to exist, which the tree treats as an interface change. The broken composition (consumer at 3c31e31 with provider at ea6638b) is hypothetical on the repository timeline because the consumer fix preceded the removal by eight minutes; it is nonetheless the composition the issue describes. The fix also rewrites the generated sia5d.urdf, which is part of the same consumer unit."
+}

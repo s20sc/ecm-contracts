@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-007",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/421",
+    "https://github.com/cyberbotics/webots_ros2/pull/221",
+    "https://github.com/moveit/moveit2/pull/581"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is a release request, not a defect report: \"What's the status on releasing `ros2_control` for Galactic or Rolling? We are planning to [release MoveIt] for both distros end of June and it would be great if this dependency would be available by then.\" -- https://github.com/ros-controls/ros2_control/issues/421. It was closed when the packages had been released: \"Oh yes of course, long since it's been released to both. Closing\". The linked PRs are a feature PR (\"Implement a plugin system in C++ and integrate `ros2_control`\", webots_ros2 #221) and a packaging PR (\"Add missing exec dependencies to demo packages\", moveit2 #581); neither documents a failed interaction between two units."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated: E1 fails. If the missing binary release were treated as a defect, the only failure mentioned is a build-farm failure of control_msgs (\"this is currently blocked on the release of `control_msgs` in Rolling and Galactic with failures on the build farm\"), which would be ineligible `build`."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: no failing operation between two units is documented."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect of a defect on an interaction is documented."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: request for a Galactic/Rolling binary release of ros2_control, not a documented defect; the related changes are release, packaging, and feature work.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Release PRs mentioned by the maintainer: ros/rosdistro#29786, #29785, #30070, #30084. The maintainer delayed the Galactic release for ABI-breaking changes (\"We'd like to get a couple more small ABI breaking changes merged before we release to Galactic.\"), but no consumer breakage is documented here. webots_ros2 PR 221 merge 55043633c37b6afb5b2c80b768ceb0aaa8b7afe7; moveit2 PR 581 merge a1ad6cd9ee7bf3277a8ef6907c0b06a87679b001 (edits package.xml exec dependencies, a galactic .repos file and a galactic CI workflow)."
+}

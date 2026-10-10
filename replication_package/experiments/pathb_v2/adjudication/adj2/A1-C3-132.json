@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-132",
+  "kind": "A1",
+  "case_id": "C3-132",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "At least in my setup using Ardupilot SITL this is published once when `GPS_GLOBAL_ORIGIN` is emitted. This means my nodes requiring this information must be subscribed before this event happens because of the Sensor Quality of Service. Is this really necessary? In my mind it would be nice to allow late-joining of subscribers using another durability setting i.e. transient_local.",
+    "url": "https://github.com/mavlink/mavros/issues/1911"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "This means my nodes requiring this information must be subscribed before this event happens because of the Sensor Quality of Service. ... it would be nice to allow late-joining of subscribers using another durability setting i.e. transient_local.",
+      "url": "https://github.com/mavlink/mavros/issues/1911"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The situation right now requires the subscriber to be ready before `gp_origin` is published or perhaps requiring to use MavLink messages to directly fetch it by itself.",
+    "url": "https://github.com/mavlink/mavros/issues/1911"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "which confirms that the topic is created with the proper qos profile. My test node received the message correctly.",
+    "url": "https://github.com/mavlink/mavros/issues/1911#issuecomment-3285476980"
+  },
+  "notes": "Verified this session: issue 1911 body (2023-10-18) contains verbatim the reporter's paragraph, 'Mavros: 2.6.0', 'ROS: Humble', ArduPilot 4.4.1, and 'I'm currently working on a ros package and here I subscribe to `gp_origin` from the mavros global position plugin.' (also the artifact quote, snapshot:/historical/runs/adjudication_work/A1_05.adj2/artifacts/C3-132.txt:2). haavarpb comment (id 1772732842) contains the quoted loudness sentence verbatim. vooon comments: 'Well, i'm unsure what's best QoS here. Let's try that PR.' and the close 'Fixed by #2065' (id 3289277025). bcrobo comment (id 3285476980) contains the quoted test observation with 'ros2 topic echo --qos-reliability reliable --qos-durability transient_local ...'. Code verified: mavros global_position.cpp at 2.6.0 line 111 'auto sensor_qos = rclcpp::SensorDataQoS();' and lines 127-128 'gp_global_origin_pub = node->create_publisher<geographic_msgs::msg::GeoPointStamped>(' / '\"~/gp_origin\", sensor_qos);' (https://raw.githubusercontent.com/mavlink/mavros/2.6.0/mavros/src/plugins/global_position.cpp). PR 2065 'ROS2: QoS for latched topics' merged 2025-09-14, merge_commit_sha a8e73ce14d132ea77e648afa80f09f9bd026add2; patch adds 'static inline rclcpp::QoS LatchedStateQoS()' with '+  return rclcpp::QoS(10).keep_last(1).reliable().transient_local();' and in global_position.cpp '+    auto origin_qos = mavros::LatchedStateQoS();' with '-      \"~/gp_origin\", sensor_qos);' (https://github.com/mavlink/mavros/pull/2065/files). PR 1862 'Use SensorDataQoS for gp_origin subscriber' merged b5576dda4ffbe139d87b30576e14e2f0b219ee38; kribe48 issue comment (id 1781647736) contains verbatim 'I updated the subscriber QoS since it did not subscribe to data with the current setting. I am not sure about what QoS to use, but they need to be the same on both sides' -- the spec's second-composition note is accurate and correctly kept out of this case's conditions. E2: two units interacting only through the ROS 2 topic; the durability attribute of the one-shot publication relative to subscriber timing crosses the boundary; fix changes declared publisher QoS in code -> stop 6. qos_durability with the single topic element agrees. Outcome failure ('no data' for late joiners) per the reporter's own observation. Loudness silent/run: no ROS diagnostic in the thread; the effect is missing messages. Resolution recommended: maintainer says 'Fixed by #2065' but the only working observation (bcrobo) uses the predecessor PR's QoS with his own test node and topic echo, not the reporter's package, and the reporter never confirmed -- S1 explicitly maps 'a fix shown working with a different client or peer' to recommended."
+}

@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-09",
+  "kind": "A1",
+  "case_id": "CAL-09",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "You are correct, it should work.\n\nAnd I confirmed it here; I'm seeing the same problem on Humble.",
+    "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1303518557"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "statistics include `NaN` data in the message, when it is being converted with `rosidl_python`, it detects the following.\n\n```bash\nUnable to convert call argument to Python object (compile in debug mode for details)\n```",
+      "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1304061993"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "`ros2 topic echo /statistics` fails with the following error:\n\n```\nUnable to convert call argument to Python object (compile in debug mode for details)\n```",
+    "url": "https://github.com/ros2/ros2/issues/1341"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I just confirmed that the backports work when building humble from sources with @clalancette's PR.",
+    "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1306798327"
+  },
+  "notes": "Sources opened: issue #1341 body and all comments (gh api) - Dockerfile reproducer, the error text, clalancette's confirmation (quoted), fujitatomoya's diagnosis (comment 1304061993, quoted verbatim above), and both fix confirmations (fujitatomoya 1306087432: 'using https://github.com/ros2/ros2/blob/humble/ros2.repos (...) + https://github.com/ros2/rosidl_python/tree/clalancette/humble-backport-nan-fixes, it works.'; reporter 1306798327, quoted); StatisticDataPoint.msg at humble via raw.githubusercontent ('# A value of nan represents no data is available.' above 'float64 data'); rosidl_generator_py _msg.py.em at 0.14.2 via raw.githubusercontent - the float/double setter template generates 'all(val >= -@(bound) and val <= @(bound) for val in value)', which is False for NaN. Eligibility: agree, stop 6. E1 holds (reproducer + error + maintainer confirmation). E2 step 1: topic_statistics_demo (provider publishing NaN, which the definition explicitly permits) and rosidl_generator_py (consumer-side: the generated Python message classes whose bounds check rejects NaN) are distinct packages. Step 2: the failure is triggered only by a peer that publishes NaN - a value the shared definition declares legal - so the mismatch is at the boundary, not internal to either unit regardless of peer. Steps 3-5: the fix changes generated code, not name bindings, build, or firmware. Stop 6, topic. E3 PAIR, E4 observed failure. Failed condition: class 'other' agreed - a value-domain assumption (definition allows NaN, consumer's generated setter rejects it) with no named class; elements (field + topic) agreed. Loudness DISAGREED: the spec records loud_documented at stage run while its own evidence states 'No build, connection, or activation diagnostic is reported'; S1 reserves loud_documented for diagnostics from existing tooling at build/connection/activation (compiler or import error, md5/QoS/connect/launch errors), and the pybind11 conversion error here is a runtime library failure while taking a message, not such a diagnostic - proposed silent_documented; detection stage run unchanged. Resolution recommended agreed: the fix is confirmed working, but both confirmations built the demos humble branch (ros2.repos 00f3ba9f), not the specified provider revision 77b75898 (rolling clone), so the specified resolved composition was not itself shown; S1 classifies a fix shown working with a different peer/revision as recommended with that observation as evidence."
+}

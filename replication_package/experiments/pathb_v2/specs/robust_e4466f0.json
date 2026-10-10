@@ -1,0 +1,90 @@
+{
+  "case_id": "robust_e4466f0",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/pull/133",
+    "https://github.com/ros/geometry2/commit/e4466f0f482dcacf79b9ab9deaa70429e161e3a6",
+    "https://github.com/ros/geometry2/commit/beaeacbafe556491d850458481a7c23494e3ef12",
+    "https://raw.githubusercontent.com/ros/geometry2/72fa60575aad885bd1de289240f7b4b20d0a418b/tf2_tools/scripts/view_frames.py",
+    "https://raw.githubusercontent.com/ros/geometry2/72fa60575aad885bd1de289240f7b4b20d0a418b/tf2_ros/src/tf2_ros/buffer.py",
+    "https://raw.githubusercontent.com/ros/geometry2/72fa60575aad885bd1de289240f7b4b20d0a418b/tf2/src/buffer_core.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The packet gives no issue URL; the fixing commit e4466f0 is the maintainer's cherry-pick of the first commit of PR #133 (https://github.com/ros/geometry2/pull/133, opened 2015-12-15 by g-gemignani; tfoote 2016-03-04: \"I've cherry picked the first commit.\"). The PR thread documents the concrete defect with a reproducing condition and observed crash: \"This is a problem when you have a frame that uses a number as name.\\nFor example, in our project we had a frame called \\\"54\\\". This made view_frames.py crash.\" (https://github.com/ros/geometry2/pull/133#issuecomment-165138122). Maintainer confirmation: \"This looks reasonable.\" (https://github.com/ros/geometry2/pull/133#issuecomment-164946725) and the cherry-pick."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["tf2_ros", "tf2_tools"],
+      "interface_kind": "service",
+      "evidence": "Units: tf2_tools (script tf2_tools/scripts/view_frames.py, the view_frames node) and tf2_ros (the Buffer class in tf2_ros/src/tf2_ros/buffer.py, which advertises the ROS service \"rospy.Service('~tf2_frames', FrameGraph, self.__get_frames)\" and answers it with \"return FrameGraphResponse(self.all_frames_as_yaml())\"). view_frames calls that service: \"srv = rospy.ServiceProxy('~tf2_frames', FrameGraph)\" / \"data = yaml.load(srv().frame_yaml)\" and then, in generate_dot, concatenates the decoded keys as strings: \"dot += '\\\"'+map['parent']+'\\\" -> \\\"'+el+'\\\"'\". The frame_yaml text is produced by tf2's BufferCore::allFramesAsYAML (tf2/src/buffer_core.cpp at 72fa6057, reached through the tf2_py binding), which writes the child frame id as an unquoted YAML key but quotes the parent: \"mstream << frameIDs_reverse[cfid] << \\\": \\\" << std::endl;\" then \"mstream << \\\"  parent: '\\\" << frameIDs_reverse[frame_id_num] << \\\"'\\\" << std::endl;\". A frame named \"54\" therefore crosses the boundary as the YAML scalar 54, which the consumer's yaml.load decodes as an integer, and the string concatenation raises. Step 2: the failure depends on the provider's encoding convention for the value crossing the boundary (with a peer that quoted the key, the same consumer code works), so it is an interface failure even though the resolving edit is inside tf2_tools. Steps 3-5 do not apply. Interface kind: service (tf2_msgs/FrameGraph, string field frame_yaml)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the response of tf2_ros's ~tf2_frames service (frame_yaml) feeds view_frames' yaml.load and generate_dot. tf2_ros and tf2_tools are at the same repository snapshot (both 0.5.12 at 72fa6057), so no UPGRADE; the service is called once in the same process after a 5 s listening period, so no CONCURRENT or SWITCH aspect."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure reported by the PR author: \"in our project we had a frame called \\\"54\\\". This made view_frames.py crash.\" (https://github.com/ros/geometry2/pull/133#issuecomment-165138122). The fix diff names the point of failure: \"-        dot += '\\\"'+map['parent']+'\\\" -> \\\"'+el+'\\\"'\" / \"+        dot += '\\\"'+map['parent']+'\\\" -> \\\"'+str(el)+'\\\"'\" (https://github.com/ros/geometry2/commit/e4466f0f482dcacf79b9ab9deaa70429e161e3a6)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2_ros",
+      "role": "provider",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "72fa60575aad885bd1de289240f7b4b20d0a418b",
+      "resolved_rev": "72fa60575aad885bd1de289240f7b4b20d0a418b",
+      "pinned": true,
+      "revision_basis": "72fa6057 is the sole parent of the fixing commit e4466f0 on indigo-devel (committed by tfoote 2016-03-04 as the cherry-pick of PR #133's first commit beaeacb); tf2_ros/package.xml reads <version>0.5.12</version> there. The PR itself was authored against indigo-devel at base 860b8667 (2015-12-15); the reporter does not name the release they ran, so the earliest broken revision is unknown. The resolution changes only tf2_tools, so tf2_ros (and the tf2 library whose allFramesAsYAML formats the payload, same snapshot) keeps its broken revision in the resolved composition.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "tf2_tools",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "72fa60575aad885bd1de289240f7b4b20d0a418b",
+      "resolved_rev": "e4466f0f482dcacf79b9ab9deaa70429e161e3a6",
+      "pinned": true,
+      "revision_basis": "Broken: 72fa6057, parent of the fix, where tf2_tools/scripts/view_frames.py line 64 reads \"dot += '\\\"'+map['parent']+'\\\" -> \\\"'+el+'\\\"'\" (tf2_tools/package.xml <version>0.5.12</version>). Resolved: e4466f0, the cherry-picked commit \"casted el to string in view_frames\" on indigo-devel. The distro is taken from the branch (indigo-devel, also the PR base branch); the source does not state it otherwise.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "service:~tf2_frames", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}},
+    {"element": "msg:tf2_msgs/FrameGraph", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}},
+    {"element": "field:tf2_msgs/FrameGraph.frame_yaml", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}},
+    {"element": "api:tf2_ros.Buffer", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}},
+    {"element": "api:tf2_ros.TransformListener", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": ["field:tf2_msgs/FrameGraph.frame_yaml", "service:~tf2_frames"],
+      "quote": "This is a problem when you have a frame that uses a number as name.\nFor example, in our project we had a frame called \"54\". This made view_frames.py crash. \nI understand that this is a corner case but I believe that it might still happen. ",
+      "url": "https://github.com/ros/geometry2/pull/133#issuecomment-165138122"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only reported symptom is a run-time crash of the consumer script (\"This made view_frames.py crash.\", https://github.com/ros/geometry2/pull/133#issuecomment-165138122); no diagnostic at build, connection, or activation is shown or possible, since the service type tf2_msgs/FrameGraph matches on both sides and the mismatch lies in the encoding of the string payload.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Consumer-side change in tf2_tools/scripts/view_frames.py generate_dot: convert the decoded YAML key to a string before concatenation, \"'\\\" -> \\\"'+str(el)+'\\\"'\" (commit e4466f0, cherry-pick of PR #133's first commit beaeacb). The provider's YAML encoding (unquoted child key in BufferCore::allFramesAsYAML) is unchanged.",
+    "status": "recommended",
+    "evidence": "Accepted by the maintainer (\"This looks reasonable.\" https://github.com/ros/geometry2/pull/133#issuecomment-164946725; \"I've cherry picked the first commit.\" https://github.com/ros/geometry2/pull/133#issuecomment-192065068) and landed as https://github.com/ros/geometry2/commit/e4466f0f482dcacf79b9ab9deaa70429e161e3a6; the source does not show the resolved composition running, so the status is recommended."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Classification follows the code rather than the dataset summary: the summary calls this \"a general Python problem\" of dynamic typing, but the integer arises only because the provider writes the child frame id as an unquoted YAML mapping key (\"mstream << frameIDs_reverse[cfid] << \\\": \\\" << std::endl;\", tf2/src/buffer_core.cpp at 72fa6057) while quoting the parent (\"  parent: '...'\"), so a frame named \"54\" is decoded by the consumer's yaml.load as int 54 and the '+' concatenation with str raises; the parent value survives because it is quoted, which is why the fix wraps only el. The provider chain is tf2_ros.Buffer.__get_frames -> tf2_py BufferCore.all_frames_as_yaml -> tf2 BufferCore::allFramesAsYAML, all in the same repository snapshot; the unit is named tf2_ros because the consumer's interaction is the ~tf2_frames service that tf2_ros.Buffer advertises (view_frames creates the Buffer in its own process and calls the service on itself). PR #133 carried a second commit (3eb560f, \"static_transform_publisher now throws an error when a not unitary quaternion is given in input\", adding tf2::isUnitaryQuaternion) that was not merged (\"The check for normalization needs to have some tolerance.\"; \"normalization followed up in #196\"); it concerns a different composition and is not a condition of this case. Confidence is medium because the exact revision the reporter ran is not stated and the crash text (traceback) is not quoted in the source; the mechanism is reconstructed from the code at the fix's parent revision."
+}

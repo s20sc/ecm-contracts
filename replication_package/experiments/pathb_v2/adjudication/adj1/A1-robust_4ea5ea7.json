@@ -1,0 +1,51 @@
+{
+  "item_id": "A1-robust_4ea5ea7",
+  "kind": "A1",
+  "case_id": "robust_4ea5ea7",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "kobuki.urdf.xacro just defines a component tag `<kobuki/>` that can be used by other xacros (e.g. turtlebot).",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515",
+    "reason": "E1/E4: a maintainer reproduces the robot_state_publisher startup failure. E2: the model package and consuming node are separate units, and the expanded model supplied across robot_description lacks the required links. The fix creates a standalone model instantiating the macro, changing the supplied content rather than only binding deployment names. E3: PAIR describes this parameter-value flow."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "No link elements found in urdf file",
+      "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175",
+      "reason": "The wrong structural content of robot_description is not a nominal type, definition-version, frame, unit, or QoS mismatch; other is appropriate. The new launcher explicitly writes this parameter.",
+      "supporting_evidence": [
+        {"quote": "+  <param name=\"robot_description\" command=\"$(arg urdf_file)\" />", "url": "https://github.com/yujinrobot/kobuki/commit/4ea5ea7ff535323baeada165764b5b8ceb7bfa87.patch"}
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Failed to extract kdl tree from xml robot description",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175",
+    "reason": "The consumer emits an explicit startup validation error and dies: loud_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "all processes on machine have died, roslaunch will exit",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175",
+    "reason": "The error occurs while launching and initializing the consumer: activate."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've added a kobuki standalone xacro there now.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515",
+    "reason": "The patch adds a wrapper that includes the component and instantiates <kobuki/>, plus a launcher. Neither the issue nor inspected patch demonstrates the resulting viewer composition running; recommended is supported."
+  },
+  "notes": "Read the full issue and the launch/model portions of the fix patch. This is not classified as deployment_wiring merely because a launcher changes: the standalone model content is also newly created. The parser and KDL error messages describe one malformed-model condition, not separate failures."
+}

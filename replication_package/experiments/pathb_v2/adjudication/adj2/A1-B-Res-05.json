@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Res-05",
+  "kind": "A1",
+  "case_id": "B-Res-05",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Now only calls with all existing and available interface are allowed and on HW that is in inactive of active state.",
+    "url": "https://github.com/ros-controls/ros2_control/pull/1218"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Fixes the issue of the failing multiple chainable controller activation by the resource manager. This is happening due to the newly added code in the PR: #1218 under the method `prepare_command_mode_switch` method",
+      "url": "https://github.com/ros-controls/ros2_control/pull/1401"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Not acceptable command interfaces combination: ... Could not switch controllers since prepare command mode switch was rejected.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1400"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I confirm that you fix works for us once backported to humble.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1400#issuecomment-1952119203"
+  },
+  "notes": "独立核验通过。issue 1400（'Cannot activate multiple chainable controllers at once anymore'，2024-02-16）正文核到 'We have met the following bug since the last update of ros2_control (2.37.0).'、'Version Humble, ros2_control 2.37.0'、日志行 'Not acceptable command interfaces combination:'、'Could not switch controllers since prepare command mode switch was rejected.'；评论核到维护者 'I was able to reproduce the same. I've just fixed it in the PR #1401. The tests seem to pass now.' 与报告者确认句（我读到的原文为 'I confirm that you fix works for us once backported to humble.'，spec 引文一致）。复现提交核验：forssea-robotics/ros2_control commit 006377d20985f832e3694c64eaae7952e738db43 消息 'add unit test to expose the issue'，parent 为 a431948a031dc0bfcb19f95bfd0d7137274908fc（=humble 2.37.0）。PR1401 已合并（merge_commit_sha=1cc73c25e39567bc46a472d71ec9643e4fc40dab），正文引文逐字一致；PR1411 为 humble 回port（base=humble，merged，merge_commit_sha=69487aeb440e8970e77ebf81ab3e38aeb87707c1），与 spec 的 resolved_rev 一致。PR1218 正文逐字核到引文。controller_manager.cpp@a431948a 核到 L1457 '// if it is a chainable controller, make the reference interfaces available on activation'——spec notes 中括号内 'on preactivation ... couple of chainable controller altogether' 的措辞与该版实际注释略有出入（'on activation'，且未见括号补语），属 notes 级小误，不影响四项裁决。class=other（跨库调用次序前置条件，无专列类）与两牵连元素认可；loud_documented/activate 认可（resource_manager 激活期拒绝并打印 ERROR/日志）；observed 认可：报告者在 humble 2.37.0 + #1401 cherry-pick 的组合上确认修复生效，两侧代码状态均可识别（hardware_interface=2.37.0 原版；controller_manager=2.37.0+指定公开补丁，公共等价 #1411/69487aeb），满足 'resolved composition working with both units identified'。"
+}

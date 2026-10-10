@@ -1,0 +1,72 @@
+{
+  "item_id": "A1-robust_928306b",
+  "kind": "A1",
+  "case_id": "robust_928306b",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_",
+    "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "But  the new **laptop_hardware.py** file doesn't work because some files was renamed:\n- no **energy_now** file but a **charge_now**\n- no **energy_full_design** file but a **charge_full_design**\n- no **power_now** file",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+    },
+    {
+      "index": 2,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "the problem is in the way we process the information on BAT0 files (I'll fix all this tomorrow)\n  - Values must be divided by 10e6",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+    },
+    {
+      "index": 3,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "state = _read_string(_battery_acpi_path+'/status', 'discharging').lower().rstrip()",
+      "url": "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f"
+    },
+    {
+      "index": 4,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "_Design Capacity_ is lower than _Capacity_; I suppose this is wrong",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "charging symbol doesn't appear in the dashboard",
+    "url": "https://github.com/turtlebot/turtlebot/issues/102"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Not tested on other version of Ubuntu sorry."
+  },
+  "notes": "All quotes verified verbatim (issue #102 body and comments 26799473/27193014; commit 928306b diff confirms the /10e5 rescaling, the .lower().rstrip() status strip, and the default path change to /sys/class/power_supply/BAT0; PR #104 title and comments 26844830 '+1 partial fix', 26883320 'Not tested on other version of Ubuntu sorry.'). The spec's notes correctly flag that the energy_*/charge_* naming depends on battery hardware (power_unit==MA), so the 'rename' classification follows the reporter's observation. Resolution 'recommended' is correct: the fix is merged and released (stonier: 2.2.3 on shadow-fixed) but no source shows the resolved composition working with an identified kernel."
+}

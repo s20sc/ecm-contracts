@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_7284788-resolved-M1-5e6796f264",
+  "kind": "A2",
+  "case_id": "robust_7284788",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "wrong",
+      "source_excerpt": "snapshot:s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:296\n\"  std::string _allFramesAsDot() const;\"\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:46\n\"  class Buffer: public BufferInterface, public tf2::BufferCore\"\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301\n\"  std::string _allFramesAsDot(double current_time) const;\n  std::string _allFramesAsDot() const;\"\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:46\n\"  class Buffer: public BufferInterface, public tf2::BufferCore\""
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:439-442\n\"std::string Transformer::allFramesAsDot() const\n{\n  return tf2_buffer_._allFramesAsDot();\n}\""
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "transcription_only",
+      "built_excerpt": "snapshot:s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:296\n\"  std::string _allFramesAsDot() const;\"\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:46\n\"  class Buffer: public BufferInterface, public tf2::BufferCore\"",
+      "running_excerpt": "snapshot:s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301\n\"  std::string _allFramesAsDot(double current_time) const;\n  std::string _allFramesAsDot() const;\"\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:46\n\"  class Buffer: public BufferInterface, public tf2::BufferCore\""
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specification declares UPGRADE with built-against 0.5.7: snapshot:specs/robust_7284788.json:68-72\n\"  \"operation\": \"UPGRADE\",\n  \"consumer_built_against\": {\n    \"broken\": \"0.5.7\",\n    \"resolved\": \"0.5.7\",\n    \"basis\": \"documented\"\"\nThe consumer object is snapshot:s2_work/tasks/u0032/snapshot/tf/include/tf/tf.h:387\n\"  tf2_ros::Buffer tf2_buffer_;\"\nThe call is snapshot:s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:439-442\n\"std::string Transformer::allFramesAsDot() const\n{\n  return tf2_buffer_._allFramesAsDot();\n}\"\nBoth provider revisions expose the inherited BufferCore member through public inheritance: snapshot:s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:46-50\n\"  class Buffer: public BufferInterface, public tf2::BufferCore\n  {\n  public:\n    using tf2::BufferCore::lookupTransform;\n    using tf2::BufferCore::canTransform;\"\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:46-50\n\"  class Buffer: public BufferInterface, public tf2::BufferCore\n  {\n  public:\n    using tf2::BufferCore::lookupTransform;\n    using tf2::BufferCore::canTransform;\"\nThe resolved core retains the no-argument overload: snapshot:s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301\n\"  std::string _allFramesAsDot(double current_time) const;\n  std::string _allFramesAsDot() const;\""
+  },
+  "notes": "The consumer-dependent no-argument declaration is identical at both revisions. The added double-argument overload is genuine but does not replace that declaration; selecting only the first running overload creates a transcription-only apparent change for the consumer-used element. The resolved provider defines the compatibility wrapper: snapshot:s2_work/tasks/u0101/snapshot/tf2/src/buffer_core.cpp:1464-1467\n\"std::string BufferCore::_allFramesAsDot() const\n{\n  return _allFramesAsDot(0.0);\n}\"\nInherited API ownership is checked in both revisions; the broken 0.5.9 snapshot is not used as the resolved provider."
+}

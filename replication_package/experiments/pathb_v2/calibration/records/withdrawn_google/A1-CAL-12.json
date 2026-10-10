@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL-12",
+ "kind": "A1",
+ "case_id": "CAL-12",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "If two or more transforms are sended from the same node using successive calls to: tf2_ros.TransformBroadcaster().sendTransform() Even with different TransformBroadcaster objects, only the last one is received by the tf core.",
+  "url": "https://github.com/ros/geometry2/issues/89"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "disagree",
+   "proposed_class": "other",
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "It looks like the c++ broadcaster as [a sending queue of 100](https://github.com/ros/geometry_experimental/blob/indigo-devel/tf2_ros/src/transform_broadcaster.cpp#L42)\nwhile the python implementation has [a send queue of 1](https://github.com/ros/geometry_experimental/blob/indigo-devel/tf2_ros/src/tf2_ros/transform_broadcaster.py#L44)\n\nThe python should be made to match the c++ as this is causing a problem. It's a magic number and should probably be parameterized but just making them match would be better. ",
+   "url": "https://github.com/ros/geometry2/issues/89#issuecomment-83259331"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+  "url": "https://github.com/ros/geometry2/issues/89"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Fixed with queue_size 100 in pull request #90."
+ },
+ "notes": "Condition 0 class corrected from qos_reliability to other (ROS 1 publisher queue size is a queue depth mismatch)."
+}

@@ -1,0 +1,93 @@
+{
+  "case_id": "robust_27e85fc",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_desktop/issues/13",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/27e85fc224fc6198b55c5af0d066c7901af8ec0b",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki_desktop/95dbd5616f46109e16808b5ed420bec1f907cb14/kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki_desktop/95dbd5616f46109e16808b5ed420bec1f907cb14/kobuki_gazebo_plugins/package.xml",
+    "https://raw.githubusercontent.com/gazebosim/sdformat/sdformat_1.4.5/include/sdf/SDFImpl.hh",
+    "https://raw.githubusercontent.com/gazebosim/sdformat/9fb70a18f97d7a99990a67b581e44654573ab2e8/include/sdf/SDF.hh",
+    "https://raw.githubusercontent.com/gazebosim/gazebo-classic/gazebo_1.8.7/gazebo/sdf/interface/SDF.hh"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #13 (bit-pirate, a maintainer, 2013-07-31) \"fix SDF deprecated warnings in the gazebo_ros_kobuki plugin\" quotes the compiler diagnostic for the same API in a sibling plugin as its example: \"warning: ‘std::string sdf::Element::GetValueString(const string&)’ is deprecated (declared at /usr/include/sdformat-1.4/sdf/SDFImpl.hh:226) [-Wdeprecated-declarations]\" (https://github.com/yujinrobot/kobuki_desktop/issues/13; the quoted file is create_gazebo_plugins/src/gazebo_ros_create.cpp, prefixed \"For example:\"). The maintainer's fixing commit 27e85fc \"fixes deprecated sdf methods (fixes #13)\" replaces 13 live GetValueString/GetValueBool/GetValueDouble calls in kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp, e.g. \"-  std::string model_name = sdf->GetParent()->GetValueString(\\\"name\\\");\" / \"+  std::string model_name = sdf->GetParent()->Get<std::string>(\\\"name\\\");\" (https://github.com/yujinrobot/kobuki_desktop/commit/27e85fc224fc6198b55c5af0d066c7901af8ec0b). Concrete diagnostic plus maintainer confirmation; no comments in the thread."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["sdformat", "kobuki_gazebo_plugins"],
+      "interface_kind": "library API",
+      "evidence": "Provider: sdformat, the SDF parsing library (repository gazebosim/sdformat, installed as /usr/include/sdformat-1.4 per the diagnostic), whose sdf::Element at sdformat_1.4.5 declares \"public: std::string GetValueString(\\n                const std::string &_key = \\\"\\\") SDF_DEPRECATED(1.4);\" at SDFImpl.hh line 226 (likewise GetValueBool at 214 and GetValueDouble at 220) and offers the replacement \"public: template<typename T>\\n            T Get(const std::string &_key = \\\"\\\")\". Consumer: kobuki_gazebo_plugins (yujinrobot/kobuki_desktop, package.xml <version>0.2.0</version>, depends on gazebo_ros), a Gazebo model plugin whose Load(physics::ModelPtr, sdf::ElementPtr) at 95dbd561 calls sdf->GetParent()->GetValueString(\"name\"), sdf->GetElement(\"...\")->GetValueString(), ->GetValueBool(), ->GetValueDouble() thirteen times. The plugin and the library it links are separate deployable units. Step 2: the failure is the declaration of the provider's API elements differing from what the consumer references, so it is an interface failure. Step 3 does not apply. Step 4: the fix is not a build-system change; it rewrites the consumer's references to the provider's changed interface. Interface kind: library API (sdf::Element accessors)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer's references match the accessors as they were declared before the deprecation, and the provider it was built against in the broken composition is the newer sdformat 1.4 series (the diagnostic names /usr/include/sdformat-1.4/sdf/SDFImpl.hh:226). No revision of the gazebosim/sdformat repository ever declares GetValueString without SDF_DEPRECATED: it is deprecated at the initial import 42363ebc (2012-10-26, \"public: bool GetValueBool(const std::string &_key = \\\"\\\") SDF_DEPRECATED;\"), absent from the header at 8a4bc800, 9fb70a18 and 4df878a6 (which have only the Get<T> template), and re-added as SDF_DEPRECATED(1.4) from a8107aa2 (2013-03-26) through every 1.4.x tag. The undeprecated declarations the consumer references live in Gazebo's in-tree copy of the same library, gazebo/sdf/interface/SDF.hh in gazebosim/gazebo-classic, at tags gazebo_1.3.1 through gazebo_1.8.7 (GetValueString present, no DEPRECATED, no Get<T>); Gazebo 1.9.0 switched to the external sdformat. The plugin's own history shows it was last adapted to an in-tree Gazebo on 2013-03-08 (\"updates kobuki ros gazebo plugin\") and then on 2013-06-14 \"kobuki_gazebo_plugins: minor changes required for Gazebo 1.9\" while keeping the old accessors."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Warning at build shown in the issue for the sibling consumer (\"is deprecated (declared at /usr/include/sdformat-1.4/sdf/SDFImpl.hh:226) [-Wdeprecated-declarations]\", https://github.com/yujinrobot/kobuki_desktop/issues/13) and the maintainer's statement that the kobuki plugin has the same warnings (issue title; commit \"fixes deprecated sdf methods (fixes #13)\"). The composition keeps working: deprecated declarations still compile and behave, so the outcome is warning_only."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "sdformat",
+      "role": "provider",
+      "repo": "https://github.com/gazebosim/sdformat",
+      "broken_rev": "sdformat_1.4.5",
+      "resolved_rev": "sdformat_1.4.5",
+      "pinned": true,
+      "revision_basis": "The diagnostic in the issue names the installed provider as /usr/include/sdformat-1.4/sdf/SDFImpl.hh with GetValueString declared at line 226. That line reads \"public: std::string GetValueString(\" at tags sdformat_1.4.4 (2013-07-18) through sdformat_1.4.7 (2013-08-22), all with a 364-line SDFImpl.hh; at sdformat_1.4.3 and earlier the class lives in include/sdf/SDF.hh instead, so the reporter's install is one of 1.4.4-1.4.7. sdformat_1.4.5 (2013-07-23) is the latest release before the report (2013-07-31) and the fix (2013-08-09); 1.4.6 is dated 2013-08-20. The resolution changes only the consumer, so the provider keeps this revision.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "kobuki_gazebo_plugins",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "95dbd5616f46109e16808b5ed420bec1f907cb14",
+      "resolved_rev": "27e85fc224fc6198b55c5af0d066c7901af8ec0b",
+      "pinned": true,
+      "revision_basis": "Broken: 95dbd561, the sole parent of the fixing commit on hydro-devel (kobuki_gazebo_plugins/package.xml <version>0.2.0</version>); the file's last prior change is 42dabbef (2013-07-31, the report date). Resolved: 27e85fc (2013-08-09), contained in hydro-devel. The distro is taken from the branch and the catkin workspace in the diagnostic (/opt/kobuki_workspace/catkin_ws); the source does not name it.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {"broken": "gazebo_1.8.7", "resolved": "sdformat_1.4.5", "basis": "inferred"},
+  "inventory": [
+    {"element": "api:sdf::Element::GetValueString", "sides": {"sdformat": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:sdf::Element::GetValueBool", "sides": {"sdformat": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:sdf::Element::GetValueDouble", "sides": {"sdformat": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:sdf::Element::Get", "sides": {"sdformat": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:sdf::Element::GetElement", "sides": {"sdformat": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:sdf::Element::HasElement", "sides": {"sdformat": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:sdf::Element::GetParent", "sides": {"sdformat": "provides", "kobuki_gazebo_plugins": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:sdf::Element::GetValueString", "api:sdf::Element::GetValueBool", "api:sdf::Element::GetValueDouble"],
+      "quote": "/opt/kobuki_workspace/catkin_ws/src/turtlebot_create_desktop/create_gazebo_plugins/src/gazebo_ros_create.cpp:54:80: warning: ‘std::string sdf::Element::GetValueString(const string&)’ is deprecated (declared at /usr/include/sdformat-1.4/sdf/SDFImpl.hh:226) [-Wdeprecated-declarations]",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/13"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Compiler diagnostic at build from -Wdeprecated-declarations: \"warning: ‘std::string sdf::Element::GetValueString(const string&)’ is deprecated (declared at /usr/include/sdformat-1.4/sdf/SDFImpl.hh:226) [-Wdeprecated-declarations]\" (https://github.com/yujinrobot/kobuki_desktop/issues/13). The quoted instance is from the sibling create plugin in the same workspace; the kobuki plugin's identical calls are the ones the fix replaces.",
+  "detection_stage": "build",
+  "resolution": {
+    "summary": "Consumer-side change in kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp (commit 27e85fc): replace every deprecated typed accessor with the template accessor, GetValueString(...) -> Get<std::string>(...), GetValueBool() -> Get<bool>(), GetValueDouble() -> Get<double>() (13 live calls plus one in a comment). sdformat is unchanged.",
+    "status": "recommended",
+    "evidence": "Committed by the maintainer who reported the issue and closed it (\"fixes deprecated sdf methods (fixes #13)\", https://github.com/yujinrobot/kobuki_desktop/commit/27e85fc224fc6198b55c5af0d066c7901af8ec0b); the source shows no rebuild of the plugin against sdformat 1.4 with the warnings gone, so the status is recommended."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "consumer_built_against.broken is a tag of https://github.com/gazebosim/gazebo-classic (file gazebo/sdf/interface/SDF.hh), not of the sdformat repository: the sdf library was part of Gazebo until Gazebo 1.9, and only the in-tree copies at gazebo_1.3.1 through gazebo_1.8.7 declare GetValueString/GetValueBool/GetValueDouble as the consumer references them (undeprecated, no Get<T>); gazebo_1.8.7 is the latest such revision, the consumer's pre-1.9 updates (2012-10-09 for the Fuerte Gazebo, 2013-03-08) do not name a finer version, and gazebo_1.2.6 differs (one DEPRECATED hit). The label is inferred from the references; the diagnostic documents only that the broken build used the sdformat 1.4 series. consumer_built_against.resolved is sdformat_1.4.5 because the fixed consumer references Get<T>, present at every 1.4.x tag; the exact patch level is the provider's broken_rev bound. Failed-condition class: the provider kept the elements but changed their declarations by adding SDF_DEPRECATED(1.4), which is the schema's parenthetical for element_retyped; the same change introduced the differently named replacement Get<T>(), so element_removed_or_renamed is the alternative reading. The packet summary (\"Use of Deprecated Functions\") agrees with the primary source. Confidence is medium because the warning text for the kobuki plugin itself is not quoted (the example is the create plugin) and the provider patch level is bounded to 1.4.4-1.4.7 rather than stated."
+}

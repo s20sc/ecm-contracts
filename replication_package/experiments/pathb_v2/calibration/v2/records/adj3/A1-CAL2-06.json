@@ -1,0 +1,20 @@
+{
+ "item_id": "A1-CAL2-06",
+ "kind": "A1",
+ "case_id": "CAL2-06",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+  "quote": "error: \u2018void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)\u2019 marked \u2018override\u2019, but does not override",
+  "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"},
+ "failed_conditions": [
+  {"index": 0, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+   "quote": "error: \u2018void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)\u2019 marked \u2018override\u2019, but does not override",
+   "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+  "quote": "error: \u2018void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)\u2019 marked \u2018override\u2019, but does not override",
+  "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"},
+ "resolution": {"verdict": "agree", "proposed": null,
+  "quote": "I misconfigured the version macro with #3080. It is a GTE and not a GT macro"},
+ "notes": "Verified the signature change directly: rclcpp 30.1.5 declares 'add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);' (by value) and 31.0.0 declares 'add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, bool notify = true);' (const ref). The consumer test at bb07fdd5 uses '#if RCLCPP_VERSION_GTE(30, 1, 5)' to select the const-ref override, which matches no base declaration against installed rclcpp 30.1.5. Class element_retyped (declaration changed, element still present) is right; loudness loud_documented/build (compiler error) is right; resolution recommended is right (PR 3198 merged as 64f9645a, but the successful follow-up CI build does not record the installed rclcpp revision, so the resolved composition is not identified by revision on the provider side). E2 stop_step 6 (eligible, library-API interface) agrees. I note the spec's own E3 direction caveat: the failing provider (30.1.5) is older than the consumer's selected declaration (31.0.0), i.e. a reversed version-skew; this does not change E2 eligibility."
+}

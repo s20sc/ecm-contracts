@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-139",
+  "kind": "A1",
+  "case_id": "C3-139",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 1,
+    "reason_code": null,
+    "quote": "tf2::TransformStorage t2 = t1;\n  t2.frame_id_ = tf2::CompactFrameID();  // potential uninitialized/invalid value\n  ASSERT_FALSE(t1 == t2);",
+    "url": "https://github.com/ros2/geometry2/issues/771",
+    "reason": "The exclusion stands, but the tree stops at E2 step 1: the source supplies a class-level unit test, not two identified separately deployable participants in a failed composition. Recording step 2 merely to obtain the internal reason code skips the first gate. The original comparison report is also disputed rather than confirmed as a faulty interface; an accepted default-initialization change does not demonstrate the reported comparison was wrong. E3 is unestablished, and the test failure alone does not establish an E4 effect on an interaction between units."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Value of: t1 == t2\n  Actual: true\nExpected: false",
+    "url": "https://github.com/ros2/geometry2/issues/771",
+    "reason": "Retain null for this excluded case. An assertion failure is shown, but it is not evidence of an integration diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[  FAILED  ] TransformStorageTest.InvalidComparison_UninitializedMemberImpact (0 ms)",
+    "url": "https://github.com/ros2/geometry2/issues/771",
+    "reason": "Not applicable to a retained integration case; this is execution of a class-level test."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+  CompactFrameID frame_id_{UINT32_MAX};\n+  CompactFrameID child_frame_id_{UINT32_MAX};",
+    "url": "https://github.com/ros2/geometry2/commit/bbc69c7ec086f59d7531eab6607e0804c16ab68a.diff",
+    "reason": "Retain the ineligible-case null. The merged initialization change is not an observed repair of a two-unit comparison failure."
+  },
+  "notes": "No listed conditions; no missed integration condition established. The contributor explains that the comparison reduces to zero equaling zero, and the later maintainer response says 'coming back to look at the original issue report, it does not really make sense.' That exact text was read at https://github.com/ros2/geometry2/issues/771#issuecomment-2831343452. The PR discussion and merged diff support initialization hardening, not a broken representation convention between units. Disagreement concerns the recorded gate and evidentiary characterization, not the final ineligible outcome."
+}

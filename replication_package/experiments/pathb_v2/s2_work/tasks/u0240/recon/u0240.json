@@ -1,0 +1,72 @@
+{
+  "task_id": "u0240",
+  "package": "MoveRobot",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "topic:/franka_state_controller/franka_states",
+      "side": "consumes",
+      "msg_type": "franka_msgs/FrankaState",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:franka_msgs/FrankaState",
+      "side": "consumes",
+      "msg_type": "franka_msgs/FrankaState",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "topic:/franka_state_controller/franka_states",
+    "msg:franka_msgs/FrankaState"
+  ],
+  "perm_requires": {
+    "state": "unknown",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "unknown",
+    "values": []
+  },
+  "recovery": {
+    "state": "unknown",
+    "value": null
+  },
+  "provenance": {
+    "ports[0].msg_type": "Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState] || void FrankaStateCallback (const franka_msgs::FrankaState& FState2)",
+    "ports[1].msg_type": "void FrankaStateCallback (const franka_msgs::FrankaState& FState2) || franka_msgs::FrankaState contact;",
+    "references[topic:/franka_state_controller/franka_states]": "Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState]",
+    "references[msg:franka_msgs/FrankaState]": "franka_msgs::FrankaState contact; || void FrankaStateCallback (const franka_msgs::FrankaState& FState2)",
+    "perm_requires.state": "artifact is an 18-line partial excerpt (callback, one runtime log line, find_package block); the rest of the code and configuration is not available, so permissions cannot be checked",
+    "perm_grants.state": "artifact is an 18-line partial excerpt; the rest of the code and configuration is not available",
+    "recovery.state": "artifact is an 18-line partial excerpt; the rest of the code and configuration is not available",
+    "definition_id": "excerpt-based task: only artifact.txt may be used, so no franka_msgs definition file is available; definition_id null for both ports"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "Artifact line 7 is the head of the roscpp subscriber-side md5sum mismatch message ('wants topic ... to have datatype/md5sum [...]'), which is only emitted when the FrankaState definition MoveRobot was compiled against differs from the one the franka_state_controller publisher uses; the connection is dropped, so the consumed topic/type (plausibly via a change in the nested franka_msgs/Errors type) is broken at this revision."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task (artifact.txt, 18 lines, ROS1 kinetic); all three packet elements are consumed, so declares and not_declared are empty. The node consumes franka_msgs/FrankaState: a global 'franka_msgs::FrankaState contact' and a callback taking 'const franka_msgs::FrankaState&' (lines 1-2); franka_msgs is a catkin build dependency (line 17). The subscribe() call itself is not in the excerpt; the topic name /franka_state_controller/franka_states is taken from the runtime log line of client [/MoveRobot] (line 7), so whether the name is hard-coded or remapped at run time is not visible. msg:franka_msgs/Errors does not appear anywhere in the artifact; whether the package consumes it (e.g. as a nested field type of FrankaState) cannot be determined without the franka_msgs definition, which excerpt tasks may not fetch, so it has no port and is not in references. Frame and units are undeterminable from the excerpt (null). QoS null because ROS 1. No rate is set in the excerpt. definition_id null: no definition file available. Line 7 appears truncated (md5 value stripped from the bracket), so the compiled md5sum is not recorded. exclusive is empty: no exclusive resource claims appear in the excerpt, but the excerpt is partial. manifest_version null: no package.xml in the artifact."
+}

@@ -1,0 +1,102 @@
+{
+  "task_id": "u0158",
+  "package": "tf2_ros",
+  "manifest_version": "0.5.12",
+  "ports": [
+    {
+      "element": "api:tf2_ros.Buffer",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2_ros.TransformListener",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:tf2_msgs/FrameGraph.frame_yaml",
+      "side": "provides",
+      "msg_type": "tf2_msgs/FrameGraph",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b"}
+    },
+    {
+      "element": "msg:tf2_msgs/FrameGraph",
+      "side": "provides",
+      "msg_type": "tf2_msgs/FrameGraph",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b"}
+    },
+    {
+      "element": "service:~tf2_frames",
+      "side": "provides",
+      "msg_type": "tf2_msgs/FrameGraph",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:tf2_ros.Buffer": "api tf2_ros.Buffer: class Buffer(tf2.BufferCore, tf2_ros.BufferInterface):",
+    "api:tf2_ros.TransformListener": "api tf2_ros.TransformListener: class TransformListener():",
+    "field:tf2_msgs/FrameGraph.frame_yaml": "field tf2_msgs/FrameGraph.frame_yaml: string",
+    "msg:tf2_msgs/FrameGraph": "msg tf2_msgs/FrameGraph: 807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b",
+    "service:~tf2_frames": "service ~tf2_frames: tf2_msgs/FrameGraph"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "C++ tf2_ros::TransformListener clears the buffer when it detects a jump back in time (ROS_WARN \"Detected jump back in time. Clearing TF buffer.\"; buffer_.clear()); the Python TransformListener has no such handling"},
+  "provenance": {
+    "manifest_version": "snapshot:tf2_ros/package.xml:3",
+    "ports[2].msg_type": "snapshot:tf2_msgs/srv/FrameGraph.srv:2 (string frame_yaml, response part after '---' on line 1); used as tf2_msgs::FrameGraph::Response in snapshot:tf2_ros/src/buffer.cpp:161",
+    "ports[2].frame": "snapshot:tf2_msgs/srv/FrameGraph.srv:2 'string frame_yaml' filled by snapshot:tf2_ros/src/buffer.cpp:163 'res.frame_yaml = allFramesAsYAML();' (a YAML text describing the frame graph; the value itself is not expressed in any coordinate frame)",
+    "ports[2].definition_id": "python3 definition_hash.py sha256 snapshot/tf2_msgs/srv/FrameGraph.srv",
+    "ports[3].msg_type": "snapshot:tf2_msgs/srv/FrameGraph.srv:1-2; registered by snapshot:tf2_msgs/CMakeLists.txt:8 'add_service_files(DIRECTORY srv FILES FrameGraph.srv)'",
+    "ports[3].frame": "snapshot:tf2_msgs/srv/FrameGraph.srv:1-2 (empty request, single string response field; no header/frame field)",
+    "ports[3].definition_id": "python3 definition_hash.py sha256 snapshot/tf2_msgs/srv/FrameGraph.srv",
+    "ports[4].msg_type": "snapshot:tf2_ros/src/tf2_ros/buffer.py:51 'self.frame_server = rospy.Service('~tf2_frames', FrameGraph, self.__get_frames)' with FrameGraph imported from tf2_msgs.srv at buffer.py:34; C++ snapshot:tf2_ros/src/buffer.cpp:46-47 'ros::NodeHandle n(\"~\"); frames_server_ = n.advertiseService(\"tf2_frames\", &Buffer::getFrames, this);' with handler typed tf2_msgs::FrameGraph at snapshot:tf2_ros/include/tf2_ros/buffer.h:123",
+    "ports[4].frame": "snapshot:tf2_ros/src/buffer.cpp:163 / snapshot:tf2_ros/src/tf2_ros/buffer.py:54 (response is FrameGraphResponse(self.all_frames_as_yaml()), a YAML string)",
+    "ports[4].definition_id": "python3 definition_hash.py sha256 snapshot/tf2_msgs/srv/FrameGraph.srv",
+    "declares[api:tf2_ros.Buffer]": "snapshot:tf2_ros/src/tf2_ros/buffer.py:37 'class Buffer(tf2.BufferCore, tf2_ros.BufferInterface):', exported via snapshot:tf2_ros/src/tf2_ros/__init__.py:39 'from buffer import *'",
+    "declares[api:tf2_ros.TransformListener]": "snapshot:tf2_ros/src/tf2_ros/transform_listener.py:37 'class TransformListener():', exported via snapshot:tf2_ros/src/tf2_ros/__init__.py:41 'from transform_listener import *'",
+    "declares[field:tf2_msgs/FrameGraph.frame_yaml]": "snapshot:tf2_msgs/srv/FrameGraph.srv:2 'string frame_yaml'",
+    "declares[msg:tf2_msgs/FrameGraph]": "snapshot:tf2_msgs/srv/FrameGraph.srv (hash from definition_hash.py sha256)",
+    "declares[service:~tf2_frames]": "snapshot:tf2_ros/src/tf2_ros/buffer.py:51 'rospy.Service('~tf2_frames', FrameGraph, self.__get_frames)'; snapshot:tf2_ros/src/buffer.cpp:47 'n.advertiseService(\"tf2_frames\", &Buffer::getFrames, this)' on NodeHandle n(\"~\") (buffer.cpp:46)",
+    "perm_requires.state": "searched snapshot/tf2_ros (package.xml, CMakeLists.txt, rosdoc.yaml, setup.py, src/, include/, test/*.launch) for permission/access-control declarations: none apart from BSD licence text",
+    "perm_grants.state": "same search as perm_requires.state: none",
+    "recovery.state": "snapshot:tf2_ros/src/transform_listener.cpp:105-107",
+    "recovery.value": "snapshot:tf2_ros/src/transform_listener.cpp:106-107 'ROS_WARN(\"Detected jump back in time. Clearing TF buffer.\"); buffer_.clear();'"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All five provided elements are present and mutually consistent at this revision: FrameGraph.srv declares 'string frame_yaml' in its response, both the Python and C++ Buffer advertise ~tf2_frames with tf2_msgs/FrameGraph and fill frame_yaml from allFramesAsYAML, and tf2_py exposes all_frames_as_yaml; nothing visible looks broken."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the whole geometry_experimental repository at 0.5.12 (tf2_ros, tf2_msgs, tf2_py, tf2_tools, ...); tf2_ros is described. tf2_msgs/FrameGraph is a service definition (tf2_msgs/srv/FrameGraph.srv: empty request, response 'string frame_yaml'), defined in the tf2_msgs package of the same snapshot and used by tf2_ros as the type of its ~tf2_frames service; the packet names it msg:tf2_msgs/FrameGraph and field:tf2_msgs/FrameGraph.frame_yaml, and the field sits in the Response part. definition_hash.py ros1 mode only resolves msg/*.msg files (it raised FileNotFoundError for tf2_msgs/FrameGraph), so the definition_id is the tool's sha256_normalised output over the .srv file (kind srv), not a ROS 1 md5sum. The api elements are written with dotted names, so declares uses the Python declarations (tf2_ros Python package); the C++ counterparts are 'class Buffer: public BufferInterface, public tf2::BufferCore' (tf2_ros/include/tf2_ros/buffer.h:46) and 'class TransformListener' (tf2_ros/include/tf2_ros/transform_listener.h:46). The ~tf2_frames service is conditional: Python Buffer.__init__(self, cache_time = None, debug = True) (buffer.py:38) advertises it by default unless a master lookup of '~tf2_frames' succeeds (buffer.py:45-51); C++ Buffer(ros::Duration cache_time = ..., bool debug = false) (buffer.h:58) advertises it only when debug is true and ros::service::exists(\"~tf2_frames\", false) is false (buffer.cpp:44). The api ports carry no message type or frame of their own, so msg_type/frame are null; the transforms they store take header.frame_id/child_frame_id from each TransformStamped at run time. TransformListener subscribes to /tf and /tf_static (tf2_msgs/TFMessage, queue 100 in C++ transform_listener.cpp:72-73,79-82; rospy.Subscriber in transform_listener.py:52-53); these topics are not packet elements and are not listed in references. No packet element is consumed, so references is empty. ROS 1: QoS fields are null. No rates are set on any packet element (the rospy.Rate(20) in buffer.py:71,86 is the can_transform polling loop, not a port rate). exclusive is empty: no exclusive resource claims found."
+}

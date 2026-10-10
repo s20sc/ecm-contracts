@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-037",
+  "kind": "A1",
+  "case_id": "C3-037",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the issue includes both message definitions, a reproducer, installed versions and wrong received Boolean values. E2: generated FastRTPS typesupport supplies a plain-layout classification through callbacks consumed by the separate rmw_fastrtps_cpp library. The incorrect classification crosses that boundary even though its calculation is fixed inside the provider. E3: PAIR is supported; publisher/subscriber co-location does not erase the distinct library boundary selected here.",
+    "quote": "This is reproduced when the sample is accessed via rmw_take_loaned_message.",
+    "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/108"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The root cause is mismatch between CDR representation and in-memory representation due to different alignment of fields.",
+      "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/108",
+      "reason": "The maintainer identifies representation alignment, not a differing nominal message type or schema. The max_serialized_size callback and PLAIN_TYPE flag govern the treatment of the reproduced Outer/Inner layouts. The 7.1.1 RMW code directly assigns is_plain_ from the callback's bounds_info."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Received message have wrong values for boolean fields. This is the output that I get:",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/715",
+    "reason": "The published true values arrive as false; the supplied logs show normal application output, not a middleware compatibility diagnostic: silent_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[minimal_publisher] [1696005743.235686748] [INFO] [topic_callback():39]: Received: 'inner:",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/715",
+    "reason": "The failure is observed in the subscription callback: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "@MiguelCompany This seems to fix the problem for me using `rmw_fastrtps_cpp`, thanks for that.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/715#issuecomment-1743152948",
+    "reason": "A tester reports success and the patch checks memory/CDR alignment, but the successful report does not pin both tested unit revisions. Recommended follows S1's stronger observed criterion."
+  },
+  "notes": "The remaining rmw_fastrtps_dynamic_cpp failure discussed in the same thread concerns a different consumer and is not an additional condition of this static-typesupport composition. A successful smoke test or merged backport alone does not establish the specified resolved revision pair."
+}

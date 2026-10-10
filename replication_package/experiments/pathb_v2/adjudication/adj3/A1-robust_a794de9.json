@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_a794de9",
+  "kind": "A1",
+  "case_id": "robust_a794de9",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Case 1: Structures having Eigen objects as members\nAdding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257#issuecomment-18128700"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Case 1: Structures having Eigen objects as members\nAdding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem",
+      "url": "https://github.com/yujinrobot/kobuki/issues/257#issuecomment-18128700"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Assertion `(reinterpret_cast<size_t>(array) & 0xf) == 0 && \"this assertion is explained here: \" \"http://eigen.tuxfamily.org/dox-devel/TopicUnalignedArrayAssert.html\" \" **** READ THIS WEB PAGE !!! ****\"' failed.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Adding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem"
+  },
+  "notes": "Issue #257 body (assertion in DenseStorage.h:69, '[mobile_base_nodelet_manager-5] process has died [pid 26924, exit code -6]', '[bumper2pointcloud-9] process has died [pid 27236, exit code 255]') and corot's comment 18128700 verified verbatim; fix commit 18b46dc adds EIGEN_MAKE_ALIGNED_OPERATOR_NEW to Bumper2PcNodelet. Library-API interface and class 'other' (an ABI/alignment precondition with no exact named class) are correct. Loudness loud_documented at activate stage is correct (Eigen's own assertion fires during plugin construction). Resolution 'observed' rests on maintainer statements (corot 'solves the problem', jorge 'We fixed it and released just now') rather than a reporter re-run; this is the weakest 'observed' in the batch but is defensible given the explicit maintainer confirmation. The spec's notes correctly quarantine the auto_docking/ecl composition."
+}

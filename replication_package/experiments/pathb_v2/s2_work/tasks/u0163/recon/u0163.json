@@ -1,0 +1,89 @@
+{
+  "task_id": "u0163",
+  "package": "roscpp_tutorials",
+  "manifest_version": "0.3.13",
+  "ports": [
+    {
+      "element": "msg:std_msgs/String",
+      "side": "provides",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "992ce8a1687cec8c8bd883ec73ca41d1"
+      }
+    },
+    {
+      "element": "topic:/chatter",
+      "side": "provides",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": 10,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "992ce8a1687cec8c8bd883ec73ca41d1"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "topic:/chatter": "topic chatter: std_msgs/String",
+    "msg:std_msgs/String": "msg std_msgs/String: 992ce8a1687cec8c8bd883ec73ca41d1"
+  },
+  "not_declared": [
+    "api:requestTopic"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:roscpp_tutorials/package.xml:4",
+    "ports[0].msg_type": "snapshot:roscpp_tutorials/talker/talker.cpp:32 (#include \"std_msgs/String.h\"); snapshot:roscpp_tutorials/talker/talker.cpp:103 (std_msgs::String msg;)",
+    "ports[0].frame": "std_msgs/String definition is the single line 'string data' (no Header, no frame_id) fetched from https://raw.githubusercontent.com/ros/std_msgs/0.5.7/msg/String.msg; talker fills it with free text: snapshot:roscpp_tutorials/talker/talker.cpp:106 (ss << \"hello world \" << count;)",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 std_msgs/String <dir holding std_msgs/msg/String.msg fetched from https://raw.githubusercontent.com/ros/std_msgs/0.5.7/msg/String.msg> -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"992ce8a1687cec8c8bd883ec73ca41d1\"}",
+    "ports[1].msg_type": "snapshot:roscpp_tutorials/talker/talker.cpp:83 (ros::Publisher chatter_pub = n.advertise<std_msgs::String>(\"chatter\", 1000);); also snapshot:roscpp_tutorials/notify_connect/notify_connect.cpp:64",
+    "ports[1].frame": "std_msgs/String has no spatial content ('string data', https://raw.githubusercontent.com/ros/std_msgs/0.5.7/msg/String.msg); payload is text: snapshot:roscpp_tutorials/talker/talker.cpp:106",
+    "ports[1].rate_hz": "snapshot:roscpp_tutorials/talker/talker.cpp:87 (ros::Rate loop_rate(10);) with publish at :121 and loop_rate.sleep() at :129 inside while (ros::ok()) at :96",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 std_msgs/String <dir holding std_msgs/msg/String.msg fetched from https://raw.githubusercontent.com/ros/std_msgs/0.5.7/msg/String.msg> -> 992ce8a1687cec8c8bd883ec73ca41d1",
+    "declares[topic:/chatter]": "snapshot:roscpp_tutorials/talker/talker.cpp:83 (n.advertise<std_msgs::String>(\"chatter\", 1000)); snapshot:roscpp_tutorials/notify_connect/notify_connect.cpp:64 (n.advertise<std_msgs::String>(\"chatter\", 1000, chatterConnect, chatterDisconnect))",
+    "declares[msg:std_msgs/String]": "type used by the chatter publisher (snapshot:roscpp_tutorials/talker/talker.cpp:32, :83; build/run dependency snapshot:roscpp_tutorials/package.xml:24, :31); hash from definition_hash.py on https://raw.githubusercontent.com/ros/std_msgs/0.5.7/msg/String.msg = 992ce8a1687cec8c8bd883ec73ca41d1",
+    "not_declared[api:requestTopic]": "case-insensitive grep for 'requesttopic' and 'request_topic' over all 46 files of snapshot/roscpp_tutorials (and all 127 files of the snapshot): 0 hits; grep for 'xmlrpc' in snapshot/roscpp_tutorials: 0 hits. The package's sources use only the roscpp NodeHandle API (advertise/subscribe/advertiseService/serviceClient/param/createTimer) and define no XML-RPC slave API symbol.",
+    "perm_requires.state": "searched snapshot/roscpp_tutorials (sources, package.xml, CMakeLists.txt; no launch/yaml/config files present) for permission/allow/deny/grant: only license boilerplate hits",
+    "perm_grants.state": "same search as perm_requires.state: no permission grants declared",
+    "recovery.state": "searched snapshot/roscpp_tutorials for recover/retry/fallback/reconnect: 0 hits; no recovery behaviour declared",
+    "exclusive": "searched snapshot/roscpp_tutorials for exclusive/lock/claim/'/dev/': only license boilerplate hits; no hardware interfaces or device handles"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The provider side looks like the stock tutorial: talker and notify_connect advertise relative topic 'chatter' as std_msgs/String, whose groovy-tag definition hashes to the standard md5 992ce8a1687cec8c8bd883ec73ca41d1. api:requestTopic is the ROS 1 slave XML-RPC call implemented inside the roscpp client library, not something a tutorial package would declare, so its absence here is expected rather than a defect."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (groovy), so all QoS fields are null. The code names the topic as the relative name 'chatter' (declares keeps it verbatim); with the default root namespace and no remapping it resolves to the packet element /chatter, but it is remappable at run time through ros::init(argc, argv, ...) (talker.cpp:53). Two nodes provide it: talker publishes at 10 Hz (queue size 1000), and notify_connect publishes only one message to each newly connected subscriber (notify_connect.cpp:40-48, :64). The package also subscribes to 'chatter' in its own listener nodes (listener, listener_class, listener_multiple, etc.; listener_unreliable requests the UDPROS transport hint); those are this package's own topic, so they are not in references. No other packages' elements are named that fall under the packet, so references is empty; std_msgs/String is defined by the std_msgs dependency (the snapshot has no msg directory for roscpp_tutorials, only srv/TwoInts.srv), and because the packet lists msg:std_msgs/String as provided, it is recorded in declares with its definition hash rather than in references. api:requestTopic has no port: nothing in the package publishes, offers, subscribes to, or calls it in code (roscpp itself serves the slave API for every node, but that lives in the roscpp library, which is outside the snapshot). Dependency definition: std_msgs/msg/String.msg fetched raw from ros/std_msgs at tag 0.5.7 (chosen as the groovy-era release; a ros-gbp/std_msgs-release tag release/std_msgs/0.5.7 exists). The file is byte-identical (raw SHA-256 8d7bb56baf93c614a97f38518ec46615ad1265c4ee5f4e84173d86fcf4130b6e, content 'string data') at tags 0.5.4, 0.5.7, 0.5.11 and the groovy-devel branch, so the hash does not depend on which groovy tag is meant. Process deviations: (1) while probing tags I also fetched std_msgs package.xml at those four refs; these are not definition files, I deleted them immediately and used nothing from them for any recorded value. (2) Fetched definitions were kept in the session scratchpad (outside the workspace, since the workspace may hold only recon/u0163.json), and a stub package.xml with <name>std_msgs</name>, written by me, was placed next to the fetched String.msg so that definition_hash.py could resolve the package name. The sha256_normalised proxy of the same file is 16af456f69d90f33a330f20224f6eab5b499ec7d42e07bbe9a9026f88e406868 (not used as definition_id; ROS 1 md5 is the applicable algorithm)."
+}

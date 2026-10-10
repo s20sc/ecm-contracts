@@ -1,0 +1,35 @@
+{
+  "task_id": "u0208",
+  "package": "linux-kernel",
+  "manifest_version": null,
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [
+    "api:/proc/acpi/battery/BAT0/info",
+    "api:/proc/acpi/battery/BAT0/state",
+    "api:/sys/class/power_supply/BAT0/energy_now",
+    "api:/sys/class/power_supply/BAT0/energy_full_design",
+    "api:/sys/class/power_supply/BAT0/power_now"
+  ],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "not_declared[api:/proc/acpi/battery/BAT0/info]": "artifact.txt:1 \"So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_\" (explicit statement that the files have left /proc/acpi/battery/BAT0; no line of the artifact names info as still present)",
+    "not_declared[api:/proc/acpi/battery/BAT0/state]": "artifact.txt:1 \"So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_\" (explicit statement that the files have left /proc/acpi/battery/BAT0; no line of the artifact names state as still present)",
+    "not_declared[api:/sys/class/power_supply/BAT0/energy_now]": "artifact.txt:2 \"- no **energy_now** file but a **charge_now**\"",
+    "not_declared[api:/sys/class/power_supply/BAT0/energy_full_design]": "artifact.txt:3 \"- no **energy_full_design** file but a **charge_full_design**\"",
+    "not_declared[api:/sys/class/power_supply/BAT0/power_now]": "artifact.txt:4 \"- no **power_now** file\"",
+    "perm_requires.state": "artifact.txt is a six-line excerpt of comments and one consumer-code comment; no provider code or configuration is available to check",
+    "perm_grants.state": "artifact.txt is a six-line excerpt of comments and one consumer-code comment; no provider code or configuration is available to check",
+    "recovery.state": "artifact.txt is a six-line excerpt of comments and one consumer-code comment; no provider code or configuration is available to check"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "At this revision the excerpt says the provider no longer exposes /proc/acpi/battery/BAT0 (moved to /sys/class/power_supply/BAT0) and lacks energy_now, energy_full_design and power_now (charge_* instead), so five of the nine listed provided elements are absent; this reads as a deliberate relocation rather than a bug, but a consumer written against the listed interface would break."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task: the only source is artifact.txt (6 lines: quoted issue comments and one quoted comment from a consumer's commit); no kernel source, no declaration lines, no manifest, no message definitions, so declares is empty and no definition_id can be computed. ports is empty because no packet element is positively shown to be offered at this revision: the artifact names only charge_now and charge_full_design (not packet elements) as present under /sys/class/power_supply/BAT0. Undetermined, in neither declares nor not_declared: api:/sys/class/power_supply/BAT0/energy_full, api:/sys/class/power_supply/BAT0/present, api:/sys/class/power_supply/BAT0/status, api:/sys/class/power_supply/BAT0/voltage_now (not named in the artifact). artifact.txt:6 \"# Charging state; make lowercase and remove trailing eol\" is a consumer-side comment implying a charging-state value that has upper-case letters and a trailing end-of-line, but it does not name the file it reads, so it is not attributed to status here. artifact.txt:5 \"Values must be divided by 10e6\" states a scaling of the reported values but does not say which files or which unit, so no units are recorded. The not_declared entries rest on explicit absence statements in the artifact that describe the files observed on one running system; the excerpt is not a complete listing of the kernel's power_supply attributes, and whether energy_* versus charge_* files appear may depend on the battery hardware rather than on the kernel revision. exclusive is empty because the artifact names no exclusively claimed resource; the full code could not be checked. Permissions and recovery are unknown for the same reason."
+}

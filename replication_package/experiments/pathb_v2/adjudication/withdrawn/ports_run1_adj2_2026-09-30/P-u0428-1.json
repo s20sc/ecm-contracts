@@ -1,0 +1,5 @@
+{"item_id": "P-u0428-1", "kind": "P", "task_id": "u0428", "element": "api:BT::DecoratorNode", "side": "provides",
+ "values": [
+  {"field": "frame", "recorded": "none", "verdict": "verified", "source_excerpt": "class DecoratorNode : public TreeNode", "qos_basis": null}
+ ],
+ "notes": "Path anomaly, disclosed: the cited string 'snapshot:snapshot/include/behaviortree_cpp_v3/decorator_node.h:8' taken with the path relative to the snapshot root would double the snapshot component and that path does not exist. The run evidently recorded the path relative to the task dir: the unique decorator_node.h in this snapshot is s2_work/tasks/u0428/snapshot/include/behaviortree_cpp_v3/decorator_node.h (snapshot root listing shows no nested snapshot/ directory). I opened that file lines 1-25; line 8 sits inside 'namespace BT' (line 6) and states the DecoratorNode declaration — a C++ behavior-tree class with no spatial data — so frame=none is supported. Verified against that file; the path-format defect is recorded here rather than treated as a missing source."}

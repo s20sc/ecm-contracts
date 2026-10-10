@@ -1,0 +1,59 @@
+{
+  "task_id": "u0001",
+  "package": "mavros (setpoint_attitude plugin)",
+  "manifest_version": "0.12.0",
+  "ports": [
+    {
+      "element": "msg:common/SET_ATTITUDE_TARGET",
+      "side": "provides",
+      "msg_type": "common/SET_ATTITUDE_TARGET",
+      "frame": "ned",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "msg:common/SET_ATTITUDE_TARGET": "mavlink_msg_set_attitude_target_pack_chan(UAS_PACK_CHAN(uas), &msg,",
+    "field:common/SET_ATTITUDE_TARGET.time_boot_ms": "field common/SET_ATTITUDE_TARGET.time_boot_ms: uint32_t",
+    "field:common/SET_ATTITUDE_TARGET.target_system": "field common/SET_ATTITUDE_TARGET.target_system: uint8_t",
+    "field:common/SET_ATTITUDE_TARGET.target_component": "field common/SET_ATTITUDE_TARGET.target_component: uint8_t",
+    "field:common/SET_ATTITUDE_TARGET.type_mask": "field common/SET_ATTITUDE_TARGET.type_mask: uint8_t",
+    "field:common/SET_ATTITUDE_TARGET.q": "field common/SET_ATTITUDE_TARGET.q: float[4]",
+    "field:common/SET_ATTITUDE_TARGET.body_roll_rate": "field common/SET_ATTITUDE_TARGET.body_roll_rate: float",
+    "field:common/SET_ATTITUDE_TARGET.body_pitch_rate": "field common/SET_ATTITUDE_TARGET.body_pitch_rate: float",
+    "field:common/SET_ATTITUDE_TARGET.body_yaw_rate": "field common/SET_ATTITUDE_TARGET.body_yaw_rate: float",
+    "field:common/SET_ATTITUDE_TARGET.thrust": "field common/SET_ATTITUDE_TARGET.thrust: float"
+  },
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:mavros/package.xml:4 | <version>0.12.0</version> (the plugin is compiled into the mavros package: snapshot:mavros/mavros_plugins.xml:44)",
+    "ports[0].msg_type": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:96 | mavlink_msg_set_attitude_target_pack_chan(UAS_PACK_CHAN(uas), &msg, ; the message name SET_ATTITUDE_TARGET is taken from this pack function; the dialect prefix 'common' is the packet's element name, the snapshot only selects a dialect at build time: snapshot:libmavconn/cmake/Modules/MavrosMavlink.cmake:14 | set(MAVLINK_DIALECT \"ardupilotmega\" CACHE STRING \"MAVLink dialect selector\")",
+    "ports[0].frame": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:121 | q_out = UAS::transform_frame_enu_ned(Eigen::Quaterniond(tr.rotation())).cast<float>(); ; snapshot:mavros/src/plugins/setpoint_attitude.cpp:148 | auto av = UAS::transform_frame_enu_ned(ang_vel); ; snapshot:mavros/include/mavros/mavros_uas.h:416-419 | @brief Transform from ROS to FCU frame. / static inline T transform_frame_enu_ned(const T &in) { ; ROS-side input documented at snapshot:mavros/src/plugins/setpoint_attitude.cpp:111 and :140 | @note ENU frame. ; 'ned' is the suffix of the identifier transform_frame_enu_ned; no literal frame string is written for the packed message",
+    "declares[msg:common/SET_ATTITUDE_TARGET]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:96 | mavlink_msg_set_attitude_target_pack_chan(UAS_PACK_CHAN(uas), &msg, ; sent at :103 | UAS_FCU(uas)->send_message(&msg); ; plugin registration snapshot:mavros/mavros_plugins.xml:44 | <class name=\"setpoint_attitude\" type=\"mavplugin::SetpointAttitudePlugin\" base_class_type=\"mavplugin::MavRosPlugin\"> ; class snapshot:mavros/src/plugins/setpoint_attitude.cpp:33 | class SetpointAttitudePlugin : public MavRosPlugin,",
+    "declares[field:common/SET_ATTITUDE_TARGET.time_boot_ms]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:90 | void set_attitude_target(uint32_t time_boot_ms, ; packed at :97 | time_boot_ms, ; values :130 and :150 | stamp.toNSec() / 1000000, ; :165 | ros::Time::now().toNSec() / 1000000,",
+    "declares[field:common/SET_ATTITUDE_TARGET.target_system]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:98 | UAS_PACK_TGT(uas), ; snapshot:mavros/include/mavros/mavros_uas.h:60-62 | #define UAS_PACK_TGT(uasobjptr) (uasobjptr)->get_tgt_system(), (uasobjptr)->get_tgt_component() ; snapshot:mavros/include/mavros/mavros_uas.h:161 | inline uint8_t get_tgt_system() {",
+    "declares[field:common/SET_ATTITUDE_TARGET.target_component]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:98 | UAS_PACK_TGT(uas), ; snapshot:mavros/include/mavros/mavros_uas.h:60-62 | #define UAS_PACK_TGT(uasobjptr) (uasobjptr)->get_tgt_system(), (uasobjptr)->get_tgt_component() ; snapshot:mavros/include/mavros/mavros_uas.h:168 | inline uint8_t get_tgt_component() {",
+    "declares[field:common/SET_ATTITUDE_TARGET.type_mask]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:91 | uint8_t type_mask, ; packed at :99 | type_mask, ; values :116 | const uint8_t ignore_all_except_q = (1 << 6) | (7 << 0); ; :145 | const uint8_t ignore_all_except_rpy = (1 << 7) | (1 << 6); ; :162 | const uint8_t ignore_all_except_throttle = (1 << 7) | (7 << 0);",
+    "declares[field:common/SET_ATTITUDE_TARGET.q]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:92 | float q[4], ; packed at :100 | q, ; attitude path passes :132 | q_transformed, ; filled at :125-128 | q_transformed[0] = q_out.w(); q_transformed[1] = q_out.x(); q_transformed[2] = q_out.y(); q_transformed[3] = q_out.z(); ; :120-121 | Eigen::Map<Eigen::Quaternionf> q_out(q); q_out = UAS::transform_frame_enu_ned(Eigen::Quaterniond(tr.rotation())).cast<float>(); ; rate and throttle paths pass a constant :146 and :163 | float q[4] = { 1.0, 0.0, 0.0, 0.0 };",
+    "declares[field:common/SET_ATTITUDE_TARGET.body_roll_rate]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:93 | float roll_rate, float pitch_rate, float yaw_rate, ; packed at :101 | roll_rate, pitch_rate, yaw_rate, ; value :153 | av.x(), av.y(), av.z(), ; mapping to the MAVLink field name is by argument position in the pack_chan call; the generated MAVLink header is not in the snapshot",
+    "declares[field:common/SET_ATTITUDE_TARGET.body_pitch_rate]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:93 | float roll_rate, float pitch_rate, float yaw_rate, ; packed at :101 | roll_rate, pitch_rate, yaw_rate, ; value :153 | av.x(), av.y(), av.z(), ; mapping by argument position (see body_roll_rate)",
+    "declares[field:common/SET_ATTITUDE_TARGET.body_yaw_rate]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:93 | float roll_rate, float pitch_rate, float yaw_rate, ; packed at :101 | roll_rate, pitch_rate, yaw_rate, ; value :153 | av.x(), av.y(), av.z(), ; mapping by argument position (see body_roll_rate)",
+    "declares[field:common/SET_ATTITUDE_TARGET.thrust]": "snapshot:mavros/src/plugins/setpoint_attitude.cpp:94 | float thrust) { ; packed at :102 | thrust); ; value :169 | throttle); ; range checks :214 | if (reverse_throttle && !is_normalized(throttle_normalized, -1.0, 1.0)) ; :216 | else if (!is_normalized(throttle_normalized, 0.0, 1.0))",
+    "perm_requires.state": "checked snapshot:mavros/src/plugins/setpoint_attitude.cpp (whole file), snapshot:mavros/mavros_plugins.xml:44-46, snapshot:mavros/launch/px4_config.yaml:86-92, snapshot:mavros/launch/apm_config.yaml:86-92, snapshot:mavros/launch/px4_pluginlists.yaml, snapshot:mavros/launch/apm_pluginlists.yaml; no permission declaration; grep -i permission under snapshots/u0001/mavros hits only a license clause at include/mavros/px4_custom_mode.h:17",
+    "perm_grants.state": "same files as perm_requires.state; no grant declaration found",
+    "recovery.state": "same files as perm_requires.state plus snapshot:mavros/launch/node.launch; no respawn or recovery declaration (grep -i -E 'respawn|recover' under snapshots/u0001/mavros: 0 hits)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "For the attitude path the quaternion is copied explicitly into w, x, y, z order (lines 125-128) before packing, and the same wrapper feeds the rate and throttle paths with a unit quaternion; target ids, type_mask constants and time stamp are filled consistently. I see nothing in the listed fields that looks wrong at this revision."
+  },
+  "confidence": "medium",
+  "notes": "Unit located at snapshot:mavros/src/plugins/setpoint_attitude.cpp (class SetpointAttitudePlugin, registered as plugin 'setpoint_attitude' in mavros_plugins.xml:44). All ten packet elements are provided: the plugin packs one MAVLink SET_ATTITUDE_TARGET per callback via mavlink_msg_set_attitude_target_pack_chan (line 96) and sends it on the FCU link (line 103). Field types are taken from the plugin's own wrapper signature set_attitude_target(uint32_t time_boot_ms, uint8_t type_mask, float q[4], float roll_rate, float pitch_rate, float yaw_rate, float thrust) (lines 90-94) and from get_tgt_system()/get_tgt_component() (uint8_t, mavros_uas.h:161/168); the MAVLink definition itself (dialect XML or generated header) is not in the snapshot and ros_distro is null, so no dependency definition could be fetched and definition_id is null. The dialect prefix 'common' comes from the packet element names; the build selects MAVLINK_DIALECT (default ardupilotmega, MavrosMavlink.cmake:14). Three type_mask values are declared: ignore_all_except_q=(1<<6)|(7<<0) (line 116), ignore_all_except_rpy=(1<<7)|(1<<6) (line 145), ignore_all_except_throttle=(1<<7)|(7<<0) (line 162). Thrust is range-checked to [0,1] or [-1,1] when reverse_throttle (lines 214-217); rates are transformed by UAS::transform_frame_enu_ned (line 148). Units for rates and thrust are not stated in the code, so port units is null. Inputs (not packet elements): subscribes ~setpoint_attitude/cmd_vel (geometry_msgs/TwistStamped, line 63), ~setpoint_attitude/attitude (geometry_msgs/PoseStamped, line 64), ~setpoint_attitude/att_throttle (std_msgs/Float64, line 67), or a tf2 listener when tf/listen is true (line 60); params reverse_throttle, tf/listen, tf/frame_id (default local_origin), tf/child_frame_id (default attitude), tf/rate_limit (lines 50-55). QoS is null (ROS 1). No exclusive resources are claimed by this unit. The plugin is blacklisted for APM in launch/apm_pluginlists.yaml but enabled in launch/px4_pluginlists.yaml. Confidence is medium because field types and field-name mapping rest on the wrapper signature and argument order rather than the MAVLink definition."
+}

@@ -1,0 +1,49 @@
+{
+  "case_id": "C3-059",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/1505",
+    "https://github.com/ros-controls/ros2_controllers/pull/1525"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "Issue #1505 is a feature request / design question filed under \"Is your feature request related to a problem?\": \"I think the `open_loop_control` parameter should be `true` by default and maybe renamed\". It gives no reproducer or log. The maintainer explains the existing behaviour rather than confirming a defect (\"It uses the last desired state only if a new trajectory is sampled for the first time ... Later on, the current state is not involved in interpolation.\"), and the reporter withdraws the complaint (\"Ah I see, I was not using actions but just the publisher, in that case it will set this every time I think. But this is then my bad.\"). The merged PR #1525 renames the parameter to interpolate_from_desired_state and decouples it from the PID deactivation, keeping the default false (\"we should leave this default to false, otherwise we change the behavior of existing setups\"). Additional context: PR #1525 (merged 2025-03-07, fcaa035a18711505f5427d6239b6c0c1dd5a7432) adds parameter interpolate_from_desired_state, deprecates open_loop_control with a warning (\"[deprecated] 'open_loop_control' parameter is deprecated. Instead, set the feedback gains to zero and use 'interpolate_from_desired_state' parameter\"), and adds a migration note. The parameter description added by the PR mentions the reporter's use case: \"Furthermore, it is necessary if you have a reference trajectory that you send over multiple messages (e.g. for MPC-style trajectory planning).\" The deprecation itself is a later provider-side parameter rename that downstream configurations would have to follow, but no failure from it is documented in these sources."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [
+        "joint_trajectory_controller",
+        "reporter's trajectory publisher (unnamed)"
+      ],
+      "interface_kind": "topic",
+      "evidence": "Not evaluated beyond E1. The reported behaviour (each new trajectory received on the command topic starts interpolation from the measured state unless open_loop_control is set) is the controller's documented design and would occur with any peer that streams trajectories, so it would likely also stop at step 2 (internal)."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E1."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E1. The reporter only says streaming \"only works with `open_loop_control` set to `true`\" without describing the observed effect."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: feature request / parameter-semantics question about JTC's open_loop_control; no defect is documented (no reproducer or log, the maintainer explains intended behaviour and the reporter calls it \"my bad\"); the linked PR is a parameter rename and scope change with an unchanged default.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

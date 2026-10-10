@@ -1,0 +1,59 @@
+{
+  "task_id": "u0376",
+  "package": "mavros",
+  "manifest_version": "1.20.1",
+  "ports": [
+    {
+      "element": "field:mavlink/HEARTBEAT.custom_mode",
+      "side": "consumes",
+      "msg_type": "mavlink/HEARTBEAT",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:mavlink/SET_MODE.custom_mode",
+      "side": "provides",
+      "msg_type": "mavlink/SET_MODE",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "field:mavlink/SET_MODE.custom_mode": "field mavlink/SET_MODE.custom_mode: uint32_t"
+  },
+  "not_declared": [],
+  "references": [
+    "field:mavlink/HEARTBEAT.custom_mode"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:mavros/package.xml:4 | <version>1.20.1</version>",
+    "ports[0].msg_type": "snapshot:mavros/src/plugins/sys_status.cpp:765 | void handle_heartbeat(const mavlink::mavlink_message_t *msg, mavlink::minimal::msg::HEARTBEAT &hb) (registered at sys_status.cpp:576 make_handler(&SystemStatusPlugin::handle_heartbeat))",
+    "ports[0].frame": "snapshot:mavros/include/mavros/px4_custom_mode.h:50-55 | 'PX4 custom mode ... This union decodes uint32_t HEARTBEAT.custom_mode and uint32_t SET_MODE.custom_mode.' (mode code split into main_mode/sub_mode, no spatial meaning); snapshot:mavros/src/lib/uas_stringify.cpp:26 typedef std::unordered_map<uint32_t, const std::string> cmode_map;",
+    "ports[1].msg_type": "snapshot:mavros/src/plugins/sys_status.cpp:1238 | mavlink::common::msg::SET_MODE sm = {};",
+    "ports[1].frame": "snapshot:mavros/include/mavros/px4_custom_mode.h:52-53 | 'This union decodes uint32_t HEARTBEAT.custom_mode and uint32_t SET_MODE.custom_mode.' (mode code, no spatial meaning); snapshot:mavros/src/lib/uas_stringify.cpp:254 bool UAS::cmode_from_str(std::string cmode_str, uint32_t &custom_mode)",
+    "declares[field:mavlink/SET_MODE.custom_mode]": "snapshot:mavros/include/mavros/px4_custom_mode.h:53 | and uint32_t SET_MODE.custom_mode.; written at snapshot:mavros/src/plugins/sys_status.cpp:1220 uint32_t custom_mode = 0; and :1241 sm.custom_mode = custom_mode; (value from cmode_from_str at :1223)",
+    "references[field:mavlink/HEARTBEAT.custom_mode]": "snapshot:mavros/src/plugins/sys_status.cpp:772 | auto vehicle_mode = m_uas->str_mode_v10(hb.base_mode, hb.custom_mode); also :782 it->second.custom_mode = hb.custom_mode; and :788 it->second.mode_id = hb.custom_mode;",
+    "exclusive": "searched snapshot (grep -rnE 'TIOCEXCL|flock|O_EXCL|exclusive|lockf') and mavros/launch/*.yaml: no exclusive resource claims; only argparse mutually_exclusive groups in scripts",
+    "perm_requires.state": "searched mavros/src/plugins/sys_status.cpp, mavros/src/lib/uas_stringify.cpp, mavros/launch/apm_config.yaml, mavros/launch/px4_config.yaml for permission/authorization declarations around HEARTBEAT/SET_MODE handling: none",
+    "perm_grants.state": "same search as perm_requires: none",
+    "recovery.state": "snapshot:mavros/src/plugins/sys_status.cpp:1214-1246 set_mode_cb: unknown mode string -> res.mode_sent = false, no retry or fallback; heartbeat loss only triggers update_connection_status(false) via one-shot timer (:516, :542, :1089-1092), a detection not a recovery policy"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "mavros does not use a FlightMode symbol; it hand-copies autopilot custom-mode numbers into static tables (uas_stringify.cpp:28-146, e.g. APM:Plane 0..21 citing 'ArduPlane/defines.h', with '14 LAND // not in list', APM:Copter 0..20) and uses them both to decode HEARTBEAT.custom_mode and to encode SET_MODE.custom_mode. Any drift between these tables and the autopilot's enum would be silent (unknown values become CMODE(n) or a failed set_mode), and the tables look like they could lag newer autopilot modes, but whether they disagree with the paired FlightMode at this revision cannot be judged from the snapshot alone."
+  },
+  "confidence": "medium",
+  "notes": "Snapshot is the whole mavros repository (mavros, mavros_msgs, mavros_extras, libmavconn, test_mavros); the described unit is the mavros package (mavros/package.xml name mavros, version 1.20.1). ros_distro is null. (1) api:FlightMode (consumes): the symbol FlightMode does not occur anywhere in the snapshot (grep -rn FlightMode, and case-insensitive grep 'flight.?mode' finds only comments in px4_custom_mode.h:37, enum_to_string.cpp:295-296 and CommandCode.msg). It is therefore not in references and no port is recorded for it. The closest related code is arduplane_cmode_map in mavros/src/lib/uas_stringify.cpp:28-53 (comment 'APM:Plane custom mode -> string / ArduPlane/defines.h'), which hard-codes integer values {0 MANUAL, 1 CIRCLE, 2 STABILIZE, 3 TRAINING, 4 ACRO, 5 FBWA, 6 FBWB, 7 CRUISE, 8 AUTOTUNE, 10 AUTO, 11 RTL, 12 LOITER, 14 LAND ('not in list'), 15 GUIDED, 16 INITIALISING, 17 QSTABILIZE, 18 QHOVER, 19 QLOITER, 20 QLAND, 21 QRTL}; arducopter_cmode_map (lines 55-80) holds 0..20 without 12 (20 GUIDED_NOGPS last), apmrover2_cmode_map (82-99), ardusub_cmode_map (101-126), px4_cmode_map (128-146) built from px4::custom_mode enums in mavros/include/mavros/px4_custom_mode.h. Whether any of these tables is the counterpart of 'FlightMode' cannot be determined from allowed sources. Selection among tables is by HEARTBEAT autopilot/type at run time (str_mode_v10, uas_stringify.cpp:189-217; cmode_from_str, :254-278). (2) HEARTBEAT is taken from the mavlink::minimal dialect namespace (sys_status.cpp:765, :1098); SET_MODE from mavlink::common (sys_status.cpp:1238). The MAVLink message definitions are XML in the mavlink package, which is not an allowed dependency definition file type (.msg/.srv/.action/.idl), so definition_id is null for both ports and the field type uint32_t for SET_MODE.custom_mode is taken from the snapshot's own declaration (px4_custom_mode.h:52-53) and the uint32_t variable written into it (sys_status.cpp:1220, :1241), not from the XML. Units are not stated in the snapshot for custom_mode (null). (3) QoS null: ROS 1 / MAVLink transport, not ROS topics. rate_hz/min_rate_hz not set for these elements: SET_MODE is sent once per set_mode service call (service 'set_mode', sys_status.cpp:565); HEARTBEAT reception has a 10.0 s connection timeout (param conn/timeout, default 10.0 at sys_status.cpp:516, apm_config.yaml:12, px4_config.yaml:11), which is a timeout, not a declared minimum rate. (4) mavros also writes HEARTBEAT.custom_mode itself when sending its own GCS heartbeat (hb.custom_mode = 0; sys_status.cpp:1103, rate conn/heartbeat_rate 1.0 Hz in launch configs), though the packet lists that field as consumed. (5) Decoded custom_mode is propagated as mavros_msgs/VehicleInfo.custom_mode (uint32) and the mode string in mavros_msgs/State.mode; the ROS-side mavros_msgs/SetMode.srv carries custom_mode as a string (mavros_msgs/srv/SetMode.srv:20), converted to the uint32 SET_MODE field by cmode_from_str."
+}

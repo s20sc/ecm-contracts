@@ -1,0 +1,911 @@
+[
+ {
+  "item_id": "A2-B-Beh-02-broken-M1-0",
+  "kind": "A2",
+  "case_id": "B-Beh-02",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "qos_reliability",
+  "element": "topic:/my_topic",
+  "token": null,
+  "finding": {
+   "rule": "qos_reliability",
+   "dimension": "Beh",
+   "token": null,
+   "detail": "BEST_EFFORT pub vs RELIABLE sub -> no delivery",
+   "element": "topic:/my_topic",
+   "msg_type": null,
+   "provenance": "verified",
+   "unit_kind": "edge"
+  },
+  "assembled": "assembled/B-Beh-02.json",
+  "evidence": {
+   "unit_kind": "edge",
+   "unit_element": "topic:/my_topic",
+   "trigger_paths": [
+    "producer.outputs[0].qos.reliability",
+    "consumer.inputs[0].qos.reliability"
+   ],
+   "provenance": {
+    "producer.outputs[0].qos.reliability": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\"",
+    "consumer.inputs[0].qos.reliability": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:107-108 | # TODO(@jubeira): add support for other QoS. / self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10) (same fixed depth-10 int at :150-151 for the per-client new_subscriber). The code passes a plain history depth and sets no reliability. Documented default of the API at this version: rclpy (foxy) rclpy.node.Node.create_subscription, parameter qos_profile: 'A QoSProfile or a history depth to apply to the subscription. In the case that a history depth is provided, the QoS history is set to KEEP_LAST, the QoS history depth is set to the value of the parameter, and all other QoS settings are set to their default values.' rclpy.qos.QoSProfile takes those defaults from rmw_qos_profile_default (rmw/types.h, foxy): reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE. Citation is to the rclpy/rmw API documentation; the rclpy source is not a definition file and was not fetched."
+   },
+   "encoding": {
+    "type": "PAIR",
+    "producer": {
+     "outputs": [
+      {
+       "role": "topic:/my_topic",
+       "msg_type": null,
+       "frame": null,
+       "units": null,
+       "qos": {
+        "reliability": "best_effort",
+        "durability": null,
+        "deadline_ms": null
+       },
+       "rate_hz": null,
+       "min_rate_hz": null,
+       "definition_id": null
+      }
+     ],
+     "inputs": [],
+     "exclusive": [],
+     "perm_requires": [],
+     "perm_grants": [],
+     "perm_limits": {},
+     "recovery": null,
+     "_states": {
+      "perm_requires": "unknown",
+      "perm_grants": "unknown",
+      "recovery": "unknown"
+     }
+    },
+    "consumer": {
+     "outputs": [],
+     "inputs": [
+      {
+       "role": "topic:/my_topic",
+       "msg_type": null,
+       "frame": null,
+       "units": null,
+       "qos": {
+        "reliability": "reliable",
+        "durability": "volatile",
+        "deadline_ms": null
+       },
+       "rate_hz": null,
+       "min_rate_hz": null,
+       "definition_id": null
+      }
+     ],
+     "exclusive": [],
+     "perm_requires": [],
+     "perm_grants": [
+      "topics_glob",
+      "services_glob",
+      "params_glob",
+      "authenticate"
+     ],
+     "perm_limits": {},
+     "recovery": "retry_startup_delay: while the WebSocket server cannot bind, the node logs a warning and retries application.listen(port, address) every retry_startup_delay seconds (code default 2.0 s; launch-file default 5) until it succeeds or the context is shut down. No recovery exists for the topic subscription itself: TopicNotEstablishedException / TypeConflictException raised while creating the subscription propagate to Protocol.incoming, which logs them as an error to the client and drops the request.",
+     "_states": {
+      "perm_requires": "absent",
+      "perm_grants": "present",
+      "recovery": "present"
+     }
+    },
+    "edge": {
+     "out_role": "topic:/my_topic",
+     "in_role": "topic:/my_topic"
+    }
+   }
+  },
+  "tasks": [
+   {
+    "task_id": "u0011",
+    "unit": "reporter_best_effort_publisher",
+    "revision": "as-reported-2021-01",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0011"
+   },
+   {
+    "task_id": "u0012",
+    "unit": "rosbridge_server",
+    "revision": "1a2c386455067b00a9e67fb70cc711add38c3582",
+    "resolved_commit": "1a2c386455067b00a9e67fb70cc711add38c3582",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0012"
+   },
+   {
+    "task_id": "u0013",
+    "unit": "rosbridge_server",
+    "revision": "adfa4d6335462e321d774400a6ffbf285cb28531",
+    "resolved_commit": "adfa4d6335462e321d774400a6ffbf285cb28531",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0013"
+   }
+  ]
+ },
+ {
+  "item_id": "A2-B-Beh-02-broken-M5-0",
+  "kind": "A2",
+  "case_id": "B-Beh-02",
+  "composition": "broken",
+  "method_label": "M5",
+  "rule": "dq_qos_reliability",
+  "element": "topic:/my_topic",
+  "token": null,
+  "finding": {
+   "rule": "dq_qos_reliability",
+   "element": "topic:/my_topic",
+   "values": {
+    "producer": "best_effort",
+    "consumer": "reliable"
+   },
+   "msg_type": null,
+   "provenance": "verified",
+   "unit_kind": "edge"
+  },
+  "assembled": "assembled/B-Beh-02.json",
+  "evidence": {
+   "unit_kind": "edge",
+   "unit_element": "topic:/my_topic",
+   "trigger_paths": [
+    "producer.outputs[0].qos.reliability",
+    "consumer.inputs[0].qos.reliability"
+   ],
+   "provenance": {
+    "producer.outputs[0].qos.reliability": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\"",
+    "consumer.inputs[0].qos.reliability": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:107-108 | # TODO(@jubeira): add support for other QoS. / self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10) (same fixed depth-10 int at :150-151 for the per-client new_subscriber). The code passes a plain history depth and sets no reliability. Documented default of the API at this version: rclpy (foxy) rclpy.node.Node.create_subscription, parameter qos_profile: 'A QoSProfile or a history depth to apply to the subscription. In the case that a history depth is provided, the QoS history is set to KEEP_LAST, the QoS history depth is set to the value of the parameter, and all other QoS settings are set to their default values.' rclpy.qos.QoSProfile takes those defaults from rmw_qos_profile_default (rmw/types.h, foxy): reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE. Citation is to the rclpy/rmw API documentation; the rclpy source is not a definition file and was not fetched."
+   },
+   "encoding": {
+    "type": "PAIR",
+    "producer": {
+     "outputs": [
+      {
+       "role": "topic:/my_topic",
+       "msg_type": null,
+       "frame": null,
+       "units": null,
+       "qos": {
+        "reliability": "best_effort",
+        "durability": null,
+        "deadline_ms": null
+       },
+       "rate_hz": null,
+       "min_rate_hz": null,
+       "definition_id": null
+      }
+     ],
+     "inputs": [],
+     "exclusive": [],
+     "perm_requires": [],
+     "perm_grants": [],
+     "perm_limits": {},
+     "recovery": null,
+     "_states": {
+      "perm_requires": "unknown",
+      "perm_grants": "unknown",
+      "recovery": "unknown"
+     }
+    },
+    "consumer": {
+     "outputs": [],
+     "inputs": [
+      {
+       "role": "topic:/my_topic",
+       "msg_type": null,
+       "frame": null,
+       "units": null,
+       "qos": {
+        "reliability": "reliable",
+        "durability": "volatile",
+        "deadline_ms": null
+       },
+       "rate_hz": null,
+       "min_rate_hz": null,
+       "definition_id": null
+      }
+     ],
+     "exclusive": [],
+     "perm_requires": [],
+     "perm_grants": [
+      "topics_glob",
+      "services_glob",
+      "params_glob",
+      "authenticate"
+     ],
+     "perm_limits": {},
+     "recovery": "retry_startup_delay: while the WebSocket server cannot bind, the node logs a warning and retries application.listen(port, address) every retry_startup_delay seconds (code default 2.0 s; launch-file default 5) until it succeeds or the context is shut down. No recovery exists for the topic subscription itself: TopicNotEstablishedException / TypeConflictException raised while creating the subscription propagate to Protocol.incoming, which logs them as an error to the client and drops the request.",
+     "_states": {
+      "perm_requires": "absent",
+      "perm_grants": "present",
+      "recovery": "present"
+     }
+    },
+    "edge": {
+     "out_role": "topic:/my_topic",
+     "in_role": "topic:/my_topic"
+    }
+   }
+  },
+  "tasks": [
+   {
+    "task_id": "u0011",
+    "unit": "reporter_best_effort_publisher",
+    "revision": "as-reported-2021-01",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0011"
+   },
+   {
+    "task_id": "u0012",
+    "unit": "rosbridge_server",
+    "revision": "1a2c386455067b00a9e67fb70cc711add38c3582",
+    "resolved_commit": "1a2c386455067b00a9e67fb70cc711add38c3582",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0012"
+   },
+   {
+    "task_id": "u0013",
+    "unit": "rosbridge_server",
+    "revision": "adfa4d6335462e321d774400a6ffbf285cb28531",
+    "resolved_commit": "adfa4d6335462e321d774400a6ffbf285cb28531",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0013"
+   }
+  ]
+ },
+ {
+  "item_id": "A2-B-Ver-01-broken-M1-0",
+  "kind": "A2",
+  "case_id": "B-Ver-01",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "element": "msg:os5000_imu/imu_data",
+  "token": "msg:os5000_imu/imu_data",
+  "finding": {
+   "rule": "field_break",
+   "dimension": "Ver",
+   "token": "msg:os5000_imu/imu_data",
+   "detail": "changed field 'msg:os5000_imu/imu_data' is read by a consumer",
+   "element": "msg:os5000_imu/imu_data",
+   "msg_type": null,
+   "provenance": "verified",
+   "unit_kind": "upgrade"
+  },
+  "assembled": "assembled/B-Ver-01.json",
+  "evidence": {
+   "unit_kind": "upgrade",
+   "unit_element": null,
+   "trigger_paths": [
+    "ver_delta.changed_fields[msg:os5000_imu/imu_data]",
+    "ver_delta.consumer_reads[msg:os5000_imu/imu_data]"
+   ],
+   "provenance": {
+    "ver_delta.changed_fields[msg:os5000_imu/imu_data]": "built: artifact.txt:1-6 (definition body) hashed by definition_hash.py ros1 os5000_imu/imu_data with nested std_msgs/String from artifact.txt:9-10 and std_msgs/Float32 from artifact.txt:13-14 | {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"20a63a1c6bab175e3bbe310358cd3614\"} || running: artifact.txt:1-5 | float32 heading / float32 pitch / float32 roll / float32 temp / float32 depth; hash from definition_hash.py ros1 as in ports[0].definition_id",
+    "ver_delta.consumer_reads[msg:os5000_imu/imu_data]": "artifact.txt:1 | 'callerid': '/control_panel', ... 'type': 'os5000_imu/imu_data'"
+   },
+   "encoding": {
+    "type": "UPGRADE",
+    "ver_delta": {
+     "changed_fields": [
+      "field:os5000_imu/imu_data.depth",
+      "field:os5000_imu/imu_data.heading",
+      "field:os5000_imu/imu_data.pitch",
+      "field:os5000_imu/imu_data.raw",
+      "field:os5000_imu/imu_data.roll",
+      "field:os5000_imu/imu_data.temp",
+      "msg:os5000_imu/imu_data"
+     ],
+     "consumer_reads": [
+      "msg:os5000_imu/imu_data",
+      "topic:/imu"
+     ],
+     "semver_old": null,
+     "semver_new": null
+    }
+   }
+  },
+  "tasks": [
+   {
+    "task_id": "u0001",
+    "unit": "control_panel",
+    "revision": "as-reported-2016-02",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0001"
+   },
+   {
+    "task_id": "u0002",
+    "unit": "os5000_imu",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0002"
+   },
+   {
+    "task_id": "u0003",
+    "unit": "os5000_imu",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0003"
+   },
+   {
+    "task_id": "u0016",
+    "unit": "control_panel",
+    "revision": "rebuilt-2016-02",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0016"
+   },
+   {
+    "task_id": "u0017",
+    "unit": "os5000_imu_publisher",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "superseded",
+    "workspace": "s2_work/tasks/u0017"
+   },
+   {
+    "task_id": "u0018",
+    "unit": "os5000_imu_publisher",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "superseded",
+    "workspace": "s2_work/tasks/u0018"
+   },
+   {
+    "task_id": "u0019",
+    "unit": "control_panel",
+    "revision": "as-rebuilt-2016-02-16",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0019"
+   },
+   {
+    "task_id": "u0020",
+    "unit": "control_panel",
+    "revision": "as-reported-2016-02-15",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0020"
+   },
+   {
+    "task_id": "u0021",
+    "unit": "os5000_imu",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0021"
+   },
+   {
+    "task_id": "u0022",
+    "unit": "os5000_imu",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0022"
+   }
+  ],
+  "also_covers": [
+   {
+    "item_id": "A2-B-Ver-01-broken-M1-1",
+    "element": "msg:os5000_imu/imu_data",
+    "token": "msg:os5000_imu/imu_data"
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M1-2",
+    "element": "msg:os5000_imu/imu_data",
+    "token": "msg:os5000_imu/imu_data"
+   }
+  ]
+ },
+ {
+  "item_id": "A2-B-Ver-01-broken-M2-0",
+  "kind": "A2",
+  "case_id": "B-Ver-01",
+  "composition": "broken",
+  "method_label": "M2",
+  "rule": "di_definition_mismatch",
+  "element": "msg:os5000_imu/imu_data",
+  "token": null,
+  "finding": {
+   "rule": "di_definition_mismatch",
+   "element": "msg:os5000_imu/imu_data",
+   "values": {
+    "producer": "cb87164d6e531601e0b13c83388dee16",
+    "consumer": "20a63a1c6bab175e3bbe310358cd3614",
+    "algorithm": "ros1_md5"
+   },
+   "msg_type": "os5000_imu/imu_data",
+   "provenance": "verified",
+   "unit_kind": "pair_view"
+  },
+  "assembled": "assembled/B-Ver-01.json",
+  "evidence": {
+   "unit_kind": "pair_view",
+   "unit_element": "msg:os5000_imu/imu_data",
+   "trigger_paths": [
+    "producer.outputs[0].definition_id",
+    "consumer.inputs[0].definition_id"
+   ],
+   "provenance": {
+    "producer.outputs[0].definition_id": "same tool run as ports[0].definition_id: {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"cb87164d6e531601e0b13c83388dee16\"}",
+    "consumer.inputs[0].definition_id": "built-against provider: same tool run as ports[0].definition_id | {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"20a63a1c6bab175e3bbe310358cd3614\"}"
+   },
+   "encoding": {
+    "type": "PAIR",
+    "producer": {
+     "outputs": [
+      {
+       "role": "msg:os5000_imu/imu_data",
+       "msg_type": "os5000_imu/imu_data",
+       "frame": null,
+       "units": null,
+       "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+       },
+       "rate_hz": null,
+       "min_rate_hz": null,
+       "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "cb87164d6e531601e0b13c83388dee16"
+       }
+      }
+     ],
+     "inputs": [],
+     "exclusive": [],
+     "perm_requires": []
+    },
+    "consumer": {
+     "outputs": [],
+     "inputs": [
+      {
+       "role": "msg:os5000_imu/imu_data",
+       "msg_type": "os5000_imu/imu_data",
+       "frame": null,
+       "units": null,
+       "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+       },
+       "rate_hz": null,
+       "min_rate_hz": null,
+       "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "20a63a1c6bab175e3bbe310358cd3614"
+       }
+      }
+     ],
+     "exclusive": [],
+     "perm_requires": []
+    },
+    "edge": {
+     "out_role": "msg:os5000_imu/imu_data",
+     "in_role": "msg:os5000_imu/imu_data"
+    }
+   }
+  },
+  "tasks": [
+   {
+    "task_id": "u0001",
+    "unit": "control_panel",
+    "revision": "as-reported-2016-02",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0001"
+   },
+   {
+    "task_id": "u0002",
+    "unit": "os5000_imu",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0002"
+   },
+   {
+    "task_id": "u0003",
+    "unit": "os5000_imu",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0003"
+   },
+   {
+    "task_id": "u0016",
+    "unit": "control_panel",
+    "revision": "rebuilt-2016-02",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0016"
+   },
+   {
+    "task_id": "u0017",
+    "unit": "os5000_imu_publisher",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "superseded",
+    "workspace": "s2_work/tasks/u0017"
+   },
+   {
+    "task_id": "u0018",
+    "unit": "os5000_imu_publisher",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "superseded",
+    "workspace": "s2_work/tasks/u0018"
+   },
+   {
+    "task_id": "u0019",
+    "unit": "control_panel",
+    "revision": "as-rebuilt-2016-02-16",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0019"
+   },
+   {
+    "task_id": "u0020",
+    "unit": "control_panel",
+    "revision": "as-reported-2016-02-15",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0020"
+   },
+   {
+    "task_id": "u0021",
+    "unit": "os5000_imu",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0021"
+   },
+   {
+    "task_id": "u0022",
+    "unit": "os5000_imu",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0022"
+   }
+  ],
+  "also_covers": [
+   {
+    "item_id": "A2-B-Ver-01-broken-M2-1",
+    "element": "field:os5000_imu/imu_data.heading",
+    "token": null
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M2-2",
+    "element": "field:os5000_imu/imu_data.pitch",
+    "token": null
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M2-3",
+    "element": "field:os5000_imu/imu_data.roll",
+    "token": null
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M2-4",
+    "element": "field:os5000_imu/imu_data.temp",
+    "token": null
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M2-5",
+    "element": "field:os5000_imu/imu_data.depth",
+    "token": null
+   }
+  ]
+ },
+ {
+  "item_id": "A2-B-Ver-01-broken-M5-0",
+  "kind": "A2",
+  "case_id": "B-Ver-01",
+  "composition": "broken",
+  "method_label": "M5",
+  "rule": "di_definition_mismatch",
+  "element": "msg:os5000_imu/imu_data",
+  "token": null,
+  "finding": {
+   "rule": "di_definition_mismatch",
+   "element": "msg:os5000_imu/imu_data",
+   "values": {
+    "producer": "cb87164d6e531601e0b13c83388dee16",
+    "consumer": "20a63a1c6bab175e3bbe310358cd3614",
+    "algorithm": "ros1_md5"
+   },
+   "msg_type": "os5000_imu/imu_data",
+   "provenance": "verified",
+   "unit_kind": "pair_view"
+  },
+  "assembled": "assembled/B-Ver-01.json",
+  "evidence": {
+   "unit_kind": "pair_view",
+   "unit_element": "msg:os5000_imu/imu_data",
+   "trigger_paths": [
+    "producer.outputs[0].definition_id",
+    "consumer.inputs[0].definition_id"
+   ],
+   "provenance": {
+    "producer.outputs[0].definition_id": "same tool run as ports[0].definition_id: {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"cb87164d6e531601e0b13c83388dee16\"}",
+    "consumer.inputs[0].definition_id": "built-against provider: same tool run as ports[0].definition_id | {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"20a63a1c6bab175e3bbe310358cd3614\"}"
+   },
+   "encoding": {
+    "type": "PAIR",
+    "producer": {
+     "outputs": [
+      {
+       "role": "msg:os5000_imu/imu_data",
+       "msg_type": "os5000_imu/imu_data",
+       "frame": null,
+       "units": null,
+       "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+       },
+       "rate_hz": null,
+       "min_rate_hz": null,
+       "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "cb87164d6e531601e0b13c83388dee16"
+       }
+      }
+     ],
+     "inputs": [],
+     "exclusive": [],
+     "perm_requires": []
+    },
+    "consumer": {
+     "outputs": [],
+     "inputs": [
+      {
+       "role": "msg:os5000_imu/imu_data",
+       "msg_type": "os5000_imu/imu_data",
+       "frame": null,
+       "units": null,
+       "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+       },
+       "rate_hz": null,
+       "min_rate_hz": null,
+       "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "20a63a1c6bab175e3bbe310358cd3614"
+       }
+      }
+     ],
+     "exclusive": [],
+     "perm_requires": []
+    },
+    "edge": {
+     "out_role": "msg:os5000_imu/imu_data",
+     "in_role": "msg:os5000_imu/imu_data"
+    }
+   }
+  },
+  "tasks": [
+   {
+    "task_id": "u0001",
+    "unit": "control_panel",
+    "revision": "as-reported-2016-02",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0001"
+   },
+   {
+    "task_id": "u0002",
+    "unit": "os5000_imu",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0002"
+   },
+   {
+    "task_id": "u0003",
+    "unit": "os5000_imu",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0003"
+   },
+   {
+    "task_id": "u0016",
+    "unit": "control_panel",
+    "revision": "rebuilt-2016-02",
+    "resolved_commit": null,
+    "status": "withdrawn",
+    "workspace": "s2_work/tasks/u0016"
+   },
+   {
+    "task_id": "u0017",
+    "unit": "os5000_imu_publisher",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "superseded",
+    "workspace": "s2_work/tasks/u0017"
+   },
+   {
+    "task_id": "u0018",
+    "unit": "os5000_imu_publisher",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "superseded",
+    "workspace": "s2_work/tasks/u0018"
+   },
+   {
+    "task_id": "u0019",
+    "unit": "control_panel",
+    "revision": "as-rebuilt-2016-02-16",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0019"
+   },
+   {
+    "task_id": "u0020",
+    "unit": "control_panel",
+    "revision": "as-reported-2016-02-15",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0020"
+   },
+   {
+    "task_id": "u0021",
+    "unit": "os5000_imu",
+    "revision": "md5:20a63a1c6bab175e3bbe310358cd3614",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0021"
+   },
+   {
+    "task_id": "u0022",
+    "unit": "os5000_imu",
+    "revision": "md5:cb87164d6e531601e0b13c83388dee16",
+    "resolved_commit": null,
+    "status": "excerpt",
+    "workspace": "s2_work/tasks/u0022"
+   }
+  ],
+  "also_covers": [
+   {
+    "item_id": "A2-B-Ver-01-broken-M5-1",
+    "element": "field:os5000_imu/imu_data.heading",
+    "token": null
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M5-2",
+    "element": "field:os5000_imu/imu_data.pitch",
+    "token": null
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M5-3",
+    "element": "field:os5000_imu/imu_data.roll",
+    "token": null
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M5-4",
+    "element": "field:os5000_imu/imu_data.temp",
+    "token": null
+   },
+   {
+    "item_id": "A2-B-Ver-01-broken-M5-5",
+    "element": "field:os5000_imu/imu_data.depth",
+    "token": null
+   }
+  ]
+ },
+ {
+  "item_id": "A2-robust_263650d-broken-M1-0",
+  "kind": "A2",
+  "case_id": "robust_263650d",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "element": "topic:/mavros/gps/fix",
+  "token": "topic:/mavros/gps/fix",
+  "finding": {
+   "rule": "field_break",
+   "dimension": "Ver",
+   "token": "topic:/mavros/gps/fix",
+   "detail": "changed field 'topic:/mavros/gps/fix' is read by a consumer",
+   "element": "topic:/mavros/gps/fix",
+   "msg_type": null,
+   "provenance": "verified",
+   "unit_kind": "upgrade"
+  },
+  "assembled": "assembled/robust_263650d.json",
+  "evidence": {
+   "unit_kind": "upgrade",
+   "unit_element": null,
+   "trigger_paths": [
+    "ver_delta.changed_fields[topic:/mavros/gps/fix]",
+    "ver_delta.consumer_reads[topic:/mavros/gps/fix]"
+   ],
+   "provenance": {
+    "ver_delta.changed_fields[topic:/mavros/gps/fix]": "built: snapshot:mavros/src/plugins/gps.cpp:47 | fix_pub = gps_nh.advertise<sensor_msgs::NavSatFix>(\"fix\", 10); ; published at gps.cpp:112 | fix_pub.publish(fix); || running: grep -rn over the whole snapshot for gps/fix, \"gps\", GpsPlugin, gps_pub, raw/fix, global_position: no advertise of a gps or gps/fix topic anywhere; the only hit is a client-side lookup snapshot:mavros/scripts/mavcmd:105 | gps_fix = mavros.get_topic('gps', 'fix'); snapshot:mavros/mavros_plugins.xml:5-58 lists no gps plugin (global_position at :26 is described as \"Publish FCU fused global position and raw GPS fix.\"); snapshot:mavros/src/plugins/global_position.cpp:66-74 advertises only raw/fix, raw/gps_vel, global, local, gp_vel, rel_alt, compass_hdg under ~global_position; snapshot:mavros/CMakeLists.txt:196-214 plugin source list contains no gps.cpp",
+    "ver_delta.consumer_reads[topic:/mavros/gps/fix]": "snapshot:mavros/scripts/mavcmd:105 | gps_fix = mavros.get_topic('gps', 'fix')"
+   },
+   "encoding": {
+    "type": "UPGRADE",
+    "ver_delta": {
+     "changed_fields": [
+      "topic:/mavros/global_position/raw/fix",
+      "topic:/mavros/gps/fix"
+     ],
+     "consumer_reads": [
+      "msg:mavros/State",
+      "msg:sensor_msgs/NavSatFix",
+      "service:/mavros/cmd/arming",
+      "service:/mavros/cmd/command",
+      "service:/mavros/cmd/command_int",
+      "service:/mavros/cmd/guided_enable",
+      "service:/mavros/cmd/land",
+      "service:/mavros/cmd/set_home",
+      "service:/mavros/cmd/takeoff",
+      "service:/mavros/cmd/trigger_control",
+      "topic:/mavros/global_position/global",
+      "topic:/mavros/gps/fix",
+      "topic:/mavros/state"
+     ],
+     "semver_old": "0.12.0",
+     "semver_new": "0.13.0"
+    }
+   }
+  },
+  "tasks": [
+   {
+    "task_id": "u0006",
+    "unit": "mavcmd",
+    "revision": "263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77",
+    "resolved_commit": "263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0006"
+   },
+   {
+    "task_id": "u0007",
+    "unit": "mavcmd",
+    "revision": "4fb6e7e8190145ba6fa49fa6e13cc49730885b7f",
+    "resolved_commit": "4fb6e7e8190145ba6fa49fa6e13cc49730885b7f",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0007"
+   },
+   {
+    "task_id": "u0008",
+    "unit": "mavros_node",
+    "revision": "0.12.0",
+    "resolved_commit": "2b588f92e0fc0c9c5e4bec1b0bd3975804411436",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0008"
+   },
+   {
+    "task_id": "u0009",
+    "unit": "mavros_node",
+    "revision": "263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77",
+    "resolved_commit": "263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0009"
+   },
+   {
+    "task_id": "u0010",
+    "unit": "mavros_node",
+    "revision": "4fb6e7e8190145ba6fa49fa6e13cc49730885b7f",
+    "resolved_commit": "4fb6e7e8190145ba6fa49fa6e13cc49730885b7f",
+    "status": "done",
+    "workspace": "s2_work/tasks/u0010"
+   }
+  ]
+ }
+]

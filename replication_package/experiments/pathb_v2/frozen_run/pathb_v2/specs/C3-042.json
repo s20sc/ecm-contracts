@@ -1,0 +1,49 @@
+{
+ "case_id": "C3-042",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros-controls/ros2_controllers/issues/376",
+  "https://github.com/ros-controls/ros2_controllers/pull/377"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue #376 gives a reproducer (clone ros2_controllers and realtime_tools, then \"Use `colcon build`\") and a compiler error: \"joint_state_broadcaster.hpp:28:10: fatal error: realtime_tools/realtime_publisher.h: No such file or directory\" (https://github.com/ros-controls/ros2_controllers/issues/376); a second user confirms: \"I've just stumbled upon this bug and came to the [same solution](https://github.com/ros-controls/ros2_controllers/pull/377) as you.\" (https://github.com/ros-controls/ros2_controllers/issues/376#issuecomment-1175025913)."
+  },
+  "E2": {
+   "pass": false,
+   "stop_step": 4,
+   "reason_code": "build",
+   "units_identified": [
+    "joint_state_broadcaster",
+    "joint_state_controller"
+   ],
+   "interface_kind": null,
+   "evidence": "The only change in fix PR #377 (merge 0d22408ebf30759c3777bb30ad476bcf178de3fa, base foxy) adds one line to the ament_export_dependencies block of joint_state_broadcaster/CMakeLists.txt: \"+  realtime_tools\" (https://github.com/ros-controls/ros2_controllers/pull/377/files). No header, message, parameter, or API of either package changes; the defect is that the broadcaster's exported build dependencies omit realtime_tools, so a downstream package that includes joint_state_broadcaster.hpp cannot find realtime_tools/realtime_publisher.h. This is a build-system/packaging change only."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR at build time: joint_state_controller's source includes the installed joint_state_broadcaster header (\"In file included from .../ros2_controllers/joint_state_controller/src/joint_state_controller.cpp:15:\" ... \"install/joint_state_broadcaster/include/joint_state_broadcaster/joint_state_broadcaster.hpp:28:10\") (https://github.com/ros-controls/ros2_controllers/issues/376)."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed build failure: \"fatal error: realtime_tools/realtime_publisher.h: No such file or directory\" (https://github.com/ros-controls/ros2_controllers/issues/376)."
+  }
+ },
+ "eligible": false,
+ "ineligible_reason": "E2 step 4 (build): the minimal resolving change adds realtime_tools to joint_state_broadcaster's ament_export_dependencies in CMakeLists.txt; no interface of either unit changed.",
+ "units": null,
+ "operation": null,
+ "consumer_built_against": null,
+ "inventory": null,
+ "failed_conditions": null,
+ "outcome_class": null,
+ "loudness": null,
+ "loudness_evidence": null,
+ "detection_stage": null,
+ "resolution": null,
+ "ros_generation": null,
+ "excerpt_based": null,
+ "confidence": null,
+ "notes": "ROS 2 foxy only; commenter notes \"There are no build problems for galactic due to `joint_state_controller` being removed from galactic onward.\" (https://github.com/ros-controls/ros2_controllers/issues/376#issuecomment-1175025913). PR #377 head e4ab779093f0dea563859b92888ee5b64cbfb73f, merged 2022-07-06. Issue closed by maintainer 2025-02-11: \"Fixed with #377\". Confidence in ineligibility: high."
+}

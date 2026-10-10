@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-C3N-020",
+  "kind": "A1",
+  "case_id": "C3N-020",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "As reported in issue #1506, the default `moveit_controllers.yaml` created by MSA is missing a few lines:\n\n```\n    action_ns: follow_joint_trajectory\n    default: true\n```",
+    "url": "https://github.com/moveit/moveit2/issues/1514 (issue body, read this session)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[move_group-3] [ERROR] [1660542422.258335743] [moveit.plugins.moveit_simple_controller_manager]: No action namespace specified for controller `rotate_joint_controller` through parameter `moveit_simple_controller_manager.rotate_joint_controller.action_ns`",
+      "url": "https://gist.github.com/Cryoschrome/2e6a47a87e8ff89509822db4a7fb2585 (console_log.txt, read this session via gists API)"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "As reported in issue #1506, the default `moveit_controllers.yaml` created by MSA is missing a few lines:\n\n```\n    action_ns: follow_joint_trajectory\n    default: true\n```",
+      "url": "https://github.com/moveit/moveit2/issues/1514 (issue body, read this session)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[move_group-3] [ERROR] [1660542422.258335743] [moveit.plugins.moveit_simple_controller_manager]: No action namespace specified for controller `rotate_joint_controller` through parameter `moveit_simple_controller_manager.rotate_joint_controller.action_ns` ... [move_group-3] [INFO] ...: Returned 0 controllers in list",
+    "url": "https://gist.github.com/Cryoschrome/2e6a47a87e8ff89509822db4a7fb2585 (console_log.txt, read this session via gists API)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "We had the same problem. We edited the moveit_controllers.yaml file with the text editor and added the two lines at the bottom."
+  },
+  "notes": "Independently verified: (1) E1 — #1514 (maintainer AndyZe) states the missing lines; #1506 carries the reproducer (one-joint URDF, MSA-generated config, demo launch) with environment 'ROS Distro: Humble' / 'Source Build' / 'Humble branch; commit: [7dd0434](https://github.com/ros-planning/moveit2/commit/7dd0434f742d6586f32843802135ebcc2720c79c)' and the generated moveit_controllers.yaml showing type/joints but no action_ns/default; the gist log read in full. (2) E2 stop 6 — the consumer's requirement verified at 7dd0434 moveit_simple_controller_manager.cpp: 'const std::string& action_ns_param = makeParameterName(PARAM_BASE_NAME, controller_name, \"action_ns\");' / 'if (!node_->get_parameter(action_ns_param, action_ns))' / RCLCPP_ERROR_STREAM('No action namespace specified...') / 'continue;' and the default read with fallback at L197 ('node_->get_parameter_or(makeParameterName(PARAM_BASE_NAME, controller_name, \"default\"), state.default_, false);'). The missing parameter value crosses the package boundary (generator output -> consumer plugin's referenced interface); the minimal resolving change is in the provider's generator code (PR #1515), not a deployment-time name binding, so step 3 does not apply — consistent with the rule's parenthetical that provider-side parameter changes are interface changes even if a consumer-side YAML workaround exists. Not build/firmware. Interface kind parameter. (3) Both conditions: the provider regression 8ee767a ('[MSA] Add additional parameters to Controller definitions (#1408)', message verified) stopped emitting action_ns/default that the consumer reads; element_removed_or_renamed (element removed from the provider's emitted interface between revisions) fits both. For condition 1 the runtime-enforced refusal is documented with the exact parameter name; for condition 2 the maintainer's issue documents the removal (the consumer's read falls back to false, i.e. wrong semantic value crossing the boundary). (4) Loudness loud_documented/activate: the plugin's own initialization check refuses and names the missing parameter, followed by 'Returned 0 controllers in list' — an enforced refusal at load, which S1 says to mark loud_documented; the user-visible execution failure follows later ('Unable to identify any set of controllers that can actuate the specified joints: [ base_to_rotate_joint ]', 'MoveGroupInterface::execute() failed or timeout reached', both verified). (5) Resolution recommended: PR 1515 verified merged to main (merge_commit_sha 066e8621166858d3f556726197b07643a1b685f9) and the humble backport 2042b82c verified as its cherry-pick ('MSA: write the default controller namespace (#1515) (#1651)'); AndyZe's PR comment verified ('I simplified this to be identical to the state before https://github.com/ros-planning/moveit2/commit/8ee767a49912476497a45917057654a3351dc465') as is mikeferguson's note that 8ee767a is where these became generic 'parameters_'; the only shown working configuration used a hand-edited file (AltinayGrass quote above), not the fixed generator at an identified revision — recommended is correct."
+}

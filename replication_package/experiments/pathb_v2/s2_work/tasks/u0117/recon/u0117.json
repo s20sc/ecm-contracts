@@ -1,0 +1,67 @@
+{
+  "task_id": "u0117",
+  "package": "boost_smart_ptr",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "api:boost/shared_ptr.hpp",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:boost::dynamic_pointer_cast",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:boost::shared_ptr",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:boost/shared_ptr.hpp": "api boost/shared_ptr.hpp: #include <boost/smart_ptr/shared_ptr.hpp>",
+    "api:boost::dynamic_pointer_cast": "api boost::dynamic_pointer_cast: template<class T, class U> shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT",
+    "api:boost::shared_ptr": "api boost::shared_ptr: template<class T> class shared_ptr"
+  },
+  "not_declared": ["api:boost::shared_dynamic_cast"],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "declares[api:boost/shared_ptr.hpp]": "snapshot:include/boost/shared_ptr.hpp:17",
+    "declares[api:boost::dynamic_pointer_cast]": "snapshot:include/boost/smart_ptr/shared_ptr.hpp:808 (inside namespace boost opened at line 55, closed at line 1031)",
+    "declares[api:boost::shared_ptr]": "snapshot:include/boost/smart_ptr/shared_ptr.hpp:328 (forward declaration at line 58: template<class T> class shared_ptr;)",
+    "not_declared[api:boost::shared_dynamic_cast]": "grep -rn shared_dynamic_cast over the whole snapshot (include/, src/, test/, example/, docs): the only hit is prose in snapshot:compatibility.htm:35 (historical change list). No declaration in include/boost/smart_ptr/shared_ptr.hpp (casts at lines 788 static_pointer_cast, 798 const_pointer_cast, 808 dynamic_pointer_cast, 818 reinterpret_pointer_cast), in include/boost/smart_ptr/detail/shared_ptr_nmt.hpp, or in any other header. shared_static_cast / shared_polymorphic_cast are likewise absent from code.",
+    "exclusive": "header-only C++ smart pointer library; no hardware command interfaces or device handles in include/ or src/",
+    "perm_requires": "no package.xml, launch or configuration files in snapshot; code is C++ headers plus src/sp_collector.cpp, src/sp_debug_hooks.cpp; no permission declarations",
+    "perm_grants": "same search as perm_requires; none found",
+    "recovery": "same search as perm_requires; no recovery declaration found"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "boost::shared_dynamic_cast is listed as a provided element but is not declared anywhere in the code at this revision (only dynamic_pointer_cast exists), while the package's own compatibility.htm still describes shared_dynamic_cast as provided; any consumer still calling it would fail to compile against this revision."
+  },
+  "confidence": "high",
+  "notes": "Non-ROS C++ library (Boost.SmartPtr) snapshot: no package.xml or other manifest and no version string in code, so manifest_version is null (shared_ptr.htm:59 mentions 'Starting with Boost release 1.53', which is documentation, not a manifest). The packet elements are C++ API symbols, not ROS communication ports, so msg_type, frame, units, QoS, rates and definition_id are not applicable and left null; no .msg/.srv/.action definitions exist, so definition_hash.py was not run. boost/shared_ptr.hpp is a forwarding header whose only substantive line is the include of boost/smart_ptr/shared_ptr.hpp; its include guard is BOOST_SHARED_PTR_HPP_INCLUDED (lines 1-2). The recorded dynamic_pointer_cast is the shared_ptr overload; other boost::dynamic_pointer_cast overloads exist for raw pointers (include/boost/pointer_cast.hpp:24, 'inline T* dynamic_pointer_cast(U *ptr)') and intrusive_ptr (include/boost/smart_ptr/intrusive_ptr.hpp:273). The full shared_ptr.hpp implementation is used unless BOOST_NO_MEMBER_TEMPLATES is defined without BOOST_MSVC6_MEMBER_TEMPLATES, in which case detail/shared_ptr_nmt.hpp supplies a reduced shared_ptr with no pointer casts. The packet has no consumed elements, so references is empty; the headers do include other Boost modules (boost/config.hpp, boost/assert.hpp, boost/checked_delete.hpp, boost/throw_exception.hpp, boost/detail/workaround.hpp) that are not in the packet."
+}

@@ -1,0 +1,46 @@
+{
+  "case_id": "C3-001",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/2106",
+    "https://github.com/ros2/rclcpp/pull/2107"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue quotes the header comment verbatim (\"It is often used in conjunction with rclcpp::init, or rclcpp::init_local,\") at rclcpp 01b19247f10d1743d4ca96839283fdd40ac5fe4c, and maintainer clalancette confirms: \"Yes, I don't know how that got there; as far as I can tell, we've never had an `init_local` function.\" -- https://github.com/ros2/rclcpp/issues/2106"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 1,
+      "reason_code": "internal",
+      "units_identified": ["rclcpp"],
+      "interface_kind": null,
+      "evidence": "The defect is a documentation comment in rclcpp/include/rclcpp/context.hpp that names a function (rclcpp::init_local) which the same package never had. Both the comment and the symbol it refers to belong to one unit (rclcpp); no second unit is named in the issue or the fix, and no interaction between two units failed. The fix (PR 2107, merge 28e4b1bd738c23e3ede2c70bf35786ce829ae910) rewrites only the doc comment: \"- * It is often used in conjunction with rclcpp::init, or rclcpp::init_local,\" -- https://github.com/ros2/rclcpp/pull/2107. A second unit cannot be named at step 1; the defect is internal to rclcpp's own documentation, so the reason code used is `internal`."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No composition of two units and no failing operation is documented; the reporter's reproduction is \"Visit https://github.com/ros2/rclcpp/blob/rolling/rclcpp/include/rclcpp/context.hpp#L68\"."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on any interaction is documented; the actual behaviour reported is \"There is a reference to a function that does not exist.\""
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: documentation comment inside rclcpp refers to a symbol that rclcpp never provided; only one unit is involved and no cross-unit interaction failed (E2 stops at step 1).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Reason code choice: the E2 tree has no dedicated code for 'only one unit', so `internal` is used (the defect lives entirely in one unit's own header). PR 2107 also replaced the reference to rclcpp::init with a description of rclcpp::NodeOptions::context; this is a documentation-only change."
+}

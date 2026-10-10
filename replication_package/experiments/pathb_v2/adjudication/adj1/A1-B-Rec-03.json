@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-B-Rec-03",
+  "kind": "A1",
+  "case_id": "B-Rec-03",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "there is just three gray windows (no image) and a [WARN] message as below",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+    "reason": "E1/E4: a public reproducer and synchronized-triplet counts show the failure. E2: separate producer/viewer nodes disagree about timing and buffering across image topics. Adjusting queue depth or approximate-sync policy changes behavioral assumptions, not merely name bindings. E3: the image/disparity streams feed stereo_view in PAIR."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "A second potential problem is that stereo_image_proc is not running at frame rate. You can see that stereo_view is getting less than one disparity image for every five image pairs.",
+      "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+      "reason": "The documented disparity/image rate imbalance implicates all three input streams and fits rate_shortfall. The answer calls the queue-exhaustion explanation a potential problem; the displayed message counts establish the imbalance, not an independently proven causal decomposition."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "If you're running two prosilica_camera instances, probably they are not synchronized - that is, left and right image time stamps don't match up exactly. All the image_pipeline nodes assume exact synchronization for stereo (the ideal case) by default.",
+      "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+      "reason": "Exact versus approximate timestamp matching has no dedicated class in S1, so other is appropriate. Both message headers and the three synchronized topics participate. The answer explicitly qualifies the camera-timestamp diagnosis as probable, not directly measured."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ WARN] [1297946062.739511145]: [stereo_view] Low number of synchronized left/right/disparity triplets received.",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+    "reason": "The warning is a runtime observation after subscriptions receive messages. S1 reserves loud_documented for build/connection/activation diagnostics; its silent_documented label does not mean the runtime is literally log-free."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Synchronized triplets: 0",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+    "reason": "The viewer counts arrivals during execution and produces blank windows."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "rosrun image_view stereo_view stereo:=/stereo image:=image_rect _approximate_sync:=True _queue_size:=10",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+    "reason": "The accepted answer recommends this command; the fetched question, answer and comment records do not show a successful rerun with both units' revisions."
+  },
+  "notes": "Primary evidence was retrieved through the Stack Exchange question/answer/comment API, not copied from the specification. The source leaves camera synchronization and compute/queue causality partly hypothetical, which should remain qualified. No recovery conflict is documented. The configuration changes relevant to the fix are approximate_sync and queue_size; the unchanged remapping arguments do not turn this into deployment_wiring."
+}

@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-B-Sig-02-broken-M1-8b8060c4f2",
+ "kind": "A2",
+ "case_id": "B-Sig-02",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "type_mismatch",
+ "values": [
+  {
+   "path": "producer.outputs[0].msg_type",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0184/artifact.txt:1-2 (opened this session): 'topic=/box' / 'type=obstacle_detection/GDXBoxMessage'; artifact lines 3-8 carry the definition body 'float64 x_min / float64 y_min / float64 z_min / float64 x_max / float64 y_max / float64 z_max'"
+  },
+  {
+   "path": "consumer.inputs[0].msg_type",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0183/artifact.txt:2-3 (opened this session): 'topic=/box' / 'type=idfa_msgs/GDXBoxesMessage'; line 1 identifies the consumer: 'callerid=/GPUPlanarRegionSubscriber'"
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The spec's operation is PAIR: obstacle_detection (roscpp publisher on /box) feeding GPUPlanarRegionSubscriber (rosjava subscriber). The assembled edge unit for topic:/box encodes producer=u0184 (obstacle_detection) output and consumer=u0183 (GPUPlanarRegionSubscriber) input joined on the identical role topic:/box, which is exactly that wiring; both msg_type values are shown by the two artifacts at the cited lines."
+ },
+ "notes": "Corroboration beyond the triggers: the genmsg md5 of the producer body (u0184 artifact.txt:3-8) computed this session is bbc122c887def5dd8eda16d81d7d1109, equal to the producer definition_id in the encoding, confirming the quoted body belongs to obstacle_detection/GDXBoxMessage. Absent-state question: the encoding records perm_requires/perm_grants as empty with _states 'unknown' (not 'absent'), and no perm value is a triggering value, so the absence check does not apply."
+}

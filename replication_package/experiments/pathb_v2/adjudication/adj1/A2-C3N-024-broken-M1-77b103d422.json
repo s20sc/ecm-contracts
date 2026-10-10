@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-C3N-024-broken-M1-77b103d422",
+  "kind": "A2",
+  "case_id": "C3N-024",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:rclcpp::Duration::Duration(rcl_duration_value_t)]",
+      "verdict": "verified",
+      "source_excerpt": "Built-against revision:\nsnapshot:s2_work/tasks/u0434/snapshot/rclcpp/include/rclcpp/duration.hpp:42 [lines 42-46]\n```\n  [[deprecated(\n    \"Use Duration::from_nanoseconds instead or std::chrono_literals. For example:\"\n    \"rclcpp::Duration::from_nanoseconds(int64_variable);\"\n    \"rclcpp::Duration(0ns);\")]]\n  explicit Duration(rcl_duration_value_t nanoseconds);\n```\nsnapshot:s2_work/tasks/u0434/snapshot/rclcpp/src/rclcpp/duration.cpp:40 [lines 40-43]\n```\nDuration::Duration(rcl_duration_value_t nanoseconds)\n{\n  rcl_duration_.nanoseconds = nanoseconds;\n}\n```\nRunning revision:\nsnapshot:s2_work/tasks/u0435/snapshot/rclcpp/include/rclcpp/duration.hpp:39 [lines 39-61]\n```\n  Duration(int32_t seconds, uint32_t nanoseconds);\n\n  /// Construct duration from the specified std::chrono::nanoseconds.\n  explicit Duration(std::chrono::nanoseconds nanoseconds);\n\n  // This constructor matches any std::chrono value other than nanoseconds\n  // intentionally not using explicit to create a conversion constructor\n  template<class Rep, class Period>\n  // cppcheck-suppress noExplicitConstructor\n  Duration(const std::chrono::duration<Rep, Period> & duration)  // NOLINT(runtime/explicit)\n  : Duration(std::chrono::duration_cast<std::chrono::nanoseconds>(duration))\n  {}\n\n  // cppcheck-suppress noExplicitConstructor\n  Duration(const builtin_interfaces::msg::Duration & duration_msg);  // NOLINT(runtime/explicit)\n\n  /// Time constructor\n  /**\n   * \\param duration rcl_duration_t structure to copy.\n   */\n  explicit Duration(const rcl_duration_t & duration);\n\n  Duration(const Duration & rhs);\n```\nOpened the running implementation and searched its header constructors: the single-argument rcl_duration_value_t overload is absent, not merely moved to another cited line."
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:rclcpp::Duration::Duration(rcl_duration_value_t)]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0433/snapshot/moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:140 [lines 140-141]\n```\n   * If timeout is -1 (default argument), wait until the execution is complete (no timeout). */\n  virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0;\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:rclcpp::Duration::Duration(rcl_duration_value_t)]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0434/snapshot/rclcpp/include/rclcpp/duration.hpp:42 [lines 42-46]\n```\n  [[deprecated(\n    \"Use Duration::from_nanoseconds instead or std::chrono_literals. For example:\"\n    \"rclcpp::Duration::from_nanoseconds(int64_variable);\"\n    \"rclcpp::Duration(0ns);\")]]\n  explicit Duration(rcl_duration_value_t nanoseconds);\n```\nsnapshot:s2_work/tasks/u0434/snapshot/rclcpp/src/rclcpp/duration.cpp:40 [lines 40-43]\n```\nDuration::Duration(rcl_duration_value_t nanoseconds)\n{\n  rcl_duration_.nanoseconds = nanoseconds;\n}\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0435/snapshot/rclcpp/include/rclcpp/duration.hpp:39 [lines 39-61]\n```\n  Duration(int32_t seconds, uint32_t nanoseconds);\n\n  /// Construct duration from the specified std::chrono::nanoseconds.\n  explicit Duration(std::chrono::nanoseconds nanoseconds);\n\n  // This constructor matches any std::chrono value other than nanoseconds\n  // intentionally not using explicit to create a conversion constructor\n  template<class Rep, class Period>\n  // cppcheck-suppress noExplicitConstructor\n  Duration(const std::chrono::duration<Rep, Period> & duration)  // NOLINT(runtime/explicit)\n  : Duration(std::chrono::duration_cast<std::chrono::nanoseconds>(duration))\n  {}\n\n  // cppcheck-suppress noExplicitConstructor\n  Duration(const builtin_interfaces::msg::Duration & duration_msg);  // NOLINT(runtime/explicit)\n\n  /// Time constructor\n  /**\n   * \\param duration rcl_duration_t structure to copy.\n   */\n  explicit Duration(const rcl_duration_t & duration);\n\n  Duration(const Duration & rhs);\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specified UPGRADE replaces the built-against rclcpp 15.4.0 declaration with 16.0.0 for the broken moveit_core u0433. Its default timeout really constructs Duration(-1), selecting the removed integer-nanoseconds overload. The fixed u0432 instead uses from_nanoseconds and is not used to validate the broken call.\nsnapshot:specs/C3N-024.json:64 [lines 64-64]\n```\n  \"operation\": \"UPGRADE\",\n```\nsnapshot:s2_work/tasks/u0433/snapshot/moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:140 [lines 140-141]\n```\n   * If timeout is -1 (default argument), wait until the execution is complete (no timeout). */\n  virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0;\n```"
+  },
+  "notes": "Substantive removal of a constructor, not just removal of a deprecated annotation. The running header retains the two-argument integer constructor and chrono/structured-duration constructors but no single integer overload; the corresponding running implementation was also inspected.\nsnapshot:s2_work/tasks/u0435/snapshot/rclcpp/src/rclcpp/duration.cpp:34 [lines 34-45]\n```\nDuration::Duration(int32_t seconds, uint32_t nanoseconds)\n{\n  rcl_duration_.nanoseconds = RCL_S_TO_NS(static_cast<int64_t>(seconds));\n  rcl_duration_.nanoseconds += nanoseconds;\n}\n\nDuration::Duration(std::chrono::nanoseconds nanoseconds)\n{\n  rcl_duration_.nanoseconds = nanoseconds.count();\n}\n\nDuration::Duration(const Duration & rhs) = default;\n```"
+}

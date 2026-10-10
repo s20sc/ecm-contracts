@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-C3-106-broken-M1-fc5c78bf41",
+ "kind": "A2",
+ "case_id": "C3-106",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:mavlink::common::msg::GLOBAL_POSITION_INT]",
+   "verdict": "verified",
+   "source_excerpt": "built u0363/snapshot/message_definitions/v1.0/common.xml:5427: \"    <message id=\\\"33\\\" name=\\\"GLOBAL_POSITION_INT\\\">\" (grep count of name=\"GLOBAL_POSITION_INT\" in built common.xml: 1); running u0362/snapshot/message_definitions/v1.0/standard.xml:115: \"    <message id=\\\"33\\\" name=\\\"GLOBAL_POSITION_INT\\\">\" with grep count 0 in running common.xml (common.xml:3: \"  <include>standard.xml</include>\"); running-definition search: only u0362/.../v1.0/standard.xml defines it. Rendering verified: built u0363/snapshot/pymavlink/generator/mavgen_cpp11.py:120-124 \"namespace mavlink { / namespace ${dialect_name} { / namespace msg {\", :131 \"struct ${name} : mavlink::Message {\", :356-357 \"m.dialect_name = xml.basename / m.msg_name = m.name\" (mavparse.py:190-192 basename from the xml filename), and u0363/snapshot/CMakeLists.txt:100 \"${mavgen_path} --lang=C++11 --wire-protocol=2.0\"."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:mavlink::common::msg::GLOBAL_POSITION_INT]",
+   "verdict": "verified",
+   "source_excerpt": "u0364/snapshot/mavros/src/plugins/global_position.cpp:301: \"    mavlink::common::msg::GLOBAL_POSITION_INT & gpos,\" (inside handle_global_position_int, lines 299-303)."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:mavlink::common::msg::GLOBAL_POSITION_INT]",
+   "verdict": "substantive",
+   "built_excerpt": "u0363 (built, mavlink 2025.9.9-1) message_definitions/v1.0/common.xml:5427: \"    <message id=\\\"33\\\" name=\\\"GLOBAL_POSITION_INT\\\">\" -- the element exists in the common dialect, so the C++11 generator emits it as mavlink::common::msg::GLOBAL_POSITION_INT (mavgen_cpp11.py:120-124 namespace ${dialect_name} = xml.basename).",
+   "running_excerpt": "u0362 (running, mavlink 2025.12.12-1) message_definitions/v1.0/common.xml: grep for name=\"GLOBAL_POSITION_INT\" returns 0 matches; the only definition is standard.xml:115: \"    <message id=\\\"33\\\" name=\\\"GLOBAL_POSITION_INT\\\">\". The element api:mavlink::common::msg::GLOBAL_POSITION_INT no longer exists; the message now renders as mavlink::standard::msg::GLOBAL_POSITION_INT."
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The UPGRADE encoding matches the spec's operation: provider mavlink moved from built 2025.9.9-1 (u0363) to running 2025.12.12-1 (u0362) while consumer mavros 2.13.0 (u0364) reads the element. Both ports are real and connected: the provider port is the per-dialect C++ API generated from the provider's XML (mavgen_cpp11.py:120-124 puts each struct in namespace mavlink::<dialect>::msg; CMakeLists.txt:100 generates with --lang=C++11), and the consumer port is the direct symbol reference at u0364/mavros/src/plugins/global_position.cpp:301 \"mavlink::common::msg::GLOBAL_POSITION_INT & gpos,\" in a registered message handler — the exact symbol whose dialect namespace the provider changed."
+ },
+ "notes": "Every clause of the two provenance entries checked out at the cited locations (built common.xml:5427 definition, built standard.xml defining only AUTOPILOT_VERSION, running standard.xml:115 definition, running common.xml 0 definitions with include at line 3, generator namespace logic at mavgen_cpp11.py:120-124/131/356-357 and mavparse.py:190-192, CMakeLists.txt:100 --lang=C++11, consumer read at global_position.cpp:301). Substance: element-presence change (common dialect loses the definition; it moves to standard dialect), which is substantive, and it is exactly what the consumer's unqualified common::msg reference depends on. Recorded caveat, not a disagreement: in assembled/C3-106.json the pair_view for this element is unassessable_edge/port_missing, so the assembled PAIR evidence for this element is absent; the item under adjudication is the UPGRADE-unit finding, whose values I verified directly. Built revision for the broken composition is u0363 (2025.9.9-1) per the assembled unit's tasks, matching spec consumer_built_against.broken."
+}

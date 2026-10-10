@@ -1,0 +1,26 @@
+{
+  "item_id": "A2-B-Ver-02-broken-M2-22aac3cde2",
+  "kind": "A2",
+  "case_id": "B-Ver-02",
+  "composition": "broken",
+  "method_label": "M2",
+  "rule": "di_definition_mismatch",
+  "values": [
+    {
+      "path": "producer.outputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0242/snapshot/franka_msgs/msg/FrankaState.msg:1\nstd_msgs/Header header\n\nsnapshot:s2_work/tasks/u0242/snapshot/franka_msgs/msg/FrankaState.msg:33\nfloat64 time\nuint8 ROBOT_MODE_OTHER=0\nuint8 ROBOT_MODE_IDLE=1\nuint8 ROBOT_MODE_MOVE=2\nuint8 ROBOT_MODE_GUIDING=3\nuint8 ROBOT_MODE_REFLEX=4\nuint8 ROBOT_MODE_USER_STOPPED=5\nuint8 ROBOT_MODE_AUTOMATIC_ERROR_RECOVERY=6\nuint8 robot_mode\nfranka_msgs/Errors current_errors\nfranka_msgs/Errors last_motion_errors\n\nsnapshot:s2_work/tasks/u0242/snapshot/franka_msgs/msg/Errors.msg:1\nbool joint_position_limits_violation\nbool cartesian_position_limits_violation\nbool self_collision_avoidance_violation\n\nhttps://raw.githubusercontent.com/ros/std_msgs/0.5.11/msg/Header.msg\nuint32 seq"
+    },
+    {
+      "path": "consumer.inputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0241/snapshot/franka_msgs/msg/FrankaState.msg:1\nstd_msgs/Header header\n\nsnapshot:s2_work/tasks/u0241/snapshot/franka_msgs/msg/FrankaState.msg:33\nfloat64 time\nfranka_msgs/Errors current_errors\nfranka_msgs/Errors last_motion_errors\n\nsnapshot:s2_work/tasks/u0241/snapshot/franka_msgs/msg/Errors.msg:1\nbool joint_position_limits_violation\nbool cartesian_position_limits_violation\nbool self_collision_avoidance_violation\n\nhttps://raw.githubusercontent.com/ros/std_msgs/0.5.11/msg/Header.msg\nuint32 seq"
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE uses u0241 (0.6.0) as the consumer-built-against provider, u0242 as the running provider, and u0239 as the broken consumer. The topic carries FrankaState, not an unrelated same-named port. Publisher and attempted subscriber evidence:\nsnapshot:s2_work/tasks/u0242/snapshot/franka_control/include/franka_control/franka_state_controller.h:62\n  realtime_tools::RealtimePublisher<franka_msgs::FrankaState> publisher_franka_states_;\n\nsnapshot:s2_work/tasks/u0242/snapshot/franka_control/src/franka_state_controller.cpp:174\n  publisher_franka_states_.init(controller_node_handle, \"franka_states\", 1);\n\nsnapshot:s2_work/tasks/u0239/artifact.txt:1\nfranka_msgs::FrankaState contact;\nvoid FrankaStateCallback (const franka_msgs::FrankaState& FState2)\n{\n    ROS_INFO(\"Callback gestartet\");\n    contact = FState2;\n}\nClient [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState]\nThe connection is the attempted transport edge; agreement does not assert successful delivery. The inferred historical build mapping remains the specification's inference."
+  },
+  "notes": "Independently computed the recursive ROS1 MD5 from the full FrankaState and Errors snapshot definitions plus curl-opened ros/std_msgs 0.5.11 Header.msg: running u0242 = 7782ef1d208d3efc42f6a4cc3c41c065; built u0241 = ed28b9cbecdc83fa7d31efb59f1ce010. Both match the triggering values. The provenance gives a calculation description rather than a saved generated header; verification here is by fresh computation from source, not by treating that description as evidence. The precise historical installed revisions remain inferred."
+}

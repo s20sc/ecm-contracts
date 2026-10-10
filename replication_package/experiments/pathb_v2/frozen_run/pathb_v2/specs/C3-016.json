@@ -1,0 +1,100 @@
+{
+  "case_id": "C3-016",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-drivers/usb_cam/issues/298",
+    "https://github.com/ros-drivers/usb_cam/issues/298#issuecomment-1831120952",
+    "https://github.com/ros-drivers/usb_cam/assets/46778435/167112d3-3f2f-43c9-9688-4482c214d19f",
+    "https://github.com/rt-net/sciurus17_ros/pull/153",
+    "https://github.com/ros-drivers/usb_cam/pull/286",
+    "https://github.com/ros-drivers/usb_cam/commit/af45135da45cf93dfa663f6bb022e5858a028b78",
+    "https://github.com/ros-drivers/usb_cam/issues/310",
+    "https://github.com/ros-drivers/usb_cam/pull/311",
+    "https://github.com/ros-drivers/usb_cam/blob/c052be03fe0bc067fdf0941394a62dcc81925ae8/src/ros2/usb_cam_node.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter names branch and commit (\"branch: ros2\", \"commit: c052be03fe0bc067fdf0941394a62dcc81925ae8\") and shows a screenshot of the launch output containing \"Device specified is not available or is not a vaild V4L2 device: `/dev/camera/top_6mm`\" followed by the list of available /dev/video0../dev/video5 devices, and `ll /dev/camera/top_6mm` showing it links to ../video0 (https://github.com/ros-drivers/usb_cam/issues/298, image https://github.com/ros-drivers/usb_cam/assets/46778435/167112d3-3f2f-43c9-9688-4482c214d19f). A downstream maintainer attributes it to a usb_cam change: \"usb_camパッケージの変更により`/dev/video*/`以外のデバイス名を認識できなくなりました。\" (https://github.com/rt-net/sciurus17_ros/pull/153)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "usb_cam",
+        "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)"
+      ],
+      "interface_kind": "parameter",
+      "evidence": "The reporter's launch package passes a udev-symlink device path through usb_cam's video_device parameter; usb_cam, since PR 286 (commit af45135d, \"Check if given v4l2 device exists before opening it\"), accepts only names found by enumerating \"/dev/video\" + std::to_string(i) and otherwise calls rclcpp::shutdown(). The rejected value crosses the parameter boundary, so the failure is not internal. The minimal consumer-side fix is a device-path binding in the launch file (os.path.realpath), but the breakage comes from a provider change to what usb_cam accepts for video_device, which the consumer must follow; the provider later also changed (PR 311 \"Resolve Symlinks\"), so this is not deployment_wiring."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer's symlinked device paths were accepted by usb_cam up to release 0.7.0, which has no availability check; the reported provider revision c052be03 contains the check added by PR 286 (merged 2023-10-28). Issue 310 describes the same effect as a regression: \"This worked fine until recently (unfortunately I am not sure which update broke that).\" (https://github.com/ros-drivers/usb_cam/issues/310)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed startup refusal in the reporter's screenshot: \"Device specified is not available or is not a vaild V4L2 device: `/dev/camera/top_6mm`\" followed by \"Shutting down\" (https://github.com/ros-drivers/usb_cam/assets/46778435/167112d3-3f2f-43c9-9688-4482c214d19f)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "usb_cam",
+      "role": "provider",
+      "repo": "https://github.com/ros-drivers/usb_cam",
+      "broken_rev": "c052be03fe0bc067fdf0941394a62dcc81925ae8",
+      "resolved_rev": "c052be03fe0bc067fdf0941394a62dcc81925ae8",
+      "pinned": true,
+      "revision_basis": "The reporter states \"branch: ros2\" and \"commit: c052be03fe0bc067fdf0941394a62dcc81925ae8\" (2023-11-13 merge of PR 292). The reporter's resolution changes only their launch file, so the provider keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2023-11-16",
+      "resolved_rev": "as-reported-2023-11-29",
+      "pinned": false,
+      "revision_basis": "The reporter runs `ros2 launch robobus_sensor_kit_launch camera_top_6mm.launch.py` (screenshot, log dated 2023-11-16). The public repository https://github.com/pixmoving-moveit/robobus_sensor_kit_launch (last push 2023-09-06) has no camera_top_6mm launch file, so the consumer is described from the issue text: the broken state from the issue body (2023-11-16), the resolved state from the launch file the reporter posted on 2023-11-29 with the added realpath line.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {"broken": "0.7.0", "resolved": "c052be03fe0bc067fdf0941394a62dcc81925ae8", "basis": "inferred"},
+  "inventory": [
+    {"element": "param:video_device", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}},
+    {"element": "param:pixel_format", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}},
+    {"element": "param:image_width", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}},
+    {"element": "param:image_height", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}},
+    {"element": "param:framerate", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}},
+    {"element": "param:io_method", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}},
+    {"element": "param:frame_id", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}},
+    {"element": "param:camera_name", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}},
+    {"element": "param:camera_info_url", "sides": {"usb_cam": "provides", "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": ["param:video_device"],
+      "quote": "+  // Check if given device name is an available v4l2 device\n+  auto available_devices = usb_cam::utils::available_devices();\n+  if (available_devices.find(m_parameters.device_name) == available_devices.end()) {",
+      "url": "https://github.com/ros-drivers/usb_cam/commit/af45135da45cf93dfa663f6bb022e5858a028b78"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The provider refuses the device at activation with its own error and shuts down: \"Device specified is not available or is not a vaild V4L2 device: `/dev/camera/top_6mm`\" then \"Available V4L2 devices are:\" and \"Shutting down\" (reporter's screenshot https://github.com/ros-drivers/usb_cam/assets/46778435/167112d3-3f2f-43c9-9688-4482c214d19f; the message text is the RCLCPP_ERROR_STREAM added in af45135d).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "The consumer resolves the udev symlink before passing it to usb_cam: `parameters[\"video_device\"] = os.path.realpath(parameters[\"video_device\"])` in its launch file, so video_device is the canonical /dev/videoN path that usb_cam's enumeration accepts.",
+    "status": "observed",
+    "evidence": "The reporter, whose setup is identified as usb_cam ros2 commit c052be03, posts the modified launch file saying \"In the startup file, add a command to solve this problem\" and closes the issue (https://github.com/ros-drivers/usb_cam/issues/298#issuecomment-1831120952). The same fix applied to a different consumer, rt-net/sciurus17_ros PR 153 (`{'video_device': os.path.realpath('/dev/chestcamera')}` in sciurus17_vision/launch/chest_camera.launch.py, merged 2024-02-21 as 22ba7f8113d217e43853ca0a79ef5599b8d9877d), was tested by launching on hardware, with no usb_cam revision stated."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Class choice: the same device is named by a udev symlink path on the consumer side and by its canonical /dev/videoN path in usb_cam's enumeration (utils::available_devices builds `\"/dev/video\" + std::to_string(i)`), so I used representation_convention for the path form of the video_device value; no other class fits (the parameter's declaration `this->declare_parameter(\"video_device\", \"/dev/video0\");` is unchanged, so not element_retyped). consumer_built_against is inferred: the source gives no earlier usb_cam version for the consumer; I used release tag 0.7.0 (eadb3265e23597b47fcbdc9c6a4b879b102d30f7, 2023-08-31), the last release before PR 286 (merged into ros2 as 64c417fad48fcbb26863328cf6c05f8ff581fd9a on 2023-10-28, first parent a6dfa06f, one commit after 0.7.0), because the consumer's reliance on symlinked device paths matches the behaviour before that check; 0.7.0 already declares all the parameters the consumer sets, including pixel format \"uyvy2rgb\". Provider-side resolution for the same defect: usb_cam PR 311 \"Resolve Symlinks\" (merged 2024-01-20 as e2b11abfd5b337311fa6c5fc79ed6f6768b78649, for issue 310), later extended by PR 358 \"Correctly resolve symlinks to device paths\" (merged 2025-02-08); the PR 311 author notes it \"solves only half of the problem\" for containers where only the symlink is mounted. Other compositions: rt-net/sciurus17_ros (chest camera launch using /dev/chestcamera) and issue 310's four-camera setup (/dev/camera00) hit the same refusal. The reporter's device path appears only in the title and a screenshot log; the public robobus_sensor_kit_launch repository uses \"/dev/video0\" in config/camera_top.yaml and has no camera_top_6mm launch. The reporter's posted resolved launch file sets \"video_device\": \"/dev/video0\" (a demo value) before applying realpath."
+}

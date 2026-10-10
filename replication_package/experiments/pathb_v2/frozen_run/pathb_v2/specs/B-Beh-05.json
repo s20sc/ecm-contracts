@@ -1,0 +1,93 @@
+{
+  "case_id": "B-Beh-05",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/3746",
+    "https://github.com/ros-navigation/navigation2/blob/3bb9a95719539fcdfedf520c63339bc3157f80b4/nav2_rviz_plugins/src/nav2_panel.cpp#L511",
+    "https://github.com/ros-navigation/navigation2/blob/3bb9a95719539fcdfedf520c63339bc3157f80b4/nav2_bt_navigator/src/navigators/navigate_to_pose.cpp",
+    "https://github.com/ros-navigation/navigation2/blob/3bb9a95719539fcdfedf520c63339bc3157f80b4/nav2_planner/src/planner_server.cpp",
+    "https://github.com/ros-navigation/navigation2/blob/3bb9a95719539fcdfedf520c63339bc3157f80b4/nav2_costmap_2d/src/costmap_2d_ros.cpp",
+    "https://github.com/ros-navigation/navigation2/issues/3586",
+    "https://github.com/ros-navigation/navigation2/pull/3595",
+    "https://github.com/ros-navigation/navigation2/commit/3a258a6e2da9250c9a398debcfde17a77d307647",
+    "https://github.com/ros/rosdistro/commit/9f73649c68"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives full error logs, parameter files, and the launch file: \"[planner_server-2] [ERROR] [1691424774.006121032] [transformPoseInTargetFrame]: Extrapolation Error looking up target frame: Lookup would require extrapolation into the future.  Requested time 1691424773.212782 but the latest data is at time 3617.600000, when looking up transform from frame [map] to frame [odom]\". The maintainer closed it as a user setup error; later commenters diagnosed the mismatch (\"requested time is current time while latest data is sim_time.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["nav2_rviz_plugins", "nav2_planner"],
+      "interface_kind": "action",
+      "evidence": "The goal pose is created by the Nav2 rviz panel (plugin in rviz2) and stamped with a default-constructed clock: \"pose.header.stamp = rclcpp::Clock().now();\" (nav2_panel.cpp L511 at 1.1.8); rclcpp's default Clock type is RCL_SYSTEM_TIME. bt_navigator stores the action goal pose unchanged (\"blackboard->set<geometry_msgs::msg::PoseStamped>(goal_blackboard_id_, goal->pose);\") and the planner server transforms it at that stamp against a TF buffer filled on simulation time. The wrong-time-base stamp crosses the boundary, so this is an interface failure, not internal. The resolving change (PR #3595) edits the provider's code, not a name binding, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the panel's goal output (via the navigate_to_pose action, relayed by bt_navigator into compute_path_to_pose) feeds the planner's input; the reporter: \"when I do Nav2Goal it throws the above provided error and robot do not move.\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"[planner_server-2] [WARN] [1691424774.006158189] [planner_server]: Could not transform the start or goal pose in the costmap frame\" followed by \"[compute_path_to_pose] [ActionServer] Aborting handle.\"; the robot does not move."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "nav2_rviz_plugins",
+      "role": "provider",
+      "repo": "https://github.com/ros-navigation/navigation2",
+      "broken_rev": "1.1.8",
+      "resolved_rev": "3a258a6e2da9250c9a398debcfde17a77d307647",
+      "pinned": true,
+      "revision_basis": "The reporter names only \"ROS2 Humble Binary\" (issue opened 2023-08-07). The bt_navigator log line \"Begin navigating from current location to (-3.35, 2.02)\" matches the humble source format up to 1.1.8; 1.1.9 (0cf04629) changed it to include the start coordinates, and navigation2 1.1.9-1 entered rosdistro humble only on 2023-08-07 (ros/rosdistro 9f73649c68), while 1.1.8-2 entered on 2023-06-20. So the installed binary is inferred to be the 1.1.8 tag (3bb9a957). The stamping line is identical in 1.1.7, 1.1.8, 1.1.9 and the humble head 3c3db59d (2026-06-03). Resolved revision: the merge commit of PR #3595 on main (2023-06-03), which removes the system-clock stamp; it was never applied to the humble branch.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "nav2_planner",
+      "role": "consumer",
+      "repo": "https://github.com/ros-navigation/navigation2",
+      "broken_rev": "1.1.8",
+      "resolved_rev": "1.1.8",
+      "pinned": true,
+      "revision_basis": "Same inference as nav2_rviz_plugins (same repository and binary release, humble 1.1.8 tag 3bb9a957). The resolution does not change the planner, so it keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "msg:geometry_msgs/PoseStamped", "sides": {"nav2_rviz_plugins": "provides", "nav2_planner": "consumes"}},
+    {"element": "field:std_msgs/Header.stamp", "sides": {"nav2_rviz_plugins": "provides", "nav2_planner": "consumes"}},
+    {"element": "field:std_msgs/Header.frame_id", "sides": {"nav2_rviz_plugins": "provides", "nav2_planner": "consumes"}},
+    {"element": "action:/navigate_to_pose", "sides": {"nav2_rviz_plugins": "consumes"}},
+    {"element": "action:/compute_path_to_pose", "sides": {"nav2_planner": "provides"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": ["field:std_msgs/Header.stamp", "msg:geometry_msgs/PoseStamped"],
+      "quote": "[planner_server-2] [ERROR] [1691424774.006121032] [transformPoseInTargetFrame]: Extrapolation Error looking up target frame: Lookup would require extrapolation into the future.  Requested time 1691424773.212782 but the latest data is at time 3617.600000, when looking up transform from frame [map] to frame [odom]",
+      "url": "https://github.com/ros-navigation/navigation2/issues/3746"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "Nothing flagged the clock mismatch at build, connection, or activation: \"The launch file seems ok because the last output I am getting is [lifecycle_manager-5] [INFO] [1691409212.195861492] [lifecycle_manager_navigation]: Creating bond timer...\". The failure appears only as the planner's runtime TF extrapolation errors and aborted compute_path_to_pose goals after the goal is sent (https://github.com/ros-navigation/navigation2/issues/3746).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Stop stamping the panel's goal with a default-constructed (system-time) rclcpp::Clock. PR #3595 on main replaces \"pose.header.stamp = rclcpp::Clock().now();\" with \"// pose.header.stamp = client_node_->now();  // client node doesn't respect sim time yet\", leaving a zero stamp. Not backported to humble.",
+    "status": "recommended",
+    "evidence": "Diff of 3a258a6e2da9250c9a398debcfde17a77d307647 (nav2_rviz_plugins/src/nav2_panel.cpp). In #3586 the maintainer traced the same error to the panel (\"if you track back where `pose` is populated you find `pose.header.stamp = rclcpp::Clock().now();` ... We're just making a clock willy-nilly which is going to default to system time.\") and wrote \"https://github.com/ros-planning/navigation2/pull/3595 resolves!\", but no working run with identified revisions is shown, and the reporter of #3746 ran humble binaries, where the humble branch head 3c3db59d still has the system-clock line. The thread's own suggestion (\"run **rviz** with \\\"use_sim_time\\\" set to true, not just your nodes...\", reported working by a later commenter without revisions) disagrees with the primary code: the panel's stamp comes from rclcpp::Clock(), whose default type is RCL_SYSTEM_TIME, independent of the rviz node's use_sim_time; in #3586 a user reported \"I tried changing the launch file to `use_sim_time` and that didn't fix it\". The reporter's own workaround was \"I just made gazebo to work on wall time.\" (no revisions)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Goal path: rviz2 Nav2 panel (\"Start navigation\", \"NavigateToPose will be called using the BT Navigator's default behavior tree.\" in the rviz terminal) sends a NavigateToPose goal to bt_navigator, which puts goal->pose on the blackboard unchanged; the ComputePathToPose BT node passes it to planner_server, whose transformPosesToGlobalFrame calls Costmap2DROS::transformPoseToGlobalFrame. bt_navigator is a pass-through for the stamp and is not treated as one of the two units. The failure also needs the goal frame (rviz fixed frame map) to differ from the costmap global frame (the reporter's global_costmap sets global_frame: odom): transformPoseToGlobalFrame returns the pose unchanged when \"input_pose.header.frame_id == global_frame_\", which is why the #3586 user saw the error disappear after setting the fixed frame to map. Class choice: the stamp is in the system-clock time base while the consumer's TF data is on simulated ROS time; no listed class names clock source, and representation_convention (the value's interpretation convention) was chosen over unit_mismatch or other. The rviz terminal also shows its own Message Filter drops (\"the timestamp on the message is earlier than all the data in the transform cache\"), and the reporter's follow-up asks about slam_toolbox configuration; neither is specified here."
+}

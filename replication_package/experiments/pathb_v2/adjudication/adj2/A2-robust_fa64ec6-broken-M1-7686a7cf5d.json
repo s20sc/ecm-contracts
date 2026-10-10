@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_fa64ec6-broken-M1-7686a7cf5d",
+ "kind": "A2",
+ "case_id": "robust_fa64ec6",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:<insert_block>]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0225/snapshot/src/xacro/__init__.py:572 '            elif node.tagName == 'insert_block' or node.tagName == 'xacro:insert_block':' (handler body :573-589 reads attribute name, resolves symbols['**'+name] multi-block / symbols['*'+name] single-block, else raises XacroException(\"Block \\\"%s\\\" was never declared\"); grep shows insert_block appears only at :572 in this file; no check_deprecated_tag exists in 1.9.5). running: s2_work/tasks/u0224/snapshot/src/xacro/__init__.py:795 '            if node.tagName in ['insert_block', 'xacro:insert_block'] \\' (:796 '                    and check_deprecated_tag(node.tagName):'; body :797-814 uses check_attrs, content_only, eval_all, replace_node; check_deprecated_tag defined at :155-167 returning True for 'xacro:'-prefixed names and otherwise calling deprecated_tag() and returning allow_non_prefixed_tags, which is hard-coded True at :152)."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:<insert_block>]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0222/snapshot/ur_description/urdf/ur5.urdf.xacro:73 '      <insert_block name=\"origin\" />' (inside <xacro:macro name=\"cylinder_inertial\" params=\"radius length mass *origin\"> declared at :70)."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:<insert_block>]",
+   "verdict": "transcription_only",
+   "built_excerpt": "s2_work/tasks/u0225/snapshot/src/xacro/__init__.py:572 'elif node.tagName == 'insert_block' or node.tagName == 'xacro:insert_block':' followed by getAttribute('name') and insertBefore/removeChild insertion of symbols['**'+name]/['*'+name]",
+   "running_excerpt": "s2_work/tasks/u0224/snapshot/src/xacro/__init__.py:795-796 'if node.tagName in ['insert_block', 'xacro:insert_block'] \\ and check_deprecated_tag(node.tagName):' — check_deprecated_tag (:155-167) returns True for both forms given allow_non_prefixed_tags=True (:152), emitting only a one-time deprecation warning via deprecated_tag() (:138-148) for the non-prefixed form"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The broken upgrade unit records provider xacro built=u0225 (package.xml '<version>1.9.5</version>') and running=u0224 ('<version>1.10.7</version>'), both opened and matching the recorded semver pair, with consumer ur_description=u0222 (@f8d175b). The producer port is the insert_block tag handler in the xacro processor (the tool that expands the consumer's .xacro files); the consumer port is the literal tag usage '<insert_block name=\"origin\" />' at ur5.urdf.xacro:73, whose macro declares the matching *origin block parameter. Both ports name the same element, so the assembled composition represents the UPGRADE operation with the two ports actually connected."
+ },
+ "notes": "What the consumer depends on is the non-prefixed tag insert_block with attribute name being recognized and the bound block inserted. Both revisions accept both tag spellings with the same attribute contract and the same presence: the condition '== a or == b' at built and 'in [a,b]' at running are the same test in another representation, and the added check_deprecated_tag gate cannot reject the consumer's usage because allow_non_prefixed_tags is hard-coded True (:152, verified), so the non-prefixed form is processed as before — the only consumer-visible effect is a one-time deprecation warning on stderr (deprecated_tag, :138-148). The insertion mechanics were refactored (content_only/replace_node/recursive eval_all instead of inline insertBefore/removeChild) and the undefined-block error text changed, but no enumerated substantive dimension of the consumer's dependence (type, arity, return, default, value, keyword name, presence) differs. Caveat flagged for aggregation: the running revision does emit a deprecation warning for exactly the consumer's non-prefixed usage, and the resolved-side consumer at u0223 switched to '<xacro:insert_block name=\"origin\" />' (ur5.urdf.xacro:71, opened); if the study construes the warning-emitting behavior as a changed value of the handler element, this verdict would flip to substantive — under the stated criterion as written it is transcription-only."
+}

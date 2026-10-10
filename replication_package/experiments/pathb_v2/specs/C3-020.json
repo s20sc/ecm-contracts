@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-020",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/699",
+    "https://github.com/eProsima/Fast-DDS/pull/3759",
+    "https://github.com/eProsima/Fast-DDS/pull/3753"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue rmw_fastrtps#699 gives a four-step reproducer (a subscriber, a launch file starting and then killing 100 publishers, a new publisher that is not received); Barry-Xu-2018 posts a gdb backtrace and root cause (https://github.com/ros2/rmw_fastrtps/issues/699#issuecomment-1647437607); Fast DDS maintainer MiguelCompany confirms and fixes it in eProsima/Fast-DDS#3759 and #3753."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["examples_rclpy_minimal_subscriber (with rmw_fastrtps_cpp / Fast DDS)", "examples_rclpy_minimal_publisher (with rmw_fastrtps_cpp / Fast DDS)"],
+      "interface_kind": null,
+      "evidence": "The failure is in Fast DDS's own shared-memory listener logic inside the subscriber process: \"after debugging, we found that `find_segement` open a segment named `fastrtps_fed84726591b50b4` all the time.\" ... \"At this scenario，subscriber always try to open deleted shared memeory file .\" (https://github.com/ros2/rmw_fastrtps/issues/699#issuecomment-1647437607). The fix PR states: \"When a participant crashes just after pushing a descriptor into the listening port of another participant, the descriptor should be popped from the port even if it points to a non-existent / corrupted segment. Otherwise the listener enters in an infinite loop.\" (https://github.com/eProsima/Fast-DDS/pull/3759). All processes run the same Fast DDS at the same revision; the peers that exited were killed, not wrong; no value, name, type, or timing that one side assumes of the other is mismatched. Any peer that is killed in that window triggers it, so it is an internal robustness defect of Fast DDS's SHM transport."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E2 step 2). The reproduction stops many publishers and then starts another, so it would resemble SWITCH if evaluated."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E2 step 2). The source shows the effect: \"subscription cannot receive the message with procedure-4.\" and a subscriber thread at 99.9% CPU."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

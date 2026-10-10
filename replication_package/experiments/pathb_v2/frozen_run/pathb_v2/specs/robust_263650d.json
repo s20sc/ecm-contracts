@@ -1,0 +1,96 @@
+{
+  "case_id": "robust_263650d",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/commit/263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77",
+    "https://github.com/mavlink/mavros/blob/4fb6e7e8190145ba6fa49fa6e13cc49730885b7f/mavros/scripts/mavcmd",
+    "https://github.com/mavlink/mavros/blob/4fb6e7e8190145ba6fa49fa6e13cc49730885b7f/mavros/src/mavros/__init__.py",
+    "https://github.com/mavlink/mavros/blob/4fb6e7e8190145ba6fa49fa6e13cc49730885b7f/mavros/src/mavros/command.py",
+    "https://github.com/mavlink/mavros/blob/4fb6e7e8190145ba6fa49fa6e13cc49730885b7f/mavros/src/plugins/global_position.cpp",
+    "https://github.com/mavlink/mavros/blob/0.12.0/mavros/src/plugins/gps.cpp",
+    "https://github.com/mavlink/mavros/issues/325",
+    "https://github.com/mavlink/mavros/commit/d7c493c9b9e96cdcd9658d03d60877fc645af1e9",
+    "https://github.com/mavlink/mavros/commit/4c22439767174f5a4cdf9be1e733893458a50ba8",
+    "https://github.com/mavlink/mavros/commit/4b8b98064cb3c877aa3c48c3b9fce24e4bdfea2e",
+    "https://github.com/mavlink/mavros/blob/263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77/mavros/CHANGELOG.rst"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The maintainer's own fix commit 263650d6 (\"sctipts: fix gps topic path\", Vladimir Ermakov, 2015-08-03) confirms one concrete defect: mavcmd's _find_gps_topic still referenced mavros.get_topic('gps', 'fix') although the provider had removed the gps plugin (d7c493c9 \"plugin: gps #325: remove gps plugin.\") and moved the raw fix to ~global_position/raw (issue #325 closing comment: \"Merge is done. GPS raw topics now in `~global_position/raw`, and we moved to TF2.\"). The commit adds the comment \"# XXX: since 0.13 global position always exists. need redo that.\" and changes the reference to mavros.get_topic('global_position', 'raw', 'fix'). No issue, reproducer, or error log exists for it; eligibility rests on the maintainer's confirmation."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["mavros_node", "mavcmd"],
+      "interface_kind": "topic",
+      "evidence": "Step 1: the two units are mavros_node (the mavros package's C++ node, whose global_position plugin advertises the fix topics: gp_nh(\"~global_position\"), raw_fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"raw/fix\", 10); gp_fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"global\", 10);) and mavcmd (the mavros package's installed Python command-line script). They ship in one package but interact only through ROS topics and services (mavcmd builds names with get_topic: return '/'.join((get_namespace(), ) + args) with _mavros_ns = \"/mavros\", then calls rospy.get_published_topics() and rospy.Subscriber(topic, NavSatFix, fix_cb)), so they are separate units. Step 2: not internal; the failure is a topic name the consumer references that the provider no longer advertises, an assumption that crosses the boundary. Step 3: not deployment wiring; the provider renamed the element (~gps/fix at 0.12.0: gps_nh(\"~gps\"), fix_pub = gps_nh.advertise<sensor_msgs::NavSatFix>(\"fix\", 10); became ~global_position/raw/fix at 0.13.0) and the consumer's referenced interface changed in code to follow it. Steps 4-5: no build or firmware change. Step 6: eligible; interface kind topic."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer still references a provider element as it existed at an earlier provider revision. mavcmd's reference mavros.get_topic('gps', 'fix') was written in 4b8b9806 (2015-04-01, \"mavcmd #262: use get_topic()\", first tag 0.11.1) when the provider's gps plugin advertised ~gps/fix; the provider removed that plugin in d7c493c9 and added ~global_position/raw/fix in 4c224397 (both 2015-07-02, issue #325), released in 0.13.0 (CHANGELOG 0.13.0 (2015-08-01): \"plugin: gps `#325 <https://github.com/mavlink/mavros/issues/325>`_: remove gps plugin.\" and \"plugin: global_position `#325 <https://github.com/mavlink/mavros/issues/325>`_: merge gps_raw_int handler\"); at 4fb6e7e / tag 0.13.0 mavros_node runs the newer provider while mavcmd is unchanged since 0.11.1 with respect to this element. The same composition read as PAIR at one revision (both units at 4fb6e7e) gives the identical failed condition; see notes."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "A maintainer's commit names the mismatch at code level: commit message \"sctipts: fix gps topic path\" with the diff \"-    gps_fix = mavros.get_topic('gps', 'fix')\" / \"+    gps_fix = mavros.get_topic('global_position', 'raw', 'fix')\" and the added comment \"# XXX: since 0.13 global position always exists. need redo that.\" No observed failure, warning, or error output appears in any source; the effect was never observed, so the outcome class is undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros_node",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "4fb6e7e8190145ba6fa49fa6e13cc49730885b7f",
+      "resolved_rev": "263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77",
+      "pinned": true,
+      "ros_distro": null
+    },
+    {
+      "name": "mavcmd",
+      "role": "consumer",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "4fb6e7e8190145ba6fa49fa6e13cc49730885b7f",
+      "resolved_rev": "263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77",
+      "pinned": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {"broken": "0.12.0", "resolved": "263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77"},
+  "inventory": [
+    {"element": "topic:/mavros/global_position/global", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}},
+    {"element": "topic:/mavros/gps/fix", "sides": {"mavcmd": "consumes"}},
+    {"element": "topic:/mavros/global_position/raw/fix", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}},
+    {"element": "service:/mavros/cmd/takeoff", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}},
+    {"element": "service:/mavros/cmd/land", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}},
+    {"element": "service:/mavros/cmd/arming", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}},
+    {"element": "service:/mavros/cmd/set_home", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}},
+    {"element": "service:/mavros/cmd/command", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}},
+    {"element": "service:/mavros/cmd/command_int", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}},
+    {"element": "service:/mavros/cmd/guided_enable", "sides": {"mavros_node": "provides", "mavcmd": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["topic:/mavros/gps/fix", "topic:/mavros/global_position/raw/fix"],
+      "quote": "Merge is done. GPS raw topics now in `~global_position/raw`, and we moved to TF2.",
+      "url": "https://github.com/mavlink/mavros/issues/325#issuecomment-118163792"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No failure, warning, or diagnostic is shown in any source; the defect is known only from the maintainer's fix commit. In the consumer's code the stale reference is reached only when /mavros/global_position/global is absent from rospy.get_published_topics() (the function checks global_fix first: \"if len([topic for topic, type_ in topics if topic == global_fix]): return global_fix\"), and the maintainer's added comment says \"# XXX: since 0.13 global position always exists. need redo that.\" If the stale branch were reached with no NavSatFix topic found, the consumer's own code would call fault(\"NavSatFix topic not exist\"); that path is neither an existing-tooling diagnostic nor observed in the source.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Change the consumer's referenced topic from mavros.get_topic('gps', 'fix') to mavros.get_topic('global_position', 'raw', 'fix') in mavros/scripts/mavcmd, matching the provider's ~global_position/raw/fix advertised since 4c224397 (commit 263650d6, first released in tag 0.13.1). The provider is unchanged.",
+    "status": "recommended",
+    "evidence": "Commit 263650d6 diff: \"-    gps_fix = mavros.get_topic('gps', 'fix')\" / \"+    gps_fix = mavros.get_topic('global_position', 'raw', 'fix')\" (https://github.com/mavlink/mavros/commit/263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77). The commit was authored and merged by the maintainer; no source shows the fixed script being run against the provider, so the status is recommended rather than observed."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Operation: recorded as UPGRADE because E3 defines a consumer that still references provider elements as they existed at an earlier provider revision as UPGRADE. consumer_built_against.broken is given as the tag 0.12.0: mavcmd's reference was written at 4b8b9806 (in 0.11.1) and every provider revision from there up to the parent of d7c493c9 advertised ~gps/fix; 0.12.0 is the last tag that does, and it is the release the consumer's reference was still valid against. consumer_built_against.resolved is 263650d6 itself (the fixed reference matches the provider from 4c224397 onward, i.e. from 0.13.0). Caveat on E2 step 1: the two units ship in the same package and the same release (tag 0.13.0 contains both the provider without ~gps/fix and the consumer still referencing it), so they are not separately released; they are separately built only in the sense that mavros_node is a compiled catkin target while mavcmd is an installed Python script. Read as PAIR at one revision (mavros_node@4fb6e7e with mavcmd@4fb6e7e) the failed condition is identical (consumer consumes topic:/mavros/gps/fix, provider provides topic:/mavros/global_position/raw/fix instead), so the classification of the defect does not depend on this choice; confidence is medium for that reason. Inventory sides: topic:/mavros/gps/fix lists only the consumer because the provider advertises no such topic at either revision in the composition; topic:/mavros/global_position/raw/fix is consumed by mavcmd only in the resolved composition. mavcmd also uses service:/mavros/cmd/trigger_control (omitted to stay within 10 elements); services come from mavros.command._get_proxy(service, type) = rospy.ServiceProxy(mavros.get_topic('cmd', service), type). Names are absolute under mavcmd's default namespace (\"--mavros-ns\" default \"/mavros\"; _mavros_ns = \"/mavros\"). Revisions: 4fb6e7e is the fix's parent and is inside the 0.13.0 release window (git describe: 0.13.0; first tag containing 263650d6 is 0.13.1); the 0.13.0 tag itself still has \"gps_fix = mavros.get_topic('gps', 'fix')\" at mavcmd line 105. No issue or PR references commit 263650d6; a GitHub issue search for mavcmd GPS topic reports returned only later, unrelated items (e.g. PR #1128 of 2018 on NavSatFix handling in takeoffcur/landcur). The same commit also refactors mavros/scripts/mavwp (str_frame/str_command lambdas); that hunk is unrelated to this defect. The packet's description (\"the name of the gps topic was renamed to global_position. The buggy function, _find_gps_topic, continues to use the older, incorrect name\") agrees with the primary sources. ros_distro is not stated in the case sources (the package README of the era says tested with Hydro and Indigo, and Jade packages exist since 2015-02-25)."
+}

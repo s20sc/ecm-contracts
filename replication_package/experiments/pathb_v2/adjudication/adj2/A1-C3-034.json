@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-034",
+  "kind": "A1",
+  "case_id": "C3-034",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "https://github.com/ros2/launch/pull/567 seems to have introduced the behavior change in Foxy.  The issue exists in Galactic and Rolling as well.",
+    "url": "https://github.com/ros2/ros2/issues/1244#issuecomment-1048227655"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "`set_env` behaviour seems to have changed. It now \"leaks\" - `set_env` now affects places that are sequentially before the tag, including overriding those that are set deeper. Now one can only override the last `set_env` with an `env` in `node`/`executable`.",
+      "url": "https://github.com/ros2/ros2/issues/1244"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "For included demo, actual result:\n```\n[env_bug_node-1] my_env_var = '4'\n```",
+    "url": "https://github.com/ros2/ros2/issues/1244"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The change for Foxy has been merged and will be in the upcoming patch release. Here's a release note for the behavior change: https://github.com/ros2/ros2_documentation/pull/2904",
+    "url": "https://github.com/ros2/ros2/issues/1244#issuecomment-1256555487"
+  },
+  "notes": "独立核验：(1) issue #1244 正文完整（复现包 env_bug 源码/两个 XML launch 文件/CMakeLists/运行命令与工件 C3-034.txt 一致；expected \"my_env_var = '2'\"，actual \"'4'\"；\"Foxy, might be release 8\" vs \"Foxy, any release before current\"）。(2) 附件 ros-foxy-package-versions.txt 确认 \"ros-foxy-launch/focal,focal,now 0.10.8-2focal.20220112.192334 amd64\"。(3) 维护者 jacobperron 两条关键评论逐字确认（PR #567 引入行为变化；\"scoping environment variables to group actions has never formally been supported. It just happened to work in earlier versions of Foxy (and only with frontend launch files) because of a bug that was fixed in https://github.com/ros2/launch/pull/468.  You can confirm by installing Foxy patch 6; or specifically [launch 0.10.7]\"）。(4) PR #630 \"[foxy] Support scoping environment variables (#601)\" 合并入 foxy 分支 2022-07-25（merge aabc2412）。(5) 文档 PR #2330 diff 确认 \"Changes to environment variables using the ``set_env`` action are no longer scoped to parent ``group`` actions, and instead apply globally.\" 与 \"We consider this change a regression\"。(6) 分类 other 成立：set_env 名称与属性未变，变的是相对 group 的作用域语义，无更专类可用； implicated elements（set_env+group）合理。reporter 生产 launch 文件中 required/doc 属性移除属另一消费单元（其生产包），按规则记 notes 不记条件，处理正确。未发现遗漏条件。"
+}

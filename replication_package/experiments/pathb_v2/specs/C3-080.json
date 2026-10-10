@@ -1,0 +1,101 @@
+{
+  "case_id": "C3-080",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/1787",
+    "https://github.com/mavlink/mavros/commit/48f9366108155052474094d4275dd234b085813c",
+    "https://github.com/mavlink/mavros/commit/6b4949bd484f4503016a88cdef7603853801d058",
+    "https://github.com/mavlink/mavros/pull/1794",
+    "https://github.com/rossizero/mavros/commit/6b4949bd484f4503016a88cdef7603853801d058",
+    "https://github.com/mavlink/mavros/commit/56d782d4bc55209550cf3d2628bb1a6ae94a384c"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Concrete report with packet-level verification and maintainer confirmation: \"When setting fcu_protocol to v1.0 with mavros 0.33 or later I faced problems communicating with my drone that still runs autoquad.\" and \"With mavros version >= 0.33 I was actually still sending mavlink v2.0 messages even after successfully setting the fcu_version=v1.0.\" (https://github.com/mavlink/mavros/issues/1787); maintainer vooon: \"Aha, yes, great finding!\" (same URL); issue labelled 'bug'."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "libmavconn",
+        "AutoQuad"
+      ],
+      "interface_kind": "wire protocol field",
+      "evidence": "Unit 1 is libmavconn (package in the mavlink/mavros repository, linked into the mavros node), which frames and sends MAVLink to the FCU; unit 2 is the AutoQuad flight-controller firmware on the reporter's drone, a separately deployed firmware image. The failure is the MAVLink framing version crossing the link: the mavros node requests v1 output (\"if (fcu_protocol == \\\"v1.0\\\") {\" / \"fcu_link->set_protocol_version(mavconn::Protocol::V10);\", mavros/src/lib/mavros.cpp at 1.13.0), libmavconn stores the output flag in one status struct (\"m_mavlink_status.flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;\", libmavconn/src/interface.cpp at 1.13.0) but frames outgoing messages with another (\"tx_q.emplace_back(message, get_status_p(), sys_id, source_compid);\", libmavconn/src/udp.cpp line 237 at 1.13.0, with get_status_p() returning \"&m_parse_status\"), so v2 frames reach a peer the node was configured to talk v1 to. The failure is only visible with a peer that needs MAVLink 1, so it depends on the protocol-version assumption between the two units; it is not internal. The resolving change is in libmavconn code (not deployment wiring, build, or firmware)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: libmavconn's outgoing frames feed the FCU's input: \"When sending commands (at least via udp) the function `get_status_p()` is called in [line 237](https://github.com/mavlink/mavros/blob/master/libmavconn/src/udp.cpp#L237) which returns the `m_parse_status` and not the `m_mavlink_status` where the flag for the protocol version was set.\" (https://github.com/mavlink/mavros/issues/1787)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure on the link: \"I faced problems communicating with my drone that still runs autoquad\" and \"After adding the flag to `m_mavlink_status` I was able to communicate with the drone again.\" (https://github.com/mavlink/mavros/issues/1787)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "libmavconn",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "1.13.0",
+      "resolved_rev": "3795202c521956c148a80e62fbd3a2947655d611",
+      "pinned": true,
+      "revision_basis": "The reporter (2022-09-21) names versions \"Mavros: 0.32.3 & 0.33 & latest\" and says the defect exists since commit 56d782d4bc55209550cf3d2628bb1a6ae94a384c (2019-10-07, 'a bit after mavros version 0.32.3') and in \"the latest version for mavros and noetic\". The latest release on the report date was tag 1.13.0 (commit ed762be1ea6f53e4702f49bd4e22644f6347040f); master head on that date was 1bee6eecc9e0b4962dac444b80d59e4ffe7a1fdd, and between the two no libmavconn source file changes (only libmavconn/cmake/Modules/FindGeographicLib.cmake). The maintainer's first fix 48f9366108155052474094d4275dd234b085813c shipped in tag 1.14.0 (0af02a552b7ea981a64aca2bd307ce56020ed4c2); the reporter tested it and it still produced v2 output (2022-10-10: \"the `m_mavlink_status.flags` is back to v2.0 when calling `get_status_p`\"), so 1.14.0 is a second broken revision. Resolved: merge commit 3795202c521956c148a80e62fbd3a2947655d611 of PR #1794 (head 6b4949bd484f4503016a88cdef7603853801d058, parent 1.14.0) on master, 2022-10-25; tag 1.15.0 contains it (GitHub compare 3795202c...1.15.0: ahead, behind_by 0). libmavconn runs inside the mavros node process; the mavros node itself (fcu_protocol parameter handling in mavros/src/lib/mavros.cpp) is unchanged by the fix.",
+      "excerpt": false,
+      "ros_distro": "melodic, noetic"
+    },
+    {
+      "name": "AutoQuad",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2022-09",
+      "resolved_rev": "as-reported-2022-09",
+      "pinned": false,
+      "revision_basis": "The reporter says only \"my drone that still runs autoquad\"; no firmware repository, version, or commit is given in any source. 'as-reported-2022-09' is a descriptive label (not a git revision) for the firmware as run by the reporter at report time; the resolution does not change this unit.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "field:mavlink/mavlink_message_t.magic",
+      "sides": {
+        "libmavconn": "provides",
+        "AutoQuad": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "field:mavlink/mavlink_message_t.magic"
+      ],
+      "quote": "With mavros version >= 0.33 I was actually still sending mavlink v2.0 messages even after successfully setting the fcu_version=v1.0.",
+      "url": "https://github.com/mavlink/mavros/issues/1787"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from existing tooling is shown; the reporter noticed a communication failure and confirmed the framing version by packet capture: \"I also looked at the messages with [this](https://mavlink.io/en/guide/wireshark.html) wireshark plugin to double check.\" (https://github.com/mavlink/mavros/issues/1787).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "In libmavconn, set/clear MAVLINK_STATUS_FLAG_OUT_MAVLINK1 on both m_mavlink_status and m_parse_status in MAVConnInterface::set_protocol_version(), and have get_status_p() (the status used to finalize outgoing frames) return &m_parse_status: commit 6b4949bd484f4503016a88cdef7603853801d058, merged via PR #1794 as 3795202c521956c148a80e62fbd3a2947655d611.",
+    "status": "recommended",
+    "evidence": "Merged with maintainer approval (\"LGTM, Thanks!\", https://github.com/mavlink/mavros/pull/1794). The reporter shows working communication only with earlier local patches of unidentified revision (\"After adding the flag to `m_mavlink_status` I was able to communicate with the drone again.\" and, on 2022-10-10, \"If I change line 105 in interface.cpp to use `m_mavlink_status` too, it works\", https://github.com/mavlink/mavros/issues/1787), not with the merged revision, and the AutoQuad firmware revision is never identified, so the resolved composition is not shown working with both units identified by revision."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Canonical-form choice: MAVLink frames on a serial/UDP link are not a ROS interface, so no topic/service/msg form fits. I used field:mavlink/mavlink_message_t.magic, the MAVLink C struct field set to MAVLINK_STX_MAVLINK1 or MAVLINK_STX by mavlink_finalize_message_buffer according to MAVLINK_STATUS_FLAG_OUT_MAVLINK1 (current ArduPilot/pymavlink generator: \"msg->magic = MAVLINK_STX_MAVLINK1;\" / \"msg->magic = MAVLINK_STX;\", https://github.com/ArduPilot/pymavlink/blob/master/generator/C/include_v2.0/mavlink_helpers.h), because the frame start marker is the wire field that distinguishes the two framings; the v2-only header fields (incompat_flags, compat_flags) are part of the same framing difference. The specific MAVLink messages sent are not named by the reporter (\"When sending commands (at least via udp)\"), so none are listed. The mavros node parameter fcu_protocol (\"nh.param<std::string>(\\\"fcu_protocol\\\", fcu_protocol, \\\"v2.0\\\");\") is the user-facing setting of libmavconn's output version, not an element between libmavconn and the FCU, so it is not in the inventory. Operation alternatives: the defect is a regression in libmavconn introduced by 56d782d4 (the reporter's drone worked with 0.32.3 and failed from 0.33), so the composition also broke on upgrading mavros; I recorded PAIR because libmavconn's declared interface did not change (the regression is an implementation fault in honouring its own set_protocol_version), and the failure was observed on the pair. Other composition (not this case): libmavconn <-> the MAVLink C helper library. The maintainer's first fix 48f93661 (tag 1.14.0) made get_status_p() return &m_mavlink_status, which libmavconn also passes as r_mavlink_status to mavlink_frame_char_buffer; the reporter found the flag reset (\"for some reason the `m_mavlink_status.flags` is back to v2.0 when calling `get_status_p`\"). A likely mechanism, not stated by any maintainer and checked only against the current pymavlink generator rather than the 2022 'mavlink' package, is that mavlink_frame_char_buffer copies the parse-status flags into r_mavlink_status (\"r_mavlink_status->flags = status->flags;\", same pymavlink URL). Related reports the reporter links, other FCU peers and not verified as the same defect: mavlink/mavros#1423 (ArduPilot rover), mavlink/mavros#1687 (Rosettadrone 2). The rossizero fork commit 6b4949bd is the same commit as the PR head in mavlink/mavros."
+}

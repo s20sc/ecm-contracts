@@ -1,0 +1,49 @@
+{
+  "case_id": "C3-064",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/cra-ros-pkg/robot_localization/issues/698",
+    "https://github.com/cra-ros-pkg/robot_localization/pull/699",
+    "https://github.com/nobleo/rviz_satellite/pull/105"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "Issue #698 is filed as a \"## Feature request\": \"The `navsat_transform_node` TF child (or parent) `frame_id` is currently hardcoded -- this could be easily be made parametric; the usecase I have at hand is related to testing the performance of different localization pipelines right up to the UTM frame\". No failure, reproducer, or log is reported. PR #699 (\"Make the navsat tf frame name parametric\", merged to noetic-devel 2021-11-23) adds the parameter. The second linked PR, nobleo/rviz_satellite #105 (\"Add UTM frame mode\"), adds a new tile-placement mode to an RViz plugin and is also a feature. Additional context: PR #699 merge 8766d77a501cbf58dac0e736b439d7eb30e7fa2f (noetic-devel), changes include/robot_localization/navsat_transform.h and src/navsat_transform.cpp. Later comments on #698 discuss encoding the UTM zone in the frame name (\"Or.... add the zone-name to the utm frame-name such as `utm30s` or `utm29n`.\") as a design idea, without a reported failure. In rviz_satellite #105 the author motivates the UTM mode by tile misplacement when fix messages are noisy relative to the optimized TF (\"This results in large inaccuracies in the tile positioning.\"); that is a limitation of rviz_satellite's placement method addressed by a new option, not a defect in the composition with navsat_transform_node, and the maintainer notes navsat_transform's filtered GPS output as an existing alternative."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [
+        "robot_localization (navsat_transform_node)"
+      ],
+      "interface_kind": null,
+      "evidence": "Not evaluated beyond E1. No failed interaction between two units is described; the request is to make the UTM frame name configurable for multiple TF trees."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E1."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E1."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: feature request (configurable UTM frame name in navsat_transform_node); no defect is documented. The rviz_satellite PR is a separate feature (UTM frame mode for tile placement).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

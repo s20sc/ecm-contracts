@@ -1,0 +1,47 @@
+{
+  "case_id": "robust_ca23e58",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/ros_comm/issues/770",
+    "https://github.com/ros/ros_comm/pull/776",
+    "https://github.com/ros/ros_comm/commit/ca23e58883ed2f1784840485ceba9af3cd2d5729"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue #770 (git-afsantos, 2016-03-17) quotes the faulty code of TopicManager::instance() in roscpp/src/libros/topic_manager.cpp and explains the double-checked-locking hazard; the maintainer confirms: \"Very interesting. Thanks for the detailed links. I will change the label to `bug` since the current code is certainly problematic.\" and points to the fix: \"Please see #776 for the proposed change in Kinetic.\" Merge commit ca23e58 (\"Merge pull request #776 from ros/improve_topicmanager_instance\") replaces the pattern with a function-local static and adds -std=c++11. No reproducer or error log, but a maintainer's confirmation counts."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["roscpp (client library; TopicManager singleton initialisation)", "any roscpp node process that calls TopicManager::instance() from several threads (same process)"],
+      "interface_kind": null,
+      "evidence": "Step 1: the only components involved are the roscpp library and the threads of the process that links it; there is no second separately deployable unit whose output or timing crosses a boundary, since the race is between threads of one process inside roscpp's own singleton accessor. Step 2: the failure (a thread observing g_topic_manager non-null before the TopicManager object is fully constructed) is a defect in one unit's own logic that would occur with any correct peer and does not depend on any assumption between two units; the fix touches only roscpp (topic_manager.cpp and its CMakeLists.txt). Ineligible: internal."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 step 2. (For the record, no effect was ever observed: the reporter writes \"Of course, it depends on whether there are multiple threads contesting the access (which I am not sure about).\" and \"This is an issue only if multiple threads try to access the topic manager for the first time, at the same time.\")"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: an unsafe double-checked-locking singleton (TopicManagerPtr g_topic_manager guarded by g_topic_manager_mutex) inside roscpp's TopicManager::instance(); the potential race is between threads of one process in one unit's own initialisation code, no interface between two units is involved, and the resolving change (PR #776, merged as ca23e58 for Kinetic) replaces it with `static TopicManagerPtr topic_manager = boost::make_shared<TopicManager>();` and requires C++11.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Revisions for reference: the merge commit ca23e58 (2016-03-18) has parents f08eafa98a5154027af32a342d11c211c7554cab and aaaf3e9d381ef9e6bb71d25af8a77cef621e4b3a and is contained in kinetic-devel per branch comparison; the maintainer states the fix targets Kinetic (\"In the upcoming ROS Kinetic release we require a C++11 compiler.\"). The packet's fix hash is the merge commit rather than the PR's content commit."
+}

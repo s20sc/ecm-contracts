@@ -1,0 +1,31 @@
+{
+  "item_id": "A2-robust_292b5cc-resolved-M1-bd7bed595d",
+  "kind": "A2",
+  "case_id": "robust_292b5cc",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "missing_permission",
+  "values": [
+    {
+      "path": "consumer.perm_requires[Ros_Controller_IsRemote(controller)]",
+      "verdict": "unverifiable",
+      "source_excerpt": "Unverifiable at the item-supplied provenance: no source location was supplied. Independently opened context only, not verification of the missing location:\nsnapshot:s2_work/tasks/u0053/snapshot/fs100/MotoPlus/Controller.c:375 [lines 375-377]\n```\n\t// Check remote\n\tif(!Ros_Controller_IsRemote(controller))\n\t\treturn ROS_RESULT_NOT_READY_NOT_REMOTE;\n```\nThis supports a remote-mode readiness prerequisite, not an observed false runtime state."
+    },
+    {
+      "path": "producer.perm_grants",
+      "verdict": "unverifiable",
+      "source_excerpt": "Unverifiable at the item-supplied provenance: no source location was supplied. Independently opened context only, not verification of the missing location:\nsnapshot:s2_work/tasks/u0055/snapshot/fs100/src/fs100_joint_trajectory_streamer.cpp:123 [lines 123-126]\n```\n  JointTrajPtFullMessage jtpf_msg;\n  jtpf_msg.init(msg_data);\n\n  return jtpf_msg.toRequest(*msg);  // assume \"request\" COMM_TYPE for now\n```\nNo cited grant enumeration or exhaustive absence evidence is supplied; a trajectory request is not a permission-grant inventory."
+    },
+    {
+      "path": "consumer.perm_grants",
+      "verdict": "unverifiable",
+      "source_excerpt": "Unverifiable at the item-supplied provenance: no source location was supplied. Independently opened context only, not verification of the missing location:\nsnapshot:s2_work/tasks/u0053/snapshot/fs100/MotoPlus/Controller.c:325 [lines 325-328]\n```\nBOOL Ros_Controller_IsRemote(Controller* controller)\n{\n\treturn ((controller->ioStatus[IOSTATUS_REMOTE]!=0));\n}\n```\nsnapshot:s2_work/tasks/u0053/snapshot/fs100/MotoPlus/Controller.c:489 [lines 489-494]\n```\n\t\t\t\t\t\t\tif(controller->bRobotJobReadyRaised\n\t\t\t\t\t\t\t \t&& (Ros_Controller_IsOperating(controller))\n\t\t\t\t\t\t\t\t&& (Ros_Controller_IsRemote(controller)) )\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\tcontroller->bRobotJobReady = TRUE;\n\t\t\t\t\t\t\t\tprintf(\"Robot job is ready for ROS commands.\\r\\n\");\n```\nRemote is read from controller I/O and may be true. These sources do not establish an absent grant set or a missing permission in this run."
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specification is PAIR with resolved MotoROS commit 292b5cc and unchanged fs100 ROS driver 8d770631. On this request edge the driver is the producer and the controller the consumer, regardless of their package-level provider/consumer labels. The driver constructs and sends JointTrajPtFull requests and the controller processes that body and produces a reply. This source-level connection does not validate the separate missing-permission assertion.\nsnapshot:specs/robust_292b5cc.json:63 [lines 63-63]\n```\n  \"operation\": \"PAIR\",\n```\nsnapshot:s2_work/tasks/u0055/snapshot/fs100/src/fs100_joint_trajectory_streamer.cpp:123 [lines 123-126]\n```\n  JointTrajPtFullMessage jtpf_msg;\n  jtpf_msg.init(msg_data);\n\n  return jtpf_msg.toRequest(*msg);  // assume \"request\" COMM_TYPE for now\n```\nsnapshot:s2_work/tasks/u0055/snapshot/fs100/src/fs100_joint_trajectory_streamer.cpp:204 [lines 204-209]\n```\n        tmpMsg = this->current_traj_[this->current_point_];\n        msg.init(tmpMsg.getMessageType(), CommTypes::SERVICE_REQUEST,\n                 ReplyTypes::INVALID, tmpMsg.getData());  // set commType=REQUEST\n\n        ROS_DEBUG(\"Sending joint trajectory point\");\n        if (!this->connection_->sendAndReceiveMsg(msg, reply, false))\n```\nsnapshot:s2_work/tasks/u0053/snapshot/fs100/MotoPlus/MotionServer.c:602 [lines 602-612]\n```\n\t// Check if controller is able to receive incremental move and if the incremental move thread is running\n\tif(!controller->bRobotJobReady)\n\t{\n\t\tint subcode = Ros_Controller_GetNotReadySubcode(controller);\n\t\tprintf(\"ERROR: Controller is not ready (code: %d).  Can't process ROS_MSG_JOINT_TRAJ_PT_FULL.\\r\\n\", subcode);\n\t\tRos_SimpleMsg_MotionReply(receiveMsg, ROS_RESULT_NOT_READY, subcode, replyMsg);\n\t\treturn 0;\n\t}\n\n\t// Set pointer reference\n\ttrajData = &receiveMsg->body.jointTrajData;\n```"
+  },
+  "notes": "Absence audit: producer.perm_grants=absent is unverifiable; consumer.perm_grants=absent is unverifiable. An omitted grant list is not evidence that remote mode was unavailable or denied. The controller samples an external I/O readiness state and explicitly allows readiness when it is true. The specified resolution repairs reply fields, independently of that prerequisite.\nsnapshot:s2_work/tasks/u0053/snapshot/fs100/MotoPlus/Controller.c:489 [lines 489-494]\n```\n\t\t\t\t\t\t\tif(controller->bRobotJobReadyRaised\n\t\t\t\t\t\t\t \t&& (Ros_Controller_IsOperating(controller))\n\t\t\t\t\t\t\t\t&& (Ros_Controller_IsRemote(controller)) )\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\tcontroller->bRobotJobReady = TRUE;\n\t\t\t\t\t\t\t\tprintf(\"Robot job is ready for ROS commands.\\r\\n\");\n```\nsnapshot:s2_work/tasks/u0053/snapshot/fs100/MotoPlus/SimpleMessage.c:116 [lines 116-120]\n```\n\telse if(receiveMsg->header.msgType == ROS_MSG_JOINT_TRAJ_PT_FULL)\n\t{\n\t\treplyMsg->body.motionReply.groupNo = receiveMsg->body.jointTrajData.groupNo;\n\t\treplyMsg->body.motionReply.sequence = receiveMsg->body.jointTrajData.sequence;\n\t\treplyMsg->body.motionReply.command = ROS_MSG_JOINT_TRAJ_PT_FULL;\n```"
+}

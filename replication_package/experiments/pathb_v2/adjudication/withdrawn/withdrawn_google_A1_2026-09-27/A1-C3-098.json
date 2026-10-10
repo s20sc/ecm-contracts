@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-098",
+  "kind": "A1",
+  "case_id": "C3-098",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).  Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.",
+    "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2099261802"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).  Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.",
+      "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2099261802"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The CPU usage explodes and ros becomes laggy. I found that `Rate._timer` are not properly destroyed.",
+    "url": "https://github.com/ros2/rclpy/issues/1278"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Conclusion: Yes this works as intended and the CPU usage stays low."
+  },
+  "notes": "Agree with all fields. The consumer called Rate.destroy() instead of Node.destroy_rate(), causing uncancelled timers in rclpy to leak and explode CPU usage."
+}

@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-B-Ver-01", "kind": "A1", "case_id": "B-Ver-01",
+  "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+    "reason": "A Pi publisher and separately built computer subscriber fail a concrete connection. The definition changed while the consumer retained old generated messages: UPGRADE, not a build-only defect. E1 and E4 are supported by the warning and successful rebuild report.",
+    "quote": "If you change the messages after you compile, you need to recompile to use the new message.",
+    "url": "https://robotics.stackexchange.com/a/72069"},
+  "failed_conditions": [
+    {"index": 0, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+     "quote": "Could not process inbound connection: Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection.",
+     "url": "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error"},
+    {"index": 1, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+     "quote": "std_msgs/String raw", "url": "snapshot:artifacts/B-Ver-01.txt:2",
+     "comparison_evidence": {"quote": "This is in the msg file:\nfloat32 heading\nfloat32 pitch\nfloat32 roll\nfloat32 temp\nfloat32 depth", "url": "https://robotics.stackexchange.com/a/72069"},
+     "reason": "The connection header's old message definition contains raw; the complete current definition omits it. Both were independently read through the migrated source API."},
+    {"index": 2, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+     "quote": "std_msgs/Float32 heading\nstd_msgs/Float32 pitch\nstd_msgs/Float32 roll\nstd_msgs/Float32 temp\nstd_msgs/Float32 depth", "url": "snapshot:artifacts/B-Ver-01.txt:3",
+     "comparison_evidence": {"quote": "float32 heading\nfloat32 pitch\nfloat32 roll\nfloat32 temp\nfloat32 depth", "url": "https://robotics.stackexchange.com/a/72069"},
+     "reason": "All five surviving fields changed from wrapper-message types to primitive float32; nominal imu_data type remained unchanged."}
+  ],
+  "missed_conditions": [],
+  "loudness": {"verdict": "agree", "proposed": null, "quote": "[WARN] [WallTime: 1455522139.729356] Could not process inbound connection:", "url": "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error"},
+  "detection_stage": {"verdict": "agree", "proposed": null, "quote": "Dropping connection.", "url": "https://robotics.stackexchange.com/questions/72068/subcribe-and-publish-md5-error"},
+  "resolution": {"verdict": "agree", "proposed": null, "quote": "Yes I rebuilt the workspace then it works. Thank you! :D", "url": "https://robotics.stackexchange.com/a/72069"},
+  "notes": "Migrated question and answer, including original comments embedded in the answer, were read through the Stack Exchange API. The source supports the reported pre/post definition states and rebuilding the same consumer, not exact git revisions. Definition labels are excerpt-based revision identifiers. No additional failed condition was found."
+}

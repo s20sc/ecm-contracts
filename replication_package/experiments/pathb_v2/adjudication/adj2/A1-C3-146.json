@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-146",
+  "kind": "A1",
+  "case_id": "C3-146",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "List of values which is the same length and order as the provided names. If a parameter was not yet set, the value will have PARAMETER_NOT_SET as the type.",
+    "url": "https://raw.githubusercontent.com/ros2/rcl_interfaces/iron/rcl_interfaces/srv/GetParameters.srv (read this session)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.",
+      "url": "https://github.com/ros2/ros2/issues/1517 (fujitatomoya comment 2024-02-07, read this session via API)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+    "url": "https://github.com/ros2/ros2/issues/1517 (issue body, read this session)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "We merged in the fixes here, and backported the ones we could."
+  },
+  "notes": "Independently verified: (1) E1 — issue body carries the full reproducer node (param_1 with default, param_2 with descriptor only) and wrong dump output; environment 'ros-iron-rclpy apt package version 4.1.4-1jammy.20231205.160931'; maintainer reproduced on rolling ('`rolling` can reproduce this issue'). (2) E2 stop 6 — the mismatch crosses the service boundary: GetParameters.srv (iron) documents a same-length values list with PARAMETER_NOT_SET per unset parameter, while rclpy 4.1.4 parameter_service.py L78-85 reads 'response.values = node.get_parameters([])' on ParameterUninitializedException (whole response emptied), and ros2cli 0.25.4 dump.py L53-55 reads 'if not response.values: / return '# Parameter not set''; a provider following the srv convention (e.g. rclcpp) would not trip the consumer's empty-list branch, so it is not an internal defect; fix edits both units' code, not wiring/build/firmware. Interface kind service. (3) Class representation_convention is defensible: the mismatch is precisely how the not-set state is encoded in the response (empty array vs per-name PARAMETER_NOT_SET entries); 'other' would be the conservative alternative — I agree with the spec's choice. (4) Loudness silent_documented/run: the dump completes and prints wrong values; nothing in the thread shows a diagnostic; the 19-character omission is the same condition's symptom ('parameters past 19 characters are not showed'). (5) Resolution recommended: PR 1216 merged to rolling (merge_commit_sha 220d714b2b6da81a4abd6a804e3ed4ee8cfd7c3f) and PR 881 merged to rolling (d3cfbd7612b5d2707b16da1b900dc772dd88a61c), both verified via API; the iron backport of 1216 was declined — verified clalancette comment on PR 1216: 'Yes, agreed that we should not backport.  The change in behavior would be surprising for users.' — and the reporter's iron composition was never fixed ('If no fix is going to be merged for Iron though, I think this ticket is still \"Open\".'); no output of the fixed composition is shown, so recommended (not observed) is correct."
+}

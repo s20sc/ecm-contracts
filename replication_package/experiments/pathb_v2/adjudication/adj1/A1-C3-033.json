@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-033",
+  "kind": "A1",
+  "case_id": "C3-033",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the report supplies a ROS launch reproducer and FFmpeg warning. E2: usb_cam passes a decoded pixel-format convention into libswscale, a separate library; the warning depends on that input. E3: PAIR is supported; the source does not establish a specific provider upgrade. Warning-only effects remain eligible under E4.",
+    "quote": "swscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/109"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "c->srcRange |= handle_jpeg(&c->srcFormat);\n    c->dstRange |= handle_jpeg(&c->dstFormat);\n\n    if(srcFormat!=c->srcFormat || dstFormat!=c->dstFormat)\n        av_log(c, AV_LOG_WARNING, \"deprecated pixel format used, make sure you did set range correctly\\n\");",
+      "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n2.8.15/libswscale/utils.c",
+      "reason": "FFmpeg translates the legacy JPEG pixel-format/range encoding and warns about that representation convention. sws_getContext and AVCodecContext.pix_fmt identify the conversion API and its source format; this is not a ROS nominal-message-type mismatch."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "swscaler @ 0xc56160] deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/109",
+    "reason": "The library emits an explicit diagnostic about the interface value, rather than requiring the user to infer a mismatch from image quality."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "roslaunch usb_cam  usb_cam-test.launch",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/109",
+    "reason": "The warning is reported while running the camera and decoding frames: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This warning can be safely ignored at present. Long term libjpeg-turbo could be used instead of libav to decode mjpeg frames.",
+    "url": "https://github.com/ros-drivers/usb_cam/pull/115",
+    "reason": "The accepted patch sets av_log_set_level(AV_LOG_ERROR), suppressing the reported warning rather than changing the format convention. Reports that the suppression works do not identify both unit revisions, so recommended is appropriate."
+  },
+  "notes": "Accept as warning_only, not demonstrated image corruption or decoder rejection. FFmpeg handles the deprecated format. A separate comment's experimental pixel-format workaround crashes; this does not establish an additional condition in the original composition."
+}

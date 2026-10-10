@@ -1,0 +1,97 @@
+{
+  "task_id": "u0324",
+  "package": "rcl",
+  "manifest_version": "2.5.0",
+  "ports": [
+    {
+      "element": "api:rmw_create_guard_condition",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_create_wait_set",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_destroy_wait_set",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_trigger_guard_condition",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_wait",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rmw_create_guard_condition",
+    "api:rmw_create_wait_set",
+    "api:rmw_destroy_wait_set",
+    "api:rmw_trigger_guard_condition",
+    "api:rmw_wait"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rcl/package.xml:5",
+    "ports[0].frame": "snapshot:rcl/src/rcl/guard_condition.c:86 (guard_condition->impl->rmw_handle = rmw_create_guard_condition(&(context->impl->rmw_context)); C API call on a middleware handle, no spatial data)",
+    "ports[1].frame": "snapshot:rcl/src/rcl/wait.c:163 (wait_set->impl->rmw_wait_set = rmw_create_wait_set(&(context->impl->rmw_context), num_conditions); C API call on a middleware handle, no spatial data)",
+    "ports[2].frame": "snapshot:rcl/src/rcl/wait.c:179 and snapshot:rcl/src/rcl/wait.c:195 (rmw_ret_t ret = rmw_destroy_wait_set(wait_set->impl->rmw_wait_set); C API call on a middleware handle, no spatial data)",
+    "ports[3].frame": "snapshot:rcl/src/rcl/guard_condition.c:160 (if (rmw_trigger_guard_condition(guard_condition->impl->rmw_handle) != RMW_RET_OK) {; C API call on a middleware handle, no spatial data)",
+    "ports[4].frame": "snapshot:rcl/src/rcl/wait.c:609-616 (rmw_ret_t ret = rmw_wait(&wait_set->impl->rmw_subscriptions, &wait_set->impl->rmw_guard_conditions, &wait_set->impl->rmw_services, &wait_set->impl->rmw_clients, &wait_set->impl->rmw_events, wait_set->impl->rmw_wait_set, timeout_argument); C API call, no spatial data)",
+    "references[api:rmw_create_guard_condition]": "snapshot:rcl/src/rcl/guard_condition.c:86",
+    "references[api:rmw_create_wait_set]": "snapshot:rcl/src/rcl/wait.c:163",
+    "references[api:rmw_destroy_wait_set]": "snapshot:rcl/src/rcl/wait.c:179",
+    "references[api:rmw_trigger_guard_condition]": "snapshot:rcl/src/rcl/guard_condition.c:160",
+    "references[api:rmw_wait]": "snapshot:rcl/src/rcl/wait.c:609",
+    "perm_requires.state": "searched snapshot:rcl/src, snapshot:rcl/include, snapshot:rcl/CMakeLists.txt, snapshot:rcl/package.xml for permission declarations; none found. snapshot:rcl/src/rcl/security.c only reads ROS_SECURITY_* environment variables to locate a security enclave and passes it to rmw; it declares no permission values for the listed elements",
+    "perm_grants.state": "same search as perm_requires; no permission grants declared in the rcl package source or configuration",
+    "recovery.state": "searched snapshot:rcl/src and snapshot:rcl/include for recovery/retry declarations around the five call sites; on failure the code only cleans up and returns an error code (snapshot:rcl/src/rcl/guard_condition.c:87-93 returns RCL_RET_ERROR; snapshot:rcl/src/rcl/wait.c:164-166 goto fail; snapshot:rcl/src/rcl/wait.c:180-182 and 196-199 set RCL_RET_WAIT_SET_INVALID; snapshot:rcl/src/rcl/guard_condition.c:160-163 returns RCL_RET_ERROR); no recovery policy is declared"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All five rmw functions are called from rcl/src/rcl/guard_condition.c and rcl/src/rcl/wait.c with internally consistent arguments (context pointer for the guard condition, context plus a condition count for the wait set, seven arguments including events for rmw_wait). The rmw declarations of these functions are not in the snapshot and are outside the allowed sources, so whether the call arities match the rmw headers at this revision cannot be judged from the consuming side alone."
+  },
+  "confidence": "high",
+  "notes": "All five packet elements are rmw C API functions that rcl consumes (calls); rcl does not define any of them, so declares and not_declared are empty (they apply only to provided elements). Each element is named directly in rcl code, so each is listed in references. Calls: rmw_create_guard_condition(&(context->impl->rmw_context)) at guard_condition.c:86; rmw_trigger_guard_condition(guard_condition->impl->rmw_handle) at guard_condition.c:160; rmw_create_wait_set(&(context->impl->rmw_context), num_conditions) at wait.c:163 where num_conditions = (2 * number_of_subscriptions) + number_of_guard_conditions + number_of_clients + number_of_services + number_of_events (wait.c:156-161); rmw_destroy_wait_set(wait_set->impl->rmw_wait_set) at wait.c:179 (init failure path) and wait.c:195 (rcl_wait_set_fini); rmw_wait(subscriptions, guard_conditions, services, clients, events, rmw_wait_set, timeout_argument) at wait.c:609-616. The functions come from rmw/rmw.h, included at guard_condition.c:25 and wait.c:31; rmw is a build_export_depend in package.xml and find_package(rmw REQUIRED) in CMakeLists.txt:11. Tests mock three of them (test/rcl/test_guard_condition.cpp:198 rmw_create_guard_condition; test/rcl/test_wait.cpp:716 rmw_create_wait_set; test/rcl/test_wait.cpp:733 rmw_destroy_wait_set). QoS, rate, units, msg_type and definition_id are null because these are C function calls, not DDS topics/services with message definitions; ros_distro rolling. rcl also references other rmw APIs (e.g. rmw_destroy_guard_condition at guard_condition.c:132) that are not packet elements and are not listed. Sibling packages in the snapshot (rcl_action, rcl_lifecycle, rcl_yaml_param_parser) contain no references to the five functions. No exclusive resources are claimed."
+}

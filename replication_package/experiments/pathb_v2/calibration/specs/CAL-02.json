@@ -1,0 +1,129 @@
+{
+ "case_id": "CAL-02",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros2/ros2/issues/1080",
+  "https://github.com/ros2/rmw/pull/316",
+  "https://github.com/ros2/rclcpp/pull/1830",
+  "https://github.com/ros2/rmw_fastrtps/blob/4d38e385b8474cd604ff4f491d058f14b3a49a5d/rmw_fastrtps_shared_cpp/src/rmw_wait.cpp",
+  "https://github.com/ros2/rcl/blob/c83119c826c75fbaf6e741658927a953318832ad/rcl/src/rcl/wait.c",
+  "https://github.com/ros2/rmw/blob/eeb5859def4af28c3aa231dfe7be30fbc31bcfaf/rmw/include/rmw/rmw.h"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue #1080 gives a reproducer (`ros2 run demo_nodes_cpp talker`, then `sudo date -s @`date +%s | xargs -I@ echo @-5 | bc` # adjust 5s before.`) with the observed output \"Timer callback execution waits 5 seconds when the system timer is adjusted to backward.\"; a maintainer confirmed: \"problem confirmed, changing system time causes this issue. (cyclonedds has the same problem)\" (fujitatomoya)."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "rcl",
+    "rmw_fastrtps"
+   ],
+   "interface_kind": "library API",
+   "evidence": "rcl computes the rmw_wait timeout from its timers (steady clock for wall timers) and passes it as a duration to rmw_wait; rmw_fastrtps_shared_cpp's rmw_wait waits with `conditionVariable->wait_for(lock, n, predicate)`, which (built with gcc-9 libstdc++ on Ubuntu 20.04) measures the duration against the system clock. The clock base of the timeout crossing the rcl -> rmw boundary differs between the two sides; with an rmw implementation that waits on a monotonic clock the steady timer is unaffected, so the failure depends on an assumption between the two units. The resolution changed the declared rmw_wait contract (rmw.h) rather than only build wiring."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: rcl's output (the timeout argument computed in rcl_wait from rcl_timer_get_time_until_next_call) feeds rmw_fastrtps's rmw_wait input; observed in the running talker node."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed: \"Timer callback execution waits 5 seconds when the system timer is adjusted to backward.\" (issue body)."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "rcl",
+   "role": "consumer",
+   "repo": "https://github.com/ros2/rcl",
+   "broken_rev": "c83119c826c75fbaf6e741658927a953318832ad",
+   "resolved_rev": "c83119c826c75fbaf6e741658927a953318832ad",
+   "pinned": true,
+   "revision_basis": "The reporter built from source on 2021-01-13 (\"Installation type: from source\", client library rclcpp) without naming an rcl revision. c83119c8 is the rcl master head on the report date (committed 2021-01-11) and is the exact revision the maintainer linked when describing the timeout computation (https://github.com/ros2/rcl/blob/c83119c826c75fbaf6e741658927a953318832ad/rcl/src/rcl/wait.c#L546-L582). The resolution does not change rcl, so the resolved revision is kept.",
+   "excerpt": false,
+   "ros_distro": "rolling"
+  },
+  {
+   "name": "rmw_fastrtps",
+   "role": "provider",
+   "repo": "https://github.com/ros2/rmw_fastrtps",
+   "broken_rev": "4d38e385b8474cd604ff4f491d058f14b3a49a5d",
+   "resolved_rev": "4d38e385b8474cd604ff4f491d058f14b3a49a5d",
+   "pinned": true,
+   "revision_basis": "The reporter states \"Version or commit hash: https://github.com/ros2/rmw_fastrtps (master)\" on 2021-01-13; 4d38e385 is the master head on that date (committed 2020-12-22), and its rmw_fastrtps_shared_cpp/src/rmw_wait.cpp line 183 is the `conditionVariable->wait_for(lock, n, predicate)` line the reporter linked. The resolving change does not edit rmw_fastrtps source: the behaviour changes when the same code is built with a toolchain whose condition variable waits on a steady clock (gcc >= 10 with glibc >= 2.30, e.g. Ubuntu 22.04), so the source revision is kept; the build toolchain is not expressible as a git revision of this repository.",
+   "excerpt": false,
+   "ros_distro": "rolling"
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "api:rmw_wait",
+   "sides": {
+    "rmw_fastrtps": "provides",
+    "rcl": "consumes"
+   }
+  },
+  {
+   "element": "api:rmw_create_wait_set",
+   "sides": {
+    "rmw_fastrtps": "provides",
+    "rcl": "consumes"
+   }
+  },
+  {
+   "element": "api:rmw_destroy_wait_set",
+   "sides": {
+    "rmw_fastrtps": "provides",
+    "rcl": "consumes"
+   }
+  },
+  {
+   "element": "api:rmw_create_guard_condition",
+   "sides": {
+    "rmw_fastrtps": "provides",
+    "rcl": "consumes"
+   }
+  },
+  {
+   "element": "api:rmw_trigger_guard_condition",
+   "sides": {
+    "rmw_fastrtps": "provides",
+    "rcl": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "other",
+   "implicated_elements": [
+    "api:rmw_create_wait_set"
+   ],
+   "quote": "When you call `rcl_wait()`, the timeout passed to `rmw_wait()` is calculated [like](https://github.com/ros2/rcl/blob/c83119c826c75fbaf6e741658927a953318832ad/rcl/src/rcl/wait.c#L546-L582):\n\n`min(rcl_wait_timeout, minimal_timeout_to_next_timer_trigger)`\n\nbut the timer might be using a different clock that the one `rmw_wait()` uses ....\n\nAs a consequence:\n- if `rmw_wait` uses the system clock, a rcl timer using steady time isn't going to work fine (issue happens when system time is adjusted backwards)...",
+   "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-763000000"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "silent_documented",
+ "loudness_evidence": "The talker keeps running and no diagnostic is emitted; only the timing is wrong: \"Timer callback execution waits 5 seconds when the system timer is adjusted to backward.\" (https://github.com/ros2/ros2/issues/1080).",
+ "detection_stage": "run",
+ "resolution": {
+  "summary": "Two parts. (1) The declared rmw_wait contract in ros2/rmw rmw.h was changed from \"\\remark Elapsed time is measured against the system clock.\" to \"\\remark Elapsed time should be measured using a monotonic clock, though rmw implementations could use a different one.\" (rmw PR #316, merged 2022-02-07 as 5c822d1f0d15132a983080527e2e3cebbfceb2cc), matching rcl's steady-timer use. (2) The rmw_fastrtps behaviour was brought in line by building it with a toolchain whose std::condition_variable waits on a steady clock (gcc >= 10 / glibc >= 2.30, as on Ubuntu 22.04 for Humble); no rmw_fastrtps source change was made for this.",
+  "status": "recommended",
+  "evidence": "The reporter confirmed the fix for rmw_fastrtps but without git revisions of either unit: \"I have confirmed that the bug is fixed in the following environments.\n\n- Ubuntu22.04\n- rolling\n- rmw_fastrtps_cpp\n- (docker ros2:nightly [DIGEST:9c3250e5675f])\" (https://github.com/ros2/ros2/issues/1080#issuecomment-1122131046). Earlier: \"current work-around is upgrading `gcc/g++` into version 10 (from 9) with `update-alternatives` and `colcon build`, we've confirmed `fastdds` works.\" (fujitatomoya). Because neither unit is identified by revision in the working composition, status is recommended."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "Class `other`: the mismatch is the time base (steady vs system clock) against which the rmw_wait timeout duration is measured; none of the listed classes names a clock-domain mismatch. At the broken revisions the declared contract (ros2/rmw eeb5859d rmw.h: \"Elapsed time is measured against the system clock.\") matched rmw_fastrtps's behaviour and not rcl's steady-timer use; rmw PR #316 reversed the declaration. The declaration lives in ros2/rmw (broken eeb5859def4af28c3aa231dfe7be30fbc31bcfaf, resolved 5c822d1f0d15132a983080527e2e3cebbfceb2cc), which is not one of the two unit repositories. Another composition in the same source: rmw_fastrtps -> libstdc++ (gcc-9): std::condition_variable::wait_for issues futex with FUTEX_CLOCK_REALTIME; a libstdc++ maintainer (jwakely) calls it \"not really a libstdc++ bug, but a limitation of POSIX pthreads\" and declined a gcc-9 backport; the effective runtime fix is the gcc >= 10 toolchain. rmw_cyclonedds shows the same symptom for a different reason (direct pthread_cond_timedwait) and is tracked separately in ros2/rmw_cyclonedds#276. rclcpp PR #1830 (fixes rclcpp#1829) synchronizes rcl and std::chrono steady clocks in rclcpp::Clock::sleep_until and adds a warning referring to the gcc bug; it concerns a different composition (rclcpp Clock::sleep_until) and is not a fix for this one. The reporter's confirmation of the fix used rolling nightly in May 2022, whose rmw_fastrtps includes later changes to rmw_wait.cpp (29050bfd, 2021-04), unrelated to the clock. Other operations supported: none besides PAIR."
+}

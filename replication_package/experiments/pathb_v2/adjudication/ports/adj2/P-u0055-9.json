@@ -1,0 +1,31 @@
+{
+ "item_id": "P-u0055-9",
+ "kind": "P",
+ "task_id": "u0055",
+ "element": "msg:simple_message/JointTrajPtFull",
+ "side": "provides",
+ "values": [
+  {
+   "field": "msg_type",
+   "recorded": "simple_message/JointTrajPtFull",
+   "verdict": "wrong",
+   "source_excerpt": "40: using industrial::joint_traj_pt_full::JointTrajPtFull;\n41: using industrial::joint_traj_pt_full_message::JointTrajPtFullMessage;",
+   "qos_basis": null
+  },
+  {
+   "field": "frame",
+   "recorded": "none",
+   "verdict": "unverifiable",
+   "source_excerpt": null,
+   "qos_basis": null
+  },
+  {
+   "field": "units",
+   "recorded": "time: s; pos: rad; vel: rad/s; acc: rad/s^2",
+   "verdict": "verified",
+   "source_excerpt": "float pos[ROS_MAX_JOINT]; // Desired joint positions in radian. Base to Tool joint order / float vel[ROS_MAX_JOINT]; // Desired joint velocities in radian/sec. / float acc[ROS_MAX_JOINT]; // Desired joint accelerations in radian/sec^2. / msg_data.setTime(pt.time_from_start.toSec());",
+   "qos_basis": null
+  }
+ ],
+ "notes": "msg_type: the cited lines 40-41 state the type as industrial::joint_traj_pt_full::JointTrajPtFull (and ...JointTrajPtFullMessage) — the short identifier matches, but the qualification differs from simple_message/... and the string simple_message appears nowhere in lines 40-41 (a simple_message include exists at line 34, outside the citation), so the location states a different qualified name than recorded. frame: the provenance is a statement ('joint-space trajectory point..., no coordinate frame in code'), not a snapshot location, so it is unverifiable by rule. units: SimpleMessage.h lines 105-107 (inside the cited 105-108 range) state pos 'in radian', vel 'in radian/sec', acc 'in radian/sec^2'; the time comment 'Units: in seconds' is actually at line 104, one line above the cited range, but the co-cited fs100_joint_trajectory_streamer.cpp:120 msg_data.setTime(pt.time_from_start.toSec()) states the time basis in seconds (toSec). Every component of the recorded value is therefore stated at a cited location; the one-line drift on the time comment is flagged."
+}

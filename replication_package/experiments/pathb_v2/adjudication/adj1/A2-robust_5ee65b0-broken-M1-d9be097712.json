@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_5ee65b0-broken-M1-d9be097712",
+  "kind": "A2",
+  "case_id": "robust_5ee65b0",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:rospy.Publisher.__init__]",
+      "verdict": "verified",
+      "source_excerpt": "Built revision:\n\nsnapshot:s2_work/tasks/u0094/snapshot/clients/rospy/src/rospy/topics.py:743\n```\n    def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None):\n```\n\nRunning revision:\n\nsnapshot:s2_work/tasks/u0093/snapshot/clients/rospy/src/rospy/topics.py:749\n```\n    def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:rospy.Publisher.__init__]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0092/snapshot/kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:9-11\n```\nclass MotorWidget(IconToolButton):\n    def __init__(self, topic):\n        self._pub = rospy.Publisher(topic, MotorPower) \n```\n\nsnapshot:s2_work/tasks/u0092/snapshot/kobuki_dashboard/src/kobuki_dashboard/led_widget.py:9-11\n```\nclass LedWidget(MenuDashWidget):\n    def __init__(self, topic):\n        self._pub = rospy.Publisher(topic, Led) \n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:rospy.Publisher.__init__]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0094/snapshot/clients/rospy/src/rospy/topics.py:743\n```\n    def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None):\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0093/snapshot/clients/rospy/src/rospy/topics.py:749\n```\n    def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE correctly compares rospy 1.9.40 with 1.11.8 and connects both broken dashboard constructors to rospy.Publisher.__init__. These are concrete calls, not a name-only dependency.\n\nsnapshot:s2_work/tasks/u0092/snapshot/kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:9-11\n```\nclass MotorWidget(IconToolButton):\n    def __init__(self, topic):\n        self._pub = rospy.Publisher(topic, MotorPower) \n```\n\nsnapshot:s2_work/tasks/u0092/snapshot/kobuki_dashboard/src/kobuki_dashboard/led_widget.py:9-11\n```\nclass LedWidget(MenuDashWidget):\n    def __init__(self, topic):\n        self._pub = rospy.Publisher(topic, Led) \n```"
+  },
+  "notes": "The added optional Python keyword queue_size=None is a substantive signature addition, not a transcription difference. It does not remove the two-positional-argument call form. The running source retains synchronous publishing when omitted and issues a warning, so verification of a changed declaration does not establish that this call is rejected.\n\nsnapshot:s2_work/tasks/u0093/snapshot/clients/rospy/src/rospy/topics.py:770-775\n```\n        @param queue_size: The queue size used for asynchronously\n        publishing messages from different threads.  A size of zero\n        means an infinite queue, which can be dangerous.  When the\n        keyword is not being used or when None is passed all\n        publishing will happen synchronously and a warning message\n        will be printed.\n```\n\nsnapshot:s2_work/tasks/u0093/snapshot/clients/rospy/src/rospy/topics.py:789-794\n```\n        if queue_size is not None:\n            self.impl.set_queue_size(queue_size)\n        else:\n            import warnings\n            warnings.warn(\"The publisher should be created with an explicit keyword argument 'queue_size'. \"\n                \"Please see http://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers for more information.\", SyntaxWarning, stacklevel=2)\n```"
+}

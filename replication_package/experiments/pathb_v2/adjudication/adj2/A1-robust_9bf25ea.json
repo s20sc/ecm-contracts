@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-robust_9bf25ea",
+ "kind": "A1",
+ "case_id": "robust_9bf25ea",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "The `link_t-tool0` transform defining the orientation of the `tool0` frame currently specifies only a rotation over Z of `-pi`, but it uses the value `3.1416` for it",
+  "url": "https://github.com/ros-industrial/motoman/issues/106"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+   "url": "https://github.com/ros-industrial/motoman/issues/106"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+  "url": "https://github.com/ros-industrial/motoman/issues/106"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Fixed in 9bf25ea."
+ },
+ "notes": "Verified this session: issue #106 body (defect statement with the file blob link, and the observed effect — both verbatim) and all four comments ('Similar to #102.', the SIA10F pointer, 'SIA10D urdf doesn't have this problem, as it doesn't have a `tool0` link.', and 'Fixed in 9bf25ea.' at https://github.com/ros-industrial/motoman/issues/106#issuecomment-243097763); PR #110 (title 'Fix for issue #106: use full-precision PI for tool0 transform', merged 2016-08-28T02:00:22Z, base indigo-devel); the 9bf25ea patch showing sia20d_macro.xacro link_t-tool0 origin rpy '0 0 -3.1416' -> '0 0 -3.1415926535' (same edit for SIA10F joint_tool0) and the commit subject 'sia20: don't round PI in joint_t-tool0 transform. Fix #106. Leads to incorrect \\'base->tool0\\' transform orientations.' Eligibility: the wrong frame-orientation value in the provider's URDF crosses robot_description into the consumer; the fix rewrites the rpy value (not a name binding, not build) — E2 stops at 6, interface kind parameter. frame_mismatch vs 'other' is a genuine judgment call that the spec itself discloses in notes; frame_mismatch (wrong frame definition crossing the boundary) is defensible and I concur. The consumer (robot_state_publisher) is inferred and the spec flags this with confidence low; the inference is reasonable (the source reports only the effect on 'the base->tool0 transform') and does not change the eligibility outcome. Loudness silent_documented/run: no diagnostic anywhere; the discrepancy was found by comparing computed TF against the robot's reported values. Resolution recommended: fix merged and issue closed, but no post-fix observation is shown (the four comments contain none), and the reporter's 3-degree magnitude (vs ~7.3e-6 rad for 3.1416-pi) is recorded verbatim as the spec notes."
+}

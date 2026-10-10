@@ -1,0 +1,210 @@
+{
+ "case_id": "B-Beh-02",
+ "corpus": "C2",
+ "operation": "PAIR",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "topic:/my_topic",
+     "status": "done",
+     "direction": {
+      "producer": "reporter_best_effort_publisher",
+      "consumer": "rosbridge_server"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/my_topic",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": "best_effort",
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "unknown",
+        "perm_grants": "unknown",
+        "recovery": "unknown"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/my_topic",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": "reliable",
+          "durability": "volatile",
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [
+        "topics_glob",
+        "services_glob",
+        "params_glob",
+        "authenticate"
+       ],
+       "perm_limits": {},
+       "recovery": "retry_startup_delay: while the WebSocket server cannot bind, the node logs a warning and retries application.listen(port, address) every retry_startup_delay seconds (code default 2.0 s; launch-file default 5) until it succeeds or the context is shut down. No recovery exists for the topic subscription itself: TopicNotEstablishedException / TypeConflictException raised while creating the subscription propagate to Protocol.incoming, which logs them as an error to the client and drops the request.",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "present",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "topic:/my_topic",
+       "in_role": "topic:/my_topic"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].side": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\"",
+      "producer.outputs[0].qos.reliability": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\"",
+      "consumer.inputs[0].element": "packet.json elements[0]; the code never names /my_topic (grep -rn my_topic snapshot/ -> 0 hits). The topic name of every subscription arrives at run time from the client's 'subscribe' op: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:225 | topic = msg[\"topic\"]",
+      "consumer.inputs[0].side": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:108 | self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10) ; the Subscribe capability is wired into the server's per-client protocol at snapshot:rosbridge_library/src/rosbridge_library/rosbridge_protocol.py:50 | rosbridge_capabilities = [CallService, Advertise, Publish, Subscribe, Defragment, AdvertiseService, ServiceResponse, UnadvertiseService] and snapshot:rosbridge_server/src/rosbridge_server/websocket_handler.py:102 | self.protocol = RosbridgeProtocol(cls.client_id_seed, cls.node_handle, parameters=parameters)",
+      "consumer.inputs[0].qos.reliability": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:107-108 | # TODO(@jubeira): add support for other QoS. / self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10) (same fixed depth-10 int at :150-151 for the per-client new_subscriber). The code passes a plain history depth and sets no reliability. Documented default of the API at this version: rclpy (foxy) rclpy.node.Node.create_subscription, parameter qos_profile: 'A QoSProfile or a history depth to apply to the subscription. In the case that a history depth is provided, the QoS history is set to KEEP_LAST, the QoS history depth is set to the value of the parameter, and all other QoS settings are set to their default values.' rclpy.qos.QoSProfile takes those defaults from rmw_qos_profile_default (rmw/types.h, foxy): reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE. Citation is to the rclpy/rmw API documentation; the rclpy source is not a definition file and was not fetched.",
+      "consumer.inputs[0].qos.durability": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:108 | self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10). No durability set in code; documented default of rclpy (foxy) create_subscription with an int depth is rmw_qos_profile_default (rmw/types.h, foxy): durability = RMW_QOS_POLICY_DURABILITY_VOLATILE. Same citation as ports[0].qos.reliability."
+     },
+     "tasks": {
+      "producer": "u0011",
+      "consumer": "u0012"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "topic:/my_topic",
+     "status": "done",
+     "direction": {
+      "producer": "reporter_best_effort_publisher",
+      "consumer": "rosbridge_server"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/my_topic",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": "best_effort",
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "unknown",
+        "perm_grants": "unknown",
+        "recovery": "unknown"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/my_topic",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "port"
+       ],
+       "perm_requires": [],
+       "perm_grants": [
+        "topics_glob",
+        "services_glob",
+        "params_glob"
+       ],
+       "perm_limits": {},
+       "recovery": "retry_startup_delay: the WebSocket server socket bind is retried in a loop (sleep retry_startup_delay seconds, parameter default 2.0, launch-file default 5.0) on OSError until the ROS context shuts down; no retry, reconnect or re-subscribe logic exists for the topic subscription itself",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "present",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "topic:/my_topic",
+       "in_role": "topic:/my_topic"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[port]": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:111 | port = self.declare_parameter(\"port\", 9090).value ; snapshot:rosbridge_server/scripts/rosbridge_websocket.py:295 | sockets = bind_sockets(port, address) ; snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:2 | <arg name=\"port\" default=\"9090\" />",
+      "consumer.perm_grants[topics_glob]": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:130 | topics_glob = self.declare_parameter(\"topics_glob\", \"\").value ; :136-140 parsed into a list ; :274 | Subscribe.topics_glob = RosbridgeWebSocket.topics_glob ; enforced for subscribe at snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:245-263 | if Subscribe.topics_glob is not None and Subscribe.topics_glob: ... fnmatch.fnmatch(topic, glob) ... else: self.protocol.log(\"debug\", \"No topic security glob, not checking subscription.\")",
+      "consumer.perm_grants[services_glob]": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:132 | services_glob = self.declare_parameter(\"services_glob\", \"\").value ; :271-272 | if RosbridgeWebSocket.services_glob: RosbridgeWebSocket.services_glob.append(\"/rosapi/*\") ; :277-279 assigned to AdvertiseService/UnadvertiseService/CallService",
+      "consumer.perm_grants[params_glob]": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:134 | params_glob = self.declare_parameter(\"params_glob\", \"\").value ; :146-150 parsed ; handed to the rosapi node at snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:64 | <param name=\"params_glob\" value=\"$(var params_glob)\"/>",
+      "producer.outputs[0].side": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\"",
+      "producer.outputs[0].qos.reliability": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\"",
+      "consumer.inputs[0].element": "packet.json:8 | \"element\": \"topic:/my_topic\"; the literal /my_topic occurs nowhere in the snapshot (grep -rni \"my_topic\" snapshot: 0 hits over 151 readable files); the topic name reaches the subscription only from the client's subscribe message: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:243 | topic = msg[\"topic\"]",
+      "consumer.inputs[0].side": "packet.json:9 | \"side\": \"consumes\"; the rclpy subscription is created at snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:131-133 | self.subscriber = node_handle.create_subscription( msg_class, topic, self.callback, qos, raw=raw ); rosbridge_server imports Subscribe from rosbridge_library at snapshot:rosbridge_server/scripts/rosbridge_websocket.py:45 and rosbridge_library is an exec_depend at snapshot:rosbridge_server/package.xml:23",
+      "consumer.inputs[0].msg_type": "null (run-time): snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:79-97 | topics_names_and_types = dict(node_handle.get_topic_names_and_types()); topic_type = topics_names_and_types.get(topic); if msg_type is None and topic_type is None: raise TopicNotEstablishedException(topic) ... msg_class = ros_loader.get_message_class(msg_type); the caller value comes from the client's optional field at snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:275 | \"msg_type\": msg.get(\"type\", None)",
+      "consumer.inputs[0].qos": "null (chosen at run time from discovered publishers): snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:112-129 | qos = QoSProfile( depth=10, durability=DurabilityPolicy.VOLATILE, reliability=ReliabilityPolicy.RELIABLE, ); infos = node_handle.get_publishers_info_by_topic(topic); if any(pub.qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL for pub in infos): qos.durability = DurabilityPolicy.TRANSIENT_LOCAL; if any(pub.qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT for pub in infos): qos.reliability = ReliabilityPolicy.BEST_EFFORT",
+      "consumer.inputs[0].rate_hz": "null: no rate is set in code; the client-supplied throttle_rate (milliseconds, default 0) only limits the outgoing WebSocket delivery: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:276 | \"throttle_rate\": msg.get(\"throttle_rate\", 0); snapshot:rosbridge_library/src/rosbridge_library/internal/subscription_modifiers.py:60-61 | def set_throttle_rate(self, throttle_rate): self.throttle_rate = throttle_rate / 1000.0",
+      "consumer.inputs[0].definition_id": "null: the message type of /my_topic is not statically known at this revision, so there is no definition file to hash"
+     },
+     "tasks": {
+      "producer": "u0011",
+      "consumer": "u0013"
+     }
+    }
+   ]
+  }
+ }
+}

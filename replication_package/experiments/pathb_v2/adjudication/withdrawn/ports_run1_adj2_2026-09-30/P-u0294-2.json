@@ -1,0 +1,7 @@
+{"item_id": "P-u0294-2", "kind": "P", "task_id": "u0294", "element": "api:message_type_support_callbacks_t::cdr_serialize", "side": "consumes",
+ "values": [
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "type_support_common.cpp:88: auto callbacks = static_cast<const message_type_support_callbacks_t *>(impl); 89: return callbacks->cdr_serialize(ros_message, ser);",
+   "qos_basis": null}
+ ],
+ "notes": "Line numbers confirmed with awk under s2_work/tasks/u0294/snapshot (rmw_fastrtps_cpp). Context lines 84-93: ser.serialize_encapsulation(); then callbacks->cdr_serialize(ros_message, ser) when has_data_, else a dummy byte. cdr_serialize is invoked on an untyped void* ros_message against a CDR serializer; no frame identifier appears in the cited location or its context, so frame=none is supported."}

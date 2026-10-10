@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-C3-026",
+  "kind": "A1",
+  "case_id": "C3-026",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Generates the points and sends them to executor, but that throws an error.",
+    "url": "https://github.com/moveit/moveit2/issues/2741",
+    "reason": "The reproduced Panda case sends a planner-produced trajectory to a separate controller, which rejects its time values. Both concrete reproducer and log are present. This is a PAIR interface-value failure, not an internal-only planner defect, even though the resolving edit is in the planner."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Using `pilz_industrial_motion_planner` to generate a motionsequence with a blend radius generates (multiple) points with the same value for `RobotTrajectory.joint_trajectory.points[].time_from_start`.",
+      "url": "https://github.com/moveit/moveit2/issues/2741",
+      "reason": "Strictly increasing trajectory time is a value constraint, fitting other. The log identifies panda_arm_controller, and its pinned source constructs the follow_joint_trajectory endpoint from that node name, supporting the listed action as well as time_from_start.",
+      "supporting_evidence": [
+        {
+          "quote": "std::string(get_node()->get_name()) + \"/follow_joint_trajectory\",",
+          "url": "https://raw.githubusercontent.com/ros-controls/ros2_controllers/32757e1c8ca5934118d2fd3e0609ab48a3036984/joint_trajectory_controller/src/joint_trajectory_controller.cpp"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ros2_control_node-5] [ERROR] [1710412387.951283595] [panda_arm_controller]: Time between points 122 and 123 is not strictly increasing, it is 12.200000 and 12.200000 respectively",
+    "url": "https://github.com/moveit/moveit2/issues/2741",
+    "reason": "The controller explicitly validates and refuses the goal. S1's opening instruction specifically says to include runtime-enforced refusals and mark them loud_documented; that instruction supports loud here even though the stage is run."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ros2_control_node-5] [INFO] [1710412387.951204233] [panda_arm_controller]: Received new action goal",
+    "url": "https://github.com/moveit/moveit2/issues/2741",
+    "reason": "Detection happens when an already running controller receives and validates the action goal, not during node/controller activation or initial connection."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I was unable to test moveit/moveit2_tutorials#917 successfully on Rolling/main because there was an issue with sending duplicate time points to joint trajectory controllers with the Pilz move group sequence capability.",
+    "url": "https://github.com/moveit/moveit2/pull/2943",
+    "reason": "The fix author reports success for a Rolling tutorial and confirms the subsequent root-cause fix in PR 2961, but this does not identify both units of the reporter's Iron/Panda resolved pair. recommended is appropriate for the specified revisions."
+  },
+  "notes": "Read issue 2741 including runtime log and workaround discussion, PRs 2943/2961 and the latter diff, and pinned controller validation/action-server code. Jitter introduced by timing workarounds belongs to changed compositions, not an additional failed condition of the original rejection. The Pilz unit label abbreviates the MoveIt-side planner/action-client pipeline rather than claiming the planner plugin directly creates the action client."
+}

@@ -1,0 +1,50 @@
+{
+  "case_id": "B-Beh-01",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros2/ros2/issues/1434",
+    "https://discourse.ros.org/t/ros2-qos-reliability-issue/31700",
+    "https://github.com/ciandonovan/ros2_qos_reliability"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Open issue ros2/ros2#1434 'QoS Best Effort Reliability Issue' with a containerised reproducer (ciandonovan/ros2_qos_reliability: Dockerfile FROM ros:humble-ros-base with ros-$ROS_DISTRO-v4l2-camera, tc qdisc bandwidth limit, `ros2 run v4l2_camera v4l2_camera_node --ros-args --log-level debug` and `ros2 topic echo --qos-reliability best_effort /image_raw`), reproduced on FastDDS, CycloneDDS and RTI Connext, and middleware maintainers' explanations (eboasson for Cyclone DDS, EduPonz for Fast DDS)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "v4l2_camera_node (publisher of /image_raw, with its RMW/DDS implementation)",
+        "ros2 topic echo (best_effort subscriber on /image_raw, on a bandwidth-limited link)"
+      ],
+      "interface_kind": null,
+      "evidence": "The throttling does not depend on any assumption between the two units: the reporter sees the same behaviour whatever reliability the subscriber declares (\"The \"best_effort\" subscription induces throttling on the publisher, the same as what happens with the \"reliable\" subscription.\"), and the middleware maintainers locate it in the publisher's own send path under a constrained outbound link, which any correct remote subscriber would trigger. Fast DDS (EduPonz, Discourse #23): \"In this particular case, the issue arises from the call to write to the UDP socket when sending data to remote subscriptions. In this scenario, that call is blocking, thus blocking the sending thread.\" and \"it is not the reception capabilities on the remote what are causing the behaviour.\" Cyclone DDS (eboasson, #1434): \"Cyclone definitely pushes each message out (1) via Iceoryx if there are subscribers reachable via Iceoryx and (2) via the network if there are remote subscribers. Always. So if you are constraining the outgoing WiFi bandwidth to 10mb/s via the Linux traffic-shaping, it will be ultimately be limited to that throughput.\" The reliability QoS itself is negotiated and applied as declared; what fails is the publisher-side transport blocking."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Observed in PAIR (publisher output to one remote best_effort subscriber, per the reproducer); the motivating harm is CONCURRENT (a local reliable subscriber such as nav2 slowed while a remote best_effort monitor is attached: \"in an ideal scenario a “best_effort” subscriber would not be able to have any detrimental impact on a “reliable” one\", Discourse #14)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"The \"best_effort\" subscription induces throttling on the publisher\", seen in the publisher's debug output; reporter's field experience: \"For us this often causes our robot to grind to a halt if we're trying to debug the robot's navigation using RViz and we loose line of sight.\""
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2: internal (publisher-side middleware send path blocks on a bandwidth-limited socket; independent of the subscriber's declared reliability and would occur with any correct remote subscriber)",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Issue is still open (16 comments, no fix). The reporter frames it as the best_effort reliability policy not being honoured; the maintainers' statements (primary source) attribute it to synchronous publication plus blocking socket sends in the publisher's DDS layer, so the classification follows them. Workarounds offered, none an interface change between the two units: Fast DDS XML transport descriptor with `<non_blocking_send>true</non_blocking_send>` (EduPonz), a DDS Router repeater into another domain, per-endpoint partitions (two publications on the topic), or a rate-limiting/zenoh bridge (eboasson), which add a third component. If a reader instead treats the reliability QoS as a behavioural contract the publisher's middleware must honour (reporter's reading), the case would become CONCURRENT with class qos_reliability plus rate_shortfall on topic:/image_raw, outcome failure, silent, unresolved; that reading is recorded here for the analyst but not adopted. Reproduced on Foxy, Galactic, Humble and Rolling per the Discourse thread; the reproducer image is Humble."
+}

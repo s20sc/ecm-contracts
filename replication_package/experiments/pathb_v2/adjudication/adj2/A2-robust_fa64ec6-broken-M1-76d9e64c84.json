@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_fa64ec6-broken-M1-76d9e64c84",
+ "kind": "A2",
+ "case_id": "robust_fa64ec6",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:<property>]",
+   "verdict": "verified",
+   "source_excerpt": "built (u0225, xacro 1.9.5, snapshot:package.xml:4 '  <version>1.9.5</version>') snapshot:src/xacro/__init__.py:323: \"        if elt.tagName == 'property' or elt.tagName == 'xacro:property':\" ; running (u0224, xacro 1.10.7, snapshot:package.xml:4 '<version>1.10.7</version>') snapshot:src/xacro/__init__.py:535: \"    assert(elt.tagName in ['property', 'xacro:property'])\". Both cited locations open and each shows the property-tag dispatch declaration at that revision; the two records differ (text and position), which is what put the field in changed_fields. Caveat: the provenance's quoted excerpt matches the running side verbatim; grep over u0225 snapshot:src/xacro/__init__.py finds no 'assert(elt.tagName' anywhere and exactly one property dispatch line (323), so the built-side declaration is the if-line, not the quoted assert."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:<property>]",
+   "verdict": "verified",
+   "source_excerpt": "consumer task u0222 (ur_description @ f8d175b) snapshot:ur_description/urdf/ur5.urdf.xacro:7: \"  <property name=\"pi\" value=\"3.14159265\" />\" — the broken-revision consumer file uses the non-prefixed <property> element."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:<property>]",
+   "verdict": "transcription_only",
+   "built_excerpt": "snapshot:src/xacro/__init__.py:323 (u0225, xacro 1.9.5): \"        if elt.tagName == 'property' or elt.tagName == 'xacro:property':\"",
+   "running_excerpt": "snapshot:src/xacro/__init__.py:535 (u0224, xacro 1.10.7, inside 'def grab_property(elt, table):' at :534): \"    assert(elt.tagName in ['property', 'xacro:property'])\""
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Assembled broken unit is UPGRADE with built=u0225 (xacro 1.9.5), running=u0224 (xacro 1.10.7), consumer=u0222 (ur_description @ f8d175b) — matching the spec (operation UPGRADE; provider xacro broken_rev 1.10.7; consumer ur_description broken_rev f8d175b09ea955ebe83aecbe19105c28f0225524; consumer_built_against broken '1.9.5', inferred). Versions confirmed from package.xml:4 of each snapshot. The pair_view edge out_role=in_role='api:<property>' connects two real ports: the provider side recognizes the tag (u0224 __init__.py:535 accepts 'property' and 'xacro:property') and the consumer side uses it (u0222 ur5.urdf.xacro:7 '<property name=\"pi\" value=\"3.14159265\" />')."
+ },
+ "notes": "Direction check: assembled tasks.built=u0225 (1.9.5) and tasks.running=u0224 (1.10.7), consistent with semver_old/semver_new and with the case story (Indigo-written consumer processed by Jade xacro). Substance: both revisions dispatch on the identical tag-name set {'property','xacro:property'}; the difference is another representation of the same definition (inline if-branch in the 1.9.5 eval loop vs an assert inside 1.10.7's grab_property helper) plus a line-position shift — the element <property> is present and accepted at both revisions, so transcription_only. The case's actual harm is a new diagnostic, not a declaration change: u0224 __init__.py:144 'warning(\"deprecated: xacro tags should be prepended with 'xacro' xml namespace.\")' with check_deprecated_tag at :155-166 — consistent with the spec's outcome_class 'warning_only'. Implication for the finding: this particular field_break trigger rests on a textual/positional difference of equivalent dispatch lines; the consumer-referenced element itself did not change in substance. The provenance excerpt should not be read as the built-side text."
+}

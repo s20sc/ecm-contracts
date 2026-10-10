@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_b826eae-broken-M1-2746ff72e2",
+  "kind": "A2",
+  "case_id": "robust_b826eae",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:xacro:schunk_pg70]",
+      "verdict": "verified",
+      "source_excerpt": "Built revision:\n\nsnapshot:s2_work/tasks/u0128/snapshot/schunk_description/urdf/pg70/pg70.urdf.xacro:7\n```\n  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin\">\n```\n\nRunning revision:\n\nsnapshot:s2_work/tasks/u0129/snapshot/schunk_description/urdf/pg70/pg70.urdf.xacro:7-11\n```\n  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin has_podest\">\n\n    <xacro:if value=\"${has_podest}\">\n      <joint name=\"${name}_podest_joint\" type=\"fixed\">\n        <insert_block name=\"origin\" />\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:xacro:schunk_pg70]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0126/snapshot/cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:81-83\n```\n  <xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\">\n    <origin xyz=\"${pg70_x} ${pg70_y} ${pg70_z}\" rpy=\"${pg70_roll} ${pg70_pitch} ${pg70_yaw}\" />\n  </xacro:schunk_pg70>\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:xacro:schunk_pg70]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0128/snapshot/schunk_description/urdf/pg70/pg70.urdf.xacro:7\n```\n  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin\">\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0129/snapshot/schunk_description/urdf/pg70/pg70.urdf.xacro:7-11\n```\n  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin has_podest\">\n\n    <xacro:if value=\"${has_podest}\">\n      <joint name=\"${name}_podest_joint\" type=\"fixed\">\n        <insert_block name=\"origin\" />\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE connects the cob3-9 xacro invocation to the schunk_description macro, comparing u0128 with u0129. The consumer includes the defining file and calls that exact macro.\n\nsnapshot:s2_work/tasks/u0126/snapshot/cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:29\n```\n  <xacro:include filename=\"$(find schunk_description)/urdf/pg70/pg70.urdf.xacro\" />\n```\n\nsnapshot:s2_work/tasks/u0126/snapshot/cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:81-83\n```\n  <xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\">\n    <origin xyz=\"${pg70_x} ${pg70_y} ${pg70_z}\" rpy=\"${pg70_roll} ${pg70_pitch} ${pg70_yaw}\" />\n  </xacro:schunk_pg70>\n```"
+  },
+  "notes": "Substantive added required named parameter has_podest, with no default in the macro declaration. The consumer supplies name, parent, and the origin block, but no has_podest. The name is part of the xacro call contract, not a non-semantic C++ parameter rename."
+}

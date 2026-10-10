@@ -1,0 +1,115 @@
+{
+  "task_id": "u0328",
+  "package": "test_quality_of_service",
+  "manifest_version": "0.15.0",
+  "ports": [
+    {
+      "element": "api:rmw_count_subscribers",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_create_publisher",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_create_subscription",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_get_publishers_info_by_topic",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_get_subscriptions_info_by_topic",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:test_quality_of_service/package.xml:5",
+    "ports[0].side": "snapshot:test_quality_of_service/test/test_best_available.cpp:119",
+    "ports[1].side": "snapshot:test_quality_of_service/test/qos_test_publisher.cpp:49",
+    "ports[2].side": "snapshot:test_quality_of_service/test/qos_test_subscriber.cpp:49",
+    "ports[3].side": "snapshot:test_quality_of_service/test/test_best_available.cpp:139",
+    "ports[4].side": "snapshot:test_quality_of_service/test/test_best_available.cpp:79",
+    "perm_requires.state": "searched test_quality_of_service/ (package.xml, CMakeLists.txt, include/, test/) for permission/security/enclave/sros tokens; only Apache license header text matched",
+    "perm_grants.state": "searched test_quality_of_service/ (package.xml, CMakeLists.txt, include/, test/) for permission/security/enclave/sros tokens; only Apache license header text matched",
+    "recovery.state": "searched test_quality_of_service/ (package.xml, CMakeLists.txt, include/, test/) for recovery/fallback/retry declarations; none found"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The package reaches these rmw functions only through rclcpp/rcl calls; it waits for discovery (rcl_wait_for_publishers/rcl_wait_for_subscribers) before creating the best-available endpoint, then polls get_*_info_by_topic until the endpoint appears, and its QoS expectations are internally consistent with the profiles it sets. Nothing in the calling code looks wrong; any defect would sit in the implementing layer, which is outside this package."
+  },
+  "confidence": "medium",
+  "notes": "All five packet elements are rmw C functions on the consumes side. None of the five symbols is named anywhere in the snapshot (grep over the whole snapshot for rmw_count_subscribers, rmw_create_publisher, rmw_create_subscription, rmw_get_publishers_info_by_topic, rmw_get_subscriptions_info_by_topic: 0 hits), so references is empty and declares/not_declared are empty (the package provides none of the elements). The names are not supplied at run time either; the package reaches the rmw layer through client-library wrappers: rclcpp Node::create_publisher<std_msgs::msg::String> (test/qos_test_publisher.cpp:49), Node::create_subscription<std_msgs::msg::String> (test/qos_test_subscriber.cpp:49), Node::get_publishers_info_by_topic (test/test_best_available.cpp:139), Node::get_subscriptions_info_by_topic (test/test_best_available.cpp:79), and rcl_wait_for_subscribers / rcl_wait_for_publishers from rcl/graph.h (test/test_best_available.cpp:119, :60). The ports record that the package calls the elements through these wrappers; the wrapper-to-rmw mapping is the rclcpp->rcl->rmw layering and was not verified from the snapshot (rcl/rclcpp sources are outside the allowed sources). The weakest link is ports[0]: the code calls rcl_wait_for_subscribers, not any count_subscribers function; that rcl_wait_for_subscribers counts subscribers via rmw_count_subscribers is rcl-internal and not shown in the snapshot. msg_type, frame, units, definition_id are null because the elements are API functions, not message ports (the endpoints created carry std_msgs/String). QoS is null for every port: create_publisher/create_subscription are called from one helper with the caller's profile, and the profiles differ per test (test_deadline.cpp:51-52 depth 10 + deadline 1s or 2s for connext; test_lifespan.cpp:51-53 depth 2, transient_local, lifespan 1s/2s; test_liveliness.cpp:48-50 depth 10, automatic, lease 1s; test_best_available.cpp:40-46 best_effort, transient_local, deadline 2ms, automatic, lease 3ms; test_best_available.cpp:99-105 best_effort, volatile, deadline 2ms, manual_by_topic, lease 3ms). In test_best_available the other endpoint uses rclcpp::BestAvailableQoS (lines 48 and 107), whose policies are resolved from the discovered peers' profiles at creation, so they are not statically determined; the test expects the best-available subscription to take the publisher's reliability, durability, deadline, liveliness and lease (lines 85-90) and the best-available publisher to be Reliable and TransientLocal with the subscription's deadline, liveliness and lease (lines 145-150). Other rmw symbols the code names directly (not packet elements): rmw_request_id_t (test_best_available.cpp:159), RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL (test_lifespan.cpp:52), RMW_QOS_POLICY_LIVELINESS_AUTOMATIC (test_liveliness.cpp:49). Tests are built once per available rmw implementation (CMakeLists.txt:31-33, 69). No dependency definition files were fetched: none of the elements has a message definition."
+}

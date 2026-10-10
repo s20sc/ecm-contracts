@@ -1,0 +1,7 @@
+{"item_id": "P-u0374-1", "kind": "P", "task_id": "u0374", "element": "field:mavlink/HEARTBEAT.custom_mode", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "mavlink/HEARTBEAT", "verdict": "verified", "source_excerpt": "mavlink_msg_heartbeat_send(\n        chan,\n        type,\n        MAV_AUTOPILOT_ARDUPILOTMEGA,", "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified", "source_excerpt": "uint32_t custom_mode = control_mode;", "qos_basis": null},
+  {"field": "rate_hz", "recorded": "1", "verdict": "verified", "source_excerpt": "SCHED_TASK(one_second_loop,         1,    400),", "qos_basis": "literal"}
+ ],
+ "notes": "msg_type: GCS_Common.cpp:1617 calls mavlink_msg_heartbeat_send (HEARTBEAT). frame: ArduPlane/GCS_Mavlink.cpp:15 sets custom_mode = control_mode, a flight-mode number with no spatial frame. rate_hz: ArduPlane.cpp:68 schedules one_second_loop at 1 Hz (SCHED_TASK rate parameter 1), ArduPlane.cpp:309 calls gcs_send_message(MSG_HEARTBEAT) inside one_second_loop, and GCS_Mavlink.cpp:2190-2192 gates heartbeat on a 1 Hz timer (last_1hz > 1000). 1 Hz is set literally in code."}

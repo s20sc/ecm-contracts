@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_fa64ec6-broken-M1-76d9e64c84",
+  "kind": "A2",
+  "case_id": "robust_fa64ec6",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:<property>]",
+      "verdict": "verified",
+      "source_excerpt": "built: snapshot:s2_work/tasks/u0225/snapshot/src/xacro/__init__.py:323: \"        if elt.tagName == 'property' or elt.tagName == 'xacro:property':\"; running: snapshot:s2_work/tasks/u0224/snapshot/src/xacro/__init__.py:535: \"    assert(elt.tagName in ['property', 'xacro:property'])\". These are genuinely different recorded lines, but both name the same accepted tags; verification of the textual delta is not verification of a substantive interface break."
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:<property>]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0222/snapshot/ur_description/urdf/ur5.urdf.xacro:7: \"  <property name=\"pi\" value=\"3.14159265\" />\""
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:<property>]",
+      "verdict": "transcription_only",
+      "built_excerpt": "snapshot:s2_work/tasks/u0225/snapshot/src/xacro/__init__.py:323: \"        if elt.tagName == 'property' or elt.tagName == 'xacro:property':\"",
+      "running_excerpt": "snapshot:s2_work/tasks/u0224/snapshot/src/xacro/__init__.py:535: \"    assert(elt.tagName in ['property', 'xacro:property'])\"; snapshot:s2_work/tasks/u0224/snapshot/src/xacro/__init__.py:571-573: \"        if elt.tagName in ['property', 'xacro:property'] \\\n                and check_deprecated_tag(elt.tagName):\n            grab_property(elt, table)\"; snapshot:s2_work/tasks/u0224/snapshot/src/xacro/__init__.py:152: \"allow_non_prefixed_tags = True\""
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE assembly selects built u0225, running u0224 and consumer u0222, matching the specified broken composition: snapshot:assembled/robust_fa64ec6.json:63-65: \"      \"built\": \"u0225\",\n      \"running\": \"u0224\",\n      \"consumer\": \"u0222\"\". The dependency is an actual processing connection, not merely equal token names. snapshot:s2_work/tasks/u0222/snapshot/ur_description/launch/ur5_upload.launch:5: \"  <param unless=\"$(arg limited)\" name=\"robot_description\" command=\"$(find xacro)/xacro.py '$(find ur_description)/urdf/ur5_robot.urdf.xacro'\" />\"; snapshot:s2_work/tasks/u0222/snapshot/ur_description/urdf/ur5_robot.urdf.xacro:9: \"  <xacro:include filename=\"$(find ur_description)/urdf/ur5.urdf.xacro\" />\"; the included file uses <property> at line 7 and running xacro accepts that tag at lines 571-573."
+  },
+  "notes": "The cited changed-field records compare a tag-dispatch condition with an assertion in a helper, not two different public tag declarations. Thus the recorded textual difference is verified but its substance is transcription_only. This does not deny the real warning change: snapshot:s2_work/tasks/u0224/snapshot/src/xacro/__init__.py:144: \"        warning(\"deprecated: xacro tags should be prepended with 'xacro' xml namespace.\")\". Deprecation is not removal of the accepted <property> tag and the cited declaration snippets do not establish a type, arity, default, value or presence change for that tag. The built-against pin remains an inference in the specification, not an independently established historical build: snapshot:specs/robust_fa64ec6.json:64: \"    \"basis\": \"inferred\"\". No triggering permission-grant absence state is present."
+}

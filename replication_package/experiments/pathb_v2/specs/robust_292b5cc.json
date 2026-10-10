@@ -1,0 +1,114 @@
+{
+  "case_id": "robust_292b5cc",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/motoman/issues/1",
+    "https://github.com/ros-industrial/motoman/issues/1#issuecomment-19500624",
+    "https://github.com/ros-industrial/motoman/issues/1#issuecomment-19638767",
+    "https://github.com/ros-industrial/motoman/commit/292b5cc8a10a640a8b364a529e3eadffffc9b56b",
+    "https://github.com/ros-industrial/motoman/blob/8d770631b15002a69469ca4481c5372100f2e4d2/fs100/MotoPlus/SimpleMessage.c",
+    "https://github.com/ros-industrial/motoman/blob/8d770631b15002a69469ca4481c5372100f2e4d2/fs100/MotoPlus/SimpleMessage.h",
+    "https://github.com/ros-industrial/motoman/blob/8d770631b15002a69469ca4481c5372100f2e4d2/fs100/MotoPlus/MotionServer.c",
+    "https://github.com/ros-industrial/motoman/blob/8d770631b15002a69469ca4481c5372100f2e4d2/fs100/src/fs100_joint_trajectory_streamer.cpp",
+    "https://github.com/ros-industrial/motoman/blob/8d770631b15002a69469ca4481c5372100f2e4d2/fs100/include/fs100/simple_message/motoman_motion_reply.h"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue ros-industrial/motoman#1 (shaun-edwards, 2013-06-15): \"The robot id and sequence fields in the MOTO_MOTION_CTRL reply are not set correctly.\" with an e-mail analysis of a Wireshark capture and of the controller source: \"when a reply message is sent to anything other than a MOTO_MOTION_CTRL message (type 2001), the robot_id and sequence fields are set to -1. This probably comes across as 0xFFFFFFFF.\" / \"Looks like a copy/pasta error to me then. The 'else if' checks again for a ROS_MSG_MOTO_MOTION_CTRL, just as the 'if' before it did.\" Maintainer confirmation and fix: \"Eric has released a fix already.\" and \"Fixed in 292b5cc\" (JeremyZoss); commit 292b5cc8: \"bugFix #1: FS100 reply to JointTrajPtFull message contains invalid sequence/robot_id fields\"."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["MotoROS FS100 (fs100/MotoPlus)", "fs100 ROS driver"],
+      "interface_kind": "wire protocol field",
+      "evidence": "Unit 1: the MotoROS application for the Yaskawa FS100 controller, a firmware image (fs100/MotoPlus/output/MPRosFS100.out, built from fs100/MotoPlus/*.c in ros-industrial/motoman), which receives simple_message requests over TCP and answers each with a MOTO_MOTION_REPLY built by Ros_SimpleMsg_MotionReply(). Unit 2: the ROS-side driver, package fs100 (fs100/src/fs100_joint_trajectory_streamer.cpp with industrial_robot_client and the fs100/include/fs100/simple_message/motoman_motion_reply*.h definitions), a separate process on the PC that sends JOINT_TRAJ_PT_FULL (type 14) and MOTO_MOTION_CTRL (type 2001) requests and parses the replies. The failure crosses the wire: the reply's robot_id and sequence fields, which the declared interface says mirror the request ('int sequence;\t\t\t\t// Optional message tracking number that will be echoed back in the response.' in SimpleMessage.h; '\\param sequence value' / 'robot_id target robot/group # for this reply' in motoman_motion_reply.h), are sent as -1 for JOINT_TRAJ_PT_FULL requests because the second branch of Ros_SimpleMsg_MotionReply tests ROS_MSG_MOTO_MOTION_CTRL twice (SimpleMessage.c lines 106-123 at 8d770631). A wrong value crossing the boundary is an interface failure even though the resolving edit is inside the provider. Not deployment wiring; not build-only; the firmware has a declared interface (the simple_message wire protocol and its MotoROS message definitions), so step 5 does not apply."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the driver's JOINT_TRAJ_PT_FULL request is the controller's input and the controller's MOTO_MOTION_REPLY is the driver's input (fs100_joint_trajectory_streamer.cpp line 209: 'if (!this->connection_->sendAndReceiveMsg(msg, reply, false))'). No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong data on the wire, from a Wireshark capture discussed in the issue: \"the robot_id and sequence fields are set to -1. This probably comes across as 0xFFFFFFFF.\" / \"Yes, -1 interpreted as an unsigned would be 0xFFFFFFFF.\"; the maintainer's commit names the mismatch: \"FS100 reply to JointTrajPtFull message contains invalid sequence/robot_id fields\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "MotoROS FS100 (fs100/MotoPlus)",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/motoman",
+      "broken_rev": "8d770631b15002a69469ca4481c5372100f2e4d2",
+      "resolved_rev": "292b5cc8a10a640a8b364a529e3eadffffc9b56b",
+      "pinned": true,
+      "revision_basis": "Broken revision is the single parent of the fix (8d770631, 2013-06-18T19:16:39Z, 'merging duplicate FS100 directories'), where fs100/MotoPlus/SimpleMessage.c lines 106-123 hold the duplicated test the reporters quote from the earlier swri-ros-pkg trunk copy of the same file (fs100/MotoPlus/SimpleMessage.c#92). The History header added by the fix labels the broken firmware 'Original release v.1.0.0' (05/22/2013) and the fixed one 'Release v.1.0.1' (06/12/2013). Resolved revision is the fix commit 292b5cc8 (2013-06-18T19:23:04Z), which changes SimpleMessage.c and MotionServer.c and replaces the binary fs100/MotoPlus/output/MPRosFS100.out; it is contained in the repository's first tag 0.3.1 (2014-01-31).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "fs100 ROS driver",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/motoman",
+      "broken_rev": "8d770631b15002a69469ca4481c5372100f2e4d2",
+      "resolved_rev": "8d770631b15002a69469ca4481c5372100f2e4d2",
+      "pinned": true,
+      "revision_basis": "Same repository checkout as the controller source (package fs100, version 1.0.0 in fs100/package.xml at 8d770631). The reporter names no PC-side revision; the streamer code that sends JOINT_TRAJ_PT_FULL and parses MOTO_MOTION_REPLY (fs100/src/fs100_joint_trajectory_streamer.cpp, fs100/include/fs100/simple_message/motoman_motion_reply.h) is not touched by the fix commit, so the consumer keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "msg:simple_message/JointTrajPtFull", "sides": {"fs100 ROS driver": "provides", "MotoROS FS100 (fs100/MotoPlus)": "consumes"}},
+    {"element": "field:simple_message/JointTrajPtFull.robot_id", "sides": {"fs100 ROS driver": "provides", "MotoROS FS100 (fs100/MotoPlus)": "consumes"}},
+    {"element": "field:simple_message/JointTrajPtFull.sequence", "sides": {"fs100 ROS driver": "provides", "MotoROS FS100 (fs100/MotoPlus)": "consumes"}},
+    {"element": "msg:motoman/MotoMotionCtrl", "sides": {"fs100 ROS driver": "provides", "MotoROS FS100 (fs100/MotoPlus)": "consumes"}},
+    {"element": "msg:motoman/MotoMotionReply", "sides": {"MotoROS FS100 (fs100/MotoPlus)": "provides", "fs100 ROS driver": "consumes"}},
+    {"element": "field:motoman/MotoMotionReply.robot_id", "sides": {"MotoROS FS100 (fs100/MotoPlus)": "provides", "fs100 ROS driver": "consumes"}},
+    {"element": "field:motoman/MotoMotionReply.sequence", "sides": {"MotoROS FS100 (fs100/MotoPlus)": "provides", "fs100 ROS driver": "consumes"}},
+    {"element": "field:motoman/MotoMotionReply.command", "sides": {"MotoROS FS100 (fs100/MotoPlus)": "provides", "fs100 ROS driver": "consumes"}},
+    {"element": "field:motoman/MotoMotionReply.result", "sides": {"MotoROS FS100 (fs100/MotoPlus)": "provides", "fs100 ROS driver": "consumes"}},
+    {"element": "field:motoman/MotoMotionReply.subcode", "sides": {"MotoROS FS100 (fs100/MotoPlus)": "provides", "fs100 ROS driver": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["field:motoman/MotoMotionReply.robot_id", "field:motoman/MotoMotionReply.sequence"],
+      "quote": "The robot id and sequence fields in the MOTO_MOTION_CTRL reply are not set correctly.",
+      "url": "https://github.com/ros-industrial/motoman/issues/1"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["field:motoman/MotoMotionReply.robot_id", "field:motoman/MotoMotionReply.sequence"],
+      "quote": "bugFix #1: FS100 reply to JointTrajPtFull message contains invalid sequence/robot_id fields",
+      "url": "https://github.com/ros-industrial/motoman/commit/292b5cc8a10a640a8b364a529e3eadffffc9b56b"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["field:motoman/MotoMotionReply.robot_id", "field:motoman/MotoMotionReply.sequence"],
+      "quote": "-\telse if(receiveMsg->header.msgType == ROS_MSG_MOTO_MOTION_CTRL)\n+\telse if(receiveMsg->header.msgType == ROS_MSG_JOINT_TRAJ_PT_FULL)\n \t{\n-\t\treplyMsg->body.motionReply.groupNo = receiveMsg->body.motionCtrl.groupNo;\n-\t\treplyMsg->body.motionReply.sequence = receiveMsg->body.motionCtrl.sequence;\n-\t\treplyMsg->body.motionReply.command = ROS_MSG_MOTO_MOTION_CTRL;\n+\t\treplyMsg->body.motionReply.groupNo = receiveMsg->body.jointTrajData.groupNo;\n+\t\treplyMsg->body.motionReply.sequence = receiveMsg->body.jointTrajData.sequence;\n+\t\treplyMsg->body.motionReply.command = ROS_MSG_JOINT_TRAJ_PT_FULL;",
+      "url": "https://github.com/ros-industrial/motoman/commit/292b5cc8a10a640a8b364a529e3eadffffc9b56b"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from either side: the wrong field values were found in a Wireshark capture while writing a protocol dissector (\"I don't have a copy of the Wireshark capture\" / \"If I get the dissector in a good enough state, I'll push it to my github repo.\"). The consumer at 8d770631 parses the reply (MotionReplyMessage reply_status; reply_status.init(reply)) and branches only on reply_status.reply_.getResult() (lines 213-235), so the -1 robot_id/sequence values produce no error on the ROS side.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Commit 292b5cc8 (MotoROS v1.0.1) makes the second branch of Ros_SimpleMsg_MotionReply test ROS_MSG_JOINT_TRAJ_PT_FULL and copy groupNo and sequence from receiveMsg->body.jointTrajData, setting command to ROS_MSG_JOINT_TRAJ_PT_FULL; the rebuilt firmware image fs100/MotoPlus/output/MPRosFS100.out is committed alongside. The ROS-side driver is unchanged.",
+    "status": "recommended",
+    "evidence": "Maintainer comments \"Eric has released a fix already. I will try to upload this weekend.\" (2013-06-15) and \"Fixed in 292b5cc\" (2013-06-18) assert the fix; no capture or run of the fixed controller with the driver is shown in the source."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Class 'other': the message definitions are unchanged on both sides; the provider violates the documented echo semantics of two reply fields (wrong values crossing the boundary), which fits none of the named classes. At the broken revision the else branch also sets reply command = receiveMsg->header.msgType (14 for JOINT_TRAJ_PT_FULL), which equals the fixed value ROS_MSG_JOINT_TRAJ_PT_FULL, so 'command' is not implicated. Message names follow the ROS-Industrial simple_message classes (JointTrajPtFull = type 14; MotoMotionCtrl = 2001 and MotoMotionReply = 2002 per SimpleMessage.h; the header comments in SimpleMessage.h mislabel the latter two as 2011/2012). The same commit also fixes a second, unrelated defect in another composition (MotionServer.c Ros_MotionServer_IncMoveLoopStart: 'bugFix: always publish state for all active robot groups, even if no motion pending', preventing mpExRcsIncrementMove return -3 'Invalid group' in multi-arm control); it is not a condition of this case. The issue title says MOTO_MOTION_CTRL reply, but the e-mail and the commit make clear the affected request is JointTrajPtFull (the MOTO_MOTION_CTRL branch was correct); the primary sources are followed. ROS-side consumers of robot_id/sequence in the reply at 8d770631: none (fs100_motion_ctrl.cpp handles MOTO_MOTION_CTRL replies), so the composition kept streaming trajectories; the outcome is recorded as wrong data on the wire as documented. No ROS distro is stated (2013, groovy/hydro era)."
+}

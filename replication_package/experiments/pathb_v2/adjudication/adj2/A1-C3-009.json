@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-009",
+  "kind": "A1",
+  "case_id": "C3-009",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "Reporter: \"Only encountered this once, so it is difficult to say how to reproduce it. Possibly just repeated runs of CI will do it.\"; maintainer mikeferguson: \"I notice in the logs \\\"terminate called without an active exception\\\" - which usually means that a std::thread went out of scope while not joined/stopped - I notice we have a std::thread in this test - but I don't actually see how it could go out of scope...\"; maintainer henningkayser: \"Maybe it really was an unrelated threading issue somewhere...\" ... \"closing for now\"",
+    "url": "https://github.com/moveit/moveit2/issues/1334"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Actual behaviour: Test appears to fail inconsistently"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "henningkayser: \"I haven't seen this one lately. Are we still running into this? Maybe it really was an unrelated threading issue somewhere...\" ... \"closing for now\" — closed without a fix; the packet's PR #1458 is a Mergify backport of #1266, not a fix of this test."
+  },
+  "notes": "Independently verified: issue #1334 body (title \"CI: RDF loader test is flaky\"; the quoted non-reproducibility line and \"Test appears to fail inconsistently\"); the four maintainer comments quoted in the spec (mikeferguson's std::thread diagnosis verbatim, including his link to PR #1384 as a similar instance he fixed elsewhere; henningkayser's doubt and \"closing for now\"); the test file at 58f3828224f051b40ce0b66d217ae4335703a5d2 (L79 \"std::thread spinning_thread([&executor] { executor.spin(); });\", L85-88 ASSERT_NE on loader.getURDF()/getSRDF(), L90 \"spinning_thread.join();\") matching the spec's notes about the ASSERT-before-join structure; the CI run link now returns Not Found with HTTP status 404 via the GitHub API for both ros-planning/moveit2 and moveit/moveit2 paths, matching the spec's claim; PR #1458's body shows it is an automatic Mergify backport of #1266 — consistent with the spec's characterization that the fix_refs are unrelated PRs whose CI hit the flaky test. My independent reading: no two interacting units are named by any source; the only diagnosis points inside the test process's own std::thread lifecycle, and no root cause or fix was ever identified — E1's requirement of one concrete defect is not met and no boundary-crossing element is documented, so ineligible is correct. Minor nuance, not a disagreement: with a single unit the strict tree walk stops at step 1; the spec records step 2 'internal' and documents the reasoning, which reaches the same ineligible outcome."
+}

@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_359a2e9",
+  "kind": "A1",
+  "case_id": "robust_359a2e9",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The program that runs on the UR controller reads too many bytes from the socket connection for setting digital outputs.  See [here](https://github.com/ros-industrial/universal_robot/blob/hydro-devel/ur_driver/prog#L226).  Most times this is not an issue because multiple commands are not typically in the socket buffer (the reference read command only returns the 2 values used for setting digital IO).  However, when trajectories and IO are driven from the ROS side simultaneously (i.e. from multiple threads), this can occur.  When this does, part of the _next_ message in the buffer is read.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/107"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The program that runs on the UR controller reads too many bytes from the socket connection for setting digital outputs.  See [here](https://github.com/ros-industrial/universal_robot/blob/hydro-devel/ur_driver/prog#L226).  Most times this is not an issue because multiple commands are not typically in the socket buffer (the reference read command only returns the 2 values used for setting digital IO).",
+      "url": "https://github.com/ros-industrial/universal_robot/issues/107"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This results in several `unrecognized command` messages being reported in the ROS log (although a more critical failure could be misinterpreting the data as a valid command).",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/107"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "driver: sizeof(io_msgs) is 8 bytes, not 8 ints. Fix #107."
+  },
+  "notes": "Two units (ur_driver/driver.py and ur_driver/prog) interact over a custom binary TCP wire protocol; driverProg specifies 8 integers instead of 8 bytes (2 ints)."
+}

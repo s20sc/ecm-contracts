@@ -1,0 +1,94 @@
+{
+  "case_id": "robust_359a2e9",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/issues/107",
+    "https://github.com/ros-industrial/universal_robot/commit/359a2e9d0c21b37c4fc077e08dbb56de771734cb",
+    "https://github.com/ros-industrial/universal_robot/pull/117",
+    "https://github.com/ros-industrial/universal_robot/blob/1373f31946210e42caefedf613d93c7c111c1045/ur_driver/prog",
+    "https://github.com/ros-industrial/universal_robot/blob/1373f31946210e42caefedf613d93c7c111c1045/ur_driver/src/ur_driver/driver.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #107 (shaun-edwards) documents the defect with a code pointer and observed log effect; maintainer gavanderhoorn confirms: \"Ah, you're right. Seems number-of-bytes was specified, instead of number-of-items.\" Fix commit 359a2e9 message: \"driver: sizeof(io_msgs) is 8 bytes, not 8 ints. Fix #107.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["ur_driver/driver.py", "ur_driver/prog"],
+      "interface_kind": "wire protocol field",
+      "evidence": "The ROS node driver.py (runs on the PC) packs IO commands as struct.pack(\"!%ii\" % len(params), *params) with params = [MSG_SET_DIGITAL_OUT] + [pinnum] + [value] (type code plus 2 integers) and sends them over the reverse TCP socket; the URScript program driverProg in ur_driver/prog (uploaded by driver.py and executed on the UR controller as a separate program) reads each IO message with socket_read_binary_integer(1+6+1), i.e. 8 integers. The message size is an assumption shared across the socket boundary; the resolving edit is inside prog only (reads 2 integers)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: driver.py's command stream is the input of driverProg. Reporter: \"when trajectories and IO are driven from the ROS side simultaneously (i.e. from multiple threads), this can occur. When this does, part of the _next_ message in the buffer is read.\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Reporter: \"This results in several `unrecognized command` messages being reported in the ROS log (although a more critical failure could be misinterpreting the data as a valid command).\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "ur_driver/driver.py",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "1373f31946210e42caefedf613d93c7c111c1045",
+      "resolved_rev": "1373f31946210e42caefedf613d93c7c111c1045",
+      "pinned": true,
+      "revision_basis": "The reporter links hydro-devel ur_driver/prog#L226 and names no commit; hydro-devel head on the report date (2014-09-11) was d951c66d9d827746ab594e46d14bba93e7e36dee, whose prog and driver.py contain the same IO read (socket_read_binary_integer(1+6+1)) and the same 2-integer IO sender. The broken revision recorded here is the fix commit's parent 1373f31 (the tree the diff applies to). The fix 359a2e9 changes only ur_driver/prog, so driver.py keeps its broken revision in the resolved composition.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "ur_driver/prog",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "1373f31946210e42caefedf613d93c7c111c1045",
+      "resolved_rev": "359a2e9d0c21b37c4fc077e08dbb56de771734cb",
+      "pinned": true,
+      "revision_basis": "Broken: parent of the fix commit (1373f31, on the hydro-devel line; hydro-devel head at report date d951c66 has the identical reads). Resolved: fix commit 359a2e9 (merged into hydro-devel via PR #117, merge a418106, 2014-10-10), which changes the four IO reads to socket_read_binary_integer(2).",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "msg:ur_driver/MSG_SET_DIGITAL_OUT", "sides": {"ur_driver/driver.py": "provides", "ur_driver/prog": "consumes"}},
+    {"element": "msg:ur_driver/MSG_SET_FLAG", "sides": {"ur_driver/driver.py": "provides", "ur_driver/prog": "consumes"}},
+    {"element": "msg:ur_driver/MSG_SET_ANALOG_OUT", "sides": {"ur_driver/driver.py": "provides", "ur_driver/prog": "consumes"}},
+    {"element": "msg:ur_driver/MSG_SET_TOOL_VOLTAGE", "sides": {"ur_driver/driver.py": "provides", "ur_driver/prog": "consumes"}},
+    {"element": "msg:ur_driver/MSG_SERVOJ", "sides": {"ur_driver/driver.py": "provides", "ur_driver/prog": "consumes"}},
+    {"element": "msg:ur_driver/MSG_SET_PAYLOAD", "sides": {"ur_driver/driver.py": "provides", "ur_driver/prog": "consumes"}},
+    {"element": "msg:ur_driver/MSG_STOPJ", "sides": {"ur_driver/driver.py": "provides", "ur_driver/prog": "consumes"}},
+    {"element": "msg:ur_driver/MSG_OUT", "sides": {"ur_driver/prog": "provides", "ur_driver/driver.py": "consumes"}},
+    {"element": "msg:ur_driver/MSG_JOINT_STATES", "sides": {"ur_driver/prog": "provides", "ur_driver/driver.py": "consumes"}},
+    {"element": "msg:ur_driver/MSG_WAYPOINT_FINISHED", "sides": {"ur_driver/prog": "provides", "ur_driver/driver.py": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": ["msg:ur_driver/MSG_SET_DIGITAL_OUT", "msg:ur_driver/MSG_SET_FLAG", "msg:ur_driver/MSG_SET_ANALOG_OUT", "msg:ur_driver/MSG_SET_TOOL_VOLTAGE"],
+      "quote": "The program that runs on the UR controller reads too many bytes from the socket connection for setting digital outputs.  See [here](https://github.com/ros-industrial/universal_robot/blob/hydro-devel/ur_driver/prog#L226).  Most times this is not an issue because multiple commands are not typically in the socket buffer (the reference read command only returns the 2 values used for setting digital IO).",
+      "url": "https://github.com/ros-industrial/universal_robot/issues/107"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only diagnostic is the application's own runtime log (driverProg sends \"Received unknown message type\" back to driver.py); reporter: \"This results in several `unrecognized command` messages being reported in the ROS log\". No build/connection/activation diagnostic from existing tooling.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "In ur_driver/prog, read 2 integers (socket_read_binary_integer(2)) for MSG_SET_DIGITAL_OUT, MSG_SET_FLAG, MSG_SET_ANALOG_OUT and MSG_SET_TOOL_VOLTAGE instead of 1+6+1, matching the 2 parameters driver.py sends.",
+    "status": "recommended",
+    "evidence": "Commit 359a2e9 \"driver: sizeof(io_msgs) is 8 bytes, not 8 ints. Fix #107.\" merged via PR #117 (2014-10-10); issue closed on merge. No comment or log in the sources shows the resolved composition exercised."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Unit boundary judgement: driverProg (ur_driver/prog) ships inside the ur_driver package and is uploaded by driver.py at connection time (driver.py opens roslib.packages.get_pkg_dir('ur_driver') + '/prog'), but it executes as a separate program on the UR controller and interacts with driver.py only over a custom TCP socket protocol, so it is treated as a separate unit; if the study treats a script uploaded by its own node as part of that node, this case would be internal. Wire-protocol message types are written as msg:ur_driver/<MSG_TYPE constant> for lack of a ROS type name. The reporter also suspected other reads (\"I think some of the other byte reads may also have this problem\"); the maintainer found MSG_MOVEJ and MSG_SERVOJ reads correct. MSG_SET_TOOL_VOLTAGE: driver.py sends [value] + [0] (a dummy second integer), the fix comment says \"also reads second dummy '0' integer\". The reporter observed the defect with UR controller software v1.4. Packet bug description attributes the fix to the same commit; issue title on GitHub is \"Controller read too many bytes for IO message (and possibly others)\"."
+}

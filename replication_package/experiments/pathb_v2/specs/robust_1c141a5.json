@@ -1,0 +1,46 @@
+{
+  "case_id": "robust_1c141a5",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/246",
+    "https://github.com/yujinrobot/kobuki/commit/1c141a54fb2c0e2ec453b32f8026d1cd0ffb14d9"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #246 (yhju, a maintainer, 2013-04-05): \"conversion logic in diff_drive module has a crack. \\n\\nWhen diff_drive module receive the command velocity of (10 m/s, -5 deg/s) pair, kobuki goes crazy backward.\" (https://github.com/yujinrobot/kobuki/issues/246); closed by the same maintainer with \"Resolved by 1c141a54fb2c0e2ec453b32f8026d1cd0ffb14d9\" (https://github.com/yujinrobot/kobuki/issues/246#issuecomment-23072341). Concrete input and observed effect, maintainer-confirmed."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["kobuki_driver", "kobuki firmware"],
+      "interface_kind": null,
+      "evidence": "The nearest composition is kobuki_driver (DiffDrive converts (vx, wz) into the int16 speed/radius fields of the base-control packet) and the Kobuki firmware that executes those fields. The defect is arithmetic inside kobuki_driver's DiffDrive::velocityCommands at the parent revision: intermediate results are cast to short before the computation is complete, \"radius = (short)(vx * 1000.0f / wz);\" followed by \"speed  = (short)((radius + 1000.0f * bias / 2.0f) * wz);\" (from the fix diff, https://github.com/yujinrobot/kobuki/commit/1c141a54fb2c0e2ec453b32f8026d1cd0ffb14d9), so for (10 m/s, -5 deg/s) the radius wraps and the sign of the speed flips. The firmware then executes an in-range but wrong command; the same wrong motion would occur with any correct peer (any firmware that obeys speed/radius, and any caller that sends that Twist), and no assumption between the units (field types, units, order, names) differs. The resolving change is confined to the same unit's own computation: keep radius and speed as double and add \"short DiffDrive::bound(const double &value)\" clamping to SHRT_MIN..SHRT_MAX only when producing the outgoing values. This is \"wrong arithmetic\" in the sense of step 2, not a wrong convention crossing the boundary, so the case stops at step 2 as internal."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: stopped at E2 (the source does document the observed effect, \"kobuki goes crazy backward\")."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2, internal: an overflow in kobuki_driver's own velocity-to-command arithmetic (int16 casts of intermediate values in DiffDrive::velocityCommands) produces a wrong but well-formed command; it would occur with any correct peer and the fix (double intermediates plus a bound() clamp) changes no interface. Alternative readings considered and rejected: (a) kobuki_node -> kobuki_driver over Kobuki::setBaseControl with an out-of-range input (10 m/s): the API declares no range, and the failure is the driver's truncation rather than a mismatch between the units' declarations; (b) kobuki_driver -> firmware over the int16 speed/radius wire fields: the emitted values are within the field's range and follow the agreed representation, only their magnitude and sign are wrong. The packet's summary (\"Unexpected Movement Due to Wrong Calculation\") also frames it as a calculation error. Fix commit 1c141a5 (2013-05-07) is on the mainline shared by groovy-devel and hydro-devel; the issue was closed on 2013-08-22.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": null
+}

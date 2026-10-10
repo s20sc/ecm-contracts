@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-118",
+  "kind": "A1",
+  "case_id": "C3-118",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value",
+    "url": "https://github.com/moveit/moveit2/issues/2632"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:rclcpp::NodeOptions::use_intra_process_comms", "api:rclcpp::SystemDefaultsQoS", "api:rclcpp::Node::create_publisher"],
+      "quote": "Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value",
+      "url": "https://github.com/moveit/moveit2/issues/2632"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value",
+    "url": "https://github.com/moveit/moveit2/issues/2632"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I recall seeing that warning when testing, and am OK with the fix in #722 to not enable it."
+  },
+  "notes": "Issue body verbatim confirms the warning text and the refusal error; the maintainer comment verbatim confirms awareness. The refused attribute is the QoS history kind/depth (keep-last with depth 0) on the intra-process path, which the listed QoS classes (reliability/durability/deadline) do not cover, so class `other` is correct. loudness loud_documented is correct: rclcpp throws at component construction (activation), a runtime-enforced refusal rather than a silent failure. Resolution `none` is correct: PR #2752 only deletes the misleading warning, leaving SystemDefaultsQoS in place, so the refused composition still fails when intra-process is enabled; there is no change that makes the composition work."
+}

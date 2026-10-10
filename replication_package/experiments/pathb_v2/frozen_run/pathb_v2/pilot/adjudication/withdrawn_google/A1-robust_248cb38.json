@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-robust_248cb38",
+  "kind": "A1",
+  "case_id": "robust_248cb38",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The transformed quaternion wasn't being passed to set_attitude_target(), resulting in an incorrect attitude setpoint. I've now fixed this issue.",
+    "url": "https://github.com/mavlink/mavros/pull/351"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Eigen::Map<Quaternionf> place data in xyzw order instead of wxyz.",
+      "url": "https://github.com/mavlink/mavros/issues/352"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Have you flight-tested this? The fix looks correct on the math level, but we need a system-level verification as well.",
+    "url": "https://github.com/mavlink/mavros/pull/351#issuecomment-125707818"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Yes. Flew with this code yesterday. I've verified that it now behaves the same as release 0.12.0",
+    "url": "https://github.com/mavlink/mavros/pull/351#issuecomment-125707818"
+  },
+  "notes": "Representation convention error: Eigen internal quaternion memory layout is [x, y, z, w], whereas MAVLink wire protocol SET_ATTITUDE_TARGET quaternion field expects [w, x, y, z] component ordering."
+}

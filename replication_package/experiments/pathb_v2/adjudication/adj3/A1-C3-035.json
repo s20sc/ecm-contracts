@@ -1,0 +1,49 @@
+{
+  "item_id": "A1-C3-035",
+  "kind": "A1",
+  "case_id": "C3-035",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Executor starts running but with no node inside, and just hangs on waiting for work forever.",
+    "url": "https://github.com/ros2/rclcpp/issues/2414"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [
+        "api:rclcpp_components::NodeFactoryTemplate<@component@>"
+      ],
+      "quote": "Theoretically this state _shouldn't_ happen, but it did for me because of cached .so binaries that didn't have the class inside.",
+      "url": "https://github.com/ros2/rclcpp/issues/2414"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [
+        "api:rclcpp_components::NodeFactoryTemplate<@component@>"
+      ],
+      "quote": "Executor starts running but with no node inside, and just hangs on waiting for work forever.",
+      "url": "https://github.com/ros2/rclcpp/issues/2414"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Executor starts running but with no node inside, and just hangs on waiting for work forever.",
+    "url": "https://github.com/ros2/rclcpp/issues/2414"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "crash on no class found"
+  },
+  "notes": "E1 confirmed: issue #2414 gives exact reproduction steps (replace the new .so with the old one, run the generated main) and the observed hang. E2 stop_step 6 (library API): the generated node main is a host that loads the component library as a plugin; the failure depends on the class name the loaded library exports, which crosses the host/plugin boundary. The two failed conditions are both correct — element_removed_or_renamed (the class absent from the deployed older .so) and other (the host's missing not-found check, an internal defect of this composition that the reporter asked to fix). Loudness silent_documented/run is right: no diagnostic, empty executor. Resolution recommended is right: PR #2415 (\"crash on no class found\", merged rolling as 091f29fc) turns the hang into a refusal, but the reporter's Humble composition has no released fix and the PR's demonstration used a test executable, not the reporter's library."
+}

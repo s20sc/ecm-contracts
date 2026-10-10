@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3N-005",
+  "kind": "A1",
+  "case_id": "C3N-005",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: reproduced controller_manager death and a successful local repair reported in review. E2: host and plugin are separate units; the host queries configuration before the documented plugin lifecycle precondition holds. E3: PAIR through interface-configuration return values. The null dereference is not a peer-independent internal failure.",
+    "quote": "when the FTS broadcaster is loaded but not yet configured and another controller is configured the controller sorting in configuring the other controller will also check the FTS broadcasterf for sorting.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "* The method is called only in `inactive` or `active` state, i.e., `on_configure` has to be\n   * called first.",
+      "url": "https://raw.githubusercontent.com/ros-controls/ros2_control/0863acd6905af0eba4db1074f11edd60215758d5/controller_interface/include/controller_interface/controller_interface_base.hpp#L95",
+      "reason": "other describes the call-order/lifecycle precondition. The header states the precondition for both configuration methods, and the fixing diff guards both calls in controller_sorting. The state query is the one that dereferences the uninitialized sensor; that does not make the premature command query compliant."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "4. controller_manager will die",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164",
+    "reason": "The reproducer reports a crash without a configuration-precondition diagnostic. The exceptions added to test controllers by the fix are not evidence of a diagnostic in the broken FTS composition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "3. configure the JS broadcaster\r\n4. controller_manager will die",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164",
+    "reason": "activate is accepted as the available lifecycle-startup category. Precisely, the crash occurs during configuration/sorting, before on_activate or the normal update loop."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Looks good and I tested this locally as mentioned in #1164 on Humble. As expected, this fixes the crash there.",
+    "url": "https://github.com/ros-controls/ros2_control/pull/1165",
+    "reason": "A successful local test is documented, but neither both tested revisions nor the exact local Humble patch state is identified. Under S1 this remains recommended rather than revision-qualified observed."
+  },
+  "notes": "The host's patch guards both interface queries and skips unconfigured controllers. The JS broadcaster triggers sorting; it is not an independently established faulty peer or a second failed condition."
+}

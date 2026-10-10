@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL-07",
+ "kind": "A1",
+ "case_id": "CAL-07",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Expected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/440"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "However, what we do next is suspicious.  In line 120, we call `publisher->toggle()`, which is the first time that we are instantiating the underlying `rclcpp::Publisher`.  And then we are immediately calling `publisher->get_publishers_info_by_topic()`, which doesn't wait around at all; it just returns what it has right now.  So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+   "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "test_best_available.cpp:128\nExpected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u\n    Which is: 1",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/440"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Depending on the RMW in use, discovery may be asynchronous.  Therefore, creating a publisher and then calling this API may not show the newly created publisher immediately."
+ },
+ "notes": "Asynchronous discovery race condition between test query and rmw_cyclonedds discovery thread."
+}

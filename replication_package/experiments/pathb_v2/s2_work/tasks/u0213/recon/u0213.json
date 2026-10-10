@@ -1,0 +1,53 @@
+{
+  "task_id": "u0213",
+  "package": "rviz",
+  "manifest_version": "1.9.28",
+  "ports": [
+    {
+      "element": "param:robot_description",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:package://create_description/meshes/create_body.dae",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "meters",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": ["param:robot_description"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3",
+    "ports[0].side": "snapshot:src/rviz/default_plugin/robot_model_display.cpp:142 (update_nh_.getParam( robot_description_property_->getStdString(), content ) reads the parameter into std::string; searchParam fallback at line 145)",
+    "ports[1].side": "snapshot:src/rviz/robot/robot_link.cpp:443-444 (std::string model_name = mesh.filename; loadMeshFromResource(model_name);) -> snapshot:src/rviz/mesh_loader.cpp:719 (Assimp importer.ReadFile for non-.mesh/.stl extensions, i.e. .dae)",
+    "ports[1].units": "snapshot:src/rviz/mesh_loader.cpp:560 (\"@Returns The scaling factor that converts the mesh to meters\"); getMeshUnitRescale reads COLLADA <asset><unit meter=...> at line 609 and applies it at line 633",
+    "references[param:robot_description]": "snapshot:src/rviz/default_plugin/robot_model_display.cpp:82 (robot_description_property_ = new StringProperty( \"Robot Description\", \"robot_description\", ...)",
+    "perm_requires.state": "searched snapshot (package.xml, plugin_description.xml, default.rviz, src/) for permission/capability declarations; only license-text and test hits for 'permission'",
+    "perm_grants.state": "searched snapshot (package.xml, plugin_description.xml, default.rviz, src/) for permission/capability declarations; none",
+    "recovery.state": "grep -rni 'recover' over the whole snapshot returned no hits; RobotModelDisplay::load only sets an Error status on missing/empty/unparseable URDF (robot_model_display.cpp:150-189)",
+    "exclusive": "grep -rni 'exclusive' over snapshot src/ returned no hits"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The robot_description read path looks ordinary. How a particular .dae renders depends on file contents this snapshot cannot show: mesh_loader.cpp skips the Assimp root-node transform (line 223, so a COLLADA up_axis is not applied), rescales by <unit meter>, and assigns submesh materials by index into scene->mMeshes (line 548) although submeshes are created in node-traversal order. Any of these could misrender a specific mesh, but nothing in the snapshot names create_body.dae."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (groovy): all QoS fields null by rule. Both packet elements are consumed; nothing is provided, so declares and not_declared are empty. param:robot_description: the parameter name is the default value of the user-editable 'Robot Description' property (robot_model_display.cpp:82), so it can be changed in the display config; it is read with a relative NodeHandle getParam and then searchParam, as a string holding URDF XML (no ROS message type, no definition hash). resource:package://create_description/meshes/create_body.dae: the snapshot never names this resource or the create_description package; rviz receives mesh URLs at run time from the URDF <mesh filename> (robot_link.cpp:443) and fetches them via resource_retriever (package:// URLs), so it is not listed in references. The mesh is attached to the link's scene node at the URDF visual/collision origin, and the link-to-tf-frame mapping (optional 'TF Prefix' property) is decided at run time from the URDF content, so frame is null for both ports rather than per_message. units 'meters' for the mesh port is the code's stated normalisation target for COLLADA files with a <unit meter> attribute (default scale 1.0 when absent); URDF <mesh scale> is also applied (robot_link.cpp:441). No rate or definition file applies to either element."
+}

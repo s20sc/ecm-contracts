@@ -1,0 +1,94 @@
+{
+  "case_id": "robust_fc95a19",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/issues/124",
+    "https://github.com/ros-industrial/universal_robot/pull/136",
+    "https://github.com/ros-industrial/universal_robot/commit/fc95a19ac913e31c09ab52666405be0f5aacc24e",
+    "https://robotics.stackexchange.com/questions/63223/path-planning-exceeding-velocity-limits-of-ur5",
+    "http://web.archive.org/web/20240915030714/https://answers.ros.org/question/194667/path-planning-exceeding-velocity-limits-of-ur5/",
+    "https://github.com/ros-industrial/universal_robot/blob/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur_driver/src/ur_driver/driver.py",
+    "https://github.com/ros-industrial/universal_robot/blob/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur5_moveit_config/config/joint_limits.yaml",
+    "https://github.com/ros-industrial/universal_robot/blob/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur5_moveit_config/config/controllers.yaml",
+    "https://github.com/ros-industrial/universal_robot/blob/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur_bringup/launch/ur_common.launch",
+    "https://github.com/ros-industrial/universal_robot/blob/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur_description/urdf/ur5.urdf.xacro",
+    "http://web.archive.org/web/20160410055807/http://wiki.ros.org/ur_driver"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public GitHub issue ros-industrial/universal_robot#124 (opened 2014-10-10 by maintainer gavanderhoorn, closed 2014-11-03 'Fixed in #136') with an error log and a maintainer confirmation, plus the originating ROS Answers thread 194667 (migrated to robotics.stackexchange.com/questions/63223) with the reporter's reproduction: 'I am using moveit for path planning of a ur5. After finding a valid path, I want to execute it to the real robot (which is connected and communicating properly) but I always receive an error message like: [ERROR] [WallTime: 1412925263.358047] Received a goal with velocities that are higher than 2.000000 ... the controller reports: [INFO][ ... ]: Received new trajectory execution service request... [WARNING][ ... ]: Controller handle reports status FAILED [INFO][ ... ]: Execution completed: FAILED'. Fix is the listed public merge commit fc95a19 (PR #136)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["ur_driver", "ur5_moveit_config"],
+      "interface_kind": "action",
+      "evidence": "Step 1: the two units are the ur_driver node (ur_driver/src/ur_driver/driver.py, an actionlib ActionServer named 'follow_joint_trajectory' of type control_msgs/FollowJointTrajectoryAction, launched by ur_bringup/launch/ur_common.launch) and the MoveIt move_group node as configured by the ur5_moveit_config package (controllers.yaml binds 'action_ns: follow_joint_trajectory' / 'type: FollowJointTrajectory'; joint_limits.yaml sets per-joint 'max_velocity: 3.15' / '3.2' used for planning). They interact only through ROS interfaces (the action and the joint_states topic), so they are separate units although both packages ship in the universal_robot repository. Step 2: the failure crosses the boundary: the value of the velocities field in the FollowJointTrajectory goal produced by move_group (up to the 3.15/3.2 rad/s per-joint limits of joint_limits.yaml) is rejected by ur_driver's goal check 'if math.fabs(v) > max_velocity' against its single private '~max_velocity' whose default was 2.0 rad/s; a peer that planned below 2.0 rad/s would not trigger it, and a driver accepting the planner's limits would not reject it (maintainer fmessmer: 'MoveIt! plans with the velocity_limits given in joint_limits.yaml ... With a `max_velocity` parameter in the driver having a value less than the MoveIt! velocity limits, this would most likely cause most trajectories to fail.'). Step 3: the resolving change is not a name binding: it changes the value range the driver's action interface accepts (driver.py default 2.0 -> MAX_VELOCITY = 10.0 rad/s, 'Using a very high value in order to not limit execution of trajectories being sent from MoveIt!') and exposes it as a launch argument; no remap, namespace, or name change is involved. Step 4: no build-system or packaging change. Step 5: not a firmware fault; the driver is a ROS node with a declared action interface. Step 6: eligible; interface kind action (control_msgs/FollowJointTrajectory goal, velocities field value range)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: an output of move_group (the FollowJointTrajectory goal containing the planned trajectory with per-point velocities) feeds an input of ur_driver (its follow_joint_trajectory action server on_goal handler), where the failure was observed ('Received a goal with velocities that are higher than 2.000000' followed by MoveIt's 'Controller handle reports status FAILED'). No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure documented by the reporter (ur_driver error log and MoveIt 'Execution completed: FAILED') and restated by the maintainer in issue #124: 'Planning with MoveIt often results in: [ERROR] [WallTime: 1412925263.358047] Received a goal with velocities that are higher than 2.000000'."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "ur_driver",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "facbe421ca2ce22b58d2a941c3228c91c03e542a",
+      "resolved_rev": "fc95a19ac913e31c09ab52666405be0f5aacc24e",
+      "pinned": true,
+      "revision_basis": "The reporter does not state a revision or install method (gvdhoorn asked 'Did you install from binaries, or do you have a source checkout?' without a direct answer). broken_rev is the first parent of the fix merge, i.e. the hydro-devel head immediately before the fix (facbe421, 2014-11-03, 'Merge pull request #131'). The hydro-devel head on the report date 2014-10-10 was a418106195356ab4c2e3c2d73c09d1ccd47454bc, and ur_driver/src/ur_driver/driver.py, ur_bringup/launch/ur_common.launch, ur5_moveit_config/config/joint_limits.yaml and controllers.yaml are byte-identical between a418106 and facbe421 (git diff empty); the 2.0 default line 'max_velocity = rospy.get_param(\"~max_velocity\", 2.0)' was introduced in 5dd99b2fda29af70450362682d0c040b7e905f39 (2014-02-05) and is also present in the hydro release tag 1.0.4 (2014-09-04, driver.py line 862). resolved_rev is the merge commit of PR #136 on hydro-devel (fc95a19, 2014-11-03); the release tag 1.0.5 (2014-11-03, c637563121e463ddaaf6ac3266c2ffdf3ad10ac1) carries the same four files unchanged. The ur_driver node's launch file ur_bringup/launch/ur_common.launch (in the ur_bringup package) is treated as part of this unit (a node and its own launch file are one unit); it is the second file the fix touches. ros_distro from the PR title '[Hydro] Default max velocity parameter' and its base branch hydro-devel; the reporter names no distro.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "ur5_moveit_config",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "facbe421ca2ce22b58d2a941c3228c91c03e542a",
+      "resolved_rev": "facbe421ca2ce22b58d2a941c3228c91c03e542a",
+      "pinned": true,
+      "revision_basis": "This unit is the MoveIt move_group node as configured by the ur5_moveit_config package (the reporter: 'I am using moveit for path planning of a ur5'); its side of the interface is defined by ur5_moveit_config/config/controllers.yaml (action_ns follow_joint_trajectory, type FollowJointTrajectory, six joint names) and config/joint_limits.yaml (per-joint max_velocity 3.15 / 3.2 rad/s, derived from the velocity attributes of ur_description/urdf/ur5.urdf.xacro at the same revision). Same repository snapshot as ur_driver: facbe421 (hydro-devel head before the fix; both config files byte-identical to the report-date head a418106). The fix does not touch this package, so resolved_rev keeps the broken revision. The revision of the move_group executable itself (moveit_ros_move_group, a different repository) is not stated in the source.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "action:follow_joint_trajectory", "sides": {"ur_driver": "provides", "ur5_moveit_config": "consumes"}},
+    {"element": "field:trajectory_msgs/JointTrajectoryPoint.velocities", "sides": {"ur5_moveit_config": "provides", "ur_driver": "consumes"}},
+    {"element": "field:trajectory_msgs/JointTrajectory.joint_names", "sides": {"ur5_moveit_config": "provides", "ur_driver": "consumes"}},
+    {"element": "topic:joint_states", "sides": {"ur_driver": "provides", "ur5_moveit_config": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["action:follow_joint_trajectory", "field:trajectory_msgs/JointTrajectoryPoint.velocities"],
+      "quote": "Planning with MoveIt often results in:\n\n```\n[ERROR] [WallTime: 1412925263.358047] Received a goal with velocities that are higher than 2.000000\n```\n\nThe private parameter `max_velocity` is currently undocumented (as are all other parameters).",
+      "url": "https://github.com/ros-industrial/universal_robot/issues/124"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The refusal is enforced by the ur_driver node's own goal-validation check at goal receipt and reported with an explicit error naming the limit: reporter log '[ERROR] [WallTime: 1412925263.358047] Received a goal with velocities that are higher than 2.000000' (https://robotics.stackexchange.com/questions/63223/path-planning-exceeding-velocity-limits-of-ur5); driver.py at facbe421 lines 736-741: '# Checks that the velocities are withing the specified limits' / 'if not has_limited_velocities(goal_handle.get_goal().trajectory):' / 'message = \"Received a goal with velocities that are higher than %f\" % max_velocity' / 'rospy.logerr(message)' / 'goal_handle.set_rejected(text=message)' (https://github.com/ros-industrial/universal_robot/blob/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur_driver/src/ur_driver/driver.py). MoveIt's side then logs '[WARNING][ ... ]: Controller handle reports status FAILED' / '[INFO][ ... ]: Execution completed: FAILED'. No build-, connection- or activation-time tooling flags the mismatch; the composition connects normally and the diagnostic appears only when the first goal is submitted (run stage). Marked loud_documented because it is a refusal the driver enforced with a diagnostic, not a silently wrong execution.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Merge of PR #136 (fc95a19, 2014-11-03): ur_driver/src/ur_driver/driver.py adds 'MAX_VELOCITY = 10.0' with the comment 'Using a very high value in order to not limit execution of trajectories being sent from MoveIt!', changes the parameter read to 'max_velocity = rospy.get_param(\"~max_velocity\", MAX_VELOCITY) # [rad/s]' (previously default 2.0) and logs 'Max velocity accepted by ur_driver: %s [rad/s]' at startup; ur_bringup/launch/ur_common.launch adds '<arg name=\"max_velocity\" default=\"10.0\"/> <!-- [rad/s] -->' and passes it to the ur_driver node as '<param name=\"max_velocity\" type=\"double\" value=\"$(arg max_velocity)\"/>'. The maintainer also documented the parameter on the ur_driver wiki page. ur5_moveit_config is unchanged.",
+    "status": "recommended",
+    "evidence": "The merged fix is accepted ('Discussions are in #124. Solves the feature proposed in discussion. I will merge.' -- https://github.com/ros-industrial/universal_robot/pull/136#issuecomment-61494398; 'Fixed in #136 .' -- https://github.com/ros-industrial/universal_robot/issues/124#issuecomment-61494474) but the source does not show the composition at fc95a19 executing a MoveIt trajectory. Observations exist only with a raised parameter value on unstated revisions: the reporter on 2014-10-27, having set the parameter to 3.5 rad/s: 'ok - I got it working so far. After checking the velocity of various paths, it seems that many trajectories have velocities of up to 3.5, so I adjusted the max_velocity level to 3.5. I could excecute some paths on the real robot.' (http://web.archive.org/web/20240915030714/https://answers.ros.org/question/194667/path-planning-exceeding-velocity-limits-of-ur5/), and maintainer shaun-edwards: 'I have safely increased the max velocity parameter on my system. I believe the outlined approach is the right one to take.' (https://github.com/ros-industrial/universal_robot/issues/124#issuecomment-61040646)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Condition class: no listed class covers a numeric value-range (limit) disagreement; the planner emits per-point joint velocities bounded by the per-joint limits in ur5_moveit_config/config/joint_limits.yaml (3.15 rad/s for shoulder_pan/shoulder_lift/elbow, 3.2 rad/s for wrist_1/2/3, matching the URDF 'velocity=\"3.15\"' / 'velocity=\"3.2\"' attributes), while the driver applies one global ceiling (private ~max_velocity, default 2.0 rad/s) to every velocity in the goal and rejects the whole goal. Maintainer statements: fmessmer 'MoveIt! plans with the velocity_limits given in joint_limits.yaml And those values are retrieved from the velocity limit tags in the URDF description of the joints ... With a `max_velocity` parameter in the driver having a value less than the MoveIt! velocity limits, this would most likely cause most trajectories to fail.' (https://github.com/ros-industrial/universal_robot/issues/124#issuecomment-60883012); gvdhoorn '... has a default that is so low that normal usage of the released packages will result in errors that complain about a 'limit' being exceeded. As can be seen in the ROS Answers post I linked, users understand this to be a limit of the actual, physical robot' (https://github.com/ros-industrial/universal_robot/issues/124#issuecomment-61054535); accepted ROS Answers answer 'The error you are seeing is not caused by exceeding a real, actual velocity limit, but rather by a check in ur_driver that compares the requested velocities against a (private) parameter called max_velocity ... This parameter has a default of 2 rad/s (this is in joint space).' Inventory sides for the goal fields follow the data direction (move_group fills velocities/joint_names in the goal, ur_driver reads and validates them); for the action itself ur_driver is the server (provides) and move_group the client (consumes). The private parameter ~max_velocity belongs to ur_driver alone and the joint_limits parameters belong to move_group alone, so neither is an inventory element. E2 step 3 was considered because the ROS Answers workaround sets a launch parameter: setting a parameter value is not a name binding; the value defines the range of goal velocities the driver's action accepts, and the fix changes the driver's declared default. Second composition in the thread, not part of this case: ur_driver versus the physical UR controller; the reporter with the parameter at 3.5: 'for some paths, even 3.5 seems not high enough' and 'for others, the robot moved, but stopped at some point due to the security stop. The velocity exeeded the limits of the real robot' (gvdhoorn points to universal_robot issues #67 and #98); shaun-edwards expects the fix to expose it: 'It will lead to \"safety stops\" by the universal because the current driver isn't capable of moving much faster than the `max_velocity` reliably.' The reporter's observation that planned trajectories carried velocities up to 3.5 rad/s, above the 3.15/3.2 configured limits, is recorded in the source without explanation. The reporter's first attempt at the launch-parameter workaround 'seems to have no effect on the results'; gvdhoorn replied that a source edit requires 'catkin_make and source devel/setup.bash', after which it worked. Comments on the ROS Answers thread were not carried over to the robotics.stackexchange migration (the Stack Exchange API returns none), so they are quoted from the Wayback snapshot of 2024-09-15. The ur_driver wiki page (Wayback snapshot 2016-04-10, documented by gvdhoorn on 2014-10-30 from the -devel branches of that time) states '~max_velocity (double, default: 2.0) Maximum joint velocity that may occur in a JointTrajectory. Submitting trajectories with velocities larger than this will result in an error being reported and the trajectory will not be executed. Units: rad/s.' The ur10_moveit_config package has the same configuration shape; the reporter used a UR5. Release timeline: hydro tag 1.0.4 (2014-09-04) carries the 2.0 default; tag 1.0.5 (2014-11-03) carries the fix."
+}

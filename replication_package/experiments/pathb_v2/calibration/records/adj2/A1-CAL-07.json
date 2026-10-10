@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-07",
+  "kind": "A1",
+  "case_id": "CAL-07",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "However, what we do next is suspicious.  In line 120, we call `publisher->toggle()`, which is the first time that we are instantiating the underlying `rclcpp::Publisher`.  And then we are immediately calling `publisher->get_publishers_info_by_topic()`, which doesn't wait around at all; it just returns what it has right now.  So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "So with all of that said, I think the fix here is to have the test attempt to `get_publishers_info_by_topic` a few times before giving up.  That will give discovery time to happen in almost all cases.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Expected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I think @iuhilnehc-ynos already did this in https://github.com/ros2/system_tests/pull/513 .  Along with my documentation update in https://github.com/ros2/rmw/pull/352 , I think that should cover everything we talked about here.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1494753455"
+  },
+  "notes": "Sources opened: issue #440 body and all comments (gh api), including the full clalancette comment 1490563629 (quoted verbatim above, fetched individually) and the reporter's flakiness patch (a 10 ms dds_sleepfor in handle_builtintopic_endpoint for rt/test_best_available_publisher); system_tests PR #513 (merged 2023-04-04 as 6313065486c6, diff adds a wait_for helper to qos_utilities.hpp and wraps the test's info queries); rmw PR #352 (merged 2023-04-03 as bb044d59, diff adds to get_topic_endpoint_info.h: 'Depending on the RMW in use, discovery may be asynchronous.  Therefore, creating a publisher and then calling this API may not show the newly created publisher immediately.'). Eligibility: agree, stop 6. E1: CI failure log in the issue body (quoted) plus the reporter's reliable-reproduction patch and maintainer analyses. E2 step 1: test_quality_of_service (consumer: the test queries the graph through rclcpp/rcl immediately after creating a publisher) and rmw_cyclonedds_cpp (provider: the library whose graph cache is filled from its discovery thread) are distinct units. Step 2: the failure depends on the timing/consistency assumption between them - the test assumes the graph query reflects a publisher created immediately before; with middleware updating the graph synchronously the assertion holds - so not internal. Steps 3-5 inapplicable: the fix changes the consumer's test code and the declared rmw API documentation, not name bindings, build, or firmware. Stop 6, library API. Failed condition: class 'other' agreed (a cross-boundary consistency/timing assumption with no named class); element api:rmw_get_publishers_info_by_topic agreed. Loudness silent_documented/run agreed: the middleware returns an empty list with no diagnostic; only the test's own gtest assertion catches it (quoted; a test assertion is not a build/connect/activation diagnostic from tooling). Resolution recommended agreed: PR #513 merged and rmw PR #352 merged, but the resolved composition is not shown working with both units identified by revision (PR text lists CI badges without stating outcomes for this test or the rmw_cyclonedds revision used); the closing comment (quoted) confirms both changes but shows no run."
+}

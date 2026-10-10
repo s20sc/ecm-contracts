@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-101",
+  "kind": "A1",
+  "case_id": "C3-101",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This is a bug in `tf2_ros_py`. The `time_jump_callback` method needs a `self` argument.",
+    "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392115230"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The type annotation `def time_jump_callback(time_jump: TimeJump):` is incorrect. The first argument of a method is always bound to an instance of the class, and by convention this argument is usually called `self`. If I fix the argument name and the type annotation then the reason for the error becomes clear: `def time_jump_callback(self: \"Buffer\"):`. `Buffer.time_jump_callback()` takes 1 positional argument (a Buffer instance) but 2 were given (a Buffer instance and a `TimeJump` instance).",
+      "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392115230"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "TypeError: Buffer.time_jump_callback() takes 1 positional argument but 2 were given",
+    "url": "https://github.com/ros2/geometry2/issues/710"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "this fixes the problem all the way to rqt-tf-tree in jazzy! now i get \n[WARN] [1727982819.603705139] [tf2_buffer]: Detected jump back in time. Clearing tf buffer.\nwhen without the fix rqt would crash, as expected.",
+    "url": "https://github.com/ros2/geometry2/pull/711"
+  },
+  "notes": "Independently verified: issue body shows the rqt reproduction and \"[1]    295333 IOT instruction (core dumped)  rqt --ros-args -p use_sim_time:=True\" after the TypeError; sloretz's diagnosis comment (fetched by id 2392115230) is verbatim as quoted. Commit 646342c6164e837d69460e3d28e7a025396544f6 (\"Fix the time_jump_callback signature. (#711) (#712)\", cherry-picked from efc78459) patches exactly one line: \"-    def time_jump_callback(time_jump: TimeJump):\" \"/ \"+    def time_jump_callback(self, time_jump: TimeJump):\" — confirming the spec's resolved revision is the identical diff the reporter tested on jazzy. Eligibility: the failure is the arity of a callable crossing the rclpy library boundary (registration accepts it; invocation crashes), an interface failure whose resolving edit is inside the consumer — E2.2's carve-out applies; stop_step 6 is right. Class `other` is right: the consumer's declaration was always misformed (nothing renamed/retyped between revisions), and no listed class names a callable-signature mismatch. Loudness: silent_documented/run is right — the mismatched callback is accepted at registration and fails only at invocation as a run-time Python exception; the reporter's note that pyright would flag it but none ran supports silence. Resolution: observed is right — the reporter confirmed the working composition, rclpy is stated at 7.1.2 and unchanged, tf2_ros_py's resolved revision is the jazzy backport commit containing exactly the tested one-line change."
+}

@@ -1,0 +1,34 @@
+{
+  "item_id": "A2-B-Ver-01-broken-M1-0",
+  "kind": "A2",
+  "case_id": "B-Ver-01",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[msg:os5000_imu/imu_data]",
+      "verdict": "verified",
+      "source_excerpt": "std_msgs/String raw\nstd_msgs/Float32 heading\nstd_msgs/Float32 pitch\nstd_msgs/Float32 roll\nstd_msgs/Float32 temp\nstd_msgs/Float32 depth",
+      "url": "snapshot:s2_work/tasks/u0021/artifact.txt:1",
+      "reason": "The built-against body differs from the running body. Both complete definitions and nested definitions were read; independent ROS1 MD5 reconstruction reproduced the two recorded hashes.",
+      "running_evidence": {
+        "url": "snapshot:s2_work/tasks/u0022/artifact.txt:1",
+        "quote": "float32 heading\nfloat32 pitch\nfloat32 roll\nfloat32 temp\nfloat32 depth"
+      }
+    },
+    {
+      "path": "ver_delta.consumer_reads[msg:os5000_imu/imu_data]",
+      "verdict": "verified",
+      "source_excerpt": "'callerid': '/control_panel', 'tcp_nodelay': '0', 'topic': '/imu', 'type': 'os5000_imu/imu_data'",
+      "url": "snapshot:s2_work/tasks/u0020/artifact.txt:1"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The source identifies the actual /control_panel subscriber, /imu topic and running publisher in a rejected handshake. The older consumer definition versus running provider definition represents the specified UPGRADE. Connection means an attempted subscription; the source explicitly says delivery was rejected.",
+    "url": "https://api.stackexchange.com/2.3/questions/72068?site=robotics&filter=withbody",
+    "quote": "Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection."
+  },
+  "notes": "No absent permission-grant state is supplied for adjudication. Hash provenance says \"same tool run\" without a log location; the values are nevertheless independently verified against original diagnostic text and recomputation from provided definition artifacts. Message identity/handshake evidence does not prove individual application field reads. The also_covers entries are grouped evidence references, not additional top-level packet items; no separate verdict files were created for them."
+}

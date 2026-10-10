@@ -1,0 +1,51 @@
+{
+  "case_id": "C3-136",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/755",
+    "https://github.com/ApexAI/rclcpp/commit/8b18525a77c177ad19716ff96e4a7f9c26856015",
+    "https://github.com/ros2/rclcpp/pull/801",
+    "https://github.com/eProsima/Fast-DDS/issues/571"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter gives full talker/listener source and logs showing the listener stop (\"The listener **STOPS** after receiving some messages (random amount).\"; publisher reaches \"Publishing 486.710000\" while the listener's last line is \"Received 428.970000\"); maintainer jacobperron: \"It sounds like a bug.\" and labels it `bug`; maintainer ivanpauno: \"I have been able to reproduce it on Linux (after retrying a bunch of times). The worst case I have seen: our demos with the timer changed to 100us, published up to message number 4700, listened up to message 4676.\" (https://github.com/ros2/rclcpp/issues/755)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "reporter publisher node (demo publisher_node)",
+        "reporter listener node (demo listener_node)"
+      ],
+      "interface_kind": null,
+      "evidence": "The two nodes interact only through topic `comm_topic` (std_msgs/msg/Float64), but the failure does not depend on any assumption between them: it reproduces with the stock demo talker/listener and String messages (\"The same problem happens with the demo talker/listener (so with String messages) if I change the rate.\"), and depends on the middleware implementation both nodes use rather than on either node: \"This problem seems to be related to Fast-RTPS. Using OpenSplice for DDS implementation, I can't reproduce this problem unlike Fast-RTPS.\" (vinnamkim), \"But in `fastrtps` the problem seems to be much worst.\" (ivanpauno) (https://github.com/ros2/rclcpp/issues/755). The follow-up reproduction with Fast-RTPS's native API and no ROS code (eProsima/Fast-DDS#571: publisher sends index 2000, subscriber stops at \"Message HelloWorld 256 RECEIVED\") places the behaviour inside the middleware's reliable protocol, where eProsima attributes it to writer settings (\"This problem can be solved reducing the heartbeat period.\"). Any correct publisher/subscriber pair on that middleware shows it: ineligible `internal`. Classification confidence: medium. Context: Environment stated: Windows 10, binaries, dashing, Fast-RTPS, rclcpp; reproduced on Linux by ivanpauno. The packet's fix references do not fix this issue: https://github.com/ApexAI/rclcpp/commit/8b18525a77c177ad19716ff96e4a7f9c26856015 is \"remove debugging statements. (#755)\" by Tomoya Fujita (2020-08-19), touching only rcl_yaml_param_parser/test/test_parse_yaml.cpp (a different repository's #755; it appears in the issue timeline only as an automatic reference), and ros2/rclcpp PR #801 is \"[dashing-backport] Add default value to options in LifecycleNode construnctor. Update API documentation. (#775)\" whose body says \"Backport of #755.\" (a mis-numbered reference). The issue was closed by mjcarroll on 2025-05-17 with no comment and no linked fix. clalancette suggested trying Best Effort QoS (\"In that mode, all of the messages must be acknowledged before they are dropped from the queue.\"); in Fast-DDS#571 (closed by eProsima as answered) Best Effort delivered the latest index but not all samples (\"Subscribed count : 1463\"). The reporter's first variant (publisher looping without spinning) was pointed out by ivanpauno as a usage error (\"Your publisher node is looping for ever in `Publisher::start`, so it never spins.\"); the stall persisted with a timer-driven publisher. If one instead took the reporter's node and the Fast-RTPS middleware as the two units, the stall still occurs with any correct application, so the classification is the same."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stops at step 2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stops at step 2."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): message delivery stalls inside the Fast-RTPS reliable transport at high publish rates, reproduced with stock demos and with Fast-RTPS's native API; no assumption between the two nodes is involved. No fix is linked (both packet fix references are unrelated number collisions).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

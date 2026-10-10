@@ -1,0 +1,51 @@
+{
+  "case_id": "C3N-003",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/5139",
+    "https://github.com/ros-navigation/navigation2/pull/5187",
+    "https://github.com/ros-navigation/navigation2/pull/5215",
+    "https://github.com/ros-navigation/navigation2/pull/5125"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Maintainer-authored issue stating the behaviour: \"Its possible due to localization jumps or other behavioral servers taking control that the robot may enter a keepout zone. If the behavior isn't changed, the robot will be deadlocked in that zone.\" -- https://github.com/ros-navigation/navigation2/issues/5139 ; \"this is an obvious and foreseeable deadlock condition that there needs to be some solution to get out of\" -- https://github.com/ros-navigation/navigation2/issues/5139#issuecomment-2874998859. No reproducer or log is given; the issue is an enhancement proposal, and E1 is passed only on the maintainer's statement."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "nav2_costmap_2d KeepoutFilter (costmap filter plugin)",
+        "planner/controller servers consuming the costmap"
+      ],
+      "interface_kind": null,
+      "evidence": "The deadlock follows from the keepout filter's own policy of writing lethal cost over the zone the robot already occupies; any correct planner or controller would refuse to plan out of lethal space, so the failure does not depend on an assumption between the two units. The resolution is a new opt-in behaviour inside the filter: \"If optionally enabled (default off, but on in `nav2_params.yaml`), we reduce the lethal cost to a very high but navigable cost (252) in order to allow the robot to leave on its own\" -- https://github.com/ros-navigation/navigation2/pull/5187 (new parameters `override_lethal_cost` and `lethal_override_cost` declared in keepout_filter.cpp). No value, frame, unit, name or timing crossing a unit boundary is wrong."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "If treated as a composition, PAIR (the filter's costmap output feeds the planner/controller). Not evaluated further because E2 fails."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No observed instance is reported; the effect is described as foreseeable (\"the robot will be deadlocked in that zone\")."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Feature/enhancement issue with no labels. PR 5187 (main, merge commit eb2235a86e3599d295060b1904e1f635f93ae9b7) states \"This resolves https://github.com/ros-navigation/navigation2/issues/5139\"; PR 5215 is its kilted backport (0cf045acfe3df1eb5156a5754b5d9d8f43508a8d). PR 5125 (merge 5f34bc362b65a6d4f3bd08f21c0531f6f1468b06) adds keepout maps/launch options to nav2_bringup for issue #4400 and moves helper code from CostmapLayer to Layer; it is not a fix for this deadlock. E4 also fails because no effect is observed in the source."
+}

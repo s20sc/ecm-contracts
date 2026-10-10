@@ -1,0 +1,104 @@
+{
+  "case_id": "C3-098",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/1278",
+    "https://github.com/ros2/rclpy/pull/1286",
+    "https://github.com/ros2/rclpy/commit/0926b34f90de612a76ec87629fed7f05cda30aab",
+    "https://github.com/clean-botix/ros2-engineering-skills/pull/1"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue gives a complete reproducer script (create_rate / sleep / destroy in a 100 Hz timer callback under MultiThreadedExecutor) and the observed effect; maintainer clalancette answers with the ownership rule and the correct API, and the reporter re-runs and confirms. https://github.com/ros2/rclpy/issues/1278"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "reporter_mover_node",
+        "rclpy"
+      ],
+      "interface_kind": "library API",
+      "evidence": "The reporter's node (a ROS node, code quoted in the issue) and the rclpy client library are separate units. The failure depends on an assumption across the boundary: the node assumes Rate.destroy() releases the rate's timer, whereas rclpy's contract is that the timer is owned by the Node and released by Node.destroy_rate. clalancette: \"The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).  Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.\" A consumer that follows that contract does not leak (reporter: \"Conclusion: Yes this works as intended and the CPU usage stays low.\"), so the failure does not occur with every correct peer; not internal. Not deployment wiring or build."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the node's calls into rclpy's Rate/Node API (create_rate, sleep, destroy) feed rclpy, whose node-owned timer then stays in the node's wait set. Observed in a single running process on humble binaries."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect: \"The CPU usage explodes and ros becomes laggy. I found that `Rate._timer` are not properly destroyed.\" https://github.com/ros2/rclpy/issues/1278"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclpy",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rclpy",
+      "broken_rev": "3.3.12",
+      "resolved_rev": "3.3.12",
+      "pinned": true,
+      "revision_basis": "The reporter states only \"Ros2 humble (I don't know where the .git is for the binary)\", installation type Binaries, report dated 2024-05-06, confirmation of the resolved composition 2024-05-09. The most recent humble release tag of rclpy before both dates is 3.3.12 (commit a9ae5f4cd30b852def86016a2d453e418d1a5d25, 2024-02-17; 3.3.13 was tagged 2024-05-15). The humble branch head on 2024-05-06 was a64f8213eac53ddafcdc3727811711d94f5334b5, which differs from 3.3.12 only in rclpy/rclpy/action/server.py and rclpy/src/rclpy/action_server.cpp, so Rate, Node.create_rate and Node.destroy_rate are identical at either revision. Exact binary version not stated in the source; 3.3.12 is an inference. The resolution does not change rclpy (the doc change #1286 went to rolling), so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "reporter_mover_node",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2024-05-06",
+      "resolved_rev": "as-reported-2024-05-09",
+      "pinned": false,
+      "revision_basis": "No repository; the node exists only as code quoted in the issue body (2024-05-06) and, for the resolved callback, in the reporter's comment of 2024-05-09 (https://github.com/ros2/rclpy/issues/1278#issuecomment-2101738111). Labels name sections of artifacts/C3-098.txt.",
+      "excerpt": true,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "api:rclpy.init", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.node.Node", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.node.Node.create_timer", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.node.Node.create_rate", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.timer.Rate.sleep", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.timer.Rate.destroy", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.node.Node.destroy_rate", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.executors.MultiThreadedExecutor", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.node.Node.destroy_node", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}},
+    {"element": "api:rclpy.shutdown", "sides": {"rclpy": "provides", "reporter_mover_node": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:rclpy.node.Node.create_rate",
+        "api:rclpy.timer.Rate.destroy",
+        "api:rclpy.node.Node.destroy_rate"
+      ],
+      "quote": "The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).  Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.",
+      "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2099261802"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from any tooling; the effect was found by watching top: \"CPU usage I report come from `$ top`\" and \"The CPU usage explodes and ros becomes laggy.\" https://github.com/ros2/rclpy/issues/1278",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Consumer-side: release the rate through the provider's owning API, replacing `wait.destroy()` with `self.destroy_rate(myRate)` (Node.destroy_rate destroys the node-owned timer and then the Rate). Provider-side (rolling only, commit 0926b34f90de612a76ec87629fed7f05cda30aab, PR #1286): docstrings added to Node.create_rate and Rate.destroy stating that users should call Node.destroy_rate; no behaviour change.",
+    "status": "observed",
+    "evidence": "Reporter 2024-05-09, after changing the callback to `self.destroy_rate(myRate)`: \"Ok I understood how to use it now thank you. I did the same benchmark with the code below. Conclusion: Yes this works as intended and the CPU usage stays low.\" https://github.com/ros2/rclpy/issues/1278#issuecomment-2101738111 . Resolved composition = reporter_mover_node@as-reported-2024-05-09 with rclpy humble binaries (inferred 3.3.12, unchanged)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "The maintainer treats this as API misuse rather than an rclpy bug (\"Well, it definitely should not do that.\" in reply to the reporter's proposal to destroy the timer inside Rate.destroy); the only upstream change is documentation (PR #1286, rolling), which also adds the same warnings to Timer and GuardCondition constructors/destroy methods. Class `other` is used because the mismatch is an ownership/lifecycle convention of a library API (which call releases the node-owned timer), which none of the specific classes covers. Outcome recorded as `failure` because the reported effect is resource exhaustion (\"CPU usage explodes and ros becomes laggy\"), not a warning. The reporter's intermediate workaround `wait._timer.destroy()` followed by `wait.destroy()` also removed the load (\"resulting in 7% CPU load\") but uses a private attribute and is not the resolution. The packet's fix ref clean-botix/ros2-engineering-skills PR #1 is a third-party documentation repository (merged 2026-08-31) that cites this issue as a pitfall; it does not change either unit. OS: Ubuntu 22.04 and WSL2 Ubuntu 22.04; DDS not stated."
+}

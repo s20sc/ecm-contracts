@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_e4466f0",
+  "kind": "A1",
+  "case_id": "robust_e4466f0",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This is a problem when you have a frame that uses a number as name.\nFor example, in our project we had a frame called \"54\". This made view_frames.py crash. \nI understand that this is a corner case but I believe that it might still happen. ",
+    "url": "https://github.com/ros/geometry2/pull/133#issuecomment-165138122"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "This is a problem when you have a frame that uses a number as name.\nFor example, in our project we had a frame called \"54\". This made view_frames.py crash. \nI understand that this is a corner case but I believe that it might still happen. ",
+      "url": "https://github.com/ros/geometry2/pull/133#issuecomment-165138122"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "For example, in our project we had a frame called \"54\". This made view_frames.py crash.",
+    "url": "https://github.com/ros/geometry2/pull/133#issuecomment-165138122"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-        dot += '\"'+map['parent']+'\" -> \"'+el+'\"'\n+        dot += '\"'+map['parent']+'\" -> \"'+str(el)+'\"'"
+  },
+  "notes": "Independently verified this session. (1) Eligibility: PR #133 (g-gemignani, 2015-12-15, base indigo-devel@860b8667, not merged) read via API; all four quoted comments verified verbatim including tfoote 'This looks reasonable.' (id 164946725), the crash report (id 165138122), 'I've cherry picked the first commit.' (id 192065068), and 'normalization followed up in #196' (id 313996736). Fix commit e4466f0: parent 72fa6057, author g_gemignani 2015-12-15, committer Tully Foote 2016-03-04T02:08:16Z (cherry-pick confirmed); beaeacb (PR first commit) parent is 860b8667 = PR base sha. Mechanism verified at source: view_frames.py@72fa6057 line 51 'srv = rospy.ServiceProxy('~tf2_frames', FrameGraph)', line 52 'data = yaml.load(srv().frame_yaml)', line 64 concatenates el; buffer.py line 51 advertises rospy.Service('~tf2_frames', FrameGraph, self.__get_frames), line 54 'return FrameGraphResponse(self.all_frames_as_yaml())'; buffer_core.cpp lines 1112-1113: 'mstream << frameIDs_reverse[cfid] << \": \" << std::endl;' (child key unquoted) vs 'mstream << \"  parent: '\" << frameIDs_reverse[frame_id_num] << \"'\" << std::endl;' (parent quoted) — exactly the asymmetry the spec's classification rests on. Stop at 6 with interface kind service is right: the encoding of the value crossing the boundary (numeric frame id as unquoted YAML key) is the provider's choice, so it is an interface failure (representation convention), not internal, even though the resolving edit is inside tf2_tools; PAIR is right (response feeds yaml.load). Both packages 0.5.12 at 72fa6057 (package.xml verified). (2) Condition: representation_convention with field:tf2_msgs/FrameGraph.frame_yaml and service:~tf2_frames implicated is correct; the PR's second commit (quaternion check, different composition, not merged) is correctly excluded per the one-composition rule. (3) Loudness silent_documented / run: only a run-time crash of the consumer is reported, no build/connect/activate diagnostic is shown or possible (service type matches on both sides). (4) Resolution recommended: fix landed via cherry-pick but the source never shows the resolved composition running."
+}

@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-robust_62a38a9",
+  "kind": "A1",
+  "case_id": "robust_62a38a9",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "reason": "E1 documents a shutdown crash, but the driver closes its own serial resource without first ensuring its worker has finished. The fix requests worker shutdown and joins that thread in the driver destructor. This is an internal lifecycle failure, not an incompatible node/driver value, declared interface, resource claim by another unit, or firmware defect. The node's signal-slot refactoring in the same commit does not establish another reported failed condition.",
+    "quote": "Shutdown the driver - make sure we wait for the thread to finish.",
+    "url": "https://github.com/yujinrobot/kobuki/commit/62a38a99cdfaf511cff1dd9e03b7bb88516f9033"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Detail   : The device is not a valid device for writing.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/23#issuecomment-5130434",
+    "reason": "Null means ineligible/not applicable, not absence of an exception. The source explicitly reports a runtime serial exception."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "It is not closing threads and classes properly (segfaulting, throwing exceptions  on every ctrl-c)",
+    "url": "https://github.com/yujinrobot/kobuki/issues/23",
+    "reason": "The symptom occurs during process shutdown at runtime; excluded-case stage remains null."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "#63 fixes this.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/23#issuecomment-5131202",
+    "reason": "The maintainer identifies a fix. Null is appropriate only as the ineligible-case convention, not as a claim that no fix was available."
+  },
+  "notes": "Read issues 23 and 63 with their comments and commit 62a38a9's driver/header/node changes. The driver diff contains 'shutdown_requested = true; // thread\u0027s spin() will catch this and terminate' followed by 'thread.join();'. No failed conditions were listed. The exception from ecl is a correct rejection of the driver's use of its closed serial resource, not evidence of an independently incompatible ecl peer."
+}

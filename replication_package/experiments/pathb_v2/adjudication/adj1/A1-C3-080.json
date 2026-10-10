@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-080",
+  "kind": "A1",
+  "case_id": "C3-080",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the reporter identifies versions, captures outgoing traffic, and restores communication with a local fix. E2 reaches step 6: libmavconn emits the wrong MAVLink wire framing to an AutoQuad peer that expects v1. E3: the observed outgoing-to-incoming link is PAIR. The internal flag bug affects a declared external wire interface and is therefore not excluded as internal or firmware-only.",
+    "quote": "When setting fcu_protocol to v1.0 with mavros 0.33 or later I faced problems communicating with my drone that still runs autoquad.",
+    "url": "https://github.com/mavlink/mavros/issues/1787"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "With mavros version >= 0.33 I was actually still sending mavlink v2.0 messages even after successfully setting the fcu_version=v1.0.",
+      "url": "https://github.com/mavlink/mavros/issues/1787",
+      "reason": "The failure is v2 versus v1 wire representation, not a ROS message-definition mismatch. The MAVLink start/magic field identifies that framing; the inspected fix changes the output-version flag in the status used by finalization."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I also looked at the messages with [this](https://mavlink.io/en/guide/wireshark.html) wireshark plugin to double check.",
+    "url": "https://github.com/mavlink/mavros/issues/1787",
+    "reason": "The framing defect is discovered by communication behavior and packet inspection, not a documented build/connection/activation diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "When sending commands (at least via udp)",
+    "url": "https://github.com/mavlink/mavros/issues/1787",
+    "reason": "The wrong protocol is observed on outgoing runtime traffic."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "If I change line 105 in interface.cpp to use `m_mavlink_status` too, it works:",
+    "url": "https://github.com/mavlink/mavros/issues/1787#issuecomment-1273415355",
+    "reason": "The reporter confirms an earlier local patch, not the final merged fix with an identified AutoQuad firmware revision. PR #1794 supplies the final flag/status changes, so recommended is appropriate for the specified resolved composition."
+  },
+  "notes": "The report's fcu_version spelling and local-patch status-variable wording are retained literally; the inspected PR diff, rather than that ambiguous prose, establishes the final implementation. A working pairing with mavros 0.32.3 establishes regression history, but not observed success of the later specified fixed revision."
+}

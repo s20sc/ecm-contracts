@@ -1,0 +1,167 @@
+{
+ "case_id": "B-Ver-04",
+ "corpus": "C2",
+ "source_refs": [
+  "https://github.com/ros-controls/ros2_control_demos/issues/865",
+  "https://github.com/ros-controls/ros2_control_demos/pull/908",
+  "https://github.com/ros-controls/ros2_control_demos/commit/f59b61cd9d2283bab52d3190f5037c8b2c5e0365",
+  "https://github.com/ros-controls/ros2_control/commit/abbf8d635ecb574d3eb5476fa839dd72a0fb56b5",
+  "https://github.com/ros-controls/ros2_control/pull/2412",
+  "https://github.com/ros-controls/ros2_control/commit/8c520106b1dfe738d1dae44c57b523df0752f6cb",
+  "https://github.com/ros-controls/ros2_control/commit/8c6e2e9b0ea5c9dc1c8a0133953f72582eb5d20f"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue #865, opened by maintainer christophfroehlich, gives the compiler output for example_4 (\"/workspaces/ros2_rolling_ws/src/ros2_control_demos/example_4/hardware/rrbot_system_with_sensor.cpp:38:49: warning: ‘virtual rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn hardware_interface::SystemInterface::on_init(const hardware_interface::HardwareInfo&)’ is deprecated: Use on_init(const HardwareComponentInterfaceParams & params) instead. [-Wdeprecated-declarations]\") and names the provider change (\"The API of the hardware components changed a bit, and got deprecated with ros-controls/ros2_control/issues/2344\"); closed with \"Fixed with #908\"."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "hardware_interface",
+    "ros2_control_demo_example_4"
+   ],
+   "interface_kind": "library API",
+   "evidence": "The hardware component plugin RRBotSystemWithSensorHardware (package ros2_control_demo_example_4, repo ros2_control_demos) derives from hardware_interface::SystemInterface of the host framework (package hardware_interface, repo ros2_control); plugin and host are separate units, separately released. The mismatch is in the provider's declared C++ API (on_init(const HardwareInfo&) deprecated in favour of on_init(const HardwareComponentInterfaceParams&)); the resolving change edits the consumer's source to the new declaration, not a name binding, build rule or firmware."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "UPGRADE: the consumer still overrides and calls on_init(const HardwareInfo&) as declared before ros2_control commit abbf8d63 (\"Add deprecations to old methods not using param structs (#2344)\", 2025-07-01), while it is built against ros2_control master that carries the deprecation (reporter's workspace /workspaces/ros2_rolling_ws/src/ros2_control)."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Compiler warning shown in the issue: \"/workspaces/ros2_rolling_ws/src/ros2_control_demos/example_4/hardware/rrbot_system_with_sensor.cpp:38:49: warning: ‘virtual rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn hardware_interface::SystemInterface::on_init(const hardware_interface::HardwareInfo&)’ is deprecated: Use on_init(const HardwareComponentInterfaceParams & params) instead. [-Wdeprecated-declarations]\"; the build still finishes (\"Finished <<< ros2_control_demo_example_4 [0.14s]\")."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "hardware_interface",
+   "role": "provider",
+   "repo": "https://github.com/ros-controls/ros2_control",
+   "broken_rev": "39c588eb494f36bc72607a16987f0856c7ae8bbe",
+   "resolved_rev": "39c588eb494f36bc72607a16987f0856c7ae8bbe",
+   "pinned": true,
+   "revision_basis": "Inferred. The reporter builds ros2_control from source in a rolling workspace (/workspaces/ros2_rolling_ws/src/ros2_control) and names no commit. The master first-parent head at the issue's creation (2025-07-30T19:02:50Z) was 39c588eb (2025-07-30 18:55 +0200, 'Document order of interfaces (#2394)'); at that revision system_interface.hpp line 226 is 'virtual CallbackReturn on_init(const HardwareInfo & hardware_info)' preceded by the [[deprecated(...)]] attribute, matching the note in the log (system_interface.hpp:226:26). Bounds: the deprecated declaration is identical on master from abbf8d63 (2025-07-01), and it sits at line 226 from d3762542 (2025-07-16, #2348) until 9d5f49c6 (2025-07-31, a docstring fix that moves it to line 223), so the log fits d3762542 up to the parent of 9d5f49c6. The resolution does not change this unit.",
+   "excerpt": false,
+   "ros_distro": "rolling"
+  },
+  {
+   "name": "ros2_control_demo_example_4",
+   "role": "consumer",
+   "repo": "https://github.com/ros-controls/ros2_control_demos",
+   "broken_rev": "e1305fbe8884694e45617ef0c011c8efc6fad96f",
+   "resolved_rev": "f59b61cd9d2283bab52d3190f5037c8b2c5e0365",
+   "pinned": true,
+   "revision_basis": "Broken: inferred as the ros2_control_demos master first-parent head at the issue's creation, e1305fbe (2025-07-15, #854); at that revision example_4/hardware/rrbot_system_with_sensor.cpp line 38 is '    hardware_interface::SystemInterface::on_init(info) !=', matching the log's rrbot_system_with_sensor.cpp:38:49. Resolved: f59b61cd, the merge of PR #908 ('Update to new API of HardwareComponentInterface', merged 2025-09-23) named in the closing comment \"Fixed with #908\"; between the two revisions example_4 changed only in #908.",
+   "excerpt": false,
+   "ros_distro": "rolling"
+  }
+ ],
+ "operation": "UPGRADE",
+ "consumer_built_against": {
+  "broken": "7f92700be79fbe1944451a0066e2b09af444d24a",
+  "resolved": "39c588eb494f36bc72607a16987f0856c7ae8bbe",
+  "basis": "inferred"
+ },
+ "inventory": [
+  {
+   "element": "api:hardware_interface::SystemInterface",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::SystemInterface::on_init",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::HardwareInfo",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::HardwareComponentInterfaceParams",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::SystemInterface::info_",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::SystemInterface::on_configure",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::SystemInterface::on_activate",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::SystemInterface::on_deactivate",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::SystemInterface::read",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  },
+  {
+   "element": "api:hardware_interface::SystemInterface::write",
+   "sides": {
+    "hardware_interface": "provides",
+    "ros2_control_demo_example_4": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "element_retyped",
+   "implicated_elements": [
+    "api:hardware_interface::SystemInterface::on_init",
+    "api:hardware_interface::HardwareInfo",
+    "api:hardware_interface::HardwareComponentInterfaceParams"
+   ],
+   "quote": "/workspaces/ros2_rolling_ws/src/ros2_control_demos/example_4/hardware/rrbot_system_with_sensor.cpp:38:49: warning: ‘virtual rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn hardware_interface::SystemInterface::on_init(const hardware_interface::HardwareInfo&)’ is deprecated: Use on_init(const HardwareComponentInterfaceParams & params) instead. [-Wdeprecated-declarations]",
+   "url": "https://github.com/ros-controls/ros2_control_demos/issues/865"
+  }
+ ],
+ "outcome_class": "warning_only",
+ "loudness": "loud_documented",
+ "loudness_evidence": "Compiler deprecation warning at build: \"/workspaces/ros2_rolling_ws/src/ros2_control_demos/example_4/hardware/rrbot_system_with_sensor.cpp:38:49: warning: ‘virtual rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn hardware_interface::SystemInterface::on_init(const hardware_interface::HardwareInfo&)’ is deprecated: Use on_init(const HardwareComponentInterfaceParams & params) instead. [-Wdeprecated-declarations]\" (https://github.com/ros-controls/ros2_control_demos/issues/865)",
+ "detection_stage": "build",
+ "resolution": {
+  "summary": "Change the consumer's override and base call from on_init(const hardware_interface::HardwareInfo & info) / SystemInterface::on_init(info) to on_init(const hardware_interface::HardwareComponentInterfaceParams & params) / SystemInterface::on_init(params) (PR #908, merge f59b61cd).",
+  "status": "recommended",
+  "evidence": "Maintainer: \"Fixed with #908\" (https://github.com/ros-controls/ros2_control_demos/issues/865). PR #908's CI on head aaa69032 passed (build (rolling), binary (rolling, main), semi_binary (rolling) and others, all 'success' on 2025-09-23), i.e. the fix was shown building against the ros2_control available to CI in September 2025, not against the broken provider revision 39c588eb; no source shows this exact resolved composition built."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "Class choice: the provider did not remove or change the old overload's parameter types; commit abbf8d63 added [[deprecated(\"Use on_init(const HardwareComponentInterfaceParams & params) instead.\")]] to it and the new overload had been added by 8c520106 (#2323, 2025-06-25). The declaration changed while the element is still present, so element_retyped is used; the effect is a build warning only. consumer_built_against.broken = 7f92700b, the parent of abbf8d63 on master (2025-07-01), the last provider revision whose on_init(const HardwareInfo&) the consumer's source matches without the deprecation; inferred from the consumer's references, not stated in the source. consumer_built_against.resolved = the running provider 39c588eb, inferred because the fixed consumer's references (HardwareComponentInterfaceParams, on_init(params)) match its declarations; PR #908 itself was written in September 2025 against a later master. The issue says the same warning appears in all hardware components of the repository; PR #908 changed example_1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14 and 16 as well, which are other compositions of the same kind and not conditions of this case. Later, ros2_control 8c6e2e9b ('Cleanup deprecations (#2589)', 2025-10-15) removed the on_init(const HardwareInfo&) overload, so the broken consumer would stop compiling against provider revisions from that point (element_removed_or_renamed, a failure); this is outside the reported composition. The issue references 'ros-controls/ros2_control/issues/2344', which is the PR merged as abbf8d63."
+}

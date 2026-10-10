@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_001fca6",
+  "kind": "A1",
+  "case_id": "robust_001fca6",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "terminate called after throwing an instance of 'ros::TimeNotInitializedException'\n  what():  Cannot use ros::Time::now() before the first NodeHandle has been created or ros::start() has been called.  If this is a standalone app or test that just uses ros::Time and does not communicate over ROS, you may also call ros::Time::init()\nAborted (core dumped)",
+    "url": "https://github.com/ros/geometry/issues/30"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "terminate called after throwing an instance of 'ros::TimeNotInitializedException'\n  what():  Cannot use ros::Time::now() before the first NodeHandle has been created or ros::start() has been called.\nAborted (core dumped)",
+      "url": "https://github.com/ros/geometry/issues/30"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "There was a second issue with the sleep failing due to being uninitialized.",
+      "url": "https://github.com/ros/geometry/issues/30#issuecomment-27668937"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "terminate called after throwing an instance of 'ros::TimeNotInitializedException'\n  what():  Cannot use ros::Time::now() before the first NodeHandle has been created or ros::start() has been called.\nAborted (core dumped)",
+    "url": "https://github.com/ros/geometry/issues/30"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Awesome, it works for me, thanks for fixing it!"
+  },
+  "notes": "Key claims verified against primary sources. (1) Issue 30 body has the rospy reproducer and the verbatim error 'terminate called after throwing an instance of ros::TimeNotInitializedException ... Aborted (core dumped)'; the gdb backtrace (comment 23085205) shows tf2_ros::Buffer::canTransform (frame #7) and tf::Transformer::waitForTransform (frame #8), confirming the tf(_tf.so)->tf2_ros boundary. (2) tfoote comment 23398009 'Actually a problem in tf2_ros fixed here: ... 5e41627...'; comment 27668937 'There was a second issue with the sleep failing due to being uninitialized. I believe that I have fixed the issue here: 0a034c5'. (3) Fix commits: 5e41627 'patch to work around uninitiaized time...'; 0a034c5 'fixing pytf failing to sleep'; 001fca6 'Merge pull request #42 from ros/geometry_issue_30 ... Misc cleanup and fixing pytf exception for ros Time initialization'. (4) E2 library-API eligible at step 6: the failure depends on the peer (roscpp node inits ros::Time; the rospy process loading _tf.so does not), so it crosses the boundary rather than being internal; resolving edit is inside tf2_ros source, not deployment/build/firmware. (5) Two conditions in one composition at different provider revisions (now() throwing at <=0.4.5, sleep failing at 0.4.6/0.4.7), both class 'other' (an uninitialised-ros::Time precondition has no dedicated schema class); implicated element canTransform correct. (6) Loudness silent_documented + run: uncaught C++ exception aborting the process with no build/connect/activate diagnostic. (7) Resolution 'observed': jdddog (comment 28261862) 'Awesome, it works for me, thanks for fixing it!' after testing the geometry_issue_30 branch (0a034c5, byte-identical to 001fca6). No missed conditions."
+}

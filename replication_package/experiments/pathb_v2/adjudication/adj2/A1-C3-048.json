@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-C3-048",
+  "kind": "A1",
+  "case_id": "C3-048",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I found bug in enum_sensor_orientation.cpp introduced by CUSTOM entry.",
+    "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1008431926"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "I've built master and I don't get the `SENSOR: wrong orientation index: 100` message anymore. My sensor orientation is now recognized as CUSTOM and it seems to be working. But normally is should be recognized as YAW_45 and indeed I get the error message `DS: rangefinder_pub4: received sensor data has different orientation (CUSTOM) than in config (YAW_45)!`. Any clue to solve this ?",
+      "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1010921466"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "I found bug in enum_sensor_orientation.cpp introduced by CUSTOM entry.",
+      "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1008431926"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [1641647988.732796576, 4.408000000]: DS: rangefinder_pub4: received sensor data has different orientation (100) than in config (YAW_45)!",
+    "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1007988240"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've built master and I don't get the `SENSOR: wrong orientation index: 100` message anymore. My sensor orientation is now recognized as CUSTOM and it seems to be working.",
+    "url": "https://github.com/mavlink/mavros/issues/1688#issuecomment-1010921466"
+  },
+  "notes": "独立核验：(1) issue #1688 正文逐字确认（SITL 45°（pose 0.785398163）、\"SENSOR: wrong orientation index: 100\"、Mavros: latest / PX4 / Version: latest / Noetic；NONE、YAW_90/180/270 可用）。(2) 关键评论逐字确认：MatCapLynx 配置（含 orientation: YAW_45）与 \"DS: ... different orientation (100) than in config (YAW_45)!\"；vooon \"I found bug in enum_sensor_orientation.cpp introduced by CUSTOM entry.\" 与 \"Could you please build master and test?\"；MatCapLynx 重建 master 后的输出与末句 \"Any clue to solve this ?\"；vooon \"You have to modify simulator code to send different orientation because mavros plugin just checks if it matches config (like sanity check). ... Now it is likely that you can leave CUSTOM and just use tf frame which would have that rotation.\"；MatCapLynx \"Ok thanks !\"。(3) PX4@07d75d85 代码确认：simulator_mavlink.cpp switch 的 default 分支 \"dist.orientation = distance_sensor_s::ROTATION_CUSTOM;\"（第 1461 行；映射仅覆盖 NONE/YAW_90/YAW_270/PITCH 系而无 YAW_45）；DISTANCE_SENSOR.hpp 第 95 行 \"msg.orientation      = dist_sensor.orientation;\"。(4) 修复链确认：提交 58f99e13 \"lib: Fix rotation search for CUSTOM\"；PR #1690 \"Fix enum sensor_orientation\" 合并于 2022-01-09（merge d6f7e9cb）；工件 snapshot:artifacts/C3-048.txt 显示 04731454 版 array 表（CUSTOM 在第 41 位、注释 /* 100 */，to_string/sensor_orientation_matching 以 size() 拒绝 100）与 d6f7e9cb 版 unordered_map（{100, CUSTOM}）两侧代码。(5) 条件 1 representation_convention 成立（45° 安装的枚举编码跨界失配）；条件 2（mavros 内表缺陷）按 S1 记 other 成立。loud_documented 成立：运行期插件以 ROS_ERROR 拒收并 return 不发布（运行时执行的拒绝）。recommended 成立：观察所用配置未说明、YAW_45 配置仍失败、PX4 仅知 \"latest\"，跨界失配本身未在代码中修复。未发现遗漏条件。"
+}

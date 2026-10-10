@@ -1,0 +1,147 @@
+{
+ "case_id": "CAL-06",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros2/ros2/issues/1517",
+  "https://github.com/fujitatomoya/ros2_test_prover/commit/62e14500a25ba978cea760c7c9b27f17172c0403",
+  "https://github.com/ros2/rclpy/pull/1216",
+  "https://github.com/ros2/ros2cli/pull/881",
+  "https://github.com/ros2/ros2cli/pull/882",
+  "https://github.com/ros2/rclpy/blob/4.1.4/rclpy/rclpy/parameter_service.py",
+  "https://github.com/ros2/ros2cli/blob/0.25.4/ros2param/ros2param/verb/dump.py",
+  "https://github.com/ros2/rcl_interfaces/blob/iron/rcl_interfaces/srv/GetParameters.srv"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Reporter gives a full reproducer node and the wrong `ros2 param dump` output; maintainer fujitatomoya reproduced it on rolling and confirmed the cause: \"if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.\" (https://github.com/ros2/ros2/issues/1517)"
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "rclpy",
+    "ros2param"
+   ],
+   "interface_kind": "service",
+   "evidence": "The ros2param `dump` verb (ros2cli repo) calls the list_parameters and get_parameters services of the reporter's node, whose parameter service is implemented by rclpy's ParameterService. At rclpy 4.1.4 `_get_parameters_callback` answers with an empty values list whenever one requested parameter raises ParameterUninitializedException (`response.values = node.get_parameters([])`), while GetParameters.srv declares \"List of values which is the same length and order as the provided names. If a parameter was not yet set, the value will have PARAMETER_NOT_SET as the type.\" The consumer at ros2cli 0.25.4 maps an empty values list to the string '# Parameter not set' and zips it with the parameter names. The wrong value crosses the service boundary; a peer that follows the srv convention would not trigger it. Not wiring, build, or firmware."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: the get_parameters response produced by the node's rclpy parameter service is consumed by `ros2 param dump`."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed wrong output: \"`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `\" (https://github.com/ros2/ros2/issues/1517)."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "rclpy",
+   "role": "provider",
+   "repo": "https://github.com/ros2/rclpy",
+   "broken_rev": "4.1.4",
+   "resolved_rev": "220d714b2b6da81a4abd6a804e3ed4ee8cfd7c3f",
+   "pinned": true,
+   "revision_basis": "Broken: the reporter states \"ros-iron-rclpy apt package version 4.1.4-1jammy.20231205.160931\"; tag 4.1.4 = commit 986721b9a5a6ce16866d0c617f6b99b3f8ce80c2. Resolved: merge commit of ros2/rclpy#1216 on the rolling branch (2024-02-09). The maintainers decided not to backport #1216 to iron (\"Yes, agreed that we should not backport.\"), so no iron revision carries this fix; the resolved revision is on rolling.",
+   "excerpt": false,
+   "ros_distro": "iron"
+  },
+  {
+   "name": "ros2param",
+   "role": "consumer",
+   "repo": "https://github.com/ros2/ros2cli",
+   "broken_rev": "0.25.4",
+   "resolved_rev": "d3cfbd7612b5d2707b16da1b900dc772dd88a61c",
+   "pinned": true,
+   "revision_basis": "Broken: the reporter names only an iron binary install (rclpy apt build dated 2023-12-05, report 2024-02-02) and gives no ros2cli version; 0.25.4 (tagged 2023-11-17) is the latest ros2cli iron tag before the report (0.25.5 was tagged 2024-02-07), so it is inferred as the installed version; its dump.py contains the `return '# Parameter not set'` branch. Resolved: merge commit of ros2/ros2cli#881 on rolling (2024-02-09), chosen to pair with the rolling rclpy fix; the iron backport is ros2/ros2cli#882.",
+   "excerpt": false,
+   "ros_distro": "iron"
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "service:/param_demo/list_parameters",
+   "sides": {
+    "rclpy": "provides",
+    "ros2param": "consumes"
+   }
+  },
+  {
+   "element": "service:/param_demo/get_parameters",
+   "sides": {
+    "rclpy": "provides",
+    "ros2param": "consumes"
+   }
+  },
+  {
+   "element": "msg:rcl_interfaces/ListParameters",
+   "sides": {
+    "rclpy": "provides",
+    "ros2param": "consumes"
+   }
+  },
+  {
+   "element": "msg:rcl_interfaces/GetParameters",
+   "sides": {
+    "rclpy": "provides",
+    "ros2param": "consumes"
+   }
+  },
+  {
+   "element": "field:rcl_interfaces/GetParameters.values",
+   "sides": {
+    "rclpy": "provides",
+    "ros2param": "consumes"
+   }
+  },
+  {
+   "element": "param:param_1",
+   "sides": {
+    "rclpy": "provides",
+    "ros2param": "consumes"
+   }
+  },
+  {
+   "element": "param:param_2",
+   "sides": {
+    "rclpy": "provides",
+    "ros2param": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "representation_convention",
+   "implicated_elements": [
+    "service:/param_demo/get_parameters",
+    "field:rcl_interfaces/GetParameters.values",
+    "param:param_2"
+   ],
+   "quote": "`ros2 param dump` needs to handle empty list as exception if happens instead of proceeding zipping results. if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.",
+   "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1933083033"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "silent_documented",
+ "loudness_evidence": "The dump command completes and prints wrong values with no diagnostic: \"`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `\"; the reporter adds that parameters past 19 characters \"are not showed\" (https://github.com/ros2/ros2/issues/1517).",
+ "detection_stage": "run",
+ "resolution": {
+  "summary": "Consumer: ros2param dump returns None for an empty get_parameters response and prints an error to stderr instead of zipping (ros2/ros2cli#881). Provider: rclpy declare_parameter raises ValueError for a statically typed parameter declared without a value, so the node can no longer hold an uninitialized parameter that the service answers with an empty list (ros2/rclpy#1216).",
+  "status": "none",
+  "evidence": "Both PRs merged on rolling 2024-02-09 with CI; the issue was closed with \"We merged in the fixes here, and backported the ones we could.\" No output of the fixed composition is shown; the reporter later wrote \"If no fix is going to be merged for Iron though, I think this ticket is still \\\"Open\\\".\""
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "Canonical-form choices: GetParameters/ListParameters are service types; there is no srv form, so `msg:rcl_interfaces/<Srv>` is used for the service type and `field:rcl_interfaces/GetParameters.values` for the response field (generated type rcl_interfaces/srv/GetParameters_Response). The provider unit is the reporter's param_demo node; its parameter service is rclpy's ParameterService, so the unit is named after rclpy. The consumer also uses rclpy's AsyncParameterClient as a library; that is not the failing boundary. The maintainer's reproduction was on rolling (ros2/ros2 commit 0f10c2012877aab87ba5761fa409951eaaa4a1db, repos file with rolling branches); broken revisions here follow the reporter's iron install instead. Broken (iron) and resolved (rolling) revisions are on different branches because the rclpy fix was never backported. The ros2cli#881 change also turns two list_parameters RuntimeErrors into stderr prints; that is not part of this condition. `ros2 param get` for a single parameter works because the same empty-list convention is interpreted correctly there. Class choice: the mismatch is how an uninitialized parameter is encoded in the response (empty array vs. per-name PARAMETER_NOT_SET entries of the same length), classified representation_convention; `other` would be the alternative."
+}

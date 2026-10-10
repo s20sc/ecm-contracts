@@ -1,0 +1,73 @@
+{
+  "task_id": "u0059",
+  "package": "cmd_vel_mux",
+  "manifest_version": "0.2.2",
+  "ports": [
+    {
+      "element": "param:cmd_vel_mux/yaml_cfg_file",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:cmd_vel_mux/auto_docking",
+      "side": "consumes",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "9f195f881246fdfa2798d1d3eebca84a"}
+    },
+    {
+      "element": "topic:cmd_vel_mux/output",
+      "side": "provides",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "9f195f881246fdfa2798d1d3eebca84a"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "topic:cmd_vel_mux/output": "topic cmd_vel_mux/output: geometry_msgs/Twist"
+  },
+  "not_declared": [],
+  "references": [
+    "param:cmd_vel_mux/yaml_cfg_file"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "per-source one-shot timeout timer: when the currently allowed source sends nothing for its YAML-configured timeout, allowed is reset to VACANT and \"idle\" is published on the latched topic active; no zero-velocity command is published on output"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:cmd_vel_mux/package.xml:3",
+    "ports[0].frame": "snapshot:cmd_vel_mux/cfg/reload.cfg:9 | gen.add(\"yaml_cfg_file\", str_t, 0, \"Pathname to a yaml file for re-configuration of the mux\", \"\") -- a file path string, no spatial meaning",
+    "ports[1].msg_type": "snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:150 | nh.subscribe<geometry_msgs::Twist>(cmd_vel_sub[i].topic, 10, CmdVelFunctor(i, this)); -- every input subscription uses this type; topic names come from the YAML 'subscribers' list (cmd_vel_subscribers.cpp:30)",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 geometry_msgs/Twist <dir>, with geometry_msgs/msg/Twist.msg and Vector3.msg fetched from https://raw.githubusercontent.com/ros/common_msgs/<tag>/geometry_msgs/msg/ at tags 1.9.16, 1.10.6, 1.11.10, 1.12.7, 1.12.8, 1.13.1, 1.13.2 (packet ros_distro is null, so every catkin-era ROS 1 line was checked); identical value 9f195f881246fdfa2798d1d3eebca84a at every tag",
+    "ports[2].msg_type": "snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:131 | mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (output_name, 10);",
+    "ports[2].definition_id": "same computation as ports[1].definition_id (geometry_msgs/Twist): 9f195f881246fdfa2798d1d3eebca84a at all seven common_msgs tags",
+    "declares[topic:cmd_vel_mux/output]": "snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:126-131 | std::string output_name(\"output\"); ... mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (output_name, 10); on the private node handle (line 98 nh = this->getPrivateNodeHandle()); nodelet loaded with name cmd_vel_mux in snapshot:cmd_vel_mux/launch/example.launch:10",
+    "references[param:cmd_vel_mux/yaml_cfg_file]": "snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:102 | nh.getParam(\"yaml_cfg_file\", yaml_cfg_file); on the private node handle (line 98); set in snapshot:cmd_vel_mux/launch/example.launch:11 inside node name=\"cmd_vel_mux\"; also a dynamic_reconfigure parameter at snapshot:cmd_vel_mux/cfg/reload.cfg:9",
+    "perm_requires": "searched all files under snapshot:cmd_vel_mux (package.xml, CMakeLists.txt, src/, include/, cfg/, launch/, param/, plugins/): no permission or access-control declaration",
+    "perm_grants": "same search as perm_requires: nothing granted",
+    "recovery": "snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:57-71 (timerCallback: allowed = VACANT; acv_msg->data = \"idle\"; active_subscriber.publish) and :153-154 (nh.createTimer(ros::Duration(cmd_vel_sub[i].timeout), TimerFunctor(i, this), true, false)); package.xml:6-7 'deallocates current allowed topic if no messages are received after a configured timeout'"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The code-level declarations are internally consistent (default output topic 'output' of geometry_msgs/Twist, yaml_cfg_file read from the private namespace), but the auto_docking subscription exists only if an external YAML lists it and neither shipped config does, and the shipped example.yaml renames the output to 'output/cmd_vel'; whether a paired package lines up depends on configuration outside this snapshot."
+  },
+  "confidence": "medium",
+  "notes": "ROS 1 package (catkin, package.xml format 1, yaml-cpp 0.3 API: GetNextDocument/FindValue). QoS is null for ROS 1; queue sizes: output 10 (nodelet.cpp:131), each input 10 (nodelet.cpp:150), and a latched std_msgs/String topic 'active' with queue 1 (nodelet.cpp:84) that is not a packet element. Output topic name: code default is 'output' on the private handle, i.e. cmd_vel_mux/output when the nodelet is named cmd_vel_mux as in example.launch; the optional YAML key 'publisher' overrides it (nodelet.cpp:127-130), and param/example.yaml:42 sets 'output/cmd_vel' while param/reconfigure.yaml has no publisher key (so the default 'output' applies). The output republishes each allowed input message unchanged (nodelet.cpp:53); Twist has no header and the code sets no frame, so frame is null; the Twist/Vector3 definitions state no units. topic:cmd_vel_mux/auto_docking: the package subscribes only to topic names read at run time from the YAML 'subscribers' list (cmd_vel_subscribers.cpp:30; nodelet.cpp:147-150); 'auto_docking' (and 'dock' in any form) appears nowhere in the snapshot, including both shipped YAML files (example.yaml lists input/default, input/navigation, input/joystick, input/remote, input/webapp, input/keyop; reconfigure.yaml lists input/default, input/navigation, input/safety), so it is in neither references nor not_declared. Its port msg_type comes from the generic subscription mechanism; its timeout and priority would come from that external YAML. yaml_cfg_file: packet side is consumes; it is read with getParam when the dynamic_reconfigure value is empty (nodelet.cpp:99-103) and is also declared as a string dynamic_reconfigure parameter with default \"\" (reload.cfg:9) served on the private node handle (nodelet.cpp:81); a missing file is logged and the reload is skipped (nodelet.cpp:113-117). Other types the code references (not packet elements): geometry_msgs/Twist, std_msgs/String, cmd_vel_mux/reloadConfig (dynamic_reconfigure). No exclusive resources are claimed in code or configuration. definition_id: dependency files were fetched to a temporary directory outside the workspace, with a locally written stub package.xml naming geometry_msgs so the tool could resolve the package name; they were deleted afterwards."
+}

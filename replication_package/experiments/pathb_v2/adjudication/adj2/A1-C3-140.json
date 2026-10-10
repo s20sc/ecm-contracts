@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-140",
+  "kind": "A1",
+  "case_id": "C3-140",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "When evaluating whether a cell should be marked, it uses the actual point distance compared to the `obstacle_max_range`",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5476#issuecomment-3248253572"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Have observed that when reversing away from an obstacle, as it moves outside the `obstacle_max_range`, the obstacle is cleared away instead of persisting.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5476"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "When marking obstacles from new observations, the check against `obstacle_max_range` is done in grid cell space for consistency with the ray tracing free space check  against `raytrace_max_range`"
+  },
+  "notes": "Independent check agrees with ineligible/internal (E2 step 2). Verified this session: (1) zach-kudan's diagnosis comment verified verbatim (both quoted sentences: metric marking check vs cell-space clearing 'it takes the last _cell_ which `min(raytrace_max_range, point_distance)`  lies within'); (2) SteveMacenski's fix-direction comment verified verbatim ('Maybe we should check the `obstacle_max_range` in grid cell space then, no?'); (3) PR #5697 body quote verified verbatim, merged 2025-12-09 as 80b72d27811965a8a22b6d0e6f0cf95a7d74818a; PR file list = nav2_costmap_2d/plugins/obstacle_layer.cpp + two test files only; (4) jazzy backport #5775 merged 2025-12-11 as 3320ebf7911525af3fe632be5648cac884ea363b; (5) pre-fix parent code verified: marking used 'double sq_dist = (px - obs.origin_.x) * ...' with 'if (sq_dist >= sq_obstacle_max_range)'; the merged change converts marking to cell space ('const unsigned int max_range_cells = cellDistance(obs.obstacle_max_range_);' ... 'if (dist > max_range_cells)'). The scan data crossing the topic boundary is correct; the inconsistency is between two computations inside ObstacleLayer; any correct scan source produces the same clearing, so E2 stops at step 2. FLAG (notes-level inaccuracy in the spec): the spec note 'PR #5697 also excludes the observation cell from raytracing' is contradicted by the merged diff — I diffed the full obstacle_layer.cpp at 80b72d2^ vs 80b72d2 (and 3320ebf^ vs 3320ebf): the only change is the marking loop; raytraceFreespace is untouched, and its call 'nav2_utils::raytraceLine(marker, x0, y0, x1, y1, size_x_, cell_raytrace_max_range, cell_raytrace_min_range);' is identical before and after (https://raw.githubusercontent.com/ros-navigation/navigation2/80b72d27811965a8a22b6d0e6f0cf95a7d74818a/nav2_costmap_2d/plugins/obstacle_layer.cpp, function ObstacleLayer::raytraceFreespace). The PR description's second bullet (raytracing exclusion) does not appear in the merged commit. This does not affect the eligibility verdict. Loudness/resolution null is schema-correct for an ineligible case."
+}

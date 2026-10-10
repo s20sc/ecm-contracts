@@ -1,0 +1,84 @@
+{
+  "case_id": "robust_2d42582",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/motoman/issues/102",
+    "https://github.com/ros-industrial/motoman/pull/109",
+    "https://github.com/ros-industrial/motoman/commit/2d42582c692191f67f1e986467822fcd3b3935b9",
+    "https://github.com/ros-industrial/motoman/blob/e2384f02d926da5b9716fdf915783af31962138c/motoman_sia20d_support/urdf/sia20d_macro.xacro"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue #102 (opened 2016-07-13 by maintainer gavanderhoorn on behalf of jettan and mbharatheesha) names the concrete defect in the SIA20 description: \"The position limits for `joint_s`, `joint_r` and `joint_t` are specified as `(-)3.1416` for the SIA20 in [sia20d_macro.xacro](...), which is incorrect\" and reports the effect that was observed with the real robot: \"This has actually caused problems when planning motions close to the joint limits. MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error, refusing to complete the motion.\" The maintainer closes it with \"Fixed in 2d42582.\" (merge of PR #109)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["motoman_sia20d_support", "moveit_ros_move_group"],
+      "interface_kind": "parameter (robot_description URDF content: joint position limits)",
+      "evidence": "Step 1: the two units are the SIA20 support package (provides the robot model through the robot_description parameter) and the MoveIt move_group node (consumes robot_description and plans against its joint limits). They are separate packages and separate processes. Step 2: the failure is a wrong limit value (3.1416 rad where the robot's real limit is pi) that crosses the boundary from the description package into the planner; the planner is correct and merely uses the limit it is given, so the failure depends on the assumption that the URDF limits equal the robot's limits, and the resolving edit is inside the provider only (\"A wrong value ... that crosses the boundary is an interface failure even when the resolving edit is inside one unit\"). Step 3: no remap/name binding; the fix changes the limit values in sia20d_macro.xacro and sia20d.urdf. Step 4: not a build or packaging change. Step 5: not firmware. Step 6: eligible, interface kind parameter (the joint limit attributes carried in robot_description)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the support package's output (the URDF loaded into robot_description) feeds the planner's input. The observed failure happened while planning and executing motions near the limits (\"MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error\"). No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"This has actually caused problems when planning motions close to the joint limits. MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error, refusing to complete the motion.\" (https://github.com/ros-industrial/motoman/issues/102#issuecomment-232274026). The fix commit also states the mismatch: \"This floors PI, instead of rounding. This makes the joint limits slightly stricter than what is specced, but will avoid OOB errors on the controller.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "motoman_sia20d_support",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/motoman",
+      "broken_rev": "c0e5031e49568d9aedf676504ad87111209be252",
+      "resolved_rev": "2d42582c692191f67f1e986467822fcd3b3935b9",
+      "pinned": true,
+      "revision_basis": "broken_rev is the parent of the fix on indigo-devel (PR #109, base indigo-devel, merged 2016-08-28 as 2d42582). The reporter links the file at e2384f02d926da5b9716fdf915783af31962138c (a 2014-01-26 commit); the sia20d_macro.xacro blob at that revision (ceb15a8f529595c06c9c19681e8b837808dc006c) is identical to the blob at c0e5031, so the file the reporter cited is byte-for-byte the pre-fix file. resolved_rev is the commit the maintainer names in the closing comment (\"Fixed in 2d42582.\").",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "moveit_ros_move_group",
+      "role": "consumer",
+      "repo": "https://github.com/moveit/moveit",
+      "broken_rev": "indigo-devel",
+      "resolved_rev": "indigo-devel",
+      "pinned": false,
+      "revision_basis": "The source names MoveIt as the planner that consumed the limits (\"MoveIt exploited the tiny bit of extra space\") and names the distro only through the maintainer's remark that the package \"should still be fixed for Indigo\"; no MoveIt version or commit is stated. The move_group node lives in the moveit_ros_move_group package on the indigo-devel branch of the moveit repository (branch head dac5210c94b06ce783423d3309c971f1b40d3776 when checked on 2026-09-26). The resolution does not change this unit, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "param:/robot_description", "sides": {"motoman_sia20d_support": "provides", "moveit_ros_move_group": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["param:/robot_description"],
+      "quote": "It would appear the values in the urdf are _rounded up_, while they should'be been either _floored_ or written out with more digits.",
+      "url": "https://github.com/ros-industrial/motoman/issues/102"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic at build, connection, or activation: the description loads and MoveIt plans normally (\"MoveIt exploited the tiny bit of extra space\"). The failure surfaced only at run time when the trajectory was executed and \"the robot (correctly) returned an error, refusing to complete the motion.\" (https://github.com/ros-industrial/motoman/issues/102#issuecomment-232274026); that refusal comes from the robot controller during execution, not from tooling at any of the three loud stages.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Floor pi instead of rounding it in the SIA20 joint limits (lower/upper for joint_s, joint_r and joint_t change from -3.1416/3.1416 to -3.1415/3.1415) and write all SIA20 joint limits and velocities with the spec-sheet values truncated after the fourth digit, in both sia20d_macro.xacro and the generated sia20d.urdf.",
+    "status": "recommended",
+    "evidence": "Commit 2d42582 (\"sia20d: fix joint limits S, R & T. Fix #102. This floors PI, instead of rounding. This makes the joint limits slightly stricter than what is specced, but will avoid OOB errors on the controller.\") merged via PR #109; the maintainer closed the issue with \"Fixed in 2d42582.\" The source does not show MoveIt planning against the corrected model or the robot accepting a near-limit motion afterwards, so the resolved composition is not observed."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "The observed effect (\"the robot (correctly) returned an error, refusing to complete the motion\") arises one hop downstream, where the trajectory that MoveIt planned to 3.1416 rad is streamed through motoman_driver to the Motoman controller, which enforces the real pi limit; that controller is not modelled as a unit because it does not consume the URDF, and the description-to-planner boundary is where the wrong value crosses. The same commit also changes the limits of joint_l, joint_e, joint_u and joint_b and every joint velocity to four-digit spec-sheet values (e.g. 1.91 to 1.9198, 2.26 to 2.2689); those edits are not conditions of this case since the reporter only documents joint_s, joint_r and joint_t. A sister issue (#104, SIA10) was fixed in the parent commit c0e5031 (#108); that is a different composition. The maintainer notes the package \"will be removed in ROS Kinetic (and replaced with `motoman_sia_support`), but should still be fixed for Indigo.\" The consumer unit is inferred from the source's naming of MoveIt; its revision is unpinned because no version is stated."
+}

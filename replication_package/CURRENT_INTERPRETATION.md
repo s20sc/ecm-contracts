@@ -1,0 +1,13 @@
+# Reading the preserved protocol and result metadata
+
+This note distinguishes the current interpretation from historical wording retained for audit. It does not rewrite the frozen protocol, certify historical blinding, establish annotation identities, or add observations.
+
+| Preserved wording or field | Current interpretation | Evidence to consult |
+| --- | --- | --- |
+| “pre-registered” and “confirmatory” in the frozen protocol | The current manuscript treats the analysis as a pre-specified but exploratory retrospective feasibility study. Post-freeze decisions and exposure to input records prevent treating the original labels as proof of independent confirmatory validation. | `experiments/pathb_v2/PROTOCOL.md`, append-only `DEVIATIONS.md`, and the manuscript's methodology and limitations. |
+| `H1.underpowered` | A legacy name for **eligible C3 failures below the planned sample size**: the implementation calculates `n_eligible_failures < 40`, with `planned_n = 40`. It does not perform a power calculation. `false` means the size threshold was reached; it does not mean the comparison had adequate statistical power. | `experiments/pathb_v2/scoring.py`, function producing the H1 object; the structural-power discussion in the manuscript. |
+| A change from `underpowered: false` at 40 cases to `true` at 39 | The flag flips because the eligible failure count crosses the planned-size threshold. This flag alone does not characterize changes in effect estimates or intervals; consult the complete replay. In the supplied conditional boundary replay, the discordant counts remain `b = 2`, `c = 0`, and the exact two-sided p-value remains `0.5`. Neither indicator value establishes superiority or equivalence. | `posthoc_review_v28/replay_boundary.py` and its complete supplied receipt. |
+| The strict eligibility fold | A one-sided sensitivity analysis of the existing scored population. Missing descriptions and outcomes for newly admitted exclusions prevent interpreting it as a completed expanded-boundary analysis. | Current results discussion and the explicit deviations from the original boundary-analysis commitment. |
+| Successful replay, hash verification, or agreement between model-written records | Evidence about the preserved inputs and calculations. It does not establish independent human ground truth, historical approval, source truth, or redistribution rights. | Reproduction receipts, provenance limitations and author-confirmation dependencies. |
+
+Historical files and their field names remain intact. Any downstream display should label the legacy `underpowered` field “below planned sample size” and retain its original key in provenance. Stronger claims require additional evidence, not a reinterpretation of this Boolean.

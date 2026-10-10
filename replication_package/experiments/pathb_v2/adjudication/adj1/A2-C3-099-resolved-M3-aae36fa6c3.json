@@ -1,0 +1,26 @@
+{
+  "item_id": "A2-C3-099-resolved-M3-aae36fa6c3",
+  "kind": "A2",
+  "case_id": "C3-099",
+  "composition": "resolved",
+  "method_label": "M3",
+  "rule": "sv_major",
+  "values": [
+    {
+      "path": "ver_delta.semver_old",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0353/snapshot/rmw_dds_common/package.xml:5 [lines 5-5]\n```\n  <version>1.6.0</version>\n```"
+    },
+    {
+      "path": "ver_delta.semver_new",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/package.xml:5 [lines 5-5]\n```\n  <version>3.1.0</version>\n```"
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specification is an UPGRADE (built-against rmw_dds_common 1.6.0, running 3.1.0). The PAIR view compares the running provider definition with the consumer built-against definition; it is not a standalone Gid topic. Gid is nested in ParticipantEntitiesInfo and is consumed through the real ros_discovery_info subscription. Thus the declaration-level dependency and revision pairing agree; this does not assert that mismatched samples deserialize successfully.\nsnapshot:specs/C3-099.json:68 [lines 68-68]\n```\n  \"operation\": \"UPGRADE\",\n```\nsnapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/ParticipantEntitiesInfo.msg:1 [lines 1-2]\n```\nGid gid\nNodeEntitiesInfo[] node_entities_info_seq\n```\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:91 [lines 91-94]\n```\n    rmw_fastrtps_cpp::create_publisher(\n      participant_info.get(),\n      rosidl_typesupport_cpp::get_message_type_support_handle<ParticipantEntitiesInfo>(),\n      \"ros_discovery_info\",\n```\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:119 [lines 119-122]\n```\n    rmw_fastrtps_cpp::create_subscription(\n      participant_info.get(),\n      rosidl_typesupport_cpp::get_message_type_support_handle<ParticipantEntitiesInfo>(),\n      \"ros_discovery_info\",\n```\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171 [lines 171-174]\n```\n          if (std::memcmp(\n              reinterpret_cast<char *>(common_context->gid.data),\n              reinterpret_cast<char *>(&msg.gid.data),\n              RMW_GID_STORAGE_SIZE) == 0)\n```"
+  },
+  "notes": "The old/new version strings are source-verified; a major-version difference is not itself evidence that the resolved consumer still fails. This item has no changed_fields triggering path, so substance is empty."
+}

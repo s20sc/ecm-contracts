@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-C3-099-resolved-M1-e51e049cd3",
+ "kind": "A2",
+ "case_id": "C3-099",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[field:rmw_dds_common/Gid.data]",
+   "verdict": "unverifiable",
+   "source_excerpt": "The item's evidence.provenance entry for this path is null - no location (snapshot path or URL) was recorded, so there is no cited source to open. Independent check this session: s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1 'char[24] data' vs s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1 'char[16] data' - the element really does differ between the unit's built (u0353) and running (u0354) revisions."
+  },
+  {
+   "path": "ver_delta.consumer_reads[field:rmw_dds_common/Gid.data]",
+   "verdict": "unverifiable",
+   "source_excerpt": "The item's evidence.provenance entry for this path is null - no location recorded. Independent check this session: s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171-174 'if (std::memcmp( / reinterpret_cast<char *>(common_context->gid.data), / reinterpret_cast<char *>(&msg.gid.data), / RMW_GID_STORAGE_SIZE) == 0)' shows the consumer reading the field."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[field:rmw_dds_common/Gid.data]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1 (unit's built revision): 'char[24] data'",
+   "running_excerpt": "s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1 (unit's running revision): 'char[16] data' - fixed-array bound change 24 -> 16 bytes; since the item cites no locations, I compared the unit's own built/running task snapshots directly"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The PAIR encoding matches the assembled resolved composition's field:rmw_dds_common/Gid.data pair_view (producer=u0354, consumer=u0355 built-against u0353, edge joining the identical field role). I reproduced both definition_id values this session with definition_hash.py: producer (u0354 Gid.msg) -> sha256_normalised 18019bf8a2c05fef0196d05cadc03652406576c373119867025c235b7265bc6f, consumer (u0353 Gid.msg) -> fe832c5cdf2e6149636fbfd2c4a2a341587e91a73072ab92578cecf493c233c2. That the two sides still carry different definitions in the resolved composition is consistent with the spec's resolution (consumer-side hardening of the generated deserializers, not definition unification)."
+ },
+ "notes": "The two value verdicts are unverifiable solely because the item records null provenance for both trigger paths - a provenance-recording gap, not an evidentiary contradiction: every underlying fact was independently confirmed (Gid.msg char[24] vs char[16] at u0353/u0354; consumer read at u0355 listener_thread.cpp:171-174; both sha256 definition_ids reproduce from the snapshots). Note also the encoding quirk that the item declares unit_kind pair_view while its trigger paths are ver_delta.* fields; the substance comparison above uses the unit's built/running tasks, which the assembled composition identifies unambiguously."
+}

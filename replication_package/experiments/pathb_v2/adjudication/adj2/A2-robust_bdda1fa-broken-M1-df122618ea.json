@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_bdda1fa-broken-M1-df122618ea",
+ "kind": "A2",
+ "case_id": "robust_bdda1fa",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:mavros.command.guided_enable]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0138/snapshot/mavros/src/mavros/command.py:49 '    guided_enable = _get_proxy('guided_enable', CommandBool)' (also :37 'guided_enable = None' and :17 \"'guided_enable',\" inside __all__ at :10-19). running: s2_work/tasks/u0136/snapshot/mavros/src/mavros/command.py — __all__ at :10-18 lists only long, int, arming, set_home, takeoff, land, trigger_control; module-level None assignments at :30-36 omit guided_enable; _setup_services at :39-47 contains '    global long, int, arming, set_home, takeoff, land, guided_enable, trigger_control' at :40 but assignments at :41-47 never assign guided_enable. grep -rni 'guided' over u0136/snapshot/mavros/ finds the identifier guided_enable only at scripts/mavsetp:40 (the caller) and command.py:40 (the global statement); remaining hits are the unrelated word 'guided'/'GUIDED' in sys_status.cpp/uas_stringify.cpp."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:mavros.command.guided_enable]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0139/snapshot/mavros/scripts/mavsetp:40 '        command.guided_enable(value=True)' (import at :18 'from mavros import command, setpoint as sp'; call wrapped in enable_offboard() try/except rospy.ServiceException at :38-42)."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:mavros.command.guided_enable]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0138/snapshot/mavros/src/mavros/command.py:49 '    guided_enable = _get_proxy('guided_enable', CommandBool)'",
+   "running_excerpt": "s2_work/tasks/u0136/snapshot/mavros/src/mavros/command.py:40 '    global long, int, arming, set_home, takeoff, land, guided_enable, trigger_control' — followed by assignments :41-47 that never assign guided_enable; no 'guided_enable = None' exists at :30-36 and __all__ :10-18 omits it, so the module attribute does not exist at this revision"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The broken upgrade unit records provider mavros built=u0138 (package.xml '<version>0.15.0</version>') and running=u0136 ('<version>0.16.5</version>'), both opened and matching the recorded semver pair, with consumer mavsetp=u0139 (same revision 18131c8 as the running provider). The producer port is the command module attribute guided_enable created at built (command.py:49); the consumer port is the attribute access 'command.guided_enable(value=True)' at mavsetp:40 in a script that imports the module at :18. Both ports name the same element, so the assembled composition represents the UPGRADE operation with the two ports actually connected."
+ },
+ "notes": "All embedded claims of the running-side provenance reproduced this session: the __all__ contents and line range (10-18), the None-assignment block (30-36), the global statement at :40 without any assignment, and the whole-snapshot search whose only guided_enable hits are the caller (mavsetp:40) and the dangling global statement (command.py:40). The element's presence differs between built and running (module attribute defined vs not defined), a presence difference under the substance criterion. Minor wording note: the provenance calls lines 30-36/41-47 'defines'; those lines are module-level None assignments and proxy assignments rather than function definitions, but the cited locations are accurate."
+}

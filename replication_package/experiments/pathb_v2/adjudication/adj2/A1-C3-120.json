@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-120",
+  "kind": "A1",
+  "case_id": "C3-120",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "When I start rosbridge and subscribe to a topic before the topic is available I receive the following error:\n[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Should be fixed now by #991, #1023 and #1033",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769#issuecomment-2896918866"
+  },
+  "notes": "Verified this session: issue 769 body contains the reproducer steps, 'Library Version: 1.2.0-1focal.20220520.222649', 'ROS Version: galactic', the topic-info output showing publisher 'Reliability: BEST_EFFORT' and 'Note the `Reliability: RELIABLE` under `rosbridge_websocket`', and 'and subsequent attempts to connect via rosbridge to the given topic don't return anything.' johncarl81 comment (2022-09-01) contains verbatim 'Where we assume the default reliability policy is `RELIABLE`'. rosbridge subscribers.py at 1.2.0 line 114 'reliability=ReliabilityPolicy.RELIABLE,' with line 117 'infos = node_handle.get_publishers_info_by_topic(topic)' and line 120 'if any(pub.qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT for pub in infos):' (https://raw.githubusercontent.com/RobotWebTools/rosbridge_suite/1.2.0/rosbridge_library/src/rosbridge_library/internal/subscribers.py). mavros global_position.cpp at 2.1.1 line 111 'auto sensor_qos = rclcpp::SensorDataQoS();' and line 121 'gp_fix_pub = node->create_publisher<sensor_msgs::msg::NavSatFix>(\"~/global\", sensor_qos);' (https://raw.githubusercontent.com/mavlink/mavros/2.1.1/mavros/src/plugins/global_position.cpp). PR 991 'Default subscriber QOS to BestEffort, account for TRANSIENT_LOCAL' merged 2025-02-26 with merge_commit_sha ceb3f7da0b030b2b04bf86fe9b644f6ca77856eb; its patch shows '-            reliability=ReliabilityPolicy.RELIABLE,' -> '+            reliability=ReliabilityPolicy.BEST_EFFORT,'. PR 1023 'fix: incompatible QoS settings for subs' (fbb0769e) and PR 1033 backport (c92e81d8) merged (API). E2: two processes interacting only through ROS 2 topics; reliability attribute differs across the boundary; fix is code (QoS selection), not launch/config names or build -> stop 6. Loudness: the ROS 2 incompatible-QoS event is one of the diagnostics S1 names for loud_documented, fired at connect when the late publisher is discovered -> detection_stage connect. Resolution 'recommended': maintainer close names the PRs but nobody in the thread I read shows the fixed rosbridge working against mavros (johncarl81 2023-10-24: 'I have not, but I'm curious if this solves the problem.'), so agree with recommended, not observed."
+}

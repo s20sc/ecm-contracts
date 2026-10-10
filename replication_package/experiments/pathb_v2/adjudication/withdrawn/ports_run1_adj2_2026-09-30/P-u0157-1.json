@@ -1,0 +1,10 @@
+{"item_id": "P-u0157-1", "kind": "P", "task_id": "u0157", "element": "field:mavlink/COMMAND_ACK.result", "side": "consumes",
+ "values": [
+  {"field": "msg_type", "recorded": "mavlink/COMMAND_ACK", "verdict": "verified",
+   "source_excerpt": "mavros/src/plugins/command.cpp:105: void handle_command_ack(const mavlink::mavlink_message_t *msg, mavlink::common::msg::COMMAND_ACK &ack)",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "mavros/src/plugins/command.cpp:111: (*it)->result = ack.result; ; :184: success = is_not_timeout && (*it)->result == enum_value(MAV_RESULT::ACCEPTED);",
+   "qos_basis": null}
+ ],
+ "notes": "Opened command.cpp lines 100-115 and 180-190. msg_type: line 105 states mavlink::common::msg::COMMAND_ACK verbatim; the recorded mavlink/COMMAND_ACK is the canonical pkg/Type spelling of that type (the source additionally names the common dialect; the identifier COMMAND_ACK matches). frame=none: line 111 copies ack.result into the waiting entry and line 184 compares it against MAV_RESULT::ACCEPTED, exactly as the provenance describes; a result code carries no spatial meaning."}

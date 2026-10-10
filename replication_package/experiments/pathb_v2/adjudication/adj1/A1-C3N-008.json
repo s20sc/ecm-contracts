@@ -1,0 +1,56 @@
+{
+  "item_id": "A1-C3N-008",
+  "kind": "A1",
+  "case_id": "C3N-008",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": "E3_operation_mismatch",
+    "reason": "E1, E2 and E4 pass, and E2 reaches step 6 rather than the build-only exclusion. E3 does not support the specified UPGRADE: the consumer selects the signature introduced in 31.0.0 against older provider headers, not a newer provider running against an older consumer expectation. The specification explicitly reverses the required direction. The concrete interface defect can be considered for a PAIR re-specification, but reverse version skew cannot itself establish the recorded operation.",
+    "quote": "I misconfigured the version macro with #3080. It is a GTE and not a GT macro 🙈\nThe breaking PR was released with 31.0.0",
+    "url": "https://github.com/ros-controls/ros2_control/pull/3198",
+    "supporting_evidence": [
+      {
+        "quote": "add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);",
+        "url": "https://raw.githubusercontent.com/ros2/rclcpp/30.1.5/rclcpp/include/rclcpp/executor.hpp#L200"
+      },
+      {
+        "quote": "#if RCLCPP_VERSION_GTE(30, 1, 5)\n  void add_node(\n    const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, bool notify) override",
+        "url": "https://raw.githubusercontent.com/ros-controls/ros2_control/bb07fdd55a59ea750f06bb2fee7a3a1c113b10dd/hardware_interface_testing/test/test_resource_manager.cpp#L1360"
+      }
+    ]
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override",
+      "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579",
+      "reason": "Independent of the incorrect operation label, the declaration mismatch is real and concerns Executor::add_node. The inspected provider headers differ between by-value and const-reference forms."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "marked ‘override’, but does not override",
+    "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "gmake[2]: *** [CMakeFiles/test_resource_manager.dir/build.make:76: CMakeFiles/test_resource_manager.dir/test/test_resource_manager.cpp.o] Error 1",
+    "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-#if RCLCPP_VERSION_GTE(30, 1, 5)\n+#if RCLCPP_VERSION_GTE(31, 0, 0)",
+    "url": "https://github.com/ros-controls/ros2_control/pull/3198.diff",
+    "reason": "The repair selects the old declaration when compiling against the older provider. recommended is supported; the inspected evidence does not establish a successful fixed composition with both installed revisions identified."
+  },
+  "notes": "The disagreement concerns eligibility as specified under E3, not the existence of the defect or whether interface-dependent compile failures are allowed. No provider-running-newer claim is inferred merely from the word rolling. The earlier forward-upgrade failure addressed by PR 3080 is a different case."
+}

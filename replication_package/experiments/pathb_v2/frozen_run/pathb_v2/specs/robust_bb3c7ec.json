@@ -1,0 +1,99 @@
+{
+  "case_id": "robust_bb3c7ec",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/136",
+    "https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016",
+    "https://github.com/yujinrobot/kobuki/commit/bb3c7ec8a7e656aa7e75753864351c27d571db47",
+    "https://github.com/yujinrobot/kobuki/blob/abf4e852dbfef8bee9859cf3a25c1d23ee847a8d/kobuki_node/src/node/diagnostics.cpp",
+    "https://github.com/yujinrobot/kobuki/blob/abf4e852dbfef8bee9859cf3a25c1d23ee847a8d/kobuki_bringup/resources/yaml/diagnostics.yaml",
+    "https://github.com/yujinrobot/kobuki/blob/abf4e852dbfef8bee9859cf3a25c1d23ee847a8d/kobuki_bringup/resources/launch/minimal.launch",
+    "https://github.com/yujinrobot/kobuki/blob/abf4e852dbfef8bee9859cf3a25c1d23ee847a8d/kobuki_bringup/resources/launch/components/mobile_base.launch",
+    "https://github.com/ros-android/android_app_manager/blob/f080cd934460fc92babd48eee5f660454c1b48d0/library/src/ros/android/views/TurtlebotDashboard.java"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #136 \"Battery charge not shown in Android apps\" (maintainer corot, 2012-06-20, empty body), closed the same day with the maintainer's confirmation and fix: \"Fixed with two changes: - I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base) - We send Current Charge and Capacity diagnostic values. See /kobuki_node/src/node/diagnostics.cpp\" and commit bb3c7ec \"Fix issue #136: Battery charge not shown in Android apps\". The consuming code (TurtlebotDashboard.java in the Turtlebot Android app library) is public and shows exactly the name and keys the fix introduces."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_node", "android_app_manager"],
+      "interface_kind": "topic",
+      "evidence": "Unit 1: kobuki_node (run as node \"mobile_base\" by kobuki_bringup/minimal.launch), whose BatteryTask publishes a diagnostic_msgs status named \"Battery\" (prefixed by the node name by diagnostic_updater) with key-values \"Capacity\", \"Voltage\", \"Percent\", \"Source\", \"State\"; the same bringup launches diagnostic_aggregator with kobuki_bringup's diagnostics.yaml, which re-publishes it on /diagnostics_agg under path 'Power System'. Unit 2: the Turtlebot Android apps' dashboard (ros.android.views.TurtlebotDashboard in android_app_manager), a separate rosjava process that subscribes to diagnostics_agg, selects the status whose name equals \"/Power System/Battery\" and reads the keys \"Charge (Ah)\", \"Capacity (Ah)\" and \"Current (A)\". Step 2: the failure is entirely about values crossing the boundary (the status name string and the key strings of the DiagnosticStatus payload), not a defect internal to either unit. Step 3: the minimal fix is not only name binding: besides the aggregator's remove_prefix configuration it changes the provider's published key-values in kobuki_node/src/node/diagnostics.cpp. Step 4/5: not build or firmware. Interface kind: topic (diagnostic_msgs/DiagnosticArray content on /diagnostics_agg)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the battery diagnostic published by kobuki_node (through the aggregator) feeds the dashboard's diagnostics_agg subscriber; both units run together and nothing was upgraded or switched."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure named in the issue title and commit message: \"Battery charge not shown in Android apps\"; the consumer code documents the silent no-data path: `catch (NullPointerException ex) { // Do nothing: data wasn't there. }` after `values.get(\"Charge (Ah)\")` / `values.get(\"Capacity (Ah)\")`."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_node",
+      "role": "provider",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "abf4e852dbfef8bee9859cf3a25c1d23ee847a8d",
+      "resolved_rev": "bb3c7ec8a7e656aa7e75753864351c27d571db47",
+      "pinned": true,
+      "revision_basis": "Parent and fix commit of the closing commit bb3c7ec (2012-06-20, fuerte-devel line, between tags 0.1.0 and 0.1.2). The unit as deployed includes kobuki_bringup at the same revisions (same repository): resources/launch/minimal.launch runs kobuki_node as name=\"mobile_base\" (components/mobile_base.launch) and runs diagnostic_aggregator with resources/yaml/diagnostics.yaml, which the fix also edits.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "android_app_manager",
+      "role": "consumer",
+      "repo": "https://github.com/ros-android/android_app_manager",
+      "broken_rev": "f080cd934460fc92babd48eee5f660454c1b48d0",
+      "resolved_rev": "f080cd934460fc92babd48eee5f660454c1b48d0",
+      "pinned": true,
+      "revision_basis": "The issue names only \"Android apps\". Inferred: the Turtlebot Android apps (teleop, make_a_map) share the dashboard library whose history is in ros-android/android_app_manager; f080cd9 (2012-02-29) is the newest commit in that history before the report date, library/src/ros/android/views/TurtlebotDashboard.java was last changed at fbf3557 (2012-01-08) and next at ab48138 (2012-11-01), and the file at f080cd9 reads exactly the status name and key strings that the fix produces (\"/Power System/Battery\", \"Charge (Ah)\", \"Capacity (Ah)\", \"Current (A)\"). The resolution does not change the app, so resolved_rev keeps the broken revision.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "topic:/diagnostics_agg", "sides": {"kobuki_node": "provides", "android_app_manager": "consumes"}},
+    {"element": "msg:diagnostic_msgs/DiagnosticArray", "sides": {"kobuki_node": "provides", "android_app_manager": "consumes"}},
+    {"element": "field:diagnostic_msgs/DiagnosticStatus.name", "sides": {"kobuki_node": "provides", "android_app_manager": "consumes"}},
+    {"element": "field:diagnostic_msgs/DiagnosticStatus.values", "sides": {"kobuki_node": "provides", "android_app_manager": "consumes"}},
+    {"element": "field:diagnostic_msgs/KeyValue.key", "sides": {"kobuki_node": "provides", "android_app_manager": "consumes"}},
+    {"element": "field:diagnostic_msgs/KeyValue.value", "sides": {"kobuki_node": "provides", "android_app_manager": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["field:diagnostic_msgs/DiagnosticStatus.name", "topic:/diagnostics_agg"],
+      "quote": "I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base)",
+      "url": "https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["field:diagnostic_msgs/KeyValue.key", "field:diagnostic_msgs/DiagnosticStatus.values"],
+      "quote": "-  stat.add(\"Capacity\", status.capacity);\n-  stat.add(\"Voltage\", status.voltage);\n+\n+  stat.add(\"Voltage (V)\", status.voltage);\n   stat.add(\"Percent\", status.percent());\n+  stat.add(\"Charge (Ah)\", (2.2*status.percent())/100.0);\n+  stat.add(\"Capacity (Ah)\", 2.2); // TODO: how can we tell which battery is in use?",
+      "url": "https://github.com/yujinrobot/kobuki/commit/bb3c7ec8a7e656aa7e75753864351c27d571db47"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from any tooling: the dashboard's battery view simply stayed empty (\"Battery charge not shown in Android apps\", https://github.com/yujinrobot/kobuki/issues/136). The consumer swallows the missing keys: `} catch (NullPointerException ex) { // Do nothing: data wasn't there. }` (https://github.com/ros-android/android_app_manager/blob/f080cd934460fc92babd48eee5f660454c1b48d0/library/src/ros/android/views/TurtlebotDashboard.java).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Commit bb3c7ec, two changes on the kobuki side: (1) kobuki_bringup/resources/yaml/diagnostics.yaml adds `remove_prefix: mobile_base` to each GenericAnalyzer so the aggregated status is named \"/Power System/Battery\" instead of carrying the \"mobile_base: \" node-name prefix; (2) kobuki_node/src/node/diagnostics.cpp BatteryTask::run() publishes the key-values the dashboard reads, \"Charge (Ah)\" (capacity times percent / 100), \"Capacity (Ah)\" (2.2), \"Current (A)\" (3.14 when Charged/Charging, 0.0 when Discharging), and renames \"Voltage\" to \"Voltage (V)\". The Android app is unchanged.",
+    "status": "observed",
+    "evidence": "Maintainer corot closing the issue: \"Fixed with two changes: - I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base) - We send Current Charge and Capacity diagnostic values.\" (https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016). No log or screenshot is posted; the app revision of the resolved composition is the inferred f080cd9 (unchanged)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Both conditions are naming conventions of strings inside the diagnostic_msgs payload rather than ROS interface elements, hence class other. Condition 1 (status name): diagnostic_updater names the status \"<node name>: <task name>\" (node \"mobile_base\", BatteryTask(\"Battery\")); GenericAnalyzer with `contains: ['Battery', 'Laptop Battery']` and path 'Power System' emitted \"/Power System/mobile_base: Battery\" until remove_prefix stripped the prefix; the consumer tests `status.name.equals(\"/Power System/Battery\")`. Condition 2 (key names/encoding): the provider encoded the level as \"Percent\"/\"Voltage\"/\"Capacity\" while the consumer computes `100 * Float.parseFloat(values.get(\"Charge (Ah)\")) / Float.parseFloat(values.get(\"Capacity (Ah)\"))` and `view.setPluggedIn( Float.parseFloat(values.get(\"Current (A)\")) > 0)`; corot's notes explain the hard-coded 3.14 A / 2.2 Ah values chosen to satisfy that computation. The topic hop: kobuki_node publishes /diagnostics; diagnostic_aggregator (diagnostics stack, launched and configured by kobuki_bringup) publishes /diagnostics_agg, which the dashboard subscribes to as \"diagnostics_agg\"; the aggregator is treated as part of the provider's deployment, not as a third unit, because its configuration lives in the kobuki repository and only forwards kobuki_node's content. The aggregator part of the fix alone would be deployment configuration; the case is eligible because the key-value change is a code change to the provider's published content. The laptop battery status (kobuki_node/scripts laptop_battery.py, \"/Power System/Laptop Battery\") is a separate composition not discussed in the source."
+}

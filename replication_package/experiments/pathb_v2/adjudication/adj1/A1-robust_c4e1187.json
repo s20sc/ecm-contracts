@@ -1,0 +1,64 @@
+{
+  "item_id": "A1-robust_c4e1187",
+  "kind": "A1",
+  "case_id": "robust_c4e1187",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/303",
+    "reason": "E1/E4: the contributor identifies the incompatible pointer type and build effect. E2: urdfdom_headers and ur_kinematics are separately built/released packages; the provider API definition changes, so the build-only exclusion does not apply. E3: the old Boost reference against the new standard-library pointer is an UPGRADE."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "typedef std::shared_ptr<ModelInterface> ModelInterfaceSharedPtr;",
+      "url": "https://raw.githubusercontent.com/ros/urdfdom_headers/1.0.0/urdf_world/include/urdf_world/types.h#L48",
+      "reason": "The alias still exists but its declared pointer type changed from Boost to std, establishing element_retyped."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr.",
+      "url": "https://github.com/ros-industrial/universal_robot/pull/303",
+      "reason": "Boost and std shared pointers are different nominal C++ types. ModelInterfaceSharedPtr and its ModelInterface template argument identify the failing reference; this does not assert that ModelInterface itself was redefined."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "And it was the only change necessary to compile the whole stack into Lunar.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/303",
+    "reason": "The report establishes a compile failure but does not reproduce the compiler diagnostic. Retain unknown rather than inventing error text."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "And it was the only change necessary to compile the whole stack into Lunar.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/303",
+    "reason": "The documented detection point is compilation, hence build."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "And it was the only change necessary to compile the whole stack into Lunar.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/303",
+    "reason": "A contributor reports successful Lunar compilation, but does not identify the provider revision in that successful composition. Under the supplied revision-specific observed criterion, recommended remains appropriate."
+  },
+  "notes": "The pinned headers show Boost at 0.4.2 and std at 1.0.0. The consumer diff selects std for ROS_VERSION_MINIMUM(1, 13, 0). No additional failed condition is documented.",
+  "supporting_evidence": [
+    {
+      "quote": "typedef boost::shared_ptr<ModelInterface> ModelInterfaceSharedPtr;",
+      "url": "https://raw.githubusercontent.com/ros/urdfdom_headers/0.4.2/urdf_world/include/urdf_world/types.h#L48"
+    }
+  ]
+}

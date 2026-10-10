@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_c4e1187",
+  "kind": "A1",
+  "case_id": "robust_c4e1187",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/303"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr.",
+      "url": "https://github.com/ros-industrial/universal_robot/pull/303"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "+#if ROS_VERSION_MINIMUM(1, 13, 0) \n+  const std::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();\n+#else\n   const boost::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();\n+#endif",
+      "url": "https://github.com/ros-industrial/universal_robot/commit/c4e118757123ef243d0f3c2e14a6c3d63549f20d"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr. \r\n\r\nThis change is only applied to versions of ROS newer than Lunar. And it was the only change necessary to compile the whole stack into Lunar.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/303"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "we include it in `kinetic-devel` only to make building on Lunar possible."
+  },
+  "notes": "urdfdom_headers changed pointer type to std::shared_ptr breaking consumers expecting boost::shared_ptr."
+}

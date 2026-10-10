@@ -1,0 +1,54 @@
+{
+  "case_id": "C3-108",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-drivers/usb_cam/issues/275",
+    "https://github.com/ros-drivers/usb_cam/issues/274",
+    "https://github.com/ros-drivers/usb_cam/pull/279",
+    "https://github.com/flynneva/usb_cam/commit/afa9dd6531f41cbb3f4c1eef5048be17b0f93972",
+    "https://github.com/ros-drivers/usb_cam/commit/bd6bb91c7279819ad4136001b5e5a138dffa5452",
+    "https://raw.githubusercontent.com/ros-drivers/usb_cam/7115c62e181e6fd4c247617419618046ff7ef580/include/usb_cam/formats/mjpeg.hpp",
+    "https://github.com/ros-drivers/usb_cam/commit/b13c52182446e534ae004d6bd3e25437f14ef908"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue gives the command, parameter file and console log ending in \"free(): invalid pointer\" / \"[ros2run]: Aborted\"; the maintainer confirms and fixes it: \"Should be fixed now on the `ros2` branch, closing this issue.\" (https://github.com/ros-drivers/usb_cam/issues/275); PR #279 \"Fix mjpeg invalid ptr and mjpeg memory leak\" \"Closes #275\"."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "usb_cam (usb_cam_node_exe, mjpeg2rgb converter)",
+        "libavcodec (FFmpeg decoding library linked by usb_cam)"
+      ],
+      "interface_kind": "library API",
+      "evidence": "The abort is an invalid free inside the usb_cam process caused by usb_cam's own AVPacket memory handling in its MJPEG converter, introduced by usb_cam's own memory-leak work; it occurs with any MJPEG camera and any image consumer. Maintainer on the duplicate report #274: \"Sorry this was a result of my latest work on trying to address some memory leaks\" (https://github.com/ros-drivers/usb_cam/issues/274). Fix commits are framed as packet lifetime management inside usb_cam: \"Only unref packet in destructor\" (afa9dd6531f41cbb3f4c1eef5048be17b0f93972) and \"Allocate unique avpacket for each frame\" (bd6bb91c7279819ad4136001b5e5a138dffa5452), the latter replacing \"av_packet_from_data(\\n      m_avpacket,\\n      const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(src)),\\n      bytes_used);\" with \"auto avpacket = av_packet_alloc();\\n    av_new_packet(avpacket, bytes_used);\\n    memcpy(avpacket->data, src, bytes_used);\" (https://github.com/ros-drivers/usb_cam/pull/279)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR within the process (usb_cam passes each camera frame to libavcodec for decoding); the reporter's run: \"ros2 run usb_cam usb_cam_node_exe --ros-args --params-file /home/thomas/Development/usb_cam/config/params_2.yaml\" with \"pixel_format: \\\"mjpeg2rgb\\\"\"."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"[INFO] [1692153315.853677597] [usb_cam]: Timer triggering every 33 ms\" / \"free(): invalid pointer\" / \"[ros2run]: Aborted\" (https://github.com/ros-drivers/usb_cam/issues/275)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Revisions: the reporter \"Basically just clone it\" on 2023-08-16; the usb_cam ros2 branch (now main) head at that time was 7115c62e181e6fd4c247617419618046ff7ef580 (parent of fix commit afa9dd65); resolved by PR #279 merge ec67cb28722532ef327cd47f9cedfa7b762e5664 (2023-08-31), released in tag 0.7.0 (eadb3265e23597b47fcbdc9c6a4b879b102d30f7). libavcodec/FFmpeg version and ROS distro are not stated. Classification caveat (confidence medium): an alternative reading treats this as a usb_cam/libavcodec library-API interaction, since the broken code wraps the camera frame buffer with av_packet_from_data and later calls av_packet_unref on it, and the fix stops handing that buffer to av_packet_from_data; the sources never state an FFmpeg ownership precondition, and the maintainer describes the defect as a regression of usb_cam's own memory-leak changes, so the primary sources are followed. A sibling commit in PR #270 (not a fix ref for this case), b13c52182446e534ae004d6bd3e25437f14ef908 \"Fix seg fault when unref av_packet using av_codec < 58.133.100\", guards the unref with \"#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(58, 133, 100)\", i.e. its author relates a seg fault to the libavcodec version; that would support a version-dependent library-API reading, but no source ties this reporter's crash to a libavcodec version. Other compositions in the thread, not specified: (a) usb_cam's v4l2 control names against this camera (\"unknown control 'white_balance_temperature_auto'\", \"unknown control 'exposure_auto'\", \"unknown control 'focus_auto'\"), a warning-only interaction between usb_cam and the uvcvideo device; (b) with pixel_format yuyv on an MJPEG-only camera \"the image is half black and half white noise\"; (c) after the fix the reporter still saw decoder noise, which the maintainer asked to be split into a follow-up issue."
+}

@@ -1,0 +1,52 @@
+{
+  "task_id": "u0074",
+  "package": "kobuki_description",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "param:robot_description",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "base_footprint",
+      "units": "m, rad, kg",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:robot_description": "param robot_description: string"
+  },
+  "not_declared": [],
+  "references": [
+    "param:publish_frequency",
+    "param:use_gui",
+    "api:gazebo_ros_kobuki",
+    "api:gazebo_ros_imu",
+    "topic:imu/data"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "ports[0].frame": "snapshot:kobuki_description/urdf/kobuki.urdf.xacro:18 | <link name=\"base_footprint\"> -- root link of the URDF tree placed on the parameter (parent of base_joint at :46, never a child of any joint); rviz config uses the same root as fixed frame: snapshot:kobuki_description/rviz/model.rviz:126 | Fixed Frame: /base_footprint",
+    "ports[0].units": "snapshot:kobuki_description/urdf/kobuki.urdf.xacro:64 | <mass value=\"2.4\"/> <!-- 2.4/2.6 kg for small/big battery pack --> ; angles given in radians via M_PI: snapshot:kobuki_description/urdf/kobuki.urdf.xacro:54 | rpy=\"${M_PI/2} 0 ${M_PI/2}\" ; lengths in metres (mesh scaled by M_SCALE 0.001): snapshot:kobuki_description/urdf/kobuki.urdf.xacro:14 | <xacro:property name=\"M_SCALE\" value=\"0.001\"/>",
+    "declares[param:robot_description]": "snapshot:kobuki_description/launch/view_model.launch:6 | <param name=\"robot_description\" command=\"$(arg urdf_file)\" /> with urdf_file default at :5 | $(find xacro)/xacro.py '$(find kobuki_description)/urdf/kobuki_standalone.urdf.xacro' ; no type= attribute, so the type is the roslaunch default for a command= param (command output is stored as a string)",
+    "references[param:publish_frequency]": "snapshot:kobuki_description/launch/view_model.launch:9 | <param name=\"publish_frequency\" type=\"double\" value=\"5.0\" /> (private param of node robot_state_publisher, pkg robot_state_publisher, :8)",
+    "references[param:use_gui]": "snapshot:kobuki_description/launch/view_model.launch:12 | <param name=\"use_gui\" value=\"true\"/> (private param of node joint_state_publisher, pkg joint_state_publisher, :11)",
+    "references[api:gazebo_ros_kobuki]": "snapshot:kobuki_description/urdf/kobuki_gazebo.urdf.xacro:11 | <controller:gazebo_ros_kobuki name=\"kobuki_controller\" plugin=\"libgazebo_ros_kobuki.so\">",
+    "references[api:gazebo_ros_imu]": "snapshot:kobuki_description/urdf/kobuki_gazebo.urdf.xacro:103 | <controller:gazebo_ros_imu name=\"imu_controller\" plugin=\"libgazebo_ros_imu.so\">",
+    "references[topic:imu/data]": "snapshot:kobuki_description/urdf/kobuki_gazebo.urdf.xacro:107 | <topicName>imu/data</topicName> (topic name configured for the gazebo_ros_imu plugin)",
+    "perm_requires": "searched all files under snapshot/kobuki_description (manifest.xml, CMakeLists.txt, launch/, urdf/, rviz/) for permission/access declarations; none",
+    "perm_grants": "searched all files under snapshot/kobuki_description for permission/access declarations; none",
+    "recovery": "searched all files under snapshot/kobuki_description for recovery/fallback declarations; none (package contains only URDF/xacro, meshes, one launch file, one rviz config)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "robot_description is declared (xacro-generated URDF) and self-consistent for the wheel joints (wheel_left_joint / wheel_right_joint) and root base_footprint; the only visible oddity is that kobuki_gazebo.urdf.xacro sets gazebo properties for caster_front_link and caster_back_link, which no link in kobuki.urdf.xacro defines. Whether a consumer's expectations (e.g. joint names it looks up in the description) match cannot be judged from this unit alone."
+  },
+  "confidence": "medium",
+  "notes": "Snapshot is the whole rosbuild 'kobuki' stack (fuerte); only snapshot/kobuki_description was described. The package provides param:robot_description only through launch/view_model.launch (command= xacro of urdf/kobuki_standalone.urdf.xacro, which instantiates the <kobuki> macro from urdf/kobuki.urdf.xacro). manifest_version is null: the rosbuild manifest.xml has no version element (stack.xml has none either). msg_type and definition_id are null because a parameter has no .msg/.srv/.action/.idl definition. QoS null (ROS 1). frame is recorded as the URDF root link name as hard-coded (base_footprint); the tree also defines base_link (fixed base_joint, z=0.0102), wheel_left_link, wheel_right_link, gyro_link, cliff_sensor_left_link, cliff_sensor_right_link, cliff_sensor_front_link. units reflect the URDF convention the code relies on (kg stated in a comment, radians via M_PI, metres via mesh scaling); lengths themselves carry no explicit unit label. Param type 'string' is the roslaunch default for command= params (no explicit type attribute). References list names of other packages' elements that this package's launch file and xacro configure; kobuki_description consumes no packet element. Interpretive choices (frame = root link, units, type default) are why confidence is medium rather than high."
+}

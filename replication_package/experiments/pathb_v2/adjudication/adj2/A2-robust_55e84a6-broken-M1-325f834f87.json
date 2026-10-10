@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_55e84a6-broken-M1-325f834f87",
+ "kind": "A2",
+ "case_id": "robust_55e84a6",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+   "verdict": "verified",
+   "source_excerpt": "built (u0079, rqt_plot 0.3.6, snapshot:rqt_plot/package.xml:3 '  <version>0.3.6</version>'; flat layout: u0079 snapshot:rqt_plot/src/rqt_plot/ lists mat_data_plot.py directly, setup.py:7 \"    packages=['rqt_plot'],\") snapshot:rqt_plot/src/rqt_plot/mat_data_plot.py:138: \"    def redraw(self):\". running (u0080, rqt_plot 0.3.8, snapshot:rqt_plot/package.xml:3 '  <version>0.3.8</version>'): flat module absent, verified by opening the layout — 'ls: .../u0080/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py: No such file or directory'; find over the u0080 snapshot returns only rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py; setup.py:7-8 \"    packages=['rqt_plot', 'rqt_plot.data_plot'],\" / \"    package_dir={'': 'src'},\"; src/rqt_plot/__init__.py is 0 bytes; grep 'mat_data_plot' over u0080 rqt_plot/src hits only data_plot/__init__.py:47 \"    from mat_data_plot import MatDataPlot\". Relocated method opened at snapshot:rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:133: \"    def redraw(self):\"."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+   "verdict": "verified",
+   "source_excerpt": "consumer task u0078 (kobuki_qtestsuite @ f04c615) snapshot:kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:43: \"    def redraw(self):\" — an override inside 'class FullSizeDataPlot(MatDataPlot):' (:20), whose base is bound by the import at :14 \"from rqt_plot.mat_data_plot import MatDataPlot\"."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+   "verdict": "substantive",
+   "built_excerpt": "u0079 snapshot:rqt_plot/src/rqt_plot/mat_data_plot.py:138-139,143 (module rqt_plot.mat_data_plot): \"    def redraw(self):\" / \"        self._canvas.axes.grid(True, color='gray')\" / \"        for curve in self._curves.values():\" — the 0.3.6 body (:138-166) recomputes x/y bounds from curve data and applies autoscroll padding ('if self._autoscroll and ymin is not None:' at :157) before self._canvas.draw() at :166.",
+   "running_excerpt": "u0080 snapshot:rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:133-135 (module rqt_plot.data_plot.mat_data_plot; no src/rqt_plot/mat_data_plot.py exists in this snapshot): \"    def redraw(self):\" / \"        self._canvas.axes.grid(True, color='gray')\" / \"        self._canvas.draw()\" — the 0.3.8 body is only grid + draw; the bounds/autoscroll computation is gone from the method."
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Same assembled broken UPGRADE unit as the sibling item: built=u0079 (rqt_plot 0.3.6), running=u0080 (rqt_plot 0.3.8), consumer=u0078 (kobuki_qtestsuite @ f04c615), matching the spec's operation, pinned revisions and inferred built-against (7d11bea). The two ports are connected through this token: the provider declares redraw on MatDataPlot (u0079 mat_data_plot.py:138) and the consumer both overrides it (u0078 full_size_data_plot.py:43) and reaches the base class via the import at :14; the consumer's override body itself iterates self._curves and calls self._canvas.draw(), i.e. it builds on the provider's method contract. The running-side pair_view is unassessable_edge/port_missing because no producer port exists under rqt_plot.mat_data_plot at u0080 — that absence is the break itself, not an assembly error."
+ },
+ "notes": "Substance rests on two independent grounds. (1) Element presence: the element is module-qualified and module rqt_plot.mat_data_plot does not exist at the running revision (layout evidence re-executed and reproduced; data_plot/__init__.py:47 is an implicit relative import making the class reachable only as rqt_plot.data_plot.mat_data_plot), while the consumer binds the base class through that exact path at u0078:14. (2) Definition: even ignoring the move, the method's definition changed in substance — the 0.3.6 redraw recomputes axis bounds from curve data and applies autoscroll padding; the 0.3.8 redraw only calls grid+draw, so a consumer overriding or relying on the old bounds/autoscroll behavior (as FullSizeDataPlot.redraw does, reimplementing its own bounds logic) faces a changed contract, not a re-transcribed one. Signature (name, arity) is identical; that alone would suggest transcription, but presence-at-path and body semantics both differ."
+}

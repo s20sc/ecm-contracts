@@ -1,0 +1,65 @@
+{
+  "task_id": "u0121",
+  "package": "tf2_tools",
+  "manifest_version": "0.4.9",
+  "ports": [
+    {
+      "element": "msg:tf2_msgs/TFMessage",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    },
+    {
+      "element": "topic:/tf",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "topic:/tf",
+    "msg:tf2_msgs/TFMessage",
+    "service:~tf2_frames",
+    "api:tf2_ros.Buffer",
+    "api:tf2_ros.TransformListener"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:tf2_tools/package.xml:3 | <version>0.4.9</version>",
+    "ports[0].msg_type": "snapshot:tf2_ros/src/tf2_ros/transform_listener.py:35 | from tf2_msgs.msg import TFMessage (listener constructed by snapshot:tf2_tools/scripts/view_frames.py:46 | listener = tf2_ros.TransformListener(buffer))",
+    "ports[0].frame": "snapshot:tf2_ros/src/tf2_ros/transform_listener.py:57-58 | for transform in data.transforms: self.buffer.set_transform(transform, who) -- frames come from each geometry_msgs/TransformStamped header.frame_id / child_frame_id (snapshot:tf2_msgs/msg/TFMessage.msg:1 | geometry_msgs/TransformStamped[] transforms); view_frames hard-codes no frame",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 tf2_msgs/TFMessage snapshot <deps>; snapshot:tf2_msgs/msg/TFMessage.msg:1; geometry_msgs/{TransformStamped,Transform,Vector3,Quaternion}.msg from https://raw.githubusercontent.com/ros/common_msgs/1.10.6/geometry_msgs/msg/; std_msgs/Header.msg from https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg (computed std_msgs/Header = 2176decaecbce78abc3b96ef049fabed)",
+    "ports[1].msg_type": "snapshot:tf2_ros/src/tf2_ros/transform_listener.py:52 | rospy.Subscriber(\"/tf\", TFMessage, self.callback) (reached from snapshot:tf2_tools/scripts/view_frames.py:45-46 | buffer = tf2_ros.Buffer() / listener = tf2_ros.TransformListener(buffer))",
+    "ports[1].frame": "snapshot:tf2_ros/src/tf2_ros/transform_listener.py:57-58 | for transform in data.transforms: self.buffer.set_transform(transform, who)",
+    "ports[1].definition_id": "same computation as ports[0].definition_id",
+    "references[topic:/tf]": "snapshot:tf2_ros/src/tf2_ros/transform_listener.py:52 | rospy.Subscriber(\"/tf\", TFMessage, self.callback) -- via tf2_ros.TransformListener instantiated at snapshot:tf2_tools/scripts/view_frames.py:46; view_frames.py does not spell the topic name itself",
+    "references[msg:tf2_msgs/TFMessage]": "snapshot:tf2_ros/src/tf2_ros/transform_listener.py:35 | from tf2_msgs.msg import TFMessage -- via tf2_ros.TransformListener instantiated at snapshot:tf2_tools/scripts/view_frames.py:46; tf2_msgs is a run_depend at snapshot:tf2_tools/package.xml:19",
+    "references[service:~tf2_frames]": "snapshot:tf2_tools/scripts/view_frames.py:50-51 | rospy.wait_for_service('~tf2_frames') / srv = rospy.ServiceProxy('~tf2_frames', FrameGraph); advertised in-process by snapshot:tf2_ros/src/tf2_ros/buffer.py:51 | self.frame_server = rospy.Service('~tf2_frames', FrameGraph, self.__get_frames)",
+    "references[api:tf2_ros.Buffer]": "snapshot:tf2_tools/scripts/view_frames.py:45 | buffer = tf2_ros.Buffer()",
+    "references[api:tf2_ros.TransformListener]": "snapshot:tf2_tools/scripts/view_frames.py:46 | listener = tf2_ros.TransformListener(buffer)",
+    "perm_requires.state": "checked snapshot:tf2_tools/package.xml, snapshot:tf2_tools/CMakeLists.txt, snapshot:tf2_tools/Makefile, snapshot:tf2_tools/mainpage.dox, snapshot:tf2_tools/scripts/view_frames.py: no permission declarations",
+    "perm_grants.state": "same files as perm_requires.state: no permission grants",
+    "recovery.state": "snapshot:tf2_tools/scripts/view_frames.py:39-55: no recovery/fallback behaviour declared (no exception handling around service call or listener)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The packet lists topic:/tf_static as consumed, but at this revision view_frames relies on the Python tf2_ros.TransformListener, which subscribes only to \"/tf\" (tf2_ros/src/tf2_ros/transform_listener.py:52); the C++ StaticTransformBroadcaster in the same snapshot publishes static transforms only on latched \"/tf_static\" (tf2_ros/src/static_transform_broadcaster.cpp:42), so static frames would be missing from frames.pdf."
+  },
+  "confidence": "high",
+  "notes": "tf2_tools at this revision is a single Python script (scripts/view_frames.py, installed by CMakeLists.txt:14-16) plus manifest files. All three packet elements are consumed, so declares and not_declared are empty (the package provides none of them). The script never names /tf, /tf_static or TFMessage itself; it constructs tf2_ros.Buffer and tf2_ros.TransformListener (view_frames.py:45-46), and the snapshot's Python TransformListener (same repository revision, tf2_ros 0.4.9) subscribes only to the hard-coded \"/tf\" topic with tf2_msgs/TFMessage and no queue_size. Ports and references for topic:/tf and msg:tf2_msgs/TFMessage therefore rest on that library code in the snapshot. topic:/tf_static: searched the whole snapshot (grep tf_static); the only subscriptions are in the C++ listener (tf2_ros/src/transform_listener.cpp:73,82) and the only publisher is the C++ StaticTransformBroadcaster (static_transform_broadcaster.cpp:42); neither tf2_tools nor the Python tf2_ros code it uses references /tf_static, so no port and no reference is recorded for it (consumed element, hence not in not_declared). The script reads transform data back through service '~tf2_frames' (tf2_msgs/FrameGraph, srv; no canonical srv form in the schema), which the same node's Python Buffer advertises (tf2_ros/src/tf2_ros/buffer.py:51). ROS 1: QoS fields null. No rate is set (the script listens for a fixed rospy.sleep(5.0), view_frames.py:47, not a rate). Units: geometry_msgs/Transform and Vector3 definitions state no units and the code relies on no REP-103 statement, so null. Dependency tag choice: the release tag used by hydro was not looked up in rosdistro; common_msgs 1.10.6 is the highest 1.10.x tag present (1.10.7 returned 404) and std_msgs 0.5.8 was used; std_msgs 0.5.9 Header.msg differs only in comments, so the md5 is unaffected. Computed std_msgs/Header md5 2176decaecbce78abc3b96ef049fabed as a check. Stub package.xml files holding only <name> were created in a scratch directory outside the workspace so definition_hash.py could resolve dependency package names."
+}

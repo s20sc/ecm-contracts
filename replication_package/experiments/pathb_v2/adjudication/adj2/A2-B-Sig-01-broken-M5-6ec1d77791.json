@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-B-Sig-01-broken-M5-6ec1d77791",
+ "kind": "A2",
+ "case_id": "B-Sig-01",
+ "composition": "broken",
+ "method_label": "M5",
+ "rule": "di_definition_mismatch",
+ "values": [
+  {
+   "path": "producer.outputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "[re-ran the cited command this session] $ python3 definition_hash.py ros1 moveit_msgs/DisplayTrajectory s2_work/tasks/u0181/snapshot <deps fetched from tags ros/common_msgs@1.12.8, ros/std_msgs@0.5.13, wg-perception/object_recognition_msgs@0.4.1> -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"41936b74e168ba754279ae683ce3f121\"}"
+  },
+  {
+   "path": "consumer.inputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "[re-ran the cited command this session] $ python3 definition_hash.py ros1 moveit_msgs/DisplayTrajectory s2_work/tasks/u0180/snapshot <deps from ros-gbp melodic tags: std_msgs 0.5.12-0, per-package common_msgs 1.12.7-0, object_recognition_msgs 0.4.1-0> -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"c3c039261ab9e8a11457dac56b6316c8\"}; sanity with the same deps reproduced std_msgs/Header 2176decaecbce78abc3b96ef049fabed, sensor_msgs/JointState 3066dcd76a6cfaef579bd0f34173e9fd, geometry_msgs/Pose e45d45a5a1ce597b249e23fb30fc871f, trajectory_msgs/JointTrajectory 65b4f94a94d1ed67169da35a02f33d3f"
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Same broken pair_view as the sibling item: producer=u0181 (master 52f751e) and consumer=u0182 (rostopic) with built=u0180 (0.10.1) faithfully represent the spec's UPGRADE (consumer built against the melodic-release definition, provider running the newer master definition); the two ports are joined on the same role msg:moveit_msgs/DisplayTrajectory and both md5s match the quoted error log."
+ },
+ "notes": "Identical finding and evidence base as A2-B-Sig-01-broken-M2-0c58bfdf19; independently re-verified rather than copied. DisplayTrajectory.msg itself is identical between u0180/u0181; the mismatch enters via CollisionObject.msg's added fields (diff read this session). No absent-state values among the triggers."
+}

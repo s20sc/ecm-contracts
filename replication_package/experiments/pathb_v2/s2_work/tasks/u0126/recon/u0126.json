@@ -1,0 +1,94 @@
+{
+  "task_id": "u0126",
+  "package": "cob_hardware_config",
+  "manifest_version": "0.6.5",
+  "ports": [
+    {
+      "element": "api:schunk_description/urdf/lwa4d/lwa4d.urdf.xacro",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:schunk_description/urdf/materials.urdf.xacro",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:schunk_description/urdf/pg70/pg70.urdf.xacro",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:xacro:schunk_lwa4d",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "base_link",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:xacro:schunk_pg70",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "arm_7_link",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:schunk_description/urdf/lwa4d/lwa4d.urdf.xacro",
+    "api:schunk_description/urdf/materials.urdf.xacro",
+    "api:schunk_description/urdf/pg70/pg70.urdf.xacro",
+    "api:xacro:schunk_lwa4d",
+    "api:xacro:schunk_pg70"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:cob_hardware_config/package.xml:3",
+    "ports[3].frame": "snapshot:cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:61 | <xacro:schunk_lwa4d name=\"arm\" parent=\"base_link\" has_podest=\"false\">",
+    "ports[4].frame": "snapshot:cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:81 | <xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\">",
+    "references[api:schunk_description/urdf/lwa4d/lwa4d.urdf.xacro]": "snapshot:cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:26 | <xacro:include filename=\"$(find schunk_description)/urdf/lwa4d/lwa4d.urdf.xacro\" />",
+    "references[api:schunk_description/urdf/materials.urdf.xacro]": "snapshot:cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:8 | <xacro:include filename=\"$(find schunk_description)/urdf/materials.urdf.xacro\" />",
+    "references[api:schunk_description/urdf/pg70/pg70.urdf.xacro]": "snapshot:cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:29 | <xacro:include filename=\"$(find schunk_description)/urdf/pg70/pg70.urdf.xacro\" />",
+    "references[api:xacro:schunk_lwa4d]": "snapshot:cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:61 | <xacro:schunk_lwa4d name=\"arm\" parent=\"base_link\" has_podest=\"false\">",
+    "references[api:xacro:schunk_pg70]": "snapshot:cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro:81 | <xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\">",
+    "perm_requires": "grep -rniE 'permission|recover|sros|policy' over snapshot/cob_hardware_config: 0 hits; ROS 1 (indigo) package of URDF/YAML/launch configuration with no permission declarations",
+    "perm_grants": "same search as perm_requires: 0 hits",
+    "recovery": "same search as perm_requires: 0 hits; no recovery behaviour declared for the listed URDF macro/include elements"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All five elements are consumed only, inside cob3-9/urdf/cob3-9.urdf.xacro, and the consumer side is internally consistent (schunk_description is an exec_depend; arm joints arm_1_joint..arm_7_joint and pg70_finger_*_joint in the cob3-9 YAML match the macro names 'arm' and 'pg70'; pg70 is attached to arm_7_link). Whether it is correct depends on schunk_description at indigo: whether lwa4d.urdf.xacro and pg70.urdf.xacro exist at those paths, whether macro schunk_lwa4d accepts the has_podest parameter and emits ${name}_7_link, and whether schunk_pg70 accepts name/parent/origin. Those are non-definition files in the dependency repository, which this stage may not read."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (indigo) package; all five packet elements are consumed xacro APIs of schunk_description, so declares and not_declared are empty and all five go into references. The only uses of lwa4d.urdf.xacro, pg70.urdf.xacro, xacro:schunk_lwa4d and xacro:schunk_pg70 in the whole snapshot are in cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro (lines 26, 29, 61-63, 81-83). materials.urdf.xacro is also included at line 8 of cob3-6, cob4-1, cob3-2, cob4-2 and cob4-5 urdf.xacro files; provenance cites cob3-9. Macro invocations as written: schunk_lwa4d name=\"arm\" parent=\"base_link\" has_podest=\"false\" with <origin xyz=\"${arm_x} ${arm_y} ${arm_z}\" rpy=\"${arm_roll} ${arm_pitch} ${arm_yaw}\" />; schunk_pg70 name=\"pg70\" parent=\"arm_7_link\" with <origin xyz=\"${pg70_x} ${pg70_y} ${pg70_z}\" rpy=\"${pg70_roll} ${pg70_pitch} ${pg70_yaw}\" />, offsets from cob3-9/urdf/properties.urdf.xacro (def_* from calibration_default.urdf.xacro plus offset_* from cob_calibration_data, which is not in the snapshot). Port frame for the two macros is the parent link hard-coded in the invocation; frame for the three file-include elements is null (an include has no frame of its own). msg_type, units, QoS (ROS 1), rates and definition_id are null for all ports because these are URDF/xacro API elements, not message definitions. The URDF is loaded by common/upload_robot.launch via $(find xacro)/xacro.py and tested by test/urdf_cob3-9.test (cob_description test_urdf.py). Other schunk_description APIs referenced elsewhere in the package (lwa/lwa.urdf.xacro, sdh/sdh.urdf.xacro, lwa4p_extended/lwa4p_extended.urdf.xacro and macros schunk_lwa, schunk_sdh, schunk_lwa4p_extended) are outside the packet and not listed in references. exclusive is scoped to the packet elements: the URDF macros/includes claim no exclusive resource; the package has unrelated device handles in driver configs (for example DevicePath = \"/dev/pcan32\" in cob3-9/config/head_driver.ini), not recorded here."
+}

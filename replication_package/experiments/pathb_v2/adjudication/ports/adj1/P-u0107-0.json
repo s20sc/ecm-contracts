@@ -1,0 +1,35 @@
+{
+  "item_id": "P-u0107-0",
+  "kind": "P",
+  "task_id": "u0107",
+  "element": "api:tf2_msgs::TFMessage",
+  "side": "consumes",
+  "values": [
+    {
+      "field": "msg_type",
+      "recorded": "tf2_msgs/TFMessage",
+      "verdict": "verified",
+      "source_excerpt": "  message_subscriber_tf_ = node_.subscribe<tf2_msgs::TFMessage>(\"/tf\", 100, boost::bind(&TransformListener::subscription_callback, this, _1)); ///\\todo magic number",
+      "qos_basis": null
+    },
+    {
+      "field": "frame",
+      "recorded": "per_message",
+      "verdict": "verified",
+      "source_excerpt": "      ROS_ERROR(\"Failure to set recieved transform from %s to %s with error: %s\\n\", msg_in.transforms[i].child_frame_id.c_str(), msg_in.transforms[i].header.frame_id.c_str(), temp.c_str());",
+      "qos_basis": null
+    },
+    {
+      "field": "definition_id",
+      "recorded": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "94810edda583a504dfda3829e70d7eec"
+      },
+      "verdict": "unverifiable",
+      "source_excerpt": "geometry_msgs/TransformStamped[] transforms",
+      "qos_basis": null
+    }
+  ],
+  "notes": "Line 72 explicitly names tf2_msgs::TFMessage; line 130 reads child_frame_id and header.frame_id from each received transform, supporting per_message. The cited message definition does not state a hash. Running python3 definition_hash.py ros1 tf2_msgs/TFMessage s2_work/tasks/u0107/snapshot failed because geometry_msgs/TransformStamped.msg is absent; no dependency definitions were available in that snapshot, so the recorded MD5 could not be compared."
+}

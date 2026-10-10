@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-046",
+  "kind": "A1",
+  "case_id": "C3-046",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Issue #262 asks for the header rename (\"the suffix of header files should be changed from *.h to *.hpp\"), and a commenter anticipates the downstream break: \"renaming the header files will create a problem on other packages that depends on this package.\" (https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-629760429). The vision_opencv maintainer confirms the removal: \"All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!\" (https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581), done in PR #517 / commit 5d6148ab \"remove header files that were deprecated in I-turtle\". The Autoware maintainer's fix PR #11873 \"fix: add cv_bridge.hpp support\", filed under the Jazzy-support tracking issue, replaces the consumer's include: \"-#include <cv_bridge/cv_bridge.h>\" / \"+#include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer\" (https://github.com/autowarefoundation/autoware_universe/pull/11873/files). This is a maintainer-confirmed consumer/provider mismatch; there is no reproducer or error log.",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/262"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!",
+      "url": "https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "No compiler output for this package is shown in any source. The Jazzy-support thread reports build status only as charts (e.g. \"Current packages build status for autoware_universe:\" followed by an image, https://github.com/autowarefoundation/autoware_universe/issues/11418#issuecomment-3757294247) and later \"Once these final PRs are merged, everything compiles!\" (https://github.com/autowarefoundation/autoware_universe/issues/11418#issuecomment-3787249827), neither attributed to this header.",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PR #11873 body: \"## How was this PR tested?\" / \"Compiles locally with jazzy.\" (https://github.com/autowarefoundation/autoware_universe/pull/11873); consumer at PR head 59bd3d1242446ec4068d0b3bff6ab35a61ee13cc (merged as f50b5c39). The provider is identified by distro only; Jazzy carried a single vision_opencv release (4.1.0-1) on that date, so the provider revision is 4.1.0 by the rosdistro record rather than by the PR's own words."
+  },
+  "notes": "Adjudicated case C3-046: fully agrees with specification eligibility (E1-E4 step 6), failed conditions, loudness (unknown), and resolution status (observed)."
+}

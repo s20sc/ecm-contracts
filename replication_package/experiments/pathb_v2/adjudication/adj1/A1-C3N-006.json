@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-C3N-006",
+  "kind": "A1",
+  "case_id": "C3N-006",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1 provides a concrete library-call reproducer and E4 its wrong returned angle. The units are moveit_core and the reporter's application/test caller, which can be represented as an excerpt; the library API output feeds that caller, hence PAIR. Although the erroneous arithmetic is implemented inside the library, the resulting interpolated state is returned through interpolate's output argument and consumed by the caller. Under E2's explicit wrong-value-crossing-the-boundary exception this is not arithmetic consumed only within one unit. Calling the library directly does not disqualify an interaction when libraries are explicitly valid units. No evidence supports a representation-convention mismatch; classify the wrong numerical result as other.",
+    "quote": "Note how the interpolated angle has value 0.285: it's taking the long way around, with the interpolation going through 0 instead of Pi/-Pi radians.",
+    "url": "https://github.com/moveit/moveit2/issues/1478"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:moveit::core::FloatingJointModel::interpolate"],
+      "quote": "fjm.interpolate(jv1, jv2, 0.5, intp);",
+      "url": "https://github.com/moveit/moveit2/issues/1478",
+      "reason": "The caller obtains the wrong interpolated quaternion in intp and inspects it through computeTransform and the printed angle. The short-arc interpolation calculation is wrong; no x/y/z/w versus w/x/y/z convention disagreement between caller and provider is established."
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "std::cout << \"CC: \" << rotC.angle() << \" \" << rotC.axis().transpose() << std::endl; // 0.285223  0  0 -1",
+    "url": "https://github.com/moveit/moveit2/issues/1478",
+    "reason": "The library returns normally and the reporter's own numerical output exposes the error. The read reproducer contains no existing build, connection or activation diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "run",
+    "quote": "fjm.computeTransform(intp, tf);",
+    "url": "https://github.com/moveit/moveit2/issues/1478",
+    "reason": "The wrong result is observed by executing the API call and inspecting its output."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "The new code seems to work for the case mentioned in the issue, I'll see if I can test it a bit more thoroughly.",
+    "url": "https://github.com/moveit/moveit2/pull/1479",
+    "reason": "The merged fix uses Eigen slerp and includes tests, but the read evidence does not identify both the fixed library and an independently revision-identified consumer in a successful composition. The strict S1 observed criterion is therefore unmet; use recommended rather than infer observed from PR merge or a test alone."
+  },
+  "notes": "Read the complete issue reproducer, all returned issue comments, PR 1479 description and floating_joint_model.cpp diff. The decisive rubric text is 'A wrong value, frame, unit, component order, name, or timing that **crosses the boundary** is an interface failure even when the resolving edit is inside one unit.' at snapshot:prompts/S1_specify.md:18. The specification itself identifies the library and test caller but excludes them merely because this is a direct library call. The caller's repository/revision is unknown and should remain an excerpt, not be invented. Confidence is medium because the unit boundary is demonstrated by a code excerpt rather than a named application repository."
+}

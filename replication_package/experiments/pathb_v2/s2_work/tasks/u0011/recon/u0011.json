@@ -1,0 +1,48 @@
+{
+  "task_id": "u0011",
+  "package": "reporter_best_effort_publisher",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "topic:/my_topic",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": "best_effort",
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "unknown",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "unknown",
+    "values": []
+  },
+  "recovery": {
+    "state": "unknown",
+    "value": null
+  },
+  "provenance": {
+    "ports[0].side": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\"",
+    "ports[0].qos.reliability": "artifact.txt:1 | \"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.\""
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The only property the excerpt attributes to this package is a Best Effort reliability setting on its publisher, which is a legitimate ROS 2 publisher QoS choice; nothing in the excerpt shows the publisher misdeclaring a type, frame, or QoS. If a problem exists around this element it would more plausibly be a reliability mismatch on whatever subscribes to the topic, which the excerpt does not show."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task: the only source is artifact.txt, three quoted lines attributed to a GitHub issue thread; the issue itself was not opened. Line 1 states that the reporter runs a ROS 2 node publishing to 'a topic' with Best Effort reliability, which gives ports[0].side=provides and ports[0].qos.reliability=best_effort. The topic name /my_topic comes from the packet and does not appear in the artifact; the artifact does not name the topic. The message type, frame, units, durability, deadline, publish rate, and message definition are not stated anywhere in the artifact, so they are null; definition_hash.py was not run because no definition file is available. Durability was not filled with an API default because the artifact does not say which client library or API the node uses and the artifact is the only allowed source for this task, so no documented default could be cited. The element topic:/my_topic is in neither declares nor not_declared: the artifact confirms that a best-effort publisher exists but supplies neither the topic name nor the pkg/Type needed to compose the 'topic <name>: <pkg/Type>' signature, and an excerpt cannot establish that the package does not declare it. Lines 2 and 3 state ROS_DISTRO foxy and OS focal, consistent with the packet's ros_distro. perm_requires, perm_grants, and recovery are unknown because no code or configuration was available to check. manifest_version is null because no version string appears in the artifact."
+}

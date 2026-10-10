@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_9c8abeb-broken-M1-6ba8355e6e",
+  "kind": "A2",
+  "case_id": "robust_9c8abeb",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:boost::shared_dynamic_cast]",
+      "verdict": "verified",
+      "source_excerpt": "Built revision:\n\nsnapshot:s2_work/tasks/u0116/snapshot/include/boost/smart_ptr/shared_ptr.hpp:538-541\n```\ntemplate<class T, class U> shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r)\n{\n    return shared_ptr<T>(r, boost::detail::dynamic_cast_tag());\n}\n```\n\nRunning revision:\n\nsnapshot:s2_work/tasks/u0117/snapshot/include/boost/smart_ptr/shared_ptr.hpp:808-825\n```\ntemplate<class T, class U> shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT\n{\n    (void) dynamic_cast< T* >( static_cast< U* >( 0 ) );\n\n    typedef typename shared_ptr<T>::element_type E;\n\n    E * p = dynamic_cast< E* >( r.get() );\n    return p? shared_ptr<T>( r, p ): shared_ptr<T>();\n}\n\ntemplate<class T, class U> shared_ptr<T> reinterpret_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT\n{\n    (void) reinterpret_cast< T* >( static_cast< U* >( 0 ) );\n\n    typedef typename shared_ptr<T>::element_type E;\n\n    E * p = reinterpret_cast< E* >( r.get() );\n    return shared_ptr<T>( r, p );\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:boost::shared_dynamic_cast]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0118/snapshot/kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251-256\n```\n  cliff_sensor_left_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n                       sensors::SensorManager::Instance()->GetSensor(cliff_sensor_left_name));\n  cliff_sensor_center_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n                        sensors::SensorManager::Instance()->GetSensor(cliff_sensor_center_name));\n  cliff_sensor_right_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n                        sensors::SensorManager::Instance()->GetSensor(cliff_sensor_right_name));\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:boost::shared_dynamic_cast]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0116/snapshot/include/boost/smart_ptr/shared_ptr.hpp:538-541\n```\ntemplate<class T, class U> shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r)\n{\n    return shared_ptr<T>(r, boost::detail::dynamic_cast_tag());\n}\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0117/snapshot/include/boost/smart_ptr/shared_ptr.hpp:808-825\n```\ntemplate<class T, class U> shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT\n{\n    (void) dynamic_cast< T* >( static_cast< U* >( 0 ) );\n\n    typedef typename shared_ptr<T>::element_type E;\n\n    E * p = dynamic_cast< E* >( r.get() );\n    return p? shared_ptr<T>( r, p ): shared_ptr<T>();\n}\n\ntemplate<class T, class U> shared_ptr<T> reinterpret_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT\n{\n    (void) reinterpret_cast< T* >( static_cast< U* >( 0 ) );\n\n    typedef typename shared_ptr<T>::element_type E;\n\n    E * p = reinterpret_cast< E* >( r.get() );\n    return shared_ptr<T>( r, p );\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE compares boost_smart_ptr 1.48.0 with 1.54.0 and connects the broken Gazebo plugin to the old Boost cast function through actual calls. The pointer argument comes from SensorManager::GetSensor.\n\nsnapshot:s2_work/tasks/u0118/snapshot/kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251-256\n```\n  cliff_sensor_left_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n                       sensors::SensorManager::Instance()->GetSensor(cliff_sensor_left_name));\n  cliff_sensor_center_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n                        sensors::SensorManager::Instance()->GetSensor(cliff_sensor_center_name));\n  cliff_sensor_right_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n                        sensors::SensorManager::Instance()->GetSensor(cliff_sensor_right_name));\n```"
+  },
+  "notes": "Substantive removal of the exact public name shared_dynamic_cast. A full running-snapshot search found that name only in compatibility.htm historical prose, not in headers or implementation. The quoted dynamic_pointer_cast implementation is a different API name and does not preserve the old spelling. No runtime experiment is needed to establish this source-level name loss."
+}

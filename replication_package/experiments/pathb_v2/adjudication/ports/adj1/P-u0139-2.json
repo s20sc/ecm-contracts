@@ -1,0 +1,24 @@
+{
+  "item_id": "P-u0139-2",
+  "kind": "P",
+  "task_id": "u0139",
+  "element": "topic:/mavros/setpoint_position/local",
+  "side": "provides",
+  "values": [
+    {
+      "field": "msg_type",
+      "recorded": "geometry_msgs/PoseStamped",
+      "verdict": "verified",
+      "source_excerpt": "    return rospy.Publisher(mavros.get_topic('setpoint_position', 'local'), PoseStamped, **kvargs)\nfrom geometry_msgs.msg import TwistStamped, PoseStamped, PoseWithCovarianceStamped, \\\n    pub = sp.get_pub_position_local(queue_size=10, latch=True)",
+      "qos_basis": null
+    },
+    {
+      "field": "frame",
+      "recorded": "mavsetp",
+      "verdict": "verified",
+      "source_excerpt": "    pos = sp.PoseStamped(header=sp.Header(frame_id='mavsetp', stamp=rospy.get_rostime()))",
+      "qos_basis": null
+    }
+  ],
+  "notes": "All three msg_type locations were opened: the publisher uses PoseStamped, the cited import resolves it to geometry_msgs.msg, and the script calls the publisher helper. The cited header construction literally sets frame_id to mavsetp."
+}

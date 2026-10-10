@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-B-Ver-05-broken-M2-edfa1a5600",
+ "kind": "A2",
+ "case_id": "B-Ver-05",
+ "composition": "broken",
+ "method_label": "M2",
+ "rule": "di_definition_mismatch",
+ "values": [
+  {
+   "path": "producer.outputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "[re-ran the cited computation this session] genaction expansion 'Header header / actionlib_msgs/GoalStatus status / FollowJointTrajectoryResult result' with FollowJointTrajectoryResult = s2_work/tasks/u0250/snapshot/control_msgs/action/FollowJointTrajectory.action:29-45 (includes 'string error_string' at :45) and deps ros/std_msgs@0.5.11 Header + ros/common_msgs@1.12.8 actionlib_msgs -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"c4fb3b000dc9da4fd99699380efcc5d9\"}; nested Result alone hashes to 493383b18409bfb604b4e26c676401d2 as cited; GoalStatus d388f9b87b3c471f784434d671988d4a and GoalID 302881f31927c1df708a2dbab0e80ee8 reproduced at 1.12.8"
+  },
+  {
+   "path": "consumer.inputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "[re-ran the cited computation this session] same genaction expansion with FollowJointTrajectoryResult = s2_work/tasks/u0249/snapshot/control_msgs/action/FollowJointTrajectory.action:29-35 (no error_string) and deps ros/std_msgs@0.5.11 Header + ros/common_msgs@1.12.7 actionlib_msgs -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"bce83d50f7bb28226801436caf0e2043\"}"
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Broken pair_view on msg:control_msgs/FollowJointTrajectoryActionResult: producer=u0250 (control_msgs 1.4.0, the ROS-side server's definition; md5 c4fb3b00... = 'our version has' in the quoted error) and consumer=u0247 (MATLAB R2017b) built against u0249 (1.2.0; md5 bce83d50... = the client's requested md5). This represents the spec's UPGRADE operation; the two ports are joined on the identical msg role, and the runtime edge on topic /arm_controller/follow_joint_trajectory/result is documented by u0247/artifact.txt:2."
+ },
+ "notes": "Both hashes reproduce exactly with the cited dependency versions (1.12.8 actionlib_msgs for the producer side, 1.12.7 for the built-against side, std_msgs 0.5.11 Header on both). The two md5s match the MathWorks Answers error quoted in the spec. The topic-level pair_views in the assembled composition are 'unassessable_edge port_missing' because the closed-source MATLAB side exposes no extractable port; the msg-level pair_view judged here carries the mismatch and is the faithful representation."
+}

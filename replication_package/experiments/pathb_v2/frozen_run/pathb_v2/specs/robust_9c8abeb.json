@@ -1,0 +1,95 @@
+{
+  "case_id": "robust_9c8abeb",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_desktop/issues/25",
+    "https://github.com/yujinrobot/kobuki_desktop/issues/27",
+    "https://github.com/yujinrobot-release/kobuki_desktop-release/issues/1",
+    "https://github.com/yujinrobot/kobuki_desktop/pull/26",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/9c8abeb81acb2d18a086ac18cd88a8cf6dd9e200",
+    "https://github.com/boostorg/smart_ptr/blob/boost-1.48.0/include/boost/smart_ptr/shared_ptr.hpp",
+    "https://github.com/boostorg/smart_ptr/blob/boost-1.53.0/include/boost/smart_ptr/shared_ptr.hpp",
+    "https://github.com/boostorg/smart_ptr/commit/97d32745aa66fdb072303533f10a64f9bcdd9f35"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #25 'boost::shared_*_cast are deprecated, removed in boost 1.53' (2014-02-28) points to the report Ram-Z filed in the release repository: \"Building kobuki_gazebo_plugins fails with boost 1.54\\n\\n```\\n error: ‘shared_dynamic_cast’ is not a member of ‘boost’\\n```\\n\\nThis function was deprecated in boost as far back as ver 1.35 and was removed in the previous release (1.53). It is recommended to use `boost::dynamic_pointer_cast()` instead.\" Issue #27 'fails to build with newer boost versions' (wjwwood, 2014-04-22) gives the full compiler log with Boost 1.55.0, e.g. \"/Users/william/hydro_tb_sim/src/kobuki_desktop/kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251:31: error: no member named 'shared_dynamic_cast' in namespace 'boost'\" (five call sites, \"8 warnings and 10 errors generated.\"). Maintainers confirmed (\"#26 fixes.\"; \"This issues has already been fixed by PR #26.\") and PR #26 (commit 9c8abeb, 'replace deprecated shared_dynamic_cast (fixes #25)') was merged on 2014-03-03."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_gazebo_plugins", "boost_smart_ptr"],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the units are kobuki_gazebo_plugins (Gazebo model plugin library, package in yujinrobot/kobuki_desktop) and the Boost.SmartPtr library (header-only, released with each Boost version; repository boostorg/smart_ptr), which the plugin uses through `#include <boost/shared_ptr.hpp>` and `boost::shared_dynamic_cast<...>(...)`. Step 2: not internal: the same source compiles against Boost 1.48 and fails against 1.53 and later, so the failure depends on the provider's declarations. Step 3: no deployment name binding. Step 4: not a build-system-only change: the provider removed the function template `boost::shared_dynamic_cast` from its public header (deprecated in 1.48: \"// shared_*_cast names are deprecated. Use *_pointer_cast instead.\"; absent from boost-1.53.0 onward after boostorg/smart_ptr 97d3274 'Update shared_ptr casts.'), and the consumer's fix changes which provider symbol it calls. Step 5: not firmware. Step 6: eligible; interface kind library API."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (Boost) ran at a newer revision (1.54 for Ram-Z, 1.55.0 for wjwwood) than the consumer was written against. The consumer's baseline is documented: bit-pirate, 2014-04-22: \"I believe it is not necessary, since Hydro officially uses Boost 1.48 (http://www.ros.org/reps/rep-0003.html#hydro-medusa-aug-2013).\" The five `boost::shared_dynamic_cast` calls (authored 2013-03-08 in 7676a39d83e9e1156be0ca6e3b6d86f2957946d8) reference the element as it existed at boost-1.48.0. No other operation is documented."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: the build of kobuki_gazebo_plugins fails with the compiler errors quoted above (Ram-Z with Boost 1.54; wjwwood with Boost 1.55.0 on a Mac)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_gazebo_plugins",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "024d79e2204a2be7ac4284bea5da2ac6ff92262a",
+      "resolved_rev": "9c8abeb81acb2d18a086ac18cd88a8cf6dd9e200",
+      "pinned": true,
+      "revision_basis": "broken_rev is the parent of the fixing commit on hydro-devel (2013-12-09, 'Merge pull request #24 from yujinrobot/add_rviz_launchers'); at this revision kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp lines 251, 253, 255, 301 and 325 call `boost::shared_dynamic_cast<sensors::RaySensor>`, `<sensors::ContactSensor>` and `<sensors::ImuSensor>`, matching the line numbers in wjwwood's compiler log. resolved_rev is the fixing commit 9c8abeb (PR #26 head, 2014-03-02), merged into hydro-devel by 71f3294694ffda0e2ab48ba0842f71913204ac60 on 2014-03-03, synced into the hydro branch on 2014-04-22 (deff26cd350c277a941452dc8be1c64cfc287a75) and first released in tag 0.3.2 (2014-04-23).",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "boost_smart_ptr",
+      "role": "provider",
+      "repo": "https://github.com/boostorg/smart_ptr",
+      "broken_rev": "boost-1.54.0",
+      "resolved_rev": "boost-1.54.0",
+      "pinned": true,
+      "revision_basis": "The report that led to the fix states the provider version: \"Building kobuki_gazebo_plugins fails with boost 1.54\" (Ram-Z, who also authored PR #26); boost-1.54.0 is the smart_ptr tag for that Boost release (2013-07-01). wjwwood reproduced the same failure with Boost 1.55.0 (tag boost-1.55.0). The function was removed by 97d32745aa66fdb072303533f10a64f9bcdd9f35 (2012-11-21) and is absent from boost-1.53.0 onward, so any tag from boost-1.53.0 on exhibits the failure. The resolution does not change the provider.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "boost-1.48.0",
+    "resolved": "boost-1.54.0",
+    "basis": "documented"
+  },
+  "inventory": [
+    {"element": "api:boost/shared_ptr.hpp", "sides": {"boost_smart_ptr": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:boost::shared_ptr", "sides": {"boost_smart_ptr": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:boost::shared_dynamic_cast", "sides": {"boost_smart_ptr": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:boost::dynamic_pointer_cast", "sides": {"boost_smart_ptr": "provides", "kobuki_gazebo_plugins": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:boost::shared_dynamic_cast"],
+      "quote": "/Users/william/hydro_tb_sim/src/kobuki_desktop/kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251:31: error: no member named 'shared_dynamic_cast' in namespace 'boost'\n  cliff_sensor_left_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n                       ~~~~~~~^",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/27"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Compiler error at build time, quoted in issue #27 (\"error: no member named 'shared_dynamic_cast' in namespace 'boost'\" at five call sites, \"8 warnings and 10 errors generated.\") and in kobuki_desktop-release#1 (\"error: ‘shared_dynamic_cast’ is not a member of ‘boost’\").",
+  "detection_stage": "build",
+  "resolution": {
+    "summary": "Replace the five `boost::shared_dynamic_cast<...>` calls in kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp with `boost::dynamic_pointer_cast<...>` (commit 9c8abeb, PR #26); dynamic_pointer_cast exists in both the old and the new provider revisions. Merged into hydro-devel on 2014-03-03, synced to the hydro branch and released as 0.3.2 on 2014-04-23; bit-pirate: \"Hydro officially uses Boost 1.48 ... On the other hand I don't see any issue with releasing this into hydro either.\"",
+    "status": "recommended",
+    "evidence": "The merged commit is not shown compiling against Boost 1.53+ in the source. The equivalent transformation was shown working with a different consumer revision: wjwwood, 2014-04-22, on the hydro branch with Boost 1.55.0: \"Running the `sed` script in the above linked issue solved the problem for me.\" (the script from kobuki_desktop-release#1: `sed 's/shared_dynamic_cast/dynamic_pointer_cast/g' -i src/gazebo_ros_kobuki.cpp`, which produces the same five replacements as 9c8abeb)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Provider evidence: at boost-1.48.0 include/boost/smart_ptr/shared_ptr.hpp declares `template<class T, class U> shared_ptr<T> dynamic_pointer_cast(shared_ptr<U> const & r)` (line 526) and, under the comment \"// shared_*_cast names are deprecated. Use *_pointer_cast instead.\" (line 531), `template<class T, class U> shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r)` (line 538); at boost-1.52.0 the deprecated names are still present; at boost-1.53.0 (2013-02-04) only `dynamic_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT` remains (line 808) after 97d3274 'Update shared_ptr casts.' (2012-11-21). consumer_built_against.broken is documented by bit-pirate's statement that Hydro uses Boost 1.48 (REP 3); consumer_built_against.resolved is boost-1.54.0 because the fix's author reported the failure with 1.54 and wrote the replacement against it. The GitHub API reports merge_commit_sha 3f8b8231267b2d6498437ad218f9e60602ef7740 for PR #26, which is not in the repository; the real merge is 71f3294. bit-pirate's remark \"I wonder what has happened to the policy of not breaking the API within in the same major version.\" records the maintainers' view of the provider change. The same removal hit Gazebo (bitbucket osrf/gazebo issue 581) and turtlebot_create_desktop (PR #13), different consumers not part of this case."
+}

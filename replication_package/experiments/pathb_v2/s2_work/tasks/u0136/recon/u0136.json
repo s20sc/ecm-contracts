@@ -1,0 +1,94 @@
+{
+  "task_id": "u0136",
+  "package": "mavros",
+  "manifest_version": "0.16.5",
+  "ports": [
+    {
+      "element": "service:/mavros/set_mode",
+      "side": "provides",
+      "msg_type": "mavros_msgs/SetMode",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "42f91a56fddf157220f0dc7183aff3038b23b2d2609a8c2d36c4531660ee0257"}
+    },
+    {
+      "element": "topic:/mavros/setpoint_accel/accel",
+      "side": "consumes",
+      "msg_type": "geometry_msgs/Vector3Stamped",
+      "frame": "ENU",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/mavros/setpoint_position/local",
+      "side": "consumes",
+      "msg_type": "geometry_msgs/PoseStamped",
+      "frame": "ENU",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/mavros/setpoint_velocity/cmd_vel",
+      "side": "consumes",
+      "msg_type": "geometry_msgs/TwistStamped",
+      "frame": "ENU",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "service:/mavros/set_mode": "service /mavros/set_mode: mavros_msgs/SetMode"
+  },
+  "not_declared": [
+    "api:mavros.command.guided_enable",
+    "service:/mavros/cmd/guided_enable"
+  ],
+  "references": [
+    "topic:/mavros/setpoint_accel/accel",
+    "topic:/mavros/setpoint_position/local",
+    "topic:/mavros/setpoint_velocity/cmd_vel"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:mavros/package.xml:4",
+    "ports[0].msg_type": "snapshot:mavros/src/plugins/sys_status.cpp:411 | mode_srv = nh.advertiseService(\"set_mode\", &SystemStatusPlugin::set_mode_cb, this); with callback signature at snapshot:mavros/src/plugins/sys_status.cpp:778-779 (mavros_msgs::SetMode::Request/Response); nh(\"~\") at snapshot:mavros/src/plugins/sys_status.cpp:342; node name=\"mavros\" at snapshot:mavros/launch/node.launch:13",
+    "ports[0].frame": "snapshot:mavros_msgs/srv/SetMode.srv:19-22 | request base_mode (uint8), custom_mode (string); response success (bool); no spatial content",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros_msgs/srv/SetMode.srv (ros1 mode of the tool handles .msg only)",
+    "ports[1].msg_type": "snapshot:mavros/src/plugins/setpoint_accel.cpp:47 | accel_sub = sp_nh.subscribe(\"accel\", 10, &SetpointAccelerationPlugin::accel_cb, this); callback type geometry_msgs::Vector3Stamped at snapshot:mavros/src/plugins/setpoint_accel.cpp:92",
+    "ports[1].frame": "snapshot:mavros/src/plugins/setpoint_accel.cpp:68 | @warning Send only AFX AFY AFZ. ENU frame. (header.frame_id not read, lines 92-97; converted by UAS::transform_frame_enu_ned at line 79 and sent as MAV_FRAME_LOCAL_NED at line 82)",
+    "ports[2].msg_type": "snapshot:mavros/src/plugins/setpoint_position.cpp:58 | setpoint_sub = sp_nh.subscribe(\"local\", 10, &SetpointPositionPlugin::setpoint_cb, this); callback type geometry_msgs::PoseStamped at snapshot:mavros/src/plugins/setpoint_position.cpp:118",
+    "ports[2].frame": "snapshot:mavros/src/plugins/setpoint_position.cpp:83 | @warning Send only XYZ, Yaw. ENU frame. (header.frame_id not read, lines 118-123; converted by UAS::transform_frame_enu_ned at lines 94-95 and sent as MAV_FRAME_LOCAL_NED at line 98)",
+    "ports[3].msg_type": "snapshot:mavros/src/plugins/setpoint_velocity.cpp:44 | vel_sub = sp_nh.subscribe(\"cmd_vel\", 10, &SetpointVelocityPlugin::vel_cb, this); callback type geometry_msgs::TwistStamped at snapshot:mavros/src/plugins/setpoint_velocity.cpp:86",
+    "ports[3].frame": "snapshot:mavros/src/plugins/setpoint_velocity.cpp:63 | @warning Send only VX VY VZ. ENU frame. (header.frame_id not read, lines 86-92; converted by UAS::transform_frame_enu_ned at lines 72-73 and sent as MAV_FRAME_LOCAL_NED at line 76)",
+    "declares[service:/mavros/set_mode]": "snapshot:mavros/src/plugins/sys_status.cpp:411 | mode_srv = nh.advertiseService(\"set_mode\", &SystemStatusPlugin::set_mode_cb, this); nh(\"~\") at sys_status.cpp:342; node name=\"mavros\" at snapshot:mavros/launch/node.launch:13",
+    "not_declared[api:mavros.command.guided_enable]": "searched the whole snapshot for 'guided' (case-insensitive): snapshot:mavros/src/mavros/command.py defines long, int, arming, set_home, takeoff, land, trigger_control (lines 30-36, 41-47) and lists them in __all__ (lines 10-18); guided_enable appears only in the global statement at line 40 and is never assigned, so the module attribute does not exist. The only other hit is the caller snapshot:mavros/scripts/mavsetp:40 | command.guided_enable(value=True)",
+    "not_declared[service:/mavros/cmd/guided_enable]": "snapshot:mavros/src/plugins/command.cpp:53,64-70 | cmd_nh(\"~cmd\") advertises only command, command_int, arming, set_home, takeoff, land, trigger_control; case-insensitive grep for 'guided' over the whole snapshot finds no advertiseService or ServiceProxy for guided_enable",
+    "references[topic:/mavros/setpoint_accel/accel]": "snapshot:mavros/src/plugins/setpoint_accel.cpp:36,47 | sp_nh(\"~setpoint_accel\") ... sp_nh.subscribe(\"accel\", ...); node name=\"mavros\" at snapshot:mavros/launch/node.launch:13; also snapshot:mavros/src/mavros/setpoint.py:22 | mavros.get_topic('setpoint_accel', 'accel')",
+    "references[topic:/mavros/setpoint_position/local]": "snapshot:mavros/src/plugins/setpoint_position.cpp:35,58 | sp_nh(\"~setpoint_position\") ... sp_nh.subscribe(\"local\", ...); node name=\"mavros\" at snapshot:mavros/launch/node.launch:13; also snapshot:mavros/src/mavros/setpoint.py:57 | mavros.get_topic('setpoint_position', 'local')",
+    "references[topic:/mavros/setpoint_velocity/cmd_vel]": "snapshot:mavros/src/plugins/setpoint_velocity.cpp:35,44 | sp_nh(\"~setpoint_velocity\") ... sp_nh.subscribe(\"cmd_vel\", ...); node name=\"mavros\" at snapshot:mavros/launch/node.launch:13; also snapshot:mavros/src/mavros/setpoint.py:64 | mavros.get_topic('setpoint_velocity', 'cmd_vel')",
+    "perm_requires.state": "searched snapshot/mavros (src, scripts, launch, package.xml) for permission, sros, keystore, access control, policy: no declarations (only a license text hit in include/mavros/px4_custom_mode.h:17)",
+    "perm_grants.state": "same search as perm_requires: no declarations",
+    "recovery.state": "searched snapshot/mavros for recover, retry, fallback, failsafe: no recovery behaviour for the listed elements (set_mode_cb sends SET_MODE once and returns success=true, sys_status.cpp:778-807; setpoint callbacks forward once); the only retry logic is in the param plugin (src/plugins/param.cpp:394 RETRIES_COUNT = 3), which is not a listed element"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The package's own tool mavsetp (scripts/mavsetp:40) calls command.guided_enable(value=True), but mavros.command never defines guided_enable (it survives only in the global statement at command.py:40) and no /mavros/cmd/guided_enable service is advertised; the call would raise AttributeError, which the except rospy.ServiceException handler does not catch. This looks like a provided API/service that was removed while a caller was left behind."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 package, so all QoS values are null. Full names assume the node runs at the root namespace under the name set in launch/node.launch:13 (name=\"mavros\"; mavros_node.cpp:18 also inits as \"mavros\"); plugins use private NodeHandles (~, ~cmd, ~setpoint_*). The /mavros/setpoint_position/local subscription exists only when param setpoint_position/tf/listen is false (code default false at setpoint_position.cpp:47; px4_config.yaml:97 and apm_config.yaml:97 set listen: false); when true the plugin listens to TF local_origin -> setpoint instead. The three setpoint topics are also published by the package's Python helpers (setpoint.py:22,57,64, used by scripts/mavsetp with header frame_id 'mavsetp'); the packet side for them is consumes, so ports describe the plugin subscribers (queue size 10). Frame 'ENU' is the convention the plugins hard-code in their @warning comments and enu->ned conversion; header.frame_id is ignored. Units are not stated in code for these topics (setpoint_accel may carry force instead of acceleration when param send_force is true, setpoint_accel.cpp:45,76-77), so units are null. definition_id is null for the geometry_msgs types because ros_distro is null, so there is no release tag from which to fetch the dependency definitions. The SetMode definition_id uses the tool's sha256 mode because its ros1 mode covers .msg files only. No port is recorded for the two not_declared elements: nothing in the package offers them. The api element mavros.command.guided_enable is still referenced by scripts/mavsetp:40 (and named in command.py:40's global statement); it is kept out of references because that list is for consumed elements. No exclusive resources are claimed: the FCU serial device appears only as a launch default fcu_url (/dev/ttyACM0:57600, px4.launch/apm.launch) with no exclusive-open flag in the snapshot."
+}

@@ -1,0 +1,120 @@
+{
+  "task_id": "u0336",
+  "package": "usb_cam",
+  "manifest_version": "0.3.6",
+  "ports": [
+    {
+      "element": "api:VIDIOC_DQBUF",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": 30,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:VIDIOC_S_FMT",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:v4l2/v4l2_pix_format.height",
+      "side": "consumes",
+      "msg_type": "v4l2/v4l2_pix_format",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:v4l2/v4l2_pix_format.pixelformat",
+      "side": "consumes",
+      "msg_type": "v4l2/v4l2_pix_format",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:v4l2/v4l2_pix_format.width",
+      "side": "consumes",
+      "msg_type": "v4l2/v4l2_pix_format",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:/dev/video0",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:VIDIOC_DQBUF",
+    "api:VIDIOC_S_FMT",
+    "field:v4l2/v4l2_pix_format.height",
+    "field:v4l2/v4l2_pix_format.pixelformat",
+    "field:v4l2/v4l2_pix_format.width",
+    "resource:/dev/video0"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3 | <version>0.3.6</version>",
+    "ports[0].side": "snapshot:src/usb_cam.cpp:591 | if (-1 == xioctl(fd_, VIDIOC_DQBUF, &buf)) (also snapshot:src/usb_cam.cpp:623, USERPTR path)",
+    "ports[0].rate_hz": "snapshot:nodes/usb_cam_node.cpp:258 | ros::Rate loop_rate(this->framerate_); with default snapshot:nodes/usb_cam_node.cpp:101 | node_.param(\"framerate\", framerate_, 30); DQBUF is issued once per loop iteration via grab_image() -> read_frame() (snapshot:nodes/usb_cam_node.cpp:243, snapshot:src/usb_cam.cpp:1209)",
+    "ports[1].side": "snapshot:src/usb_cam.cpp:994 | if (-1 == xioctl(fd_, VIDIOC_S_FMT, &fmt))",
+    "ports[1].frame": "snapshot:src/usb_cam.cpp:988-992 | the VIDIOC_S_FMT argument carries only type, width, height, pixelformat and field; no coordinate frame",
+    "ports[2].side": "snapshot:src/usb_cam.cpp:990 | fmt.fmt.pix.height = image_height; (read back at snapshot:src/usb_cam.cpp:1008 | image_height = fmt.fmt.pix.height;)",
+    "ports[2].msg_type": "snapshot:src/usb_cam.cpp:907 | struct v4l2_format fmt; field accessed as fmt.fmt.pix.height (snapshot:src/usb_cam.cpp:990); parent type name as given in the packet element",
+    "ports[2].frame": "snapshot:src/usb_cam.cpp:990 | fmt.fmt.pix.height = image_height; (image size value, no coordinate frame)",
+    "ports[3].side": "snapshot:src/usb_cam.cpp:991 | fmt.fmt.pix.pixelformat = pixelformat_;",
+    "ports[3].msg_type": "snapshot:src/usb_cam.cpp:907 | struct v4l2_format fmt; field accessed as fmt.fmt.pix.pixelformat (snapshot:src/usb_cam.cpp:991); parent type name as given in the packet element",
+    "ports[3].frame": "snapshot:src/usb_cam.cpp:991 | fmt.fmt.pix.pixelformat = pixelformat_; (pixel format code, no coordinate frame)",
+    "ports[4].side": "snapshot:src/usb_cam.cpp:989 | fmt.fmt.pix.width = image_width; (read back at snapshot:src/usb_cam.cpp:1007 | image_width = fmt.fmt.pix.width;)",
+    "ports[4].msg_type": "snapshot:src/usb_cam.cpp:907 | struct v4l2_format fmt; field accessed as fmt.fmt.pix.width (snapshot:src/usb_cam.cpp:989); parent type name as given in the packet element",
+    "ports[4].frame": "snapshot:src/usb_cam.cpp:989 | fmt.fmt.pix.width = image_width; (image size value, no coordinate frame)",
+    "ports[5].side": "snapshot:src/usb_cam.cpp:1065 | fd_ = open(camera_dev_.c_str(), O_RDWR /* required */| O_NONBLOCK, 0);",
+    "ports[5].frame": "snapshot:nodes/usb_cam_node.cpp:92 | node_.param(\"video_device\", video_device_name_, std::string(\"/dev/video0\")); (device path, no coordinate frame)",
+    "references[api:VIDIOC_DQBUF]": "snapshot:src/usb_cam.cpp:591 | if (-1 == xioctl(fd_, VIDIOC_DQBUF, &buf))",
+    "references[api:VIDIOC_S_FMT]": "snapshot:src/usb_cam.cpp:994 | if (-1 == xioctl(fd_, VIDIOC_S_FMT, &fmt))",
+    "references[field:v4l2/v4l2_pix_format.height]": "snapshot:src/usb_cam.cpp:990 | fmt.fmt.pix.height = image_height;",
+    "references[field:v4l2/v4l2_pix_format.pixelformat]": "snapshot:src/usb_cam.cpp:991 | fmt.fmt.pix.pixelformat = pixelformat_;",
+    "references[field:v4l2/v4l2_pix_format.width]": "snapshot:src/usb_cam.cpp:989 | fmt.fmt.pix.width = image_width;",
+    "references[resource:/dev/video0]": "snapshot:nodes/usb_cam_node.cpp:92 | node_.param(\"video_device\", video_device_name_, std::string(\"/dev/video0\")); also snapshot:launch/usb_cam-test.launch:3 | <param name=\"video_device\" value=\"/dev/video0\" />",
+    "perm_requires": "searched all 13 snapshot files (package.xml, CMakeLists.txt, launch/usb_cam-test.launch, nodes/usb_cam_node.cpp, src/usb_cam.cpp, include/usb_cam/usb_cam.h, README.md, mainpage.dox, .travis.yml, .gitignore, AUTHORS.md, LICENSE, src/LICENSE) for permission/group/udev declarations; none found",
+    "perm_grants": "searched all 13 snapshot files for any permission grant; none found",
+    "recovery": "snapshot:src/usb_cam.cpp:62-66 | errno_exit() calls exit(EXIT_FAILURE); DQBUF errors other than EAGAIN exit (snapshot:src/usb_cam.cpp:603-604), select timeout exits (snapshot:src/usb_cam.cpp:1203-1207); no reopen/retry/respawn declared for usb_cam_node (launch sets respawn only on image_view, = false, snapshot:launch/usb_cam-test.launch:11)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The width/height the driver returns from VIDIOC_S_FMT are copied only into init_device's by-value parameters (src/usb_cam.cpp:1007-1008) and never reach start(), which sizes image_ (1128-1129) and the MJPEG/H264 decoder (1090, 1095, called before S_FMT) from the requested values; the returned pixelformat is never compared with the requested one. A driver that adjusts the format therefore has its DQBUF buffers processed with the wrong dimensions or format."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (kinetic) package; all six packet elements are consumed, so declares and not_declared are empty by rule. The ioctls are issued with the package's own static xioctl() wrapper on fd_ (src/usb_cam.cpp:68-77) obtained from open() at src/usb_cam.cpp:1065. The device path is the runtime private parameter ~video_device with the hard-coded default \"/dev/video0\" (nodes/usb_cam_node.cpp:92), set to the same value in the shipped launch file; a different path can be supplied at run time. The fields are written into struct v4l2_format.fmt.pix before VIDIOC_S_FMT (src/usb_cam.cpp:988-992) together with type=V4L2_BUF_TYPE_VIDEO_CAPTURE and field=V4L2_FIELD_INTERLACED; width and height are read back after the call (1000, 1003, 1007-1008), pixelformat is not. pixelformat_ is chosen from the ~pixel_format parameter (default \"mjpeg\", nodes/usb_cam_node.cpp:103; launch sets \"yuyv\") via UsbCam::start (src/usb_cam.cpp:1083-1115); width/height from ~image_width/~image_height (defaults 640/480, nodes/usb_cam_node.cpp:99-100). VIDIOC_DQBUF is used for both IO_METHOD_MMAP (591) and IO_METHOD_USERPTR (623); EAGAIN returns 0 and the frame is skipped. ports[0].rate_hz=30 is the default loop rate from ~framerate (also passed to VIDIOC_S_PARM timeperframe 1/framerate, src/usb_cam.cpp:1018-1020); grab_image blocks in select() before DQBUF, so the actual call rate is bounded by the device. ports[0].frame is null: the DQBUF buffers carry image data but no coordinate frame is attached at this interface (the ROS image later gets header.frame_id from ~camera_frame_id, default \"head_camera\", nodes/usb_cam_node.cpp:118). msg_type is null for the api and resource ports (not ROS message types; VIDIOC_DQBUF takes struct v4l2_buffer, VIDIOC_S_FMT takes struct v4l2_format). definition_id is null for all ports: v4l2_pix_format is a C struct in linux/videodev2.h, not a .msg/.srv/.action/.idl file and not in the snapshot. units null: neither the code nor an allowed definition states units for these fields. QoS null (ROS 1). exclusive is empty: the device is opened O_RDWR|O_NONBLOCK without O_EXCL, and there is no flock or VIDIOC_S_PRIORITY claim; any exclusivity of the V4L2 streaming queue after VIDIOC_REQBUFS is kernel behaviour, not a claim in the code. references is limited to the packet elements; the code also uses VIDIOC_QUERYCAP, VIDIOC_CROPCAP, VIDIOC_S_CROP, VIDIOC_G_PARM, VIDIOC_S_PARM, VIDIOC_REQBUFS, VIDIOC_QUERYBUF, VIDIOC_QBUF, VIDIOC_STREAMON, VIDIOC_STREAMOFF, VIDIOC_QUERYCTRL, VIDIOC_S_CTRL, and runs v4l2-ctl --device=<camera_dev_> through popen for controls (src/usb_cam.cpp:1270-1294). No network access was used."
+}

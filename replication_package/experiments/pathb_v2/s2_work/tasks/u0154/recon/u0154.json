@@ -1,0 +1,21 @@
+{
+  "task_id": "u0154",
+  "package": "PX4 Firmware",
+  "status": "evidence_inadequate",
+  "searched": "All 325 files under snapshot/ (recursive, case-insensitive grep -rilI) for: command_ack, command_long, command_int, MAV_CMD, MAV_RESULT, MAV_AUTOPILOT, mavlink_, mavlink.h, heartbeat, autopilot, confirmation, px4; searched for package.xml, *.msg and *.xml files (none present). The snapshot is the libuavcan repository root (CMakeLists.txt project(uavcan C CXX); README 'UAVCAN stack in C++'), not PX4 Firmware source; its dsdl/ and libuavcan/dsdl_compiler/pyuavcan/ submodule directories are empty. No MAVLink message definitions, MAVLink headers, or COMMAND_ACK/COMMAND_LONG/COMMAND_INT/HEARTBEAT handling exist in the snapshot. The only 'mavlink' hits are a libuavcan unit-test DSDL type root_ns_a.MavlinkMessage (fields seq, sysid, compid, msgid, payload) and test code in libuavcan/test/node/publisher.cpp and subscriber.cpp that uses it; this is a UAVCAN test type, not any of the packet elements. 'confirmation' hits are libuavcan firmware-update-trigger code (handleFirmwareUpdateConfirmation), unrelated to COMMAND_LONG.confirmation.",
+  "manifest_version": null,
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "status": "snapshot:CMakeLists.txt:7 project(uavcan C CXX); snapshot:README.md:1 UAVCAN stack in C++; snapshot:.gitmodules:3 url = https://github.com/UAVCAN/dsdl (snapshot/dsdl is empty); snapshot:libuavcan/test/dsdl_test/root_ns_a/20000.MavlinkMessage.uavcan:2 # This thing is only needed for testing"
+  },
+  "blinding_guess": {"defective": "cannot_tell", "why": "The snapshot does not contain PX4 Firmware MAVLink code, so none of the listed elements can be inspected at this revision."},
+  "confidence": "low",
+  "notes": "Snapshot holds libuavcan (a UAVCAN C++ stack that PX4 Firmware uses as a submodule), not the PX4 Firmware tree that would contain the MAVLink command handling. No package.xml, so manifest_version is null. None of the seven packet elements (field:mavlink/COMMAND_ACK.command, field:mavlink/COMMAND_ACK.result, field:mavlink/COMMAND_LONG.confirmation, field:mavlink/HEARTBEAT.autopilot, msg:mavlink/COMMAND_ACK, msg:mavlink/COMMAND_INT, msg:mavlink/COMMAND_LONG) could be determined either way from this snapshot, so provided elements are in neither declares nor not_declared (absence in libuavcan says nothing about PX4 Firmware), and consumed elements are not listed in references. No ports recorded; no definition hashes computed because no MAVLink definition files are in the snapshot and the protocol allows fetching only ROS .msg/.srv/.action/.idl dependency definitions. Permissions and recovery not checkable for the named package, hence unknown."
+}

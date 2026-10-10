@@ -1,0 +1,27 @@
+{
+  "item_id": "A1-C3-053",
+  "kind": "A1",
+  "case_id": "C3-053",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "The subscriber crashes with the following message:\n\nmake_tuple(): unable to convert argument of type 'object' to Python object",
+    "url": "https://github.com/ros2/rclpy/issues/848"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "make_tuple(): unable to convert argument of type 'object' to Python object (a pybind11 error printed by the crashing subscriber — a runtime symptom of the failed conversion, not a tooling diagnostic of an interface mismatch; loudness null in the spec conforms to the ineligible-case schema)",
+    "url": "https://github.com/ros2/rclpy/issues/848"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Yes, good call.  I'm actually going to close this one as a duplicate, since it is already fixed in Rolling and there is now a backport PR to humble for it. (clalancette comment; recorded in the spec's E1 evidence; resolution status itself is null, conforming to the ineligible-case schema)",
+    "url": "https://github.com/ros2/rclpy/issues/848"
+  },
+  "notes": "Independently verified: issue #848 (jacobperron, 2021-11-11, 'pybind11 error during subscription take_message() when message has NaN value') reproducer ('Clone [nan_publisher] ... ros2 run nan_publisher nan_publisher ... ros2 topic echo /nan'), error text, and environment (Ubuntu 20.04, version 77949d2c54b8104e48a94d0ea83c7049e18a8809, rmw_fastrtps_cpp and rmw_cyclonedds) all match; fujitatomoya's 'https://github.com/ros2/rosidl_python/pull/167 can fix this problem.' and clalancette's closing comment match (read via gh api). PR #167 'Allow NaN values to pass floating point bounds check.' (oysstu, merged 2022-08-22 as 52e099ef) patch read: commit 1 changes '-            assert value >= -@(bound) and value <= @(bound), \\' to '+            assert not (value < -@(bound) or value > @(bound)), \\' and a later commit in the same PR adds the isinf allowance ('+                 all(not (val < -@(bound) or val > @(bound)) or math.isinf(val) for val in value)), \\'), matching the spec's quoted net change. rosidl_python #162 read: 'The NaN value should be converted to a NaN in python.' and 'The [BatteryState] message, for example, uses NaNs to flag values that are not measured.' verbatim; #169 read: 'our c++ code is still able to serialize using `std::numeric_limits<T>::infinity` but the python code is not able to do so' verbatim. rclpy/src/rclpy/subscription.cpp at 77949d2c read: line 127 'pytaken_msg = convert_to_py(taken_msg.get(), pymsg_type);' followed at line 130 by 'return py::make_tuple(' / '    pytaken_msg, py::dict(' — the unchecked conversion pass-through as quoted. nan_publisher repo exists (C++, jacobperron). Notes-level claims spot-checked: image_pipeline PR #710 '[rolling] Populate CameraInfo camera matrix in test fixture', PR #699 '[rolling] Fix image saver bug and time-based image saving' (unrelated), tier4 PR #56 'fix: rtc distance' with 'If subscribing NaN value on humble rclpy(version 3.3.4), rclpy is broken.'. E2 walk independently: the value crossing the boundary (NaN on a float field) is valid for the declared type; the defect is the generated Python binding's bounds assertion rejecting it plus rclpy's unchecked take path, both inside the subscribing process; the crash occurs with any correct publisher that sends NaN — internal, step 2. The alternative reading (#169's C++/Python inconsistency as a value-domain or UPGRADE mismatch between language bindings) was reasonably rejected: the maintainers fixed the Python check itself rather than any cross-unit contract. Agree."
+}

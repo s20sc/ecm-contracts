@@ -1,0 +1,93 @@
+{
+  "task_id": "u0073",
+  "package": "kobuki_gazebo_plugins (model instance 2)",
+  "manifest_version": "0.4.1",
+  "ports": [
+    {
+      "element": "resource:bumpers",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:cliff_sensor_front",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "meter",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:cliff_sensor_left",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "meter",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:cliff_sensor_right",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "meter",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:imu",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "velocity command watchdog: wheel_speed_cmd_ set to 0.0 when (prev_update_time_- last_cmd_vel_time_).Double() > cmd_vel_timeout_ (SDF velocity_command_timeout) or !motors_enabled_; no recovery for missing sensors (Load returns without connecting OnUpdate)"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_gazebo_plugins/package.xml:3",
+    "ports[0].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:271 | sensors::SensorManager::Instance()->GetSensor(bumper_name)); (bumper_name read from SDF element \"bumper_name\" at line 262, cast to sensors::ContactSensor at line 270)",
+    "ports[1].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:218 | sensors::SensorManager::Instance()->GetSensor(cliff_sensor_center_name)); (name from SDF element \"cliff_sensor_center_name\" at line 197; line 201 calls it the \"frontal cliff sensor\"; cast to sensors::RaySensor at line 217)",
+    "ports[2].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:216 | sensors::SensorManager::Instance()->GetSensor(cliff_sensor_left_name)); (name from SDF element \"cliff_sensor_left_name\" at line 187)",
+    "ports[3].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:220 | sensors::SensorManager::Instance()->GetSensor(cliff_sensor_right_name)); (name from SDF element \"cliff_sensor_right_name\" at line 207)",
+    "ports[4].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:298 | sensors::get_sensor(world_->GetName()+\"::\"+node_name_+\"::base_footprint::\"+imu_name)); (imu_name from SDF element \"imu_name\" at line 289; cast to sensors::ImuSensor at line 297; node_name_ is the parent model name, snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:56-58)",
+    "ports[1].units": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:206 | /// measured distance in meter for detecting a cliff (threshold compared with cliff_sensor_center_->GetRange(0), snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_updates.cpp:214)",
+    "ports[2].units": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:206 | /// measured distance in meter for detecting a cliff (threshold compared with cliff_sensor_left_->GetRange(0), snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_updates.cpp:193)",
+    "ports[3].units": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:206 | /// measured distance in meter for detecting a cliff (threshold compared with cliff_sensor_right_->GetRange(0), snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_updates.cpp:235)",
+    "perm_requires.state": "searched all files under snapshot/ (kobuki_gazebo_plugins src/include/package.xml/CMakeLists.txt and the sibling kobuki_gazebo launch/world/param files); no permission declarations",
+    "perm_grants.state": "searched all files under snapshot/; no permission grants",
+    "recovery.state": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_updates.cpp:174",
+    "recovery.value": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_updates.cpp:174 | if (((prev_update_time_- last_cmd_vel_time_).Double() > cmd_vel_timeout_) || !motors_enabled_) ; timeout from SDF at snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp:167; sensor-lookup failures return false and Load returns at snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:73-78"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "For a second model instance, the bumper and the three cliff sensors are resolved by bare, unscoped sensor names through SensorManager::GetSensor (loads.cpp:216-220, 271), so the plugin in instance 2 can bind to the same-named sensors of instance 1; only the IMU lookup is scoped by world and model name (loads.cpp:298)."
+  },
+  "confidence": "medium",
+  "notes": "All five packet elements are Gazebo sensors consumed by the model plugin GazeboRosKobuki, not ROS topics, so msg_type and definition_id are null (the code casts them to sensors::ContactSensor for bumpers, sensors::RaySensor for the three cliff sensors, sensors::ImuSensor for imu). ROS 1 package, so QoS is null. No rate is set; the sensors are read on every Gazebo world update (OnUpdate via ConnectWorldUpdateBegin, gazebo_ros_kobuki.cpp:84, 102-107). The resource names themselves (bumpers, cliff_sensor_front, cliff_sensor_left, cliff_sensor_right, imu) never appear in the snapshot: they are supplied at run time from the model SDF/URDF elements bumper_name, cliff_sensor_center_name, cliff_sensor_left_name, cliff_sensor_right_name, imu_name (the robot description comes from kobuki_description, outside the snapshot, per kobuki_gazebo/launch/includes/robot.launch.xml:7), so none of them goes into references. The front cliff resource is matched to the SDF key cliff_sensor_center_name on the strength of the error text at loads.cpp:201 and the link name cliff_sensor_front_link in kobuki_rviz_launchers/rviz/robot.rviz:80. Lookup scoping differs by element: bumper and cliff sensors use SensorManager::Instance()->GetSensor(<bare name>); the IMU uses sensors::get_sensor(<world>::<model name>::base_footprint::<imu_name>), i.e. it hard-codes the parent link base_footprint in the scoped name. Frames: no frame is declared for the consumed sensor data. The bumper contact positions/normals are treated as world coordinates (comment at updates.cpp:285, compared against model_->GetWorldPose() at updates.cpp:274); the IMU data is republished with the joint_state_ header whose frame_id is resolveTF(\"base_link\") (updates.cpp:47-49, 146), which is the published topic's frame, not a frame of the consumed resource, so frame stays null for all ports. Units for bumper and imu are not stated in the code. The code calls SetActive(true) on every sensor (loads.cpp:246-248, 277, 304) but claims nothing exclusively, so exclusive is empty. declares/not_declared are empty because the packet lists no provided elements."
+}

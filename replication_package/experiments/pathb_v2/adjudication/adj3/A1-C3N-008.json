@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3N-008",
+  "kind": "A1",
+  "case_id": "C3N-008",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override",
+    "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override",
+      "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override",
+    "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The breaking PR was released with 31.0.0\nhttps://github.com/ros2/rclcpp/commit/048e47ec105e34def37770ef1dba33955e3a6999"
+  },
+  "notes": "All core claims verified against primary sources. (1) E2 library-API mechanism: rclcpp 30.1.5 executor.hpp line 200 declares by-value 'add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);' whereas 31.0.0 declares 'add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, bool notify = true);' (commit f145c9ee 'perf: Optimized out shared_ptr copies (#3079)'; release tag 048e47ec '31.0.0'). (2) The consumer at bb07fdd carries the guard '#if RCLCPP_VERSION_GTE(30, 1, 5)' selecting the const-ref override, so against 30.1.5 (by-value) the override matches no base declaration - matches the compiler error. (3) PR 3198 body verbatim: 'I misconfigured the version macro with #3080. It is a GTE and not a GT macro', merge 64f9645a; PR 3080 title 'Fix API breaking change of Executor::add_node'. (4) Failing runs 24018250241/24063312146 head bb07fdd conclusion failure; success run 24116710553 head 64f9645a conclusion success. (5) E3 DIRECTION CAVEAT (spec itself flags it in notes): the provider in the failing composition is rclcpp 30.1.5, OLDER than the consumer's selected declaration (31.0.0), i.e. the reverse of the canonical UPGRADE ('provider runs at a newer revision than the consumer was built or written against'). The unit that changed was the consumer (PR #3080), not the provider. Strictly this is a consumer-runs-ahead version skew rather than UPGRADE; the failure is still a genuine library-API interface mismatch and the case is eligible at step 6 either way, so eligibility verdict stands but the operation label is contestable. (6) Failed condition class element_retyped (add_node declaration changed by-value->const-ref, element still present) is correct; no missed conditions (the MockExecutor only overrides add_node; the other const-ref changes in f145c9ee do not surface in this test file). (7) Resolution 'recommended' is correct: PR 3198 merged and run 24116710553 (head 64f9645a) succeeded, but the rclcpp revision installed in that run is not documented in a readable source, so both units are not identified by revision ('observed' requires that)."
+}

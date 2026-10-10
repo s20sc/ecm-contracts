@@ -1,0 +1,162 @@
+{
+  "task_id": "u0339",
+  "package": "PyYAML",
+  "manifest_version": "5.1",
+  "ports": [
+    {
+      "element": "api:yaml.MarkedYAMLError",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:yaml.add_constructor",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:yaml.add_implicit_resolver",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:yaml.add_representer",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:yaml.dump",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:yaml.load",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:yaml.load_all",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:yaml.MarkedYAMLError": "api yaml.MarkedYAMLError: class MarkedYAMLError(YAMLError):",
+    "api:yaml.add_constructor": "api yaml.add_constructor: def add_constructor(tag, constructor, Loader=Loader):",
+    "api:yaml.add_implicit_resolver": "api yaml.add_implicit_resolver: def add_implicit_resolver(tag, regexp, first=None, Loader=Loader, Dumper=Dumper):",
+    "api:yaml.add_representer": "api yaml.add_representer: def add_representer(data_type, representer, Dumper=Dumper):",
+    "api:yaml.dump": "api yaml.dump: def dump(data, stream=None, Dumper=Dumper, **kwds):",
+    "api:yaml.load": "api yaml.load: def load(stream, Loader=None):",
+    "api:yaml.load_all": "api yaml.load_all: def load_all(stream, Loader=None):"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "ports[0].frame": "snapshot:lib/yaml/error.py:48",
+    "declares[api:yaml.MarkedYAMLError]": "snapshot:lib/yaml/error.py:48",
+    "ports[1].frame": "snapshot:lib/yaml/__init__.py:332",
+    "declares[api:yaml.add_constructor]": "snapshot:lib/yaml/__init__.py:332",
+    "ports[2].frame": "snapshot:lib/yaml/__init__.py:311",
+    "declares[api:yaml.add_implicit_resolver]": "snapshot:lib/yaml/__init__.py:311",
+    "ports[3].frame": "snapshot:lib/yaml/__init__.py:349",
+    "declares[api:yaml.add_representer]": "snapshot:lib/yaml/__init__.py:349",
+    "ports[4].frame": "snapshot:lib/yaml/__init__.py:288",
+    "declares[api:yaml.dump]": "snapshot:lib/yaml/__init__.py:288",
+    "ports[5].frame": "snapshot:lib/yaml/__init__.py:103",
+    "declares[api:yaml.load]": "snapshot:lib/yaml/__init__.py:103",
+    "ports[6].frame": "snapshot:lib/yaml/__init__.py:118",
+    "declares[api:yaml.load_all]": "snapshot:lib/yaml/__init__.py:118",
+    "manifest_version": "snapshot:setup.py:3",
+    "perm_requires": "searched snapshot/lib, snapshot/lib3, setup.py, setup.cfg (grep -i permission|privilege|capabilit): no permission declarations",
+    "perm_grants": "searched snapshot/lib, snapshot/lib3, setup.py, setup.cfg (grep -i permission|privilege|capabilit): no permission grants",
+    "recovery": "searched snapshot/lib, snapshot/lib3, setup.py, setup.cfg (grep -i recover|retry|fallback): no recovery declaration for the listed API elements"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "load()/load_all() fall back to FullLoader when Loader is None (lib/yaml/__init__.py:108-110, 123-125), but add_constructor() and add_implicit_resolver() still default to Loader=Loader (lines 311-312, 332), so a constructor or resolver registered with the default arguments is not seen by a default yaml.load()/load_all() call."
+  },
+  "confidence": "high",
+  "notes": "Non-ROS Python library (ROS1 generation, ros_distro null); no package.xml, version taken from setup.py VERSION = '5.1' (also __version__ = '5.1' at lib/yaml/__init__.py:11 and lib3/yaml/__init__.py:11). All seven elements are Python API symbols exported by the yaml package; the source has two trees, lib/yaml (Python 2) and lib3/yaml (Python 3), selected by setup.py:304. The seven declaration lines are textually identical in both trees; lib3 locations: error.py:48, __init__.py:329 (add_constructor), 308-309 (add_implicit_resolver), 346 (add_representer), 285 (dump), 103 (load), 118 (load_all). yaml.MarkedYAMLError is defined in error.py (in error.__all__) and re-exported by 'from error import *' / 'from .error import *' at __init__.py:2. add_implicit_resolver's signature spans two source lines (311-312 in lib, 308-309 in lib3); the declares entry joins them with whitespace collapsed. msg_type, units, QoS, rates and definition_id are null: these are Python functions/classes with no ROS message definition; QoS is null because the generation is ROS 1. frame is 'none' because the YAML data has no spatial meaning. load/load_all in this revision emit YAMLLoadWarning when Loader is None (load_warning, __init__.py:43-55) and use FullLoader; dump defaults to Dumper with sort_keys=True via dump_all (__init__.py:254-259). cyaml's 'from cyaml import *' (guarded by try/except ImportError, __init__.py:13-17) exports only C loader/dumper classes and does not override the listed symbols; this optional-extension import fallback is not counted as a recovery declaration. No exclusive resources. No consumed elements in the packet, so references is empty. The snapshot's CHANGES file was not consulted (changelogs are excluded)."
+}

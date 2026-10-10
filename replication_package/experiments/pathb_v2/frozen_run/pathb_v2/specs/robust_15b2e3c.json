@@ -1,0 +1,103 @@
+{
+  "case_id": "robust_15b2e3c",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/issues/9",
+    "https://github.com/ros/geometry2/pull/10",
+    "https://github.com/ros/geometry2/commit/15b2e3c52152ee4fc19c55ec76f049e990c05809",
+    "https://github.com/ros/geometry2/issues/15",
+    "https://github.com/ros/actionlib/blob/1.9.12/include/actionlib/server/action_server_imp.h",
+    "https://github.com/ros/actionlib/blob/1.9.12/include/actionlib/server/action_server.h",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/15b2e3c/15b2e3c.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #9 (2013-06-27) quotes the diagnostic: '[ERROR] You've passed in true for auto_start for the C++ action server at [/tf2_buffer_server]. You should always pass in false to avoid race conditions.' with the reproducer given by jonbinney: 'This is using the version in groovy debs. To reproduce: rosrun tf2_ros buffer_server' and the maintainer's confirmation (tfoote): 'I believe that it's a race condition which won't hurt this program so we didn't bother to spin the thread separately.  It should be cleaned up not to warn.' (https://github.com/ros/geometry2/issues/9). Fixed by PR #10, merged as 15b2e3c."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "tf2_ros",
+        "actionlib"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the units are the tf2_ros buffer_server node (tf2_ros/src/buffer_server_main.cpp constructing tf2::BufferServer, whose member server_ is an actionlib::ActionServer<tf2_msgs::LookupTransformAction>) and the actionlib library package that provides ActionServer. Step 2: the diagnostic is emitted by actionlib's constructor because of the argument the consumer passes: BufferServer's constructor forwards its auto_start parameter (default true in tf2_ros/include/tf2_ros/buffer_server.h at 0.3.6) into ActionServer(n, name, goal_cb, cancel_cb, auto_start), and actionlib's declaration documents the contract 'auto_start A boolean value that tells the ActionServer wheteher or not to start publishing as soon as it comes up. THIS SHOULD ALWAYS BE SET TO FALSE TO AVOID RACE CONDITIONS and start() should be called after construction of the server.' (action_server.h at 1.9.12). The failure depends on the consumer's assumption about the provider's API (that auto_start=true is acceptable) and does not occur with a consumer that passes false and calls start(); it is a value crossing the library-API boundary. Steps 3-5: the resolving change edits C++ source (default argument and an explicit start() call), not deployment wiring, build files, or firmware. Step 6: eligible, interface kind library API."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: an output of the consumer (the auto_start argument tf2_ros passes when constructing the ActionServer) feeds an input of the provider (actionlib's ActionServer constructor), which evaluates it at construction. No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The effect is an observed diagnostic at node start: '[ERROR] You've passed in true for auto_start for the C++ action server at [/tf2_buffer_server]. You should always pass in false to avoid race conditions.' (issue #9) and, in the duplicate report issue #15, '[ WARN] [1373931844.009500433]: You've passed in true for auto_start for the C++ action server at [/tf2_buffer_server]. You should always pass in false to avoid race conditions.' (https://github.com/ros/geometry2/issues/15). The node keeps working: tfoote, 'it's a race condition which won't hurt this program'."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2_ros",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "0.3.6",
+      "resolved_rev": "15b2e3c52152ee4fc19c55ec76f049e990c05809",
+      "pinned": true,
+      "revision_basis": "The reporter's peer jonbinney states 'This is using the version in groovy debs' (2013-06-27). The groovy release current on that date was 0.3.6 (tag 0.3.6 = 007b0f3, 2013-03-03; the next groovy tag 0.3.7 is dated 2013-11-06). tf2_ros/src/buffer_server_main.cpp, tf2_ros/include/tf2_ros/buffer_server.h and tf2_ros/src/buffer_server.cpp are byte-identical between tag 0.3.6 and 37aca97 (the groovy-devel head PR #10 was based on; the only tf2_ros difference between them is CMakeLists.txt). At 0.3.6 buffer_server.h declares 'BufferServer(const Buffer& buffer, const std::string& ns, bool auto_start = true, ros::Duration check_period = ros::Duration(0.01));' and buffer_server_main.cpp constructs 'tf2::BufferServer buffer_server(buffer_core, \"tf2_buffer_server\");' without calling start(). Resolved: 15b2e3c is the merge commit of PR #10 on groovy-devel (parents 37aca97 and 12afbb3), contained in tag 0.3.7.",
+      "excerpt": false,
+      "ros_distro": "groovy"
+    },
+    {
+      "name": "actionlib",
+      "role": "provider",
+      "repo": "https://github.com/ros/actionlib",
+      "broken_rev": "1.9.12",
+      "resolved_rev": "1.9.12",
+      "pinned": true,
+      "revision_basis": "Not stated by the reporter beyond 'groovy debs'. The groovy release of actionlib current on 2013-06-27 was 1.9.12 (tagged 2013-06-06; the previous groovy tag 1.9.11 is dated 2012-12-13 and the next, 1.9.13, 2013-09-18). Both 1.9.11 and 1.9.12 carry the identical diagnostic in include/actionlib/server/action_server_imp.h: 'ROS_WARN_NAMED(\"actionlib\", \"You've passed in true for auto_start for the C++ action server at [%s]. You should always pass in false to avoid race conditions.\", node_.getNamespace().c_str());' inside 'if(started_){ ... initialize(); publishStatus(); }' of every ActionServer constructor. Unchanged by the resolution, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "groovy"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "api:actionlib::ActionServer::ActionServer", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib::ActionServer::start", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib::ActionServer::GoalHandle", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib::ServerGoalHandle::getGoal", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib::ServerGoalHandle::setAccepted", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib::ServerGoalHandle::setSucceeded", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}},
+    {"element": "api:actionlib::ServerGoalHandle::setCanceled", "sides": {"actionlib": "provides", "tf2_ros": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:actionlib::ActionServer::ActionServer",
+        "api:actionlib::ActionServer::start"
+      ],
+      "quote": "[ERROR] You've passed in true for auto_start for the C++ action server at [/tf2_buffer_server]. You should always pass in false to avoid race conditions.",
+      "url": "https://github.com/ros/geometry2/issues/9"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The provider's runtime emits the diagnostic when the consumer constructs the ActionServer at node start-up: '[ERROR] You've passed in true for auto_start for the C++ action server at [/tf2_buffer_server]. You should always pass in false to avoid race conditions.' (https://github.com/ros/geometry2/issues/9; the same line appears as '[ WARN] [1373931844.009500433]: ...' in https://github.com/ros/geometry2/issues/15). The emitting code at actionlib 1.9.12 is 'ROS_WARN_NAMED(\"actionlib\", \"You've passed in true for auto_start for the C++ action server at [%s]. You should always pass in false to avoid race conditions.\", node_.getNamespace().c_str());' (https://github.com/ros/actionlib/blob/1.9.12/include/actionlib/server/action_server_imp.h). No failure follows; tfoote: 'it's a race condition which won't hurt this program'.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "PR #10 (single commit 12afbb3, merged as 15b2e3c on groovy-devel): change the default of BufferServer's auto_start from true to false in tf2_ros/include/tf2_ros/buffer_server.h and call buffer_server.start() explicitly in tf2_ros/src/buffer_server_main.cpp after construction, so the actionlib ActionServer is constructed with auto_start=false and started afterwards as actionlib's API documents.",
+    "status": "recommended",
+    "evidence": "Diff of 15b2e3c: '-          bool auto_start = true, ros::Duration check_period = ros::Duration(0.01));' / '+          bool auto_start = false, ros::Duration check_period = ros::Duration(0.01));' and '+  buffer_server.start();' (https://github.com/ros/geometry2/commit/15b2e3c52152ee4fc19c55ec76f049e990c05809). PR #10 body: 'fixes https://github.com/ros/geometry_experimental/issues/9' (https://github.com/ros/geometry2/pull/10). The issue was closed at merge (2013-07-10) without any post-fix run shown; no comment reports the warning gone. The cherry-pick of the same patch to hydro-devel (296d491) was reverted the next day in 9dd60ff with the message 'It was not starting up correctly.', and hydro/indigo received a different change later (66a905d, 2014-05-03, 'surpressing autostart on the server objects to not incur warnings'), so the patch is not shown working in the source for the groovy composition either."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Failed-condition class: the actionlib API documents a usage protocol (construct with auto_start=false, then call start()); tf2_ros violated it by passing true, and actionlib enforced the rule with a running diagnostic while continuing to work. None of the named classes covers a usage-protocol violation, so 'other' is used. The reporter's paste shows '[ERROR]' but every actionlib release from 1.9.11 through 1.11.7 emits the text with ROS_WARN_NAMED, and the duplicate report (issue #15, 2013-07-15) shows '[ WARN]'; the outcome is a warning while the node keeps serving. Issue #15 was closed in 2018 as a double report of #9. The hydro cherry-pick of PR #10 was reverted ('It was not starting up correctly.', 9dd60ff, 2013-07-11); in current noetic-devel buffer_server_main.cpp constructs 'tf2_ros::BufferServer buffer_server(buffer_core, node_name , false);' and then calls 'buffer_server.start();' while the header default remains auto_start = true. The action that buffer_server offers to its own clients (action:/tf2_buffer_server, tf2_msgs/LookupTransformAction) is a different composition and is not implicated. Revision caveat: neither the tf2_ros nor the actionlib deb version is stated exactly; both are the groovy releases current on the report date (0.3.6 and 1.9.12), with the relevant files verified identical to the PR base for tf2_ros."
+}

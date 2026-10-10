@@ -1,0 +1,84 @@
+{
+  "item_id": "A1-C3-095",
+  "kind": "A1",
+  "case_id": "C3-095",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "there are a lot of compile warnings for `using deprecated function`, we should try to upgrade/move away from these moving forward, while maybe keeping some around for backward compatibility?",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/152",
+    "reason": "E1/E4: a maintainer reports actual compiler warnings, and PR #170 identifies their FFmpeg origin. E2: usb_cam calls separately released FFmpeg APIs whose declarations acquired deprecation attributes; the remedy changes consumer calls, not merely packaging. E3: UPGRADE is supported by old consumer references and newer provider declarations; exact installation revisions remain inferred. Stop at 6; warning-only outcomes are eligible."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "attribute_deprecated\nvoid avcodec_register_all(void);",
+      "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n4.2/libavcodec/avcodec.h",
+      "reason": "Agree element_retyped using the rubric's explicit meaning of a changed declaration with the element still present: the change is a deprecation annotation, NOT a changed C function type or removed symbol. All five implicated functions are called in the inspected usb_cam source and carry attribute_deprecated in n4.2, unlike n2.8.",
+      "additional_evidence": [
+        {
+          "quote": "void avcodec_register_all(void);",
+          "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n2.8/libavcodec/avcodec.h"
+        },
+        {
+          "quote": "attribute_deprecated\nint avpicture_alloc(AVPicture *picture, enum AVPixelFormat pix_fmt, int width, int height);",
+          "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n4.2/libavcodec/avcodec.h"
+        },
+        {
+          "quote": "attribute_deprecated\nint avpicture_get_size(enum AVPixelFormat pix_fmt, int width, int height);",
+          "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n4.2/libavcodec/avcodec.h"
+        },
+        {
+          "quote": "attribute_deprecated\nint avpicture_layout(const AVPicture *src, enum AVPixelFormat pix_fmt,",
+          "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n4.2/libavcodec/avcodec.h"
+        },
+        {
+          "quote": "attribute_deprecated\nint avcodec_decode_video2(AVCodecContext *avctx, AVFrame *picture,",
+          "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n4.2/libavcodec/avcodec.h"
+        },
+        {
+          "quote": "They were `avcodec_register_all`, `avpicture_alloc`, and other `av`-related warnings.",
+          "url": "https://github.com/ros-drivers/usb_cam/pull/170#issuecomment-917760108"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "there are a lot of compile warnings for `using deprecated function`",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/152",
+    "reason": "Explicit compiler diagnostics satisfy loud_documented; the source supports warnings, not a link error or a runtime crash in this composition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "there are a lot of compile warnings for `using deprecated function`",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/152",
+    "reason": "The documented failure is detected at build, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-  avcodec_register_all();",
+    "url": "https://github.com/ros-drivers/usb_cam/pull/207/files",
+    "reason": "Agree recommended. The ROS 2 fix diff removes or replaces the deprecated calls on newer-library code paths. PR #170 suppressed these warnings rather than resolving them, and PR #197 reports tests for the different ROS 1 branch. No revision-identified, warning-free build of the specified ROS 2 resolved composition is shown.",
+    "additional_evidence": [
+      {
+        "quote": "Unfortunately, no. They were ignored here.",
+        "url": "https://github.com/ros-drivers/usb_cam/pull/170#issuecomment-917760108"
+      },
+      {
+        "quote": "@twdragon just reminder this PR is for the `ros2` branch...so not sure if these changes are applicable for the ROS 1 branch `develop` / if they can be backported.",
+        "url": "https://github.com/ros-drivers/usb_cam/pull/207#issuecomment-1324004616"
+      }
+    ]
+  },
+  "notes": "Read issue #152 and PRs #170/#197/#207, their comments, the relevant #207 diff, both FFmpeg declaration sets, and the broken consumer calls. The supplied taxonomy explicitly describes element_retyped as declaration changed, element still present; agreement must not be read as evidence of an ABI/type change. Unrelated lint warnings and later FFmpeg removals are not additional conditions of this pair."
+}

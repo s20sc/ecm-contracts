@@ -1,0 +1,65 @@
+{
+  "task_id": "u0260",
+  "package": "robobus_sensor_kit_launch (reporter's camera_top_6mm launch)",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "param:pixel_format",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:image_width",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:image_height",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "param:pixel_format",
+    "param:image_width",
+    "param:image_height"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].frame": "artifact.txt:2: pixel_format: \"uyvy2rgb\" (a pixel-encoding string; no spatial meaning)",
+    "ports[1].frame": "artifact.txt:3: image_width: 1920 (an image dimension setting; no coordinate frame)",
+    "ports[2].frame": "artifact.txt:4: image_height: 1080 (an image dimension setting; no coordinate frame)",
+    "references[param:pixel_format]": "artifact.txt:2: pixel_format: \"uyvy2rgb\"",
+    "references[param:image_width]": "artifact.txt:3: image_width: 1920",
+    "references[param:image_height]": "artifact.txt:4: image_height: 1080"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The excerpt pairs a camera_top_6mm launch whose device is the soft link /dev/camera/top_6mm with udev rules that create only camera/front_6mm and camera/top_3mm, and it sets pixel_format to \"uyvy2rgb\", a converted-format token whose acceptance depends on the consuming usb_cam driver's version; either the device link or the pixel_format value likely does not match what the consumer expects."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task (artifact.txt, 7 lines); ros_distro is null and no snapshot, so no dependency definitions were fetched and definition_hash.py was not applicable (parameters have no message definition). All nine packet elements are parameters on the consumes side (values this launch/config supplies to a camera driver node); none is provided, so declares and not_declared are empty. Values set in the excerpt: pixel_format \"uyvy2rgb\" (artifact.txt:2), image_width 1920 (artifact.txt:3), image_height 1080 (artifact.txt:4); these appear as bare YAML-style key: value lines, so the enclosing node/namespace is not visible. Parameters carry no QoS, message type, rate, or definition hash, so those fields are null; units are not stated in the excerpt. param:camera_info_url, param:camera_name, param:frame_id, param:framerate, param:io_method and param:video_device do not appear by name anywhere in the excerpt; because the excerpt is not a complete configuration, whether this package sets them cannot be determined, so they are in neither references nor ports. Line 1 is prose quoted from an issue ('Soft link `/dev/camera/top_6mm`'), which suggests the device path used, but it does not name the video_device parameter, so it is not recorded as a reference. Lines 5-6 are udev rules (SUBSYSTEM==video4linux, ATTRS{idVendor}==04b4, ATTRS{idProduct}==00c3) creating SYMLINK+=\"camera/front_6mm\" (KERNELS==2-6:1.0) and SYMLINK+=\"camera/top_3mm\" (KERNELS==2-4:1.0); no rule in the excerpt creates camera/top_6mm, but the excerpt may be partial. No exclusive-resource claim, permission, or recovery declaration appears; since the excerpt is not the full code/configuration these are recorded as unknown and exclusive is empty. Line 7 is prose quoted from the same issue about /dev/video0 renumbering across reboots motivating the udev rules. The issue URL in the artifact was not accessed."
+}

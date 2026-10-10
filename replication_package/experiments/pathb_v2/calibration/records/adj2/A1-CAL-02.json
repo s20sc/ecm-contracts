@@ -1,0 +1,39 @@
+{
+  "item_id": "A1-CAL-02",
+  "kind": "A1",
+  "case_id": "CAL-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "When you call `rcl_wait()`, the timeout passed to `rmw_wait()` is calculated [like](https://github.com/ros2/rcl/blob/c83119c826c75fbaf6e741658927a953318832ad/rcl/src/rcl/wait.c#L546-L582):\n\n`min(rcl_wait_timeout, minimal_timeout_to_next_timer_trigger)`\n\nbut the timer might be using a different clock that the one `rmw_wait()` uses ....\n\nAs a consequence:\n- if `rmw_wait` uses the system clock, a rcl timer using steady time isn't going to work fine (issue happens when system time is adjusted backwards)...",
+    "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-763000000"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "disagree",
+      "proposed_elements": [
+        "api:rmw_wait"
+      ],
+      "quote": "When you call `rcl_wait()`, the timeout passed to `rmw_wait()` is calculated [like](https://github.com/ros2/rcl/blob/c83119c826c75fbaf6e741658927a953318832ad/rcl/src/rcl/wait.c#L546-L582):\n\n`min(rcl_wait_timeout, minimal_timeout_to_next_timer_trigger)`\n\nbut the timer might be using a different clock that the one `rmw_wait()` uses ....",
+      "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-763000000"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+    "url": "https://github.com/ros2/ros2/issues/1080"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have confirmed that the bug is fixed in the following environments.\n\n- Ubuntu22.04\n- rolling\n- rmw_fastrtps_cpp\n- (docker ros2:nightly [DIGEST:9c3250e5675f])",
+    "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-1122131046"
+  },
+  "notes": "All key sources opened this session: issue body and full comment thread via gh api; rmw PR #316 files; rmw_wait.cpp at 4d38e385 line 183 (\"timeout = !conditionVariable->wait_for(lock, n, predicate);\") via raw.githubusercontent; rcl wait.c at c83119c8 lines 546+ (timer timeout loop) via raw.githubusercontent. Eligibility: agree, stop 6. E1 reproducer and observed effect are in the issue body; maintainer confirmation \"problem confirmed, changing system time causes this issue. (cyclonedds has the same problem)\" (fujitatomoya, comment id 759481088). Step 2 does not stop it: the mismatched value is the clock base of the timeout duration crossing the rcl -> rmw boundary (ivanpauno comment id 763000000, quoted); with an rmw that waits on a monotonic clock the steady timer is unaffected. Steps 3/4: the resolving interface change is real - PR #316 (fetched) changes rmw.h from \"\\remark Elapsed time is measured against the system clock.\" to \"\\remark Elapsed time should be measured using a monotonic clock,\\n *   though rmw implementations could use a different one.\" (merged 2022-02-07 as 5c822d1f); wjwwood's comment 763025804 confirms the old declaration at eeb5859d. Stop 6, library API. E3 PAIR, E4 observed, both supported. Failed condition: class 'other' agreed (time-base/clock-domain mismatch has no named class). Elements disagreed: the quote and mechanism are about the timeout argument of rmw_wait; api:rmw_create_wait_set (wait-set creation) plays no role in the mismatch; the inventory's own first element api:rmw_wait is the implicated one. Loudness: silent_documented/run agreed - the talker keeps publishing, only the period is wrong, and no diagnostic appears anywhere in the thread. Resolution recommended agreed: the reporter's confirmation (quoted) names no revision of either unit; 'observed' would require both units identified by revision."
+}

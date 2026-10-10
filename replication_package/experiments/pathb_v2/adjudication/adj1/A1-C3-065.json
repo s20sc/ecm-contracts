@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-065",
+  "kind": "A1",
+  "case_id": "C3-065",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the reporter quotes the defective published velocity assignment and reports/plots the inconsistent sign; the fix confirms it. E2 reaches step 6 because the wrong velocity frame crosses the mavros-to-subscriber topic boundary, rather than remaining internal arithmetic. E3: PAIR. The downstream plotting/consumer implementation is not revision-identified.",
+    "quote": "When filling mavros topic `global_position/local` and converting the linear velocity frame from `NED` to `ENU` the `z` coordinate is not consistent with the transformation, in fact, it remains positive toward down.",
+    "url": "https://github.com/mavlink/mavros/issues/2054"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "FIX: #2054: instead of converting into `ENU`, the code was converting into `END` frame.",
+      "url": "https://github.com/mavlink/mavros/pull/2226",
+      "reason": "The named NED-to-ENU transformation fails to invert z in the published Odometry twist. Frame mismatch is more specific than generic representation_convention; the topic and twist field are correctly implicated."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the `z` coordinate is not consistent with the transformation, in fact, it remains positive toward down.",
+    "url": "https://github.com/mavlink/mavros/issues/2054",
+    "reason": "The observed wrong output sign is reported without a build/connection/activation diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "You can see it also from this plot:",
+    "url": "https://github.com/mavlink/mavros/issues/2054",
+    "reason": "The sign inconsistency is observed in published runtime data."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This PR applies the same logic that is used in the `local_position` plugin and leverages `ftf::transform_frame_ned_enu`.",
+    "url": "https://github.com/mavlink/mavros/pull/2226",
+    "reason": "The patch replaces the incorrect vector with the frame transform, but the issue/PR does not show the corrected pair running with both units revision-identified. Recommended is appropriate."
+  },
+  "notes": "The inspected diff changes only the published linear velocity transformation; no additional independent failure of pose, scale, or covariance is documented in this pairing."
+}

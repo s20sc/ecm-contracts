@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-CAL2-02",
+ "kind": "A1",
+ "case_id": "CAL2-02",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "according to the following gdb debug, it seems that created subscription is not added to `rmw_wait` to be executed for Fast-DDS case. So subscription will never be executed by executer.",
+  "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1162113639"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "[Conclusion](https://github.com/ros2/rmw_fastrtps/issues/606#issuecomment-1125824269) was that if a node is assigned to multiple executors running asynchronously, it is unable to notify all of them about creating/destroying subscriptions etc..",
+   "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1191507077"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "subscriber keeps not working",
+  "url": "https://github.com/ros2/rmw_fastrtps/issues/613"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "@SteveMacenski @gezp I confirmed that this problem has been addressed by https://github.com/ros2/rmw_fastrtps/pull/619. please feel free to reopen if you still have this issue in rolling.",
+  "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1226795803"
+ },
+ "notes": "Verified rmw_fastrtps#613 issue body and full comment thread. Eligible at step 6: the guard condition is effectively an exclusive resource — rmw_fastrtps's implementation supports only one attached wait set, so the two executors' wait sets contend for it and the second never wakes; exclusive_resource_conflict with resource:node_notify_guard_condition, api:rmw_wait and api:rmw_trigger_guard_condition is a fair reading of the quoted conclusion. Loudness silent_documented/run agreed: no build/connect/activate diagnostic; the only symptom is missing callbacks at run time, root-caused via gdb. Resolution recommended agreed: PR #619 was merged and the maintainer confirmed the problem addressed, but the confirmation names no rclcpp/rmw_fastrtps revisions, so the resolved composition is not identified by revision."
+}

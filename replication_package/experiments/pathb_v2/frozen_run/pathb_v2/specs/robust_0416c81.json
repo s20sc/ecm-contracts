@@ -1,0 +1,89 @@
+{
+  "case_id": "robust_0416c81",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/262",
+    "https://github.com/yujinrobot/kobuki/commit/0416c81e5d08466477c5806443a580a142d0d465",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/977508c569a8b140531034fba7a71cc6ee94a372/kobuki_auto_docking/src/dock_drive.cpp",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/977508c569a8b140531034fba7a71cc6ee94a372/kobuki_auto_docking/src/auto_docking_ros.cpp",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/977508c569a8b140531034fba7a71cc6ee94a372/kobuki_auto_docking/launch/minimal.launch",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/977508c569a8b140531034fba7a71cc6ee94a372/kobuki_node/src/library/kobuki_ros.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #262 (corot, a maintainer, 2013-05-24): \"Now all speeds are hardcoded, what it's ok for normal kobuki/turtlebot. But with heavier robots, as waiterbot, minimum speeds are very slow, so the robot can get stuck easily.\" and \"I opened this to justify the small change I did for rocon demo.\" (https://github.com/yujinrobot/kobuki/issues/262). A second user reproduces the condition: \"I'm facing a similar issue with a heavier than usual Turtlebot. This patch https://github.com/yujinrobot/kobuki/commit/0416c81e5d08466477c5806443a580a142d0d465 would be very helpful!\" (tulku, https://github.com/yujinrobot/kobuki/issues/262#issuecomment-20609680). Maintainer confirmation of the fix: jihoonl \"The configuration patch which @corot made would be sufficient for this issue.\" and corot \"Confirmed that it is released on Hydro.\" No log or scripted reproducer; concrete platform and symptom with maintainer confirmation."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_auto_docking", "kobuki_node"],
+      "interface_kind": "topic",
+      "evidence": "Provider: kobuki_auto_docking (nodelet AutoDockingNodelet), whose DockDrive state machine at 977508c5 sets velocities with the hard-coded macro \"#define setVel(v,w) {vx=v;wz=w;}\" and calls such as \"setStateVel(BUMPED_DOCK, -0.01, 0.0)\", \"setStateVel(ALIGNED, 0.05, 0.00)\", \"setStateVel(SCAN, 0.00, 0.10)\", published by AutoDockingROS as \"velocity_commander_ = nh.advertise<geometry_msgs::Twist>(\\\"velocity\\\", 10);\" and remapped in kobuki_auto_docking/launch/minimal.launch: \"<remap from=\\\"dock_drive/velocity\\\" to=\\\"mobile_base/commands/velocity\\\"/>\". Consumer: kobuki_node (KobukiRos in the mobile_base nodelet), which subscribes \"velocity_command_subscriber = nh.subscribe(std::string(\\\"commands/velocity\\\"), 10, &KobukiRos::subscribeVelocityCommand, this);\" and drives the base. Step 2: the failure depends on the peer (the same commands work on a standard Kobuki/TurtleBot and fail on a heavier platform whose minimum executable speed is higher), so it is an interaction failure over the value crossing the topic, not a defect of either unit alone. Step 3: the fix is not a name binding; it adds a declared parameter interface (min_abs_v, min_abs_w) to the provider and clamps the emitted values. Steps 4-5 do not apply. Interface kind: topic (geometry_msgs/Twist velocity magnitudes)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the Twist published by the docking nodelet is the input of the base node's velocity subscriber. Both units are at the same repository snapshot (kobuki_auto_docking and kobuki_node both 0.3.6 at 977508c5), so no UPGRADE; the docking nodelet and the base run together but the failure is in the commanded values, not in co-activation."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect reported for the heavier platform: \"with heavier robots, as waiterbot, minimum speeds are very slow, so the robot can get stuck easily.\" (https://github.com/yujinrobot/kobuki/issues/262) and \"I'm facing a similar issue with a heavier than usual Turtlebot.\" (https://github.com/yujinrobot/kobuki/issues/262#issuecomment-20609680); the fix commit names the mismatch: \"Issue #262: add minimum speed parameters. With heavy payloads, at very\\nlow speeds, the robot can get stuck easily.\" (https://github.com/yujinrobot/kobuki/commit/0416c81e5d08466477c5806443a580a142d0d465)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_auto_docking",
+      "role": "provider",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "977508c569a8b140531034fba7a71cc6ee94a372",
+      "resolved_rev": "0416c81e5d08466477c5806443a580a142d0d465",
+      "pinned": true,
+      "revision_basis": "Broken: 977508c5, the sole parent of the fixing commit (kobuki_auto_docking/package.xml <version>0.3.6</version>), on the line that became hydro-devel (the fix is contained in hydro-devel and not in groovy-devel). The reporter does not name the exact revision run in the rocon demo. Resolved: 0416c81 (2013-05-24, \"Issue #262: add minimum speed parameters\"), which adds the min_abs_v / min_abs_w parameters and DockDrive::setVel clamping; the thread later confirms the change shipped in the Hydro release (\"Confirmed that it is released on Hydro.\").",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "kobuki_node",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "977508c569a8b140531034fba7a71cc6ee94a372",
+      "resolved_rev": "977508c569a8b140531034fba7a71cc6ee94a372",
+      "pinned": true,
+      "revision_basis": "Same snapshot as the provider (kobuki_node/package.xml <version>0.3.6</version> at 977508c5); the fix does not touch kobuki_node, so it keeps its broken revision. The physical platform (a Kobuki base under a heavier payload such as waiterbot) is what makes the minimum speed insufficient; it has no revision of its own in the source.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "topic:mobile_base/commands/velocity", "sides": {"kobuki_auto_docking": "provides", "kobuki_node": "consumes"}},
+    {"element": "msg:geometry_msgs/Twist", "sides": {"kobuki_auto_docking": "provides", "kobuki_node": "consumes"}},
+    {"element": "field:geometry_msgs/Twist.linear.x", "sides": {"kobuki_auto_docking": "provides", "kobuki_node": "consumes"}},
+    {"element": "field:geometry_msgs/Twist.angular.z", "sides": {"kobuki_auto_docking": "provides", "kobuki_node": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["field:geometry_msgs/Twist.linear.x", "field:geometry_msgs/Twist.angular.z", "topic:mobile_base/commands/velocity"],
+      "quote": "Now all speeds are hardcoded, what it's ok for normal kobuki/turtlebot. But with heavier robots, as waiterbot, minimum speeds are very slow, so the robot can get stuck easily.\n\nAllow some flexibility on its configuration, at least lower velocity limits.",
+      "url": "https://github.com/yujinrobot/kobuki/issues/262"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The effect is reported only as the robot getting stuck during docking (\"the robot can get stuck easily\", https://github.com/yujinrobot/kobuki/issues/262); no diagnostic exists for a commanded speed the platform cannot execute, and none is shown.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Provider-side change in kobuki_auto_docking (commit 0416c81): read two new private parameters in AutoDockingROS::init (\"if (nh.getParam(\\\"min_abs_v\\\", min_abs_v) == true) dock_.setMinAbsV(min_abs_v);\" and likewise min_abs_w), replace the setVel macro by \"void DockDrive::setVel(double v, double w) { vx = sign(v) * std::max(std::abs(v), min_abs_v); wz = sign(w) * std::max(std::abs(w), min_abs_w); }\" with defaults min_abs_v(0.01), min_abs_w(0.1); a heavier platform then raises the floor by setting the parameters at deployment.",
+    "status": "recommended",
+    "evidence": "Committed by the reporter for their demo and later confirmed released (\"Confirmed that it is released on Hydro.\", https://github.com/yujinrobot/kobuki/issues/262#issuecomment-29267480; \"The configuration patch which @corot made would be sufficient for this issue.\", https://github.com/yujinrobot/kobuki/issues/262#issuecomment-29264902); the source does not show a heavy robot docking with the parameters set, so the status is recommended."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Failed-condition class: the provider's minimum commanded speeds (0.01 m/s, 0.1 rad/s hard-coded in DockDrive) fall below the minimum speed the heavier platform can execute, a value-range/capability attribute of the peer that no class in the schema names, so it is recorded as other. The thread also asks for collision-aware docking (bit-pirate: \"Please also make it collision-aware when it approaches the docking station\"), which the reporter declines (\"this is not gonna happen right now\"); it is a separate feature request, not a condition of this case. The consumer unit is kobuki_node because it is the ROS component that receives the Twist; the physical cause (payload mass) sits below it in the base firmware and motors, which the source does not describe. Confidence is medium because the observation is stated in general terms (\"can get stuck easily\") rather than as a specific run, and because a reader could treat the hard-coded speeds as a tuning limitation of the docking algorithm rather than an interaction defect; the case is kept eligible under step 2 since the same commands succeed with the standard peer."
+}

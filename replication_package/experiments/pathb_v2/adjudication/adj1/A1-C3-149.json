@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-C3-149",
+  "kind": "A1",
+  "case_id": "C3-149",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: reproducible shutdown segfault and maintainer diagnosis. E2: lifetime assumptions cross the executor/middleware boundary; the failure depends on the middleware peer rather than occurring with every correct peer. E3: PAIR via teardown API calls, not a build-only defect.",
+    "quote": "In my environment, when I switched to CycloneDDS, no issues came up.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/761#issuecomment-2141333561"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "cannot publish data, at ./src/rmw_publish.cpp:66 during '__function__'\r\nFail in delete datareader, at ./src/rmw_service.cpp:89 during '__function__'",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/761",
+      "reason": "The observed publish and service-destruction failures arise from retained executor ownership outliving Fast DDS resources. other fits a teardown/lifetime contract; no listed specialized class describes it."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "In Rolling, I observe weird segfaults during shutdown of the test binary:",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/761",
+    "reason": "silent_documented is appropriate under S1's pre-run-diagnostic definition: errors and the crash are reported only at shutdown, not by a build/connect/activation compatibility check."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Binary throws error message and segfaults:",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/761"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The above modification can also fix this issue.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/761#issuecomment-2154398672",
+    "reason": "This follows the maintainer's proposal to reset wait_result_ before returning. PR 2556 implements that reset and adds an ownership test, but neither it nor the retrieved discussion demonstrates this fixed MTC/middleware composition with both revisions identified. recommended, not observed."
+  },
+  "notes": "The shutdown-in-the-last-test and executor-replacement workarounds are not evidence that the specified rclcpp fix was tested with the pinned provider. The separately mentioned execution freeze lacks a diagnosed additional failed boundary condition and is not added speculatively."
+}

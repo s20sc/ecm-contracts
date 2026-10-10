@@ -1,0 +1,91 @@
+{
+  "task_id": "u0107",
+  "package": "tf2_ros",
+  "manifest_version": "0.4.10",
+  "ports": [
+    {
+      "element": "api:tf2_msgs::TFMessage",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    },
+    {
+      "element": "api:tf2_msgs::TFMessage::__connection_header",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    },
+    {
+      "element": "api:tf2_msgs::TFMessage::transforms",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    },
+    {
+      "element": "api:tf2_msgs::TFMessageConstPtr",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:tf2_msgs::TFMessage",
+    "api:tf2_msgs::TFMessage::__connection_header",
+    "api:tf2_msgs::TFMessage::transforms",
+    "api:tf2_msgs::TFMessageConstPtr"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:tf2_ros/package.xml:3",
+    "ports[0].msg_type": "snapshot:tf2_ros/src/transform_listener.cpp:72",
+    "ports[0].frame": "snapshot:tf2_ros/src/transform_listener.cpp:130",
+    "ports[0].definition_id": "snapshot:tf2_msgs/msg/TFMessage.msg:1",
+    "ports[1].msg_type": "snapshot:tf2_ros/src/transform_listener.cpp:108",
+    "ports[1].frame": "snapshot:tf2_ros/src/transform_listener.cpp:110",
+    "ports[1].definition_id": "snapshot:tf2_msgs/msg/TFMessage.msg:1",
+    "ports[2].msg_type": "snapshot:tf2_ros/src/transform_listener.cpp:106",
+    "ports[2].frame": "snapshot:tf2_ros/src/transform_listener.cpp:130",
+    "ports[2].definition_id": "snapshot:tf2_msgs/msg/TFMessage.msg:1",
+    "ports[3].msg_type": "snapshot:tf2_ros/include/tf2_ros/transform_listener.h:63",
+    "ports[3].frame": "snapshot:tf2_ros/src/transform_listener.cpp:130",
+    "ports[3].definition_id": "snapshot:tf2_msgs/msg/TFMessage.msg:1",
+    "references[api:tf2_msgs::TFMessage]": "snapshot:tf2_ros/src/transform_listener.cpp:72",
+    "references[api:tf2_msgs::TFMessage::__connection_header]": "snapshot:tf2_ros/src/transform_listener.cpp:108",
+    "references[api:tf2_msgs::TFMessage::transforms]": "snapshot:tf2_ros/src/transform_listener.cpp:106",
+    "references[api:tf2_msgs::TFMessageConstPtr]": "snapshot:tf2_ros/include/tf2_ros/transform_listener.h:63",
+    "perm_requires.state": "searched all files under snapshot/tf2_ros (src, include, test, package.xml, CMakeLists.txt, setup.py, rosdoc.yaml) for permission/sros declarations; only BSD licence text matched",
+    "perm_grants.state": "searched all files under snapshot/tf2_ros (src, include, test, package.xml, CMakeLists.txt, setup.py, rosdoc.yaml) for permission/sros declarations; only BSD licence text matched",
+    "recovery.state": "searched snapshot/tf2_ros for recovery/fallback/retry declarations; only local error handling found (snapshot:tf2_ros/src/transform_listener.cpp:114 authority = \"no callerid\"; snapshot:tf2_ros/src/transform_listener.cpp:130 ROS_ERROR on tf2::TransformException) and wall-clock fallbacks in snapshot:tf2_ros/src/buffer.cpp:72"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The listener reads the gencpp-generated member __connection_header (not part of TFMessage.msg) via msg_in.__connection_header.get() and dereferences the result without a null check; this couples the consumer to a generated-code member rather than the message definition, the kind of element a provider-side change removes or leaves unset."
+  },
+  "confidence": "high",
+  "notes": "All four packet elements are consumed; tf2_ros provides none of them (they are C++ symbols generated for tf2_msgs), so declares and not_declared are empty. Uses: TransformListener subscribes to \"/tf\" and \"/tf_static\" as tf2_msgs::TFMessage (transform_listener.cpp:72-73, 79-83); callbacks take tf2_msgs::TFMessageConstPtr (transform_listener.h:63-65, transform_listener.cpp:93-102); subscription_callback_impl iterates msg_in.transforms (line 106) and reads msg_in.__connection_header.get() as std::map<std::string, std::string>* to look up \"callerid\" (lines 108-119), falling back to authority \"no callerid\" with ROS_WARN when absent; there is no null check on the pointer returned by .get(). TransformBroadcaster and StaticTransformBroadcaster also advertise tf2_msgs::TFMessage on \"/tf\" (queue 100) and \"/tf_static\" (queue 100, latched) and fill message.transforms (transform_broadcaster.cpp:42,55-58; static_transform_broadcaster.cpp:42,58-68; static_transform_broadcaster.h:67 member tf2_msgs::TFMessage net_message_). The Python listener uses rospy's data._connection_header (transform_listener.py:57,62), not the C++ symbol. QoS fields are null because this is ROS 1 (only queue sizes and latching are set). No rate is set. Units: TFMessage -> geometry_msgs/TransformStamped -> Transform/Vector3/Quaternion definitions state no units and the code relies on no REP-103 convention, so null. Frames: each TransformStamped carries header.frame_id and child_frame_id read at run time (transform_listener.cpp:130), hence per_message; __connection_header is a string map of connection metadata with no spatial meaning, hence none. definition_id: python3 definition_hash.py ros1 tf2_msgs/TFMessage snapshot <deps> = 94810edda583a504dfda3829e70d7eec, using snapshot/tf2_msgs/msg/TFMessage.msg (tf2_msgs 0.4.10 in the snapshot) plus dependency definitions fetched raw from https://raw.githubusercontent.com/ros/common_msgs/1.10.6/geometry_msgs/msg/{TransformStamped,Transform,Vector3,Quaternion}.msg (1.10.6 is the last 1.10.x tag, the hydro series; the four files are byte-identical at tag 1.10.0) and https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg; these were stored in the session scratchpad (outside the workspace) with locally written stub package.xml files naming geometry_msgs and std_msgs so the tool could resolve package names. Intermediate hashes: std_msgs/Header 2176decaecbce78abc3b96ef049fabed, geometry_msgs/TransformStamped b5764a33bfeb3588febc2682852579b0. For the __connection_header, transforms and TFMessageConstPtr ports, msg_type and definition_id record the parent message tf2_msgs/TFMessage; __connection_header itself is a gencpp-generated member that is not in the .msg definition, so the hash does not cover it. The generated tf2_msgs C++ header is not in the snapshot, so the declared type of __connection_header could not be read directly; its use as .get() returning std::map<std::string, std::string>* is what the code shows. tf2_ros CMakeLists.txt adds dependencies on tf2_msgs_gencpp (lines 46, 51). The snapshot is the geometry_experimental repository; only tf2_ros (and tf2_msgs for the definition) were used."
+}

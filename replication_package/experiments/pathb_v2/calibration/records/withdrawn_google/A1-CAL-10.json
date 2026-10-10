@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL-10",
+ "kind": "A1",
+ "case_id": "CAL-10",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93",
+  "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93\n\n```\n  serial.block(4000); // blocks by default, but just to be clear!\n  try {\n    serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);  // this will throw exceptions - NotFoundError, OpenError\n    is_connected = true;\n  }\n```\n\nIn the version 0.3.9, which I confirmed that working fine,  the block() was called after open().\n\nThe description of open() in ecl_core/ecl_device/serial_pos.hpp:line 153 tells that block() needs to be called after serial is opened.",
+   "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I have a new version of mangled output - this time all is CAPTIAL LETTERS! :-)\" ... \"Same result though - terminal get's unresponsive.",
+  "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21840623"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Thus, the proposed patch is going to call serial.block() function after serial.open() in kobuki.cpp"
+ },
+ "notes": "API call order precondition mismatch in kobuki_driver calling serial.block() before serial.open()."
+}

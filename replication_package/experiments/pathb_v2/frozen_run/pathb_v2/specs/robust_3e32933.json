@@ -1,0 +1,49 @@
+{
+  "case_id": "robust_3e32933",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/turtlebot/turtlebot/issues/103",
+    "https://github.com/turtlebot/turtlebot/commit/3e32933c829e308600707a9f971334d13d1cbe19"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #103 (corot, 2013-10-16) states the concrete defect: \"On 3dsensor.launch, depthimage_to_laserscan looks for depth/image_raw topic, but if we are using depth_registration (the default behavior) it will not work because in this case depth image topic is depth_registered/image_raw.\" Maintainer jihoonl closed it with: \"https://github.com/turtlebot/turtlebot/commit/3e32933c829e308600707a9f971334d13d1cbe19 should have resolved this issue.\""
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": [
+        "depthimage_to_laserscan (DepthImageToLaserScanNodelet)",
+        "openni_launch / openni_camera depth image pipeline"
+      ],
+      "interface_kind": "topic",
+      "evidence": "The two units interact through a topic whose name is bound in turtlebot_bringup/launch/3dsensor.launch. At the parent revision b26d199a the launch file set `<arg name=\"depth_registration\" default=\"true\"/>` and wired the consumer with `<remap from=\"image\" to=\"$(arg camera)/depth/image_raw\"/>`. The fix 3e32933 (only file changed: turtlebot_bringup/launch/3dsensor.launch) adds `<arg     if=\"$(arg depth_registration)\" name=\"depth\" value=\"depth_registered\" />` / `<arg unless=\"$(arg depth_registration)\" name=\"depth\" value=\"depth\" />` and changes the remaps to `<remap from=\"image\" to=\"$(arg camera)/$(arg depth)/image_raw\"/>`. The name mismatch crosses the boundary, but the minimal resolving change only rebinds a topic remap in the launch file; neither depthimage_to_laserscan's nor openni_launch's declared interface changed. Stop at step 3: deployment_wiring. Other material: commenter robinJKU links https://github.com/ros-drivers/openni_launch/issues/7 (no depth images at all with depth registration on, attributed to the openni driver), a separate composition not addressed by this fix."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: depth images published by the openni pipeline feed depthimage_to_laserscan's image input (\"depthimage_to_laserscan starves if depth_registration is true\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Issue title \"depthimage_to_laserscan starves if depth_registration is true\" and body \"it will not work\": the consumer receives no images (no data)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring: the fix only changes launch-file topic remaps (turtlebot_bringup/launch/3dsensor.launch) to follow the depth_registration argument; no unit's declared interface changed.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

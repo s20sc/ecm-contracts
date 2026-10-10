@@ -1,0 +1,38 @@
+{
+ "item_id": "A1-CAL-09",
+ "kind": "A1",
+ "case_id": "CAL-09",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "You are correct, it should work.\n\nAnd I confirmed it here; I'm seeing the same problem on Humble.",
+  "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1303518557"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "statistics include `NaN` data in the message, when it is being converted with `rosidl_python`, it detects the following.\n\n```bash\nUnable to convert call argument to Python object (compile in debug mode for details)\n```",
+   "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1304061993"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": "run",
+  "quote": "Unable to convert call argument to Python object (compile in debug mode for details)",
+  "url": "https://github.com/ros2/ros2/issues/1341"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "using https://github.com/ros2/ros2/blob/humble/ros2.repos (https://github.com/ros2/ros2/commit/00f3ba9f73916a5eab322710edaaf197f0f10e31) + https://github.com/ros2/rosidl_python/tree/clalancette/humble-backport-nan-fixes, it works.",
+  "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1306087432"
+ },
+ "notes": "Verified via gh api: issue #1341 body (Dockerfile reproducer cloning ros2/demos default branch into a ros:humble image and the echo failure), clalancette's confirmation quoted above plus 'this seems to work just fine on Rolling', fujitatomoya's NaN/conversion diagnosis with the error text, the backport discussion (#167/#182/#185 via PR #188), clalancette's 'the problem is in the code that is generated for the individual message files, so you basically need to rebuild everything from source', fujitatomoya's working build quoted above, and the reporter's confirmation that the backports work. Eligible PAIR at step 6 (topic): StatisticDataPoint.data = NaN is legal per the definition yet crosses /statistics into a consumer whose generated setter rejects it; with a peer that never publishes NaN there is no failure, so it is not internal. Class 'other' agreed (a value-domain assumption, not a type/frame/unit/QoS/encoding mismatch). Loudness agreed as loud_documented at run: the composition fails with an explicit error raised by existing tooling (the rclpy/rosidl_python conversion layer) when the mismatched value arrives; the spec's own evidence notes no build/connection/activation diagnostic, which is consistent with detection_stage run. Resolution 'recommended' agreed: both working observations used the demos humble branch via ros2.repos plus the backport branch, not the specified broken provider revision 77b75898, so the specified resolved composition was not itself shown."
+}

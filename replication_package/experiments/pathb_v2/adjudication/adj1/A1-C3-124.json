@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-C3-124",
+  "kind": "A1",
+  "case_id": "C3-124",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: public action-server reproducer and exception. E2: rclpy sends a cancellation event through the separately built rcl_action API after the goal has succeeded; the rejected state transition crosses the library boundary. Not merely deployment wiring or a build defect. E3: PAIR. E4: the server exception prevents a cancel response.",
+    "quote": "Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL, at /root/ros2_ws/colcon_ws/src/ros2/rcl/rcl_action/src/rcl_action/goal_handle.c:95",
+    "url": "https://github.com/ros2/rclpy/issues/790"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL, at /root/ros2_ws/colcon_ws/src/ros2/rcl/rcl_action/src/rcl_action/goal_handle.c:95",
+      "url": "https://github.com/ros2/rclpy/issues/790",
+      "reason": "The violated condition is a state-dependent API precondition, for which the provided taxonomy has no narrower class than other. The rejected operation is rcl_action_update_goal_state; no type, QoS, resource claim, or recovery-conflict evidence is present."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL, at /root/ros2_ws/colcon_ws/src/ros2/rcl/rcl_action/src/rcl_action/goal_handle.c:95",
+    "url": "https://github.com/ros2/rclpy/issues/790",
+    "reason": "The provider explicitly refuses an invalid transition. Apply the decision-tree instruction that runtime-enforced refusals are loud_documented, despite the otherwise narrower early-diagnostic definition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[fibonacci_action_server]: Goal succeeded",
+    "url": "https://github.com/ros2/rclpy/issues/790",
+    "reason": "The goal executes and succeeds before the cancellation failure; this is run, not initial connection or activation."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Client can receive response against cancel request.",
+    "url": "https://github.com/ros2/rclpy/pull/791",
+    "reason": "The PR demonstrates a successful pre-merge test, but its log uses ERROR while the reviewed final diff catches RCLError and logs at debug. That observation does not identify the exact selected merged rclpy/rcl_action revision pair, so recommended remains appropriate.",
+    "supporting_evidence": [
+      {
+        "quote": "+                except RCLError as ex:",
+        "url": "https://github.com/ros2/rclpy/pull/791.diff"
+      },
+      {
+        "quote": "+                    self._node.get_logger().debug(",
+        "url": "https://github.com/ros2/rclpy/pull/791.diff"
+      }
+    ]
+  },
+  "notes": "The missing client response is the consequence of the uncaught state-transition refusal, not a separately established wire or type condition. The final diff catches RCLError and removes the already-finished goal from goals_canceling. No additional independent condition was found. A pre-merge working test exists and is not being disregarded; it is weaker than proof of the selected resolved composition."
+}

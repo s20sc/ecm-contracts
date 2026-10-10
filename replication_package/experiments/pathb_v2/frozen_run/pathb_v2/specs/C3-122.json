@@ -1,0 +1,33 @@
+{
+  "case_id": "C3-122",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/ros2/issues/1488",
+    "https://github.com/ros2/rmw_fastrtps/pull/725",
+    "https://github.com/ros2/rmw_dds_common/pull/73",
+    "https://github.com/ros2/rmw_fastrtps/blob/fe73970c674af7ff286e5a77337dc11865fc2691/rmw_fastrtps_cpp/src/rmw_client.cpp",
+    "https://github.com/ros2/rmw_fastrtps/blob/79f23ae421d2ad21e8e191f5adb8d104dde2fe4b/rmw_fastrtps_cpp/src/rmw_subscription.cpp"
+  ],
+  "eligibility": {
+    "E1": {"pass": true, "evidence": "The reporter (humble, source build with -fsanitize=thread, FastRTPS) posts two ThreadSanitizer reports and a reproducer (\"we can also run test_graph__rmw_fastrtps_cpp within the build/rcl_action\"); a maintainer confirms: \"It's a potential dead-lock.\" and lists the lock sequence in rmw_fastrtps (https://github.com/ros2/ros2/issues/1488#issuecomment-1752278901)."},
+    "E2": {"pass": false, "stop_step": 2, "reason_code": "internal", "units_identified": ["rmw_fastrtps_cpp", "rmw_dds_common"], "interface_kind": null, "evidence": "Both documented defects are inside one unit's own logic. (1) The lock-order inversion is between two mutexes that rmw_fastrtps_cpp itself acquires in opposite orders: rmw_create_client holds \"std::lock_guard<std::mutex> lck(participant_info->entity_creation_mutex_);\" and then takes \"std::lock_guard<std::mutex> guard(common_context->node_update_mutex);\", while rmw_create_subscription holds node_update_mutex and, on its error path, calls rmw_fastrtps_shared_cpp::destroy_subscription, which takes entity_creation_mutex_. node_update_mutex is a public member of rmw_dds_common::Context, but rmw_dds_common takes no part in the ordering; the inversion would occur with any correct rmw_dds_common (and with any correct caller such as rcl_action). (2) The data race is between two threads inside Fast-DDS's FlowControllerImpl.hpp (\"accessing the change->writer_info.previous or change->writer_info.next in T16(mutexes: write M18210) and T37(mutexes: write M18120, write M18121) is not protected by one same mutex\"), internal to Fast-DDS."},
+    "E3": {"pass": true, "evidence": "Observed while running rcl_action's test_graph__rmw_fastrtps_cpp (client and subscription creation on one context); not evaluated further because E2 fails."},
+    "E4": {"pass": true, "evidence": "Two ThreadSanitizer reports are posted (https://pastebin.com/FdGR9iC1, https://pastebin.com/958rTvtB) and the lock-order-inversion log is reproduced in rmw_fastrtps PR #725; no hang is reported."}
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "The reporter lists two TSAN findings with equal weight. The packet's fix (rmw_fastrtps#725, \"avoid using dds common public mutex directly\", merged to rolling 2023-11-03 as d518e060) together with rmw_dds_common#73 (\"make a new private mutex and add updating graph methods\", 2273f384) and the rmw_cyclonedds#474 / rmw_connextdds#134 counterparts address only the lock-order inversion, by moving the graph update behind new rmw_dds_common::Context methods (add_publisher_graph, add_subscriber_graph, add_client_graph, add_service_graph) with a private mutex. That refactoring changes the rmw_dds_common API that the rmw implementations call, but the defect it removes is rmw_fastrtps_cpp's own inconsistent lock order, so I classify the case as internal at E2 step 2. The Fast-DDS FlowControllerImpl data race is not addressed by the linked PRs and is also internal (to Fast-DDS). A maintainer notes further unexamined TSAN warnings (\"there are another TSAN warnings(not checked yet)\")."
+}

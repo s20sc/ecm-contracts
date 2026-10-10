@@ -1,0 +1,52 @@
+{
+  "case_id": "C3N-028",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/589",
+    "https://github.com/ros2/geometry2/pull/593",
+    "https://github.com/ros2/geometry2/commit/b98963d6e40f7df168d0f4d61fbb9d2b9f51c384",
+    "https://github.com/ros2/geometry2/blob/04d420396afdaeaa5de28f58296d1e00b24d5ecb/tf2_ros/src/buffer.cpp",
+    "https://github.com/ros2/geometry2/blob/04d420396afdaeaa5de28f58296d1e00b24d5ecb/tf2_ros/include/tf2_ros/buffer_interface.h"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The report gives reproduction steps (\"don't set `setUsingDedicatedThread(true)`\", \"try to call `transform()` on a `tf2_ros::Buffer`\", \"see the `tf2_ros::threading_error`\") on Humble binaries, and a maintainer accepted it (\"This seems like a reasonable feature request.  We'd be happy to review a PR that implements this.\", https://github.com/ros2/geometry2/issues/589#issuecomment-1481563030); PR #593 was merged."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "tf2_ros",
+        "unidentified application code of the reporter calling tf2_ros::Buffer::transform"
+      ],
+      "interface_kind": null,
+      "evidence": "The effect arises entirely inside tf2_ros's own call chain: `BufferInterface::transform(..., tf2::Duration timeout = tf2::durationFromSec(0.0))` calls `lookupTransform(target_frame, tf2::getFrameId(in), tf2::getTimestamp(in), timeout)`, whose tf2_ros::Buffer implementation calls `canTransform(target_frame, source_frame, lookup_time, timeout);` and then `return lookupTransform(target_frame, source_frame, lookup_time);`; that canTransform begins with `if (!checkAndErrorDedicatedThreadPresent(errstr)) {`, which executes `RCLCPP_ERROR(getLogger(), \"%s\", tf2_ros::threading_error);` regardless of the timeout value (tf2_ros at humble 04d42039). The caller only uses transform() with its default zero timeout, which the provider's own error text permits without a dedicated thread (\"Do not call canTransform or lookupTransform with a timeout unless you are using another thread for populating data\"); the error log would occur with any such correct caller, and the transform returned to the caller is still computed by the non-timeout lookupTransform, so no wrong value crosses the boundary. The fix (PR #593) changes only tf2_ros's own check: `if (timeout != tf2::durationFromSec(0.0) && !checkAndErrorDedicatedThreadPresent(errstr)) {`. The consumer is also not identified beyond the reporter's own code."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR in form (application code calls tf2_ros::Buffer::transform): \"`lookupTransform` allows for this, but `transform` always calls an overloaded version of `lookupTransform` that takes a timeout, which then checks for a dedicated thread.\" (https://github.com/ros2/geometry2/issues/589)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"This means I get spam ERROR logs about not using a dedicated thread.\" (https://github.com/ros2/geometry2/issues/589); the effect is a logged error while the call still returns the transform."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: the spurious ERROR log is produced by tf2_ros's own routing of transform()'s default zero timeout into its timeout overload, whose dedicated-thread check ignored the timeout value; it occurs for any caller of transform() without a dedicated thread, no wrong value reaches the caller, and the fix is confined to that check.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Reporter environment: Ubuntu 22.04, Humble binaries, rclcpp; the humble branch head of ros2/geometry2 at the report date (2023-03-15) was 04d42039 (tag 0.25.2). Fix: PR #593 \"Fix for #589 - Should be able to transform with default timeout\", merged to rolling as b98963d6 on 2023-07-17 (also adds test can_transform_without_dedicated_thread). The issue stayed open until 2025-04-09 (\"This can be closed as #593 fixed it.\"). The maintainer framed the change as a feature request; the reporter proposed either an explicit-timeout overload for transform() or skipping the threading check for zero timeout, and the latter was implemented."
+}

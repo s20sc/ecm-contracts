@@ -1,0 +1,43 @@
+{
+  "item_id": "A1-C3-109",
+  "kind": "A1",
+  "case_id": "C3-109",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "With the **real** `rmw_validate_*` implementations in a normal ROS 2 setup, invalid names like `/:` (empty node name) are rejected and I see an error instead of a crash – as you observed.",
+    "url": "https://github.com/ros2/ros2/issues/1777#issuecomment-3673762311",
+    "reason": "E1/E4 pass: the report includes a concrete fuzzing reproducer and ASan finding. E2 stops at 2: the parser's own namespace bookkeeping and pointer arithmetic fail under permissive validation stubs; the reporter confirms normal validation rejects the input. The fix validates an empty name inside namespace.c, not a changed interface assumption between two production units. The exclusion is internal, not build or deployment_wiring."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "With the **real** `rmw_validate_*` implementations in a normal ROS 2 setup, invalid names like `/:` (empty node name) are rejected and I see an error instead of a crash – as you observed.",
+    "url": "https://github.com/ros2/ros2/issues/1777#issuecomment-3673762311",
+    "reason": "Not applicable: agree with the excluded specification's null field. The fuzzing diagnostic and internal hardening are real, but are not populated as attributes of an eligible integration case."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "With the **real** `rmw_validate_*` implementations in a normal ROS 2 setup, invalid names like `/:` (empty node name) are rejected and I see an error instead of a crash – as you observed.",
+    "url": "https://github.com/ros2/ros2/issues/1777#issuecomment-3673762311",
+    "reason": "Not applicable: agree with the excluded specification's null field. The fuzzing diagnostic and internal hardening are real, but are not populated as attributes of an eligible integration case."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "So if `name` is an empty string, it is an invalid parameter.",
+    "url": "https://github.com/ros2/rcl/pull/1281",
+    "reason": "Not applicable: agree with the excluded specification's null field. The fuzzing diagnostic and internal hardening are real, but are not populated as attributes of an eligible integration case."
+  },
+  "notes": "Do not infer an integration defect merely from an ASan trace. The permissive rmw stubs are material to the observed failure. The PR and three backports harden the parser internally. No claim that production deployments reproduced this crash is supported.",
+  "supporting_evidence": [
+    {
+      "quote": "`cur_ns + ns_len - sep_len` caused a pointer out-of-bounds error.",
+      "url": "https://github.com/ros2/rcl/pull/1281"
+    }
+  ]
+}

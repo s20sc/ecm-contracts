@@ -1,0 +1,149 @@
+{
+  "case_id": "C3-037",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/715",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/108",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/109",
+    "https://github.com/ros2/system_tests/pull/530",
+    "https://github.com/ros2/rmw_fastrtps/pull/716",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/blob/3.0.1/rosidl_typesupport_fastrtps_cpp/resource/msg__type_support.cpp.em",
+    "https://github.com/ros2/rosidl_typesupport_fastrtps/blob/3.0.1/rosidl_typesupport_fastrtps_cpp/include/rosidl_typesupport_fastrtps_cpp/message_type_support.h",
+    "https://github.com/ros2/rmw_fastrtps/blob/7.1.1/rmw_fastrtps_cpp/src/type_support_common.cpp",
+    "https://github.com/ros2/rmw_fastrtps/blob/7.1.1/rmw_fastrtps_shared_cpp/src/rmw_take.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives the two message definitions, a complete rclcpp node, and the published vs received output (\"bool_field_1: true\" published, \"bool_field_1: false\" received); a maintainer reproduces it (\"I'm also able to observe this behavior, when the publisher and subscriber are in the same process.\") and the Fast DDS maintainer identifies the cause (\"In short, the generated code for the message is wrongly considered plain.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "rosidl_typesupport_fastrtps_cpp",
+        "rmw_fastrtps_cpp"
+      ],
+      "interface_kind": "library API (typesupport callbacks and the plain-type bounds flag handed from the generated typesupport to the RMW)",
+      "evidence": "The generated typesupport reports the type as plain through its callback (\"bounds_info =\n    is_plain ? ROSIDL_TYPESUPPORT_FASTRTPS_PLAIN_TYPE :\", msg__type_support.cpp.em@3.0.1). rmw_fastrtps_cpp acts on it (\"is_plain_ = bounds_info == ROSIDL_TYPESUPPORT_FASTRTPS_PLAIN_TYPE;\", type_support_common.cpp@7.1.1) and enables loaned takes (\"subscription->can_loan_messages = info->type_support_->is_plain();\" ... \"*loaned_message = item->data_seq.buffer()[0];\", rmw_take.cpp@7.1.1). The wrong plain claim and the byte layout of the loaned sample cross the boundary between the two units, so this is an interface failure even though the resolving edit is inside the typesupport generator. The fix is template code, not wiring, build configuration, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the typesupport's serialization callbacks and plain flag feed rmw_fastrtps_cpp's publication and loaned-take paths for the reporter's topic. All packages are from one Iron binary snapshot, so no unit was built against an older provider revision."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong data: \"Received message have wrong values for boolean fields.\" with received output \"bool_field_1: false\r\nbool_field_2: false\r\nbool_field_3: false\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rosidl_typesupport_fastrtps_cpp",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rosidl_typesupport_fastrtps",
+      "broken_rev": "3.0.1",
+      "resolved_rev": "3.0.2",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter lists \"ros-iron-rosidl-typesupport-fastrtps-cpp        3.0.1-1jammy.20230908.162358\", i.e. upstream tag 3.0.1 (5ce3c2a8). Resolved: the Iron backport PR #109 of the fix (#108) was merged as 3bd96759 on 2023-11-09; tag 3.0.1 is 1 commit behind it and tag 3.0.2 (03dd8d72) is 2 commits ahead, so 3.0.2 is the first Iron release containing the fix. The typesupport code is generated into the reporter's message package at build time, so that package must be rebuilt against 3.0.2.",
+      "excerpt": false,
+      "ros_distro": "iron"
+    },
+    {
+      "name": "rmw_fastrtps_cpp",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rmw_fastrtps",
+      "broken_rev": "7.1.1",
+      "resolved_rev": "7.1.1",
+      "pinned": true,
+      "revision_basis": "The reporter lists \"ros-iron-rmw-fastrtps-cpp                       7.1.1-2jammy.20230908.165835\", i.e. upstream tag 7.1.1 (120ecb1c). The companion rmw_fastrtps PR #716 changes only rmw_fastrtps_dynamic_cpp (TypeSupport_impl.hpp), so rmw_fastrtps_cpp is unchanged by the resolution and keeps 7.1.1.",
+      "excerpt": false,
+      "ros_distro": "iron"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "api:message_type_support_callbacks_t::max_serialized_size",
+      "sides": {
+        "rosidl_typesupport_fastrtps_cpp": "provides",
+        "rmw_fastrtps_cpp": "consumes"
+      }
+    },
+    {
+      "element": "api:ROSIDL_TYPESUPPORT_FASTRTPS_PLAIN_TYPE",
+      "sides": {
+        "rosidl_typesupport_fastrtps_cpp": "provides",
+        "rmw_fastrtps_cpp": "consumes"
+      }
+    },
+    {
+      "element": "api:message_type_support_callbacks_t::cdr_serialize",
+      "sides": {
+        "rosidl_typesupport_fastrtps_cpp": "provides",
+        "rmw_fastrtps_cpp": "consumes"
+      }
+    },
+    {
+      "element": "api:message_type_support_callbacks_t::cdr_deserialize",
+      "sides": {
+        "rosidl_typesupport_fastrtps_cpp": "provides",
+        "rmw_fastrtps_cpp": "consumes"
+      }
+    },
+    {
+      "element": "api:message_type_support_callbacks_t::get_serialized_size",
+      "sides": {
+        "rosidl_typesupport_fastrtps_cpp": "provides",
+        "rmw_fastrtps_cpp": "consumes"
+      }
+    },
+    {
+      "element": "msg:nested_msg_pub_sub/Outer",
+      "sides": {
+        "rosidl_typesupport_fastrtps_cpp": "provides",
+        "rmw_fastrtps_cpp": "consumes"
+      }
+    },
+    {
+      "element": "msg:nested_msg_pub_sub/Inner",
+      "sides": {
+        "rosidl_typesupport_fastrtps_cpp": "provides",
+        "rmw_fastrtps_cpp": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "api:message_type_support_callbacks_t::max_serialized_size",
+        "api:ROSIDL_TYPESUPPORT_FASTRTPS_PLAIN_TYPE",
+        "msg:nested_msg_pub_sub/Outer",
+        "msg:nested_msg_pub_sub/Inner"
+      ],
+      "quote": "The root cause is mismatch between CDR representation and in-memory representation due to different alignment of fields.",
+      "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/108"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The subscriber prints the wrong values with no diagnostic: \"Received: 'inner:\r\n  float_field: 1.23457\r\n  bool_field: true\r\nbool_field_1: false\r\nbool_field_2: false\r\nbool_field_3: false\" (issue #715); a reproducer calls it \"extremely concerning\".",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "The typesupport template keeps a type plain only if its in-memory layout matches the CDR size: \"is_plain =\n      (\n      offsetof(DataType, @(last_member_name_)) +\n      last_member_size\n      ) == ret_val;\" (PR #108, backported to Iron as #109, released in 3.0.2). Types with a layout mismatch are then no longer loaned: \"what we are doing with this (and related) PR is disallowing the loans (marking the type as not plain) on those types where there is a representation mismatch.\"",
+    "status": "recommended",
+    "evidence": "A maintainer tested the PR: \"@MiguelCompany This seems to fix the problem for me using `rmw_fastrtps_cpp`, thanks for that.\" (Iron/Rolling tester, revisions of both units not stated). An integration test with the same Inner/Outer messages was added in system_tests PR #530 and run in CI with #108 and #716 on rolling. The issue was closed after the Humble and Iron backports; no one reports the reporter's Iron composition working with 3.0.2."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Message definitions quoted from the issue (https://github.com/ros2/rmw_fastrtps/issues/715): Outer.msg \"nested_msg_pub_sub/Inner inner\r\nbool bool_field_1\r\nbool bool_field_2\r\nbool bool_field_3\"; Inner.msg \"float64 float_field\r\nbool bool_field\". These live in the reporter's package, into which rosidl_typesupport_fastrtps_cpp generates the typesupport; the package itself is not taken as a unit because the defect and fix are in the generator. Other participants: Fast DDS (reporter: fastrtps 2.10.2) delivers the samples, and rclcpp takes loaned messages when the subscription can loan (maintainer: \"original problem comes **without** `LoanedMessage` class at all on the publisher, this is because subscriber consider `can_loan_messages` as true\"). Mechanism statement from the Fast DDS maintainer: \"This is reproduced when the sample is accessed via `rmw_take_loaned_message`.\" Reported scope: fails in the same process (maintainer) and, per another reporter, across processes with an rclcpp subscriber, while \"ros2 topic echo\" (rclpy, no loan API) shows correct values; Humble with Fast DDS 2.6.6 \"does *not* show the issue\"; CycloneDDS is unaffected. Other composition addressed by the same fix set: rmw_fastrtps_dynamic_cpp computed is_plain the same way (\"I'm finding this is still failing with `rmw_fastrtps_dynamic_cpp`\"), fixed by rmw_fastrtps PR #716; the C typesupport template (rosidl_typesupport_fastrtps_c) received the same change in #108. The reporter's workaround reorders fields: \"For now we're working around this issue by putting the boolean field in front of the float field in Inner.msg.\" Inventory canonical form: typesupport callback members and the bounds constant are written as api:<symbol>."
+}

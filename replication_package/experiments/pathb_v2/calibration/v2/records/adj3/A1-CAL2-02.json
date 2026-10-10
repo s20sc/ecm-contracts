@@ -1,0 +1,20 @@
+{
+ "item_id": "A1-CAL2-02",
+ "kind": "A1",
+ "case_id": "CAL2-02",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+  "quote": "according to the following gdb debug, it seems that created subscription is not added to `rmw_wait` to be executed for Fast-DDS case. So subscription will never be executed by executer.",
+  "url": "https://github.com/ros2/rmw_fastrtps/issues/613"},
+ "failed_conditions": [
+  {"index": 0, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+   "quote": "Just to note, we have recently discussed a similar issue in navigation2 with a timer being registered to an executor from an external thread. [Conclusion](https://github.com/ros2/rmw_fastrtps/issues/606#issuecomment-1125824269) was that if a node is assigned to multiple executors running asynchronously, it is unable to notify all of them about creating/destroying subscriptions etc..",
+   "url": "https://github.com/ros2/rmw_fastrtps/issues/613"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+  "quote": "subscriber keeps not working",
+  "url": "https://github.com/ros2/rmw_fastrtps/issues/613"},
+ "resolution": {"verdict": "agree", "proposed": null,
+  "quote": "I confirmed that this problem has been addressed by https://github.com/ros2/rmw_fastrtps/pull/619. please feel free to reopen if you still have this issue in rolling."},
+ "notes": "All claims check out against the issue body, the comments I read (fujitatomoya's gdb analysis, afrixs's Conclusion quote, EduPonz's 'working on #619', fujitatomoya's confirmation), and PR #619 (merged 2022-08-24, 'Use Fast-DDS Waitsets instead of listeners'). Class exclusive_resource_conflict fits: the node notify guard condition is a single resource whose single attached condition variable wakes only one of the two executor wait sets. Loudness silent_documented/run is right (no diagnostic, only missing callbacks, found via gdb). Resolution recommended is right: the confirmation does not name the rclcpp/rmw_fastrtps revisions tested, so the specified composition is not shown working."
+}

@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-078",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/image_transport_plugins/issues/62",
+    "https://github.com/ros-perception/image_transport_plugins/pull/65",
+    "https://github.com/ros2/ros1_bridge/issues/276"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer and build error log: \"colcon build --symlink-install --packages-select ros1_bridge --cmake-force-configure\" fails with \"CMake Error at /opt/ros/eloquent/share/theora_image_transport/cmake/ament_cmake_export_dependencies-extras.cmake:21 (find_package):\" and \"Could not find a package configuration file provided by \\\"opencv_calib3d\\\"\" (https://github.com/ros-perception/image_transport_plugins/issues/62)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": [
+        "theora_image_transport (installed CMake package config)",
+        "ros1_bridge (built from source, find_package on theora_image_transport)"
+      ],
+      "interface_kind": null,
+      "evidence": "The failure is CMake dependency resolution in the exported package config, and the resolving change edits only the exported dependency list in theora_image_transport/CMakeLists.txt: \"-  ${OpenCV_LIBRARIES}\" ... \"-  ${LIBRARY_NAME})\" replaced by \"+  OpenCV\" / \"+  PkgConfig)\" inside ament_export_dependencies (https://github.com/ros-perception/image_transport_plugins/pull/65/files). Commenter explanation: \"Apparently `ament_export_dependencies` should only include packages that can be found through `find_package(<package_name>)`\" (https://github.com/ros-perception/image_transport_plugins/issues/62). No topic, message, service, parameter, or library API of either unit changes; this is a build/dependency-resolution-only change."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 4)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 4)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Exit step: E2 step 4 (build). Environment per the issue: Ubuntu 18.04, ROS 2 Eloquent (binary ros-eloquent-theora-image-transport), ROS 1 Melodic, OpenCV 3.2.0. Fix PR #65 merged 2021-04-16 into the ros2 branch, merge commit 7cedbf04d5deb3b183d92756b912816ce7618aca. The original report is ros2/ros1_bridge#276, which the reporter was asked to refile here."
+}

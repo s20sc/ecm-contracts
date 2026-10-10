@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-032",
+  "kind": "A1",
+  "case_id": "C3-032",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the issue supplies a reproducible service call and traceback. E2: rosapi's reflection code consumes generated message-class declarations from rosidl_generator_py; the changed slot inventory crosses a separately released library/package boundary. E3: this is an UPGRADE from the earlier assumption that every slot represents a message field, not a deployment-name or packaging defect.",
+    "quote": "Those names don’t appear in the message’s `_fields_and_field_types` dict, so code that blindly walks `__slots__` will hit a KeyError.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976#issuecomment-2880232385"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Iron’s `rosidl_generator_py` templates now inject extra private slots (e.g. [_check_fields](https://github.com/ros2/rosidl_python/blob/iron/rosidl_generator_py/resource/_msg.py.em#L212)) into every message’s `__slots__`.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976#issuecomment-2880232385",
+      "reason": "The existing __slots__ declaration gains a private entry while the field-type mapping still covers message fields only. This fits element_retyped as defined by S1 (declaration changed, element still present), and both reflection attributes participate. The 0.22.0 generator template and PR #1031 diff corroborate the explanation."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rosapi_node-5] KeyError: 'check_fields'",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976",
+    "reason": "Under S1's specific diagnostic criterion, this is silent_documented: no compatibility check rejects the composition at build, connection, or activation. The application later crashes with an ordinary Python exception; silent does not mean an absence of all logging."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "ros2 service call /rosapi/message_details rosapi_msgs/srv/MessageDetails \"{'type': 'sensor_msgs/JointState'}\"",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976",
+    "reason": "The failure occurs when the running service handles a request: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This seems to fix the issue:",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976#issuecomment-2880232385",
+    "reason": "The comment includes a successful patched service response, and PR #1031 implements filtering. It does not identify both tested unit revisions; recommended rather than observed follows the stated revision-qualified definition."
+  },
+  "notes": "The provider template was opened directly at 0.22.0 and shows '_check_fields' in __slots__, outside the iteration over real message fields. The installed-package warnings in the traceback are unrelated to this condition."
+}

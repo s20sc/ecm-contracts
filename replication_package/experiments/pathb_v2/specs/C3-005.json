@@ -1,0 +1,46 @@
+{
+  "case_id": "C3-005",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/524",
+    "https://github.com/ros2/geometry2/pull/525"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Consistently failing nightly CI job with the full pytest log, including \"E   ModuleNotFoundError: No module named 'numpy.core._multiarray_umath'\" and \"Original error was: No module named 'numpy.core._multiarray_umath'\" -- https://github.com/ros2/geometry2/issues/524"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": ["tf2_sensor_msgs (Python test)", "numpy / Python interpreter selected by CMake"],
+      "interface_kind": null,
+      "evidence": "The minimal resolving change is build-system only: PR 525 edits tf2_sensor_msgs/CMakeLists.txt to force FindPython3 to use the debug interpreter on Windows Debug builds and adds a python_cmake_module buildtool_depend to package.xml: \"+# Figure out Python3 debug/release before anything else can find_package it\" ... \"+  # Force FindPython3 to use the debug interpretter where ROS 2 expects it\" ... \"+  set(Python3_EXECUTABLE \\\"${PYTHON_EXECUTABLE_DEBUG}\\\")\" -- https://github.com/ros2/geometry2/pull/525. PR description: \"it's the same error that was fixed with #514 and copied the solution provided.\" No unit's declared or referenced interface changes; the test ran under the wrong (release vs debug) Python interpreter so numpy's C extension could not be imported. Ineligible `build`."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated past E2."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Test collection fails: \"ERROR ..\\\\.. - ImportError: \" / \"!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\" -- https://github.com/ros2/geometry2/issues/524"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build: Windows Debug CMake configuration selected the wrong Python interpreter for tf2_sensor_msgs' Python test; the fix only changes CMakeLists.txt and package.xml build dependencies.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Reporter: \"Started happening after https://github.com/ros2/geometry2/pull/507 and probably requires a fix like https://github.com/ros2/common_interfaces/pull/185.\" PR 525 merge commit 85b3d0d0e304d81ee6394e2d1d5c521e3f6e2123 (branch ros2, 2022-05-24); CI job ci_windows 17144 (without PR) vs 17145 (with PR) linked by the author. The import error is raised while importing geometry_msgs.msg (which imports numpy) inside the test module."
+}

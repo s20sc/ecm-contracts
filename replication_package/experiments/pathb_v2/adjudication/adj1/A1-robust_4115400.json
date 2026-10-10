@@ -1,0 +1,51 @@
+{
+  "item_id": "A1-robust_4115400",
+  "kind": "A1",
+  "case_id": "robust_4115400",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The bug is due to the different Kobuki plugins using the same ImuSensor.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76666000",
+    "reason": "E1/E4: the multi-robot reproducer and maintainer diagnosis document wrong odometry. E2: separately instantiated plugins resolve a shared sensor registry incorrectly only with another model present. The repair changes the code's sensor reference to a fully scoped identifier, not merely a launch/configuration binding. E3: CONCURRENT matches the reported two-model failure. Eligibility stands, although exclusive ownership is not the supported interface interpretation."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Hence, the sensor obtained by `sensors::SensorManager::Instance()->GetSensor()` is subject to a race condition.",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76669013",
+      "reason": "The documented defect is ambiguous name resolution selecting another model's readable sensor. The sources do not establish an exclusive claim, incompatible ownership requests, or a sensor that cannot be shared. Each robot needs the correct sensor identity, not exclusive access to a common sensor. Class other is supported; resource:imu still identifies the implicated registry object.",
+      "supporting_evidence": [
+        {"quote": "+            sensors::get_sensor(world_->GetName()+\"::\"+node_name_+\"::base_footprint::\"+imu_name));", "url": "https://github.com/yujinrobot/kobuki_desktop/commit/4115400a5a9b88bf65bb97a5d44a9a2a695faa55.patch"}
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "KGP does not post rotations to the odom topic (translations are there)",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38",
+    "reason": "The documented symptom is missing rotational data while models move; no build/connect/activation diagnostic is supplied. silent_documented is supported."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "KGP catches these and moves around properly in gazebo world",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38",
+    "reason": "The discrepancy is observed during simulated movement: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have confirmed that it resolves #38. Thanks @slivingston!!!",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/pull/39",
+    "reason": "The confirmation is explicitly attached to the single-change PR for the two-instance reproducer. Both selected units are instances of that same patched plugin, so the PR identifies their common resolved code. observed is supported without having to infer a separately released peer's version."
+  },
+  "notes": "Read the initial 15 of 18 issue timeline entries exposed by GitHub HTML, PR #39 comments, and its patch. The issue tail was not independently retrieved; the PR supplies the direct resolution confirmation. The preliminary setEuler/setRPY change was explicitly reported insufficient and concerns orientation construction rather than the selected inter-instance sensor lookup. Similar unscoped bumper/cliff lookups are not evidence that those sensors failed in this case."
+}

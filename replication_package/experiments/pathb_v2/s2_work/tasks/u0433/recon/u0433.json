@@ -1,0 +1,51 @@
+{
+  "task_id": "u0433",
+  "package": "moveit_core",
+  "manifest_version": "2.4.0",
+  "ports": [
+    {"element": "api:rclcpp::Duration", "side": "consumes",
+     "msg_type": null, "frame": "none", "units": null,
+     "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+     "rate_hz": null, "min_rate_hz": null,
+     "definition_id": null},
+    {"element": "api:rclcpp::Duration::Duration(rcl_duration_value_t)", "side": "consumes",
+     "msg_type": null, "frame": "none", "units": null,
+     "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+     "rate_hz": null, "min_rate_hz": null,
+     "definition_id": null},
+    {"element": "api:rclcpp::Node", "side": "consumes",
+     "msg_type": null, "frame": "none", "units": null,
+     "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+     "rate_hz": null, "min_rate_hz": null,
+     "definition_id": null}
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rclcpp::Duration",
+    "api:rclcpp::Duration::Duration(rcl_duration_value_t)",
+    "api:rclcpp::Node"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:moveit_core/package.xml:5",
+    "ports[0].element": "snapshot:moveit_core/collision_detection/src/collision_tools.cpp:55 | getCostMarkers(arr, frame_id, cost_sources, color, rclcpp::Duration(60, 0));",
+    "ports[0].frame": "C++ time-duration type; no spatial meaning (snapshot:moveit_core/robot_trajectory/src/robot_trajectory.cpp:290 | static const auto ZERO_DURATION = rclcpp::Duration::from_seconds(0);)",
+    "ports[1].element": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 | virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0;",
+    "ports[1].frame": "C++ constructor producing a time duration; no spatial meaning (snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141)",
+    "ports[2].element": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:186 | virtual void initialize(const rclcpp::Node::SharedPtr& node) = 0;",
+    "ports[2].frame": "C++ node handle type; carries no spatial data (snapshot:moveit_core/planning_interface/include/moveit/planning_interface/planning_interface.h:167)",
+    "references[api:rclcpp::Duration]": "snapshot:moveit_core/collision_detection/src/collision_tools.cpp:55 | rclcpp::Duration(60, 0); also snapshot:moveit_core/robot_trajectory/src/robot_trajectory.cpp:290 | rclcpp::Duration::from_seconds(0); snapshot:moveit_core/collision_distance_field/src/collision_common_distance_field.cpp:170 | sphere_marker.lifetime = rclcpp::Duration(0, 0); (26 occurrences of rclcpp::Duration in moveit_core)",
+    "references[api:rclcpp::Duration::Duration(rcl_duration_value_t)]": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 | virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0; (single integer-argument construction; the only such construction in moveit_core)",
+    "references[api:rclcpp::Node]": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:186 | virtual void initialize(const rclcpp::Node::SharedPtr& node) = 0; also snapshot:moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h:361, snapshot:moveit_core/planning_interface/include/moveit/planning_interface/planning_interface.h:167",
+    "perm_requires": "searched snapshot/moveit_core for sros, permissions.xml, <permissions: no hits; library package with no security configuration",
+    "perm_grants": "searched snapshot/moveit_core for sros, permissions.xml, <permissions: no hits",
+    "exclusive": "searched snapshot/moveit_core for exclusive, claim_command_interface, hardware_interface: only hit is collision_plugin_cache.h:53 (plugin selection flag, not a resource claim)"
+  },
+  "blinding_guess": {"defective": "yes", "why": "controller_manager.h:141 constructs rclcpp::Duration(-1) from a single integer (the rcl_duration_value_t nanoseconds constructor), while the rest of moveit_core uses from_seconds or the (sec, nsec) constructor and never from_nanoseconds; if the rolling rclcpp of this revision no longer offers the single-integer constructor, this default argument fails to compile (and -1 would also be read as -1 ns, not the -1 s the doc comment's ROS 1 idiom suggests)."},
+  "confidence": "high",
+  "notes": "Scope: snapshot/moveit_core only (the snapshot is the full moveit2 tree; other packages were not treated as moveit_core). All four packet elements are consumed C++ API symbols, so declares and not_declared are empty. api:rclcpp::Duration::from_nanoseconds: 0 occurrences in moveit_core (and 0 in the whole snapshot), so it is in neither ports nor references. The reference to Duration(rcl_duration_value_t) is inferred from the call shape rclcpp::Duration(-1) (one integer argument); the rclcpp header itself is not in the snapshot and was not fetched (only .msg/.srv/.action/.idl may be fetched), so which constructor overload rolling rclcpp resolves this to is not verified here. QoS, units, msg_type and definition_id are null because these elements are C++ API symbols, not topics or interface definitions; frame is 'none' because none of them carries spatial data. Recovery marked unknown: no recovery notion applies to these API elements and none was determinable. rclcpp is found via find_package(rclcpp REQUIRED) (moveit_core/CMakeLists.txt:9) and <depend>rclcpp</depend> in package.xml; no version constraint on rclcpp is stated."
+}

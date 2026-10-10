@@ -1,0 +1,46 @@
+{
+  "case_id": "C3-070",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/1236",
+    "https://github.com/ros2/rclpy/pull/1363"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #1236 (humble binaries, rclpy 3.3.12) gives reproduction steps (\"Run an action server node with the `use_sim_time` parameter as `True`\", \"Have a node emit clock messages faster than wall clock moves (at x60)\", \"Call the action\") and a traceback ending in `self._result_futures[bytes(goal_uuid)].set_result(result_response)` / `KeyError: b'EM$\\xc6\\xb3YA:\\xa9\\xa1_\\xd1\\xeb\\x88\\x06\\x88'`; a maintainer confirmed \"Yes. Throwing an exception is not a correct behavior in this scenario.\" (Barry-Xu-2018)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rclpy (ActionServer)", "sim clock publisher (reporter's node publishing /clock at x60)"],
+      "interface_kind": null,
+      "evidence": "The KeyError comes from two asynchronous coroutines inside rclpy's ActionServer operating on its own `_result_futures` dictionary: \"These two parts involve asynchronous operations, so to completely avoid the issue, locking (asyncio.Lock) should be added when operating on `self._result_futures`.\" (Barry-Xu-2018). The accelerated /clock only shortens the result_timeout in ROS time, which maintainers describe as designed behaviour (\"There is a `Result caching` in action design ... it is not guaranteed that the goal result will be consistently retained even if it has not been accessed.\"; \"If result_timeout is still set to 0, this issue might still occur.\"). No value, frame, unit, or name crossing a boundary is wrong; the failure is rclpy's own unhandled race and would occur with any correct clock source or action client once a goal expires before its execution completes."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated past E2."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"The action server fails because `self._result_futures[bytes(goal_uuid)].set_result(result_response)` in the ActionServer _execute_goal method raises a `KeyError` exception\" with the traceback in the issue."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: race inside rclpy's ActionServer between _execute_expire_goals (removing the result future when result_timeout elapses) and _execute_goal (setting the result), exposed by a short result_timeout in accelerated simulation time. The linked PR #1363 (merged into rolling 2024-10-08 as 4d7ff9720508764ecaaef9f334df29c1c07ac187) only raises the log in _execute_get_result_request from debug to warn with the text 'Sending result response for unknown or expired goal ID: {0}'; maintainers attribute the remaining behaviour to the user's result_timeout setting (\"So it's the user's responsibility to set a reasonable result timeout.\"). The reporter's workaround was to increase result_timeout.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

@@ -1,0 +1,39 @@
+{
+  "item_id": "A1-B-Res-05",
+  "kind": "A1",
+  "case_id": "B-Res-05",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Not acceptable command interfaces combination",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1400"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [
+        "api:hardware_interface::ResourceManager::prepare_command_mode_switch",
+        "api:hardware_interface::ResourceManager::make_controller_reference_interfaces_available"
+      ],
+      "quote": "Fixes the issue of the failing multiple chainable controller activation by the resource manager. This is happening due to the newly added code in the PR: #1218 under the method `prepare_command_mode_switch` method",
+      "url": "https://github.com/ros-controls/ros2_control/pull/1401"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Could not switch controllers since prepare command mode switch was rejected.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1400"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I confirm that you fix works for us once backported to humble."
+  },
+  "notes": "E1 confirmed: issue #1400 body carries the exact error log (\"[ERROR ...] [resource_manager] [prepare_command_mode_switch() ...] Not acceptable command interfaces combination: ... Not available: [...]\") and the failing unit test, and the maintainer confirms reproduction (\"I was able to reproduce the same. I've just fixed it in the PR #1401.\"). E2 stop_step 6 (library API) is correct: controller_manager and hardware_interface are separate packages in one repo, and the defect is a call order/precondition crossing the API boundary (prepare_command_mode_switch is called before the chained reference interfaces are made available); the tree step 2 explicitly counts a wrong order crossing the boundary as interface, not internal. Class `other` is the right bucket (call-order precondition, no dedicated class). Loudness loud_documented/activate matches the resource-manager diagnostic and the switch rejection at activation. Resolution observed is backed by the reporter's confirmation \"I confirm that you fix works for us once backported to humble.\" I note the spec's honest caveat that the resolved_rev (humble backport #1411 merge 69487aeb) is a public equivalent of the reporter's unreleased cherry-pick, not the exact artifact tested; this does not change the verdict."
+}

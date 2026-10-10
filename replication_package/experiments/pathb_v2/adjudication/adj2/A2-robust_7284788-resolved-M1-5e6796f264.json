@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_7284788-resolved-M1-5e6796f264",
+ "kind": "A2",
+ "case_id": "robust_7284788",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:296 = `  std::string _allFramesAsDot() const;`, inherited publicly via s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:46 = `  class Buffer: public BufferInterface, public tf2::BufferCore`; running: s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:46 = the same class declaration, and s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301 = `  std::string _allFramesAsDot(double current_time) const;` / `  std::string _allFramesAsDot() const;`. The claim 'not redeclared in tf2_ros' also checks out: rg for `_allFramesAsDot` over both u0099/snapshot/tf2_ros/ and u0101/snapshot/tf2_ros/ returns no hits."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::_allFramesAsDot]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:441 = `  return tf2_buffer_._allFramesAsDot();`, where tf2_buffer_ is declared `  tf2_ros::Buffer tf2_buffer_;` at s2_work/tasks/u0032/snapshot/tf/include/tf/tf.h:387; since tf2_ros::Buffer does not redeclare the member, the call binds to the inherited tf2::BufferCore declaration."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+   "verdict": "transcription_only",
+   "built_excerpt": "s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:296: `  std::string _allFramesAsDot() const;`",
+   "running_excerpt": "s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301: `  std::string _allFramesAsDot(double current_time) const;` / `  std::string _allFramesAsDot() const;`"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The resolved upgrade unit maps built=u0099 (tf2_ros 0.5.7), running=u0101 (tf2_ros 7284788), consumer=u0032 (tf 1.11.4), matching the specification's UPGRADE operation (consumer tf unchanged, written against tf2_ros 0.5.7; provider moved to the resolving commit). The ports connect through inheritance: tf.cpp:441 calls the member on `tf2_ros::Buffer tf2_buffer_;` (tf.h:387), whose public base tf2::BufferCore is declared at buffer.h:46 in both revisions, and the zero-argument member exists at the running revision (u0101 tf2 buffer_core.h:301)."
+ },
+ "notes": "diff -u of s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h vs u0101's shows the only change in this region is the ADDED line `+  std::string _allFramesAsDot(double current_time) const;` before the unchanged `  std::string _allFramesAsDot() const;`; other changes in that file (allFramesAsYAML(double) added, private lct_cache_ removed, a second private walkToTopParent template) do not touch this element. As in item A2-robust_0481047-resolved-M1-c92956b86c, the added overload is a real source change but not one the cited zero-argument consumer call depends on: same name, arity 0, same std::string return and constness at both revisions."
+}

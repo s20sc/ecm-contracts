@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_62a38a9",
+  "kind": "A1",
+  "case_id": "robust_62a38a9",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "void Kobuki::close()\n{\n  disable();\n  sig_debug.emit(\"Device: kobuki driver terminated.\");",
+    "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/2c87d9909b870b30fbbf707b073c17bccc9938e5/kobuki_driver/src/driver/kobuki.cpp"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "terminate called after throwing an instance of 'ecl::StandardException'",
+    "url": "https://github.com/yujinrobot/kobuki/issues/23"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "#63 fixes this."
+  },
+  "notes": "Independent check agrees with ineligible/internal (E2 step 2). Verified this session: (1) issue #23 'Terminate cleanly' by stonier (2012-04-05) body verified verbatim ('It is not closing threads and classes properly (segfaulting, throwing exceptions  on every ctrl-c)' — double space before 'on' as in the source); comments verified verbatim: 'I think I accidentally fixed this. Reopen if necessary.', the ecl::StandardException log (Location serial_pos.hpp:407, Flag 'Attempted to work on an invalid object.', Detail 'The device is not a valid device for writing.', '[rosout-1] killing on exit'), and '#63 fixes this.'; (2) issue #63 'Fix kobuki threading' body verified verbatim ('It is sloppy.\\n\\nI suspect it is why it is crashing too.'), closed with stonier's 'Done.'; the pulls endpoint for 63 returns 404, confirming it is an issue, not a PR; (3) commit 62a38a99cdfaf511cff1dd9e03b7bb88516f9033 'kobuki_driver : threading model cleaned up.' dated 2012-04-14T13:12:05Z, parent 2c87d9909b870b30fbbf707b073c17bccc9938e5, touching kobuki_driver hpp/cpp and kobuki_node hpp/cpp + slot_callbacks.cpp; (4) parent code verified: kobuki.hpp line 77 'class Kobuki : public ecl::Threadable', lines 87-93 '~Kobuki() { serial.close(); ... }'; kobuki.cpp lines 110-111 'is_running = true;' 'start();', lines 114-117 close() only disable()+sig_debug.emit (quoted above), line 140 'while (is_running)'; kobuki_node.cpp line 70 destructor 'kobuki.close();' with '//kobuki.join();' commented out — the crash is the driver's own thread lifecycle (worker can still write after the serial port is closed) and occurs with any correct caller; ecl's serial device correctly refuses ('The device is not a valid device for writing.'); (5) fix code verified: kobuki.hpp line 143 'ecl::Thread thread;', line 162 'bool shutdown_requested;', no Threadable; kobuki.cpp lines 50-55 'Kobuki::~Kobuki() { disable(); shutdown_requested = true; // thread's spin() will catch this and terminate; thread.join(); ...}', line 132 'void Kobuki::spin()', line 141 'while (!shutdown_requested)', and zero occurrences of 'Kobuki::close' (close() removed); (6) tag 0.1.0 verified: tagger date 2012-04-20T05:34:15Z, and compare 62a38a9...0.1.0 returns status ahead, ahead_by 90, behind_by 0, so 0.1.0 contains the fix commit. Minor note: the spec's phrase that kobuki_node edits follow signals 'consolidated into sig_stream_data' is loosely supported — 'ecl::Signal<> sig_stream_data, sig_version_info;' exists in the fixed driver header (line 186) but the kobuki_node patch hunks I read do not mention sig_stream_data; the substance (node edits only follow the driver's changed API, e.g. the removed close() call) is verified and immaterial to eligibility. Loudness/resolution null is schema-correct for an ineligible case; the quotes above are the observed diagnostic and the resolution line I read."
+}

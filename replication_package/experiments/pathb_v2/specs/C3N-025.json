@@ -1,0 +1,52 @@
+{
+  "case_id": "C3N-025",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/785",
+    "https://github.com/ros-controls/ros2_control/issues/785#issuecomment-1195770282",
+    "https://github.com/ros-controls/ros2_control/issues/785#issuecomment-1195980814",
+    "https://github.com/pac48/ros2_control/commit/fdec988abb604c0ffefd26f8a12ba5bc448fc7d1",
+    "https://github.com/ros2/rclcpp/issues/843"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives a step-by-step reproducer (clone shonigmann/ros2_control_demos branch controller_manager_rename, launch rrbot.launch.py) with the observed `ros2 node list` output, and a second user states \"I was able to reproduce this error\" (https://github.com/ros-controls/ros2_control/issues/785#issuecomment-1195770282)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": [
+        "controller_manager (ros2_control_node host process)",
+        "forward_command_controller (controller plugin loaded by controller_manager; joint_state_broadcaster likewise)"
+      ],
+      "interface_kind": null,
+      "evidence": "The trigger is the launch-file node name (`name=\"renamed_controller_manager\"` on the ros2_control_node launch action), which passes a process-global node-name remap that rclcpp applies to every node created in the process (root cause named by the reporter: https://github.com/ros2/rclcpp/issues/843, \"the `__node:=some_node_name` argument applies to all nodes in that process\"). The resolution that the reporter confirmed (\"this does solve the issue on my end as well, cheers!\", https://github.com/ros-controls/ros2_control/issues/785#issuecomment-1195980814) replaces the launch `name=` with a node-targeted remap in the same launch file: `(\"controller_manager:__name\", \"renamed_controller_manager\")` (https://github.com/ros-controls/ros2_control/issues/785#issuecomment-1195770282). The minimal resolving change therefore only rebinds a node name at deployment (a launch remap); no declared or referenced interface of controller_manager or of the controllers changed, and no code change was made for this issue."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: controller_manager creates/loads the controller nodes in its own process and the controller reads its parameters under the node name it receives; the reporter observes \"The `ForwardPositionController` fails to start because the `joints` parameter is undefined (because it looks for the parameter in the scope of the `renamed_controller_manager` rather than `forward_position_controller`).\" Both units are also active in the same process at the same time (CONCURRENT), which is how the global remap reaches the controller."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect: \"The controller_manager and controllers are all named `renamed_controller_manager`\" with the `ros2 node list` warning \"WARNING: Be aware that are nodes in the graph that share an exact name, this can have unintended side effects.\" and the forward position controller failing to start (https://github.com/ros-controls/ros2_control/issues/785)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring: the documented resolution is a launch-file remap (`controller_manager:__name` targeted node-name remap instead of the launch `name=` argument); no unit's declared or referenced interface changed.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "The packet's fix pointer https://github.com/pac48/ros2_control/commit/fdec988abb604c0ffefd26f8a12ba5bc448fc7d1 is unrelated to this issue: it is a mirrored ros2_controllers commit titled \"Improve docs (#785) (#786)\" that edits steering-controller documentation and parameter descriptions (ackermann_steering_controller/doc/userdoc.rst, steering_controllers_library.yaml, etc.); the \"#785\" in its title refers to a ros2_controllers PR, and the issue timeline shows it only as a 2024 'referenced' event. The issue was closed on 2022-07-26 after the reporter confirmed the launch-remap workaround; no code change in ros2_control is linked. Distro: Galactic on Ubuntu 20.04 (reporter). The underlying rclcpp behaviour (global `__node` remap applying to all nodes in a process, rclcpp issue 843, still open at the time) is outside this composition."
+}

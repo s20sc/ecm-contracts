@@ -1,0 +1,6 @@
+{"item_id": "P-u0336-3", "kind": "P", "task_id": "u0336", "element": "field:v4l2/v4l2_pix_format.pixelformat", "side": "consumes",
+ "values": [
+  {"field": "msg_type", "recorded": "v4l2/v4l2_pix_format", "verdict": "wrong", "source_excerpt": "src/usb_cam.cpp:907:   struct v4l2_format fmt;", "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified", "source_excerpt": "src/usb_cam.cpp:991:   fmt.fmt.pix.pixelformat = pixelformat_;", "qos_basis": null}
+ ],
+ "notes": "Opened s2_work/tasks/u0336/snapshot/src/usb_cam.cpp. msg_type: cited line 907 declares 'struct v4l2_format fmt;' - the container type v4l2_format, a different type name from the recorded v4l2/v4l2_pix_format. The string 'v4l2_pix_format' appears nowhere in the cited lines and nowhere in the entire u0336 snapshot (grep -rn 'v4l2_pix_format' over the snapshot returns no matches); the provenance's own excerpt concedes 'parent type name as given in the packet element', i.e. the type name was not read from the source. [inference, unverified] The recorded parent type is plausibly the true kernel type of fmt.fmt.pix, but nothing in the snapshot states it. frame: line 991 assigns the pixelformat field a pixel-format code (FourCC-style), not a coordinate frame, so frame=none is supported."}

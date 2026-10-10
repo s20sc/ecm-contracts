@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Beh-02",
+  "kind": "A1",
+  "case_id": "B-Beh-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "1. Run a ROS2 node that publishes data to a topic using **Best Effort** reliability. 2. Run `rosbridge_server` and attempt to subscribe to that topic using a rosbridge client library (roslibpy, roslibjs). The subscriber should not receive any data. 3. Change the reliability policy on the publisher to **Reliable** and repeat step 2. The subscriber should now receive data from the publisher.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/551"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "`rosbridge_server` silently fails to subscribe to topics with publishers that use **Best Effort** reliability instead of **Reliable.** The `rosbridge_server` logs indicate that the client connected and that the subscription was created, but no data is ever received in the subscriber callback.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/551"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Based on my recent experience, it would seem that a failure to connect based on QoS compatibility either fails silently or requires more verbose logging than I currently have configured.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/551"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Should be fixed by #690",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/551#issuecomment-990399891"
+  },
+  "notes": "The ROS 2 QoS incompatibility (Best Effort publisher vs default Reliable subscriber) causes silent subscription failure without diagnostic logs until automatic QoS compatibility adaptation was introduced in PR #690."
+}

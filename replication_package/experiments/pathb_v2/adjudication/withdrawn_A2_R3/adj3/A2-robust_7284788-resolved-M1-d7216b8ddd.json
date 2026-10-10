@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_7284788-resolved-M1-d7216b8ddd",
+  "kind": "A2",
+  "case_id": "robust_7284788",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "verified",
+      "source_excerpt": "built: s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:296 'std::string _allFramesAsDot() const;'. running: s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301 'std::string _allFramesAsDot(double current_time) const; / std::string _allFramesAsDot() const;'"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "verified",
+      "source_excerpt": "s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:441 'return tf2_buffer_._allFramesAsDot();'"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "transcription_only",
+      "built_excerpt": "s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:296 'std::string _allFramesAsDot() const;'",
+      "running_excerpt": "s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301 'std::string _allFramesAsDot(double current_time) const;' + 'std::string _allFramesAsDot() const;'"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Spec operation UPGRADE; tf2_ros::Buffer inherits _allFramesAsDot from tf2::BufferCore (buffer.h:46 'class Buffer: public BufferInterface, public tf2::BufferCore'). The consumer (tf.cpp:441) reads the zero-arg form, present in both revisions."
+  },
+  "notes": "Item evidence.provenance is null; verified from snapshots. The resolved composition (tf2_ros 0.5.7 -> 0.5.10) only adds the double-argument overload of _allFramesAsDot, keeping the zero-arg form the consumer depends on -> transcription_only."
+}

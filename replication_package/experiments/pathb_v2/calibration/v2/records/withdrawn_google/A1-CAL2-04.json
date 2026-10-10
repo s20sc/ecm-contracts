@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-CAL2-04",
+  "kind": "A1",
+  "case_id": "CAL2-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "1. Make a hardware with a JS broadcaster and an FTS broadcaster. 2. Load both controllers 3. configure the JS broadcaster 4. controller_manager will die",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "However that can lead to situations where when the FTS broadcaster is loaded but not yet configured and another controller is configured the controller sorting in configuring the other controller will also check the FTS broadcasterf for sorting. For this it will try to fetch all state and command interfaces which will use the [`force_torque_sensor_` object](https://github.com/ros-controls/ros2_controllers/blob/232154dab5f5363704c7f7640b2d42f5d6f3665b/force_torque_sensor_broadcaster/src/force_torque_sensor_broadcaster.cpp#L124) which unfortunately is a nullpointer before the FTS broadcaster has been configured.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "4. controller_manager will die",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "No resolving change is documented."
+  },
+  "notes": "Precondition call order lifecycle mismatch between controller_manager and force_torque_sensor_broadcaster plugin."
+}

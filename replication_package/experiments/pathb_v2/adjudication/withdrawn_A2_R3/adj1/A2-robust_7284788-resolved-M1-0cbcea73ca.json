@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_7284788-resolved-M1-0cbcea73ca",
+  "kind": "A2",
+  "case_id": "robust_7284788",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::canTransform]",
+      "verdict": "unverifiable",
+      "source_excerpt": "No source location is supplied for this triggering value: the packet provenance is null. The following quotes are supplementary inspection of the specified revisions, not a replacement for the missing finding provenance.\n\nsnapshot:adjudication/packets/A2_02.json:318\n```\n    \"ver_delta.changed_fields[api:tf2_ros::Buffer::canTransform]\": null,\n```\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:49-50\n```\n    using tf2::BufferCore::lookupTransform;\n    using tf2::BufferCore::canTransform;\n```\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102\n```\n    virtual bool\n      canTransform(const std::string& target_frame, const std::string& source_frame, \n\t\t   const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;\n```\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:196-197\n```\n  bool canTransform(const std::string& target_frame, const std::string& source_frame,\n                    const ros::Time& time, std::string* error_msg = NULL) const;\n```\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:49-50\n```\n    using tf2::BufferCore::lookupTransform;\n    using tf2::BufferCore::canTransform;\n```\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102\n```\n    virtual bool\n    canTransform(const std::string& target_frame, const std::string& source_frame, \n                 const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;\n```\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:196-197\n```\n  bool canTransform(const std::string& target_frame, const std::string& source_frame,\n                    const ros::Time& time, std::string* error_msg = NULL) const;\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::canTransform]",
+      "verdict": "unverifiable",
+      "source_excerpt": "No source location is supplied for this triggering value: the packet provenance is null. A consumer call was independently located, quoted below, but this does not supply a location for the selected finding record.\n\nsnapshot:adjudication/packets/A2_02.json:319\n```\n    \"ver_delta.consumer_reads[api:tf2_ros::Buffer::canTransform]\": null\n```\n\nsnapshot:s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:359-363\n```\n                           const ros::Time& time, std::string* error_msg) const\n{\n  return tf2_buffer_.canTransform(strip_leading_slash(target_frame),\n                                  strip_leading_slash(source_frame), time, error_msg);\n}\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::canTransform]",
+      "verdict": "unverifiable",
+      "built_excerpt": "No built location is cited in this item. Supplementary built u0099 inspection:\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:49-50\n```\n    using tf2::BufferCore::lookupTransform;\n    using tf2::BufferCore::canTransform;\n```\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102\n```\n    virtual bool\n      canTransform(const std::string& target_frame, const std::string& source_frame, \n\t\t   const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;\n```\n\nsnapshot:s2_work/tasks/u0099/snapshot/tf2/include/tf2/buffer_core.h:196-197\n```\n  bool canTransform(const std::string& target_frame, const std::string& source_frame,\n                    const ros::Time& time, std::string* error_msg = NULL) const;\n```",
+      "running_excerpt": "No running location is cited in this item. Supplementary running u0101 inspection:\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:49-50\n```\n    using tf2::BufferCore::lookupTransform;\n    using tf2::BufferCore::canTransform;\n```\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102\n```\n    virtual bool\n    canTransform(const std::string& target_frame, const std::string& source_frame, \n                 const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;\n```\n\nsnapshot:s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:196-197\n```\n  bool canTransform(const std::string& target_frame, const std::string& source_frame,\n                    const ros::Time& time, std::string* error_msg = NULL) const;\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "disagree",
+    "reason": "The selected evidence encoding is PAIR, whereas the specification requires UPGRADE against 0.5.7. This pair view has no ver_delta, so it cannot represent the selected field_break trigger. The full assembled file does contain a separate upgrade unit, but that is not the evidence unit attached to this item. The underlying API connection is real: tf holds a tf2_ros::Buffer and invokes this member. Disagreement concerns the attached operation/evidence, not the existence of the call.\n\nsnapshot:adjudication/packets/A2_02.json:322\n```\n    \"type\": \"PAIR\",\n```\n\nsnapshot:specs/robust_7284788.json:68-71\n```\n  \"operation\": \"UPGRADE\",\n  \"consumer_built_against\": {\n    \"broken\": \"0.5.7\",\n    \"resolved\": \"0.5.7\",\n```\n\nsnapshot:s2_work/tasks/u0032/snapshot/tf/include/tf/tf.h:387\n```\n  tf2_ros::Buffer tf2_buffer_;\n```\n\nsnapshot:s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:359-363\n```\n                           const ros::Time& time, std::string* error_msg) const\n{\n  return tf2_buffer_.canTransform(strip_leading_slash(target_frame),\n                                  strip_leading_slash(source_frame), time, error_msg);\n}\n```"
+  },
+  "notes": "Supplementary comparison: the shown Buffer declaration differs in indentation, while the using-declaration and inherited overload called by tf are unchanged. The inspected declarations do not show a substantive change to the depended-on signature. Per the missing-location rule, values and substance remain unverifiable for the packet as supplied. I also inspected the separate assembled upgrade provenance and both source revisions, but did not silently substitute that unit for this item."
+}

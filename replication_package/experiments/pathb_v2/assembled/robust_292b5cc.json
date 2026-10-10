@@ -1,0 +1,1904 @@
+{
+ "case_id": "robust_292b5cc",
+ "corpus": "C1",
+ "operation": "PAIR",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "msg:simple_message/JointTrajPtFull",
+     "status": "done",
+     "direction": {
+      "producer": "fs100 ROS driver",
+      "consumer": "MotoROS FS100 (fs100/MotoPlus)"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "msg:simple_message/JointTrajPtFull",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": "time: s; pos: rad; vel: rad/s; acc: rad/s^2",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "msg:simple_message/JointTrajPtFull",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": null,
+         "units": "time: seconds; pos: radian; vel: radian/sec; acc: radian/sec^2",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "msg:simple_message/JointTrajPtFull",
+       "in_role": "msg:simple_message/JointTrajPtFull"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "consumer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "consumer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "producer.outputs[0].side": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:78-126 create_message builds JointTrajPtFull and `jtpf_msg.toRequest(*msg)`; streamed at :204-209",
+      "producer.outputs[0].msg_type": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:40-41 `using industrial::joint_traj_pt_full::JointTrajPtFull;` / `using industrial::joint_traj_pt_full_message::JointTrajPtFullMessage;`",
+      "producer.outputs[0].frame": "joint-space trajectory point (positions/velocities/accelerations per joint, time), no coordinate frame in code",
+      "producer.outputs[0].units": "snapshot:fs100/MotoPlus/SimpleMessage.h:105-108 (co-located controller-side definition of ROS_MSG_JOINT_TRAJ_PT_FULL = 14): time 'Units: in seconds', pos 'in radian', vel 'in radian/sec', acc 'in radian/sec^2'; ROS side snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:120 `msg_data.setTime(pt.time_from_start.toSec());`",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:53,100-109 | ROS_MSG_JOINT_TRAJ_PT_FULL = 14, ... } SmBodyJointTrajPtFull; received at snapshot:fs100/MotoPlus/MotionServer.c:276-280",
+      "consumer.inputs[0].units": "snapshot:fs100/MotoPlus/SimpleMessage.h:105-108 | float time; // ... Units: in seconds / float pos[ROS_MAX_JOINT]; // Desired joint positions in radian. / float vel[ROS_MAX_JOINT]; // Desired joint velocities in radian/sec. / float acc[ROS_MAX_JOINT]; // Desired joint accelerations in radian/sec^2."
+     },
+     "tasks": {
+      "producer": "u0055",
+      "consumer": "u0054"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:simple_message/JointTrajPtFull.robot_id",
+     "status": "done",
+     "direction": {
+      "producer": "fs100 ROS driver",
+      "consumer": "MotoROS FS100 (fs100/MotoPlus)"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:simple_message/JointTrajPtFull.robot_id",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:simple_message/JointTrajPtFull.robot_id",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:simple_message/JointTrajPtFull.robot_id",
+       "in_role": "field:simple_message/JointTrajPtFull.robot_id"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "consumer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "consumer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "producer.outputs[0].side": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:118 `msg_data.setRobotID(robot_id_);` (robot_id_ from snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:64-65 `node_.param(\"robot_id\", robot_id_, 0);`), message sent at :123-126 and :205-209",
+      "producer.outputs[0].msg_type": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:40 `using industrial::joint_traj_pt_full::JointTrajPtFull;` (class from external simple_message package, header included at :34 `simple_message/messages/joint_traj_pt_full_message.h`)",
+      "producer.outputs[0].frame": "integer robot/group id, no spatial meaning",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:53,100-109 | ROS_MSG_JOINT_TRAJ_PT_FULL = 14, ... typedef struct // ROS_MSG_JOINT_TRAJ_PT_FULL = 14 { ... } SmBodyJointTrajPtFull; (canonical type name taken from the packet)",
+      "consumer.inputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:102 | int groupNo; // Robot/group ID; 0 = 1st robot (identifier, no spatial meaning)"
+     },
+     "tasks": {
+      "producer": "u0055",
+      "consumer": "u0054"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:simple_message/JointTrajPtFull.sequence",
+     "status": "done",
+     "direction": {
+      "producer": "fs100 ROS driver",
+      "consumer": "MotoROS FS100 (fs100/MotoPlus)"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:simple_message/JointTrajPtFull.sequence",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:simple_message/JointTrajPtFull.sequence",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:simple_message/JointTrajPtFull.sequence",
+       "in_role": "field:simple_message/JointTrajPtFull.sequence"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "consumer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "consumer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "producer.outputs[0].side": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:119 `msg_data.setSequence(seq);`; seq is the trajectory point index, snapshot:fs100/src/industrial_robot_client/joint_trajectory_interface.cpp:159,173 `for (size_t i=0; ...)` / `create_message(i, xform_pt, &msg)`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:40",
+      "producer.outputs[0].frame": "integer point index, no spatial meaning",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:53,100-109 | ROS_MSG_JOINT_TRAJ_PT_FULL = 14, ... } SmBodyJointTrajPtFull;",
+      "consumer.inputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:103 | int sequence; // Index of point in trajectory; 0 = Initial trajectory point, which should match the robot current position. (index, no spatial meaning)"
+     },
+     "tasks": {
+      "producer": "u0055",
+      "consumer": "u0054"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "msg:motoman/MotoMotionCtrl",
+     "status": "done",
+     "direction": {
+      "producer": "fs100 ROS driver",
+      "consumer": "MotoROS FS100 (fs100/MotoPlus)"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "msg:motoman/MotoMotionCtrl",
+         "msg_type": "motoman/MotoMotionCtrl",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "msg:motoman/MotoMotionCtrl",
+         "msg_type": "motoman/MotoMotionCtrl",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "msg:motoman/MotoMotionCtrl",
+       "in_role": "msg:motoman/MotoMotionCtrl"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "consumer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "consumer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "producer.outputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:117-121 `data.init(robot_id_, 0, command, 0); ctrl_msg.init(data); ctrl_msg.toRequest(req); ... sendAndReceiveMsg(req, res)`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:92 `class MotionCtrl : public industrial::simple_serialize::SimpleSerialize` (namespace motoman::simple_message::motion_ctrl); wire type snapshot:fs100/include/fs100/simple_message/motoman_simple_message.h:59 `MOTOMAN_MOTION_CTRL = 2001,`, set at snapshot:fs100/src/simple_message/motoman_motion_ctrl_message.cpp:88",
+      "producer.outputs[0].frame": "control command (robot_id, sequence, command, data[10] 'Contents of data-buffer are specific to each command'), no frame in code, no spatial meaning",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:55,134-140 | ROS_MSG_MOTO_MOTION_CTRL = 2001, ... typedef struct // ROS_MSG_MOTO_MOTION_CTRL = 2011 { int groupNo; int sequence; SmCommandType command; float data[ROS_MAX_JOINT]; } SmBodyMotoMotionCtrl;",
+      "consumer.inputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:136-139 | groupNo, sequence, SmCommandType command, float data[ROS_MAX_JOINT]; // Command data - for future use (command codes, no spatial meaning)"
+     },
+     "tasks": {
+      "producer": "u0055",
+      "consumer": "u0054"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "msg:motoman/MotoMotionReply",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "msg:motoman/MotoMotionReply",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "msg:motoman/MotoMotionReply",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "msg:motoman/MotoMotionReply",
+       "in_role": "msg:motoman/MotoMotionReply"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:56,189-197 | ROS_MSG_MOTO_MOTION_REPLY = 2002 ... } SmBodyMotoMotionReply; built in snapshot:fs100/MotoPlus/SimpleMessage.c:92-129 and sent at snapshot:fs100/MotoPlus/MotionServer.c:249",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:189-197 | groupNo, sequence, command, result, subcode, float data[ROS_MAX_JOINT]; // Reply data - for future use (status/result codes, no spatial meaning)",
+      "consumer.inputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:127 `ctrl_reply.init(res);`; snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:214 `if (!reply_status.init(reply))`",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; snapshot:fs100/include/fs100/simple_message/motoman_simple_message.h:60; message type set at snapshot:fs100/src/simple_message/motoman_motion_reply_message.cpp:88",
+      "consumer.inputs[0].frame": "status reply (robot_id, sequence, command, result, subcode, data[10]), no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0054",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.robot_id",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.robot_id",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.robot_id",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.robot_id",
+       "in_role": "field:motoman/MotoMotionReply.robot_id"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:56,189-197 | ROS_MSG_MOTO_MOTION_REPLY = 2002 ... } SmBodyMotoMotionReply;",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:191 | int groupNo; // Robot/group ID; 0 = 1st robot (identifier, no spatial meaning)",
+      "consumer.inputs[0].side": "unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:274 `if (!buffer->unload(this->robot_id_))`; getter motoman_motion_reply.h:187-190 never called by driver logic",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; field at motoman_motion_reply.h:363 `industrial::shared_types::shared_int robot_id_;`",
+      "consumer.inputs[0].frame": "integer robot/group id (comment motoman_motion_reply.h:359-361 '0 = 1st robot'), no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0054",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.sequence",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.sequence",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.sequence",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.sequence",
+       "in_role": "field:motoman/MotoMotionReply.sequence"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:56,189-197 | ROS_MSG_MOTO_MOTION_REPLY = 2002 ... } SmBodyMotoMotionReply;",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:192 | int sequence; // Optional message tracking number that will be echoed back in the response. (no spatial meaning)",
+      "consumer.inputs[0].side": "unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:268 `if (!buffer->unload(this->sequence_))`; getter never called by driver logic",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; field at motoman_motion_reply.h:368 `industrial::shared_types::shared_int sequence_;`",
+      "consumer.inputs[0].frame": "integer message-tracking number, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0054",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.command",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.command",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.command",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.command",
+       "in_role": "field:motoman/MotoMotionReply.command"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:56,189-197 | ROS_MSG_MOTO_MOTION_REPLY = 2002 ... typedef struct // ROS_MSG_MOTO_MOTION_REPLY = 2012 { ... } SmBodyMotoMotionReply; (MotoPlus C struct; canonical type name taken from the packet)",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:193 | int command; // Reference to the received message command or type (integer code, no spatial meaning)",
+      "consumer.inputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:127-128 (ctrl_reply.init(res); reply.copyFrom(ctrl_reply.reply_)) and snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:213-214 (MotionReplyMessage reply_status; reply_status.init(reply)) deserialize the reply; command field unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:262",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139 `class MotionReply : public industrial::simple_serialize::SimpleSerialize` (namespace motoman::simple_message::motion_reply); wire type snapshot:fs100/include/fs100/simple_message/motoman_simple_message.h:60 `MOTOMAN_MOTION_REPLY = 2002,`; field at motoman_motion_reply.h:373 `industrial::shared_types::shared_int command_;`",
+      "consumer.inputs[0].frame": "no frame identifier anywhere in the MotionReply code path (grep 'frame' over fs100/src, fs100/include: no hits outside license text); command is an integer command code echo, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0054",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.result",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.result",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.result",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.result",
+       "in_role": "field:motoman/MotoMotionReply.result"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:56,189-197 | ROS_MSG_MOTO_MOTION_REPLY = 2002 ... } SmBodyMotoMotionReply;",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:194 | SmResultType result; // High level result code (enum, no spatial meaning)",
+      "consumer.inputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:67,82,101 (reply.getResult()); snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:221,227 (reply_status.reply_.getResult()); unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:256",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; field at motoman_motion_reply.h:378 `industrial::shared_types::shared_int result_;`",
+      "consumer.inputs[0].frame": "integer result code (MotionReplyResults enum, motoman_motion_reply.h:57-70), no spatial meaning; no frame in code"
+     },
+     "tasks": {
+      "producer": "u0054",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.subcode",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.subcode",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "IOSTATUS_REMOTE"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "Ros_MotionServer_StartTrajMode (ROS_CMD_START_TRAJ_MODE): mpCancelError if error, mpResetAlarm if alarm, mpSetServoPower on if servo off, then mpStartJob MOTION_INIT_ROS_JOB \"INIT_ROS\"",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.subcode",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.subcode",
+       "in_role": "field:motoman/MotoMotionReply.subcode"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35,45 | #define TCP_PORT_MOTION 50240 ... #define MAX_MOTION_CONNECTIONS 1; bound by snapshot:fs100/MotoPlus/Controller.c:212 sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION); further clients refused at snapshot:fs100/MotoPlus/MotionServer.c:119-122 printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:449-535 | if(Ros_Controller_IsError(controller)) { ... ret = mpCancelError(&rData); ... } if(Ros_Controller_IsAlarm(controller)) { ... ret = mpResetAlarm(&rData); ... } ... ret = mpSetServoPower(&sServoData, &rData); ... memcpy(sStartData.cJobName, MOTION_INIT_ROS_JOB, MAX_JOB_NAME_LEN); ret = mpStartJob(&sStartData, &rData);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:56,189-197 | ROS_MSG_MOTO_MOTION_REPLY = 2002 ... } SmBodyMotoMotionReply;",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:195 | int subcode; // More detailed result code (optional) (no spatial meaning)",
+      "consumer.inputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:138 `ss << reply.getSubcodeString() << \" (\" << reply.getSubcode() << \")\";`; unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:250",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; field at motoman_motion_reply.h:383 `industrial::shared_types::shared_int subcode_;`",
+      "consumer.inputs[0].frame": "integer result sub-code (MotionReplySubcodes enums, motoman_motion_reply.h:77-115), no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0054",
+      "consumer": "u0055"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "msg:simple_message/JointTrajPtFull",
+     "status": "done",
+     "direction": {
+      "producer": "fs100 ROS driver",
+      "consumer": "MotoROS FS100 (fs100/MotoPlus)"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "msg:simple_message/JointTrajPtFull",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": "time: s; pos: rad; vel: rad/s; acc: rad/s^2",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "msg:simple_message/JointTrajPtFull",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": "time: seconds; pos: radian; vel: radian/sec; acc: radian/sec^2",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "msg:simple_message/JointTrajPtFull",
+       "in_role": "msg:simple_message/JointTrajPtFull"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "consumer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "consumer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "producer.outputs[0].side": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:78-126 create_message builds JointTrajPtFull and `jtpf_msg.toRequest(*msg)`; streamed at :204-209",
+      "producer.outputs[0].msg_type": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:40-41 `using industrial::joint_traj_pt_full::JointTrajPtFull;` / `using industrial::joint_traj_pt_full_message::JointTrajPtFullMessage;`",
+      "producer.outputs[0].frame": "joint-space trajectory point (positions/velocities/accelerations per joint, time), no coordinate frame in code",
+      "producer.outputs[0].units": "snapshot:fs100/MotoPlus/SimpleMessage.h:105-108 (co-located controller-side definition of ROS_MSG_JOINT_TRAJ_PT_FULL = 14): time 'Units: in seconds', pos 'in radian', vel 'in radian/sec', acc 'in radian/sec^2'; ROS side snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:120 `msg_data.setTime(pt.time_from_start.toSec());`",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:100-109 | } SmBodyJointTrajPtFull; (msgType snapshot:fs100/MotoPlus/SimpleMessage.h:53 | ROS_MSG_JOINT_TRAJ_PT_FULL = 14)",
+      "consumer.inputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:106 | float pos[ROS_MAX_JOINT]; // Desired joint positions in radian. Base to Tool joint order (joint space; struct has no frame field)",
+      "consumer.inputs[0].units": "snapshot:fs100/MotoPlus/SimpleMessage.h:105-108 | float time; // ... Units: in seconds / float pos[ROS_MAX_JOINT]; // Desired joint positions in radian. / float vel[ROS_MAX_JOINT]; // Desired joint velocities in radian/sec. / float acc[ROS_MAX_JOINT]; // Desired joint accelerations in radian/sec^2. (seconds relied on at snapshot:fs100/MotoPlus/MotionServer.c:1221 | jointMotionData->time = (int)(jointTrajData->time * 1000);)"
+     },
+     "tasks": {
+      "producer": "u0055",
+      "consumer": "u0053"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:simple_message/JointTrajPtFull.robot_id",
+     "status": "done",
+     "direction": {
+      "producer": "fs100 ROS driver",
+      "consumer": "MotoROS FS100 (fs100/MotoPlus)"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:simple_message/JointTrajPtFull.robot_id",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:simple_message/JointTrajPtFull.robot_id",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:simple_message/JointTrajPtFull.robot_id",
+       "in_role": "field:simple_message/JointTrajPtFull.robot_id"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "consumer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "consumer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "producer.outputs[0].side": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:118 `msg_data.setRobotID(robot_id_);` (robot_id_ from snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:64-65 `node_.param(\"robot_id\", robot_id_, 0);`), message sent at :123-126 and :205-209",
+      "producer.outputs[0].msg_type": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:40 `using industrial::joint_traj_pt_full::JointTrajPtFull;` (class from external simple_message package, header included at :34 `simple_message/messages/joint_traj_pt_full_message.h`)",
+      "producer.outputs[0].frame": "integer robot/group id, no spatial meaning",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:100-109 | typedef struct // ROS_MSG_JOINT_TRAJ_PT_FULL = 14 ... } SmBodyJointTrajPtFull; (msgType snapshot:fs100/MotoPlus/SimpleMessage.h:53 | ROS_MSG_JOINT_TRAJ_PT_FULL = 14)",
+      "consumer.inputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:102 | int groupNo; // Robot/group ID; 0 = 1st robot"
+     },
+     "tasks": {
+      "producer": "u0055",
+      "consumer": "u0053"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:simple_message/JointTrajPtFull.sequence",
+     "status": "done",
+     "direction": {
+      "producer": "fs100 ROS driver",
+      "consumer": "MotoROS FS100 (fs100/MotoPlus)"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:simple_message/JointTrajPtFull.sequence",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:simple_message/JointTrajPtFull.sequence",
+         "msg_type": "simple_message/JointTrajPtFull",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:simple_message/JointTrajPtFull.sequence",
+       "in_role": "field:simple_message/JointTrajPtFull.sequence"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "consumer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "consumer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "producer.outputs[0].side": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:119 `msg_data.setSequence(seq);`; seq is the trajectory point index, snapshot:fs100/src/industrial_robot_client/joint_trajectory_interface.cpp:159,173 `for (size_t i=0; ...)` / `create_message(i, xform_pt, &msg)`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:40",
+      "producer.outputs[0].frame": "integer point index, no spatial meaning",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:100-109 | } SmBodyJointTrajPtFull; (msgType ROS_MSG_JOINT_TRAJ_PT_FULL = 14, SimpleMessage.h:53)",
+      "consumer.inputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:103 | int sequence; // Index of point in trajectory; 0 = Initial trajectory point, which should match the robot current position."
+     },
+     "tasks": {
+      "producer": "u0055",
+      "consumer": "u0053"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "msg:motoman/MotoMotionCtrl",
+     "status": "done",
+     "direction": {
+      "producer": "fs100 ROS driver",
+      "consumer": "MotoROS FS100 (fs100/MotoPlus)"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "msg:motoman/MotoMotionCtrl",
+         "msg_type": "motoman/MotoMotionCtrl",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "msg:motoman/MotoMotionCtrl",
+         "msg_type": "motoman/MotoMotionCtrl",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "msg:motoman/MotoMotionCtrl",
+       "in_role": "msg:motoman/MotoMotionCtrl"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "consumer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "consumer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "producer.outputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:117-121 `data.init(robot_id_, 0, command, 0); ctrl_msg.init(data); ctrl_msg.toRequest(req); ... sendAndReceiveMsg(req, res)`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:92 `class MotionCtrl : public industrial::simple_serialize::SimpleSerialize` (namespace motoman::simple_message::motion_ctrl); wire type snapshot:fs100/include/fs100/simple_message/motoman_simple_message.h:59 `MOTOMAN_MOTION_CTRL = 2001,`, set at snapshot:fs100/src/simple_message/motoman_motion_ctrl_message.cpp:88",
+      "producer.outputs[0].frame": "control command (robot_id, sequence, command, data[10] 'Contents of data-buffer are specific to each command'), no frame in code, no spatial meaning",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:134-140 | typedef struct // ROS_MSG_MOTO_MOTION_CTRL = 2011 ... } SmBodyMotoMotionCtrl; (msgType snapshot:fs100/MotoPlus/SimpleMessage.h:55 | ROS_MSG_MOTO_MOTION_CTRL = 2001)",
+      "consumer.inputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:136-139 | int groupNo; int sequence; SmCommandType command; float data[ROS_MAX_JOINT]; // Command data - for future use (no spatial field)"
+     },
+     "tasks": {
+      "producer": "u0055",
+      "consumer": "u0053"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "msg:motoman/MotoMotionReply",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "msg:motoman/MotoMotionReply",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "msg:motoman/MotoMotionReply",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "msg:motoman/MotoMotionReply",
+       "in_role": "msg:motoman/MotoMotionReply"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:189-197 | } SmBodyMotoMotionReply; (msgType snapshot:fs100/MotoPlus/SimpleMessage.h:56 | ROS_MSG_MOTO_MOTION_REPLY = 2002)",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:191-196 | int groupNo; int sequence; int command; SmResultType result; int subcode; float data[ROS_MAX_JOINT]; // Reply data - for future use (no spatial field; data zeroed by memset at SimpleMessage.c:99 and never set)",
+      "consumer.inputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:127 `ctrl_reply.init(res);`; snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:214 `if (!reply_status.init(reply))`",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; snapshot:fs100/include/fs100/simple_message/motoman_simple_message.h:60; message type set at snapshot:fs100/src/simple_message/motoman_motion_reply_message.cpp:88",
+      "consumer.inputs[0].frame": "status reply (robot_id, sequence, command, result, subcode, data[10]), no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0053",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.robot_id",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.robot_id",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.robot_id",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.robot_id",
+       "in_role": "field:motoman/MotoMotionReply.robot_id"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:189-197 | } SmBodyMotoMotionReply; (msgType ROS_MSG_MOTO_MOTION_REPLY = 2002, SimpleMessage.h:56)",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:191 | int groupNo; // Robot/group ID; 0 = 1st robot",
+      "consumer.inputs[0].side": "unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:274 `if (!buffer->unload(this->robot_id_))`; getter motoman_motion_reply.h:187-190 never called by driver logic",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; field at motoman_motion_reply.h:363 `industrial::shared_types::shared_int robot_id_;`",
+      "consumer.inputs[0].frame": "integer robot/group id (comment motoman_motion_reply.h:359-361 '0 = 1st robot'), no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0053",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.sequence",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.sequence",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.sequence",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.sequence",
+       "in_role": "field:motoman/MotoMotionReply.sequence"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:189-197 | } SmBodyMotoMotionReply; (msgType ROS_MSG_MOTO_MOTION_REPLY = 2002, SimpleMessage.h:56)",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:192 | int sequence; // Optional message tracking number that will be echoed back in the response.",
+      "consumer.inputs[0].side": "unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:268 `if (!buffer->unload(this->sequence_))`; getter never called by driver logic",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; field at motoman_motion_reply.h:368 `industrial::shared_types::shared_int sequence_;`",
+      "consumer.inputs[0].frame": "integer message-tracking number, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0053",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.command",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.command",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.command",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.command",
+       "in_role": "field:motoman/MotoMotionReply.command"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:189-197 | typedef struct // ROS_MSG_MOTO_MOTION_REPLY = 2012 ... } SmBodyMotoMotionReply; (wire type id snapshot:fs100/MotoPlus/SimpleMessage.h:56 | ROS_MSG_MOTO_MOTION_REPLY = 2002; set at snapshot:fs100/MotoPlus/SimpleMessage.c:105)",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:193 | int command; // Reference to the received message command or type",
+      "consumer.inputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:127-128 (ctrl_reply.init(res); reply.copyFrom(ctrl_reply.reply_)) and snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:213-214 (MotionReplyMessage reply_status; reply_status.init(reply)) deserialize the reply; command field unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:262",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139 `class MotionReply : public industrial::simple_serialize::SimpleSerialize` (namespace motoman::simple_message::motion_reply); wire type snapshot:fs100/include/fs100/simple_message/motoman_simple_message.h:60 `MOTOMAN_MOTION_REPLY = 2002,`; field at motoman_motion_reply.h:373 `industrial::shared_types::shared_int command_;`",
+      "consumer.inputs[0].frame": "no frame identifier anywhere in the MotionReply code path (grep 'frame' over fs100/src, fs100/include: no hits outside license text); command is an integer command code echo, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0053",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.result",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.result",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.result",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.result",
+       "in_role": "field:motoman/MotoMotionReply.result"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:189-197 | } SmBodyMotoMotionReply; (msgType ROS_MSG_MOTO_MOTION_REPLY = 2002, SimpleMessage.h:56)",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:194 | SmResultType result; // High level result code",
+      "consumer.inputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:67,82,101 (reply.getResult()); snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:221,227 (reply_status.reply_.getResult()); unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:256",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; field at motoman_motion_reply.h:378 `industrial::shared_types::shared_int result_;`",
+      "consumer.inputs[0].frame": "integer result code (MotionReplyResults enum, motoman_motion_reply.h:57-70), no spatial meaning; no frame in code"
+     },
+     "tasks": {
+      "producer": "u0053",
+      "consumer": "u0055"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:motoman/MotoMotionReply.subcode",
+     "status": "done",
+     "direction": {
+      "producer": "MotoROS FS100 (fs100/MotoPlus)",
+      "consumer": "fs100 ROS driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.subcode",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "TCP_PORT_MOTION"
+       ],
+       "perm_requires": [
+        "Ros_Controller_IsRemote(controller)"
+       ],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "ROS_CMD_START_TRAJ_MODE cancels a controller error (mpCancelError), resets alarms (mpResetAlarm), turns servo power on (mpSetServoPower) and starts job INIT_ROS; ROS_CMD_STOP_MOTION and loss of REMOTE/OPERATING/WAITING_ROS clear the increment queues",
+       "_states": {
+        "perm_requires": "present",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:motoman/MotoMotionReply.subcode",
+         "msg_type": "motoman/MotoMotionReply",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "TrajMode"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "streamingThread: on disconnect connectRetryCount = 5 reconnect attempts via makeConnect(); MotionReply result BUSY -> silently resend the same point; any other non-SUCCESS result or unparsable reply -> abort trajectory (state_ = IDLE); destructor sends STOP_TRAJ_MODE to release TrajMode",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:motoman/MotoMotionReply.subcode",
+       "in_role": "field:motoman/MotoMotionReply.subcode"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[TCP_PORT_MOTION]": "snapshot:fs100/MotoPlus/Controller.h:35 | #define TCP_PORT_MOTION 50240; snapshot:fs100/MotoPlus/Controller.h:45 | #define MAX_MOTION_CONNECTIONS 1; snapshot:fs100/MotoPlus/MotionServer.c:124-128 | if (connectionIndex == MAX_MOTION_CONNECTIONS) { printf(\"Motion server already connected... not accepting last attempt.\\n\"); mpClose(sd); }; bound at snapshot:fs100/MotoPlus/Controller.c:212 | sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);",
+      "producer.recovery": "snapshot:fs100/MotoPlus/MotionServer.c:453-488 | // Check for condition that can be fixed remotely ... ret = mpCancelError(&rData); ... ret = mpResetAlarm(&rData); MotionServer.c:491-498 | sServoData.sServoPower = 1; // ON ret = mpSetServoPower(&sServoData, &rData); MotionServer.c:527-532 | mpStartJob (MOTION_INIT_ROS_JOB \"INIT_ROS\"); MotionServer.c:415-416 | // Clear queues bRet = Ros_MotionServer_ClearQ_All(controller); Controller.c:477-482 | if(ioStatus[i] == 0) // signal turned OFF ... Ros_MotionServer_ClearQ_All(controller);",
+      "consumer.exclusive[TrajMode]": "snapshot:fs100/src/fs100_joint_trajectory_streamer.cpp:75 `motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run`; claimed at :146 `motion_ctrl_.setTrajMode(true)`; commands snapshot:fs100/include/fs100/simple_message/motoman_motion_ctrl.h:65-66 `START_TRAJ_MODE = 200121,  // prepare controller to receive ROS motion cmds` / `STOP_TRAJ_MODE = 200122,  // return motion control to INFORM`",
+      "producer.outputs[0].msg_type": "snapshot:fs100/MotoPlus/SimpleMessage.h:189-197 | } SmBodyMotoMotionReply; (msgType ROS_MSG_MOTO_MOTION_REPLY = 2002, SimpleMessage.h:56)",
+      "producer.outputs[0].frame": "snapshot:fs100/MotoPlus/SimpleMessage.h:195 | int subcode; // More detailed result code (optional)",
+      "consumer.inputs[0].side": "snapshot:fs100/src/fs100_motion_ctrl.cpp:138 `ss << reply.getSubcodeString() << \" (\" << reply.getSubcode() << \")\";`; unloaded at snapshot:fs100/src/simple_message/motoman_motion_reply.cpp:250",
+      "consumer.inputs[0].msg_type": "snapshot:fs100/include/fs100/simple_message/motoman_motion_reply.h:139; field at motoman_motion_reply.h:383 `industrial::shared_types::shared_int subcode_;`",
+      "consumer.inputs[0].frame": "integer result sub-code (MotionReplySubcodes enums, motoman_motion_reply.h:77-115), no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0053",
+      "consumer": "u0055"
+     }
+    }
+   ]
+  }
+ }
+}

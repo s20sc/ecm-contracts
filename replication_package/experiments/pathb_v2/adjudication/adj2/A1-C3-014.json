@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3-014",
+ "kind": "A1",
+ "case_id": "C3-014",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Topic `mavros/global_position/gp_origin` has type `geographic_msgs/GeoPointStamped` and must contain coordinates in LLA. When I send a request containing LLA, I expect to receive a response containing LLA too in order to compare it and ensure that global_origin has been successfully set.",
+  "url": "https://github.com/mavlink/mavros/issues/1381"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "Then FCU confirms this with GPS_GLOBAL_ORIGIN message containing the same coordinates as LLA. But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.",
+   "url": "https://github.com/mavlink/mavros/issues/1381"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I just ran into this as well and agree that it is very confusing and probably wrong to use ECEF in a `GeoPoint`.",
+  "url": "https://github.com/mavlink/mavros/issues/1381#issuecomment-1056053123"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "This message contains https://docs.ros.org/en/api/geographic_msgs/html/msg/GeoPoint.html and expects\n> Geographic point, using the WGS 84 reference ellipsoid.\n\nHowever the messages are published in ECEF coordinates.\n\nThis PR removes such conversion matching message requirements and message contents."
+ },
+ "notes": "Independently verified this session via gh api. Issue 1381 body (standmit, 2020-01-29) verified verbatim: the set_gp_origin code, the LLA-to-ECEF conversion code with 'GeographicLib::Geocentric earth(...) earth.Forward(...)' before 'gp_global_origin_pub.publish(g_origin);', 'Mavros: 1.0.0 / ROS: Melodic', and the LLA-expectation quote. global_position.cpp at tag 1.0.0 read directly: earth.Forward conversion at lines 239-245 exactly as the reporter quoted. Comments verified: TSC21's initial REP-105 defense (id 579716670), Alefunk's 'The frame_id just specifies the reference point of the coordinates that are transmitted in the message, which is identical in case of ECEF and WGS84 LLA coordinates' (id 1005574073) supporting the spec's exclusion of frame_mismatch, lopsided98's confirmation (id 1056053123), haavarpb 'Expecting LLA, when it's really ECEF surely will make something break at some point.' (2023). PR 1942 'gps_global_origin: remove LLA to ECEF conversion' body verified verbatim ('FIX https://github.com/mavlink/mavros/issues/1381'), merged 2024-06-06 as 20c15364e26117669fcfd3fa11170a5034d528a3 -- matches the spec's resolved_rev. Class representation_convention (ECEF Cartesian values written into GeoPoint lat/lon/alt fields) with the implicated topic+fields is correct; the degree-vs-metre consequence is part of the same single defect and correctly not listed as a separate unit_mismatch condition; resolution recommended is correct (merged fix, but no source shows the fixed plugin running with the reporter's client)."
+}

@@ -1,0 +1,88 @@
+{
+  "item_id": "A1-B-Sig-04",
+  "kind": "A1",
+  "case_id": "B-Sig-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This is initial output of 'rostopic echo tf'. I can see a twisted rotation.",
+    "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14",
+    "reason": "E1/E4: a launch reproducer, visualization report and echoed transform establish wrong published data. E2: the erroneous transform crosses the node-to-viewer boundary; an internal implementation edit does not make this internal-only. E3: the transform and point-cloud outputs feed a visualization consumer in PAIR."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It looks wrong tf between map and camera_link.",
+      "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14",
+      "reason": "The source explicitly identifies a wrong map/camera transform and shows the emitted /tf data. frame_mismatch is supportable as a coordinate-frame relationship error, not a claim that the literal frame names differ."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "In the orb coordinate system, a flat plane is x-z and top is -y.\nIn the ros coordinate system, a flat plane is x-y and top is z.",
+      "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14",
+      "reason": "The fix author directly describes incompatible axis conventions and conversion on both camera and map sides. This supports representation_convention on the published transform without relying on the paper's paraphrase.",
+      "supporting_evidence": [
+        {
+          "quote": "+  //Transform from orb coordinate system to ros coordinate system on map coordinates",
+          "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/pull/15.patch"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "topic:/orb_slam2_d435_rgbd/map_points"
+      ],
+      "quote": "I was using wrong yaml file in which the DepthMapFactor was 5000 . When I use RealSenseD435RGBD.yaml, distance issue is gone.",
+      "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14",
+      "reason": "The same selected node-to-rviz composition also exposes an incorrectly scaled published map. S1 requires all documented failed interactions within that composition, even when their causes are independent. The specification already inventories this map_points output, so relegating the distance failure to an unrelated note omits a condition. Use other for the confirmed calibration/scale error: the source does not establish competing declared units that would require unit_mismatch. Changing the numeric DepthMapFactor is not mere deployment name binding.",
+      "supporting_evidence": [
+        {
+          "quote": "But, the distance looks different between the map and camera view(ex: /camera/depth_registered/points) on rviz. Why?",
+          "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14"
+        },
+        {
+          "quote": "    map_points_publisher_ = node_handle_.advertise<sensor_msgs::PointCloud2> (name_of_node_+\"/map_points\", 1);",
+          "url": "https://raw.githubusercontent.com/appliedAI-Initiative-old/orb_slam_2_ros/399e75b84fd8b78a94a01ddeb505b98bfa31d766/ros/src/Node.cc"
+        },
+        {
+          "quote": "  <node name=\"orb_slam2_d435_rgbd\" pkg=\"orb_slam2_ros\"",
+          "url": "https://raw.githubusercontent.com/appliedAI-Initiative-old/orb_slam_2_ros/399e75b84fd8b78a94a01ddeb505b98bfa31d766/ros/launch/orb_slam2_d435_rgbd.launch"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I can see the point cloud of the map above the camera, initially.",
+    "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14",
+    "reason": "The report detects wrong spatial output visually and through rostopic echo, with no build/connection/activation diagnostic for this mismatch. The added map-scale condition is likewise observed visually."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This is initial output of 'rostopic echo tf'. I can see a twisted rotation.",
+    "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14",
+    "reason": "The evidence is emitted transforms and rendered point clouds during execution."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The fix proposed by @saoto28 really works.",
+    "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14",
+    "reason": "There is positive success evidence for the transform correction, but no identified rviz revision, so recommended remains the appropriate strict S1 status. A complete resolution description must also retain the separately documented DepthMapFactor correction for the missed map-scale condition."
+  },
+  "notes": "The two listed transform classes describe overlapping frame/convention aspects, not evidence of two separate incidents. The distance-scale report is a distinct failed output within the same inventoried publisher/viewer composition and is therefore added. The proposed class other avoids inventing an undocumented unit declaration. The patch's rewritten translation expression alone is not treated as a third independent sign-error condition; the old implementation also applies additional axis/sign matrices, so comparing only its initial R^T*t line would be misleading."
+}

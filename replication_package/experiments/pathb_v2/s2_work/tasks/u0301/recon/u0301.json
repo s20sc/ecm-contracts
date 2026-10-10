@@ -1,0 +1,97 @@
+{
+  "task_id": "u0301",
+  "package": "autoware_traffic_light_visualization",
+  "manifest_version": "0.49.0",
+  "ports": [
+    {
+      "element": "api:cv_bridge/cv_bridge.h",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge/cv_bridge.hpp",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::CvImagePtr",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::Exception",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::toCvCopy",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:cv_bridge/cv_bridge.h",
+    "api:cv_bridge/cv_bridge.hpp",
+    "api:cv_bridge::CvImagePtr",
+    "api:cv_bridge::Exception",
+    "api:cv_bridge::toCvCopy"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:perception/autoware_traffic_light_visualization/package.xml:5",
+    "ports[0].element": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.hpp:29",
+    "ports[1].element": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.hpp:27",
+    "ports[2].element": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.cpp:127",
+    "ports[3].element": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.cpp:145",
+    "ports[4].element": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.cpp:131",
+    "references[api:cv_bridge/cv_bridge.h]": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.hpp:29",
+    "references[api:cv_bridge/cv_bridge.hpp]": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.hpp:27",
+    "references[api:cv_bridge::CvImagePtr]": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.cpp:127",
+    "references[api:cv_bridge::Exception]": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.cpp:145",
+    "references[api:cv_bridge::toCvCopy]": "snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.cpp:131",
+    "perm_requires.state": "searched package.xml, CMakeLists.txt, config/traffic_light_roi_visualizer.param.yaml, launch/*.launch.xml, schema/*.schema.json and src/ of perception/autoware_traffic_light_visualization for permission/security/enclave/sros declarations; only matches are Apache license header comments",
+    "perm_grants.state": "searched package.xml, CMakeLists.txt, config/traffic_light_roi_visualizer.param.yaml, launch/*.launch.xml, schema/*.schema.json and src/ of perception/autoware_traffic_light_visualization for permission/security/enclave/sros declarations; only matches are Apache license header comments",
+    "recovery.state": "searched the same files for recover/fallback/retry; the only error handling for the cv_bridge elements is catch (cv_bridge::Exception & e) that calls RCLCPP_ERROR (snapshot:perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/node.cpp:145-148, :228-231), no recovery action is declared"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The header is selected with #if __has_include(<cv_bridge/cv_bridge.hpp>) (the .hpp include is annotated for ROS 2 Jazzy or newer) with cv_bridge/cv_bridge.h only as the #else fallback, in both node.hpp and shape_draw.hpp, and the symbols used (CvImagePtr, toCvCopy, Exception) are plain cv_bridge API; nothing in the listed elements looks mismatched for jazzy."
+  },
+  "confidence": "high",
+  "notes": "All five packet elements are consumed C++ API elements of cv_bridge; the package provides none of them, so declares and not_declared are empty. They are used only by the traffic_light_roi_visualizer library (src/traffic_light_roi_visualizer); the traffic_light_map_visualizer sources do not reference cv_bridge. package.xml:19 declares <depend>cv_bridge</depend>. Header inclusion is conditional: node.hpp:26-30 and shape_draw.hpp:19-23 both read '#if __has_include(<cv_bridge/cv_bridge.hpp>) #include <cv_bridge/cv_bridge.hpp> // for ROS 2 Jazzy or newer #else #include <cv_bridge/cv_bridge.h> // for ROS 2 Humble or older #endif'; cv_bridge/cv_bridge.h is therefore referenced only in the fallback branch, and which branch compiles at jazzy depends on the installed cv_bridge headers, which are outside the snapshot and not an allowed fetch (only .msg/.srv/.action/.idl may be fetched), so it was not checked. cv_bridge::CvImagePtr is used at node.cpp:127 and :198; cv_bridge::toCvCopy(input_image_msg, sensor_msgs::image_encodings::RGB8) at node.cpp:131 and :202 with input_image_msg of type sensor_msgs::msg::Image::ConstSharedPtr; catch (cv_bridge::Exception & e) at node.cpp:145 and :228. CvImage::toImageMsg() is also called (node.cpp:150, 152, 233, 235) but is not a packet element. For these API-symbol ports msg_type, frame, units, QoS, rates and definition_id are recorded null: they are not data-carrying endpoints, and no .msg/.srv/.action/.idl definition exists for a C++ symbol or header, so definition_hash.py was not applicable. Observed but outside the interface description: after the catch block the code unconditionally dereferences cv_ptr (node.cpp:149-153, :232-236), which is null if toCvCopy threw."
+}

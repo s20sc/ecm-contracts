@@ -1,0 +1,96 @@
+{
+  "case_id": "robust_5abe7d4",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_desktop/issues/22",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/5abe7d4ae9f8fb323d4acb6fe131d87a82efef31",
+    "https://github.com/turtlebot/turtlebot_create_desktop/issues/7",
+    "https://github.com/gazebosim/gazebo-classic/blob/gazebo_1.9.0/cmake/pkgconfig/gazebo.in",
+    "https://github.com/gazebosim/gazebo-classic/blob/gazebo_2.0.0/cmake/pkgconfig/gazebo.in",
+    "https://github.com/gazebosim/gazebo-classic/blob/gazebo_1.9.0/cmake/gazebo-config.cmake.in",
+    "https://github.com/gazebosim/gazebo-classic/blob/gazebo_2.0.0/cmake/gazebo-config.cmake.in"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #22 'Fix ABI/API breakages coming with Gazebo 2.0' was opened and self-assigned by maintainer bit-pirate (Marcus Liebhardt) with body \"Same as here: https://github.com/turtlebot/turtlebot_create_desktop/issues/7\\n\\nFix it!\". The referenced issue (same author, same day) states the concrete defect: \"Gazebo 2.0 breaks API and ABI compatibility at various points. So far I spotted the following:\\n- [x] new paths for gazebo header includes, e.g. `common/common.hh` -> `gazebo/common/common.hh`\\n- [ ] collision/contact detection is done differently\". The maintainer's fixing commit 5abe7d4 is titled \"fixes gazebo header paths (refs #22)\" and rewrites the six Gazebo #include directives of kobuki_gazebo_plugins. No reproducer or error log for this package is given; the maintainer's own diagnosis and commit are the confirmation."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_gazebo_plugins", "gazebo"],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the units are kobuki_gazebo_plugins (a Gazebo model plugin library built by catkin, package in yujinrobot/kobuki_desktop) and the Gazebo simulator libraries (separately released, consumed through pkg-config: the plugin's CMakeLists.txt does `pkg_check_modules(GAZEBO gazebo)` and uses `${GAZEBO_INCLUDE_DIRS}`). Step 2: the failure is not internal; whether `#include <gazebo.hh>`, `<common/common.hh>`, `<common/Time.hh>`, `<math/gzmath.hh>`, `<physics/physics.hh>`, `<sensors/sensors.hh>` resolve depends entirely on which include directories the provider exports, i.e. on the Gazebo revision. Step 3: the resolving change edits the consumer's #include directives, not launch/config name bindings. Step 4: not a build-system-only change: the provider changed the paths under which its headers are reachable (Gazebo 1.9 exported both `-I${includedir}/gazebo-1.9` and `-I${includedir}/gazebo-1.9/gazebo` and announced in its own gazebo.in that the second flag is deprecated and dropped in 2.0; Gazebo 2.0.0 exports only `-I${includedir}/gazebo-2.0`), so the header names the consumer references are provider interface elements that were relocated. Step 5: not firmware. Step 6: eligible; interface kind library API (C++ header paths exported by the provider)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (Gazebo) moved to 2.0 while the consumer was written against 1.9. bit-pirate, 2013-10-17: \"Gazebo 2.0 was accidentally released into ROS Hydro. They reverted that change now - default for Hydro will remain 1.9. Hence, there are no breakages we have to fix.\" The consumer at the broken revision still references the header paths exactly as the 1.9 include layout exposed them (`#include <gazebo.hh>` etc., valid only with the `.../gazebo-1.9/gazebo` include directory that 2.0 dropped). No other operation is documented."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "No failure was observed for this package in the source: the maintainer could not test (\"There is a temporal glitch with the available ROS and Gazebo debs, which keeps me from testing my recent changes.\", 2013-10-11) and the issue remains open. The effect is documented at code level by the maintainer's commit that names the mismatch (\"fixes gazebo header paths (refs #22)\", rewriting `#include <common/common.hh>` to `#include <gazebo/common/common.hh>` and five similar lines) and by the linked issue body naming \"new paths for gazebo header includes, e.g. `common/common.hh` -> `gazebo/common/common.hh`\". Eligible with outcome class undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_gazebo_plugins",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "f480e490c6396e857f0323a8254424b7e0084a16",
+      "resolved_rev": "5abe7d4ae9f8fb323d4acb6fe131d87a82efef31",
+      "pinned": true,
+      "revision_basis": "broken_rev is the parent of the fixing commit on hydro-devel and is exactly tag 0.3.0 (2013-09-11, 'adds kobuki_gazebo_plugins back to the metapackage'); at this revision kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h includes <gazebo.hh>, <common/common.hh>, <common/Time.hh>, <math/gzmath.hh>, <physics/physics.hh>, <sensors/sensors.hh> and src/gazebo_ros_kobuki.cpp includes <math/gzmath.hh>. resolved_rev is the fixing commit 5abe7d4 (2013-10-11, 'fixes gazebo header paths (refs #22)'), which is contained in hydro-devel, hydro and tag 0.3.1 (2013-10-14) onward.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "gazebo",
+      "role": "provider",
+      "repo": "https://github.com/gazebosim/gazebo-classic",
+      "broken_rev": "gazebo_2.0.0",
+      "resolved_rev": "gazebo_2.0.0",
+      "pinned": true,
+      "revision_basis": "The source names only 'Gazebo 2.0' (issue title 'Fix ABI/API breakages coming with Gazebo 2.0'; bit-pirate: 'Gazebo 2.0 was accidentally released into ROS Hydro'). gazebo_2.0.0 (tag object dated 2013-10-08, two days before the report of 2013-10-10) is the only 2.0.x tag that existed on the report date. The Gazebo repository has moved from bitbucket.org/osrf/gazebo to github.com/gazebosim/gazebo-classic, where the tags are preserved. The resolution does not change the provider, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "gazebo_1.9.0",
+    "resolved": "gazebo_2.0.0",
+    "basis": "documented"
+  },
+  "inventory": [
+    {"element": "api:gazebo.hh", "sides": {"gazebo": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:common/common.hh", "sides": {"gazebo": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:common/Time.hh", "sides": {"gazebo": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:math/gzmath.hh", "sides": {"gazebo": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:physics/physics.hh", "sides": {"gazebo": "provides", "kobuki_gazebo_plugins": "consumes"}},
+    {"element": "api:sensors/sensors.hh", "sides": {"gazebo": "provides", "kobuki_gazebo_plugins": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:gazebo.hh", "api:common/common.hh", "api:common/Time.hh", "api:math/gzmath.hh", "api:physics/physics.hh", "api:sensors/sensors.hh"],
+      "quote": "Gazebo 2.0 breaks API and ABI compatibility at various points. So far I spotted the following:\n- [x] new paths for gazebo header includes, e.g. `common/common.hh` -> `gazebo/common/common.hh`",
+      "url": "https://github.com/turtlebot/turtlebot_create_desktop/issues/7"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No diagnostic is shown in the source for this composition. The maintainer wrote on 2013-10-11: \"There is a temporal glitch with the available ROS and Gazebo debs, which keeps me from testing my recent changes. I'll continue once the glitch is gone.\" and on 2013-10-17 decided \"there are no breakages we have to fix\" because Hydro stayed on Gazebo 1.9. A header that cannot be found would surface as a compiler error at build time, but no such output was recorded, so loudness and detection stage are unknown.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Commit 5abe7d4 rewrites the consumer's seven Gazebo #include directives to the `gazebo/`-prefixed paths (`#include <gazebo/gazebo.hh>`, `<gazebo/common/common.hh>`, `<gazebo/common/Time.hh>`, `<gazebo/math/gzmath.hh>`, `<gazebo/physics/physics.hh>`, `<gazebo/sensors/sensors.hh>` in the header and `<gazebo/math/gzmath.hh>` in the .cpp), which resolve under the include directory both Gazebo 1.9 and 2.0 export (`-I${includedir}/gazebo-<version>`). The change was kept on hydro-devel and released in kobuki_desktop 0.3.1, but the maintainers decided to stay on Gazebo 1.9 for Hydro (\"Once we want to use the new Gazebo version, we should create a separate branch.\").",
+    "status": "recommended",
+    "evidence": "The resolved composition (kobuki_gazebo_plugins 5abe7d4 built against Gazebo 2.0) is never shown working in the source: the maintainer could not test it (\"keeps me from testing my recent changes\") and closed the matter with \"Hence, there are no breakages we have to fix.\" The issue is still open; its last comment (jihoonl, 2014-03-24) only points to https://github.com/turtlebot/turtlebot_create_desktop/issues/7#issuecomment-38402977, a Fedora report about a different consumer (create_gazebo_plugins) and a different API (ContactManager/ConnectContact) under Gazebo 2.2."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Provider-side evidence of the relocation, quoted from the Gazebo repository. gazebo_1.9.0 cmake/pkgconfig/gazebo.in: \"CFlags: -I${includedir}/gazebo-@GAZEBO_VERSION@ -I${includedir}/gazebo-@GAZEBO_VERSION@/gazebo -I@SDF_INCLUDE_DIRS@\\n# The CFlags statement here is deprecated for gazebo-1.9 and will be replaced\\n# in gazebo-2.0 with the following:\\n# CFlags: -I${includedir}/gazebo-@GAZEBO_VERSION@ -I@SDF_INCLUDE_DIRS@\" (https://github.com/gazebosim/gazebo-classic/blob/gazebo_1.9.0/cmake/pkgconfig/gazebo.in). gazebo_2.0.0 cmake/pkgconfig/gazebo.in: \"CFlags: -I${includedir}/gazebo-@GAZEBO_VERSION@ -I@SDF_INCLUDE_DIRS@\" (https://github.com/gazebosim/gazebo-classic/blob/gazebo_2.0.0/cmake/pkgconfig/gazebo.in); the CMake config files at the two tags show the same change (three include dirs including `.../gazebo-@GAZEBO_VERSION@/gazebo` at 1.9.0, two at 2.0.0). The consumer's CMakeLists.txt at f480e49 locates Gazebo with `pkg_check_modules(GAZEBO gazebo)` and adds `${GAZEBO_INCLUDE_DIRS}`. consumer_built_against.broken: the source states the consumer's Hydro baseline is Gazebo 1.9 (bit-pirate: \"default for Hydro will remain 1.9\"); the exact 1.9.x patch level is not stated, so gazebo_1.9.0 (the first 1.9 tag, 2013-07-23) is used and the 1.9 series shares the same CFlags per the file's own comment; the consumer's un-prefixed includes match that layout. consumer_built_against.resolved is gazebo_2.0.0 because the fix targets the 2.0 layout (issue title) and its includes match it; the same includes also resolve under 1.9. The second incompatibility listed in turtlebot_create_desktop#7 ('collision/contact detection is done differently', i.e. removal of physics::Collision::ConnectContact, later hit by create_gazebo_plugins with Gazebo 2.2 and fixed by turtlebot_create_desktop PR #16) does not apply to kobuki_gazebo_plugins at 5abe7d4: `git grep ConnectContact` at that revision finds nothing (the plugin had dropped ConnectContact in commit 7676a39 of 2013-03-08), so it is not a condition of this case. kobuki_desktop tag 0.3.1 (2013-10-14) is the first release containing the fix. Confidence is medium because the failure was never observed for this consumer and the provider revision is bounded only by the '2.0' label and tag dates."
+}

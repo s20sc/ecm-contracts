@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_55e84a6-broken-M1-325f834f87",
+  "kind": "A2",
+  "case_id": "robust_55e84a6",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+      "verdict": "verified",
+      "source_excerpt": "built (u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:138): '    def redraw(self):'; running (u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:133): '    def redraw(self):' — and at running revision there is no file u0080/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py (ls: No such file or directory; find -iname 'mat_data_plot.py' returns only ./src/rqt_plot/data_plot/mat_data_plot.py)."
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+      "verdict": "verified",
+      "source_excerpt": "u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:14 -> 'from rqt_plot.mat_data_plot import MatDataPlot'; line 43 -> '    def redraw(self):' (override inside class FullSizeDataPlot(MatDataPlot))."
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot.redraw]",
+      "verdict": "substantive",
+      "built_excerpt": "u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:138 -> '    def redraw(self):' (module rqt_plot.mat_data_plot)",
+      "running_excerpt": "u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:133 -> '    def redraw(self):' (module rqt_plot.data_plot.mat_data_plot; the module rqt_plot.mat_data_plot does not exist at this revision)"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The assembled broken composition is an UPGRADE unit: provider rqt_plot with built=u0079 (rev 7d11bea7145e712538930a7e4b0632780240a85b, semver_old 0.3.6) and running=u0080 (rev 8374c8074c8e3592d00d5e5f8a7f18e55d1d33ab, semver_new 0.3.8), consumer kobuki_qtestsuite at u0078 (f04c615...). The ver_delta records redraw in both changed_fields and consumer_reads. The consumer port is real: full_size_data_plot.py imports MatDataPlot and overrides redraw; the provider port existed at the built-against revision (mat_data_plot.py:138 'def redraw(self):') but the module was relocated at the running revision, so the element's presence changed — this is the field break the rule captures."
+  },
+  "notes": "Only the 'redraw' finding is adjudicated. The same provider relocation also drops MatDataPlot.autoscroll entirely (the actual reported crash) and affects MatDataPlot, MatDataPlot._curves; those are separate findings/conditions and are not re-adjudicated here. The method label M1 and rule field_break match the item; no method identity is inferred beyond the label."
+}

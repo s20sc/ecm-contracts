@@ -1,0 +1,39 @@
+{
+  "item_id": "A1-B-Ver-02",
+  "kind": "A1",
+  "case_id": "B-Ver-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+    "url": "https://answers.ros.org/question/318190/"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [
+        "msg:franka_msgs/FrankaState",
+        "topic:/franka_state_controller/franka_states"
+      ],
+      "quote": "[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+      "url": "https://answers.ros.org/question/318190/"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [...] Dropping connection.",
+    "url": "https://answers.ros.org/question/318190/"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I find the solution: I forget to rework the CMakeList.txt to add the line franka_msgs in the find_package part"
+  },
+  "notes": "E1/E2/E3/E4 all confirmed against the ROS Answers static archive (title \"md5sum error franka_msgs\"): the connection-time md5 mismatch is quoted verbatim; the subscriber code (\"void FrankaStateCallback (const franka_msgs::FrankaState& FState2)\") is the reporter's own node /MoveRobot; the franka_ros commit 3991f55 (\"Publish robot mode in franka_state_controller\", touching franka_msgs/msg/FrankaState.msg) is the provider-side definition change. definition_mismatch with the two implicated elements (the msg and the topic) is correct: same nominal type franka_msgs/FrankaState, different definition (different md5). Loudness loud_documented/connect is exactly the ROS 1 md5sum-mismatch-at-connection diagnostic. Resolution observed is backed by the reporter's posted find_package block and \"Thank you for all your help.\"; I note the answerer's residual doubt about the mechanism (quoted honestly in the spec) but the reporter's self-reported resolution is what the schema's observed status captures, and the provider revision in the resolved composition is the same source build."
+}

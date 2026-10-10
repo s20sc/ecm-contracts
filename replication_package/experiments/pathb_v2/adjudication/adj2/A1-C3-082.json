@@ -1,0 +1,18 @@
+{"item_id": "A1-C3-082", "kind": "A1", "case_id": "C3-082",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+   "quote": "[ERROR] [1627971395.349416416]: outbuf size mismatch.  pic_size: 3110400 bufsize: 4147200",
+   "url": "https://github.com/ros-drivers/usb_cam/issues/164"},
+ "failed_conditions": [
+   {"index": 0, "class_verdict": "agree", "proposed_class": null,
+    "elements_verdict": "agree", "proposed_elements": [],
+    "quote": "avframe_camera_size_ = avpicture_get_size(PIX_FMT_YUV422P, image_width, image_height);  (usb_cam 0.3.5 line 397; the reported camera's decoded frames are 1920*1080*1.5 = 3110400 bytes, the buffer 1920*1080*2 = 4147200)",
+    "url": "https://github.com/ros-drivers/usb_cam/blob/0.3.5/src/usb_cam.cpp"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+   "quote": "[ INFO] [1627971394.968912604]: Starting 'head_camera' (/dev/video0) at 1920x1080 via mmap (mjpeg) at 30 FPS  (device open, format negotiation and stream start succeed; the only diagnostic is usb_cam's own ROS_ERROR check, repeated per frame)",
+   "url": "https://github.com/ros-drivers/usb_cam/issues/164"},
+ "resolution": {"verdict": "agree", "proposed": null,
+   "quote": "fixes #164 (for ros2)  (PR #188 comment by krsche); maintainer flynneva: \"You said you tested it as well locally and it works OK?\"; issue closed by twdragon: \"Closed in favour of #110, #197 and #72\"",
+   "url": "https://github.com/ros-drivers/usb_cam/pull/188"},
+ "notes": "Verified this session: issue #164 body (roslaunch parameters pixel_format mjpeg, 1920x1080, mmap, /dev/video0; the repeated error line verbatim; v4l2-ctl listing MJPG-only at 640x360/1280x720/1920x1080/3840x2160 — the artifact file's section matches this listing verbatim); at tag 0.3.5 I read usb_cam.cpp line 397 '  avframe_camera_size_ = avpicture_get_size(PIX_FMT_YUV422P, image_width, image_height);' and line 444 '    ROS_ERROR(\"outbuf size mismatch.  pic_size: %d bufsize: %d\", pic_size, avframe_camera_size_);'; issue #79 mechanism quote read verbatim ('I believe that this is because libavcodec is returning frames with YUV 4:2:0 pixels (1.5 bytes/pixel), but the buffer size is allocated for YUV 4:2:2 pixels (2 bytes per pixel).'); PR #188 'Add H.264 support (ros2)' merged 2022-05-26T01:52:29Z as d647c3b7d65ddb797b1d4b53fe4c9d1ed06ee8f2 with body confirming the new color_format parameter and yuv420p option and the different test camera ('a H.264 enabled camera (Logitech C920)'); comments read: krsche 'fixes #164 (for ros2)', flynneva 'You said you tested it as well locally and it works OK?' and 'I went ahead and merged it in', twdragon 'Closed in favour of #110, #197 and #72'; serena-mou's workaround suggestion 'Try changing your pixel format from mjpeg to yuyv' read, and the listing indeed shows only MJPG, so it is unavailable as the spec notes. Arithmetic checked: 1920*1080=2073600; *1.5=3110400; *2=4147200. Eligibility step 6 holds (chroma layout of frames crossing the camera->node boundary; a 4:2:2 camera works with the same node; fix adds a declared parameter and code path). Class representation_convention fits the encoding difference of the crossing payload. Loudness silent_documented is right: the only diagnostic is the consumer's own runtime check, not tooling. The unknown-control and missing-calibration warnings in the log are correctly excluded as conditions of this case (capability probes/host filesystem, not failed interactions of the MJPEG decode path), so no missed conditions."}

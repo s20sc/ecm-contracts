@@ -1,0 +1,60 @@
+{
+  "task_id": "u0211",
+  "package": "create_description",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "resource:package://create_description/meshes/create_body.dae",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "base_link",
+      "units": "meter",
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "resource:package://create_description/meshes/create_body.dae": "resource package://create_description/meshes/create_body.dae: COLLADA 1.4.0"
+  },
+  "not_declared": [
+    "param:robot_description"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "ports[0]": "snapshot:create_description/meshes/create_body.dae:1 (file present in package create_description, whose rosbuild manifest is snapshot:create_description/manifest.xml:1; URI resolves via package://create_description)",
+    "ports[0].element": "packet.json elements[1]; the mesh is used by the package's own URDF at snapshot:create_description/urdf/create.urdf.xacro:45 | <mesh filename=\"package://create_description/meshes/create_body.dae\"/>",
+    "ports[0].side": "packet.json elements[1].side; the file ships in this package: snapshot:create_description/meshes/create_body.dae",
+    "ports[0].frame": "snapshot:create_description/urdf/create.urdf.xacro:34 | <link name=\"base_link\"> (the mesh at line 45 is the <visual> geometry of this link, origin xyz=\" 0 0 0.0308\" at line 43)",
+    "ports[0].units": "snapshot:create_description/meshes/create_body.dae:13 | <unit meter=\"1.0\" name=\"meter\"/>",
+    "declares[resource:package://create_description/meshes/create_body.dae]": "snapshot:create_description/meshes/create_body.dae:2 | <COLLADA version=\"1.4.0\" xmlns=\"http://www.collada.org/2005/11/COLLADASchema\">",
+    "not_declared[param:robot_description]": "grep -rn robot_description over the whole snapshot (create_description, create_node, create_driver, stack files): 0 hits. create_description contains only CMakeLists.txt, Makefile, manifest.xml, mainpage.dox, IDE files, urdf/create.urdf.xacro, urdf/create_gazebo.urdf.xacro, meshes/create_body.dae, meshes/create_body.tga; no launch files, no parameter yaml, no code that sets any parameter.",
+    "perm_requires": "snapshot:create_description/manifest.xml:1-13 (only description/author/license/review/url/depend urdf, xacro); urdf/*.xacro contain no permission declarations",
+    "perm_grants": "snapshot:create_description/manifest.xml:1-13; no permission grants in manifest, urdf or build files",
+    "recovery": "snapshot:create_description (manifest.xml, CMakeLists.txt, urdf/*.xacro): no recovery or fallback declarations"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The mesh is present at the path the package:// URI names, is a well-formed COLLADA 1.4.0 file with its texture create_body.tga alongside, declares meter units with an inch-to-meter node scale, and is referenced correctly by the package's own URDF. robot_description is not set anywhere in this package, which is normal for a groovy-era description package that ships only a xacro macro for a top-level robot package to load."
+  },
+  "confidence": "medium",
+  "notes": "ROS 1 (groovy, rosbuild stack turtlebot_create); QoS null for ROS 1. manifest_version null: rosbuild manifest.xml and stack.xml carry no version element. param:robot_description: this package never sets the parameter; it provides URDF content only as the xacro macro 'create' (snapshot:create_description/urdf/create.urdf.xacro:11) inside <robot name=\"turtlebot_hardware\">, which is not instantiated at top level in this file, so another package's launch/URDF must include and call it to populate robot_description. Resource element: the declares templates in the task have no form for resource elements; I used 'resource <uri>: <format as declared in the file root element>' by analogy with the topic/service templates. definition_id is null because a .dae is not a msg/srv/action/idl definition; for cross-revision comparison, definition_hash.py sha256 on the file gives {algorithm: sha256_normalised, kind: dae, value: dc2984d97332d5f7cdb6c31b66f31961cccebea1c0c8cf4cf1234e0d6d02989c} (note: the tool strips text after '#', which in COLLADA removes url fragment references), and raw-byte SHA-256 is 8553a153463a4b7a1e36fde9591608c9a8f0add166b9298ae27f659e89f31e34. Mesh geometry: asset declares <unit meter=\"1.0\"> and <up_axis>Z_UP</up_axis> (dae:13-14); every visual_scene node applies <scale sid=\"scale\">0.02540 0.02540 0.02540</scale> (dae:217,235,253), i.e. vertex data authored in inches and scaled to meters; <scene> instantiates Scene_002 (dae:346). Frame recorded as the link the package's own URDF attaches the mesh to (base_link visual, origin z=0.0308). references left empty: the xacro references only its own package ($(find create_description)/urdf/create_gazebo.urdf.xacro at xacro:6 and its own mesh) plus Gazebo plugin libraries (libgazebo_ros_create.so, libgazebo_ros_imu.so, libgazebo_ros_laser.so, gazebo xacro:6,53,165) configured with topicName imu/data, serviceName imu/service, topicName scan, frameName laser; those are plugin configuration, not elements this package consumes, and have no canonical form in the task. exclusive empty: no transmissions, hardware interfaces or device handles in the snapshot's create_description files. Observations outside the listed elements (not investigated further): create.urdf.xacro:302-303 call <sim_wall_sensor/> and <sim_cliff_sensors/>, but create_gazebo.urdf.xacro defines macros sim_create_wall_sensor (:67) and sim_create_cliff_sensors (:85); base_link collision cylinder is radius=\"0.016495\" length=\"0.0611632\" (xacro:52); leftfront_cliff_sensor_link inertia ixx=\"1.0\" (xacro:91) differs from the sibling sensor links; rightfront_cliff_sensor has <displayRays>fan</displayRays> (gazebo xacro:146)."
+}

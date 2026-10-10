@@ -1,0 +1,84 @@
+{
+  "task_id": "u0181",
+  "package": "move_group[moveit_msgs]",
+  "manifest_version": "0.10.0",
+  "ports": [
+    {
+      "element": "msg:moveit_msgs/DisplayTrajectory",
+      "side": "provides",
+      "msg_type": "moveit_msgs/DisplayTrajectory",
+      "frame": "per_message",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "41936b74e168ba754279ae683ce3f121"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "msg:moveit_msgs/DisplayTrajectory": "msg moveit_msgs/DisplayTrajectory: 41936b74e168ba754279ae683ce3f121"
+  },
+  "not_declared": [
+    "topic:/move_group/display_planned_path"
+  ],
+  "references": [
+    "msg:trajectory_msgs/JointTrajectory",
+    "msg:trajectory_msgs/MultiDOFJointTrajectory",
+    "msg:sensor_msgs/JointState",
+    "msg:sensor_msgs/MultiDOFJointState",
+    "msg:std_msgs/Header",
+    "msg:geometry_msgs/Pose",
+    "msg:object_recognition_msgs/ObjectType",
+    "msg:shape_msgs/SolidPrimitive",
+    "msg:shape_msgs/Mesh",
+    "msg:shape_msgs/Plane"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3",
+    "ports[0].msg_type": "snapshot:msg/DisplayTrajectory.msg:1 (file msg/DisplayTrajectory.msg in package <name>moveit_msgs</name>, snapshot:package.xml:2; listed in snapshot:CMakeLists.txt:29)",
+    "ports[0].frame": "No top-level header in snapshot:msg/DisplayTrajectory.msg:1-10; spatial content carries its frame in nested std_msgs/Header fields filled per message: snapshot:msg/CollisionObject.msg:2 'Header header' (reached via DisplayTrajectory.msg:10 -> RobotState.msg:8 -> AttachedCollisionObject.msg object), and 'Header header' in trajectory_msgs/MultiDOFJointTrajectory and trajectory_msgs/JointTrajectory (raw.githubusercontent.com/ros/common_msgs/1.12.8/trajectory_msgs/msg/) reached via RobotTrajectory.msg:1-2; no frame is hard-coded anywhere in the snapshot",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 moveit_msgs/DisplayTrajectory snapshot <deps> -> 41936b74e168ba754279ae683ce3f121; deps fetched from raw.githubusercontent.com/ros/common_msgs/1.12.8 (trajectory_msgs, sensor_msgs, geometry_msgs, shape_msgs), raw.githubusercontent.com/ros/std_msgs/0.5.13/msg/Header.msg, raw.githubusercontent.com/wg-perception/object_recognition_msgs/0.4.1/msg/ObjectType.msg",
+    "declares[msg:moveit_msgs/DisplayTrajectory]": "snapshot:msg/DisplayTrajectory.msg:2,5,10 (string model_id / RobotTrajectory[] trajectory / RobotState trajectory_start); hash from definition_hash.py as for ports[0].definition_id",
+    "not_declared[topic:/move_group/display_planned_path]": "Searched all 80 files of the snapshot (46 .msg, 24 .srv, 5 .action, CMakeLists.txt, package.xml, README.md, .travis.yml, dox/definePlanningRequest.dox) case-insensitively for 'display_planned_path' and 'move_group': no occurrence of the topic (only match is 'DisplayTrajectory.msg' at snapshot:CMakeLists.txt:29). The snapshot contains no source code, launch or configuration that advertises any topic.",
+    "references[msg:trajectory_msgs/JointTrajectory]": "snapshot:msg/RobotTrajectory.msg:1; snapshot:msg/AttachedCollisionObject.msg:17",
+    "references[msg:trajectory_msgs/MultiDOFJointTrajectory]": "snapshot:msg/RobotTrajectory.msg:2",
+    "references[msg:sensor_msgs/JointState]": "snapshot:msg/RobotState.msg:2",
+    "references[msg:sensor_msgs/MultiDOFJointState]": "snapshot:msg/RobotState.msg:5",
+    "references[msg:std_msgs/Header]": "snapshot:msg/CollisionObject.msg:2 (Header header)",
+    "references[msg:geometry_msgs/Pose]": "snapshot:msg/CollisionObject.msg:6,19,23,27,35",
+    "references[msg:object_recognition_msgs/ObjectType]": "snapshot:msg/CollisionObject.msg:12",
+    "references[msg:shape_msgs/SolidPrimitive]": "snapshot:msg/CollisionObject.msg:18",
+    "references[msg:shape_msgs/Mesh]": "snapshot:msg/CollisionObject.msg:22",
+    "references[msg:shape_msgs/Plane]": "snapshot:msg/CollisionObject.msg:26",
+    "perm_requires": "Checked all non-definition files (CMakeLists.txt, package.xml, README.md, .travis.yml, dox/) for permission/recovery/exclusive/publish terms: none; the package has no code or runtime configuration",
+    "perm_grants": "as perm_requires",
+    "recovery": "as perm_requires"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The DisplayTrajectory definition is well formed and resolves against melodic dependencies; the topic is absent, but the snapshot is a definitions-only package that would not advertise topics in any revision. Its ROS1 md5 depends transitively on CollisionObject (which here carries subframe_names/subframe_poses), so a consumer built against a different moveit_msgs revision could mismatch, but nothing in this workspace shows which revision it is paired with."
+  },
+  "confidence": "medium",
+  "notes": "The snapshot is the moveit_msgs package (package.xml <name>moveit_msgs</name>, 0.10.0): only msg/srv/action definitions plus build files, no node code. The msg element is provided as a definition; frame recorded as per_message because DisplayTrajectory has no top-level header and every spatial sub-part (attached collision objects, multi-DOF trajectory transforms) is referenced to the frame_id of its own nested header; joint-space parts have no frame. Units: DisplayTrajectory.msg states none (the nested sensor_msgs/JointState comment states rad or m, but that is a dependency definition), so null. QoS null for ROS 1; no rate set. topic:/move_group/display_planned_path is recorded in not_declared because the complete snapshot does not declare it; its publisher, if any, lives in code outside this snapshot, so this does not show whether the move_group unit publishes it. references lists the other-package message types used in the definition closure of DisplayTrajectory within this snapshot (DisplayTrajectory -> RobotTrajectory, RobotState -> AttachedCollisionObject -> CollisionObject), not every dependency of the package. Dependency definitions were fetched at melodic release tags common_msgs 1.12.8, std_msgs 0.5.13, object_recognition_msgs 0.4.1 into a scratch directory outside the workspace, with minimal locator package.xml files written there so definition_hash.py can resolve package names. Intermediate hashes from the tool: moveit_msgs/RobotTrajectory dfa9556423d709a3729bcef664bddf67, moveit_msgs/RobotState 968156f4aa4cb4018f1f2293eebcea8f, moveit_msgs/CollisionObject dbba710596087da521c07564160dfccb. sha256_normalised of DisplayTrajectory.msg (not used as definition_id): 95b683a5e64ae83778d55138964e9311b3a596e6970ca7ec9d276525f234e067."
+}

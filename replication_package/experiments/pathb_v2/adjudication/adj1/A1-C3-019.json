@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-019",
+  "kind": "A1",
+  "case_id": "C3-019",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Publish String from C++ with arbitrary byte content:",
+    "url": "https://github.com/ros2/rclpy/issues/881",
+    "reason": "The report supplies a C++ publisher, a separate Python subscriber, package versions and an exception. Arbitrary byte content crosses the topic boundary into a UTF-8 decoder, establishing a concrete PAIR mismatch under E1-E4. Undefined behavior for malformed encoding does not remove the documented failed interaction."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+      "url": "https://github.com/ros2/rclpy/issues/881",
+      "reason": "The code assigns the byte string to std_msgs/String.data and publishes it to topic, while the subscriber reads /topic. This is a value-encoding incompatibility, not a nominal type or message-layout mismatch."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+    "url": "https://github.com/ros2/rclpy/issues/881",
+    "reason": "Only a runtime decode exception is shown, not a build, connection or activation check. silent_documented follows S1's diagnostic-stage definition; the runtime exception itself is explicit."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "msg_info = _rclpy.rclpy_take(capsule, sub.msg_type, sub.raw)",
+    "url": "https://github.com/ros2/rclpy/issues/881",
+    "reason": "The exception arises while taking a received message during spinning."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "it can change the behavior as following w/o `UnicodeDecodeError`.",
+    "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1020574514",
+    "reason": "The successful replacement-decoding demonstration uses the commenter's Rolling prover publisher, not a verified rebuild of the reporter's Foxy pair. The reviewed merged change and Foxy backport support recommended for the specified composition."
+  },
+  "notes": "Read the full issue discussion, PRs 176/181 and the decode-mode diff. The fix replaces invalid bytes; it does not promise byte-preserving transport into a Python str. The later discussion of an OEM diagnostic driver is not an additional condition of the supplied reproducer pair."
+}

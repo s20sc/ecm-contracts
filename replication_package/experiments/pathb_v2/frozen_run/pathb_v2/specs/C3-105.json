@@ -1,0 +1,53 @@
+{
+  "case_id": "C3-105",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/3117",
+    "https://github.com/user-attachments/files/17814036/move_group.log.txt",
+    "https://github.com/moveit/moveit2/pull/3125",
+    "https://github.com/moveit/moveit2/pull/3127",
+    "https://github.com/maxwelllls/moveit2/commit/9da70e4d2897e69f2b1df020d1aefc7af40e335d",
+    "https://github.com/maxwelllls/moveit2/commit/e3cef36e15e86b65731a21f44698241b0bc164f6"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue gives a full reproducer node and console log; the reporter states \"After sending an `async_send_goal() `request, the result_callback is immediately invoked, and the returned result.code is UNKNOWN.\" Maintainer sea-bass confirms the diagnosis direction (\"Yep, that's exactly it! If it works well, definitely put up a PR\") and merged PR #3125 / backport #3127 (https://github.com/moveit/moveit2/issues/3117)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "sequence_move_demo (reporter's rclcpp_action client node)",
+        "move_group with pilz_industrial_motion_planner MoveGroupSequenceAction capability (action server /sequence_move_group)"
+      ],
+      "interface_kind": "action",
+      "evidence": "The reported composition is the reporter's client node calling action:/sequence_move_group on move_group. The defect is a multi-threading race among the server's own callbacks, caused by the server creating its action-server callback group as Reentrant; it is triggered by an ordinary sequential client and does not depend on any assumption the client makes about the server, so it would occur with any correct client. Reporter: \"When I removed the `action_callback_group_ `parameter in the `create_server() `function, the program was able to run stably, indicating a potential multi-threading race condition.\" Maintainer: \"If Pilz sequence planning is not thread-safe, I could see how that causes problems.\" The fix is confined to the server's callback-group type: \"-      context_->moveit_cpp_->getNode()->create_callback_group(rclcpp::CallbackGroupType::Reentrant);\\n+      context_->moveit_cpp_->getNode()->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);\" (https://github.com/moveit/moveit2/pull/3125)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the client's goal/result requests feed the server's action interface (\"sequence_move_group_client_ = rclcpp_action::create_client<moveit_msgs::action::MoveGroupSequence>(this, \\\"/sequence_move_group\\\");\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong result: \"[INFO] [1732012243.106202476] [sequence_move_demo]: Planning request result code= 0\" followed by \"Planning request unknown result code\"; \"It stops after 5-10 runs\" (https://github.com/moveit/moveit2/issues/3117)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "ROS 2 Humble, CycloneDDS, source build. Fix: moveit2 PR #3125 (main, merge 6d94dfb719f28215a0d9ba21eac1b0f8a6146f9b, head 9da70e4d2897e69f2b1df020d1aefc7af40e335d) and humble backport PR #3127 (merge ed38b2d1d94bbf8ee6f48c36ace96135a0a11656); fork commit e3cef36e15e86b65731a21f44698241b0bc164f6 is the same one-line change on the humble base. Classification caveat (confidence medium): the source does not settle where inside the server process the race lies. The maintainer reads it as Pilz sequence planning not being thread-safe, and the reporter found that mutexes on goal_handle_ and move_state_ only \"improved stability\"; the reporter also wrote \"I suspect this might be related to `rclcpp_action`\". In the attached move_group log the failing goal is logged as \"[1732012243.106392151] [move_group.rclcpp_action]: Accepted goal f978765172cc299a7059b8ec689ea\" while the client logged its UNKNOWN result at 1732012243.106202476, and the server went on to \"goal_handle->succeed(action_res);\" for that goal. If one instead takes the composition to be the Pilz capability plugin and the rclcpp_action library (plugin choosing a Reentrant callback group for an rclcpp_action server), the case could be read as a CONCURRENT library-API interaction; no source statement documents that rclcpp_action assumption, so it is not specified here."
+}

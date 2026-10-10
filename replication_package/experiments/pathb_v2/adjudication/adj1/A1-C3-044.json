@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-044",
+  "kind": "A1",
+  "case_id": "C3-044",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: a public test report gives exact expected and actual reliability values. E2: the image_transport test client consumes endpoint QoS supplied by the separate RMW and assumes its system-default reliability is BestEffort. The assumption depends on the peer's default, so the failure is not peer-independent internal arithmetic. E3: PAIR is supported through subscription creation and graph inspection, not a demonstrated publisher/subscriber delivery failure.",
+    "quote": "  endpoint_info_vec[0].qos_profile().reliability()\n    Which is: 4-byte object <01-00 00-00>\n  rclcpp::ReliabilityPolicy::BestEffort\n    Which is: 4-byte object <02-00 00-00>",
+    "url": "https://github.com/ros-perception/image_common/issues/370"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "  auto sub = image_transport::create_subscription(\n    sub_node_.get(), \"camera/image\", fcn, \"raw\", rclcpp::SystemDefaultsQoS());\n  auto endpoint_info_vec = sub_node_->get_subscriptions_info_by_topic(\"camera/image\");\n  EXPECT_EQ(endpoint_info_vec[0].qos_profile().reliability(),\n    rclcpp::ReliabilityPolicy::BestEffort);",
+      "url": "https://raw.githubusercontent.com/ros-perception/image_common/b2abe1e5eaac06ba7af6ee110ff252076f2b95e6/image_transport/test/test_qos_override.cpp",
+      "reason": "The failed assumption concerns reliability, and the camera/image endpoint and subscription-info API are implicated. Accept qos_reliability as the attribute category, with the important qualification that the test's expectation is wrong; no incompatible requested/offered endpoint pair is demonstrated."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Expected equality of these values:",
+    "url": "https://github.com/ros-perception/image_common/issues/370",
+    "reason": "The evidence is an application/test assertion, not an RMW incompatible-QoS event or other composition compatibility diagnostic. Silent_documented follows the operational distinction in S1, despite the visible failing test."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "/tmp/ws/src/ros-perception/image_common/image_transport/test/test_qos_override.cpp:115",
+    "url": "https://github.com/ros-perception/image_common/issues/370",
+    "reason": "This line is an EXPECT_EQ executed after creating a subscription and reading graph endpoint data: run, not compile-time failure."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This is already fixed. We should close the issue",
+    "url": "https://github.com/ros-perception/image_common/issues/370#issuecomment-3486564849",
+    "reason": "PR #376 relaxes the default-reliability assertion to require a known value. The later closure comment does not identify a successful rmw_zenoh revision pair, so recommended is supported under S1."
+  },
+  "notes": "The test requests SystemDefaultsQoS rather than explicitly requesting BestEffort. The fix changes test expectations only; do not describe it as repairing rmw_zenoh delivery or an invalid Reliable setting. Reports about Cyclone and missing test-result files do not establish additional failed conditions in this selected Zenoh composition."
+}

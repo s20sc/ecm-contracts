@@ -1,0 +1,142 @@
+{
+  "task_id": "u0259",
+  "package": "reporter's origin-setting client node",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "field:geographic_msgs/GeoPoint.altitude",
+      "side": "consumes",
+      "msg_type": "geographic_msgs/GeoPoint",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:geographic_msgs/GeoPoint.latitude",
+      "side": "consumes",
+      "msg_type": "geographic_msgs/GeoPoint",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:geographic_msgs/GeoPoint.longitude",
+      "side": "consumes",
+      "msg_type": "geographic_msgs/GeoPoint",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:geographic_msgs/GeoPointStamped.position",
+      "side": "consumes",
+      "msg_type": "geographic_msgs/GeoPointStamped",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:geographic_msgs/GeoPointStamped",
+      "side": "consumes",
+      "msg_type": "geographic_msgs/GeoPointStamped",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/mavros/global_position/gp_origin",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/mavros/global_position/set_gp_origin",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "unknown",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "unknown",
+    "values": []
+  },
+  "recovery": {
+    "state": "unknown",
+    "value": null
+  },
+  "provenance": {
+    "ports[0].msg_type": "packet element name verbatim: field:geographic_msgs/GeoPoint.altitude (field port takes the parent message type per S2 rule; the artifact does not name this type)",
+    "ports[1].msg_type": "packet element name verbatim: field:geographic_msgs/GeoPoint.latitude (field port takes the parent message type per S2 rule; the artifact does not name this type)",
+    "ports[2].msg_type": "packet element name verbatim: field:geographic_msgs/GeoPoint.longitude (field port takes the parent message type per S2 rule; the artifact does not name this type)",
+    "ports[3].msg_type": "packet element name verbatim: field:geographic_msgs/GeoPointStamped.position (field port takes the parent message type per S2 rule; the artifact does not name this type)",
+    "ports[4].msg_type": "packet element name verbatim: msg:geographic_msgs/GeoPointStamped (the element is the type itself; the artifact does not name this type)",
+    "ports[6].element": "artifact.txt:1: \"When I send coordinates (LLA) to topic `mavros/global_position/set_gp_origin`\""
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The excerpt shows the client publishing LLA to set_gp_origin and expecting LLA back to confirm the origin; that expectation is consistent with latitude/longitude/altitude field names, and any mismatch would appear to be in what the counterpart reports as the origin rather than in what this client sends, but two sentences of reporter text cannot settle which side's semantics are wrong."
+  },
+  "confidence": "low",
+  "notes": "Excerpt-based task: the only source is artifact.txt (two quoted sentences from the reporter). No manifest, code, launch or configuration is available, so manifest_version is null, permissions/recovery are unknown, and no exclusive resources can be read (exclusive left empty for lack of evidence, not as a checked absence). Only topic:/mavros/global_position/set_gp_origin is evidenced: artifact line 1 says the reporter sends coordinates (LLA) to topic `mavros/global_position/set_gp_origin` (written without a leading slash). Its message type is not stated, so ports[6].msg_type is null and the element is placed in neither declares nor not_declared (the declares template needs a type; no type is invented). Artifact line 2 frames the interaction as a request expecting a response with LLA to confirm that global_origin was set, but it does not name the topic topic:/mavros/global_position/gp_origin, the type geographic_msgs/GeoPointStamped, or any of the listed fields; 'LLA' is not a field or type name, so references is empty and ports[0]-[5] carry only the msg_type implied by the element name itself, all other values null. Units and frame of the LLA values are not stated. No dependency definitions were fetched because the artifact names no message package; all definition_id values are null. ROS 1 (melodic): QoS fields null."
+}

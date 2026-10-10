@@ -1,0 +1,31 @@
+{
+  "item_id": "A2-robust_bb3c7ec-resolved-M1-ee9455f863",
+  "kind": "A2",
+  "case_id": "robust_bb3c7ec",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "missing_permission",
+  "values": [
+    {
+      "path": "consumer.perm_requires[android.permission.ACCESS_WIFI_STATE]",
+      "verdict": "verified",
+      "source_excerpt": "s2_work/tasks/u0133/snapshot/library/AndroidManifest.xml:8 '<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>'"
+    },
+    {
+      "path": "producer.perm_grants",
+      "verdict": "verified",
+      "source_excerpt": "absent supported: the producer kobuki_node grants no Android permission."
+    },
+    {
+      "path": "consumer.perm_grants",
+      "verdict": "verified",
+      "source_excerpt": "absent supported: the app declares the permission with <uses-permission> (a request), not <permission> (a grant)."
+    }
+  ],
+  "substance": [],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Spec operation PAIR; assembled composition PAIR. The edge connects producer output msg:diagnostic_msgs/DiagnosticArray to consumer input msg:diagnostic_msgs/DiagnosticArray (out_role == in_role), so the two message ports are connected."
+  },
+  "notes": "Item evidence.provenance is null for all three trigger paths; verified directly from the task snapshots. 'android.permission.ACCESS_WIFI_STATE' is an Android OS permission declared by the consumer's own manifest (u0133/library/AndroidManifest.xml:8). Neither ROS unit grants it. The spec classifies this case's failed condition as 'other' (diagnostic status/key naming), not permission_missing."
+}

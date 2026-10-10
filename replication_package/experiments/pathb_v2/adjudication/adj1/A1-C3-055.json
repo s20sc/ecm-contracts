@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-055",
+  "kind": "A1",
+  "case_id": "C3-055",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the public report includes a clock-step reproducer, timing symptom and stack trace, followed by maintainer confirmation. E2: rmw_cyclonedds forwards a relative timeout to the separately built Cyclone DDS library and consumes its return timing. A wall-clock-dependent wait crosses that API boundary; an internal provider edit does not make the interaction internal. E3: PAIR is the observed operation.",
+    "quote": "Just to be sure: the issue you're running into is that implementation of the timeout in `rmw_wait` (which is simply passed on to Cyclone's `dds_waitset_wait`) is using the wall clock rather than a monotonic clock. Correct?",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/276#issuecomment-762678460"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  const dds_time_t tnow = dds_time ();\n-  const dds_time_t abstimeout = (DDS_INFINITY - reltimeout <= tnow) ? DDS_NEVER : (tnow + reltimeout);\n+  const ddsrt_etime_t abstimeout = ddsrt_etime_add_duration (ddsrt_time_elapsed (), reltimeout);",
+      "url": "https://github.com/eclipse-cyclonedds/cyclonedds/pull/2255.diff",
+      "reason": "The fix changes the clock used to implement dds_waitset_wait's relative timeout. This is timing semantics, not different timeout units, a topic rate contract, or a changed nominal type; other and api:dds_waitset_wait are appropriate."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "once system time jumps back in 5 seconds, timer will be in sleep in 5 more seconds.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/276",
+    "reason": "The source demonstrates a delayed callback without a compatibility diagnostic; strace and stack inspection are investigative evidence, not an automatic mismatch warning: silent_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "once system time jumps back in 5 seconds, timer will be in sleep in 5 more seconds.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/276",
+    "reason": "The symptom requires changing the clock while the talker is running: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I haven't actually tested it with time jumps yet because of some practicalities, but perhaps some kind souls are willing to give it a go as it is.",
+    "url": "https://github.com/eclipse-cyclonedds/cyclonedds/pull/2255",
+    "reason": "The accepted monotonic-clock patch and local general-test success do not demonstrate the selected rmw_cyclonedds/Cyclone revision pair surviving the reproducer's time jump. Recommended remains justified."
+  },
+  "notes": "The issue explicitly distinguishes a suggested monotonic-clock policy from a mandatory RMW requirement. This is a documented behavioral failure, not proof of violation of a normative must-use-monotonic clause. The earlier issue closure is not evidence that the defect was fixed."
+}

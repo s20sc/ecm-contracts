@@ -1,0 +1,123 @@
+{
+  "case_id": "C3N-027",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/600",
+    "https://github.com/ros2/geometry2/pull/601",
+    "https://github.com/ros2/geometry2/commit/ac2479e181a9d0a3efbc630ef55dfa5dd7afb1a9",
+    "https://github.com/ros2/geometry2/commit/1677c767d97ac662c675427be82e264ebdccc0c4",
+    "https://github.com/ros2/geometry2/commit/f58acf6e53c6322e60167ce133020e99144bda9a",
+    "https://github.com/roncapat/geometry2/commit/23de342f94ec59697659c82a531418a99316e64c",
+    "https://github.com/ros2/geometry2/commit/3bac620777043a1c8761cd74c1bb814667341b65",
+    "https://github.com/osrf/ros2_test_cases/issues/1042",
+    "https://github.com/ros-navigation/navigation2/issues/3557",
+    "https://github.com/ros-navigation/navigation2/blob/9b56556dfd9c50f4046d253317cd0949a4f34583/nav2_amcl/src/amcl_node.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter (Nav2 maintainer) bisected the regression: \"Compiling TF next to Nav2, I bisected commits from the last time I knew it was working properly for us `0.30.0` and now and found the behavior breaks when https://github.com/ros2/geometry2/commit/3bac620777043a1c8761cd74c1bb814667341b65 is introduced\" (https://github.com/osrf/ros2_test_cases/issues/1042#issuecomment-1533951366), gave a reproducer (default Nav2 tb3 simulation launch), narrowed it to one line, and a geometry2 maintainer merged the fix (https://github.com/ros2/geometry2/pull/601)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "tf2",
+        "nav2_amcl"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Step 1: tf2 (library package in ros2/geometry2) and nav2_amcl (Nav2 localization node, separately released in ros-navigation/navigation2) interact through the tf2 C++ API; nav2_amcl calls the fixed-frame overload of tf2::BufferCore::lookupTransform (via the `using tf2::BufferCore::lookupTransform;` of its tf2_ros::Buffer) and catches tf2::TransformException. Step 2: the defect is an error code overwritten inside tf2::BufferCore::walkToTopParent, but its effect crosses the boundary: the API returns a transform without raising the exception it declares (\"Possible exceptions tf2::LookupException, tf2::ConnectivityException, tf2::ExtrapolationException, tf2::InvalidArgumentException\", tf2/include/tf2/buffer_core.h at b037e20a), and nav2_amcl consumes that value in handleInitialPose; the wrong value crossing the boundary makes it an interface failure even though the resolving edit is inside tf2. Steps 3-5: the fix is a C++ source change in tf2/src/buffer_core.cpp, not a launch/config rebinding, build change, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: Nav2 worked with geometry2 0.30.0 (\"the last time I knew it was working properly for us `0.30.0`\") and broke when the provider moved to a revision containing #586 (\"the behavior breaks when https://github.com/ros2/geometry2/commit/3bac620777043a1c8761cd74c1bb814667341b65 is introduced\", https://github.com/osrf/ros2_test_cases/issues/1042#issuecomment-1533951366); the issue title is \"#586 done broke me\"."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect: \"We're seeing Nav2 receiving AMCL localization service requests, but not honoring the content of them (and seems to randomly just bounce around)\" and \"Every system test we have involving simulation is breaking\" (https://github.com/ros2/geometry2/issues/600, https://github.com/ros2/geometry2/issues/600#issuecomment-1535275903)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2",
+      "role": "provider",
+      "repo": "https://github.com/ros2/geometry2",
+      "broken_rev": "b037e20a90d79a87447d9cde6da6dc2c5e1e9a57",
+      "resolved_rev": "ac2479e181a9d0a3efbc630ef55dfa5dd7afb1a9",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter compiled geometry2 from source next to Nav2 on the rolling line (\"latest Rolling\"); b037e20a (tag 0.32.0, 2023-04-27) was the rolling branch head throughout the reproduction window (2023-05-03 to 2023-05-08) and is the parent of both the tested patch commit 23de342 and the merged fix. The regression entered with 3bac6207 (#586, 2023-03-15), which the reporter's bisection names. Resolved: the reporter confirmed the patch commit 23de342f (roncapat fork, parent b037e20a; \"That fixes it!\"); it was merged to rolling as ac2479e1 (PR #601, squash of 23de342f plus a line-wrapping 'Lint' commit, same logic). 23de342f is only reachable via the PR ref, so the merged rolling commit ac2479e1 is recorded. Iron equivalents: broken 244a431c (tag 0.31.2), resolved 1677c767 (backport PR #602).",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "nav2_amcl",
+      "role": "consumer",
+      "repo": "https://github.com/ros-navigation/navigation2",
+      "broken_rev": "9b56556dfd9c50f4046d253317cd0949a4f34583",
+      "resolved_rev": "9b56556dfd9c50f4046d253317cd0949a4f34583",
+      "pinned": false,
+      "revision_basis": "The reporter names only Nav2's main branch (\"Nav2's current state\"), not a commit. 9b56556d is the main head from 2023-05-03T20:20Z (before the 2023-05-04 bisection report) and still the head at the 2023-05-06T15:49Z confirmation of the fix; the nav2_amcl directory itself was unchanged on main between 252e7006 (2023-03-07) and 3739ff12 (2023-05-19). The resolution did not change Nav2, so the resolved revision equals the broken one. The reporter also states the failure persisted after backing out all Nav2 commits since the previous Christmas.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "0.30.0",
+    "resolved": "0.30.0",
+    "basis": "documented"
+  },
+  "inventory": [
+    {
+      "element": "api:tf2::BufferCore::lookupTransform",
+      "sides": {"tf2": "provides", "nav2_amcl": "consumes"}
+    },
+    {
+      "element": "api:tf2::TransformException",
+      "sides": {"tf2": "provides", "nav2_amcl": "consumes"}
+    },
+    {
+      "element": "api:tf2::TimePoint",
+      "sides": {"tf2": "provides", "nav2_amcl": "consumes"}
+    },
+    {
+      "element": "api:tf2::Transform",
+      "sides": {"tf2": "provides", "nav2_amcl": "consumes"}
+    },
+    {
+      "element": "api:tf2::impl::Converter",
+      "sides": {"tf2": "provides", "nav2_amcl": "consumes"}
+    },
+    {
+      "element": "api:tf2::getYaw",
+      "sides": {"tf2": "provides", "nav2_amcl": "consumes"}
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:tf2::BufferCore::lookupTransform",
+        "api:tf2::TransformException"
+      ],
+      "quote": "There was an oversight in how the code, before introduction of `error_code`, handled the `error_string`. In particular, one code path saves the error in a \"side\" (so not directly in `error_string` but in `extrapolation_error_string`) and this HAS to be done also with the new `error_code` stuff.",
+      "url": "https://github.com/ros2/geometry2/pull/601"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "\"I don't think (but I could be wrong) its at the Nav2 level, since we always have the base `TransformException` in try/excepts that log to terminal error messages of any sort via TF ([for example](https://github.com/ros-planning/navigation2/blob/main/nav2_amcl/src/amcl_node.cpp#L419-L429)), unless we missed somewhere. As such, I would expect to see some kind of logging but I see none.\" and \"The silence is illustrative.\" (https://github.com/ros2/geometry2/issues/600#issuecomment-1535275903)",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "In tf2::BufferCore::walkToTopParent (tf2/src/buffer_core.cpp), the source-side walk passes a separate `extrapolation_error_code` to `f.gather(...)` instead of the shared `error_code`, and the extrapolation return path returns `extrapolation_error_code` instead of `error_code`, so lookupTransform again raises the extrapolation exception. Merged to rolling as ac2479e1 (PR #601) and backported to iron as 1677c767 (PR #602); Nav2 unchanged.",
+    "status": "observed",
+    "evidence": "Reporter, after testing https://github.com/roncapat/geometry2/commit/23de342f94ec59697659c82a531418a99316e64c with Nav2: \"That fixes it! Can you submit the PR?\" (https://github.com/ros2/geometry2/issues/600#issuecomment-1537169236). 23de342f has the same logic as the merged ac2479e1 (the only other PR commit is 'Lint'). The Nav2 side is identified by branch (main) and date, not by a stated commit (see nav2_amcl revision_basis). Later: \"Resolved and binaries released!\" (https://github.com/ros-navigation/navigation2/issues/3557#issuecomment-1574445070)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Unit choice: the reporter describes the whole Nav2 stack failing (\"Nav2 is totally busted and jumping around\"); nav2_amcl is chosen because the reported symptom is AMCL not honoring initial-pose requests and the reporter points to amcl_node.cpp's TransformException handling. nav2_amcl's handleInitialPose calls the fixed-frame overload `tf_buffer_->lookupTransform(base_frame_id_, tf2_ros::fromMsg(msg.header.stamp), base_frame_id_, tf2_time, odom_frame_id_)` inside `try { ... } catch (tf2::TransformException & e)` at 9b56556d. Other compositions reported in the same thread, not conditions of this case: other Nav2 packages (\"reporting that the robot is outside of the local costmap bounds for update\", i.e. nav2_costmap_2d), Gazebo Classic data that \"doesn't seems sensible\", and Nav2's CI system tests. nav2_amcl's tf_buffer_->transform(...) calls reach tf2 through tf2_ros::BufferInterface/tf2_ros::Buffer (a third package in geometry2, unchanged by the fix) and are not listed in the inventory. The fix changes the error code returned by walkToTopParent for every tf2 consumer (lookupTransform and canTransform paths); effects on other consumers are not conditions of this case. Operation: PAIR also applies (any consumer of the fixed-frame lookupTransform at b037e20a receives the wrong result regardless of what it was written against); UPGRADE is recorded because the source frames the failure as the provider update from 0.30.0 breaking Nav2. The reporter first isolated both 3bac6207 (#586) and 7afeb6c2 (#592) but then states #592 is not the cause (\"its not https://github.com/ros2/geometry2/pull/592/files since its broken before it\") and that reverting one line (`return error_code;` back to `return tf2::TF2Error::TF2_EXTRAPOLATION_ERROR;`, \"L461\") restores behaviour. Iron composition (Iron binaries, geometry2 0.31.2 / iron fix 1677c767; f58acf6e is the same backport on the mergify branch) showed the same failure per the reporter. Classification 'other': the declared interface (signature and documented exceptions) did not change; the provider's behaviour violated it, and none of the named classes fits."
+}

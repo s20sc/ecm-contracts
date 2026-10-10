@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-CAL-01",
+  "kind": "A1",
+  "case_id": "CAL-01",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "after #74 I get this error\n/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+      "url": "https://github.com/ros/geometry2/pull/74/files"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+      "url": "https://github.com/ros/geometry2/issues/84"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "yep that fixes it!",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "notes": "All key facts verified against the primary sources. Issue #84 body carries the exact linker error and the bisect to #74; PR #74 diff shows _allFramesAsDot() const -> _allFramesAsDot(double current_time = 0) const; PR #86 (title 'Use overloading instead of default arguments', body 'Fixes #84') re-adds the zero-argument overload (std::string _allFramesAsDot() const { return _allFramesAsDot(0.0); }); tf.cpp at 1.11.4 line 439/441 reads 'std::string Transformer::allFramesAsDot() const' / 'return tf2_buffer_._allFramesAsDot();'. tfoote: 'I patched fix_84 for _allFramesAsDOT as well.' and bricerebsamen: 'yep that fixes it!'. The dual failed-condition reading (retyped at source, removed at ABI) is supported. Detection stage build (linker). UPGRADE reading (binary tf 1.11.4 consumer against source-overlay tf2) is sound."
+}

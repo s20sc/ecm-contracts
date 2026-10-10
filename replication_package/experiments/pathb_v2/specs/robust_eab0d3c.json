@@ -1,0 +1,86 @@
+{
+  "case_id": "robust_eab0d3c",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/turtlebot/turtlebot/issues/39",
+    "https://github.com/ros/ros_comm/issues/35",
+    "https://github.com/ros/ros_comm/commit/eab0d3cd54fb419764e7f60e84b249d66ba6c3d1",
+    "https://github.com/ros/ros_comm/commit/8f6063025665b87e6de73f1f3c1e100f747eff78"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The packet's issue (turtlebot #39, jihoonl 2012-12-13: \"If ROS_HOSTNAME is set, minimal.launch does not work.\") is linked by ahendrix to ros_comm #35, which holds the concrete reproducer: \"On machine 1, start a roscore / On machine 1, set ROS_IP and rosrun roscpp_tutorials talker / On machine 2, set the ROS_MASTER_URI to machine 1 / On machine 2, rosrun roscpp_tutorials listener / On machine 2, rosrun rospy_tutorials listener\" with \"Observed results: the rospy listener receives messages correctly; the roscpp listener does not\". Maintainer confirmation: dirk-thomas \"It is definitely an issue in the modified code of `TransportTCP::connect()`.\", hershwg \"I have just confirmed that this bug exists in 1.9.34 but does not exist in 1.9.32.\", and the author of the offending code: \"Thanks for fixing it. I obviously misused the inet_pton function there.\" Fix commit eab0d3c (\"fix tcp connection when host is an ip (fix #35)\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["roscpp (subscriber-side client library, linked into the roscpp_tutorials listener)", "roscpp_tutorials (talker publisher node started with ROS_IP set)"],
+      "interface_kind": "wire protocol field (the host of the TCPROS endpoint the publisher returns from requestTopic, given as an IP literal when ROS_IP is set)",
+      "evidence": "Step 1: the publisher node (roscpp_tutorials talker, a separate process, on another machine in the reproduction) and the subscriber's roscpp library (the component whose TransportTCP::connect() fails) interact only through ROS interfaces: the subscriber calls the publisher's requestTopic XML-RPC API, receives host and port, and opens the TCPROS connection for /chatter. Step 2: the failure is not internal to one unit: it occurs only when the value crossing the boundary (the publisher's advertised host) is an IP literal, which is what ROS_IP produces, and not when the publisher advertises a hostname (\"setups which don't use ROS_IP or ROS_HOSTNAME on the publisher are also unaffected\"); so it depends on the peer's advertised endpoint form, even though the resolving edit is inside the consumer's library. Step 3: the fix is a code change in transport_tcp.cpp, not a name binding. Step 4: not build/packaging. Step 5: not firmware. Step 6: eligible; interface kind wire protocol field (the endpoint host)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the publisher's output (the /chatter TCPROS stream, reached through the endpoint it advertises) feeds the subscriber's input. The failure was observed with the two nodes running as a publisher/subscriber pair. No other operation is supported."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"the rospy listener receives messages correctly; the roscpp listener does not\" and \"B is not receiving any messages from C.\" (https://github.com/ros/ros_comm/issues/35); additionally \"rosnode info /talker doesn't show any outgoing connections, but rosnode info /listener indicates that it's connected.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "roscpp",
+      "role": "consumer",
+      "repo": "https://github.com/ros/ros_comm",
+      "broken_rev": "1.9.34",
+      "resolved_rev": "eab0d3cd54fb419764e7f60e84b249d66ba6c3d1",
+      "pinned": true,
+      "revision_basis": "broken_rev is the release tag the maintainer names as broken: \"I have just confirmed that this bug exists in 1.9.34 but does not exist in 1.9.32.\" (tag 1.9.34 = 7d27fabbd2c60d92730e86ad1d2bbad4007bf0fd). The defect was introduced by the IPv6 commit 8f6063025665b87e6de73f1f3c1e100f747eff78 (2012-11-21, \"Initial IPv6 support for roscpp (fix #7)\"), which hershwg names as suspect and which lies between 1.9.32 and 1.9.34. resolved_rev is the fix commit (2012-12-15, \"fix tcp connection when host is an ip (fix #35)\"), which per branch comparison is contained in tag 1.9.37, the release the turtlebot maintainer names (\"Fixed, look for ros_comm v1.9.37 to come out.\"). This unit is the client library as linked into the subscriber (roscpp_tutorials listener).",
+      "excerpt": false,
+      "ros_distro": "groovy"
+    },
+    {
+      "name": "roscpp_tutorials",
+      "role": "provider",
+      "repo": "https://github.com/ros/ros_tutorials",
+      "broken_rev": "groovy-devel",
+      "resolved_rev": "groovy-devel",
+      "pinned": false,
+      "revision_basis": "The reproduction names the publisher only as `rosrun roscpp_tutorials talker` started with ROS_IP set (dirk-thomas's single-machine variant allows `rosrun ros(cpp|py)_tutorials talker`); no version is stated. The environment is \"normal ROS groovy environment\", so the groovy-devel branch of ros/ros_tutorials (head 0d771e72d06eda215da9eac3f907de9bb82dea94 when checked on 2026-09-26) is used, unpinned. The talker's advertised endpoint host comes from ROS_IP through its own client library (roscpp 1.9.34 in the reproduction; rospy also triggers the failure). The resolution does not change this unit.",
+      "excerpt": false,
+      "ros_distro": "groovy"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "topic:/chatter", "sides": {"roscpp_tutorials": "provides", "roscpp": "consumes"}},
+    {"element": "msg:std_msgs/String", "sides": {"roscpp_tutorials": "provides", "roscpp": "consumes"}},
+    {"element": "api:requestTopic", "sides": {"roscpp_tutorials": "provides", "roscpp": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:requestTopic", "topic:/chatter"],
+      "quote": "I am currently looking at the code. It is definitely an issue in the modified code of `TransportTCP::connect()`.\n\nA simple scenario to reproduce is:\n- three shells A, B and C\n- A and B which normal ROS groovy environment\n- C with ROS_IP set to the ip of the machine\n- A: `roscore`\n- C: `rosrun ros(cpp|py)_tutorials talker`\n- B: `rosrun roscpp_tutorials listener`\n\nB is not receiving any messages from C.",
+      "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11396370"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic at build, connection, or activation; the subscriber even reports itself connected while receiving nothing: \"With the roscpp nodes running in this setup, rosnode info /talker doesn't show any outgoing connections, but rosnode info /listener indicates that it's connected. I would guess that this means that the subscriber is receiving the list of publishers properly, but isn't setting up the TCP connection for the topic.\" (https://github.com/ros/ros_comm/issues/35#issuecomment-11361752). The failure was noticed only because no messages arrived at run time.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "In roscpp's TransportTCP::connect(), parse the host into a separate in_addr / in6_addr with inet_pton (testing the result against 1, and using AF_INET6 for the second branch instead of AF_INET twice), then copy the parsed address into the sockaddr_in / sockaddr_in6 after setting family and port, instead of writing the parsed address over the start of the sockaddr and then overwriting it with family and port.",
+    "status": "recommended",
+    "evidence": "Commit eab0d3c (\"fix tcp connection when host is an ip (fix #35)\", 2012-12-15) by dirk-thomas; the code author replied \"Thanks for fixing it. I obviously misused the inet_pton function there.\" and the turtlebot maintainer closed #39 with \"Fixed, look for ros_comm v1.9.37 to come out.\" The source does not show the listener receiving messages with the fixed library (bit-pirate asked \"Please let me know me, when you guys have a new version out for testing!\" and no test result follows), so the resolved composition is not observed."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Composition choice: the packet's issue (turtlebot #39) reports only that minimal.launch does not work with ROS_HOSTNAME set and defers to ros_comm #35 (\"This is probably related to https://github.com/ros/ros_comm/issues/35\"); #35 is where the failure was reproduced (talker with ROS_IP on machine 1, roscpp listener on machine 2; dirk-thomas's three-shell single-machine variant also fails, contradicting the reporter's note that \"it doesn't seem to reproduce when all nodes are run on the same machine\"), so #35's talker/listener pair is the composition specified; the turtlebot minimal.launch composition is recorded here and not specified further. Class: the defect is the consumer's parsing of a valid endpoint host (an IPv4 literal) supplied by the peer; at 1.9.34 the code passes the sockaddr itself to inet_pton, so the 4-byte address lands where sin_family/sin_port live and is then overwritten, leaving the connect target corrupted, while hostnames fall through to getaddrinfo and work. This borders on representation_convention (IP-literal versus hostname encoding of the host field) but there is no convention mismatch between the units, since the protocol permits both forms and the publisher's value is correct, so the condition is classed `other`. rospy subscribers are unaffected (\"It only appears to be a problem with roscpp subscribers; rospy subscribers are unaffected\"). Whether ROS_HOSTNAME set to a non-literal hostname also triggers the defect is not established by the source (the turtlebot report says ROS_HOSTNAME; the code path only misbehaves for values inet_pton accepts)."
+}

@@ -1,0 +1,45 @@
+{
+ "item_id": "A1-CAL-01",
+ "kind": "A1",
+ "case_id": "CAL-01",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "after #74 I get this error\n/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const`",
+  "url": "https://github.com/ros/geometry2/issues/84"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+   "url": "https://github.com/ros/geometry2/pull/74/files"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const`",
+   "url": "https://github.com/ros/geometry2/issues/84"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const`",
+  "url": "https://github.com/ros/geometry2/issues/84"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "yep that fixes it!"
+ },
+ "notes": "C++ ABI break between tf2 provider and binary libtf.so consumer due to default parameter addition in _allFramesAsDot."
+}

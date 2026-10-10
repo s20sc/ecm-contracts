@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-143",
+  "kind": "A1",
+  "case_id": "C3-143",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?",
+    "url": "https://github.com/moveit/moveit2/issues/1164"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:rviz_rendering::Shape::material_name_", "resource:Shape<N>Material"],
+      "quote": "Fixes a bug causing RViz to print a ton of error messages about material not existing in the `General` resource group when adding a mesh to the planning scene",
+      "url": "https://github.com/moveit/moveit2/pull/672"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rviz2-4] [ERROR] [1649066982.936072797] [rviz2]: Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?",
+    "url": "https://github.com/moveit/moveit2/issues/1164"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I found the changes in #672 at two positions. So I changed the code at branch `foxy` manually. It works! Thank you very much!"
+  },
+  "notes": "Issue body verbatim confirms the Ogre error; PR #672 title verbatim confirms the resource-group cause; reporter comment 1088609471 verbatim confirms the resolved composition works. class `other` is correct: the material name matches but the resource group differs (provider registers in 'rviz_rendering', consumer references unqualified into 'General'), and no canonical class covers a resource-group/namespace qualifier. loudness loud_documented and detection_stage run are correct (Ogre's lookup refuses and prints the reason). Resolution observed is correct: the reporter's hand-applied #672 lines match the backport fa983f73 exactly, and the reporter confirms 'It works'."
+}

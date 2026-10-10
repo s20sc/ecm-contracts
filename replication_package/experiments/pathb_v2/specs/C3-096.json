@@ -1,0 +1,51 @@
+{
+ "case_id": "C3-096",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros2/ros2/issues/1613",
+  "https://github.com/BrettRD/ros-gst-bridge/pull/74",
+  "https://github.com/ament/ament_package/pull/147",
+  "https://github.com/ament/ament_package/issues/145"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Reporter gives setup (Ubuntu 24.04, Jazzy binaries), a reproducer (install ros-jazzy-qml-ros2-plugin, which uses a .dsv environment hook) and the effect (\"The variable is missing and based on my investigation .dsv environment hooks are generally not processed.\"); a maintainer confirms: \"If it's working with a colcon workspace but not the ament workspace created by the debs, then it's almost certainly a bug.\" -- https://github.com/ros2/ros2/issues/1613"
+  },
+  "E2": {
+   "pass": false,
+   "stop_step": 4,
+   "reason_code": "build",
+   "units_identified": [
+    "qml_ros2_plugin (package installing a .dsv environment hook)",
+    "ament_package (prefix-level setup script template _local_setup_util.py in the binary install space)"
+   ],
+   "interface_kind": null,
+   "evidence": "The defect is in the workspace environment-setup machinery that packaging installs: ament_package's prefix_level/_local_setup_util.py only groups hook files with the shell's primary/additional extension, so a .dsv hook without a same-named .sh is ignored (ament_package issue #145: \"`.dsv` files not processed properly unless there is a `.sh` file with the same name registered with `ament_environment_hooks`\"). The resolving change is to that packaging template only: ament_package PR #147 \"Always consider .dsv files, even when no shell specific script exists\" (merge 01592eb7 on rolling, 2024-04-28), moving \"basenames[path_without_ext] = set()\" out of the extension check; the documented workaround is also packaging-level (\"create a dummy `.sh` file with the same name as the `.dsv` file\"). No ROS runtime interface (topic, service, action, parameter, message definition or library API) of any node changes; the only effect is an environment variable (QML2_IMPORT_PATH / GST_PLUGIN_PATH) not set when the install space is sourced. The packet's ros-gst-bridge PR #74 (merge ae6e2bf4) only adds a .dsv hook (\"ament_environment_hooks(register_plugin.dsv.in)\", \"prepend-non-duplicate;GST_PLUGIN_PATH;lib/@PROJECT_NAME@/\") and notes \"This currently only works in source workspaces due to ros2/ros2#1613.\""
+  },
+  "E3": {
+   "pass": null,
+   "evidence": "Not evaluated past E2."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "\"The variable is missing\" after sourcing setup.bash with the binary package installed -- https://github.com/ros2/ros2/issues/1613"
+  }
+ },
+ "eligible": false,
+ "ineligible_reason": "build",
+ "units": null,
+ "operation": null,
+ "consumer_built_against": null,
+ "inventory": null,
+ "failed_conditions": null,
+ "outcome_class": null,
+ "loudness": null,
+ "loudness_evidence": null,
+ "detection_stage": null,
+ "resolution": null,
+ "ros_generation": null,
+ "excerpt_based": null,
+ "confidence": null,
+ "notes": null
+}

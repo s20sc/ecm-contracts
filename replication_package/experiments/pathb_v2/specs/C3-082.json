@@ -1,0 +1,139 @@
+{
+  "case_id": "C3-082",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-drivers/usb_cam/issues/164",
+    "https://github.com/ros-drivers/usb_cam/issues/164#issuecomment-929822274",
+    "https://github.com/ros-drivers/usb_cam/issues/164#issuecomment-1300682278",
+    "https://github.com/ros-drivers/usb_cam/pull/188",
+    "https://github.com/ros-drivers/usb_cam/pull/110",
+    "https://github.com/ros-drivers/usb_cam/issues/79",
+    "https://github.com/ros-drivers/usb_cam/blob/0.3.5/src/usb_cam.cpp",
+    "https://raw.githubusercontent.com/ros/rosdistro/master/kinetic/distribution.yaml"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The public issue gives the full roslaunch parameter set (pixel_format mjpeg, 1920x1080, mmap, /dev/video0), the repeated runtime error 'outbuf size mismatch.  pic_size: 3110400 bufsize: 4147200', and the camera's v4l2-ctl format list; the fix PR author states 'fixes #164 (for ros2)'."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "usb_cam",
+        "uvc_mjpeg_camera"
+      ],
+      "interface_kind": "library API (V4L2 capture interface of the camera: device node, VIDIOC_S_FMT format negotiation, VIDIOC_DQBUF frame buffers carrying the MJPEG payload)",
+      "evidence": "usb_cam 0.3.5 sizes its decode buffer for 4:2:2 ('avframe_camera_size_ = avpicture_get_size(PIX_FMT_YUV422P, image_width, image_height);') and drops any decoded frame whose pix_fmt size differs. The reported camera delivers MJPEG whose decoded picture is 1920*1080*1.5 = 3110400 bytes (4:2:0), while the buffer is 1920*1080*2 = 4147200 bytes (4:2:2). The failure depends on the chroma layout of the frames crossing from the camera to the node; with a 4:2:2 MJPEG camera the same node works, so it is not internal. The resolving change adds a declared parameter and code path in usb_cam (color_format), so it is not only deployment wiring; not build; the camera firmware is not faulty (it emits valid MJPEG)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the camera's MJPEG frames (output) feed usb_cam's decoder (input)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: every frame logs 'outbuf size mismatch' and mjpeg2rgb returns before colour conversion."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "usb_cam",
+      "role": "consumer",
+      "repo": "https://github.com/ros-drivers/usb_cam",
+      "broken_rev": "0.3.5",
+      "resolved_rev": "eba71af70396d095be86cc99ecc9d19c43b574f9",
+      "pinned": true,
+      "revision_basis": "The reporter runs ROS kinetic (/rosdistro: kinetic, /rosversion: 1.12.17) and the node usb_cam/usb_cam_node but does not name a package version; the final kinetic entry in rosdistro kinetic/distribution.yaml releases usb_cam 0.3.5-0, and tag 0.3.5 contains the exact log formats seen ('Starting '%s' (%s) at %dx%d via %s (%s) at %i FPS' and 'outbuf size mismatch.  pic_size: %d bufsize: %d'). 0.3.6 has identical decoder logic, so the choice between them does not change the composition. Resolved: the maintainer closed the issue 'in favour of #110, #197 and #72'; #110 (merged to the ROS 1 develop branch as eba71af7 on 2022-10-28) adds the color_format parameter (yuv420p/yuv422p) that sizes the decoder buffer. The packet's fix reference, PR #188 (merge d647c3b7 on the ros2 branch, 2022-05-26), is the same change for the ROS 2 node ('fixes #164 (for ros2)').",
+      "excerpt": false,
+      "ros_distro": "kinetic"
+    },
+    {
+      "name": "uvc_mjpeg_camera",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "as-reported-2021-08",
+      "resolved_rev": "as-reported-2021-08",
+      "pinned": false,
+      "revision_basis": "The camera model and firmware are not named; the reporter only posts its v4l2-ctl --list-formats-ext output (MJPG at 640x360, 1280x720, 1920x1080, 3840x2160) on a DJI Manifold 2-C host (issue opened 2021-08-03). The resolution does not change the camera.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "resource:/dev/video0",
+      "sides": {
+        "uvc_mjpeg_camera": "provides",
+        "usb_cam": "consumes"
+      }
+    },
+    {
+      "element": "api:VIDIOC_S_FMT",
+      "sides": {
+        "uvc_mjpeg_camera": "provides",
+        "usb_cam": "consumes"
+      }
+    },
+    {
+      "element": "field:v4l2/v4l2_pix_format.pixelformat",
+      "sides": {
+        "uvc_mjpeg_camera": "provides",
+        "usb_cam": "consumes"
+      }
+    },
+    {
+      "element": "field:v4l2/v4l2_pix_format.width",
+      "sides": {
+        "uvc_mjpeg_camera": "provides",
+        "usb_cam": "consumes"
+      }
+    },
+    {
+      "element": "field:v4l2/v4l2_pix_format.height",
+      "sides": {
+        "uvc_mjpeg_camera": "provides",
+        "usb_cam": "consumes"
+      }
+    },
+    {
+      "element": "api:VIDIOC_DQBUF",
+      "sides": {
+        "uvc_mjpeg_camera": "provides",
+        "usb_cam": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "field:v4l2/v4l2_pix_format.pixelformat",
+        "api:VIDIOC_DQBUF"
+      ],
+      "quote": "[ERROR] [1627971395.349416416]: outbuf size mismatch.  pic_size: 3110400 bufsize: 4147200",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/164"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only diagnostic is usb_cam's own runtime check in mjpeg2rgb ('ROS_ERROR(\"outbuf size mismatch.  pic_size: %d bufsize: %d\", ...)', repeated per frame); device open, VIDIOC_S_FMT and stream start succeed without any error from V4L2, ROS, or launch tooling ('Starting 'head_camera' (/dev/video0) at 1920x1080 via mmap (mjpeg) at 30 FPS').",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Add a color_format parameter to usb_cam (yuv422p default, yuv420p option) that sets the decoder pix_fmt and sizes avframe_camera_size_ accordingly; a 4:2:0 MJPEG camera is then run with color_format yuv420p. ROS 1: PR #110 (eba71af7, develop). ROS 2: PR #188 (d647c3b7, ros2).",
+    "status": "recommended",
+    "evidence": "Maintainer: 'Closed in favour of #110, #197 and #72'; PR #188 author: 'fixes #164 (for ros2)', maintainer merged after 'You said you tested it as well locally and it works OK?'. The PR author tested with a different camera (Logitech C920, H.264 mode); the reporter's camera with a resolved usb_cam revision is not shown working."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Canonical forms: the camera-node boundary is V4L2, which has no ROS element form; the device node is written as resource:/dev/video0, the V4L2 ioctls as api:VIDIOC_S_FMT / api:VIDIOC_DQBUF, and the negotiated format fields as field:v4l2/v4l2_pix_format.<field> (the kernel struct name used in place of a ROS package/Type). The chroma layout of the MJPEG payload is not a named V4L2 field; it is attributed to the pixelformat element and the dequeued buffers. The decode itself happens in libavcodec linked into usb_cam; libavcodec reports the stream's actual pix_fmt, so any correct libavcodec produces the same result with this camera, which is why the camera, not libavcodec, is taken as the peer. Arithmetic: 3110400 = 1920*1080*1.5 (YUV 4:2:0), 4147200 = 1920*1080*2 (YUV 4:2:2); issue #79 describes the same mechanism ('libavcodec is returning frames with YUV 4:2:0 pixels (1.5 bytes/pixel), but the buffer size is allocated for YUV 4:2:2 pixels'). A commenter suggested a configuration workaround ('Try changing your pixel format from mjpeg to yuyv'), which the reporter's v4l2-ctl listing does not show as available (only MJPG is listed). #197 (FFmpeg API update) and #72 (unmerged, pixel-format range warnings) are other changes named when closing. The v4l2-ctl listing in the artifact file is the camera's own format enumeration, not a log. Other log lines (unknown control 'white_balance_temperature_auto'/'focus_auto', missing calibration file) are separate and not conditions of this case."
+}

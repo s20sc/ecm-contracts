@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-098",
+  "kind": "A1",
+  "case_id": "C3-098",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).  Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.",
+    "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2099261802"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:rclpy.node.Node.create_rate", "api:rclpy.timer.Rate.destroy", "api:rclpy.node.Node.destroy_rate"],
+      "quote": "The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).  Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.",
+      "url": "https://github.com/ros2/rclpy/issues/1278#issuecomment-2099261802"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The CPU usage explodes and ros becomes laggy. I found that Rate._timer are not properly destroyed.",
+    "url": "https://github.com/ros2/rclpy/issues/1278"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Ok I understood how to use it now thank you. I did the same benchmark with the code below. Conclusion: Yes this works as intended and the CPU usage stays low."
+  },
+  "notes": "Eligibility is a defensible judgment call: the consumer node and rclpy interact through the library API, and the failure depends on the consumer's wrong assumption about who owns the timer (a consumer calling node.destroy_rate does not leak), so it is not internal (would not occur with any correct peer). The maintainer comment verbatim confirms the ownership rule; the reporter's follow-up comment verbatim confirms the resolved composition works. class `other` is correct: this is an ownership/lifecycle convention of a library API covered by no specific class. outcome failure (resource exhaustion) and loudness silent_documented (found only via `top`, no tooling diagnostic) are correct; detection_stage run. Resolution observed is correct: reporter confirms destroy_rate keeps CPU low with the same humble binaries."
+}

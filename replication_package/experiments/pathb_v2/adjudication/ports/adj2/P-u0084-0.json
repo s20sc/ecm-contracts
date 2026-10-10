@@ -1,0 +1,31 @@
+{
+ "item_id": "P-u0084-0",
+ "kind": "P",
+ "task_id": "u0084",
+ "element": "field:mavros_msgs/SetMode.base_mode",
+ "side": "consumes",
+ "values": [
+  {
+   "field": "msg_type",
+   "recorded": "mavros_msgs/SetMode",
+   "verdict": "unverifiable",
+   "source_excerpt": "sys_status.cpp:926: uint8_t base_mode = req.base_mode;",
+   "qos_basis": null
+  },
+  {
+   "field": "frame",
+   "recorded": "none",
+   "verdict": "verified",
+   "source_excerpt": "uint8 base_mode\t\t# filled by MAV_MODE enum value or 0 if custom_mode != ''\nstring custom_mode\t# string mode representation or integer\n---\nbool mode_sent\t\t# Mode known/parsed correctly and SET_MODE are sent",
+   "qos_basis": null
+  },
+  {
+   "field": "definition_id",
+   "recorded": "{\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"aff0b2e29b87403260f57f7ec0064c52e5e80ac36e9170e89cd25b61631a2669\"}",
+   "verdict": "verified",
+   "source_excerpt": "python3 definition_hash.py sha256 s2_work/tasks/u0084/snapshot/mavros_msgs/srv/SetMode.srv ->\n{\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"aff0b2e29b87403260f57f7ec0064c52e5e80ac36e9170e89cd25b61631a2669\"}",
+   "qos_basis": null
+  }
+ ],
+ "notes": "Path note: the provenance writes snapshot:snapshot/mavros/... and snapshot:snapshot/mavros_msgs/...; there is no nested snapshot/ directory under s2_work/tasks/u0084/snapshot/, so I read s2_work/tasks/u0084/snapshot/mavros/src/plugins/sys_status.cpp and s2_work/tasks/u0084/snapshot/mavros_msgs/srv/SetMode.srv (the same files the co-cited definition_hash.py command addresses). msg_type: cited line 926 states only the field access uint8_t base_mode = req.base_mode; the service type is named five lines above at lines 921-922 (bool set_mode_cb(mavros_msgs::SetMode::Request &req, mavros_msgs::SetMode::Response &res)), not at the cited line, so the recorded msg_type is not stated at the cited location. frame: SetMode.srv lines 19-22 are exactly uint8 base_mode / string custom_mode / --- / bool mode_sent (with their comments); the whole 22-line definition contains no Header or frame_id, supporting frame=none. definition_id: the definition_hash.py command (allowed exception) reproduced algorithm, kind and value exactly."
+}

@@ -1,0 +1,58 @@
+{
+  "task_id": "u0148",
+  "package": "tf2_py",
+  "manifest_version": "0.4.10",
+  "ports": [
+    {
+      "element": "api:tf2_py.BufferCore.can_transform_core",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2_py.BufferCore.can_transform_full_core",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:tf2_py.BufferCore.can_transform_core": "api tf2_py.BufferCore.can_transform_core: {\"can_transform_core\", (PyCFunction)canTransformCore, METH_KEYWORDS},",
+    "api:tf2_py.BufferCore.can_transform_full_core": "api tf2_py.BufferCore.can_transform_full_core: {\"can_transform_full_core\", (PyCFunction)canTransformFullCore, METH_KEYWORDS},"
+  },
+  "not_declared": [],
+  "references": [
+    "api:tf2::BufferCore::canTransform"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:tf2_py/package.xml:4 | <version>0.4.10</version>",
+    "ports[0].frame": "snapshot:tf2_py/src/tf2_py.cpp:200-207 | static const char *keywords[] = { \"target_frame\", \"source_frame\", \"time\", NULL }; ... return Py_BuildValue(\"bs\", can_transform, error_msg.c_str()); -- frames are caller-supplied string arguments, none hard-coded; the returned (flag, error string) pair has no spatial meaning",
+    "ports[1].frame": "snapshot:tf2_py/src/tf2_py.cpp:215-229 | static const char *keywords[] = { \"target_frame\", \"target_time\", \"source_frame\", \"source_time\", \"fixed_frame\", NULL }; ... return Py_BuildValue(\"bs\", can_transform, error_msg.c_str()); -- frames are caller-supplied string arguments, none hard-coded; the returned (flag, error string) pair has no spatial meaning",
+    "declares[api:tf2_py.BufferCore.can_transform_core]": "snapshot:tf2_py/src/tf2_py.cpp:472 | {\"can_transform_core\", (PyCFunction)canTransformCore, METH_KEYWORDS},",
+    "declares[api:tf2_py.BufferCore.can_transform_full_core]": "snapshot:tf2_py/src/tf2_py.cpp:473 | {\"can_transform_full_core\", (PyCFunction)canTransformFullCore, METH_KEYWORDS},",
+    "references[api:tf2::BufferCore::canTransform]": "snapshot:tf2_py/src/tf2_py.cpp:205 | bool can_transform = bc->canTransform(target_frame, source_frame, time, &error_msg); and snapshot:tf2_py/src/tf2_py.cpp:227 | bool can_transform = bc->canTransform(target_frame, target_time, source_frame, source_time, fixed_frame, &error_msg); (declared at snapshot:tf2/include/tf2/buffer_core.h:196 and :208 with trailing std::string* error_msg = NULL)",
+    "perm_requires": "searched snapshot/tf2_py/package.xml, CMakeLists.txt, setup.py, src/tf2_py.cpp, src/tf2_py/__init__.py: no permission or capability requirement declared",
+    "perm_grants": "searched snapshot/tf2_py/package.xml, CMakeLists.txt, setup.py, src/tf2_py.cpp, src/tf2_py/__init__.py: no permission grant declared",
+    "recovery": "searched snapshot/tf2_py sources and configuration: no recovery policy declared; canTransformCore/canTransformFullCore (tf2_py.cpp:195-230) are not wrapped in WRAP and report failure only through the returned error string"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "Both provided methods return a 2-tuple built with Py_BuildValue(\"bs\", can_transform, error_msg.c_str()) (tf2_py.cpp:207, 229), with the earlier boolean return left commented out (lines 206, 228). The in-snapshot caller tf2_ros/src/tf2_ros/buffer.py:72,75,82,85 still treats the result as a boolean (`not self.can_transform_core(...)`, `return self.can_transform_core(...)`); a non-empty tuple is always truthy, so the timeout wait loop never waits and Buffer.can_transform returns a tuple instead of a bool. The return contract of these elements changed without the consumer in the same tree being updated."
+  },
+  "confidence": "high",
+  "notes": "The symbol tf2_py.BufferCore is the C extension type registered as \"_tf2.BufferCore\" (tf2_py.cpp:60, 530) in module _tf2 (built as _tf2.so, CMakeLists.txt set_target_properties OUTPUT_NAME tf2 PREFIX \"_\") and re-exported by src/tf2_py/__init__.py:37 `from _tf2 import *`. The 'declares' signature uses the PyMethodDef table entry that binds each Python name. Call signatures: can_transform_core(target_frame: str, source_frame: str, time) with PyArg_ParseTupleAndKeywords format \"ssO&\" (line 202); can_transform_full_core(target_frame: str, target_time, source_frame: str, source_time, fixed_frame: str) with format \"sO&sO&s\" (line 217). Time arguments are converted with rostime_converter, which calls the object's to_sec method (line 135), i.e. seconds; no units are stated for the return value, so units are null. Return value at this revision is a tuple (b, s): 'b' yields a Python int 0/1 (not a bool) plus the error-message string from tf2::BufferCore::canTransform. ROS 1 package, so QoS is null; these are Python API elements with no message/service definition, so msg_type and definition_id are null; no rate set. No exclusive resources. references lists only the tf2 C++ API called by the two provided elements; other methods of this module (lookup_transform_core, set_transform, etc.) reference geometry_msgs/TransformStamped but are not packet elements. No packet element is consumed by this package."
+}

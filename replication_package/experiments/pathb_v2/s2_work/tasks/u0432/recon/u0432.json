@@ -1,0 +1,70 @@
+{
+  "task_id": "u0432",
+  "package": "moveit_core",
+  "manifest_version": "2.4.0",
+  "ports": [
+    {
+      "element": "api:rclcpp::Duration",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Duration::from_nanoseconds",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": "nanoseconds",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Node",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rclcpp::Duration",
+    "api:rclcpp::Duration::from_nanoseconds",
+    "api:rclcpp::Node"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:moveit_core/package.xml:5",
+    "ports[0].frame": "snapshot:moveit_core/collision_detection/src/collision_tools.cpp:55 (rclcpp::Duration(60, 0) used as a marker lifetime; a time span with no spatial meaning)",
+    "ports[1].frame": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 (timeout duration; no spatial meaning)",
+    "ports[1].units": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 | virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration::from_nanoseconds(-1)) = 0;",
+    "ports[2].frame": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:186 (node handle passed to plugin initialize; no spatial meaning)",
+    "references[api:rclcpp::Duration]": "snapshot:moveit_core/collision_detection/src/collision_tools.cpp:55 | getCostMarkers(arr, frame_id, cost_sources, color, rclcpp::Duration(60, 0));",
+    "references[api:rclcpp::Duration::from_nanoseconds]": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 | virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration::from_nanoseconds(-1)) = 0;",
+    "references[api:rclcpp::Node]": "snapshot:moveit_core/planning_interface/include/moveit/planning_interface/planning_interface.h:167 | virtual bool initialize(const moveit::core::RobotModelConstPtr& model, const rclcpp::Node::SharedPtr& node,",
+    "perm_requires": "searched all files under snapshot/moveit_core for sros/enclave/access_control/permission(s): only license boilerplate matched; no security policy or permission configuration",
+    "perm_grants": "searched all files under snapshot/moveit_core for sros/enclave/access_control/permission(s): only license boilerplate matched; no permission grants",
+    "recovery": "searched all files under snapshot/moveit_core for 'recover': only a distance_field doc comment (distance_field.h:281) and an exception doc comment (exceptions.h:51); no declared recovery behaviour for the listed elements"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "moveit_core at this revision builds rclcpp::Duration values only via from_seconds, from_nanoseconds(-1) and the two-argument (seconds, nanoseconds) constructor; no use of the single-argument rcl_duration_value_t constructor was found, and rclcpp::Node is used only as SharedPtr parameters."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the whole moveit2 repository; only the moveit_core subtree (snapshot/moveit_core, package.xml name moveit_core, version 2.4.0) was examined. All four packet elements are consumed rclcpp C++ API symbols, so declares and not_declared are empty and msg_type/qos/rate/definition_id are null (no message definition or QoS applies to an API symbol). api:rclcpp::Duration is referenced as a parameter type (e.g. robot_state.h:1745, controller_manager.h:141, collision_tools.h:53, collision_distance_field_types.h:519) and constructed via rclcpp::Duration::from_seconds (constraint_sampler_tools.cpp:70,120; robot_trajectory.cpp:290,328,370; kinematic_constraint.cpp:988; collision_env_distance_field.cpp:1009) and the two-argument constructor rclcpp::Duration(0, 0) (collision_common_distance_field.cpp:170) and rclcpp::Duration(60, 0) (collision_tools.cpp:55,66). api:rclcpp::Duration::from_nanoseconds is referenced once, as the default argument of controller_manager::MoveItControllerHandle::waitForExecution (controller_manager.h:141). api:rclcpp::Duration::Duration(rcl_duration_value_t): a full-text search of every file under snapshot/moveit_core for 'Duration', 'rcl_duration_value_t' and 'Duration{' found no single-argument (nanoseconds) construction, no brace-initialisation and no implicit integer-to-Duration conversion at call sites; because the element is consumed, it is in neither declares nor not_declared, and it is not listed in references. The units for from_nanoseconds are taken from the symbol name as written in the code; the rclcpp headers themselves are outside the allowed sources and were not consulted. api:rclcpp::Node is used as rclcpp::Node::SharedPtr parameters/members in plugin interfaces (planning_interface.h:167, kinematics_base.h:361,536, planning_request_adapter.h:66, sensor_manager.h:87, controller_manager.h:186, smoothing_base_class.h:69, butterworth_filter.h:90,108, kinematic_constraints/utils.h:228). python/tools/include/moveit/python/pybind_rosmsg_typecasters.h still names ros::Duration (ROS 1) type casters; this is not an rclcpp symbol. No exclusive resource claims (hardware command interfaces, device handles) found; the only 'exclusive' hit is a plugin-selection parameter doc in collision_plugin_cache.h:53."
+}

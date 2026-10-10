@@ -1,0 +1,41 @@
+{
+  "task_id": "u0205",
+  "package": "ur_description",
+  "manifest_version": "1.1.10",
+  "ports": [
+    {
+      "element": "param:/robot_description",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:/robot_description": "param robot_description: string"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:ur_description/package.xml:4",
+    "ports[0].side": "snapshot:ur_description/launch/ur5_upload.launch:5 | <param unless=\"$(arg limited)\" name=\"robot_description\" command=\"$(find xacro)/xacro --inorder '$(find ur_description)/urdf/ur5_robot.urdf.xacro'\" />",
+    "declares[param:/robot_description]": "snapshot:ur_description/launch/ur5_upload.launch:5 | <param unless=\"$(arg limited)\" name=\"robot_description\" command=\"$(find xacro)/xacro --inorder '$(find ur_description)/urdf/ur5_robot.urdf.xacro'\" /> (same name set at ur5_upload.launch:6, ur3_upload.launch:5-6, ur10_upload.launch:5-6; value is the stdout of the xacro command, which roslaunch stores as a string; no type attribute is given)",
+    "perm_requires.state": "searched snapshot:ur_description/package.xml, CMakeLists.txt, launch/*.launch, urdf/*.xacro for permission/capability declarations; none found",
+    "perm_grants.state": "searched snapshot:ur_description/package.xml, CMakeLists.txt, launch/*.launch, urdf/*.xacro for permission/capability grants; none found",
+    "recovery.state": "searched snapshot:ur_description/package.xml, CMakeLists.txt, launch/*.launch, urdf/*.xacro for recovery declarations; none found"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The parameter is declared consistently in all three upload launch files and every referenced xacro and mesh file exists. Two things look off but may not count as a defect in the element: package.xml declares only run_depend urdf although every upload launch runs $(find xacro)/xacro --inorder (xacro is not declared as a dependency), and the ur5 macro gives the three wrist links cylinder_inertial radius=\"0.6\" (ur3/ur10 use 0.075), which inflates their inertia in the generated description."
+  },
+  "confidence": "medium",
+  "notes": "The parameter is set by three launch files (ur3_upload.launch, ur5_upload.launch, ur10_upload.launch), each with two mutually exclusive <param> lines selected by arg 'limited' (default false) that choose <model>_robot.urdf.xacro or <model>_joint_limited_robot.urdf.xacro. The name is written relative ('robot_description'); it resolves to /robot_description only when the launch file is included in the root namespace (ur_bringup and ur_gazebo include it without ns); the declares entry keeps the name verbatim. Type 'string' is the roslaunch semantics of a command= param (command stdout), not an explicit type attribute. msg_type, qos, rate and definition_id are null: this is a ROS 1 parameter, not a message port, and there is no .msg/.srv/.action/.idl definition to hash. frame is null: the value is a whole URDF tree (hard-coded root link 'world' joined by fixed 'world_joint' to 'base_link'; also links base, tool0, ee_link, with optional prefix), so no single frame applies. units null: the xacro files do not state units (joint limits are written in terms of pi, lengths from DH values, masses as bare numbers). exclusive left empty: ur.transmission.xacro declares <hardwareInterface>PositionJointInterface</hardwareInterface> for six joints and common.gazebo.xacro loads libgazebo_ros_control.so, but the description declares interfaces and does not itself claim them. ur10.urdf.xacro macro ur10_robot takes per-joint limit params with := defaults (${-pi}/${pi}); ur3 and ur5 macros take only 'prefix joint_limited'. ur_description consumes none of the packet elements, so references is empty; test.launch starts joint_state_publisher, robot_state_publisher (type state_publisher) and rviz with $(find urdf_tutorial)/urdf.rviz but those are not packet elements. .travis.yml tests indigo and kinetic; ros_distro in the packet is null."
+}

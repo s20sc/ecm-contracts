@@ -1,0 +1,117 @@
+{
+  "task_id": "u0378",
+  "package": "mavros",
+  "manifest_version": "2.1.1",
+  "ports": [
+    {
+      "element": "topic:/mavros/global_position/global",
+      "side": "provides",
+      "msg_type": "sensor_msgs/NavSatFix",
+      "frame": "base_link",
+      "units": "degrees (latitude, longitude); m (altitude above the WGS 84 ellipsoid)",
+      "qos": {
+        "reliability": "best_effort",
+        "durability": "volatile",
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "sha256_normalised",
+        "kind": "msg",
+        "value": "0d3762ba2837e052a90a47e64939616010e5ecbda9411b5248ea68e0e9b680c6"
+      }
+    },
+    {
+      "element": "topic:/mavros/local_position/pose",
+      "side": "provides",
+      "msg_type": "geometry_msgs/PoseStamped",
+      "frame": "map",
+      "units": null,
+      "qos": {
+        "reliability": "best_effort",
+        "durability": "volatile",
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "sha256_normalised",
+        "kind": "msg",
+        "value": "e8a61300bec35c90affaa8108ed0a1e02899ea24f382d1e8d272c72e0d1929fd"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "topic:/mavros/global_position/global": "topic /mavros/global_position/global: sensor_msgs/NavSatFix",
+    "topic:/mavros/local_position/pose": "topic /mavros/local_position/pose: geometry_msgs/PoseStamped"
+  },
+  "not_declared": [],
+  "references": [
+    "msg:sensor_msgs/NavSatFix",
+    "msg:sensor_msgs/NavSatStatus",
+    "msg:geometry_msgs/PoseStamped",
+    "field:sensor_msgs/NavSatFix.header",
+    "field:sensor_msgs/NavSatFix.status",
+    "field:sensor_msgs/NavSatFix.latitude",
+    "field:sensor_msgs/NavSatFix.longitude",
+    "field:sensor_msgs/NavSatFix.altitude",
+    "field:sensor_msgs/NavSatFix.position_covariance",
+    "field:sensor_msgs/NavSatFix.position_covariance_type",
+    "field:geometry_msgs/PoseStamped.header",
+    "field:geometry_msgs/PoseStamped.pose"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:mavros/package.xml:4",
+    "ports[0].element": "snapshot:mavros/src/plugins/global_position.cpp:121 (gp_fix_pub = node->create_publisher<sensor_msgs::msg::NavSatFix>(\"~/global\", sensor_qos)); sub-node \"global_position\" (snapshot:mavros/src/plugins/global_position.cpp:60) created with namespace = UAS node FQN (snapshot:mavros/include/mavros/plugin.hpp:86-87); UAS node named \"mavros\" in root namespace (snapshot:mavros/src/mavros_node.cpp:76-78) -> /mavros/global_position/global; python client corroborates (snapshot:mavros/mavros/base.py:21 DEFAULT_NAMESPACE = \"mavros\"; snapshot:mavros/mavros/global_position.py:47)",
+    "ports[0].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:121",
+    "ports[0].frame": "snapshot:mavros/src/plugins/global_position.cpp:73-76 (node_declare_and_watch_parameter(\"child_frame_id\", \"base_link\", ...)); snapshot:mavros/src/plugins/global_position.cpp:322 (auto header = uas->synchronized_header(child_frame_id, gpos.time_boot_ms);); snapshot:mavros/src/plugins/global_position.cpp:325 (fix.header = header;)",
+    "ports[0].units": "snapshot:mavros/src/plugins/global_position.cpp:192-194 (fix.latitude = msg.lat / 1E7; // deg | fix.longitude = msg.lon / 1E7; // deg | fix.altitude = msg.alt / 1E3 + uas->data.geoid_to_ellipsoid_height(fix); // in meters); NavSatFix.msg: 'Latitude [degrees]', 'Longitude [degrees]', 'Altitude [m]. Positive is above the WGS 84 ellipsoid'",
+    "ports[0].qos.reliability": "snapshot:mavros/src/plugins/global_position.cpp:111 (auto sensor_qos = rclcpp::SensorDataQoS();), snapshot:mavros/src/plugins/global_position.cpp:121; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+    "ports[0].qos.durability": "snapshot:mavros/src/plugins/global_position.cpp:111, snapshot:mavros/src/plugins/global_position.cpp:121; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+    "ports[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/2.2.4/sensor_msgs/msg/NavSatFix.msg (byte-identical at tags 2.2.1-2.2.4 and branch galactic) via python3 definition_hash.py sha256",
+    "ports[1].element": "snapshot:mavros/src/plugins/local_position.cpp:84 (local_position = node->create_publisher<geometry_msgs::msg::PoseStamped>(\"~/pose\", sensor_qos);); sub-node \"local_position\" (snapshot:mavros/src/plugins/local_position.cpp:53) under /mavros (snapshot:mavros/include/mavros/plugin.hpp:86-87; snapshot:mavros/src/mavros_node.cpp:76-78) -> /mavros/local_position/pose; python client corroborates (snapshot:mavros/mavros/local_position.py:30)",
+    "ports[1].msg_type": "snapshot:mavros/src/plugins/local_position.cpp:84",
+    "ports[1].frame": "snapshot:mavros/src/plugins/local_position.cpp:60-65 (// default to map (world-fixed, ENU as per REP-105). node_declare_and_watch_parameter(\"frame_id\", \"map\", ...)); snapshot:mavros/src/plugins/local_position.cpp:163 (odom.header = uas->synchronized_header(frame_id, pos_ned.time_boot_ms);); snapshot:mavros/src/plugins/local_position.cpp:178 and snapshot:mavros/src/plugins/local_position.cpp:263 (pose.header = odom.header;)",
+    "ports[1].qos.reliability": "snapshot:mavros/src/plugins/local_position.cpp:82 (auto sensor_qos = rclcpp::SensorDataQoS();), snapshot:mavros/src/plugins/local_position.cpp:84; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+    "ports[1].qos.durability": "snapshot:mavros/src/plugins/local_position.cpp:82, snapshot:mavros/src/plugins/local_position.cpp:84; rclcpp::SensorDataQoS() is initialised from rmw_qos_profile_sensor_data (rclcpp/include/rclcpp/qos.hpp, galactic); rmw/include/rmw/qos_profiles.h (galactic) defines rmw_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST, 5, RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ...} (documented API default, cited from the rclcpp/rmw sources, not fetched)",
+    "ports[1].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/2.2.4/geometry_msgs/msg/PoseStamped.msg (byte-identical at tags 2.2.1-2.2.4 and branch galactic) via python3 definition_hash.py sha256",
+    "exclusive": "grep -rniE 'TIOCEXCL|flock|exclusive|lockf|O_EXCL' over snapshot mavros/ and libmavconn/: only callback-group MutuallyExclusive and lint excludes; no hardware command interfaces or exclusive device claims in mavros",
+    "declares[topic:/mavros/global_position/global]": "snapshot:mavros/src/plugins/global_position.cpp:121",
+    "declares[topic:/mavros/local_position/pose]": "snapshot:mavros/src/plugins/local_position.cpp:84",
+    "references[msg:sensor_msgs/NavSatFix]": "snapshot:mavros/src/plugins/global_position.cpp:33 (#include \"sensor_msgs/msg/nav_sat_fix.hpp\"), snapshot:mavros/src/plugins/global_position.cpp:121",
+    "references[msg:sensor_msgs/NavSatStatus]": "snapshot:mavros/src/plugins/global_position.cpp:34, snapshot:mavros/src/plugins/global_position.cpp:393 (fix.status.status >= sensor_msgs::msg::NavSatStatus::STATUS_FIX)",
+    "references[msg:geometry_msgs/PoseStamped]": "snapshot:mavros/src/plugins/local_position.cpp:29 (#include \"geometry_msgs/msg/pose_stamped.hpp\"), snapshot:mavros/src/plugins/local_position.cpp:84",
+    "references[field:sensor_msgs/NavSatFix.header]": "snapshot:mavros/src/plugins/global_position.cpp:325",
+    "references[field:sensor_msgs/NavSatFix.status]": "snapshot:mavros/src/plugins/global_position.cpp:331-332",
+    "references[field:sensor_msgs/NavSatFix.latitude]": "snapshot:mavros/src/plugins/global_position.cpp:192",
+    "references[field:sensor_msgs/NavSatFix.longitude]": "snapshot:mavros/src/plugins/global_position.cpp:193",
+    "references[field:sensor_msgs/NavSatFix.altitude]": "snapshot:mavros/src/plugins/global_position.cpp:194",
+    "references[field:sensor_msgs/NavSatFix.position_covariance]": "snapshot:mavros/src/plugins/global_position.cpp:333",
+    "references[field:sensor_msgs/NavSatFix.position_covariance_type]": "snapshot:mavros/src/plugins/global_position.cpp:334",
+    "references[field:geometry_msgs/PoseStamped.header]": "snapshot:mavros/src/plugins/local_position.cpp:178",
+    "references[field:geometry_msgs/PoseStamped.pose]": "snapshot:mavros/src/plugins/local_position.cpp:179",
+    "perm_requires.state": "searched snapshot mavros/src, mavros/include, mavros/launch, mavros/package.xml for permission declarations: none",
+    "perm_grants.state": "same search as perm_requires: none",
+    "recovery.state": "global_position.cpp and local_position.cpp have no restart/fallback-on-failure declaration for these topics; launch config snapshot:mavros/launch/node.launch:15 has respawn=\"$(arg respawn_mavros)\" with default false (node.launch:13), i.e. no recovery active by default"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Both topics are declared with the expected types and conventional frames (map for local pose, base_link as NavSatFix header frame); the only notable property is SensorDataQoS (best_effort), which would not match a reliable-QoS subscriber, but that depends on the peer, not on this package alone."
+  },
+  "confidence": "high",
+  "notes": "ROS 2 package mavros 2.1.1 (galactic). Topic names are private (~/) names on per-plugin sub-nodes created as rclcpp::Node(subnode, <UAS FQN>); resolved names assume the default mavros_node container, where the UAS node is named \"mavros\" in the root namespace; a different node name/namespace at launch would change the prefix. Frames are parameter-backed: global fix header uses parameter child_frame_id (default \"base_link\", also set in launch/px4_config.yaml and apm_config.yaml); local pose header uses parameter frame_id (default \"map\"). Local pose units left null: code converts MAVLink LOCAL_POSITION_NED NED->ENU (ftf::transform_frame_ned_enu, comment cites REP-105 for ENU) without scaling, but neither code nor PoseStamped/Pose definitions state a unit. QoS values come from rclcpp::SensorDataQoS() set in code; the profile contents are cited from the rclcpp/rmw galactic sources from knowledge (only .msg files were fetched); deadline is RMW_QOS_DEADLINE_DEFAULT (unset), recorded null. No publish rate is set; both topics are published per received MAVLink message (GLOBAL_POSITION_INT; LOCAL_POSITION_NED, or LOCAL_POSITION_NED_COV when LOCAL_POSITION_NED is absent). msg_type written as pkg/Type (rosidl names sensor_msgs/msg/NavSatFix, geometry_msgs/msg/PoseStamped). definition_id is the sha256_normalised proxy of the top-level .msg only. Dependency .msg files were fetched to a temporary directory outside the workspace solely to hash them. Side observation outside the packet elements: python client mavros/mavros/local_position.py:81 subscribes Odometry on local_position/local while the C++ plugin publishes ~/odom."
+}

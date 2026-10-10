@@ -1,0 +1,69 @@
+{
+  "task_id": "u0317",
+  "package": "image_geometry",
+  "manifest_version": "4.1.0",
+  "ports": [
+    {
+      "element": "api:numpy.matrix",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:numpy.ndarray",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:numpy.zeros",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:numpy.matrix",
+    "api:numpy.ndarray",
+    "api:numpy.zeros"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:image_geometry/package.xml:3",
+    "ports[0]": "snapshot:image_geometry/image_geometry/cameramodels.py:352",
+    "ports[1]": "snapshot:image_geometry/image_geometry/cameramodels.py:87",
+    "ports[2]": "snapshot:image_geometry/image_geometry/cameramodels.py:735",
+    "references[api:numpy.matrix]": "snapshot:image_geometry/image_geometry/cameramodels.py:352 | return numpy.matrix(self._d, dtype=\"float64\") (also lines 357, 362, 372, 377, 382, 414, 465, 476, 569, and via alias np at 597, 656; all inside members decorated @deprecated(version=\"J-turtle\"))",
+    "references[api:numpy.ndarray]": "snapshot:image_geometry/image_geometry/cameramodels.py:87 | self.mapx = numpy.ndarray(shape=(self._height, self._width, 1), (also line 89; used as return annotation at lines 9, 95, 215, 223, 231, 239, 247, 255, 631)",
+    "references[api:numpy.zeros]": "snapshot:image_geometry/image_geometry/cameramodels.py:735 | self._q = numpy.zeros((4, 4), dtype='float64')",
+    "perm_requires.state": "searched snapshot/image_geometry/package.xml, CMakeLists.txt, image_geometry/*.py, src/*.cpp, include/**/*.hpp for permission/security declarations; none found",
+    "perm_grants.state": "searched snapshot/image_geometry/package.xml, CMakeLists.txt, image_geometry/*.py, src/*.cpp, include/**/*.hpp for permission/security declarations; none found",
+    "recovery.state": "searched snapshot/image_geometry (python module, C++ sources, manifest, CMake) for recovery declarations; none found"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "mkmat builds a plain ndarray via np.array and the only .resize calls act on that ndarray; numpy.matrix appears only as return values of @deprecated J-turtle shim members, and numpy.zeros/numpy.ndarray are used conventionally, so no misuse of the listed numpy APIs is visible."
+  },
+  "confidence": "high",
+  "notes": "All four packet elements are Python library (numpy) API symbols consumed by the installed Python module image_geometry/image_geometry/cameramodels.py (installed via ament_python_install_package, CMakeLists.txt:7). They are not ROS communication endpoints, so msg_type, frame, units, QoS, rates and definition_id do not apply and are null; no message definition was hashed. api:numpy.matrix.resize: no port and not in references, because the code does not call resize on any numpy.matrix object at this revision. The only Python resize calls are mat.resize(rows,cols) at cameramodels.py:11 and src.resize((1,1,2)) at cameramodels.py:107; both act on the object returned by mkmat, which is np.array(L,dtype='float64') (line 10), i.e. numpy.ndarray.resize. The numpy.matrix objects built at lines 352-656 are returned directly without resize. (utest.cpp/utest_equi.cpp resize calls are C++ std::vector/cv::resize, unrelated.) numpy.matrix is referenced only inside members decorated @deprecated(version=\"J-turtle\") that the code says will be removed in K-turtle. numpy.zeros is also used in test/directed.py:77-78 (test only). declares/not_declared are empty because every packet element is on the consumes side. package.xml declares depend on libopencv-dev, sensor_msgs, python3-deprecated but no numpy package, although cameramodels.py imports numpy (lines 4-5). The module also reads sensor_msgs/CameraInfo fields (k, d, r, p, width, height, binning_x, binning_y, roi, header) from a message passed in by the caller; these are not packet elements and are not listed in references."
+}

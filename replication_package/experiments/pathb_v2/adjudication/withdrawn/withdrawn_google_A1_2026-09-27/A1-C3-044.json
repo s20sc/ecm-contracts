@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-044",
+  "kind": "A1",
+  "case_id": "C3-044",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The issue quotes the buildfarm test failure with file and line: \"/tmp/ws/src/ros-perception/image_common/image_transport/test/test_qos_override.cpp:115\nExpected equality of these values:\n  endpoint_info_vec[0].qos_profile().reliability()\n    Which is: 4-byte object <01-00 00-00>\n  rclcpp::ReliabilityPolicy::BestEffort\n    Which is: 4-byte object <02-00 00-00>\" (https://github.com/ros-perception/image_common/issues/370); a second report: \"This is happening not only on Zenoh, but it's also happening consistently on cyclone.\" (https://github.com/ros-perception/image_common/issues/370#issuecomment-3179270735); maintainer fix PR #376 \"Fix QoS override tests\" merged.",
+    "url": "https://github.com/ros-perception/image_common/issues/370"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "/tmp/ws/src/ros-perception/image_common/image_transport/test/test_qos_override.cpp:115\nExpected equality of these values:\n  endpoint_info_vec[0].qos_profile().reliability()\n    Which is: 4-byte object <01-00 00-00>\n  rclcpp::ReliabilityPolicy::BestEffort\n    Which is: 4-byte object <02-00 00-00>",
+      "url": "https://github.com/ros-perception/image_common/issues/370"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The mismatch is caught only by the test's own gtest assertion (\"Expected equality of these values:\" ... \"rclcpp::ReliabilityPolicy::BestEffort\", https://github.com/ros-perception/image_common/issues/370); no middleware, connection, or QoS-incompatibility diagnostic is reported.",
+    "url": "https://github.com/ros-perception/image_common/issues/370"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "A buildfarm maintainer later wrote \"This is already fixed. We should close the issue\" (https://github.com/ros-perception/image_common/issues/370#issuecomment-3486564849) without identifying the nightly run or the rmw_zenoh revision; the PR's own ci.ros2.org run (https://github.com/ros-perception/image_common/pull/376#issuecomment-3258561938) does not identify an rmw_zenoh revision either."
+  },
+  "notes": "Adjudicated case C3-044: fully agrees with specification eligibility (E1-E4 step 6), failed conditions, loudness (silent_documented), and resolution status (recommended)."
+}

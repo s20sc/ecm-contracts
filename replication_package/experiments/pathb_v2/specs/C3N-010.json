@@ -1,0 +1,50 @@
+{
+  "case_id": "C3N-010",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/989",
+    "https://github.com/ros-controls/ros2_controllers/pull/957#discussion_r1449294931",
+    "https://github.com/ros-controls/ros2_controllers/pull/1093",
+    "https://github.com/ros-controls/ros2_controllers/pull/1124",
+    "https://github.com/ros-controls/ros2_controllers/pull/1151",
+    "https://github.com/henrygerardmoore/ros2_controllers/commit/437d37b6b395d0fa29c35bb50716103275f80dae"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "Issue #989 is a maintenance task, not a defect report. Its whole body is a quoted review remark, \"probably due to be removed soon too\" (bmagyar, on the line `if (params_.use_stamped_vel)` of tricycle_controller.cpp in PR #957), and it was closed by PRs that first deprecate (#1093 \"First step of #989.\", iron backport #1124) and then remove (#1151 \"Removes the earlier already deprecated unstamped twist subscribers for tricycle controller and steering controllers library. Closes #989\") the unstamped geometry_msgs/Twist subscriber and its use_stamped_vel parameter. No failed interaction, reproducer, error log, or maintainer-confirmed defect is documented; the only user remark in the PRs concerns CLI convenience of publishing TwistStamped (\"it will not be possible to send directly a command to a robot using DiffDrive controller from a console\"), not an observed failure."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 1,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not reached in substance: no interaction between two units is reported as having failed, so no pair of units can be named. The planned change (removal of the unstamped cmd_vel subscriber and the use_stamped_vel parameter from tricycle_controller and steering_controllers_library) is an interface change on the provider side, but the source records no consumer that broke because of it."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No failing operation is documented."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on any interaction is documented; the issue and PRs describe an intentional deprecation and removal."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: no concrete defect is documented; the issue tracks the planned deprecation and removal of the unstamped Twist command interface (feature/maintenance request), with no reproducer, error log, or observed failed interaction.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "The packet's fix ref https://github.com/henrygerardmoore/ros2_controllers/commit/437d37b6b395d0fa29c35bb50716103275f80dae is \"Add missing build_export_depends to controller_interface (#989)\" (2023-04-14), which modifies controller_interface/package.xml; its \"(#989)\" is ros2_control PR #989 \"Add missing build_export_depends to controller_interface\" (a different repository) and it was linked to this issue only by number collision in a fork; it is unrelated to the tricycle controller. Merged commits for this issue: #1093 master 009f9468 (2024-05-08), #1124 iron 2e8b4e46 (2024-05-09), #1151 master 64adf670 (2024-06-05)."
+}

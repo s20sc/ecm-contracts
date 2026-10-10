@@ -1,0 +1,87 @@
+{
+  "case_id": "B-Res-02",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/345",
+    "https://github.com/ros-controls/ros2_control/pull/343",
+    "https://github.com/ros-controls/ros2_control/commit/29efb0beaffdc86ea074b5b8d9dcb890cfa5d489",
+    "https://github.com/ros-controls/ros2_control/blob/a930c8fc43c8765049fef07287088dd2fe374c61/controller_manager/src/controller_manager.cpp",
+    "https://github.com/ros-controls/ros2_controllers/blob/a80ce8d2b9a22fa83978976bc4257ede70dbc810/forward_command_controller/src/forward_command_controller.cpp",
+    "https://github.com/ros-controls/ros2_control_demos/blob/046ce0c5ff3d9a412ca05a10a5c37508e02c6325/ros2_control_demo_robot/config/rrbot_controllers.yaml"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter states the defect and says it was reproduced: \"This means that switching between controllers which have conflicting joints with a single service call will not be possible, because the controllers being stopped will not release their interfaces, while those being started will try to claim the interfaces, and fail.\" and \"I did the exact experiments you mentioned, where I tried to switch between two different forward command controller, each of which claims the same joints.\" A maintainer closed it as the behavior addressed by PR #343 (\"I believe your encountered behavior is the same as being addressed in #343\"), which gives reproduction steps and the error message."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["forward_position_controller", "forward_position_controller2"],
+      "interface_kind": "exclusive resource",
+      "evidence": "Two controllers (each loaded by name as its own controller node in controller_manager) contend for the same exclusive command interfaces through the resource manager. Whether the switch succeeds depends on the stopped peer's claim being released: at the time the host did not release on stop (stop_controllers only calls \"controller->deactivate();\"), forward_command_controller's on_deactivate only returns \"CallbackReturn::SUCCESS;\", while joint_trajectory_controller releases its own interfaces (PR #343 discussion: \"`forward_command_controller` does not release the interfaces (which is probably where most who test the code may have a problem)\" and \"`joint_trajectory_controller` releases the interfaces in `on_deactivate`\"). So the failure depends on an assumption between the units rather than one unit's internal logic. The resolving change is code in the host controller_manager, not name wiring, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "SWITCH: one controller is stopped and the other started, in one switch call (\"ros2 control switch_controllers --start-controllers forward_position_controller2 --stop-controllers forward_position_controller\"); PR #343 adds \"The same occurs if the command is split into two separate calls, one stopping the old and one starting the new controller.\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"[controller_manager]: Resource conflict for controller 'forward_position_controller2'. Command interface 'joint1/position' is already claimed.\" (PR #343); the started controller is not activated."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "forward_position_controller",
+      "role": "peer",
+      "repo": "https://github.com/ros-controls/ros2_controllers",
+      "broken_rev": "a80ce8d2b9a22fa83978976bc4257ede70dbc810",
+      "resolved_rev": "a80ce8d2b9a22fa83978976bc4257ede70dbc810",
+      "pinned": true,
+      "revision_basis": "Instance of forward_command_controller/ForwardCommandController (the stopped controller). The #345 reporter states no revision; the maintainer asked to run \"latest release/master\" and the reporter built from source (\"it matches perfectly with what I patched locally on the repo\"). The ros2_controllers master head on the issue date (2021-03-13) was a80ce8d2 (2021-02-07); taken as the inferred revision. The resolution does not change this package.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "forward_position_controller2",
+      "role": "peer",
+      "repo": "https://github.com/ros-controls/ros2_controllers",
+      "broken_rev": "a80ce8d2b9a22fa83978976bc4257ede70dbc810",
+      "resolved_rev": "a80ce8d2b9a22fa83978976bc4257ede70dbc810",
+      "pinned": true,
+      "revision_basis": "Second instance of forward_command_controller/ForwardCommandController (the started controller), \"basically a copy of `forward_position_controller`\" per PR #343; same inference as the first instance. The resolution does not change this package.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "SWITCH",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "resource:joint1/position", "sides": {"forward_position_controller": "consumes", "forward_position_controller2": "consumes"}},
+    {"element": "resource:joint2/position", "sides": {"forward_position_controller": "consumes", "forward_position_controller2": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "exclusive_resource_conflict",
+      "implicated_elements": ["resource:joint1/position", "resource:joint2/position"],
+      "quote": "[controller_manager]: Resource conflict for controller 'forward_position_controller2'. Command interface 'joint1/position' is already claimed.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/343"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Resource-manager claim error at activation: \"Resource conflict for controller 'forward_position_controller2'. Command interface 'joint1/position' is already claimed.\" (https://github.com/ros-controls/ros2_control/pull/343), emitted by controller_manager start_controllers (\"if (resource_manager_->command_interface_is_claimed(command_interface)) {\").",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "The host controller_manager releases a controller's loaned interfaces right after deactivating it: PR #343 adds \"controller->release_interfaces();\" after \"const auto new_state = controller->deactivate();\" in ControllerManager::stop_controllers (ros2_control 29efb0be, parent a930c8fc). The two controller units are unchanged.",
+    "status": "recommended",
+    "evidence": "Merged 2021-03-19 as 29efb0beaffdc86ea074b5b8d9dcb890cfa5d489 with a new test (controller_manager/test/test_release_interfaces.cpp) that switches between test controllers claiming the same command interface, per the maintainer's requested sequence (\"Stop `controller_1` --> ok\", \"Start `controller_2` --> ok\"). That shows the fix working with test controllers, not with forward_command_controller instances; the #345 reporter only says the PR \"matches perfectly with what I patched locally on the repo\", with no run or revision shown."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "The #345 reporter names no controllers or joints; unit names, joints, and the error text come from the PR #343 reproduction (ros2_control_demos rrbot_system_position_only with forward_position_controller of type forward_command_controller/ForwardCommandController on joints joint1, joint2 with interface_name position, plus a copy forward_position_controller2), which the maintainers identified as the same behavior. The defect's locus is the host framework, which is outside the two-unit composition: controller_manager (https://github.com/ros-controls/ros2_control) broken at a930c8fc43c8765049fef07287088dd2fe374c61 (master head from 2021-03-11 until the fix), resolved at 29efb0beaffdc86ea074b5b8d9dcb890cfa5d489. An alternative fix noted in PR #343 would change the controller unit instead: \"the issue can also be handled by clearing the interfaces in `forward_command_controller`.\" During test development the PR author also reported that starting both controllers at the same time (CONCURRENT) \"returns a success\"; that composition is not specified here."
+}

@@ -1,0 +1,62 @@
+{
+  "task_id": "u0146",
+  "package": "kobuki_driver",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "field:kobuki_driver/Firmware.version",
+      "side": "consumes",
+      "msg_type": "kobuki_driver/Firmware",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:kobuki_driver/Hardware.version",
+      "side": "consumes",
+      "msg_type": "kobuki_driver/Hardware",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "field:kobuki_driver/Firmware.version",
+    "field:kobuki_driver/Hardware.version"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "spin() reconnect: when device_port no longer exists, close the serial port, poll access() every 5 s until it exists, reopen it (115200 8N1), set is_connected and version_info_reminder = 10 so version info (hardware, firmware, UDID) is requested again; a 0.1 s data-stream timeout also sets is_alive = false and version_info_reminder = 10"
+  },
+  "provenance": {
+    "ports[0].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:284",
+    "ports[0].msg_type": "snapshot:kobuki_driver/include/kobuki_driver/packets/firmware.hpp:59",
+    "ports[0].frame": "snapshot:kobuki_driver/include/kobuki_driver/packets/firmware.hpp:63",
+    "ports[1].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:280",
+    "ports[1].msg_type": "snapshot:kobuki_driver/include/kobuki_driver/packets/hardware.hpp:59",
+    "ports[1].frame": "snapshot:kobuki_driver/include/kobuki_driver/packets/hardware.hpp:63",
+    "references[field:kobuki_driver/Firmware.version]": "snapshot:kobuki_driver/src/driver/kobuki.cpp:289",
+    "references[field:kobuki_driver/Hardware.version]": "snapshot:kobuki_driver/src/driver/kobuki.cpp:289",
+    "perm_requires.state": "searched all files under snapshot:kobuki_driver/ (grep -i exclusive|flock|TIOCEXCL|lockf|permission|perm|capabilit|grant); only licence-text hits, no permission declarations",
+    "perm_grants.state": "searched all files under snapshot:kobuki_driver/ (grep -i exclusive|flock|TIOCEXCL|lockf|permission|perm|capabilit|grant); only licence-text hits, no permission grants",
+    "recovery.state": "snapshot:kobuki_driver/src/driver/kobuki.cpp:187",
+    "recovery.value": "snapshot:kobuki_driver/src/driver/kobuki.cpp:187"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Within the snapshot the consumer is self-consistent: both version fields are uint16_t, deserialised as exactly 2 little-endian bytes, and passed to VersionInfo(const uint16_t &fw, const uint16_t &hw, ...). But deserialise() reads the payload length byte and ignores it (constrain() always returns true), so a producer (board firmware) that sent a version field of a different width would be misparsed silently; the snapshot does not show what width the firmware sends."
+  },
+  "confidence": "high",
+  "notes": "kobuki_driver is a rosbuild (manifest.xml) pure C++ library with no .msg/.srv/.action/.idl files. The packet's field elements correspond to the C++ serial-payload classes kobuki::Firmware (packets/firmware.hpp:59) and kobuki::Hardware (packets/hardware.hpp:59), each declaring 'struct Data { uint16_t version; } data;' (line 62-64); msg_type is written in the packet's pkg/Type form for these classes, which are not ROS messages. The field type as written is uint16_t for both. Both elements are consumed (side from packet), so they are in references and in neither declares nor not_declared. Consumption path: the driver requests them with Command::GetVersionInfo() (command.cpp:130-139: RequestExtra with HardwareVersion=0x01 | FirmwareVersion=0x02 | UniqueDeviceID=0x08) at init (kobuki.cpp:153-154) and after every received packet while version_info_reminder > 0 (kobuki.cpp:334; the decrement is commented out, and the reminder is reset to 0 only when the UniqueDeviceID payload arrives, kobuki.cpp:291). Incoming sub-payloads with header ids Hardware = 10 and Firmware = 11 (payload_headers.hpp:64-65) are deserialised at kobuki.cpp:279-286: header_id and length bytes are read, then buildVariable reads sizeof(uint16_t) = 2 bytes little-endian (payload_base.hpp:97-107); the length byte is not checked. The values are emitted as VersionInfo(firmware.data.version, hardware.data.version, udid0, udid1, udid2) on sig_version_info (kobuki.cpp:289-290), connected to sigslot name sigslots_namespace + \"/version_info\" (kobuki.cpp:131), and returned by Kobuki::versionInfo() (kobuki.hpp:116); VersionInfo stores them as const uint16_t firmware / hardware (version_info.hpp:62-71). frame is none because the values are version numbers with no spatial meaning; units null (none stated). QoS is null (ROS 1, and these are not ROS topics); no rate is set for them. definition_id is null for both ports: no ROS definition file exists for these types (the definition is a C++ struct), so definition_hash.py has nothing to hash. exclusive is empty: the serial device is opened with ecl::Serial::open(parameters.device_port, ...) (kobuki.cpp:114, 204) with no exclusive-lock flag in this package's code; command_mutex (kobuki.hpp:201) is an intra-process mutex. manifest_version is null: manifest.xml and the stack's stack.xml carry no version element; firmware.changelog lists board-firmware versions (v0.1.0, v0.0.2), not the package version. ros_distro is null and no dependency definition files were fetched. Other packages in the snapshot (e.g. kobuki_node) were not described."
+}

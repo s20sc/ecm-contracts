@@ -1,0 +1,38 @@
+{
+  "task_id": "u0215",
+  "package": "ur_kinematics",
+  "manifest_version": "1.1.9",
+  "ports": [
+    {
+      "element": "api:urdf::ModelInterface",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": ["api:urdf::ModelInterface"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:ur_kinematics/package.xml:4",
+    "references[api:urdf::ModelInterface]": "snapshot:ur_kinematics/src/ur_moveit_plugin.cpp:180 (`const std::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();` under `#if ROS_VERSION_MINIMUM(1, 13, 0)` at line 179); also snapshot:ur_kinematics/src/ur_moveit_plugin.cpp:182 (`const boost::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();` in the #else branch); header included at snapshot:ur_kinematics/src/ur_moveit_plugin.cpp:82 (`#include <urdf_model/model.h>`)",
+    "perm_requires": "searched snapshot/ur_kinematics (src, include, package.xml, CMakeLists.txt, ur_moveit_plugins.xml) for permission/capability declarations; none found",
+    "perm_grants": "searched snapshot/ur_kinematics (src, include, package.xml, CMakeLists.txt, ur_moveit_plugins.xml) for permission/capability grants; none found",
+    "recovery": "searched snapshot/ur_kinematics for recovery declarations (grep -i recover); none found. initialize() only logs ROS_ERROR_NAMED and returns false on missing URDF/SRDF (snapshot:ur_kinematics/src/ur_moveit_plugin.cpp:185-189)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The plugin binds rdf_loader.getURDF() to a smart pointer of urdf::ModelInterface whose flavour is selected by ROS_VERSION_MINIMUM(1, 13, 0): std::shared_ptr for roscpp >= 1.13 (lunar) and boost::shared_ptr otherwise, so at this revision it appears to already adapt to the std::shared_ptr-based URDF model API. Residual risk: it spells the pointer type out rather than using urdf::ModelInterfaceSharedPtr and keys the choice on the ROS version rather than the urdfdom version."
+  },
+  "confidence": "high",
+  "notes": "ur_kinematics is a MoveIt kinematics plugin library (ROS 1, lunar); both packet elements are C++ API symbols the package consumes, so declares and not_declared are empty (they concern only provided elements). api:urdf::ModelInterface is named in code (ur_moveit_plugin.cpp:180/182). api:urdf::ModelInterfaceSharedPtr is not named anywhere in the snapshot: grep for 'ModelInterfaceSharedPtr' and 'SharedPtr' across the whole snapshot returned no hits; the code instead writes std::shared_ptr<urdf::ModelInterface> / boost::shared_ptr<urdf::ModelInterface> explicitly. Whether the return type of moveit's rdf_loader::RDFLoader::getURDF() at lunar is spelled urdf::ModelInterfaceSharedPtr cannot be determined from the snapshot (moveit headers are not in the workspace and are not definition files), so no port, reference, or not_declared entry is recorded for api:urdf::ModelInterfaceSharedPtr. For the ModelInterface port, msg_type, frame, units and definition_id are null because it is a C++ class, not a ROS message; QoS is null because this is ROS 1; no rates are set. With ros_distro lunar (roscpp 1.13.x), the ROS_VERSION_MINIMUM(1, 13, 0) branch (line 180, std::shared_ptr) is the one compiled. No exclusive resources are claimed: the package is a pure kinematics solver with no hardware interfaces or device handles."
+}

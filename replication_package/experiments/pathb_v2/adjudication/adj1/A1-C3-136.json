@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-C3-136",
+  "kind": "A1",
+  "case_id": "C3-136",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1 and E4 document a reproduced inter-process delivery failure. The separately running publisher and listener are connected through comm_topic, and E3 is PAIR. E2's internal exclusion is not established by reproducing with different message types or by locating transport code in middleware: the documented failure is delivery across those units, varies with rate and middleware, and is not shown to occur independently of peer timing. The native Fast-DDS follow-up specifically identifies the publisher lifetime/acknowledgement assumption, not a demonstrated internal deadlock. Its finite-publisher explanation must not be treated as a proven diagnosis of the original continuing-publisher stall. Accept the observed composition at step 6 with a generic delivery condition and an unresolved precise cause.",
+    "quote": "The publisher works as expected - just keeps publishing messages.\r\nThe listener **STOPS** after receiving some messages (random amount). The log message from the callback won't be displayed anymore.",
+    "url": "https://github.com/ros2/rclcpp/issues/755"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["topic:comm_topic"],
+      "quote": "The listener just stops. I would have expected that it either drops messages (if it can't process them fast enough).",
+      "url": "https://github.com/ros2/rclcpp/issues/755#issuecomment-500458824",
+      "reason": "The connected subscriber stops delivering callbacks while the publisher continues. Both ends use std_msgs::msg::Float64 on comm_topic in the read reproducer. No source establishes incompatible reliability policies, a deadline contract, or a quantified required receive rate; do not invent qos_reliability or rate_shortfall."
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "The log message from the callback won't be displayed anymore.",
+    "url": "https://github.com/ros2/rclcpp/issues/755",
+    "reason": "The demonstrated failure is disappearance of normal receive output, with no build, connection or activation diagnostic in the reported trace. This is evidence of silent observed failure, not a guarantee that no diagnostic exists in any environment."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "run",
+    "quote": "The listener **STOPS** after receiving some messages (random amount).",
+    "url": "https://github.com/ros2/rclcpp/issues/755",
+    "reason": "Communication starts and later stalls during execution."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Or using the Publisher function `wait_for_all_acked()` after sending the samples, so that the publisher has to wait until all the samples are received and acknowledged by the subscriber.",
+    "url": "https://github.com/eProsima/Fast-DDS/issues/571#issuecomment-505859666",
+    "reason": "The linked native Fast-DDS reproduction has recommended heartbeat/acknowledgement changes and a maintainer-provided successful output. That is a different client, without both original ROS units pinned and demonstrated working. It supports recommended only, not observed or a proven fix of the original continuing-publisher stall."
+  },
+  "notes": "Read the original publisher/listener report, the corrected timer-driven publisher and follow-up logs, issue comments, Fast-DDS 571 and its comments. The source says 'That's because the publisher ends its execution before the subscriber receives all the samples since the publisher doesn't wait for them to be acknowledged.' at https://github.com/eProsima/Fast-DDS/issues/571#issuecomment-505859666; this contradicts treating the native example as proof of an implementation-internal failure. The alleged fixes are unrelated number collisions: PR 801 is '[dashing-backport] Add default value to options in LifecycleNode construnctor. Update API documentation. (#775)' and the ApexAI commit says 'remove debugging statements. (#755)' and changes only rcl_yaml_param_parser/test/test_parse_yaml.cpp. These metadata and file lists were opened. Confidence is medium because the original stall's precise mechanism remains unproven."
+}

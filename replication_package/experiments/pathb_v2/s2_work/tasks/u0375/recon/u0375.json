@@ -1,0 +1,76 @@
+{
+  "task_id": "u0375",
+  "package": "ArduPlane",
+  "manifest_version": "3.7.0",
+  "ports": [
+    {
+      "element": "api:FlightMode",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:mavlink/HEARTBEAT.custom_mode",
+      "side": "provides",
+      "msg_type": "mavlink/HEARTBEAT",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": 1,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:mavlink/SET_MODE.custom_mode",
+      "side": "consumes",
+      "msg_type": "mavlink/SET_MODE",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:FlightMode": "api FlightMode: enum FlightMode {",
+    "field:mavlink/HEARTBEAT.custom_mode": "field mavlink/HEARTBEAT.custom_mode: uint32_t"
+  },
+  "not_declared": [],
+  "references": [
+    "field:mavlink/SET_MODE.custom_mode"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "set_mode: if quadplane.init_mode() fails for a Q mode, control_mode reverts to previous_mode; a SET_MODE whose custom_mode is rejected by mavlink_set_mode is answered with COMMAND_ACK result MAV_RESULT_FAILED"},
+  "provenance": {
+    "manifest_version": "snapshot:ArduPlane/version.h:5-6 (#define THISFIRMWARE \"ArduPlane V3.7.0\"; #define FIRMWARE_VERSION 3,7,0,FIRMWARE_VERSION_TYPE_BETA); no package.xml exists under snapshot/ArduPlane",
+    "ports[0].side": "snapshot:ArduPlane/defines.h:48 (enum FlightMode {) defined in this package",
+    "ports[0].frame": "snapshot:ArduPlane/defines.h:48-69 (enumerators MANUAL = 0 ... QRTL = 21: flight-mode identifiers, no spatial meaning)",
+    "ports[1].side": "snapshot:ArduPlane/GCS_Mavlink.cpp:15 (uint32_t custom_mode = control_mode;) and :99-102 (gcs[chan-MAVLINK_COMM_0].send_heartbeat(MAV_TYPE_FIXED_WING, base_mode, custom_mode, system_status);)",
+    "ports[1].msg_type": "snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1651-1659 (GCS_MAVLINK::send_heartbeat(...) calls mavlink_msg_heartbeat_send(chan, type, MAV_AUTOPILOT_ARDUPILOTMEGA, base_mode, custom_mode, system_status))",
+    "ports[1].frame": "snapshot:ArduPlane/GCS_Mavlink.cpp:15 (custom_mode is the enum FlightMode value control_mode; no spatial meaning)",
+    "ports[1].rate_hz": "snapshot:ArduPlane/ArduPlane.cpp:69 (SCHED_TASK(one_second_loop, 1, 400), rate in Hz per ArduPlane.cpp:27) and :303-306 (one_second_loop sends gcs_send_message(MSG_HEARTBEAT)); also ArduPlane/GCS_Mavlink.cpp:2305-2307 sends MSG_HEARTBEAT every 1000 ms in mavlink_delay_cb",
+    "ports[2].side": "snapshot:ArduPlane/GCS_Mavlink.cpp:1727-1729 (case MAVLINK_MSG_ID_SET_MODE: handle_set_mode(msg, FUNCTOR_BIND(&plane, &Plane::mavlink_set_mode, bool, uint8_t));)",
+    "ports[2].msg_type": "snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1456-1457 (mavlink_set_mode_t packet; mavlink_msg_set_mode_decode(msg, &packet);)",
+    "ports[2].frame": "snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1461 (custom_mode passed to set_mode as a mode number; no spatial meaning)",
+    "declares[api:FlightMode]": "snapshot:ArduPlane/defines.h:48",
+    "declares[field:mavlink/HEARTBEAT.custom_mode]": "snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1651 (void GCS_MAVLINK::send_heartbeat(uint8_t type, uint8_t base_mode, uint32_t custom_mode, uint8_t system_status)) and snapshot:ArduPlane/GCS_Mavlink.cpp:15 (uint32_t custom_mode = control_mode;); type taken from the package's sending code because the MAVLink XML definition is not in the snapshot (modules/mavlink is empty)",
+    "references[field:mavlink/SET_MODE.custom_mode]": "snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1461 (if (set_mode(packet.custom_mode)) {)",
+    "perm_requires": "searched snapshot:ArduPlane/GCS_Mavlink.cpp:1727-1731, snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1453-1480 and snapshot:ArduPlane/system.cpp:506-532: no element-level permission check on SET_MODE or mode changes",
+    "perm_grants": "searched snapshot:ArduPlane/GCS_Mavlink.cpp and snapshot:libraries/GCS_MAVLink/GCS_Common.cpp: no permission granted by the heartbeat or mode interface",
+    "recovery": "snapshot:ArduPlane/system.cpp:479-480 (if (!quadplane.init_mode()) { control_mode = previous_mode;) and snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1455,1479 (uint8_t result = MAV_RESULT_FAILED; mavlink_msg_command_ack_send_buf(msg, chan, MAVLINK_MSG_ID_SET_MODE, result);)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The FlightMode enum (0-8, 10-12, 14-21), the HEARTBEAT custom_mode (= control_mode), the SET_MODE whitelist in mavlink_set_mode (every enumerator except INITIALISING) and the FLTMODE/INITIAL_MODE @Values docs agree at this revision; the only oddity is a latent uint32 to uint8 narrowing of SET_MODE.custom_mode through set_mode_fn."
+  },
+  "confidence": "medium",
+  "notes": "Not a ROS package: firmware source tree (ArduPilot) with MAVLink transport; QoS fields are null (ROS 1 generation, no QoS concept). The MAVLink message definitions (common.xml for HEARTBEAT and SET_MODE) are not in the snapshot (modules/mavlink submodule directory is empty) and XML is not an allowed dependency file type, so all definition_id values are null and the HEARTBEAT.custom_mode field type is taken from the package's own sending code (uint32_t). api:FlightMode enumerators at snapshot:ArduPlane/defines.h:49-68: MANUAL = 0, CIRCLE = 1, STABILIZE = 2, TRAINING = 3, ACRO = 4, FLY_BY_WIRE_A = 5, FLY_BY_WIRE_B = 6, CRUISE = 7, AUTOTUNE = 8, AUTO = 10, RTL = 11, LOITER = 12, AVOID_ADSB = 14, GUIDED = 15, INITIALISING = 16, QSTABILIZE = 17, QHOVER = 18, QLOITER = 19, QLAND = 20, QRTL = 21. HEARTBEAT: custom_mode carries control_mode (enum FlightMode) cast to uint32_t, base_mode always has MAV_MODE_FLAG_CUSTOM_MODE_ENABLED (ArduPlane/GCS_Mavlink.cpp:13,97), autopilot MAV_AUTOPILOT_ARDUPILOTMEGA, type MAV_TYPE_FIXED_WING. SET_MODE: custom_mode is used only when packet.base_mode has MAV_MODE_FLAG_CUSTOM_MODE_ENABLED (GCS_Common.cpp:1460); it is passed to set_mode_fn, declared FUNCTOR_TYPEDEF(set_mode_fn, bool, uint8_t) (libraries/GCS_MAVLink/GCS.h:244), so the uint32 value is narrowed to uint8_t before Plane::mavlink_set_mode(uint8_t mode) (ArduPlane/Plane.h:995, system.cpp:506-532) switches on it; INITIALISING (16) and unlisted numbers return false. With base_mode == MAV_MODE_FLAG_DECODE_POSITION_SAFETY, custom_mode 0/1 instead forces safety off/on (GCS_Common.cpp:1464-1476). SET_MODE.base_mode is also referenced but is not a packet element. MAV_CMD_DO_SET_MODE (GCS_Mavlink.cpp:1483-1505) maps only param1 base modes and does not read a custom mode. Incoming HEARTBEAT is read only for GCS failsafe timing (GCS_Mavlink.cpp:1956-1962). The code references many other MAVLink messages that are unrelated to the packet elements and are not listed in references. exclusive is empty: no exclusive claim relates to the listed elements; firmware-wide hardware ownership was not catalogued. perm_requires is absent at element level; link-level MAVLink2 signing exists (libraries/GCS_MAVLink/GCS_Signing.cpp) and applies to all messages. manifest_version is the firmware version from version.h (typed BETA), since there is no ROS manifest."
+}

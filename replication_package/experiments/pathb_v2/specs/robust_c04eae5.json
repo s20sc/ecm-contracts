@@ -1,0 +1,90 @@
+{
+  "case_id": "robust_c04eae5",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/175",
+    "https://github.com/yujinrobot/kobuki/issues/175#issuecomment-10703642",
+    "https://github.com/yujinrobot/kobuki/issues/175#issuecomment-10835726",
+    "https://github.com/yujinrobot/kobuki/issues/175#issuecomment-10844445",
+    "https://github.com/yujinrobot/kobuki/issues/175#issuecomment-10853213",
+    "https://github.com/yujinrobot/kobuki/commit/c04eae575167f579f9fce4e11f212e6d73b3deac",
+    "https://github.com/yujinrobot/kobuki/commit/d92a96e5a05f69c626132db42490ac382298df93",
+    "https://github.com/yujinrobot/kobuki/blob/350a31d466ef7fb95fabd56366b5d5c523a91ef5/kobuki_driver/include/kobuki_driver/packets/firmware.hpp",
+    "https://github.com/yujinrobot/kobuki/blob/350a31d466ef7fb95fabd56366b5d5c523a91ef5/kobuki_driver/src/driver/kobuki.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #175 (maintainer stonier, 2012-11-24): \"Check against the firmware version and gracefully abort. - Provide a decent error message to the user. - Provide a url to http://kobuki.yujinrobot.com/documentation/howtos/upgrading-firmware/\". Maintainers confirm the defect (the driver ignores the firmware's version field; at the parent revision Kobuki::spin() deserialises the Firmware sub-payload and the version check is a commented-out line) and fix it in c04eae5 / d92a96e. There is no reproducer or error log of an incompatible pairing; E1 passes on the maintainers' confirmation and on the concrete version mismatch they document in the thread and the commit (factory firmware reports 123 where the driver expects 1.0.x)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_driver", "kobuki firmware"],
+      "interface_kind": "wire protocol field",
+      "evidence": "Unit 1: kobuki_driver, the host-side C++ driver (kobuki repository at the time) that parses the robot's serial packet stream, including the Firmware sub-payload (Header::Firmware, 2-byte `uint16_t version`, requested with Command::GetVersionInfo). Unit 2: the Kobuki firmware image running on the robot's mainboard (closed source, distributed as .hex files from http://files.yujinrobot.com/kobuki/firmware/). The firmware has a declared interface (the serial protocol with its version sub-payload), so step 5 does not apply; the defect concerns compatibility between the two units' protocol revisions and the version value the firmware sends across the boundary (123, i.e. \"1.2.3\", where the driver expects the 1.0.x family), so it is not internal (step 2); no name binding (step 3) and no build-system change (step 4). Interface kind: wire protocol field (firmware version in the Firmware sub-payload)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the firmware's version sub-payload is an output of the firmware that feeds the driver's compatibility check; the documented composition is the driver running against the factory firmware, which reports version value 123. The thread designs the check for future firmware/driver UPGRADEs in either direction (\"Robot firmware is outdated\" / \"Please upgrade driver\"), but no upgrade event is documented; see notes."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "No failure was ever observed in the source (before the fix the driver ignored the version; the fix adds the check together with a hack so the factory firmware passes it). Code-level statement of the mismatch in the maintainer's commit c04eae5: \"// TODO firmware currently hardcoded version is 123, but of course we want 100; // remove this horrible, dirty hack as soon as we upgrade the firmware to 101 if (data.version == 123) data.version = 100;\" and corot's comment \"Factory version will be 1.0.0, but at it's actually hardcoded as 1.2.3\". Outcome class therefore undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_driver",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "350a31d466ef7fb95fabd56366b5d5c523a91ef5",
+      "resolved_rev": "d92a96e5a05f69c626132db42490ac382298df93",
+      "pinned": true,
+      "revision_basis": "broken_rev is the parent of the first fix commit c04eae5 (fuerte-devel line, after tag 0.1.5 of 2012-11-22); resolved_rev is the second fix commit d92a96e (2012-11-29, child of c04eae5), which completes the change by making kobuki_node's spin loop terminate when the driver requests shutdown; both are contained in tag 0.1.7 (2012-12-05). The driver library kobuki_driver and the ROS wrapper kobuki_node live in the same repository at these revisions.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "kobuki firmware",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "as-reported-2012-11",
+      "resolved_rev": "as-reported-2012-11",
+      "pinned": false,
+      "revision_basis": "No public repository: the firmware is a closed image distributed as .hex files (stonier: \"I updated the file server for this information: http://files.yujinrobot.com/kobuki/firmware/\"). The thread gives two labels for the factory firmware in circulation in November 2012: on the wire it reports version value 123 (corot: \"it's actually hardcoded as 1.2.3\"), while stonier states \"Factory version is actually 0.0.2.\" The resolution changes only the driver, so the firmware keeps the same label; its interface statements are in artifacts/robust_c04eae5.txt.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "field:kobuki_driver/Firmware.version", "sides": {"kobuki firmware": "provides", "kobuki_driver": "consumes"}},
+    {"element": "field:kobuki_driver/Hardware.version", "sides": {"kobuki firmware": "provides", "kobuki_driver": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["field:kobuki_driver/Firmware.version"],
+      "quote": "    // TODO firmware currently hardcoded version is 123, but of course we want 100;\n    // remove this horrible, dirty hack as soon as we upgrade the firmware to 101\n    if (data.version == 123)\n      data.version = 100;",
+      "url": "https://github.com/yujinrobot/kobuki/commit/c04eae575167f579f9fce4e11f212e6d73b3deac"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "Before the fix no diagnostic existed (the version was deserialised and ignored: `//sig_version_info.emit(VersionInfo(firmware.data.version, hardware.data.version));` at the parent). The fix itself introduces the diagnostic: `sig_error.emit(\"Robot firmware is outdated. For details about how to upgrade the firmware \" \"refer to http://kobuki.yujinrobot.com/documentation/howtos/upgrading-firmware\");` and `sig_error.emit(\"Driver version isn't not compatible with robot firmware. Please upgrade driver\");` followed by `shutdown_requested = true;` (commit c04eae5). No run showing either message is posted.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Commit c04eae5 adds `#define EXPECTED_FIRMWARE_VERSION \"10?\"` and Firmware::check_version() (compares the first two figures of the received version with the expected one); Kobuki::spin() calls it when the Firmware sub-payload arrives, emits an error with the upgrade URL when the firmware is older (or \"Please upgrade driver\" when newer) and sets shutdown_requested, with new isShutdown()/shutdown() accessors; the factory firmware's hard-coded value 123 is mapped to 100 so it passes. Commit d92a96e makes KobukiRos::spin() break out with \"Kobuki : driver shutdown; terminate kobuki node too\" when kobuki.isShutdown(). The firmware is unchanged.",
+    "status": "recommended",
+    "evidence": "Maintainer corot after committing: \"Done, but when launching as nodelet doesn't show the proper message, as we only use standard rosconsole macros. I add a comment on issue #166\" (https://github.com/yujinrobot/kobuki/issues/175#issuecomment-10844445): the change landed and the message path was exercised as a plain node, but no run of the resolved driver against an identified firmware revision is shown, and the nodelet variant did not display the message."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "low",
+  "notes": "This case documents a missing compatibility gate rather than an observed failed interaction: before the fix any firmware/driver pairing ran unchecked; the only concrete cross-boundary mismatch the source states is the factory firmware's reported version 123 (\"1.2.3\") versus the driver's expected family 1.0.x (\"10?\"), neutralised by the 123->100 hack, hence class other and outcome undocumented. The inventory names the serial protocol's Firmware and Hardware sub-payload version fields using the driver's declaring headers (kobuki_driver/include/kobuki_driver/packets/firmware.hpp: `struct Data { uint16_t version; } data;`, header id Header::Firmware, length 2; hardware.hpp analogously); they are not ROS messages. Versioning scheme agreed in the thread (corot): \"The three figures of Firmware number will mean: - major release - minor release that will force upgrade firmware, OR a patch that changes protocol (and so comptatibility) - patch that doesn't break compatibility\", so the check compares two figures (\"1.0.?\"). Operation: PAIR is recorded because the composition described is the driver paired with the factory firmware; the gate is designed for UPGRADE in both directions but no upgrade is documented. Other composition mentioned: the error message not appearing when kobuki_node runs as a nodelet (rosconsole macros inside a nodelet manager), deferred to issue #166; not part of this case. Stonier's contradicting factory label 0.0.2 versus the wire value 123 is left as reported."
+}

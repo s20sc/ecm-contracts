@@ -1,0 +1,46 @@
+{
+  "case_id": "C3N-018",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/2227",
+    "https://github.com/moveit/moveit2/pull/2273"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is a refactoring request, not a defect report: \"We're using `boost::algorithm::join(...)` in multiple places throughout the codebase to concatenate strings. It would be nice to replace this for example  with a small custom function based on the std library placed in moveit_core/utils\" (https://github.com/moveit/moveit2/issues/2227). The resolving PR describes itself as \"This PR replaces `boost::algorithm::join` with `fmt::join` for string formatting to reduce boost dependencies.\" (https://github.com/moveit/moveit2/pull/2273). No failed interaction between released units is reported."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated: E1 fails (no defect)."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E1 fails."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: E1 fails."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: the source is a dependency-reduction refactoring request, not a report of a concrete defect.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "During implementation a contributor posted a linker error from his own uncommitted change (\"undefined reference to `testing::internal::PrintBytesInObjectTo(...)`\" while building moveit_ros_occupancy_map_monitor tests after including fmt). The maintainer's answer was a build-system fix (\"You need to properly link the targets in the CMakeLists.txt files against fmt ... Also, please update the package.xml files\"). That error arose in a work-in-progress change, not in a released composition; had it been treated as the case it would stop at E2 step 4 (build). PR #2273 merged 2023-08-12 as bdc9cec35bceb88b1ada4d7968d9336401bcd660."
+}

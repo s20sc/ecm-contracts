@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_bb3c7ec-resolved-M1-d5ce62f23a",
+ "kind": "A2",
+ "case_id": "robust_bb3c7ec",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "missing_permission",
+ "element": "msg:diagnostic_msgs/DiagnosticArray",
+ "token": "android.permission.ACCESS_WIFI_STATE",
+ "values": [
+  {
+   "path": "consumer.perm_requires[android.permission.ACCESS_WIFI_STATE]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0133/snapshot/library/AndroidManifest.xml:8 = `  <uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>` (opened this session; adjacent lines :7 WRITE_EXTERNAL_STORAGE and :9 CHANGE_WIFI_STATE confirm the full three-permission block the packet's consumer.perm_requires enumerates). The packet's provenance path snapshot:library/AndroidManifest.xml:8 resolves against the consumer task u0133's snapshot and matches verbatim."
+  },
+  {
+   "path": "producer.perm_grants",
+   "verdict": "verified",
+   "source_excerpt": "Absence verified by exhaustive search: `rg -n \"uses-permission|grant|permission\" s2_work/tasks/u0134/snapshot s2_work/tasks/u0135/snapshot` returns only BSD license boilerplate such as s2_work/tasks/u0135/snapshot/kobuki_node/src/node/kobuki_node.cpp:15 = ` *       this software without specific prior written permission.` (same at main.cpp:15, diagnostics.cpp:15, slot_callbacks.cpp:15, subscriber_callbacks.cpp:15, kobuki_driver/src/driver/kobuki.cpp:15, kobuki_teleop files). No permission-grant artifact exists in either producer revision's snapshot (u0134 @ abf4e852, u0135 @ bb3c7ec8)."
+  },
+  {
+   "path": "consumer.perm_grants",
+   "verdict": "verified",
+   "source_excerpt": "Absence verified by exhaustive search: `rg -n \"uses-permission|grant\" s2_work/tasks/u0133/snapshot` returns exactly 6 declaration lines and nothing else - library/AndroidManifest.xml:7-9 (the three app permissions incl. this item's token at :8) and android_create:36-38 (INTERNET, ACCESS_WIFI_STATE, CHANGE_WIFI_STATE in the project-creation template). All hits are permission requests; no grant record exists in the consumer snapshot."
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Same PAIR encoding as the sibling missing_permission items, and it checks out: consumer=u0133 (android_app_manager @ f080cd93), producer=kobuki_node @ bb3c7ec8 (u0135). Consumer input role verified at s2_work/tasks/u0133/snapshot/library/src/ros/android/views/TurtlebotDashboard.java:121 = `      diagnosticSubscriber = node.newSubscriber(\"diagnostics_agg\", \"diagnostic_msgs/DiagnosticArray\");`; producer output role verified at s2_work/tasks/u0135/snapshot/kobuki_node/scripts/laptop_battery.py:173 = `        self._diag_pub  = rospy.Publisher('/diagnostics', DiagnosticArray)` (identical at u0134:173); producer recovery verified at s2_work/tasks/u0135/snapshot/kobuki_node/src/node/kobuki_node.cpp:216-226 with the once-per-episode guard (`if ( !timed_out ) {` :217, `kobuki.setBaseControl(0, 0);` :220, `timed_out = true;` :221, `} else { timed_out = false; }` :224-226) matching 'once per timeout episode'. ACCESS_WIFI_STATE appears in consumer.perm_requires exactly once, at manifest :8."
+ },
+ "notes": "No triggering value sits at a ver_delta.changed_fields[...] path, so substance is empty. The ACCESS_WIFI_STATE token is additionally echoed in android_create:37 (project template); that is a second declaration site, not a grant, and does not change the absent-grant verdict. The finding 'not granted' is supported: both sides' snapshots contain requests only, no grants."
+}

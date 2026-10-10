@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL2-02",
+ "kind": "A1",
+ "case_id": "CAL2-02",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "It is not safe to wait for the same entity using different wait sets in two or more threads concurrently.",
+  "url": "https://github.com/ros2/rmw/blob/f9f4ef46f8dd3ef938526a1140a3c57c155a259f/rmw/include/rmw/rmw.h#L2400-L2401"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "[Conclusion](https://github.com/ros2/rmw_fastrtps/issues/606#issuecomment-1125824269) was that if a node is assigned to multiple executors running asynchronously, it is unable to notify all of them about creating/destroying subscriptions etc..",
+   "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1191507077"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "#### Actual behavior\n* subscriber keeps not working  — and the reproducer README's dedicated-thread output under Ubuntu 22.04 Rolling binaries lists only activate/deactivate/client-success lines (zero 'recv data' lines, grep count 0 this session): [test_subscriber-1] [INFO] [1655367910.706412298] [task_server]: activate / [test_subscriber-1] [INFO] [1655367910.706964925] [task_client]: client success ... Cause found only with gdb: 'it seems that created subscription is not added to `rmw_wait` to be executed for Fast-DDS case.'",
+  "url": "https://github.com/gezp/ros2_test_subscriber/blob/01cca8e45fca0b984e11193a228d9c5f4831e823/README.md"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I confirmed that this problem has been addressed by https://github.com/ros2/rmw_fastrtps/pull/619. please feel free to reopen if you still have this issue in rolling. (fujitatomoya, comment 1226795803; PR 619 'Use Fast-DDS Waitsets instead of listeners' verified merged 2022-08-24, merge commit 1dcfe806)"
+ },
+ "notes": "All key sources opened this session: issue 613 (gep, Rolling binaries, Ubuntu 22.04) and all cited comments verbatim (gdb analysis 1162113639; afrixs 1191507077; EduPonz 'We are currently working on a solution for this (#619) which fixes this issue for us locally.'; fujitatomoya confirmation 1226795803; default-RMW change note); rmw.h at f9f4ef4 L2400-2401 thread-safety text verbatim; rmw_fastrtps guard_condition.hpp at 6.3.0 (f3eed521) shows the single attached conditionMutex_/conditionVariable_ in attachCondition; rclcpp executor.cpp at 16.2.0 (491475f) L219/L232 'const auto & gc = node_ptr->get_notify_guard_condition();' / 'memory_strategy_->add_guard_condition(gc);'; gep README dedicated-thread section contains 0 'recv data' lines (verified by grep). Independent walk agrees: failure depends on the pairing (disappears with rmw_cyclonedds_cpp), so step-2 internal fails; the notify guard condition attachable to one wait set while two executors wait on it is an exclusive_resource_conflict across the library API; not wiring/build. Resolution correctly 'recommended': the confirming maintainer build does not identify the rclcpp/rmw revisions of the specified composition. Minor observation: the operation is recorded PAIR while the contention is between two executor threads inside the consumer process; the spec discloses this in notes, and PAIR (rclcpp's API calls feed rmw_fastrtps) is defensible under E3."
+}

@@ -1,0 +1,97 @@
+{
+  "case_id": "robust_778c1ac",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/commit/778c1acda6dc3e194b50328259936c3f058bcb76",
+    "https://github.com/ros-industrial/universal_robot/pull/285",
+    "https://github.com/ros-industrial/universal_robot/commit/3a21c3efd4f65cd7236dc1a5fbb1331f0e0ebf5c",
+    "https://github.com/moveit/moveit/pull/68",
+    "https://github.com/moveit/moveit/pull/72",
+    "https://github.com/moveit/moveit/commit/988ad5b7a0682791391cf3665ddd129b507959c5",
+    "https://github.com/moveit/moveit/commit/47b1b2d6592b3e4d0da28d05a97b3482f4db0c05"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #285 (davetcoleman) quotes the runtime log: \"Deprecation warning: parameter 'allowed_execution_duration_scaling' moved into namespace 'trajectory_execution'. Please, adjust file trajectory_execution.launch.xml!\"; the fix was merged by the maintainer (\"+1...Thanks for the contribution....merging.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["moveit_ros_planning", "ur5_moveit_config"],
+      "interface_kind": "parameter",
+      "evidence": "MoveIt's TrajectoryExecutionManager (package moveit_ros_planning, loaded in the move_group node) moved the parameters it reads from ~allowed_execution_duration_scaling / ~allowed_goal_duration_margin into namespace ~trajectory_execution (MoveIt PR #72, merge 988ad5b7 on kinetic-devel, cherry-picked to indigo-devel as 47b1b2d); ur5_moveit_config's launch file still set the old names. A provider renaming a parameter that the consumer must follow is an interface change even though the consumer's fix is in a launch file."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (MoveIt, separately released) runs at a revision newer than the one the UR launch files were written against; the launch file still names the parameters as they existed before the move. Reporter: \"It is tested on Indigo, so necessary for both.\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "PR #285 body: \"Fixes warning:\" followed by the two deprecation warnings from ros.moveit_ros_planning.trajectory_execution_manager."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "moveit_ros_planning",
+      "role": "provider",
+      "repo": "https://github.com/moveit/moveit",
+      "broken_rev": "be66e8204fc0784952813cd72596eb83e69a2f3b",
+      "resolved_rev": "be66e8204fc0784952813cd72596eb83e69a2f3b",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distro (\"It is tested on Indigo\") and no MoveIt version. The indigo-devel branch head of moveit/moveit (formerly ros-planning/moveit) at the time the PR was opened (2017-01-04T21:10Z) was be66e82 (2017-01-03). Lower bound: the first indigo-devel revision that emits the quoted warning is 47b1b2d (\"cherry-pick #72 (988ad5b7) from kinetic-devel\", 2016-08-18); on kinetic-devel it is 988ad5b7. The UR fix does not change MoveIt, so the resolved composition keeps the same provider revision.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "ur5_moveit_config",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "66cc6f7ce6ba82cc43890184964686b9b47abd5f",
+      "resolved_rev": "778c1acda6dc3e194b50328259936c3f058bcb76",
+      "pinned": true,
+      "revision_basis": "Broken: 66cc6f7, the indigo-devel first parent of the merge of PR #285 (ur5_moveit_config version 1.1.9), whose launch/trajectory_execution.launch.xml sets the top-level parameter names. Resolved: merge commit 778c1ac (PR #285, fix commit 3a21c3e), which prefixes both parameters with trajectory_execution/.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "c185888e93616c1041f3ff1f0fa86e4f9ea5ab43",
+    "resolved": "be66e8204fc0784952813cd72596eb83e69a2f3b",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "param:/move_group/allowed_execution_duration_scaling", "sides": {"moveit_ros_planning": "provides", "ur5_moveit_config": "consumes"}},
+    {"element": "param:/move_group/allowed_goal_duration_margin", "sides": {"moveit_ros_planning": "provides", "ur5_moveit_config": "consumes"}},
+    {"element": "param:/move_group/trajectory_execution/allowed_execution_duration_scaling", "sides": {"moveit_ros_planning": "provides", "ur5_moveit_config": "consumes"}},
+    {"element": "param:/move_group/trajectory_execution/allowed_goal_duration_margin", "sides": {"moveit_ros_planning": "provides", "ur5_moveit_config": "consumes"}},
+    {"element": "param:/move_group/trajectory_execution/execution_duration_monitoring", "sides": {"moveit_ros_planning": "provides", "ur5_moveit_config": "consumes"}},
+    {"element": "param:/move_group/moveit_manage_controllers", "sides": {"moveit_ros_planning": "provides", "ur5_moveit_config": "consumes"}},
+    {"element": "param:/move_group/moveit_controller_manager", "sides": {"moveit_ros_planning": "provides", "ur5_moveit_config": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["param:/move_group/allowed_execution_duration_scaling", "param:/move_group/allowed_goal_duration_margin"],
+      "quote": "Deprecation warning: parameter 'allowed_execution_duration_scaling' moved into namespace 'trajectory_execution'.\r\nPlease, adjust file trajectory_execution.launch.xml!\r\nros.moveit_ros_planning.trajectory_execution_manager: \r\nDeprecation warning: parameter 'allowed_goal_duration_margin' moved into namespace 'trajectory_execution'.\r\nPlease, adjust file trajectory_execution.launch.xml!",
+      "url": "https://github.com/ros-industrial/universal_robot/pull/285"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The provider's own deprecation check emits the diagnostic when move_group initialises the TrajectoryExecutionManager: logger ros.moveit_ros_planning.trajectory_execution_manager, \"Deprecation warning: parameter 'allowed_execution_duration_scaling' moved into namespace 'trajectory_execution'.\" (PR #285 body). Source of the check: static const char* DEPRECATION_WARNING = \"\\nDeprecation warning: parameter '%s' moved into namespace 'trajectory_execution'.\" in trajectory_execution_manager.cpp at 988ad5b7 / 47b1b2d.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "In ur3/ur5/ur10_moveit_config launch/trajectory_execution.launch.xml, set trajectory_execution/allowed_execution_duration_scaling and trajectory_execution/allowed_goal_duration_margin instead of the top-level names.",
+    "status": "recommended",
+    "evidence": "PR #285 \"Fix Deprecated warning in MoveIt: parameter moved into namespace\" merged 2017-01-05 (merge 778c1ac); author states \"It is tested on Indigo\" but no MoveIt revision or post-fix log is given."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "The same fix is applied to ur3_moveit_config and ur10_moveit_config (same compositions with MoveIt); ur5_moveit_config is specified as the representative consumer. Parameter sides: the node that reads/declares the parameter (moveit_ros_planning's TrajectoryExecutionManager inside move_group) is recorded as provides, the package whose launch file sets it as consumes; names are resolved under /move_group because move_group.launch includes trajectory_execution.launch.xml with ns=\"move_group\". Upstream MoveIt history: PR #68 (gavanderhoorn, MSA templates) moved the params in generated configs; PR #72 (wkentaro) made TrajectoryExecutionManager read them under ~trajectory_execution via DynamicReconfigure and kept reading the old location with the warning (\"TODO: Reading from old param location should be removed in L-turtle.\"). consumer_built_against.broken is the indigo-devel revision immediately before the cherry-pick (c185888, which still reads getParam(\"allowed_execution_duration_scaling\") at top level); resolved is the Indigo MoveIt the fix was tested on (only the distro is stated, so the branch head on that date is used). Code-level observation not stated in the sources: in both the pre- and post-move provider the DynamicReconfigure server under ~/trajectory_execution is created after the top-level read and its callback sets allowed_execution_duration_scaling, so a value set only at the old location may be overridden by the dynamic-reconfigure default; the sources document only the warning. Packet hash 778c1acda6dc3e194b50328259936c3f058bcb7 is a prefix of merge commit 778c1acda6dc3e194b50328259936c3f058bcb76."
+}

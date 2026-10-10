@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_7284788-resolved-M1-948377df3e",
+ "kind": "A2",
+ "case_id": "robust_7284788",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::canTransform]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102 = `    virtual bool` / `      canTransform(const std::string& target_frame, const std::string& source_frame, ` / `\t\t   const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;` (second overload at :114-117). running: s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:50 = `    using tf2::BufferCore::canTransform;`, :100-102 and :114-117 the same two declarations (space-indented), plus the exposed base overloads at s2_work/tasks/u0101/snapshot/tf2/include/tf2/buffer_core.h:196-197 = `  bool canTransform(const std::string& target_frame, const std::string& source_frame,` / `                    const ros::Time& time, std::string* error_msg = NULL) const;` and :208-210 (advanced overload). All cited locations opened and show canTransform declarations as claimed."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::canTransform]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:361 = `  return tf2_buffer_.canTransform(strip_leading_slash(target_frame),` (continues :362 `                                  strip_leading_slash(source_frame), time, error_msg);`), called on the member `  tf2_ros::Buffer tf2_buffer_;` declared at s2_work/tasks/u0032/snapshot/tf/include/tf/tf.h:387."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::canTransform]",
+   "verdict": "transcription_only",
+   "built_excerpt": "s2_work/tasks/u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102: `    virtual bool` / `      canTransform(const std::string& target_frame, const std::string& source_frame, ` / `\t\t   const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;`",
+   "running_excerpt": "s2_work/tasks/u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102: `    virtual bool` / `    canTransform(const std::string& target_frame, const std::string& source_frame, ` / `                 const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;`"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The resolved upgrade unit maps built=u0099 (tf2_ros 0.5.7), running=u0101 (tf2_ros 7284788), consumer=u0032 (tf 1.11.4), matching the specification's UPGRADE operation. The ports are connected: tf.cpp:361 invokes canTransform on `tf2_ros::Buffer tf2_buffer_;` (tf.h:387), and at the running revision the provider declares both tf2_ros::Buffer overloads (u0101 buffer.h:100-102, 114-117) and, via `using tf2::BufferCore::canTransform;` (u0101 buffer.h:50), the two base overloads (tf2 buffer_core.h:196-197, 208-210) - the same surface the built revision exposes (u0099 buffer.h:49-50 has the identical using-declarations, and the base overloads are byte-identical at the same lines in u0099's tf2 tree)."
+ },
+ "notes": "diff -u of u0099 vs u0101 tf2_ros/include/tf2_ros/buffer.h shows the ONLY differences in the whole file are tab->space re-indentation of the continuation lines of the two lookupTransform and two canTransform declarations; signatures, parameter types, the `std::string* errstr = NULL` defaults, bool return types and constness are identical, and the using-declarations at :49-50 are unchanged. The operative change of the case's resolving commit is in the implementation, not the header: u0101 tf2_ros/src/buffer.cpp:128 and :151 contain `(ros::ok() || !ros::isInitialized())) // Make sure we haven't been stopped (won't work for pytf)` whereas rg for `ros::ok|isInitialized` over u0099's buffer.cpp returns no hits (the ros::ok() term itself only entered in 0.5.8). So what a consumer binds to at the declaration level does not differ in substance between built and running; the header-level 'changed field' is a whitespace artifact."
+}

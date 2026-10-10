@@ -1,0 +1,53 @@
+{
+  "case_id": "C3-029",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/vision_opencv/issues/485",
+    "https://github.com/ros-perception/vision_opencv/pull/486",
+    "https://github.com/ros-perception/vision_opencv/pull/487",
+    "https://github.com/ros-perception/vision_opencv/pull/488",
+    "https://github.com/ros/rosdistro/pull/34582",
+    "https://github.com/ros-perception/vision_opencv/pull/419",
+    "https://github.com/ros-perception/vision_opencv/pull/421",
+    "https://github.com/ros-perception/vision_opencv/pull/422",
+    "https://github.com/ros-perception/vision_opencv/pull/495"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "rosdistro PR #34582 (a ROS 2 maintainer) reverted the Foxy/Galactic vision_opencv releases because \"While that package itself succeeds, it seems to be causing problems in downstream packages:\" and links the failing rqt_image_view binary jobs (https://github.com/ros/rosdistro/pull/34582). The vision_opencv maintainer confirmed it there: \"Ok, I can reproduce the problem and I understand why it's happening now. I'm going to track the issue in https://github.com/ros-perception/vision_opencv/issues/485\". The linked build.ros2.org console logs could not be retrieved (the site serves a proof-of-work bot challenge; the Wayback Machine has no snapshots), but the maintainer's confirmation is public."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": ["cv_bridge", "rqt_image_view"],
+      "interface_kind": null,
+      "evidence": "The change that broke the downstream build is PR #419, which changes only CMake files (cv_bridge/CMakeLists.txt, cv_bridge/src/CMakeLists.txt, cv_bridge/test/CMakeLists.txt, image_geometry/CMakeLists.txt, image_geometry/test/CMakeLists.txt). Its description: \"This installs includes to `include/${PROJECT_NAME}` ...\", \"This removes `ament_export_libraries` and `ament_export_include_directories` as they're redundant with the exported CMake targets.\", \"This replaces `ament_target_dependencies()` calls with `target_link_libraries()`.\", \"This uses FindPython3 instead of the deprecated FindPythonInterp and FindPythonLibs.\" (https://github.com/ros-perception/vision_opencv/pull/419). The resolving changes are packaging and build-system only: rosdistro #34582 pins Foxy back to 2.2.1-1 and Galactic to 2.2.1-2, and PRs #486/#487 revert #419/#421/#422 (again only CMakeLists.txt files). No header, symbol, message, or other declared interface element of cv_bridge changes. The maintainer calls #419 \"the PR that was breaking API in foxy and galactic\" (https://github.com/ros-perception/vision_opencv/issues/485#issuecomment-1250403595), but the primary diff is build-system only, so it is classified by the diff."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE (not evaluated further because E2 fails): the new cv_bridge release (Foxy 3.0.4-1, Galactic 3.1.0-1 per the rosdistro diff) broke the build of rqt_image_view, which had been built against the previous release (2.2.1)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed downstream build failures on the ROS 2 buildfarm (Fbin/Gbin rqt_image_view binary jobs) reported in rosdistro #34582, with the effect confirmed by the maintainer."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 4 (build): the break came from CMake/install-layout changes in cv_bridge (PR #419: header install directory, removed ament_export_include_directories/ament_export_libraries, FindPython3), and it was resolved by reverting the rosdistro release entries and those CMake changes. No declared interface element of cv_bridge changed.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Issue #485 is the maintainer's own release-management note: \"When I branched off ``foxy``and ``galactic`` branches, I branched off from the ``ros2`` branch ... the ``ros2`` branch contained a significant number of breaking changes\". The concrete failed composition it tracks is cv_bridge (new Foxy/Galactic release) + rqt_image_view (downstream binary build), reported in rosdistro #34582. Resolution: PR #486 (foxy, merge d1934b39) and PR #487 (galactic, merge b60b302c) revert #419/#421/#422. Two more compositions appear in the thread, both build/dependency-resolution only: (1) a user building the reverted foxy branch from source on Windows with Boost >= 1.67 (\"After the revert, builds do not work when using a Boost 1.67 or newer\", https://github.com/ros-perception/vision_opencv/issues/485#issuecomment-1250372403), fixed by PR #488 (merge d8911e0c, the #390 Boost python fix) and confirmed working by the user on branch foxy-with-boost-python-fix (\"It works!\"); (2) Galactic RHEL cv_bridge binary build broken by the backport (\"the backport to galactic broke Galactic builds on RHEL\", https://github.com/ros-perception/vision_opencv/issues/485#issuecomment-1276786661), fixed by PR #495 (merge d9ace4dd, Boost component python3 on Boost 1.66). Confidence is medium because the rqt_image_view build log (the exact CMake/compile error) is unavailable, so the failing mechanism is taken from #419's diff and the maintainer statements, not from the log."
+}

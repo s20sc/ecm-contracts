@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-CAL2-10",
+ "kind": "A1",
+ "case_id": "CAL2-10",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "I just updated my Groovy debian installation with the release that was posted today on ros-users and now collada meshes no longer appear in RViz.  In particular, the TurtleBot is now basically invisible.",
+  "url": "https://github.com/ros-visualization/rviz/issues/622"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-\t\t<unit meter=\"0.01\" name=\"centimeter\"/>\n+\t\t<unit meter=\"1.0\" name=\"meter\"/>",
+   "url": "https://github.com/turtlebot/turtlebot_create/commit/9299530eb77b9e8a2a18160fb6ece325d38abfbc"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "disagree",
+  "proposed": {"loudness": "silent_documented", "detection_stage": "run"},
+  "quote": "Actually, it doesn't look like scaling, but it is pretty messed up on my machine as well (whole robot is just a few speckles of gray and white scattered around)",
+  "url": "https://github.com/ros-visualization/rviz/issues/622"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "turtlebot_create version 2.0.1 fixes this issue. It's now available on shadow-fixed.",
+  "url": "https://github.com/turtlebot/turtlebot/issues/65"
+ },
+ "notes": "Verified rviz#622 (+comments), turtlebot#65 (+comments) and the fix merge 9299530. Eligibility agreed at step 6 (UPGRADE; unit-aware rviz 1.9.28 renders meshes authored for unit-ignoring rviz). I confirmed in the fix diff that create_body.dae's declaration changes from <unit meter=\"0.01\" name=\"centimeter\"/> to <unit meter=\"1.0\" name=\"meter\"/> — a unit mismatch on the mesh resource, so unit_mismatch on resource:package://create_description/meshes/create_body.dae is right. Loudness disagreement: the spec records loud_documented/'connect' with the template sentence 'the consumer logs an incompatibility error naming the element before any data is exchanged', which describes nothing in this source. What rviz#622 and turtlebot#65 show is wrong rendering observed at run time — 'the TurtleBot is now basically invisible', 'whole robot is just a few speckles of gray and white scattered around' — with no diagnostic from tooling at build, connection, or activation; users diagnosed the scale factor by hand ('applying the following scales to the meshes fixed the problem: ... create_body: 100'). That is silent_documented with detection_stage run. Resolution recommended agreed: bit-pirate's '2.0.1 fixes this issue' is a release statement, not a shown observation of 2.0.1 rendering correctly against a named rviz revision; pirobot's working observation used his own rescaled mesh copies."
+}

@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-085",
+  "kind": "A1",
+  "case_id": "C3-085",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 4,
+    "reason_code": "build",
+    "quote": "Issue #1095 (title \"Arm64 cannot link atomic\", macOS Ventura 13.2.1 arm64, source build): \"std::atomic fails to link\"; PR #1096 diff in rclpy/CMakeLists.txt: \"-if(CMAKE_C_COMPILER_ID MATCHES \\\"Clang\\\")\\n+if(CMAKE_C_COMPILER_ID MATCHES \\\"Clang\\\" AND NOT APPLE)\\n  target_link_libraries(_rclpy_pybind11 PRIVATE atomic)\"",
+    "url": "https://github.com/ros2/rclpy/issues/1095"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Actual behavior: std::atomic fails to link"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PR #1096 \"Solving Atomic undefined on OSX with clang\" merged 2023-03-28; the only change is the CMake condition around linking the atomic library for Apple Clang."
+  },
+  "notes": "Independently verified: issue #1095 body (macOS Ventura 13.2.1 arm64, source install, expected \"The rclpy package shouldn't fail during the colcon build stage\", actual \"std::atomic fails to link\"); PR #1096 title, merge date, and its single-file diff — the CMake condition change quoted above, exactly as the spec records. My independent reading: the failure is a link error during colcon build of one package and the minimal resolving change is a build-system condition only, with no unit's declared or referenced interface changed — tree step 4 'Build-system, packaging, or dependency-resolution change only, no interface change → ineligible build'. The spec's E1/E3/E4 records (E3 not evaluated beyond E2; build-time failure of a single package) match the source. Ineligible stands."
+}

@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_bdda1fa",
+  "kind": "A1",
+  "case_id": "robust_bdda1fa",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "scripts fix #478: Remove guided_enable garbage.\n\nI'm missed this when do #407.",
+    "url": "https://github.com/mavlink/mavros/commit/bdda1fab32a9d084cfe980fe4f364b5eb35173e0"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-\t\tguided_srv = cmd_nh.advertiseService(\"guided_enable\", &CommandPlugin::guided_cb, this);",
+      "url": "https://github.com/mavlink/mavros/commit/d7bd78574a0deb5f12ff7da529c784508ddba275"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "scripts fix #478: Remove guided_enable garbage.\n\nI'm missed this when do #407.",
+      "url": "https://github.com/mavlink/mavros/commit/bdda1fab32a9d084cfe980fe4f364b5eb35173e0"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "'module' object has no attribute 'guided_enable'",
+    "url": "https://github.com/mavlink/mavros/issues/478"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Works for me. Thanks for the fast turnaround!"
+  },
+  "notes": "Issue #478 title/body, comments 173821917 (vooon 'can you check fix?') and 173834273 (srees 'Works for me.'), removal commit d7bd7857 (guided_srv advertiseService line deleted), and fix commit bdda1fab (command.guided_enable -> set_mode ServiceProxy) all verified verbatim. element_removed_or_renamed is correct. Loudness loud_documented at run stage is correct (Python AttributeError on the removed symbol). Resolution observed is strong (reporter confirmation). Operation UPGRADE is defensible under the literal E3 definition (consumer references a provider element as it existed at an earlier provider revision); the spec's notes transparently flag that script and node ship in one package and that PAIR is the alternative reading under the strict 'separately released' clause — this ambiguity does not change eligibility or the failed condition."
+}

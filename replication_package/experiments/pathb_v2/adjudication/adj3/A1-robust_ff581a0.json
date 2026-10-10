@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_ff581a0",
+  "kind": "A1",
+  "case_id": "robust_ff581a0",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "pnh.param(\"sensor_position/x\", y, 0.0);\n-\t\t\tpnh.param(\"sensor_position/x\", z, 0.0);\n+\t\t\tpnh.param(\"sensor_position/y\", y, 0.0);\n+\t\t\tpnh.param(\"sensor_position/z\", z, 0.0);",
+    "url": "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Commit ff581a07 (\"distance_sensor: minor correction\", author TSC21, PR #296 \"distance_sensor: small enhancements\", merged 2015-05-21). I read the commit diff, which changes the last two of three pnh.param calls from sensor_position/x to sensor_position/y and sensor_position/z (the first stays sensor_position/x). This is a copy-paste error inside DistanceSensorItem::create_item of one unit: the plugin reads the x key three times, so y and z take the value of x. The parameter interface (sensor_position/x,/y,/z) is agreed between the plugin and its configuration; the failure would occur with any correct configuration and does not depend on an assumption between the two units. E2 stops at step 2 (internal), which is correct. No effect is documented (commit message says only \"minor correction\"). Loudness/resolution correctly null."
+}

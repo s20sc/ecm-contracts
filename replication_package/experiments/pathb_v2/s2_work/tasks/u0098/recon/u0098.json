@@ -1,0 +1,27 @@
+{
+  "task_id": "u0098",
+  "package": "motoman_sia5d_support",
+  "manifest_version": "0.3.3",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:motoman_sia5d_support/package.xml:4",
+    "ports": "Searched every file under snapshot/motoman_sia5d_support (CMakeLists.txt, package.xml, config/joint_names_sia5d.yaml, launch/*.launch, test/launch_test.xml, urdf/sia5d.urdf, urdf/sia5d.xacro, urdf/sia5d_macro.xacro, and the .dae files under meshes/sia5d) for 'package://', 'motoman_config' and 'sia5/': no hit for any packet element. Every mesh reference points to the package's own copies, e.g. snapshot:motoman_sia5d_support/urdf/sia5d_macro.xacro:13 'package://motoman_sia5d_support/meshes/sia5d/visual/base.dae' and snapshot:motoman_sia5d_support/urdf/sia5d.urdf:13 (same path).",
+    "references": "No file in snapshot/motoman_sia5d_support names any 'package://motoman_config/meshes/sia5/...' resource (grep for 'motoman_config' and 'sia5/' returned nothing); package.xml has no dependency on motoman_config (run_depend list at snapshot:motoman_sia5d_support/package.xml:40-43: motoman_driver, robot_state_publisher, rviz, joint_state_publisher).",
+    "perm_requires": "No permission or access-control declarations in package.xml, CMakeLists.txt, config/joint_names_sia5d.yaml, launch/*.launch, test/launch_test.xml or urdf/*; the package contains no source code.",
+    "perm_grants": "Same search as perm_requires; none found.",
+    "recovery": "No recovery/fault-handling declarations in any config, launch or URDF file of the package; no source code present."
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "At this revision the package does not consume any of the listed motoman_config sia5 meshes; its xacro and urdf reference only its own meshes/sia5d/{visual,collision}/*.dae files, all 16 of which exist in the snapshot, so there is no dangling reference among the listed elements."
+  },
+  "confidence": "high",
+  "notes": "All ten packet elements are resources the package is listed as consuming (package://motoman_config/meshes/sia5/...). The package at version 0.3.3 is data-only (URDF/xacro, meshes, YAML, launch files) and references none of them: urdf/sia5d_macro.xacro and urdf/sia5d.urdf point every visual and collision mesh at package://motoman_sia5d_support/meshes/sia5d/..., and those files are present under snapshot/motoman_sia5d_support/meshes/sia5d/. Hence no ports, no references, and (since nothing is provided) nothing in declares or not_declared. For context only: the motoman_config package in the same snapshot does still contain meshes/sia5/{collision,visual}/*.dae. No ROS topics, services, actions or messages are involved, so no definition hashes were computed. The package's launch files load joint names (controller_joint_names) and include motoman_driver launch files, but those are not packet elements."
+}

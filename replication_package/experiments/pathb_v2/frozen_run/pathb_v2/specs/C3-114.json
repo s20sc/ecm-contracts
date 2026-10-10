@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-114",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/377",
+    "https://github.com/ros2/geometry2/pull/449",
+    "https://github.com/ros2/geometry2/pull/307"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter gives a reproduction loop (`for i in {1..50};  do ./build/test_tf2/test_message_filter; done`) and the gtest failure \"Expected equality of these values:\\r\\n  messages\\r\\n    Which is: 30\\r\\n  n.count_\\r\\n    Which is: 29\\r\\n[  FAILED  ] MessageFilter.concurrentTransforms\" -- https://github.com/ros2/geometry2/issues/377 ; a maintainer confirms it on the Foxy nightly CI: \"I just noticed that this is happening on our nightly Foxy CI too, it failed 5/25 latest builds\" -- https://github.com/ros2/geometry2/issues/377#issuecomment-906646033"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "tf2_ros (MessageFilter, exercised by test_tf2)",
+        "tf2 (BufferCore)"
+      ],
+      "interface_kind": null,
+      "evidence": "The defect is a time-of-check/time-of-use race between two methods of tf2::BufferCore inside one process: addTransformableRequest took transformable_requests_mutex_ only at the end, so a concurrent testTransformableRequests could run all callbacks before the new request was appended, and the request's callback was never called. It occurs with any correct caller; no value, frame, name or timing assumption between tf2_ros and tf2 is violated. Fix comment in the diff: \"This is to\\n  // ensure that we don't have a TOCTTOU race between this method and\\n  // testTransformableRequests.\" and \"We fix this by holding the mutex\\n  // across most of this method.\" -- https://github.com/ros2/geometry2/pull/449/files (tf2/src/buffer_core.cpp). The fix only moves the lock in tf2/src/buffer_core.cpp and drops a sleep in test_tf2/test/test_message_filter.cpp. Additional context (confidence in this eligibility decision: high): ROS 2 Foxy (ros:foxy docker). PR #449 (merged into the foxy branch as 2942156c3f1e61f33f7e60c6077b6572d168811a) is a backport of #307, which had fixed the same race on the rolling/galactic line (related issue #305). The issue was later closed as end-of-life by clalancette (https://github.com/ros2/geometry2/issues/377#issuecomment-2518753476), not by the PR. The flakiness is a test failure caused by an internal race in BufferCore; it is not an interface mismatch between tf2_ros and tf2."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "CONCURRENT: the test adds messages to the tf2_ros MessageFilter from one thread while another thread sets transforms on the buffer (test MessageFilter.concurrentTransforms)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: one of 30 messages never reached the filter callback: \"messages\\r\\n    Which is: 30\\r\\n  n.count_\\r\\n    Which is: 29\" -- https://github.com/ros2/geometry2/issues/377"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

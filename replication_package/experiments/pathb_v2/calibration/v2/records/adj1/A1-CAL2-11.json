@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-CAL2-11",
+  "kind": "A1",
+  "case_id": "CAL2-11",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I create two different Project on different workspace. One is idfa_msgs/GDXBoxesMessage under Rosjava 0.2.. The other is obstacle_detection/GDXBoxMessage under Roscpp.",
+    "url": "https://answers.ros.org/question/375062",
+    "reason": "The two independently built nodes attempt a PAIR connection on /box. The concrete connection log establishes E1/E4. Their nominal message declarations differ even though the topic name matches, so E2 is an interface failure rather than deployment-only wiring. E3 holds."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It looks like idfa_msgs/GDXBoxesMessage is not the same package (and thus message) as obstacle_detection/GDXBoxMessage.",
+      "url": "https://answers.ros.org/question/375062",
+      "reason": "The topic and both qualified message names are directly shown. The mismatch is nominal; equal field contents would not make those names identical."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [1617170692.958476152]: Client [/GPUPlanarRegionSubscriber] wants topic /box to have datatype/md5sum [idfa_msgs/GDXBoxesMessage/d41d8cd98f00b204e9800998ecf8427e], but our version has [obstacle_detection/GDXBoxMessage/bbc122c887def5dd8eda16d81d7d1109]. Dropping connection.",
+    "url": "https://answers.ros.org/question/375062",
+    "reason": "ROS explicitly rejects the connection and names both incompatible interfaces."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "However, when establishing the connection using customized message, the error pops up like following.",
+    "url": "https://answers.ros.org/question/375062",
+    "reason": "The reporter and dropping-connection log both identify connect."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Have java expect the lidar_obstacle_detection/gdxboxesmessage, have the c++ ros node use the java message, or create another node that subscribers to one and published the other. But I dont know how to do either of these",
+    "url": "https://answers.ros.org/question/375062",
+    "reason": "The thread proposes aligning one side's message declaration with the other or introducing a translator. S1 explicitly includes proposed changes in recommended; absence of an implementation or successful test does not make the proposal none. This is only a reporter-proposed approach, not maintainer approval or an observed fix. The translator alternative adds a third node and is not a resolved instance of the original two-node pair."
+  },
+  "notes": "Only one message definition is published. Different hashes do not justify an additional same-nominal-type definition_mismatch condition because the nominal types already differ and the Java definition is not supplied. The proposal's lidar_obstacle_detection/gdxboxesmessage spelling is preserved verbatim, not silently treated as the publisher's established type name."
+}

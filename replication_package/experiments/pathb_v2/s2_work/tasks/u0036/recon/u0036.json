@@ -1,0 +1,104 @@
+{
+  "task_id": "u0036",
+  "package": "ecl_devices",
+  "manifest_version": "0.60.5",
+  "ports": [
+    {
+      "element": "api:ecl::Serial::Serial",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::block",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": "ms",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::open",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::read",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::write",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": ["port_name"],
+  "declares": {
+    "api:ecl::Serial::Serial": "api ecl::Serial::Serial: Serial(const std::string& port_name, const BaudRate &baud_rate = BaudRate_115200, const DataBits &data_bits = DataBits_8, const StopBits &stop_bits = StopBits_1, const Parity &parity = NoParity ) ecl_throw_decl(StandardException);",
+    "api:ecl::Serial::block": "api ecl::Serial::block: void block(const unsigned long &timeout = 500);",
+    "api:ecl::Serial::open": "api ecl::Serial::open: bool open(const std::string& port_name, const BaudRate &baud_rate = BaudRate_115200, const DataBits &data_bits = DataBits_8, const StopBits &stop_bits = StopBits_1, const Parity &parity = NoParity ) ecl_throw_decl(StandardException);",
+    "api:ecl::Serial::read": "api ecl::Serial::read: template <typename Byte> long read(Byte *bytes, const unsigned long &n) ecl_debug_throw_decl(StandardException);",
+    "api:ecl::Serial::write": "api ecl::Serial::write: template <typename Byte> long write(const Byte *bytes, const unsigned long &n) ecl_debug_throw_decl(StandardException);"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:ecl_devices/package.xml:4",
+    "ports[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:163",
+    "ports[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:156 (@param port_name : the device name.; parameters are a device name and enumerated BaudRate/DataBits/StopBits/Parity, no spatial data)",
+    "ports[1].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:290",
+    "ports[1].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:290 (argument is a read timeout, no spatial data)",
+    "ports[1].units": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:288 (@param timeout : timeout measured in ms.)",
+    "ports[2].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:210",
+    "ports[2].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:203 (@param port_name : the device name.; configuration arguments only, no spatial data)",
+    "ports[3].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:340",
+    "ports[3].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:484 (ecl_compile_time_assert( is_byte<Byte>::value ); raw bytes, no spatial data)",
+    "ports[4].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:258",
+    "ports[4].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:424 (ecl_compile_time_assert( is_byte<Byte>::value ); raw bytes, no spatial data)",
+    "exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+    "declares[api:ecl::Serial::Serial]": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:163",
+    "declares[api:ecl::Serial::block]": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:290",
+    "declares[api:ecl::Serial::open]": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:210",
+    "declares[api:ecl::Serial::read]": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:339",
+    "declares[api:ecl::Serial::write]": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:257",
+    "perm_requires.state": "searched snapshot/ecl_devices (package.xml, CMakeLists.txt, include/, src/) for permission declarations; none. PermissionsError appears only as an errno-to-error mapping in snapshot:ecl_devices/src/lib/detail/error_handler.cpp:38 and exception_handler_pos.cpp:49",
+    "perm_grants.state": "searched snapshot/ecl_devices (package.xml, CMakeLists.txt, include/, src/) for permission grants; none",
+    "recovery.state": "searched snapshot/ecl_devices serial sources; no recovery policy declared. Closest behaviour: open() status accessor closes the port if the device file disappears (snapshot:ecl_devices/src/lib/serial_pos.cpp:257-265)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The RAII constructor api:ecl::Serial::Serial initialises only port, read_timeout_ms and error_handler (serial_pos.cpp:52), not is_open or file_descriptor, then calls open(...), whose first step if (open()) close(); reads the uninitialised is_open and can ::close an uninitialised descriptor. Also the default constructor (serial_pos.hpp:144) leaves read_timeout_ms uninitialised, so open(...) calls block(read_timeout_ms) with an indeterminate timeout, although the doc promises a 5 s default (serial_pos.hpp:198-199)."
+  },
+  "confidence": "medium",
+  "notes": "The snapshot is the whole ecl_core repository; the package is snapshot/ecl_devices. serial.hpp selects serial_pos.hpp under ECL_IS_POSIX and serial_w32.hpp under ECL_IS_WIN32; ros_distro is hydro (Linux), so declarations are recorded from the POSIX header. Each packet element has several overloads, and one representative is recorded per element: Serial::Serial = the parameterised RAII constructor (the other is the inline default constructor Serial() : is_open(false), error_handler(NoError) {}; at serial_pos.hpp:144); Serial::open = the parameterised overload (the other is the status accessor bool open(); at serial_pos.hpp:230); Serial::read and Serial::write = the buffer templates with (bytes, n) (single-byte templates long read(Byte &byte) at serial_pos.hpp:324 and long write(const Byte &byte) at serial_pos.hpp:245 also exist). Multi-line declarations are joined with whitespace collapsed, and template headers are included. The Win32 header declares different signatures for the same symbols: void open(...) throws instead of returning bool (serial_w32.hpp:173), void block(const long &timeout = 500) ecl_assert_throw_decl(StandardException); (serial_w32.hpp:234), and non-template char-based long read(char *s, const unsigned long &n) and long write(const char *s, unsigned long n) (serial_w32.hpp:212, 276). block(): timeouts below 100 ms use an internal polling loop (1/2/5 ms periods); at 100 ms or more it sets termios VTIME = timeout/100 (serial_pos.cpp:271-323). On the lock-failure path, open() uses the ecl_throw_decl(...) macro instead of ecl_throw (serial_pos.cpp:129); with exceptions enabled this expands to throw(...) (ecl_exceptions macros.hpp:64), and the descriptor is not closed. The exclusive resource is the device named at run time by port_name. It is locked with fcntl F_WRLCK on POSIX; on Win32 CreateFileA is called with share mode 0 (serial_w32.cpp:88-90). No ROS topics, services, messages or parameters are involved, so QoS, rate and definition_id are null. definition_hash.py was not needed. There are no consumed packet elements, so references is empty."
+}

@@ -1,0 +1,27 @@
+{
+  "item_id": "A1-robust_b166c93",
+  "kind": "A1",
+  "case_id": "robust_b166c93",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The following commit fixed an issue with isnan for kinetic: https://github.com/yujinrobot/kobuki_core/commit/2d943e14e99d6d645729b97c5f6dcb10d415f8ff\nCould we have that fix backported to indigo as well?",
+    "url": "https://github.com/yujinrobot/kobuki_core/issues/22"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Cherried in b166c939.\n\nComing soon to indigo in v0.6.4. (the entire public record — backport request plus cherry-pick — contains no error output, no failing environment, no warning; loudness null conforms to the ineligible-case schema and 'unknown' would be the only possible label)",
+    "url": "https://github.com/yujinrobot/kobuki_core/issues/22"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Subject: [PATCH] [kobuki_driver] isnan -> std::isnan (both commits' messages name only the symbol replacement; resolution status null conforms to the ineligible-case schema)",
+    "url": "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964.patch"
+  },
+  "notes": "Independently verified: issue #22 (pronobis, 2016-06-17, 'Backport isnan fix to indigo') body matches the spec quote verbatim; stonier's comment 'Cherried in b166c939. / Coming soon to indigo in v0.6.4.' matches (read via gh api). Both commit patches read in full and are identical in substance: 2d943e1 (2016-05-06, parent f56802f8bbc4a718495e1978c4a7e475ccdb4d15, which the tags API shows is tag 0.7.0) and b166c93 (2016-06-17, parent 57b89147438e41c46c0a6890ac7082a70c0056c2, which the tags API shows is tag 0.6.3): '-#include <stdexcept>' → '+#include <cmath>' (with <stdexcept> re-added lower) and '-            if (isnan(heading_offset) == true)' → '+            if (std::isnan(heading_offset) == true)'; CHANGELOG line '+* isnan -> std::isnan'. kobuki.cpp at tag 0.6.3 read: line 276 is 'if (isnan(heading_offset) == true)' as the spec states. E1: agree it passes on the maintainer's confirmation (the maintainer applied the fix and said so). E2: agree the walk itself reaches step 6 (library API: whether the unqualified isnan call compiles depends on the peer's headers; not internal, not deployment binding, not build-system-only, not firmware). E3: agree it fails — the source names no failing toolchain, platform, or provider revision; 'for kinetic' hints at an environment but an UPGRADE record would require provider revision labels the source does not contain, and inventing them is barred. E4: agree it fails — no observed failure, no warning, and no statement of the mismatch's effect; the commit message names the replacement, not what failed. Ineligible on E3+E4: agree."
+}

@@ -1,0 +1,53 @@
+{
+  "item_id": "A1-robust_a2f8eea",
+  "kind": "A1",
+  "case_id": "robust_a2f8eea",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "rosrun tf2_ros static_transform_publisher  1 2 3 0 0 0 1 parent child\n\nrosrun tf2_tools view_frames.py\n\nIt doesn't show the parent and child in this case, just shows no frames received.",
+    "url": "https://github.com/ros/geometry2/issues/46",
+    "reason": "Two independently executable ROS nodes are paired. The missing subscription and static-aware buffer insertion are a consumer interface implementation failure. The fix changes code and static-transform handling; it is not simply a deployment remap."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "disagree",
+      "proposed_elements": ["topic:/tf_static"],
+      "quote": "         rospy.Subscriber(\"/tf\", TFMessage, self.callback)\n+        rospy.Subscriber(\"/tf_static\", TFMessage, self.static_callback)",
+      "url": "https://github.com/ros/geometry2/commit/a2f8eea04f95c9abb0e4d7557d796e84fb13a32a",
+      "reason": "other correctly describes missing static-transform support, with no documented removal or retyping. /tf is an existing, unchanged dynamic-transform subscription, not an interaction supplied by this static publisher. The failed element of this pair is /tf_static, not /tf.",
+      "additional_evidence": [
+        {
+          "quote": "  publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf_static\", 100, true);",
+          "url": "https://raw.githubusercontent.com/ros/geometry2/17e57137dda28bf7e1d23a007e44e0eee404d26d/tf2_ros/src/static_transform_broadcaster.cpp"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "It doesn't show the parent and child in this case, just shows no frames received.",
+    "url": "https://github.com/ros/geometry2/issues/46",
+    "reason": "The empty result is visible, but there is no diagnostic identifying a missing subscription or incompatible interface. A no-data result is not itself an interface-checking diagnostic under the supplied definition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "rosrun tf2_tools view_frames.py\n\nIt doesn't show the parent and child in this case, just shows no frames received.",
+    "url": "https://github.com/ros/geometry2/issues/46"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "adding support for static transforms in python listener. Fixes #46",
+    "url": "https://github.com/ros/geometry2/commit/a2f8eea04f95c9abb0e4d7557d796e84fb13a32a",
+    "reason": "The patch implements static reception and buffer insertion, but the issue has no comments or post-fix successful execution. recommended is supported, not observed."
+  },
+  "notes": "Read the issue and its empty comments list, the complete fix, and parent broadcaster/listener code. The new tf2_py static insertion entry point is part of implementing the same missing consumer capability; the source does not establish a second independent observed failure requiring another condition. The specification itself lists /tf with no provider side, corroborating its exclusion from this pair's implicated elements."
+}

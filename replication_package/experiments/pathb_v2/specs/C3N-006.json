@@ -1,0 +1,49 @@
+{
+  "case_id": "C3N-006",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/1478",
+    "https://github.com/moveit/moveit2/pull/1479"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Code reproducer calling `fjm.interpolate(jv1, jv2, 0.5, intp);` with printed results and \"Note how the interpolated angle has value 0.285: it's taking the long way around, with the interpolation going through 0 instead of Pi/-Pi radians.\" -- https://github.com/moveit/moveit2/issues/1478 ; fix merged by maintainers (\"PR is merged, so I'm closing this\" -- https://github.com/moveit/moveit2/issues/1478#issuecomment-1209697065)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "moveit_core (moveit::core::FloatingJointModel)",
+        "caller of FloatingJointModel::interpolate (reporter's test code)"
+      ],
+      "interface_kind": null,
+      "evidence": "Wrong arithmetic inside one unit, independent of any peer: \"it appears that the formula got copied wrong from Wikipedia, as applying the absolute-value function in the place it was at prevented detection of the long-way-around case.\" -- https://github.com/moveit/moveit2/pull/1479 ; the diff replaces the hand-written slerp using `double dq = fabs(...)` / `if (dq < 0)` with `Eigen::Quaterniond q = q1.slerp(t, q2);` in moveit_core/robot_model/src/floating_joint_model.cpp. Any correct caller receives the wrong interpolation."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No composition of two units is involved; the reproducer calls the library function directly."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong value (interpolated angle 0.285223 about -z between 2.07858 about +z and 2.64902 about -z) -- https://github.com/moveit/moveit2/issues/1478"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "PR 1479 merged to main as 59e69bbead595cf2a8e2c2b1f4faa5d847d57e5a with a randomized interpolation unit test. The component order (x,y,z,w) in the joint vector vs Eigen's (w,x,y,z) constructor is handled inside the same function (\"Note the ordering: Eigen takes w first!\") and does not cross a unit boundary."
+}

@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-124",
+  "kind": "A1",
+  "case_id": "C3-124",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "^CThe following exception was never retrieved: Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL, at /root/ros2_ws/colcon_ws/src/ros2/rcl/rcl_action/src/rcl_action/goal_handle.c:95",
+    "url": "https://github.com/ros2/rclpy/issues/790"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "goal_handle attempted invalid transition from state %s with event %s",
+      "url": "https://raw.githubusercontent.com/ros2/rcl/29388f32a97800b86b44a772aebc84a14a134cdc/rcl_action/src/rcl_action/goal_handle.c"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL, at /root/ros2_ws/colcon_ws/src/ros2/rcl/rcl_action/src/rcl_action/goal_handle.c:95",
+    "url": "https://github.com/ros2/rclpy/issues/790"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "### Unit Test Verification\n\n- No exception happens on action server.\n- Client can receive response against cancel request.",
+    "url": "https://github.com/ros2/rclpy/pull/791#issuecomment-835798630"
+  },
+  "notes": "Verified this session: issue 790 body has the reproducer (fujitatomoya/demos branch topic-20210509-reproducible-action-test, fibonacci_action_server + ros2 action send_goal + Ctrl-C), '- Exception happens on action server.' / '- Client cannot receive response against cancel request.' under Actual behavior, the quoted error log, and 'This is follow-up of https://github.com/ros2/rclcpp/issues/1569'. rclpy action/server.py at 3186e15b line 378 'goal_handle._update_state(GoalEvent.CANCEL_GOAL)' (https://raw.githubusercontent.com/ros2/rclpy/3186e15b83fda833e37f5b7a77b16ff5e82d74b9/rclpy/rclpy/action/server.py); _rclpy_action.cpp lines 991-993 'rcl_ret_t ret = rcl_action_update_goal_state(goal_handle, event);' / 'throw rclpy::RCLError(\"Failed to update goal state\");'; rcl goal_handle.c at 29388f32 line 96 'goal_handle attempted invalid transition from state %s with event %s'. PR 791 'reject cancel request if failed to transit to CANCEL_GOAL state.' merged 2021-05-12, merge_commit_sha 714f69ee64ee8ea5dbc5f3067211b7886a4e7226; merged patch wraps the call in 'try:' / 'except RCLError as ex:' with 'self._node.get_logger().debug(' -- i.e. debug level. The PR author's verification comment (id 835798630) shows '[ERROR] [1620562815.088458091] [fibonacci_action_server]: Failed to cancel goal in cancel callback: Failed to update goal state: ...' at ERROR level, so the verified run used the pre-merge fork variant, exactly as the spec argues for 'recommended' rather than 'observed'. E2: the invalid CANCEL_GOAL event crosses the rclpy/rcl_action API boundary and the provider refuses it; race origin inside rclpy's executor does not make it internal; fix is rclpy code -> stop 6. Class 'other' for a goal-state-machine protocol violation is right; the client-side missing response belongs to the other composition, recorded in notes as required."
+}

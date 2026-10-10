@@ -1,0 +1,93 @@
+{
+  "case_id": "robust_03660af",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/125",
+    "https://github.com/yujinrobot/kobuki/commit/03660afb5917366cc6d57567e2f695450fd95feb",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_driver/src/driver/kobuki.cpp",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_driver/include/kobuki_driver/kobuki.hpp",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_node/src/node/subscriber_callbacks.cpp",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_node/src/node/kobuki_node.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #125 \"Serial writes unprotected\" was opened by the maintainer (stonier, 2012-06-04): \"These are potentially accessible from multiple threads.\\n\\nNeed to mutex around the serial.write().\" and closed by him four minutes later with \"Done.\" (https://github.com/yujinrobot/kobuki/issues/125#issuecomment-6092352); the fixing commit 03660af adds \"ecl::Mutex command_mutex; // protection against the user calling the command functions from multiple threads\" and a doc comment naming the peer: \"they may be calling from different threads (this is so for kobuki_node), so we mutex protect it here rather than relying on the user to do so above.\" (https://github.com/yujinrobot/kobuki/commit/03660afb5917366cc6d57567e2f695450fd95feb). No reproducer or log; the defect is documented by the maintainer's own statement and fix."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_driver", "kobuki_node"],
+      "interface_kind": "library API",
+      "evidence": "kobuki_driver is a plain C++ library package (manifest.xml depends on ecl_devices etc., no ROS) and kobuki_node is the ROS nodelet package that hosts it (kobuki_node/manifest.xml: <depend package=\"kobuki_driver\"/>). At 32388d7 the driver's own thread (\"thread.start(&Kobuki::spin, *this);\" in Kobuki::init) writes to the serial port on every received packet via Kobuki::spin -> \"sendBaseControlCommand(); // send the command packet to mainboard;\" -> \"serial.write(cmd, 9);\", while kobuki_node's subscriber callbacks (subscriber_callbacks.cpp: subscribeLed1Command/subscribeLed2Command -> kobuki.setLed, subscribeDigitalOutputCommand -> kobuki.setDigitalOutput, subscribeSoundCommand -> kobuki.playSoundSequence, disable -> kobuki.disable) enter the driver from ROS callback threads and reach \"serial.write(&command_buffer[0], command_buffer.size());\" in Kobuki::sendCommand through a shared command_buffer, with no lock anywhere. Step 2: the failure depends on an assumption between the units (the driver's public command functions assumed a single caller thread; the host node calls them from several threads while the driver's own thread also writes), so it is an interface (thread-safety) failure of the library API rather than a defect of one unit alone; the fix comment states that assumption explicitly. Steps 3-5 do not apply. Interface kind: library API (Kobuki command methods)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "CONCURRENT: the failure is the simultaneity of the driver's streaming thread and the host node's callback threads (and of several callback threads with each other) issuing serial writes through the driver; the units are otherwise in a PAIR relation (node commands feed the driver), recorded as the alternative in notes. Both units are at the same repository snapshot, so no UPGRADE."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch by the maintainer: \"These are potentially accessible from multiple threads.\\n\\nNeed to mutex around the serial.write().\" (https://github.com/yujinrobot/kobuki/issues/125) and the commit comment \"Need to be a bit careful here, because we have no control over how the user\\n * is calling this - they may be calling from different threads (this is so for\\n * kobuki_node), so we mutex protect it here rather than relying on the user\\n * to do so above.\" (https://github.com/yujinrobot/kobuki/commit/03660afb5917366cc6d57567e2f695450fd95feb). No corrupted write or crash is reported as observed, so the outcome class is undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_driver",
+      "role": "provider",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "32388d7cc5591cf38385ad62d01f0f292f734b17",
+      "resolved_rev": "03660afb5917366cc6d57567e2f695450fd95feb",
+      "pinned": true,
+      "revision_basis": "Broken: 32388d7, the sole parent of the fixing commit; kobuki_driver/src/driver/kobuki.cpp there has unlocked serial.write calls in sendBaseControlCommand (line 362) and sendCommand (line 384). Resolved: 03660af (2012-06-04, on the mainline that both groovy-devel and hydro-devel later descend from), which adds command_mutex, locks it in sendCommand, and routes sendBaseControlCommand through sendCommand. The packages still use rosbuild manifest.xml files without version numbers and the source names no ROS distro.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "kobuki_node",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "32388d7cc5591cf38385ad62d01f0f292f734b17",
+      "resolved_rev": "32388d7cc5591cf38385ad62d01f0f292f734b17",
+      "pinned": true,
+      "revision_basis": "Same snapshot as the driver (parent of the fix). The minimal resolving change (the mutex) is entirely inside kobuki_driver, so kobuki_node keeps its broken revision; note that commit 03660af also edits kobuki_node (a debug publisher \"debug/raw_data_command\" and a slot for the driver's new raw_data_command signal), which is unrelated to the race, so the tree at 03660af contains a slightly different kobuki_node than the one recorded here.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "CONCURRENT",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:kobuki::Kobuki::setBaseControl", "sides": {"kobuki_driver": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:kobuki::Kobuki::setLed", "sides": {"kobuki_driver": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:kobuki::Kobuki::setDigitalOutput", "sides": {"kobuki_driver": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:kobuki::Kobuki::playSoundSequence", "sides": {"kobuki_driver": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:kobuki::Kobuki::enable", "sides": {"kobuki_driver": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:kobuki::Kobuki::disable", "sides": {"kobuki_driver": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:kobuki::Kobuki::resetOdometry", "sides": {"kobuki_driver": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:kobuki::Kobuki::init", "sides": {"kobuki_driver": "provides", "kobuki_node": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:kobuki::Kobuki::setLed", "api:kobuki::Kobuki::setDigitalOutput", "api:kobuki::Kobuki::playSoundSequence", "api:kobuki::Kobuki::disable"],
+      "quote": "These are potentially accessible from multiple threads.\n\nNeed to mutex around the serial.write().",
+      "url": "https://github.com/yujinrobot/kobuki/issues/125"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No run of the composition and no diagnostic appear in the source; the issue states the exposure (\"potentially accessible from multiple threads\") and the fix, without an observed corrupted command or error (https://github.com/yujinrobot/kobuki/issues/125).",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Provider-side change in kobuki_driver (commit 03660af): add \"ecl::Mutex command_mutex\" to class Kobuki, take it in Kobuki::sendCommand (\"command_mutex.lock();\" ... \"serial.write(&command_buffer[0], command_buffer.size());\" ... \"command_mutex.unlock();\"), and replace the separate unlocked write in sendBaseControlCommand with \"sendCommand(Command::SetVelocityControl(velocity_commands[0], velocity_commands[1]));\" so the driver's own streaming thread takes the same lock.",
+    "status": "recommended",
+    "evidence": "The maintainer closed the issue with \"Done.\" (https://github.com/yujinrobot/kobuki/issues/125#issuecomment-6092352) and committed the change; the source shows no run of the resolved composition, so the status is recommended."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Failed-condition class: the unstated thread-safety of the driver's command API (concurrent entries from the host's callback threads and from the driver's own spin thread share command_buffer and the serial device) has no dedicated class; exclusive_resource_conflict describes the mechanism (unsynchronised writes to the one serial port) but the serial port is not an element through which the two units interact, so the condition is recorded as other on the API elements the node calls from callbacks. Alternative reading for E2 step 2: a non-thread-safe library could be read as an internal defect of kobuki_driver alone; the case is kept eligible because the maintainer's fix comment frames the requirement as one imposed by the peer (\"this is so for kobuki_node\"), which is an assumption between the units. Operation: PAIR is the structural relation (node commands feed the driver); CONCURRENT is recorded because the failure is the simultaneity of writers. kobuki_node runs as a nodelet in a manager (kobuki_bringup readme in the same commit shows \"nodelet ... args=\\\"manager\\\"\"), whose callbacks run on a thread pool; the driver additionally starts its own thread in init. Commit 03660af bundles unrelated work (velocity control merged into the Command structure, SetVelocityControl, resetBuffer, a raw_data_command debug signal and kobuki_node publisher, laptop battery monitor disabled, gdb readme); only the mutex and the rerouting of sendBaseControlCommand are the resolution. No ROS distro is named; the tree is rosbuild-era (manifest.xml, kobuki_node depends on turtlebot_node)."
+}

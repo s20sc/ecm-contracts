@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-08",
+  "kind": "A1",
+  "case_id": "CAL-08",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I setup a simple publisher and subscriber with rclcpp. On the publisher I switched on \"best offert\". The subscriber was set to \"reliable\". Now this should be incompatible and I can observe that no messages are received in the subscriber.",
+    "url": "https://web.archive.org/web/20240304091108/https://answers.ros.org/question/371257/ros2-foxy-incompatible-qos-policies-no-warnings/"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "On the publisher I switched on \"best offert\". The subscriber was set to \"reliable\". Now this should be incompatible and I can observe that no messages are received in the subscriber.",
+      "url": "https://web.archive.org/web/20240304091108/https://answers.ros.org/question/371257/ros2-foxy-incompatible-qos-policies-no-warnings/"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Checking https://github.com/ros2/rclcpp/blob/2... tells me that there should be some warning but yet there isnt.",
+    "url": "https://web.archive.org/web/20240304091108/https://answers.ros.org/question/371257/ros2-foxy-incompatible-qos-policies-no-warnings/"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "none",
+    "quote": "Does anyone know if I am doings something wrong here? Or is this just not available with the default middleware?",
+    "url": "https://web.archive.org/web/20240304091108/https://answers.ros.org/question/371257/ros2-foxy-incompatible-qos-policies-no-warnings/"
+  },
+  "notes": "Sources opened: the direct answers.ros.org fetch returns a 7 KB stub (read-only/deprecated notice), so the 2024-03-04 Wayback snapshot was fetched via curl (49,978 bytes, full question body verified); rclcpp subscription_base.cpp at 234b5e42 via raw.githubusercontent, whose default_incompatible_qos_callback (lines 242-254) contains the RCLCPP_WARN text 'New publisher discovered on this topic, offering incompatible QoS. No messages will be sent to it. Last incompatible policy: %s' that the reporter expected and did not see. Eligibility: agree, stop 6. E1: concrete setup, observed effect (no messages received), subscriber code, and an error log for the separate event-callback attempt. E2: two separate rclcpp nodes interacting only through a topic ('I setup a simple publisher and subscriber with rclcpp.'); the reliability mismatch (best effort offered vs reliable requested) crosses the boundary - not internal, not a name binding, not build, not firmware. Stop 6, topic. E3 PAIR, E4 observed. Failed condition: qos_reliability on topic:/topic agreed, quote verified. Loudness silent_documented/run agreed: the failure is silent for the user - the incompatible-QoS event that ROS 2 tooling can report (and that would make such a case loud at connect) produced no warning in this Foxy composition ('there should be some warning but yet there isnt'); observed only as no messages arriving. Resolution DISAGREED: the spec sets status 'observed' while its own summary says 'None documented. The thread has no answers or comments.' I verified the snapshot contains zero answer blocks (all 'answer' occurrences are site-template text: deprecation notice, FAQ, licence). 'Observed' requires the source to show the resolved composition working; with no answer and no follow-up there is no resolution at all, so the correct status is 'none'."
+}

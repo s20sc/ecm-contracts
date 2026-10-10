@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-C3N-020",
+  "kind": "A1",
+  "case_id": "C3N-020",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "As reported in issue #1506, the default `moveit_controllers.yaml` created by MSA is missing a few lines:\n\n```\n    action_ns: follow_joint_trajectory\n    default: true\n```",
+    "url": "https://github.com/moveit/moveit2/issues/1514"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "No action namespace specified for controller `rotate_joint_controller` through parameter `moveit_simple_controller_manager.rotate_joint_controller.action_ns`",
+      "url": "https://gist.github.com/Cryoschrome/2e6a47a87e8ff89509822db4a7fb2585"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "As reported in issue #1506, the default `moveit_controllers.yaml` created by MSA is missing a few lines:\n\n```\n    action_ns: follow_joint_trajectory\n    default: true\n```",
+      "url": "https://github.com/moveit/moveit2/issues/1514"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[move_group-3] [ERROR] [1660542422.258335743] [moveit.plugins.moveit_simple_controller_manager]: No action namespace specified for controller `rotate_joint_controller` through parameter `moveit_simple_controller_manager.rotate_joint_controller.action_ns`",
+    "url": "https://gist.github.com/Cryoschrome/2e6a47a87e8ff89509822db4a7fb2585"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "if (controller.type_ == \"FollowJointTrajectory\")\n          {\n            emitter << YAML::Key << \"action_ns\" << YAML::Value << \"follow_joint_trajectory\";\n            emitter << YAML::Key << \"default\" << YAML::Value << \"true\";"
+  },
+  "notes": "All key claims verified. (1) Issue 1514 body verbatim matches the spec's quote (missing action_ns/default lines); issue 1506 body states 'Humble branch; commit: 7dd0434' (broken rev verified). (2) Gist (second log) line 85 contains the exact 'No action namespace specified for controller `rotate_joint_controller` through parameter ...action_ns' ERROR, followed by 'Returned 0 controllers in list' — the consumer's activation-time refusal. (3) Consumer code at 7dd0434 verified: lines 116-120 `action_ns_param = makeParameterName(PARAM_BASE_NAME, controller_name, \"action_ns\"); if (!node_->get_parameter(action_ns_param, action_ns)) { ... << \"No action namespace specified ...\"` and line 197 `get_parameter_or(..., \"default\", state.default_, false)` (default has a fallback, action_ns does not — consistent with the action_ns error firing first). (4) PR 1515 ('MSA: write the default controller namespace') merged as 066e8621 on main; the diff adds the action_ns/default emission gated on `controller.type_ == \"FollowJointTrajectory\"`; humble backport 2042b82c confirmed ('cherry picked from commit 066e8621...'). Regression origin 8ee767a '[MSA] Add additional parameters to Controller definitions (#1408)' confirmed. (5) Classes: both conditions are element_removed_or_renamed (the generator stopped emitting action_ns/default after 8ee767a); correct. Implicated elements correct. (6) Loudness: the refusal is the consumer's own parameter check logging ERROR at move_group startup (activation) — a runtime-enforced refusal, loud_documented with detection_stage activate; correct. (7) Resolution 'recommended' correct: the fix is merged but no source shows the fixed generator (setup-assistant build at a fixed revision) producing a working composition; the working report is a hand-edited YAML, not the fixed generator. No missed conditions in this composition (the ros2_control 'type param not defined' error is a separate composition; moveit_controller_manager is a third unit)."
+}

@@ -1,0 +1,126 @@
+{
+  "task_id": "u0151",
+  "package": "kobuki_node",
+  "manifest_version": "0.6.1",
+  "ports": [
+    {
+      "element": "api:rospy.Publisher",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.ROSInterruptException",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.Subscriber",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.init_node",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.spin",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rospy.Publisher",
+    "api:rospy.ROSInterruptException",
+    "api:rospy.Subscriber",
+    "api:rospy.init_node",
+    "api:rospy.spin"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "base velocity zeroed (kobuki.setBaseControl(0, 0)) when no velocity command is received within cmd_vel_timeout (param, default 0.6 s)"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_node/package.xml:3",
+    "ports[0]": "snapshot:kobuki_node/scripts/getOdom2D.py:18; snapshot:kobuki_node/scripts/getYaw.py:19; snapshot:kobuki_node/scripts/getYaw.py:20",
+    "references[api:rospy.Publisher]": "snapshot:kobuki_node/scripts/getOdom2D.py:18; snapshot:kobuki_node/scripts/getYaw.py:19; snapshot:kobuki_node/scripts/getYaw.py:20",
+    "ports[1]": "snapshot:kobuki_node/scripts/getOdom2D.py:50; snapshot:kobuki_node/scripts/getYaw.py:45",
+    "references[api:rospy.ROSInterruptException]": "snapshot:kobuki_node/scripts/getOdom2D.py:50; snapshot:kobuki_node/scripts/getYaw.py:45",
+    "ports[2]": "snapshot:kobuki_node/scripts/getOdom2D.py:17; snapshot:kobuki_node/scripts/getYaw.py:18",
+    "references[api:rospy.Subscriber]": "snapshot:kobuki_node/scripts/getOdom2D.py:17; snapshot:kobuki_node/scripts/getYaw.py:18",
+    "ports[3]": "snapshot:kobuki_node/scripts/getOdom2D.py:16; snapshot:kobuki_node/scripts/getYaw.py:17",
+    "references[api:rospy.init_node]": "snapshot:kobuki_node/scripts/getOdom2D.py:16; snapshot:kobuki_node/scripts/getYaw.py:17",
+    "ports[4]": "snapshot:kobuki_node/scripts/getOdom2D.py:49; snapshot:kobuki_node/scripts/getYaw.py:44",
+    "references[api:rospy.spin]": "snapshot:kobuki_node/scripts/getOdom2D.py:49; snapshot:kobuki_node/scripts/getYaw.py:44",
+    "perm_requires.state": "searched kobuki_node package.xml, CMakeLists.txt, launch/*, param/*, plugins/*, src/*, include/*, scripts/*: no permission declaration",
+    "perm_grants.state": "searched kobuki_node package.xml, CMakeLists.txt, launch/*, param/*, plugins/*, src/*, include/*, scripts/*: no permission grant",
+    "recovery.value": "snapshot:kobuki_node/src/library/kobuki_ros.cpp:256; snapshot:kobuki_node/src/library/kobuki_ros.cpp:260; snapshot:kobuki_node/src/library/odometry.cpp:35; snapshot:kobuki_node/param/base.yaml:21"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "All three rospy.Publisher calls (getOdom2D.py:18, getYaw.py:19-20) omit the queue_size argument; under indigo rospy this falls back to synchronous publishing with a warning, so the Publisher usage does not match the API as expected at that distro. The other four rospy calls look conventional."
+  },
+  "confidence": "high",
+  "notes": "All five packet elements are rospy API symbols consumed (called/caught) by the two test scripts scripts/getOdom2D.py and scripts/getYaw.py (installed via CMakeLists.txt:33-34; rospy is a build/run depend at package.xml:45,78 and a catkin component at CMakeLists.txt:3,11). The C++ nodelet library does not use rospy. Port fields msg_type, frame, units, qos, rate and definition_id are null because the elements are API symbols, not data ports (ROS 1, so QoS is null anyway). Call forms: rospy.init_node(\"getOdom2D\", anonymous=True) / rospy.init_node(\"getYaw\", anonymous=True); rospy.Subscriber(\"odom\", Odometry, cb) / rospy.Subscriber(\"imu\", Imu, cb); rospy.Publisher(\"pose2d\", Pose2D), rospy.Publisher(\"angle\", Float64), rospy.Publisher(\"angle_rate\", Float64) (no queue_size); rospy.spin(); except rospy.ROSInterruptException: pass. declares/not_declared are empty because the packet lists no provided elements. Other external elements the scripts reference but that are not packet elements (not listed in references): api:roslib.load_manifest, api:tf.transformations.euler_from_quaternion, msg:nav_msgs/Odometry, msg:sensor_msgs/Imu, msg:geometry_msgs/Pose2D, msg:std_msgs/Float64, msg:geometry_msgs/Quaternion (imported, unused), topics odom and imu (relative names, remapped in launch/test_get_odom.launch and launch/test_get_yaw.launch). exclusive is empty: device_port (/dev/kobuki, param/base.yaml:5) is read at src/library/kobuki_ros.cpp:145 and opened by kobuki_driver (kobuki.init), which is not in the snapshot, so no exclusive claim is declared here. recovery is recorded as present on the basis of the velocity-command timeout fail-safe; there is no reconnect or restart logic in this package (serial data-stream loss is only logged, kobuki_ros.cpp:271-281)."
+}

@@ -1,0 +1,38 @@
+{
+  "item_id": "A1-robust_90a9464",
+  "kind": "A1",
+  "case_id": "robust_90a9464",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "As reported in #165 and #164: `sda10f.xacro` is trying to instantiate a macro called `motoman_sda10f`, but that doesn't exist, so `roslaunch` tests for that top-level xacro fail.",
+    "url": "https://github.com/ros-industrial/motoman/issues/166",
+    "reason": "Agree: the unresolved macro reference and missing macro definition are both in motoman_sda10f_support. They are not separately deployable units. The xacro processor exposes this local defect; the evidence does not establish a changed external xacro API. Stop at step 2 for an internal package defect.",
+    "proposed_eligible": false
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "unknown macro name: xacro:motoman_sda10f",
+    "url": "https://github.com/ros-industrial/motoman/issues/166",
+    "reason": "Agree with the specification's null: this case remains ineligible, so this field is not evaluated. This is not a finding that no diagnostic or fix exists."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "unknown macro name: xacro:motoman_sda10f",
+    "url": "https://github.com/ros-industrial/motoman/issues/166",
+    "reason": "Agree with the specification's null: this case remains ineligible, so this field is not evaluated. This is not a finding that no diagnostic or fix exists."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed issue #166, added tests to ensure it is fixed",
+    "url": "https://github.com/ros-industrial/motoman/commit/90a94642f763903f71536dc972782a237309a7f1",
+    "reason": "Agree with the specification's null: this case remains ineligible, so this field is not evaluated. This is not a finding that no diagnostic or fix exists."
+  },
+  "notes": "The diagnostic is real but does not make an internal macro-definition defect eligible. A report that Indigo did not expose the error does not establish a provider interface change. Important factual qualification: the parent sda10f_macro.xacro has a robot name=\"sda10f\", not an actual xacro:macro definition named sda10f; the fix adds both the motoman_sda10f macro and a backward-compatible sda10f wrapper. Thus the exclusion is supported, but the specification's simplified claim that an existing macro was merely differently named is imprecise. Prefix fixes remain inside this same package."
+}

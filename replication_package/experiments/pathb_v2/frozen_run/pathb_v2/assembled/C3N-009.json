@@ -1,0 +1,375 @@
+{
+ "case_id": "C3N-009",
+ "corpus": "C3N",
+ "operation": "PAIR",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "param:use_sim_time",
+     "status": "unassessable_edge",
+     "reason": "port_missing_consumer",
+     "direction": {
+      "producer": "controller_manager",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "edge",
+     "element": "api:controller_interface::ControllerInterfaceBase::init",
+     "status": "done",
+     "direction": {
+      "producer": "joint_trajectory_controller",
+      "consumer": "controller_manager"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:controller_interface::ControllerInterfaceBase::init",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on_error() calls reset() (drops the joint_trajectory subscriber, resets PIDs, clears the active trajectory) and returns SUCCESS; on command timeout, state tolerance violation, or goal_time_tolerance exceeded, update() replaces the trajectory with set_hold_position()",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:controller_interface::ControllerInterfaceBase::init",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "edge": {
+       "out_role": "api:controller_interface::ControllerInterfaceBase::init",
+       "in_role": "api:controller_interface::ControllerInterfaceBase::init"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:95 | conf.names.push_back(joint_name + \"/\" + interface_type); inside command_interface_configuration() with conf.type = INDIVIDUAL (src:76-98); joint_name iterates command_joint_names_ (command_joints, falling back to joints, src:683-689), interface_type iterates params_.command_interfaces (src/joint_trajectory_controller_parameters.yaml:19-28, description \"Names of command interfaces to claim\", subset_of position/velocity/acceleration/effort)",
+      "producer.recovery": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1091-1098 | on_error(): if (!reset()) { return CallbackReturn::ERROR; } return CallbackReturn::SUCCESS; reset() at :1100-1117; hold-position fallbacks at :243-246 (\"Aborted due to command timeout\"), :355-358 (state tolerance violation), :389-393 (goal_time_tolerance exceeded), :400-403, :408-411",
+      "producer.outputs[0].frame": "snapshot:joint_trajectory_controller/test/test_trajectory_controller_utils.hpp:213 | return traj_controller_->init(controller_name_, \"\", node_options); (initialisation entry point; no spatial data)",
+      "consumer.inputs[0].frame": "snapshot:controller_manager/src/controller_manager.cpp:1193 | controller.c->init(controller.info.name, get_namespace()) == (arguments are a controller name and a namespace string; no spatial meaning)"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:controller_interface::ControllerInterfaceBase::get_node",
+     "status": "done",
+     "direction": {
+      "producer": "joint_trajectory_controller",
+      "consumer": "controller_manager"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:controller_interface::ControllerInterfaceBase::get_node",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on_error() calls reset() (drops the joint_trajectory subscriber, resets PIDs, clears the active trajectory) and returns SUCCESS; on command timeout, state tolerance violation, or goal_time_tolerance exceeded, update() replaces the trajectory with set_hold_position()",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:controller_interface::ControllerInterfaceBase::get_node",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "edge": {
+       "out_role": "api:controller_interface::ControllerInterfaceBase::get_node",
+       "in_role": "api:controller_interface::ControllerInterfaceBase::get_node"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:95 | conf.names.push_back(joint_name + \"/\" + interface_type); inside command_interface_configuration() with conf.type = INDIVIDUAL (src:76-98); joint_name iterates command_joint_names_ (command_joints, falling back to joints, src:683-689), interface_type iterates params_.command_interfaces (src/joint_trajectory_controller_parameters.yaml:19-28, description \"Names of command interfaces to claim\", subset_of position/velocity/acceleration/effort)",
+      "producer.recovery": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1091-1098 | on_error(): if (!reset()) { return CallbackReturn::ERROR; } return CallbackReturn::SUCCESS; reset() at :1100-1117; hold-position fallbacks at :243-246 (\"Aborted due to command timeout\"), :355-358 (state tolerance violation), :389-393 (goal_time_tolerance exceeded), :400-403, :408-411",
+      "producer.outputs[0].frame": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:52 | param_listener_ = std::make_shared<ParamListener>(get_node()); (accessor returning the controller's lifecycle node; no spatial data)",
+      "consumer.inputs[0].frame": "snapshot:controller_manager/src/controller_manager.cpp:1211 | controller.c->get_node()->set_parameter(use_sim_time); (returns a node handle, std::shared_ptr<rclcpp_lifecycle::LifecycleNode> per snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:147; no spatial meaning)"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "param:use_sim_time",
+     "status": "unassessable_edge",
+     "reason": "port_missing_consumer",
+     "direction": {
+      "producer": "controller_manager",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "edge",
+     "element": "api:controller_interface::ControllerInterfaceBase::init",
+     "status": "done",
+     "direction": {
+      "producer": "joint_trajectory_controller",
+      "consumer": "controller_manager"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:controller_interface::ControllerInterfaceBase::init",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on_error() calls reset() (drops the joint_trajectory subscriber, resets PIDs, clears the active trajectory) and returns SUCCESS; on command timeout, state tolerance violation, or goal_time_tolerance exceeded, update() replaces the trajectory with set_hold_position()",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:controller_interface::ControllerInterfaceBase::init",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "edge": {
+       "out_role": "api:controller_interface::ControllerInterfaceBase::init",
+       "in_role": "api:controller_interface::ControllerInterfaceBase::init"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:95 | conf.names.push_back(joint_name + \"/\" + interface_type); inside command_interface_configuration() with conf.type = INDIVIDUAL (src:76-98); joint_name iterates command_joint_names_ (command_joints, falling back to joints, src:683-689), interface_type iterates params_.command_interfaces (src/joint_trajectory_controller_parameters.yaml:19-28, description \"Names of command interfaces to claim\", subset_of position/velocity/acceleration/effort)",
+      "producer.recovery": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1091-1098 | on_error(): if (!reset()) { return CallbackReturn::ERROR; } return CallbackReturn::SUCCESS; reset() at :1100-1117; hold-position fallbacks at :243-246 (\"Aborted due to command timeout\"), :355-358 (state tolerance violation), :389-393 (goal_time_tolerance exceeded), :400-403, :408-411",
+      "producer.outputs[0].frame": "snapshot:joint_trajectory_controller/test/test_trajectory_controller_utils.hpp:213 | return traj_controller_->init(controller_name_, \"\", node_options); (initialisation entry point; no spatial data)",
+      "consumer.inputs[0].side": "snapshot:controller_manager/src/controller_manager.cpp:1265 (controller.c->init(controller.info.name, get_namespace(), controller_node_options) ==)",
+      "consumer.inputs[0].frame": "snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:116-121 (virtual return_type init(const std::string & controller_name, const std::string & namespace_ = \"\", const rclcpp::NodeOptions & node_options = ...);) takes name/namespace/node options; no spatial data"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:controller_interface::ControllerInterfaceBase::get_node",
+     "status": "done",
+     "direction": {
+      "producer": "joint_trajectory_controller",
+      "consumer": "controller_manager"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:controller_interface::ControllerInterfaceBase::get_node",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on_error() calls reset() (drops the joint_trajectory subscriber, resets PIDs, clears the active trajectory) and returns SUCCESS; on command timeout, state tolerance violation, or goal_time_tolerance exceeded, update() replaces the trajectory with set_hold_position()",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:controller_interface::ControllerInterfaceBase::get_node",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "edge": {
+       "out_role": "api:controller_interface::ControllerInterfaceBase::get_node",
+       "in_role": "api:controller_interface::ControllerInterfaceBase::get_node"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:95 | conf.names.push_back(joint_name + \"/\" + interface_type); inside command_interface_configuration() with conf.type = INDIVIDUAL (src:76-98); joint_name iterates command_joint_names_ (command_joints, falling back to joints, src:683-689), interface_type iterates params_.command_interfaces (src/joint_trajectory_controller_parameters.yaml:19-28, description \"Names of command interfaces to claim\", subset_of position/velocity/acceleration/effort)",
+      "producer.recovery": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1091-1098 | on_error(): if (!reset()) { return CallbackReturn::ERROR; } return CallbackReturn::SUCCESS; reset() at :1100-1117; hold-position fallbacks at :243-246 (\"Aborted due to command timeout\"), :355-358 (state tolerance violation), :389-393 (goal_time_tolerance exceeded), :400-403, :408-411",
+      "producer.outputs[0].frame": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:52 | param_listener_ = std::make_shared<ParamListener>(get_node()); (accessor returning the controller's lifecycle node; no spatial data)",
+      "consumer.inputs[0].side": "snapshot:controller_manager/src/controller_manager.cpp:1274 (executor_->add_node(controller.c->get_node()->get_node_base_interface());); also lines 655, 656, 716, 1337, 1507, 1513, 1613; controller.c is controller_interface::ControllerInterfaceBaseSharedPtr (snapshot:controller_manager/include/controller_manager/controller_spec.hpp:39)",
+      "consumer.inputs[0].frame": "snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:147 (std::shared_ptr<rclcpp_lifecycle::LifecycleNode> get_node();) returns a node handle; no spatial data"
+     }
+    }
+   ]
+  }
+ }
+}

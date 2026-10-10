@@ -1,0 +1,72 @@
+{
+  "item_id": "A1-C3-121",
+  "kind": "A1",
+  "case_id": "C3-121",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: a reproducible MJPEG-specific warning and maintainer-accepted suppression. E2: usb_cam passes the decoder pixel format into a separately released FFmpeg scaler API; this is a cross-unit compatibility warning, not a deployment/build change. E3: PAIR. E4 explicitly admits warning-only interactions even when the live image works.",
+    "quote": "[swscaler @ 0x1545460]  deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/67"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "But the frames seem to be captured normally otherwhise, and the live image works fine.",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/67",
+      "reason": "The source establishes deprecated API input and warning noise, not a disagreement in image representation or a wrong range. FFmpeg handle_jpeg converts the deprecated YUVJ enum and sets srcRange itself. The accepted fix only suppresses logging. Class other describes the deprecated-format warning; the pix_fmt field and sws_getContext call remain the implicated elements.",
+      "supporting_evidence": [
+        {
+          "quote": "c->srcRange |= handle_jpeg(&c->srcFormat);",
+          "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n2.8/libswscale/utils.c"
+        },
+        {
+          "quote": "case AV_PIX_FMT_YUVJ420P:\n        *format = AV_PIX_FMT_YUV420P;\n        return 1;",
+          "url": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n2.8/libswscale/utils.c"
+        },
+        {
+          "quote": "+  av_log_set_level(AV_LOG_ERROR);",
+          "url": "https://github.com/ros-drivers/usb_cam/pull/115.diff"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "[swscaler @ 0x1545460]  deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/67",
+    "reason": "A runtime deprecation warning is documented, but not a diagnostic at build, connection, or activation as required by the loudness definition. This is also not a documented diagnostic-free failure, so unknown is more defensible than silent_documented. The explicit exception for runtime-enforced refusals does not apply: frames continue to work."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the terminal outputs a continuing stream of these warnings:",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/67",
+    "reason": "The repeated warning arises inside per-frame scaler-context creation; run is supported.",
+    "supporting_evidence": [
+      {
+        "quote": "video_sws_ = sws_getContext(xsize, ysize, avcodec_context_->pix_fmt, xsize, ysize, PIX_FMT_RGB24, SWS_BILINEAR, NULL,",
+        "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/f80cff39db58a4ab884a9dad4bf4413a22555d75/src/usb_cam.cpp"
+      },
+      {
+        "quote": "sws_freeContext(video_sws_);",
+        "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/f80cff39db58a4ab884a9dad4bf4413a22555d75/src/usb_cam.cpp"
+      }
+    ]
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This warning can be safely ignored at present. Long term libjpeg-turbo could be used instead of libav to decode mjpeg frames.",
+    "url": "https://github.com/ros-drivers/usb_cam/pull/115",
+    "reason": "PR #115 suppresses the warning, but the sources do not identify a working fixed usb_cam/FFmpeg revision pair. Recommended, not observed."
+  },
+  "notes": "Eligibility and warning_only are supported. Do not infer a corrupted pixel value from the generic instruction to check range. Loudness is assessed under the written phase restriction, not by treating every visible runtime warning as an early compatibility diagnostic. No additional failed condition is demonstrated; the issue is warning noise rather than broken image capture."
+}

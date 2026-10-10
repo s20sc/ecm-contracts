@@ -1,0 +1,59 @@
+{
+  "task_id": "u0108",
+  "package": "tf2_ros",
+  "manifest_version": "0.4.10",
+  "ports": [
+    {
+      "element": "api:tf2_msgs::TFMessage",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    },
+    {
+      "element": "api:tf2_msgs::TFMessage::transforms",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:tf2_msgs::TFMessage",
+    "api:tf2_msgs::TFMessage::transforms"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:tf2_ros/package.xml:3",
+    "ports[0].msg_type": "snapshot:tf2_ros/src/transform_listener.cpp:72",
+    "ports[0].frame": "snapshot:tf2_ros/src/transform_listener.cpp:110 (buffer_.setTransform(msg_in.transforms[i], authority, is_static)); frames read from each transform at run time, e.g. snapshot:tf2_ros/src/transform_listener.cpp:117 (msg_in.transforms[i].child_frame_id, msg_in.transforms[i].header.frame_id)",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 tf2_msgs/TFMessage over snapshot:tf2_msgs/msg/TFMessage.msg:1 plus geometry_msgs/{TransformStamped,Transform,Vector3,Quaternion}.msg from https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/hydro/geometry_msgs/1.10.6-0/msg/ and std_msgs/Header.msg from https://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/hydro/std_msgs/0.5.8-0/msg/",
+    "ports[1].msg_type": "snapshot:tf2_ros/src/transform_listener.cpp:104",
+    "ports[1].frame": "snapshot:tf2_ros/src/transform_listener.cpp:117",
+    "ports[1].definition_id": "same tool run as ports[0].definition_id (parent message tf2_msgs/TFMessage)",
+    "references[api:tf2_msgs::TFMessage]": "snapshot:tf2_ros/src/transform_listener.cpp:72",
+    "references[api:tf2_msgs::TFMessage::transforms]": "snapshot:tf2_ros/src/transform_listener.cpp:106",
+    "perm_requires": "searched snapshot:tf2_ros (package.xml, CMakeLists.txt, src/, include/, test/, setup.py, rosdoc.yaml): no permission declarations",
+    "perm_grants": "searched snapshot:tf2_ros (package.xml, CMakeLists.txt, src/, include/, test/, setup.py, rosdoc.yaml): no permission declarations",
+    "recovery": "searched snapshot:tf2_ros: no declared recovery policy; only per-transform try/catch that logs ROS_ERROR at snapshot:tf2_ros/src/transform_listener.cpp:113-118"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The C++ listener takes the publisher identity from ros::MessageEvent::getPublisherName() (transform_listener.cpp:105) instead of the message's __connection_header, and uses only tf2_msgs::TFMessage and its transforms field, all consistent with the Hydro message API; nothing in the listed elements looks misused."
+  },
+  "confidence": "high",
+  "notes": "All four packet elements are consumed (tf2_msgs types used by tf2_ros), so declares and not_declared are empty by rule. tf2_msgs::TFMessage is used as the C++ message type for subscriptions on \"/tf\" and \"/tf_static\" (transform_listener.cpp:72-73, 79-83, callbacks take const ros::MessageEvent<tf2_msgs::TFMessage>&) and for publishers on \"/tf\" (transform_broadcaster.cpp:42) and latched \"/tf_static\" (static_transform_broadcaster.cpp:42); TFMessage::transforms is read at transform_listener.cpp:106-117 and written at transform_broadcaster.cpp:58 and static_transform_broadcaster.cpp:58,68. api:tf2_msgs::TFMessage::__connection_header and api:tf2_msgs::TFMessageConstPtr are not referenced anywhere in the tf2_ros C++ code at this revision (grep over the whole snapshot for __connection_header, TFMessageConstPtr and TFMessage::ConstPtr returns no C++ hits); they get no port and no references entry. The only connection-header use is the rospy attribute data._connection_header.get('callerid', ...) in src/tf2_ros/transform_listener.py:57,62, a Python client-library attribute distinct from the C++ member __connection_header, so it is not recorded as that element. ROS 1: QoS null; subscriber/publisher queue size 100 is not a rate. Units: TFMessage/TransformStamped definitions state none. Dependency definitions were fetched from the latest hydro release tags found (geometry_msgs 1.10.6-0, std_msgs 0.5.8-0); minimal package.xml name markers were created in a scratch directory outside the workspace only so definition_hash.py could resolve package names. Also referenced but not packet elements: msg tf2_msgs/FrameGraph (srv), tf2_msgs/LookupTransformAction/Goal/Result (buffer_server.cpp, buffer_client.cpp)."
+}

@@ -1,0 +1,100 @@
+{
+  "case_id": "C3-153",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/1946",
+    "https://github.com/ros-controls/ros2_controllers/pull/1973",
+    "https://github.com/ros-controls/ros2_controllers/pull/2068",
+    "https://github.com/ros-controls/ros2_controllers/pull/2181",
+    "https://github.com/ros-controls/ros2_control/pull/2390",
+    "https://github.com/ros-controls/ros2_control/pull/2611",
+    "https://github.com/ros-controls/ros2_control/blob/150641294b26e1b8bc98359bb281226d2cdaf226/controller_interface/include/controller_interface/controller_interface_base.hpp",
+    "https://github.com/ros-controls/ros2_controllers/blob/4b1f45eef07dbfeba8a662dbd32c655f9809a9af/forward_command_controller/test/test_forward_command_controller.cpp#L58"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Maintainer christophfroehlich posts the compiler output: \"test_forward_command_controller.cpp:58:40: warning: ‘controller_interface::return_type controller_interface::ControllerInterfaceBase::init(const std::string&, const std::string&, unsigned int, const std::string&, const rclcpp::NodeOptions&)’ is deprecated: Use the init(const controller_interface::ControllerInterfaceParams & params) method instead. This method will be removed in the future ROS 2 releases. [-Wdeprecated-declarations]\" (https://github.com/ros-controls/ros2_controllers/issues/1946)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["controller_interface", "forward_command_controller"],
+      "interface_kind": "library API",
+      "evidence": "controller_interface (ros2_control repository) and forward_command_controller (ros2_controllers repository) are separately released packages. ros2_control#2390 marked the five-argument ControllerInterfaceBase::init `[[deprecated(...)]]` and added `init(const controller_interface::ControllerInterfaceParams & params)`; forward_command_controller's test still calls `controller_->init(\"forward_command_controller\", \"\", 0, \"\", node_options)`. The provider's declared interface changed; not wiring, build-system, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer code references the provider's init overload as declared before ros2_control#2390 while it is compiled against a provider revision in which that overload is deprecated."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed compiler warnings: \"We see lots of deprecation warnings like\" followed by the -Wdeprecated-declarations output (https://github.com/ros-controls/ros2_controllers/issues/1946)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "controller_interface",
+      "role": "provider",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "ed23c135e617da3c613d52969cdde9c27582039b",
+      "resolved_rev": "ed23c135e617da3c613d52969cdde9c27582039b",
+      "pinned": true,
+      "revision_basis": "The issue (2025-10-03T07:51Z) shows a rolling source workspace (/workspaces/ros2_rolling_ws/src/ros2_controllers/...) but no ros2_control revision. The deprecation entered ros2_control master with #2390 (merge 150641294b26e1b8bc98359bb281226d2cdaf226, 2025-10-02); the master head at the time of the report was ed23c135 (merge of #2611, 2025-10-03T07:20Z, the migration note the issue points to), which contains #2390; it is used as the broken revision. The resolution changes only the consumer, so the provider keeps ed23c135.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "forward_command_controller",
+      "role": "consumer",
+      "repo": "https://github.com/ros-controls/ros2_controllers",
+      "broken_rev": "4b1f45eef07dbfeba8a662dbd32c655f9809a9af",
+      "resolved_rev": "fcf89fc6e226ecdfda1e674ca7e13c8399c84e8f",
+      "pinned": true,
+      "revision_basis": "Broken: ros2_controllers master head at the time of the report (4b1f45ee, 2025-10-02, version bump 5.8.0); its forward_command_controller/test/test_forward_command_controller.cpp line 58 is `const auto result = controller_->init(\"forward_command_controller\", \"\", 0, \"\", node_options);`, matching the quoted warning location 58:40. Resolved: merge commit of ros2_controllers#1973 on master (2025-11-07), where the test builds a ControllerInterfaceParams and calls `controller_->init(params)`; jazzy backport #2068 = a9e36acf5a7de85a2450f75018138249de7632ee.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "aebc2b88b288bde658eb9e150e349d11e7887e74",
+    "resolved": "ed23c135e617da3c613d52969cdde9c27582039b",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:controller_interface::ControllerInterfaceBase::init", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceParams", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::define_custom_node_options", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::assign_interfaces", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::get_node", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::command_interface_configuration", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::state_interface_configuration", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::on_init", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::update", "sides": {"controller_interface": "provides", "forward_command_controller": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:controller_interface::ControllerInterfaceBase::init"],
+      "quote": "warning: ‘controller_interface::return_type controller_interface::ControllerInterfaceBase::init(const std::string&, const std::string&, unsigned int, const std::string&, const rclcpp::NodeOptions&)’ is deprecated: Use the init(const controller_interface::ControllerInterfaceParams & params) method instead. This method will be removed in the future ROS 2 releases. [-Wdeprecated-declarations]",
+      "url": "https://github.com/ros-controls/ros2_controllers/issues/1946"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Compiler diagnostic at build: \"/workspaces/ros2_rolling_ws/src/ros2_controllers/forward_command_controller/test/test_forward_command_controller.cpp:58:40: warning: ... is deprecated ... [-Wdeprecated-declarations]\" (https://github.com/ros-controls/ros2_controllers/issues/1946).",
+  "detection_stage": "build",
+  "resolution": {
+    "summary": "Consumer tests construct a controller_interface::ControllerInterfaceParams (controller_name, robot_description, update_rate, node_namespace, node_options) and call init(params) instead of the deprecated five-argument init (ros2_controllers#1973 on master; #2068 and #2181 for jazzy branches).",
+    "status": "recommended",
+    "evidence": "#1973 was merged after review with the contributor stating \"I have done all the tests and fixed the issues.\" and a Codecov report; no build output of forward_command_controller at fcf89fc6 against an identified ros2_control revision is shown."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Other compositions with the same deprecated call, fixed by the same PR, are not conditions of this case: ackermann_steering_controller, admittance_controller, bicycle_steering_controller, chained_filter_controller, diff_drive_controller, effort_controllers, force_torque_sensor_broadcaster, gpio_controllers, gps_sensor_broadcaster, imu_sensor_broadcaster, joint_state_broadcaster, joint_trajectory_controller, mecanum_drive_controller, motion_primitives_controllers, omni_wheel_drive_controller, parallel_gripper_controller, pid_controller, pose_broadcaster, position_controllers, range_sensor_broadcaster, steering_controllers_library, tricycle_controller, tricycle_steering_controller, velocity_controllers (and forward_command_controller's multi-interface test). The issue's quoted warning is for forward_command_controller, so that composition is specified. The only call site of the deprecated init in forward_command_controller is test code built with the package. consumer_built_against.broken is the parent of the #2390 merge (aebc2b88), the last ros2_control revision whose init declaration the consumer's call matches without deprecation; between aebc2b88 and ed23c135 the provider repository also merged #2476 (HardwareStatus publisher), #2452 (non-realtime controller switching) and #2611 (migration note), which are visible to checkers under this inferred basis. consumer_built_against.resolved is set to the provider revision in the composition because the resolved consumer calls the ControllerInterfaceParams overload present from 15064129 onward. Class element_retyped: the declaration gained a [[deprecated]] attribute while the element remains present. Issue text says \"See https://github.com/ros-controls/ros2_control/pull/2611 how to fix them.\""
+}

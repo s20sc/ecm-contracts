@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-016",
+  "kind": "A1",
+  "case_id": "C3-016",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Device specified is not available or is not a vaild V4L2 device: `/dev/camera/top_6mm`",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/298"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["param:video_device"],
+      "quote": "+  // Check if given device name is an available v4l2 device\n+  auto available_devices = usb_cam::utils::available_devices();\n+  if (available_devices.find(m_parameters.device_name) == available_devices.end()) {",
+      "url": "https://github.com/ros-drivers/usb_cam/commit/af45135da45cf93dfa663f6bb022e5858a028b78"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Device specified is not available or is not a vaild V4L2 device: `/dev/camera/top_6mm`",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/298"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "In the startup file, add a command to solve this problem"
+  },
+  "notes": "E1 confirmed: issue #298 states branch ros2 / commit c052be03 and shows the startup refusal; the downstream maintainer's attribution (rt-net PR #153) corroborates a usb_cam change. E2 stop_step 6 (parameter) is correct: usb_cam's video_device parameter now rejects a udev-symlink path; the breakage comes from the provider change (commit af45135d \"Check if given v4l2 device exists before opening it\", verified), which the consumer must follow — not deployment_wiring. The failed-condition class representation_convention is the best available fit (symlink path form vs canonical /dev/videoN form of the same device value; the parameter's declare_parameter line is unchanged). Loudness loud_documented/activate is exactly the RCLCPP_ERROR_STREAM refusal + \"Shutting down\" added in af45135d. Resolution observed is backed by the reporter's posted realpath line and issue closure. I note the spec's honest handling: the resolved launch file uses a demo /dev/video0 value before realpath, and the same fix was independently tested on a different consumer (sciurus17_ros) without a stated usb_cam revision."
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "C3-127",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/727",
+    "https://github.com/ros2/geometry2/issues/727#issuecomment-2472608603",
+    "https://github.com/ros2/geometry2/issues/727#issuecomment-2481510627",
+    "https://github.com/introlab/rtabmap_ros/pull/1225"
+  ],
+  "eligibility": {
+    "E1": {"pass": true, "evidence": "The reporter provides a runnable reproducer (tf2_buffer_lag project: camera_node publishing 1920x1080 images at 30 Hz, broadcaster_node publishing odom->base_link at 30 Hz, listener_node calling lookupTransform with a 0.5 s timeout from an image callback, plus `stress -c 16`) and logs such as \"Lookup would require extrapolation into the future.  Requested time 1731371281.299778 but the latest data is at time 1731371281.283326\" and \"Received 22 frames in the past 2.044 seconds (max interval=1.344)\"."},
+    "E2": {"pass": false, "stop_step": 3, "reason_code": "deployment_wiring", "units_identified": ["broadcaster_node (tf2_buffer_lag; tf2_ros TransformBroadcaster publishing /tf)", "listener_node (tf2_buffer_lag; tf2_ros TransformListener subscribing /tf, plus a /camera/image_raw subscription)"], "interface_kind": null, "evidence": "The reporter's resolution is the removal of a user-local middleware configuration, with no change to any unit: \"I've found the issue. Actually the default ROS2 humble DDS is fine. I forgot that I had specific DDS setting in my `~/.bashrc` (`FASTRTPS_DEFAULT_PROFILES_FILE`), based on the accepted answer of https://answers.ros.org/question/370595/ros2-foxy-nodes-cant-communicate-through-docker-container-border/ ... By removing that specific config and by re-running the test above, I have now similar results than with ROS1\" (https://github.com/ros2/geometry2/issues/727#issuecomment-2481510627). No unit's declared or referenced interface (topics, message types, QoS in code, tf2_ros API) changed, and the source identifies no interface element through which the delay arises."},
+    "E3": {"pass": true, "evidence": "PAIR (the /tf flow from the broadcaster to the TransformListener, delayed while the listener process also receives large images under CPU stress); not evaluated further because E2 stops."},
+    "E4": {"pass": true, "evidence": "Observed lookup timeouts and a TF buffer not updated for almost 3 s: \"In this example, for almost 3 seconds of TF waiting, the TF Buffer didn't get updated once.\""}
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Step 3 of E2 is worded for name binding (remaps, namespaces, topic/parameter names, device paths); the resolving change here is a middleware transport/profile file selected through an environment variable (FASTRTPS_DEFAULT_PROFILES_FILE) in the user's shell, i.e. deployment configuration rather than name binding. I use `deployment_wiring` because the minimal resolving change is purely at deployment and no unit's declared or referenced interface changed; the source never states what the profile contained or which mechanism caused the delay (the profile's content is not quoted in the issue). If deployment_wiring is read strictly as name binding, the alternative stop is step 2 (`internal`): the delay is in the listener process's own middleware receive path and would occur with any correct /tf publisher. The reporter's earlier per-RMW comparison (Fast DDS timeouts vs. Cyclone DDS/GurumDDS/Connext behaviour) is withdrawn by the reporter (\"I didn't re-rerun the test on all other DDS, maybe that config also affected their results\"). Environment: Ubuntu 22.04, Humble binaries with tf2_ros rebuilt from tag 0.25.8 only to add logs. The packet's fix_ref introlab/rtabmap_ros#1225 (\"ROS2 various QOL updates (preparing new binary release)\") only lists this issue as a \"current issue\" for a quadruped VSLAM demo; it is not a fix of this composition."
+}

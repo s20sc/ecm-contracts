@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_55e84a6-broken-M1-87b0cd254c",
+ "kind": "A2",
+ "case_id": "robust_55e84a6",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:67 'class MatDataPlot(QWidget):'. running: s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/ contains no mat_data_plot.py (ls shows only __init__.py data_plot plot.py plot_widget.py rosplot.py); find -iname '*mat_data*' over u0080/snapshot/rqt_plot returns only src/rqt_plot/data_plot/mat_data_plot.py, whose line 67 is 'class MatDataPlot(QWidget):'. Supporting claims also opened: u0080/snapshot/rqt_plot/setup.py:6-7 \"packages=['rqt_plot', 'rqt_plot.data_plot'],\" / \"package_dir={'': 'src'},\"; u0080/src/rqt_plot/__init__.py is 0 bytes (wc -c); u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/__init__.py:47 'from mat_data_plot import MatDataPlot'."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:rqt_plot.mat_data_plot.MatDataPlot]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:14 'from rqt_plot.mat_data_plot import MatDataPlot' (line 19: 'class FullSizeDataPlot(MatDataPlot):')."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:67 'class MatDataPlot(QWidget):' (module rqt_plot.mat_data_plot exists at this revision)",
+   "running_excerpt": "s2_work/tasks/u0080/snapshot/rqt_plot: no src/rqt_plot/mat_data_plot.py anywhere in the snapshot; the class exists only at src/rqt_plot/data_plot/mat_data_plot.py:67 'class MatDataPlot(QWidget):'; setup.py:6-7 installs only packages=['rqt_plot', 'rqt_plot.data_plot'] with package_dir {'': 'src'}; src/rqt_plot/__init__.py is 0 bytes so nothing is re-exported at the old path"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The assembled broken composition is an UPGRADE unit over provider rqt_plot with built=u0079 (package.xml:3 '<version>0.3.6</version>') and running=u0080 ('<version>0.3.8</version>'), both opened. The consumer kobuki_qtestsuite (u0078) imports the exact token 'from rqt_plot.mat_data_plot import MatDataPlot' (full_size_data_plot.py:14) and subclasses it, so the consumer port is genuinely bound to the provider element named api:rqt_plot.mat_data_plot.MatDataPlot; at the running revision that import path no longer resolves (module relocated under rqt_plot.data_plot with no re-export), so the two recorded ports describe a real producer-declaration/consumer-read pair on the same operation."
+ },
+ "notes": "All four claims embedded in the long running-side provenance string were independently reproduced this session: file absence (find), setup.py packages, empty __init__.py, and the data_plot/__init__.py:47 implicit-relative import. The element's presence at the consumer's import path differs between built and running revisions, which is a presence change under the substance criterion. Semver pair 0.3.6/0.3.8 verified at package.xml:3 of u0079/u0080."
+}

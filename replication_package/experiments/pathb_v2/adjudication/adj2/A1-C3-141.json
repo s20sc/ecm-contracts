@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-141",
+  "kind": "A1",
+  "case_id": "C3-141",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "You are right. This was recently introduced in https://github.com/ros-controls/ros2_control/commit/465e5d0264dcaca71858022ec907a85cba45f811.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747220409"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The ``exported_state_interfaces_`` and ``exported_reference_interfaces_`` now uses the the full interface name as the key to the unordered_map, instead of the interface type. This is related to (`#2038 <https://github.com/ros-controls/ros2_control/pull/2038>`_). For instance, the key would be ``joint_1/position`` instead of ``position``.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/2129/files"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ros2_control_node-2] Segmentation fault (Address not mapped to object [0x80])",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The issue is solved, it was the interface_name being incomplete. I did not add the node name to it.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747169475"
+  },
+  "notes": "Verified this session: issue 2121 body (ul-l-i, 2025-03-20, Ubuntu 24.04 / Jazzy, /opt/ros/jazzy binaries) contains the crash stack with 'four_wheel_steering::OdometryProvider::update_and_write_commands' -> 'bool hardware_interface::Handle::set_value<double>(double const&)' from '/home/leipscheru/ros2_ws/install/drive_controller/lib/libodometry_provider.so', the quoted segfault, and '[ERROR] [ros2_control_node-2]: process has died [pid 242339, exit code -11, cmd \"/opt/ros/jazzy/lib/controller_manager/ros2_control_node ...'. Reporter comment 2742591806 contains the on_export_state_interfaces code and 'exported_state_interfaces_[name] exists, but neither ->get_value() nor  ->get_optional() works' plus 'state_interfaces_values_[0] = value;' (matches artifact sections, snapshot:/historical/runs/adjudication_work/A1_05.adj2/artifacts/C3-141.txt:2 and :4-27). Comment 2747169475 contains verbatim the resolution quote and 'Though before the last update it worked without the node name perfectly fine.'; 2747220409 (saikishor) the quoted confirmation; 2747238062 (christophfroehlich) 'We merged this kind of breaking change in Jazzy.' Commit 465e5d0264dcaca71858022ec907a85cba45f811 ('[ControllerInterface] Improve the prefix name check for the chainable controllers (#2038)', 2025-02-12, parent c3022128) diff shows '-    const auto interface_name = state_interface->get_interface_name();' -> '+    const auto interface_name = state_interface->get_name();' before 'exported_state_interfaces_.insert({interface_name, state_interface});'. chainable_controller_interface.cpp at 4.26.0 lines 71-72 still has get_interface_name (matches artifact [[ros2_control@4.26.0]], snapshot:.../artifacts/C3-141.txt:36-38). handle.hpp at 4.26.0 line 175 '[[nodiscard]] bool set_value(double value)' and no get_optional; at 4.27.0 line 198 '[[nodiscard]] bool set_value(const T & value)' (templated, matching the trace's set_value<double>) and line 143 '[[nodiscard]] std::optional<T> get_optional() const' -- the 4.27.0 inference for the installed provider is verified as far as the source allows. PR 2129 files: only doc/migration.rst, with the quoted note verbatim including the 'the the' typo. E2: plugin and host framework are separate units per S1; the map-key convention crosses the boundary; a consumer using the full name works (the reporter's own fix) -> stop 6. representation_convention is defensible (declaration unchanged, key-string convention changed) with element_removed_or_renamed honestly recorded as the alternative reading. Loudness silent/run: no build/load/activate diagnostic, only the runtime segfault. Resolution observed: the reporter's first-person 'The issue is solved' on the same install is the source showing the resolved composition working; for an excerpt-based consumer S1 itself prescribes a descriptive revision label (as-reported-2025-03-24), so I accept 'observed' while noting, as the spec does, that a strict revision-identification reading could downgrade it to 'recommended'."
+}

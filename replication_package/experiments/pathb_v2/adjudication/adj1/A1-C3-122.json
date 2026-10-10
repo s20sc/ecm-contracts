@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-122",
+  "kind": "A1",
+  "case_id": "C3-122",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "Looking at it closer, I think what we may need to do here is to make it so that we always take the entity_creation_mutex (and hold it), then take the node_update_mutex.  And do this in all codepaths.",
+    "url": "https://github.com/ros2/rmw_fastrtps/pull/725",
+    "reason": "E1 is supported by TSAN output, a named rcl_action test and maintainer analysis. For the specified rmw_fastrtps_cpp/rmw_dds_common composition, the inconsistent acquisition order is imposed by the RMW implementation's own client/subscription paths; no conflicting peer declaration is identified. The separate FlowControllerImpl race is within Fast DDS. A resolution that moves locking behind new common-context API methods does not by itself turn the original local lock-order bug into an interface mismatch. E4 supports warnings/potential deadlock, not an observed hang; E3 need not be resolved after this exclusion."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "WARNING: ThreadSanitizer: lock-order-inversion (potential deadlock) (pid=1926091)",
+    "url": "https://github.com/ros2/rmw_fastrtps/pull/725",
+    "reason": "Null is the required ineligible-case value, not a denial of the TSAN diagnostic. A sanitizer warning is shown during test execution."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "However, we find that to trigger such issues, we can also run test_graph__rmw_fastrtps_cpp within the build/rcl_action",
+    "url": "https://github.com/ros2/ros2/issues/1488#issuecomment-1738462334",
+    "reason": "Retain null after exclusion; do not mistake compiling with TSAN for detection during compilation."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Its intent is to avoid using mutex directly outside, and decrease the replicated code about updating graph in RMWs.",
+    "url": "https://github.com/ros2/rmw_dds_common/pull/73",
+    "reason": "Null follows exclusion. The reviewed refactor addresses lock inversion; it is not evidence that the independently reported Fast DDS race was repaired."
+  },
+  "notes": "No listed conditions, and no missed condition is added to an excluded case. I read the full issue and PR discussions, the common-context API diff and client/subscription changes, and the old client and subscription source at the supplied revisions. The old client locks entity_creation_mutex_ before node_update_mutex; the old subscription error path holds node_update_mutex while calling destroy_subscription. The primary report treats the data race and the potential deadlock separately. Source closure ('All right, all linked PRs are in, so closing this out.' at https://github.com/ros2/ros2/issues/1488#issuecomment-1792983928) does not prove every sanitizer finding disappeared."
+}

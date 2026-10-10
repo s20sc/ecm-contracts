@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-150",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/431",
+    "https://github.com/ros2/geometry2/pull/453",
+    "https://github.com/ros2/geometry2/commit/8d74d9b1a0725620f78515de191d365626b7ea96",
+    "https://github.com/ros2/geometry2/blob/a4f152f67d09b50d6d6450bb00c44512e52a880c/tf2_geometry_msgs/src/tf2_geometry_msgs/tf2_geometry_msgs.py#L97-L109"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter points to the exact line at commit a4f152f67d09b50d6d6450bb00c44512e52a880c (\"The error is in this line .../tf2_geometry_msgs.py#L106\") and states \"`do_transform_pose_with_covariance_stamped` copies the covariance without transforming it.\"; a maintainer agreed with the proposed fix path and PR #453 was merged (https://github.com/ros2/geometry2/issues/431)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["tf2_geometry_msgs (Python module)", "no second unit documented"],
+      "interface_kind": null,
+      "evidence": "The defect is the module's own arithmetic: `res.pose.covariance = pose.pose.covariance` instead of rotating the covariance; the fix (#453) adds a `transform_covariance` helper inside the same file and changes that one assignment. No second unit whose interaction failed is documented: the report is a code reading with empty reproduction steps, and a maintainer notes \"the Python API actually does not get installed (see snippet from CMakeLists.txt file)\". The wrong result is produced for every caller and every rotating transform, independent of any assumption held by a peer."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated beyond E2: no composition of two units is documented."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the defect by the reporter; the effect on any consumer was never observed (the Python module was not installed at the time)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Borderline: the returned PoseWithCovarianceStamped carries `res.header = transform.header` (target frame) while its covariance stays in the source frame's orientation, which could be read as a frame_mismatch crossing to whatever caller consumes the result (or to tf2_ros Buffer.transform, with which the function is registered as a conversion). It was judged internal because the source names no consuming unit, no failure was observed, the function is wrong for every caller, and the resolving change is pure arithmetic inside tf2_geometry_msgs.py. Fix merged on the ros2 branch as 8d74d9b1a0725620f78515de191d365626b7ea96 (2021-09-27). The same functionality in C++ was fixed earlier in ros2/geometry2#430; ros2/geometry2#372 is cited as similar."
+}

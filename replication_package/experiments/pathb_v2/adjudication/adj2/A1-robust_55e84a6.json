@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_55e84a6",
+  "kind": "A1",
+  "case_id": "robust_55e84a6",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "rqt_plot API has been changed by this commit.\n\nhttps://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0bea3f942c19f354512284ec146491fe4",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "  File \"/opt/ros/indigo/lib/python2.7/dist-packages/rqt_plot/plot_widget.py\", line 150, in switch_data_plot_widget\n    self.data_plot.autoscroll(self.autoscroll_checkbox.isChecked())\nAttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "rqt_plot API has been changed by this commit.\n\nhttps://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0bea3f942c19f354512284ec146491fe4",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PluginManager._load_plugin() could not load plugin \"kobuki_qtestsuite/Kobuki Test Suite\":",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Battery profiling now has fixed y scale [0, 180]. and gyro looks fine too."
+  },
+  "notes": "Independently verified. (1) E1/E4: issue #33 body (jihoonl, 2014-08-08) contains both condition quotes verbatim, the PluginManager traceback through plugin_handler/plugin_provider frames ending in the AttributeError. (2) Provider changes read directly: f7a485e0 'Refactor graph backends into wrapper' (2014-05-23) creates rqt_plot/src/rqt_plot/data_plot/{__init__,mat_data_plot,pyqtgraph_data_plot,qwt_data_plot}.py — i.e. rqt_plot.mat_data_plot moves under data_plot/; c8223f54 'Strip data store out of individual plots' (2014-06-10) edits the backend plots. Blobs read: tag 0.3.6 mat_data_plot.py line 97 '    def autoscroll(self, enabled=True):' (autoscroll present) and tag 0.3.8 plot_widget.py line 150 '        self.data_plot.autoscroll(self.autoscroll_checkbox.isChecked())' — the traceback's line numbers pin the installed release to 0.3.7/0.3.8 as the spec argues. Consumer commit chain verified: 5ee65b06 (parent f04c615c, 'now it uses dataplot class instead of mat dataplot. It still shows weird scaling though..') -> 6df4bd7e ('uses dataplot') -> 55e84a61 ('now it uses Rqt DataPlot instead our own version'), all 2014-08-08..11. (3) Class element_removed_or_renamed for both conditions: autoscroll removed from the backend class the consumer subclasses (first), and the module element rqt_plot.mat_data_plot removed/moved by f7a485e0 (second, recorded from the provider diff as the reporter's named change) — both fit; the spec's attribution of the observed crash to condition 1 is sound since the import evidently resolved in the reporter's install. (4) Loudness loud_documented/activate: rqt's plugin manager reports the failure during plugin load, before any plotting. (5) Resolution observed: jihoonl's closing confirmation (comment 51742356, 2014-08-11, quoted above) after 55e84a61, provider still release 0.3.8 (0.3.9 tagged 2018-08-18 per spec; not contradicted by anything read); interim comment 51585637 'Still we need to investigate why its scaling is so weird.' matches the spec's interim note."
+}

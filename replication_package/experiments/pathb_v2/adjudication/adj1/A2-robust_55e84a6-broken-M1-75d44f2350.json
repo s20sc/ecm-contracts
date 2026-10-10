@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_55e84a6-broken-M1-75d44f2350",
+  "kind": "A2",
+  "case_id": "robust_55e84a6",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot._curves]",
+      "verdict": "verified",
+      "source_excerpt": "built: snapshot:s2_work/tasks/u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:94: \"        self._curves = {}\". At running u0080 the old module file is absent from the inspected snapshot file inventory; the relocated file is readable: snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:93: \"        self._curves = {}\". Packaging corroboration: snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/setup.py:7-8: \"    packages=['rqt_plot', 'rqt_plot.data_plot'],\n    package_dir={'': 'src'},\"; snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/__init__.py:47: \"    from mat_data_plot import MatDataPlot\". The running top-level rqt_plot/__init__.py was opened and is empty (0 bytes); no compatibility module or alias for the old path was found."
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:rqt_plot.mat_data_plot.MatDataPlot._curves]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:53-54: \"        for curve in self._curves.values():\n            data_x, data_y, plot, min_max_y = curve\"; line 14: \"from rqt_plot.mat_data_plot import MatDataPlot\"; line 20: \"class FullSizeDataPlot(MatDataPlot):\"; line 22: \"        super(FullSizeDataPlot, self).__init__(parent)\". This reads the inherited provider attribute, including its value layout."
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot._curves]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0079/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py:94: \"        self._curves = {}\"; line 104: \"        self._curves[curve_id] = ([], [], line, [None, None])\"",
+      "running_excerpt": "snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/setup.py:7-8: \"    packages=['rqt_plot', 'rqt_plot.data_plot'],\n    package_dir={'': 'src'},\"; snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/__init__.py:47: \"    from mat_data_plot import MatDataPlot\"; snapshot:s2_work/tasks/u0080/snapshot/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:93: \"        self._curves = {}\"; line 110: \"        self._curves[curve_id] = line\". The inspected running snapshot lacks the original rqt_plot.mat_data_plot module; at the relocated path the dictionary also stores a line object rather than the four-part tuple the consumer unpacks."
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "This is the specified provider UPGRADE, not a pairing of unrelated equal-named attributes: snapshot:assembled/robust_55e84a6.json:59-61: \"      \"built\": \"u0079\",\n      \"running\": \"u0080\",\n      \"consumer\": \"u0078\"\". The consumer explicitly imports the old provider class and initializes its superclass: snapshot:s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:14: \"from rqt_plot.mat_data_plot import MatDataPlot\"; line 22: \"        super(FullSizeDataPlot, self).__init__(parent)\"; line 53: \"        for curve in self._curves.values():\". Its use in the application is explicit at snapshot:s2_work/tasks/u0078/snapshot/kobuki_qtestsuite/src/kobuki_qtestsuite/battery_profile_frame.py:51: \"        self._plot_widget.switch_data_plot_widget(FullSizeDataPlot(self._plot_widget))\". Agreement concerns the real built-against dependency being upgraded. The old qualified provider port is missing at the running revision, so this is a broken dependency, not a claim that the running ports connect successfully."
+  },
+  "notes": "The identical empty-dictionary initialization alone would not establish a substantive value change. The original qualified element's absence is independently supported by inspection of the running module inventory, packaging and empty package initializer; the nearby assignments additionally show a value-layout change relevant to the consumer's tuple unpacking. The latter is supporting source evidence, not a claim that this case's observed runtime failure reached _curves. No triggering permission-grant absence state is present. The specification's historical built-against revision is inferred: snapshot:specs/robust_55e84a6.json:68: \"    \"basis\": \"inferred\"\"."
+}

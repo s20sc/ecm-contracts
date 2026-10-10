@@ -1,0 +1,48 @@
+{
+  "case_id": "B-Res-06",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros-planning/navigation/issues/714",
+    "https://github.com/ros-planning/navigation/issues/714#issuecomment-385200892",
+    "https://github.com/ros-planning/navigation/issues/714#issuecomment-385521916",
+    "https://github.com/ros-planning/navigation/issues/714#issuecomment-388975092"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The reporter posts a launch-file gist and a `rostopic list` in which move_base topics are not under /robot1 (\"both are publishing to `/cmd_vel`, when I need them to publish to `/robot1/cmd_vel` and `/robot2/cmd_vel`\"). A maintainer ran the same group/node structure and got namespaced topics (\"/robot1/cmd_vel /robot1/move_base/current_goal /robot1/move_base/goal /robot1/move_base_simple/goal\"), the issue was closed \"since @DLu seems to think this is working\", and the reporter replied \"Yeah it's working.\" No defect is confirmed; a later one-line comment (\"Adding the group tag does not affect the /move_base/*_costmap topics.\") gives no reproducer."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": ["move_base (robot1 instance)", "move_base (robot2 instance)"],
+      "interface_kind": null,
+      "evidence": "The conflict is two move_base instances sharing global topic names (/cmd_vel, /move_base/...). The only resolutions in the thread bind names at deployment: launching inside `<group ns=\"robot1\">` (shown working by the maintainer) or the reporter's workaround \"The brute force answer was to abuse the remap function\" with remaps such as `<remap from=\"/cmd_vel\" to=\"/robot1/cmd_vel\" />`. No unit's declared or referenced interface changed."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "CONCURRENT: two move_base instances on one roscore, both active, publishing to the same /cmd_vel."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Reporter's `rostopic list` shows move_base topics outside the /robot1 namespace; not reproduced by the maintainer."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring (E1 also not met: the maintainer could not reproduce and the reporter confirmed namespacing works)",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "ROS 1 navigation (move_base) multi-robot namespacing question. No code change in ros-planning/navigation is linked; the issue was closed as working."
+}

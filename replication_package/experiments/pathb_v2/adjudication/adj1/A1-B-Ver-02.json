@@ -1,0 +1,57 @@
+{
+  "item_id": "A1-B-Ver-02",
+  "kind": "A1",
+  "case_id": "B-Ver-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1 and E4 are established by an actual connection rejection. The separately built publisher and MoveRobot subscriber disagree on the definition of the same nominal message. This is an interface-version incompatibility, not a build-only defect merely because rebuilding is the proposed remedy. The public definition-change commit supports the UPGRADE interpretation; the particular running commit remains inferred.",
+    "quote": "Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+    "url": "https://answers.ros.org/question/318190/"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+      "url": "https://answers.ros.org/question/318190/",
+      "reason": "Both sides name franka_msgs/FrankaState, but their definition hashes differ on the specified topic. The reviewed commit adds robot_mode and its constants; it does not rename an existing field, so the special dual-class rule for renamed fields does not apply."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+    "url": "https://answers.ros.org/question/318190/"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Dropping connection.",
+    "url": "https://answers.ros.org/question/318190/",
+    "reason": "The diagnostic is the ROS 1 connection-header compatibility check."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "I find the solution:",
+    "url": "https://answers.ros.org/question/318190/",
+    "reason": "The reporter claims success after adding franka_msgs to find_package, but neither an exact provider revision nor a revision-identified resolved consumer is supplied in the public report. That is reported success, but does not satisfy S1's stricter requirement that both resolved units be identified by revision. The specification's date-derived provider SHA is not source confirmation of the running revision.",
+    "supporting_evidence": [
+      {
+        "quote": "Thats the reason, that i rebuild the full current franka_ros package yesterday with no sucess.",
+        "url": "https://answers.ros.org/question/318190/"
+      },
+      {
+        "quote": "even though this is required for the code to compile, this should not lead to the problem of shown above...",
+        "url": "https://answers.ros.org/question/318190/"
+      }
+    ]
+  },
+  "notes": "The complete archived question, answers and comments were read, along with commit 3991f55ffc9c1f4928bbbad03b452f4202e96eea. The resolution disagreement is about revision-level proof, not denial of the reporter's success claim. No additional independent failed interaction is documented."
+}

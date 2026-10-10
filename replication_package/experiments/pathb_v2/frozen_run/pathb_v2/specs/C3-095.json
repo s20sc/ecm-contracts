@@ -1,0 +1,169 @@
+{
+ "case_id": "C3-095",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros-drivers/usb_cam/issues/152",
+  "https://github.com/ros-drivers/usb_cam/pull/170",
+  "https://github.com/ros-drivers/usb_cam/pull/207",
+  "https://github.com/ros-drivers/usb_cam/pull/197",
+  "https://github.com/ros-drivers/usb_cam/blob/90d4d59eb11e0049e57d8abc64e4b7ede2446351/src/usb_cam.cpp",
+  "https://github.com/FFmpeg/FFmpeg/blob/n2.8/libavcodec/avcodec.h",
+  "https://github.com/FFmpeg/FFmpeg/blob/n4.2/libavcodec/avcodec.h"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Maintainer-filed issue: \"there are a lot of compile warnings for `using deprecated function`, we should try to upgrade/move away from these moving forward\" -- https://github.com/ros-drivers/usb_cam/issues/152; a contributor names the functions: \"They were `avcodec_register_all`, `avpicture_alloc`, and other `av`-related warnings.\" -- https://github.com/ros-drivers/usb_cam/pull/170"
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "usb_cam",
+    "FFmpeg"
+   ],
+   "interface_kind": "library API",
+   "evidence": "usb_cam (ROS 2 driver node package) links FFmpeg's libavcodec/libswscale (CMakeLists: \"pkg_check_modules(avcodec libavcodec REQUIRED)\", \"pkg_check_modules(swscale libswscale REQUIRED)\"; package.xml \"<depend>ffmpeg</depend>\"). The warnings come from FFmpeg declarations marked deprecated that usb_cam still calls: at usb_cam 90d4d59e, src/usb_cam.cpp calls \"avcodec_register_all();\", \"avpicture_alloc(\", \"avpicture_get_size(\", \"avpicture_layout(\" and \"avcodec_decode_video2(\"; FFmpeg n4.2 libavcodec/avcodec.h marks each of these attribute_deprecated, while n2.8 marks none. The resolving change (PR #207) replaces the calls in usb_cam's code, not the build system."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "UPGRADE: FFmpeg (provider) at a release that deprecates functions usb_cam's code was written against; the issue asks to \"upgrade/move away from these moving forward, while maybe keeping some around for backward compatibility\"."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Compile warnings \"using deprecated function\" documented (issue) and attributed to \"`avcodec_register_all`, `avpicture_alloc`, and other `av`-related warnings\" (PR #170); the package still builds and runs."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "usb_cam",
+   "role": "consumer",
+   "repo": "https://github.com/ros-drivers/usb_cam",
+   "broken_rev": "90d4d59eb11e0049e57d8abc64e4b7ede2446351",
+   "resolved_rev": "77a774f5249773ac15f41a03e32295fe6057a7a8",
+   "pinned": true,
+   "revision_basis": "Issue opened 2021-05-15T18:10Z against the ros2 branch (now 'main'); the branch head then was 90d4d59e (2021-05-15T17:42Z, \"replace boost lexical_cast with snprintf\"). Resolved: merge commit 77a774f5 of PR #207 \"Fix compiler warnings, replace deprecated code\" into the ros2 branch (2022-11-23). The packet's PR #170 (merge 1faffe1d, 2021-09-13) did not address these warnings: \"Unfortunately, no. They were ignored here.\"",
+   "excerpt": false,
+   "ros_distro": null
+  },
+  {
+   "name": "FFmpeg",
+   "role": "provider",
+   "repo": "https://github.com/FFmpeg/FFmpeg",
+   "broken_rev": "release/4.2",
+   "resolved_rev": "release/4.2",
+   "pinned": false,
+   "revision_basis": "No source names the FFmpeg version. The ros2 branch at the time targeted ROS 2 Foxy/Galactic on Ubuntu 20.04 (PR #170's build log, same period, shows \"/opt/ros/galactic/include/rclcpp\"), whose ffmpeg packages are from the 4.2 series; all five deprecated calls carry attribute_deprecated in n4.2 and n4.2.4. Branch release/4.2 is used as a series-level label; unchanged by the resolution.",
+   "excerpt": false,
+   "ros_distro": null
+  }
+ ],
+ "operation": "UPGRADE",
+ "consumer_built_against": {
+  "broken": "n2.8",
+  "resolved": "n4.2",
+  "basis": "inferred"
+ },
+ "inventory": [
+  {
+   "element": "api:avcodec_register_all",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:avcodec_find_decoder",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:avcodec_alloc_context3",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:avcodec_open2",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:avpicture_alloc",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:avpicture_get_size",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:avpicture_layout",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:avcodec_decode_video2",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:av_init_packet",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  },
+  {
+   "element": "api:sws_scale",
+   "sides": {
+    "FFmpeg": "provides",
+    "usb_cam": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "element_retyped",
+   "implicated_elements": [
+    "api:avcodec_register_all",
+    "api:avpicture_alloc",
+    "api:avpicture_get_size",
+    "api:avpicture_layout",
+    "api:avcodec_decode_video2"
+   ],
+   "quote": "They were `avcodec_register_all`, `avpicture_alloc`, and other `av`-related warnings.",
+   "url": "https://github.com/ros-drivers/usb_cam/pull/170"
+  }
+ ],
+ "outcome_class": "warning_only",
+ "loudness": "loud_documented",
+ "loudness_evidence": "Compiler diagnostics at build: \"there are a lot of compile warnings for `using deprecated function`\" -- https://github.com/ros-drivers/usb_cam/issues/152; PR #170 had to suppress them to get a clean build: \"add_compile_options(-Wall -Wextra -Wpedantic -Wno-overflow -Wno-deprecated-declarations -Wno-switch)\" -- https://github.com/ros-drivers/usb_cam/pull/170",
+ "detection_stage": "build",
+ "resolution": {
+  "summary": "usb_cam PR #207 (ros2 branch) stops calling the deprecated FFmpeg functions on the libavcodec>52/>=55 code paths: removes \"avcodec_register_all();\", replaces avpicture_alloc with av_image_alloc, avpicture_get_size with av_image_get_buffer_size, avpicture_layout with av_image_copy_to_buffer, and drops av_init_packet/avcodec_decode_video2; the deprecated calls remain only inside #if LIBAVCODEC_VERSION_MAJOR < 55 / <= 52 branches.",
+  "status": "recommended",
+  "evidence": "Diff of https://github.com/ros-drivers/usb_cam/pull/207 (merge 77a774f5, 2022-11-23); no source shows a warning-free build of this revision against an identified FFmpeg revision. The issue was closed 2023-04-09 with \"Closing\" after a maintainer noted \"#197 is already merged, cleansing started\" (PR #197 targets the ROS 1 'develop' branch)."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "consumer_built_against is inferred: n2.8 is the last FFmpeg release in which none of usb_cam's calls is marked attribute_deprecated (n3.0 deprecates avpicture_alloc/avpicture_get_size/avpicture_layout, n3.1 avcodec_decode_video2, n4.0 avcodec_register_all); usb_cam's FFmpeg code predates the ROS 2 port (ROS 1 PR #58 'support for Kinetic / Ubuntu 16.04', whose FFmpeg is 2.8). Resolved label n4.2: the calls compiled at 77a774f5 on libavcodec 58 are not deprecated in n4.2. At 77a774f5 mjpeg2rgb also no longer calls any decode function on the >52 path (\"(void)MJPEG;\", \"(void)len;\"), a behavioural change outside this case. PR #197 ('Full support for last FFMPEG', develop branch) addresses the same deprecations for the ROS 1 package: \"`AVPicture` API calls are now removed in favour of correct instantiation of `AVFrame` structures.\" Later ros2-branch work (PR #231 refactor, PR #342 \"Remove deprecared/unneeded avcodec_close()\") continues the migration."
+}

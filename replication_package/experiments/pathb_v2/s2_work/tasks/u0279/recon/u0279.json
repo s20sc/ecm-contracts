@@ -1,0 +1,100 @@
+{
+  "task_id": "u0279",
+  "package": "cv_bridge",
+  "manifest_version": "3.0.3",
+  "ports": [
+    {
+      "element": "api:cv_bridge/cv_bridge.h",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::CvImage",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::CvImagePtr",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::Exception",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::toCvCopy",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:cv_bridge/cv_bridge.h": "api cv_bridge/cv_bridge.h: #define CV_BRIDGE__CV_BRIDGE_H_",
+    "api:cv_bridge::CvImage": "api cv_bridge::CvImage: class CV_BRIDGE_EXPORT CvImage",
+    "api:cv_bridge::CvImagePtr": "api cv_bridge::CvImagePtr: typedef std::shared_ptr<CvImage> CvImagePtr;",
+    "api:cv_bridge::Exception": "api cv_bridge::Exception: class CV_BRIDGE_EXPORT Exception : public std::runtime_error",
+    "api:cv_bridge::toCvCopy": "api cv_bridge::toCvCopy: CV_BRIDGE_EXPORT CvImagePtr toCvCopy( const sensor_msgs::msg::Image::ConstSharedPtr & source, const std::string & encoding = std::string());"
+  },
+  "not_declared": ["api:cv_bridge/cv_bridge.hpp"],
+  "references": ["msg:sensor_msgs/Image", "msg:sensor_msgs/CompressedImage", "msg:std_msgs/Header"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:cv_bridge/package.xml:3",
+    "ports[1].frame": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:88 (std_msgs::msg::Header header;  // !< ROS header) filled from the source message at run time: snapshot:cv_bridge/src/cv_bridge.cpp:339 (ptr->header = src_header;)",
+    "ports[2].frame": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:65 (typedef std::shared_ptr<CvImage> CvImagePtr;) pointee carries header from cv_bridge.h:88, set per message at snapshot:cv_bridge/src/cv_bridge.cpp:339",
+    "ports[3].frame": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:56-61 (Exception holds only a std::string description; no spatial data)",
+    "ports[4].frame": "snapshot:cv_bridge/src/cv_bridge.cpp:427 (return toCvCopyImpl(matFromImage(source), source.header, source.encoding, encoding);) and :339 (ptr->header = src_header;)",
+    "declares[api:cv_bridge/cv_bridge.h]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:38; installed by snapshot:cv_bridge/CMakeLists.txt:83 (install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME}))",
+    "declares[api:cv_bridge::CvImage]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:85",
+    "declares[api:cv_bridge::CvImagePtr]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:65",
+    "declares[api:cv_bridge::Exception]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:56",
+    "declares[api:cv_bridge::toCvCopy]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:177-179 (first of four overloads; others at :181, :204, :208)",
+    "not_declared[api:cv_bridge/cv_bridge.hpp]": "Searched all 64 snapshot files (all readable). find -iname '*cv_bridge*' yields only cv_bridge/include/cv_bridge/cv_bridge.h, cv_bridge/src/cv_bridge.cpp, cv_bridge/cmake/cv_bridge-extras.cmake.in and directories; snapshot:cv_bridge/include/cv_bridge/ holds only cv_bridge.h, cv_mat_sensor_msgs_image_type_adapter.hpp, rgb_colors.h, visibility_control.h; grep for 'cv_bridge.hpp' over the snapshot returns 0 hits; the only generated header is cv_bridge_export.h (snapshot:cv_bridge/src/CMakeLists.txt:8); every in-tree include uses cv_bridge/cv_bridge.h (src/cv_bridge.cpp:37, src/module.hpp:21, test/utest.cpp:4, test/utest2.cpp:43, test/test_endian.cpp:2, test/test_compression.cpp:1)",
+    "references[msg:sensor_msgs/Image]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:40 (#include <sensor_msgs/msg/image.hpp>), :112 (sensor_msgs::msg::Image::SharedPtr toImageMsg() const;)",
+    "references[msg:sensor_msgs/CompressedImage]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:41 (#include <sensor_msgs/msg/compressed_image.hpp>), :181-183",
+    "references[msg:std_msgs/Header]": "snapshot:cv_bridge/include/cv_bridge/cv_bridge.h:88 (std_msgs::msg::Header header;)",
+    "perm_requires.state": "grep -rniE 'permission|security|sros|policy' over snapshot:cv_bridge/ matches only BSD/Apache license boilerplate; package.xml is the only config file (no yaml/launch/policy files)",
+    "perm_grants.state": "same search as perm_requires.state; no grant declarations found",
+    "recovery.state": "grep -rniE 'recover|retry|fallback' over snapshot:cv_bridge/ returns no hits; library code only throws cv_bridge::Exception on error (e.g. snapshot:cv_bridge/src/cv_bridge.cpp:118)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The packet lists api:cv_bridge/cv_bridge.hpp as provided, but this revision (3.0.3) ships only cv_bridge/cv_bridge.h; a consumer including cv_bridge/cv_bridge.hpp would not compile against it. The other five elements are present."
+  },
+  "confidence": "high",
+  "notes": "cv_bridge is a C++ library (plus Python module); all packet elements are C++ API symbols or headers, not topics/services, so msg_type is null (the elements are not message types), QoS/rate fields are null (no pub/sub endpoint is created for these elements), and definition_id is null (no .msg/.srv/.action/.idl definition exists for an API symbol). No dependency definition files were fetched; no network access was used. frame: CvImage/CvImagePtr/toCvCopy carry a std_msgs Header copied from each source message (per_message); Exception has no spatial meaning (none); the header-file element has no data of its own (null). declares for api:cv_bridge/cv_bridge.h uses the include-guard #define line as the header's declaration line. api:cv_bridge::toCvCopy has four overloads in cv_bridge.h (lines 177, 181, 204, 208: Image::ConstSharedPtr, CompressedImage::ConstSharedPtr, const Image &, const CompressedImage &); declares records the first. Message names in references are written pkg/Type per the template; the code spells them sensor_msgs::msg::Image, sensor_msgs::msg::CompressedImage, std_msgs::msg::Header. The public header also includes sensor_msgs/image_encodings.hpp and OpenCV headers (cv_bridge.h:42-45), not listed in references. The snapshot is the vision_opencv repository; only the cv_bridge subdirectory was used for this package. exclusive is empty: no hardware interfaces or exclusive device handles are claimed."
+}

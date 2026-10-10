@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_0481047-resolved-M1-c92956b86c",
+ "kind": "A2",
+ "case_id": "robust_0481047",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0033/snapshot/tf2/include/tf2/buffer_core.h:296 = `  std::string _allFramesAsDot() const;` with definition at s2_work/tasks/u0033/snapshot/tf2/src/buffer_core.cpp:1320 = `std::string BufferCore::_allFramesAsDot() const`; running: s2_work/tasks/u0034/snapshot/tf2/include/tf2/buffer_core.h:300 = `  std::string _allFramesAsDot(double current_time) const;` (zero-arg re-declared on :301 = `  std::string _allFramesAsDot() const;`). All cited locations opened; the two records differ exactly as claimed."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0032/snapshot/tf/src/tf.cpp:441 = `  return tf2_buffer_._allFramesAsDot();` (inside `std::string Transformer::allFramesAsDot() const` beginning at :439); the callee is reached on the member declared at s2_work/tasks/u0032/snapshot/tf/include/tf/tf.h:387 = `  tf2_ros::Buffer tf2_buffer_;`, which publicly inherits tf2::BufferCore."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2::BufferCore::_allFramesAsDot]",
+   "verdict": "transcription_only",
+   "built_excerpt": "s2_work/tasks/u0033/snapshot/tf2/include/tf2/buffer_core.h:296: `  std::string _allFramesAsDot() const;`",
+   "running_excerpt": "s2_work/tasks/u0034/snapshot/tf2/include/tf2/buffer_core.h:300-301: `  std::string _allFramesAsDot(double current_time) const;` / `  std::string _allFramesAsDot() const;`"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The resolved composition's upgrade unit maps built=u0033 (tf2 0.5.7), running=u0034 (tf2 04810475), consumer=u0032 (tf 1.11.4), matching the specification's UPGRADE operation (consumer unchanged at 1.11.4, built against tf2 0.5.7; provider at the resolving revision). The two ports are connected through the library API: the consumer's compiled reference is the zero-argument call at tf.cpp:441 on `tf2_ros::Buffer tf2_buffer_;` (tf.h:387), whose public base tf2::BufferCore declares `std::string _allFramesAsDot() const;` at the running revision (u0034 buffer_core.h:301) - i.e. in this resolved composition the provider again exports the symbol the consumer references, which is precisely what the resolving change restored."
+ },
+ "notes": "Substance reasoning: the zero-argument declaration is byte-identical between built (:296) and running (:301); the running revision only ADDS the overload `std::string _allFramesAsDot(double current_time) const;` (:300), which the cited consumer call (zero arguments, tf.cpp:441) does not use, so what this consumer depends on - name, arity 0, std::string return, const - does not differ in substance. The 4-line shift (296 -> 300/301) is caused by the `CompactFrameID _validateFrameId(...) const { ... }` helper block that exists in u0034 immediately above getCacheLength() and is absent in u0033 (observed in both reads). Caveat for readers of the record: an added overload is a real source change, not a re-transcription of the same declaration; the verdict transcription_only is keyed to the adjudication question 'does what a consumer depends on differ in substance', and for the cited consumer read it does not."
+}

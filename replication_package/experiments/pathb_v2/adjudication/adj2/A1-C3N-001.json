@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3N-001",
+  "kind": "A1",
+  "case_id": "C3N-001",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "I think the following parameters are not effective in the HUMBLE version. ax_max: 3.0  ax_min: -3.0  ay_min: -3.0  ay_max: 3.0  az_max: 3.5  and it is effective in JAZZY. It seems that the small acceleration value causes the vehicle to slow down.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386#issuecomment-3125122390"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "On Ubuntu 24.04, maximum speed is limited to \\~0.25 m/s.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command"
+  },
+  "notes": "Independent check agrees with ineligible/internal (E2 step 2), at the spec's medium confidence. Verified this session: (1) issue #5386 by iumida; body quotes verified verbatim: 'Launch Nav2 on both Ubuntu 22.04 and Ubuntu 24.04 with ROS 2 Jazzy using this parameter file.' / '4. Observe `/cmd_vel` and compare the `linear.x` output on both OS versions.' / 'On Ubuntu 24.04, maximum speed is limited to \\~0.25 m/s.'; (2) reporter diagnosis comment verified verbatim (parameters listed line-by-line, ax_max/ax_min/ay_min/ay_max/az_max, 'not effective in the HUMBLE version ... effective in JAZZY'); maintainer closure verified: 'Great! I'm glad you found your issue :-)' after pointing to the migration guides; a later commenter (Mxilee) was pointed to the same diagnosis and reported 'I had to increase ax_max to 15.0'; (3) code verified at branch heads: humble nav2_mppi_controller/src/optimizer.cpp has zero occurrences of ax_max; jazzy has 'getParam(s.base_constraints.ax_max, \"ax_max\", 3.0f);' (line 80) and 'float max_delta_vx = s.model_dt * s.constraints.ax_max;' (line 282); both branches seed the first rollout column from measured speed — humble line 255 'xt::noalias(xt::view(state.vx, xt::all(), 0)) = state.speed.linear.x;' and jazzy line 327 with static_cast; (4) PR #5617 'add open loop option for MPPI' merged 2025-10-24 as 8dbc92910b020b19b9891849b3ee7cb92e1b3b03, body verified verbatim: 'When close loop mode is used, MPPI will get the current odometry and add small velocity step for next setpoint every control iteration.'; (5) PR #6336 'Backport #5617 to Jazzy' body bullets verified verbatim ('Fixes a Humble to Jazzy regression...' and 'Defaulting to false so no behavior change unless opted in'), body also cross-references #5386 and #5694 ('We saw the same symptom class as #5386 and #5694'); (6) maintainer quote in #5214 verified verbatim: 'all controllers in Nav2 assume that your robot has properly setup robot controllers to be able to execute commands given'; (7) issue #5694 verified: 'Max Speed Capped at 0.17 m/s after ROS 2 Jazzy Migration (Nav2)' by storyco44, maintainer response 'Did you read the migration guides?'. FACTUAL ERROR FLAG in the spec's E1 evidence: it says 'The linked backport PR 6336 was merged to jazzy on 2025-08-11' — actual merged_at is 2026-08-11T18:35:27Z (the spec's own notes correctly say 2026-08-11); does not affect E1 pass. Adjudication caveat on step 2: the failure does depend on the base's tracking lag (PR 5617's own framing 'lagging odometry'), so the 'would occur with any correct peer' test is not perfectly clean; I still agree with internal because the source never identifies the odometry-providing unit, the odometry values crossing the boundary are correct (nothing wrong crosses), the reported problem is a cross-revision behavior change of one unit under an unchanged parameter file, and the source's resolutions are the controller's own parameters (reporter) and its own seeding logic (opt-in open_loop). E3's 'UPGRADE of nav2_mppi_controller' framing is loose (UPGRADE is defined between two units) but moot given E2. Loudness/resolution null is schema-correct for an ineligible case."
+}

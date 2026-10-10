@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-C3-011",
+  "kind": "A1",
+  "case_id": "C3-011",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The compressed transport plugin declares different parameters depending on the namespace of the node.\r\nWhen the node is put under a namespace, the plugin will add a dot character to the parameter names:",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/109"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [
+        "param:camera.image_raw.compressed.format",
+        "param:camera.image_raw.compressed.jpeg_quality",
+        "param:camera.image_raw.compressed.png_level"
+      ],
+      "quote": "When the node is put under a namespace, the plugin will add a dot character to the parameter names:\r\n```\r\n.camera.image_raw.format\r\n.camera.image_raw.jpeg_quality\r\n.camera.image_raw.png_level\r\n```",
+      "url": "https://github.com/ros-perception/image_transport_plugins/issues/109"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [
+        "api:rclcpp::Node::get_effective_namespace",
+        "param:camera.image_raw.compressed.format",
+        "param:camera.image_raw.compressed.jpeg_quality",
+        "param:camera.image_raw.compressed.png_level"
+      ],
+      "quote": "   uint ns_len = node->get_effective_namespace().length();\n-  std::string param_base_name = base_topic.substr(ns_len);\n+  uint ns_prefix_len = ns_len > 1 ? ns_len + 1 : ns_len;\n+  std::string param_base_name = base_topic.substr(ns_prefix_len);",
+      "url": "https://github.com/ros-perception/image_transport_plugins/pull/188/files"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I could publish a fix for that but I need to know which way is the intended one.",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/109"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixes #109"
+  },
+  "notes": "E1 confirmed: issue #109 body states the namespace-dependent parameter names verbatim. E2 stop_step 6 (parameter) is correct: the plugin declares parameters on the host node, and the wrong name crosses the plugin/host boundary; the resolving edit (PR #188 diff, verified) changes the plugin's declared names, not a deployment remap. Both failed conditions are correct — element_removed_or_renamed (the dot-prefixed names) and representation_convention (the substring arithmetic on get_effective_namespace that assumes the namespace includes its separator; verified in the exact PR #188 hunk). Loudness unknown is right: the source shows only declared names and no consumer-side failure or diagnostic. Resolution recommended is right: PR #188 merged (f461328d, \"Fixes #109\") but no source shows the fixed plugin running in a namespaced host. The spec's confidence low and its open caveat that the reporter's 2022 names predate the transport scoping are appropriate."
+}

@@ -1,0 +1,27 @@
+{
+  "task_id": "u0389",
+  "package": "rclcpp",
+  "status": "evidence_inadequate",
+  "searched": "Whole snapshot (443 files: rclcpp, rclcpp_action, rclcpp_components, rclcpp_lifecycle, including src/, include/, test/, CMakeLists.txt, package.xml, docs) with grep -rn for each literal symbol 'rmw_create_subscription', 'rmw_return_loaned_message_from_subscription', 'rmw_take_loaned_message', 'rmw_take_with_info', 'rmw_wait', and case-insensitive 'rmw_(create_subscription|return_loaned|take|wait)': 0 hits. grep for 'rmw_subscription_t' and 'can_loan_messages': no reference to the rmw_subscription_t struct or its can_loan_messages field; the only can_loan_messages hits are rclcpp's own SubscriptionBase/PublisherBase methods, which call rcl_subscription_can_loan_messages / rcl_publisher_can_loan_messages. Enumerated every rmw_*( call in the snapshot (serialization, validation, qos string conversion, error handling, gid helpers): none of the packet elements appear.",
+  "manifest_version": "16.0.5",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "perm_requires": "grep -rniE 'permission|enclave|security' over the snapshot (excluding test/): only Apache license boilerplate and rclcpp/QUALITY_DECLARATION.md:224 '## Security' heading; no permission requirement declared in code or configuration",
+    "perm_grants": "same search as perm_requires; no permission grant declared in code or configuration",
+    "recovery": "grep -rniE 'recover' over the snapshot (excluding test/): 0 hits; no recovery declaration for the listed elements"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "rclcpp at this revision never names any listed rmw element; it reaches the middleware only through rcl (rcl_subscription_init, rcl_take, rcl_take_loaned_message, rcl_return_loaned_message_from_subscription, rcl_wait, rcl_subscription_can_loan_messages), so whether the loaned-message take path in executor.cpp matches the rmw contract depends on rcl/rmw code outside the snapshot."
+  },
+  "confidence": "high",
+  "notes": "All six packet elements are on the consumes side, so declares/not_declared are empty by construction. None is referenced by name anywhere in the snapshot, so no port and no reference is recorded. The package consumes the corresponding functionality one layer up, through rcl, with these rcl-level call sites (recorded here for context only, not as references to the packet elements): rcl_subscription_init at snapshot:rclcpp/src/rclcpp/subscription_base.cpp:67; rcl_take at snapshot:rclcpp/src/rclcpp/subscription_base.cpp:152 (passes &message_info_out.get_rmw_message_info(), an rmw_message_info_t, and nullptr with comment 'rmw_subscription_allocation_t is unused here'); rcl_subscription_can_loan_messages at snapshot:rclcpp/src/rclcpp/subscription_base.cpp:232 (SubscriptionBase::can_loan_messages); in Executor::execute_subscription, 'else if (subscription->can_loan_messages())' at snapshot:rclcpp/src/rclcpp/executor.cpp:603, rcl_take_loaned_message at snapshot:rclcpp/src/rclcpp/executor.cpp:615, rcl_return_loaned_message_from_subscription at snapshot:rclcpp/src/rclcpp/executor.cpp:629; rcl_wait at snapshot:rclcpp/src/rclcpp/executor.cpp:756, snapshot:rclcpp/src/rclcpp/graph_listener.cpp:175, snapshot:rclcpp/src/rclcpp/executors/static_executor_entities_collector.cpp:258, snapshot:rclcpp/include/rclcpp/wait_set_policies/thread_safe_synchronization.hpp:300, snapshot:rclcpp/include/rclcpp/wait_set_policies/sequential_synchronization.hpp:280. The snapshot includes \"rmw/rmw.h\" (e.g. snapshot:rclcpp/src/rclcpp/subscription_base.cpp:33, snapshot:rclcpp/include/rclcpp/subscription_base.hpp:30) and declares <depend>rmw</depend> (snapshot:rclcpp/package.xml:37), but including the header is not a reference to these symbols. Whether rcl forwards these calls to the listed rmw functions cannot be established from the allowed sources (rcl is not in the snapshot, and only .msg/.srv/.action/.idl files may be fetched from dependencies). No QoS, frame, units, rate or definition_id applies because no port is recorded; rmw_subscription_t is a C struct, not a message definition, so definition_hash.py would not apply to it. status is set to evidence_inadequate because the rule for elements that cannot be found after a careful search applies literally; the absence of direct references itself is established with high confidence from a complete search of the snapshot."
+}

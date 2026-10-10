@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-C3-112",
+  "kind": "A1",
+  "case_id": "C3-112",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Crashes while trying to load the rmw implementation.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/599",
+    "reason": "E1/E4: the listener command and loader errors are concrete. E2: rmw_implementation resolves required symbols in the separately built rmw_fastrtps_dynamic_cpp library; the library lacks implementations, not merely an installation path. E3: PAIR of contemporaneous API consumer and lagging implementation, not evidence of a newer provider removing old APIs. Stop at 6."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "failed to resolve symbol 'rmw_service_set_on_new_request_callback' in shared library",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/599",
+      "reason": "Agree other: the four required entry points were absent in the dynamic implementation, not shown to have been removed or renamed. All four are named in the loader log and added by PR #600, so the implicated-elements list is supported.",
+      "additional_evidence": [
+        {
+          "quote": "failed to resolve symbol 'rmw_subscription_set_on_new_message_callback' in shared library",
+          "url": "https://github.com/ros2/rmw_fastrtps/issues/599"
+        },
+        {
+          "quote": "failed to resolve symbol 'rmw_client_set_on_new_response_callback' in shared library",
+          "url": "https://github.com/ros2/rmw_fastrtps/issues/599"
+        },
+        {
+          "quote": "failed to resolve symbol 'rmw_event_set_callback' in shared library",
+          "url": "https://github.com/ros2/rmw_fastrtps/issues/599"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "failed to resolve symbol 'rmw_service_set_on_new_request_callback' in shared library",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/599",
+    "reason": "The loader explicitly diagnoses missing interface symbols while activating the RMW implementation, before normal listener operation."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "failed to resolve symbol 'rmw_service_set_on_new_request_callback' in shared library",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/599",
+    "reason": "The documented failure is detected at activate, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "  * Copy the implementation done in #468 for dynamic version",
+    "url": "https://github.com/ros2/rmw_fastrtps/pull/600",
+    "reason": "Agree recommended. The diff adds the four dynamic-library entry points and the PR has CI/merge confirmation, but the discussion does not show the reporter listener working against an identified rmw_implementation revision."
+  },
+  "notes": "Read report #599 and the empty comments collection, PR #600 discussion and relevant file diffs. Parameter checks in the static implementation and the unrelated later error-state overwrite do not add a failed condition for the selected loader/dynamic-library pair."
+}

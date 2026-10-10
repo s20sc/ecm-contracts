@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-robust_0416c81",
+  "kind": "A1",
+  "case_id": "robust_0416c81",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: maintainer documents a concrete payload-dependent failure and supplies the corresponding change. E2 stops at 6: the produced Twist reaches kobuki_node through the launch remap, and commands adequate for the standard base fail on the heavier peer. The fix changes produced values rather than just deployment names. E3: PAIR.",
+    "quote": "But with heavier robots, as waiterbot, minimum speeds are very slow, so the robot can get stuck easily.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/262"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The same patch clamps wz using min_abs_w. Broken auto_docking_ros.cpp copies getVX/getWZ into Twist.linear.x/angular.z and publishes velocity; minimal.launch remaps it to mobile_base/commands/velocity. Magnitude adequacy is other, not unit_mismatch or rate_shortfall.",
+      "quote": "vx = sign(v) * std::max(std::abs(v), min_abs_v);",
+      "url": "https://github.com/yujinrobot/kobuki/commit/0416c81e5d08466477c5806443a580a142d0d465.patch"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The documented symptom is physical stalling; the report presents no build/connect/activation diagnostic for the command values: silent_documented.",
+    "quote": "the robot can get stuck easily.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/262"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "Stalling occurs during docking motion: run.",
+    "quote": "the robot can get stuck easily.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/262"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "Release confirmation and statements of sufficiency are not a documented successful heavy-robot docking run with the parameters and both revisions identified; recommended.",
+    "quote": "Confirmed that it is released on Hydro.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/262#issuecomment-29267480"
+  },
+  "notes": "The source also requests collision-aware docking, but that is an unimplemented feature request rather than a reproduced failed condition. Eligibility is bounded to the documented standard-versus-heavy-base command adequacy; no firmware protocol defect is inferred."
+}

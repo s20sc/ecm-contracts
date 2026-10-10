@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-010",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/image_common/issues/151",
+    "https://github.com/start-jsk/jsk_apc/pull/2706",
+    "https://answers.ros.org/question/287421/"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter gives a reproducer with measurements on identical openni2/image_transport/compressed_depth_image_transport versions: on Kinetic \"$ rostopic hz /camera/depth/image_raw/compressedDepth ... average rate: 3.953\" versus on Indigo \"average rate: 30.920\" (https://github.com/ros-perception/image_common/issues/151)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "compressed_depth_image_transport (publisher plugin loaded by openni2_camera's image_transport::CameraPublisher)",
+        "openni2_camera driver nodelet"
+      ],
+      "interface_kind": null,
+      "evidence": "The documented effect is the CPU cost of PNG-encoding compressedDepth inside the publishing process, which slows that process for any subscriber: \"When subscribing compressedDepth on kinetic, hz of image_raw drops. This is because load of CPU processing camera becomes too high. To avoid this on baxter-c1, png_level should be under 6. This behavior is different from indigo, so we should do further investigation...\" (https://github.com/start-jsk/jsk_apc/pull/2706). The issue only asks \"What is the cause of this difference?\" and was closed on 2025-11-11 with no comment and no fix; no source identifies a value, name, unit or timing assumption that crosses a boundary between two named units. The package versions of image_transport (1.11.13) and compressed_depth_image_transport (1.9.5) are the same on both distros; only cv_bridge and OpenCV differ, and no source attributes the slowdown to either."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No failing composition is identified; the report is a distro-to-distro performance comparison."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Rate drop observed: Kinetic compressedDepth \"average rate: 4.041\" / \"3.953\" (https://github.com/ros-perception/image_common/issues/151)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: a performance difference in compressedDepth PNG encoding between Kinetic and Indigo whose cause was never identified (the issue is a question, closed in 2025 without answer or fix); the documented effect is encoding CPU load inside the publishing process that any subscriber would see. The only 'fix' (jsk_apc PR 2706) is a downstream workaround lowering the png_level parameter value in a launch file.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Alternative reading considered: an UPGRADE of OpenCV (2.4.8 on Indigo, 3.3.1 on Kinetic) under compressed_depth_image_transport 1.9.5, or a rate_shortfall on topic /camera/depth/image_raw/compressedDepth. Neither is supported by any primary source: nobody attributes the slowdown to OpenCV, cv_bridge or libpng, and no interface element is named as mismatched. The linked ROS Answers thread (https://answers.ros.org/question/287421/) attributes low compressedDepth rates to the default compression: \"The problem is related to the compressedDepth png compression level which is set by default to 9. We get 3-4 Hz in the default configuration.\" The jsk_apc workaround (merge commit 80715769fa99f0f1a524c92fb4cd63fa09a0f556) adds <param name=\"left/depth/image_raw/compressedDepth/png_level\" value=\"5\" /> to jsk_arc2017_baxter/launch/setup/include/stereo_astra_hand.launch and was tested only as a rate check (\"This PR is already tested with real robot, by checking: $ rostopic hz ...\")."
+}

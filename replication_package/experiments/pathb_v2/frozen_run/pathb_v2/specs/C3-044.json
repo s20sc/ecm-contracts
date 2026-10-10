@@ -1,0 +1,129 @@
+{
+ "case_id": "C3-044",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros-perception/image_common/issues/370",
+  "https://github.com/ros-perception/image_common/pull/376",
+  "https://github.com/ros-perception/point_cloud_transport/issues/127",
+  "https://github.com/ros2/rmw_zenoh/blob/cdb66eed88a41775e4d6b7a3919805d4963f606b/rmw_zenoh_cpp/src/detail/qos.cpp",
+  "https://github.com/ros-perception/image_common/blob/b2abe1e5eaac06ba7af6ee110ff252076f2b95e6/image_transport/test/test_qos_override.cpp"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "The issue quotes the buildfarm test failure with file and line: \"/tmp/ws/src/ros-perception/image_common/image_transport/test/test_qos_override.cpp:115\nExpected equality of these values:\n  endpoint_info_vec[0].qos_profile().reliability()\n    Which is: 4-byte object <01-00 00-00>\n  rclcpp::ReliabilityPolicy::BestEffort\n    Which is: 4-byte object <02-00 00-00>\" (https://github.com/ros-perception/image_common/issues/370); a second report: \"This is happening not only on Zenoh, but it's also happening consistently on cyclone.\" (https://github.com/ros-perception/image_common/issues/370#issuecomment-3179270735); maintainer fix PR #376 \"Fix QoS override tests\" merged."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "image_transport",
+    "rmw_zenoh_cpp"
+   ],
+   "interface_kind": "library API (middleware resolution of SYSTEM_DEFAULT QoS reported through the graph-introspection API for a topic endpoint)",
+   "evidence": "The image_transport QoS-override test creates a subscription with rclcpp::SystemDefaultsQoS() and asserts that the middleware reports BestEffort reliability for it: \"auto sub = image_transport::create_subscription(\" ... \"sub_node_.get(), \"camera/image\", fcn, \"raw\", rclcpp::SystemDefaultsQoS());\" / \"EXPECT_EQ(endpoint_info_vec[0].qos_profile().reliability(),\" / \"rclcpp::ReliabilityPolicy::BestEffort);\" (https://github.com/ros-perception/image_common/blob/b2abe1e5eaac06ba7af6ee110ff252076f2b95e6/image_transport/test/test_qos_override.cpp). rmw_zenoh_cpp resolves a SYSTEM_DEFAULT reliability to its own default: \"#define RMW_ZENOH_DEFAULT_RELIABILITY RMW_QOS_POLICY_RELIABILITY_RELIABLE;\" and \"case RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT:\" ... \"qos_profile->reliability = default_qos_.reliability;\" (https://github.com/ros2/rmw_zenoh/blob/cdb66eed88a41775e4d6b7a3919805d4963f606b/rmw_zenoh_cpp/src/detail/qos.cpp). The rmw_zenoh maintainer who filed the linked report states the assumption crosses the boundary: \"the RMW implementation can decide what the reliability should be if `SystemDefaultsQoS` is specified.\" (https://github.com/ros-perception/point_cloud_transport/issues/127). The failure depends on which middleware resolves the default (the same test only failed on the zenoh and cyclone nightly jobs), so it is not internal; the fix edits test assertions, not deployment names or the build."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: the middleware's reported QoS of the test's subscription endpoint (output of rmw_zenoh_cpp via rclcpp get_subscriptions_info_by_topic) feeds the test's assertion (input of image_transport's test). Observed in the Rolling nightly job with rmw_zenoh: \"Nightly test failure with rmw_zenoh\" (https://github.com/ros-perception/image_common/issues/370)."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed test failures on the buildfarm: \"The tests that are failing are:\n- image_transport.TestQosOverride.qos_override_subscriber_without_options\n- image_transport.TestQosOverride.qos_override_subscriber_with_options\n- projectroot.test_image_transport_qos_override\" (https://github.com/ros-perception/image_common/issues/370#issuecomment-3228421916)."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "image_transport",
+   "role": "consumer",
+   "repo": "https://github.com/ros-perception/image_common",
+   "broken_rev": "b2abe1e5eaac06ba7af6ee110ff252076f2b95e6",
+   "resolved_rev": "10981bfa19be02b1a791f6cb67cdb1825c1d9088",
+   "pinned": true,
+   "revision_basis": "The failing nightly (Rci__nightly-zenoh_ubuntu_noble_amd64 #143, Jenkins record no longer available) built the rolling branch from source; the issue was filed 2025-08-08T17:04Z. The rolling head from 2025-07-25 to 2025-08-19 was b2abe1e5 (tag commit 6.3.0), and in that revision the two failing EXPECT_EQ statements sit exactly at the reported lines 115 and 123 of image_transport/test/test_qos_override.cpp. The test file is unchanged from fbb8b0b0 (2025-07-21) through b2abe1e5, so any rolling head in that window gives the same broken test. Resolved revision is the merge commit of PR #376 on rolling (2025-09-08).",
+   "excerpt": false,
+   "ros_distro": "rolling"
+  },
+  {
+   "name": "rmw_zenoh_cpp",
+   "role": "provider",
+   "repo": "https://github.com/ros2/rmw_zenoh",
+   "broken_rev": "cdb66eed88a41775e4d6b7a3919805d4963f606b",
+   "resolved_rev": "cdb66eed88a41775e4d6b7a3919805d4963f606b",
+   "pinned": true,
+   "revision_basis": "The reporter names only the Rolling nightly zenoh job. rmw_zenoh's rolling branch head from 2025-07-29 (0.8.2 release commit cdb66eed) until 2025-08-12 was cdb66eed; the build date of job #143 is not recoverable, so this is the head on the report date. rmw_zenoh_cpp/src/detail/qos.cpp (default reliability RELIABLE) is unchanged between 2025-03-11 and 2025-12-19, so any rolling revision in that window gives the same behaviour. The resolution does not change rmw_zenoh, so the resolved revision equals the broken one.",
+   "excerpt": false,
+   "ros_distro": "rolling"
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "topic:/camera/image",
+   "sides": {
+    "image_transport": "consumes",
+    "rmw_zenoh_cpp": "provides"
+   }
+  },
+  {
+   "element": "api:rmw_create_subscription",
+   "sides": {
+    "image_transport": "consumes",
+    "rmw_zenoh_cpp": "provides"
+   }
+  },
+  {
+   "element": "api:rmw_get_subscriptions_info_by_topic",
+   "sides": {
+    "image_transport": "consumes",
+    "rmw_zenoh_cpp": "provides"
+   }
+  },
+  {
+   "element": "api:rmw_create_publisher",
+   "sides": {
+    "image_transport": "consumes",
+    "rmw_zenoh_cpp": "provides"
+   }
+  },
+  {
+   "element": "api:rmw_get_publishers_info_by_topic",
+   "sides": {
+    "image_transport": "consumes",
+    "rmw_zenoh_cpp": "provides"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "qos_reliability",
+   "implicated_elements": [
+    "topic:/camera/image",
+    "api:rmw_get_subscriptions_info_by_topic"
+   ],
+   "quote": "/tmp/ws/src/ros-perception/image_common/image_transport/test/test_qos_override.cpp:115\nExpected equality of these values:\n  endpoint_info_vec[0].qos_profile().reliability()\n    Which is: 4-byte object <01-00 00-00>\n  rclcpp::ReliabilityPolicy::BestEffort\n    Which is: 4-byte object <02-00 00-00>",
+   "url": "https://github.com/ros-perception/image_common/issues/370"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "silent_documented",
+ "loudness_evidence": "The mismatch is caught only by the test's own gtest assertion (\"Expected equality of these values:\" ... \"rclcpp::ReliabilityPolicy::BestEffort\", https://github.com/ros-perception/image_common/issues/370); no middleware, connection, or QoS-incompatibility diagnostic is reported.",
+ "detection_stage": "run",
+ "resolution": {
+  "summary": "PR #376 stops asserting a specific resolved reliability for SystemDefaultsQoS subscriptions and only asserts it is known: \"-  EXPECT_EQ(endpoint_info_vec[0].qos_profile().reliability(),\n-    rclcpp::ReliabilityPolicy::BestEffort);\n+  EXPECT_NE(endpoint_info_vec[0].qos_profile().reliability(),\n+    rclcpp::ReliabilityPolicy::Unknown);\" (https://github.com/ros-perception/image_common/pull/376/files). rmw_zenoh is unchanged.",
+  "status": "recommended",
+  "evidence": "A buildfarm maintainer later wrote \"This is already fixed. We should close the issue\" (https://github.com/ros-perception/image_common/issues/370#issuecomment-3486564849) without identifying the nightly run or the rmw_zenoh revision; the PR's own ci.ros2.org run (https://github.com/ros-perception/image_common/pull/376#issuecomment-3258561938) does not identify an rmw_zenoh revision either."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "The defect is in the consumer's test assumption; the provider's behaviour is by design. The same failure is reported with rmw_cyclonedds_cpp as peer (\"it's also happening consistently on cyclone\", https://github.com/ros-perception/image_common/issues/370#issuecomment-3179270735); that is the same consumer-side assumption against a different provider and is not specified here. A separate CycloneDDS-only failure (\"image_transport.test_image_transport-qos_override.gtest.missing_result\", https://github.com/ros-perception/image_common/issues/370#issuecomment-3242574095) is a different symptom and not a condition of this case. The test reaches rmw through rclcpp and rcl (rclcpp::Node::get_subscriptions_info_by_topic, image_transport::create_subscription); inventory elements name the rmw API symbols at the image_transport/rmw boundary because rclcpp and rcl only pass the values through. Fast DDS as peer: the source implies (nightly failures reported only for zenoh and cyclone) but does not state that the assertion holds with rmw_fastrtps. The class qos_reliability is used because the attribute whose resolved value crosses the boundary is the reliability policy; there is no publisher/subscriber incompatibility. The same pattern was fixed earlier in point_cloud_transport (PR #128) for issue #127. Operation alternatives: none observed besides PAIR."
+}

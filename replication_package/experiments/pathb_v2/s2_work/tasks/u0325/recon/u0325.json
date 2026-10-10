@@ -1,0 +1,126 @@
+{
+  "task_id": "u0325",
+  "package": "rmw_fastrtps",
+  "manifest_version": "4.2.0",
+  "ports": [
+    {
+      "element": "api:rmw_create_guard_condition",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_create_wait_set",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_destroy_wait_set",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_trigger_guard_condition",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_wait",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rmw_create_guard_condition": "api rmw_create_guard_condition: rmw_guard_condition_t * rmw_create_guard_condition(rmw_context_t * context)",
+    "api:rmw_create_wait_set": "api rmw_create_wait_set: rmw_wait_set_t * rmw_create_wait_set(rmw_context_t * context, size_t max_conditions)",
+    "api:rmw_destroy_wait_set": "api rmw_destroy_wait_set: rmw_ret_t rmw_destroy_wait_set(rmw_wait_set_t * wait_set)",
+    "api:rmw_trigger_guard_condition": "api rmw_trigger_guard_condition: rmw_ret_t rmw_trigger_guard_condition(const rmw_guard_condition_t * guard_condition_handle)",
+    "api:rmw_wait": "api rmw_wait: rmw_ret_t rmw_wait( rmw_subscriptions_t * subscriptions, rmw_guard_conditions_t * guard_conditions, rmw_services_t * services, rmw_clients_t * clients, rmw_events_t * events, rmw_wait_set_t * wait_set, const rmw_time_t * wait_timeout)"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rmw_fastrtps_cpp/package.xml:5",
+    "ports[0]": "snapshot:rmw_fastrtps_cpp/src/rmw_guard_condition.cpp:26",
+    "declares[api:rmw_create_guard_condition]": "snapshot:rmw_fastrtps_cpp/src/rmw_guard_condition.cpp:26",
+    "ports[1]": "snapshot:rmw_fastrtps_cpp/src/rmw_wait_set.cpp:26",
+    "declares[api:rmw_create_wait_set]": "snapshot:rmw_fastrtps_cpp/src/rmw_wait_set.cpp:26",
+    "ports[2]": "snapshot:rmw_fastrtps_cpp/src/rmw_wait_set.cpp:33",
+    "declares[api:rmw_destroy_wait_set]": "snapshot:rmw_fastrtps_cpp/src/rmw_wait_set.cpp:33",
+    "ports[3]": "snapshot:rmw_fastrtps_cpp/src/rmw_trigger_guard_condition.cpp:25",
+    "declares[api:rmw_trigger_guard_condition]": "snapshot:rmw_fastrtps_cpp/src/rmw_trigger_guard_condition.cpp:25",
+    "ports[4]": "snapshot:rmw_fastrtps_cpp/src/rmw_wait.cpp:24",
+    "declares[api:rmw_wait]": "snapshot:rmw_fastrtps_cpp/src/rmw_wait.cpp:24",
+    "perm_requires": "searched all snapshot .cpp/.hpp/.h/.xml/.cmake/CMakeLists.txt for permission declarations; only DDS-Security Access-Permissions plugin wiring whose permissions.p7s/governance.p7s paths come from security_options->security_root_path at run time (snapshot:rmw_fastrtps_shared_cpp/src/participant.cpp:258); no permission values declared for the packet elements",
+    "perm_grants": "same search as perm_requires; no granted permission values declared in snapshot",
+    "recovery": "read the implementations of all five elements (rmw_fastrtps_cpp/src/rmw_guard_condition.cpp, rmw_wait_set.cpp, rmw_trigger_guard_condition.cpp, rmw_wait.cpp and rmw_fastrtps_shared_cpp/src/ counterparts) and grepped the snapshot for recover*; no recovery behaviour declared (errors are returned as rmw_ret_t / nullptr)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All five symbols are defined extern \"C\" with signatures of the context-taking rmw API generation and delegate to rmw_fastrtps_shared_cpp; nothing looks inconsistent internally. Possible spec-conformance gaps (rmw_trigger_guard_condition only assert()s a NULL handle; rmw_destroy_wait_set returns RMW_RET_ERROR, not RMW_RET_INVALID_ARGUMENT, for a NULL wait_set; __rmw_wait does not null-check wait_set->data or event data) cannot be judged without rmw/rmw.h, which is not an allowed source."
+  },
+  "confidence": "high",
+  "notes": "The snapshot is the rmw_fastrtps repository; there is no package.xml named rmw_fastrtps. It contains rmw_fastrtps_cpp, rmw_fastrtps_dynamic_cpp and rmw_fastrtps_shared_cpp, all at version 4.2.0 (each package.xml line 5); manifest_version records that shared value. The five packet elements are defined identically (same signatures, same line numbers) in rmw_fastrtps_cpp/src and rmw_fastrtps_dynamic_cpp/src and compiled into both libraries (rmw_fastrtps_cpp/CMakeLists.txt:69,85-87; rmw_fastrtps_dynamic_cpp/CMakeLists.txt:71,88-90); provenance cites the rmw_fastrtps_cpp copy. Each forwards to rmw_fastrtps_shared_cpp::__rmw_* (declared in rmw_fastrtps_shared_cpp/include/rmw_fastrtps_shared_cpp/rmw_common.hpp:70,78,357,369,373; defined in rmw_fastrtps_shared_cpp/src/rmw_guard_condition.cpp:25, rmw_trigger_guard_condition.cpp:26, rmw_wait_set.cpp:29,77, rmw_wait.cpp:94) with the implementation identifier eprosima_fastrtps_identifier. The elements are C API functions carrying no message data, so msg_type, frame, units, QoS, rates and definition_id are not applicable and recorded null; no QoS is set or implied for them. Observed behaviour: rmw_create_guard_condition checks context non-NULL and identifier match, then returns new rmw_guard_condition_t with a GuardCondition; rmw_create_wait_set ignores max_conditions ((void)max_conditions, shared rmw_wait_set.cpp:40); rmw_destroy_wait_set returns RMW_RET_ERROR for NULL wait_set and RMW_RET_INCORRECT_RMW_IMPLEMENTATION on identifier mismatch; rmw_trigger_guard_condition assert()s the handle and returns RMW_RET_ERROR on identifier mismatch; rmw_wait returns RMW_RET_INVALID_ARGUMENT for NULL wait_set, RMW_RET_INCORRECT_RMW_IMPLEMENTATION on mismatch, RMW_RET_TIMEOUT on timeout (zero timeout with no ready entity returns timeout immediately; NULL timeout blocks). The implementations also call rmw helpers (rmw_wait_set_allocate, rmw_allocate, rmw_free, rmw_wait_set_free); these are outside the packet element set and not recorded in references. No packet element is consumed, so references is empty. No definition files were fetched (none needed)."
+}

@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_566092b",
+  "kind": "A1",
+  "case_id": "robust_566092b",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I did some debugging into this and I definitely can see the issue.",
+    "url": "https://github.com/ros/geometry2/issues/178"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The issue is with the action client, not with BufferClient (state is available before result).",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-431801344"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Cranking the rate up to 100000 I was also able to get a double answer: \n\n```\n$ python test.py \n[ERROR] [WallTime: 1464801977.428899] Received comm state ACTIVE when in simple state DONE with SimpleActionClient in NS /tf2_buffer_server\n[ERROR] [WallTime: 1464801978.438880] SimpleActionClient received DONE twice",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-223066155"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "File \"/opt/ros/indigo/lib/python2.7/dist-packages/tf2_ros/buffer_client.py\", line 127, in __process_result\n    raise tf2.TransformException(\"The BufferServer returned None for result or result.error!  Something is likely wrong with the server.\")",
+    "url": "https://github.com/ros/geometry2/issues/178"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "From this short test I believe that the problem was partially mitigated. In fact, no more tf errors are thrown, however there is still something wrong with the tf state machine."
+  },
+  "notes": "ActionClient state reported SUCCEEDED before get_result() returned the result in SimpleActionClient."
+}

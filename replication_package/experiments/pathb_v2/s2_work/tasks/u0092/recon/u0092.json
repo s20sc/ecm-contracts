@@ -1,0 +1,93 @@
+{
+  "task_id": "u0092",
+  "package": "kobuki_dashboard",
+  "manifest_version": "0.3.1",
+  "ports": [
+    {
+      "element": "api:rospy.Publisher",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.Publisher.__init__",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.Publisher.publish",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rospy.Publisher",
+    "api:rospy.Publisher.__init__",
+    "api:rospy.Publisher.publish"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_dashboard/package.xml:3",
+    "ports[0].element": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:11 | self._pub = rospy.Publisher(topic, MotorPower); snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:11 | self._pub = rospy.Publisher(topic, Led)",
+    "ports[0].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:11; snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:11 (package code calls the rospy API; rospy is a run_depend, snapshot:kobuki_dashboard/package.xml:23)",
+    "ports[1].element": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:11 | rospy.Publisher(topic, MotorPower); snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:11 | rospy.Publisher(topic, Led) (constructor calls, two positional args, no keyword args)",
+    "ports[1].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:11; snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:11",
+    "ports[2].element": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:37 | self._pub.publish(MotorPower(0)); snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:39 | self._pub.publish(MotorPower(1)); snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:31 | self._pub.publish(Led(state))",
+    "ports[2].side": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:37; snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:39; snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:31",
+    "references[api:rospy.Publisher]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:11; snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:11",
+    "references[api:rospy.Publisher.__init__]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:11 | rospy.Publisher(topic, MotorPower); snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:11 | rospy.Publisher(topic, Led)",
+    "references[api:rospy.Publisher.publish]": "snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:37; snapshot:kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:39; snapshot:kobuki_dashboard/src/kobuki_dashboard/led_widget.py:31",
+    "perm_requires": "searched snapshot/kobuki_dashboard (package.xml, CMakeLists.txt, setup.py, plugins/plugin.xml, scripts/kobuki_dashboard, src/kobuki_dashboard/*.py): no permission requirement declared",
+    "perm_grants": "same search as perm_requires: no permission grant declared",
+    "recovery": "same search: no recovery behaviour declared for the publisher calls (no try/except, retry, or fallback around rospy.Publisher or publish)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "Both rospy.Publisher constructions pass only (topic, data_class) with no queue_size keyword; on an indigo-era rospy this is the deprecated form (warning, synchronous publish), so the three Publisher API elements look like a queue_size omission at this revision."
+  },
+  "confidence": "high",
+  "notes": "All three packet elements are consumed rospy API symbols, not data channels, so msg_type, frame, units, definition_id are null (not applicable) and QoS is null (ROS 1). They are referenced by name in code, hence listed in references; declares and not_declared are empty because the package provides none of the packet elements. Call sites: MotorWidget.__init__ creates rospy.Publisher(topic, MotorPower) with kobuki_msgs/MotorPower (from kobuki_msgs.msg import MotorPower, motor_widget.py:4); LedWidget.__init__ creates rospy.Publisher(topic, Led) with kobuki_msgs/Led (led_widget.py:4). The topic arguments are hard-coded by the caller in dashboard.py:22 ('/mobile_base/commands/motor_power') and dashboard.py:29 ('/mobile_base/commands/led1', '/mobile_base/commands/led2'). No queue_size, latch, tcp_nodelay, headers or subscriber_listener keyword is passed at either construction; no publish rate is set (publish is event-driven from GUI clicks, motor_widget.py:35-39, led_widget.py:29-31). Publishers are unregistered in close() (motor_widget.py:42, led_widget.py:42). The rospy Publisher.__init__ signature at indigo was not checked (rospy source is outside the allowed sources). Other packages in the snapshot (kobuki_qtestsuite etc.) were not described; this record covers kobuki_dashboard only."
+}

@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-C3N-027",
+  "kind": "A1",
+  "case_id": "C3N-027",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: reproduced Nav2 failure, bisection, and maintainer fix. E2 stops at 6 because an incorrect transform/error result crosses the tf2-to-nav2_amcl library boundary; an internal resolving edit does not make the boundary violation internal. E3: observed provider UPGRADE.",
+    "quote": "Nav2 is totally busted and jumping around.",
+    "url": "https://github.com/ros2/geometry2/issues/600"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The return-code overwrite suppresses the exception expected by lookupTransform consumers. This is behavioral other, not a changed nominal type or frame name; lookupTransform and TransformException are implicated.",
+      "quote": "one code path saves the error in a \"side\" (so not directly in error_string but in extrapolation_error_string) and this HAS to be done also with the new error_code stuff.",
+      "url": "https://github.com/ros2/geometry2/pull/601"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The reporter expressly documents missing diagnostics: silent_documented.",
+    "quote": "As such, I would expect to see some kind of logging but I see none.",
+    "url": "https://github.com/ros2/geometry2/issues/600#issuecomment-1535275903"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The symptom appears during localization/navigation, after launching: run.",
+    "quote": "you can reproduce it yourself easily by launching the default Nav2 system",
+    "url": "https://github.com/ros2/geometry2/issues/600"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "reason": "A successful patch test is explicitly documented. However, it identifies the provider patch, not the tested nav2_amcl revision. The specification substitutes a dated main-head SHA for that unstated revision. Under the requirement that both units be identified by revision, recommended is warranted for the specific pinned composition, not observed.",
+    "quote": "That fixes it! Can you submit the PR?",
+    "url": "https://github.com/ros2/geometry2/issues/600#issuecomment-1537169236",
+    "supporting_evidence": [
+      {
+        "quote": "the source shows the resolved composition working, with both of its units identified by revision",
+        "url": "snapshot:prompts/S1_specify.md:34"
+      }
+    ]
+  },
+  "notes": "This does not deny the successful Nav2 test or the later release. It distinguishes reported success from observation of the exact two revisions in the specification. Other Nav2 packages and Gazebo are outside the selected composition. The later testing-party closure as untested concerns the whole checklist, not a retraction of the successful TF patch test."
+}

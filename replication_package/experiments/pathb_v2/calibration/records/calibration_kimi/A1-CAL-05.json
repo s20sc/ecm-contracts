@@ -1,0 +1,28 @@
+{
+ "item_id": "A1-CAL-05",
+ "kind": "A1",
+ "case_id": "CAL-05",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 2,
+  "reason_code": "internal",
+  "quote": "Then FCU confirms this with GPS_GLOBAL_ORIGIN message containing the same coordinates as LLA. But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.",
+  "url": "https://github.com/mavlink/mavros/issues/1381"
+ },
+ "failed_conditions": [],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": null,
+  "quote": "Topic `mavros/global_position/gp_origin` has type `geographic_msgs/GeoPointStamped` and must contain coordinates in LLA. When I send a request containing LLA, I expect to receive a response containing LLA too in order to compare it and ensure that global_origin has been successfully set. Why **global_position** plugin transforms **global_origin** to ECEF?",
+  "url": "https://github.com/mavlink/mavros/issues/1381"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "When I send coordinates (LLA) to topic `mavros/global_position/set_gp_origin`, the plugin accepts this coordinates as LLA and sends it to FCU as is.",
+  "url": "https://github.com/mavlink/mavros/issues/1381"
+ },
+ "notes": "Spec declares the case ineligible (E2 stop 2, internal), so failed_conditions/loudness/resolution are null in the spec; my 'agree' verdicts on those fields mean 'nothing to dispute', with quotes documenting what I read. Independent reading of the issue body via gh api: the documented round trip (set_gp_origin LLA in, FCU GPS_GLOBAL_ORIGIN LLA back) worked; the defect is the ECEF conversion performed wholly inside the global_position plugin before republishing. No second unit whose interaction failed is named or versioned in the source — the reporter observed the mismatch by reading the topic themselves ('I expect to receive a response containing LLA too in order to compare it'). The failure occurs with any correct peer and does not depend on an assumption between two units, so the tree's step-2 internal branch applies and the case is ineligible. (Stopping at step 1 for lack of a second identifiable unit would be an equally defensible route to the same ineligible outcome.)"
+}

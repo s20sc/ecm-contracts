@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-C3-093-broken-M1-ab57a4ddb1",
+ "kind": "A2",
+ "case_id": "C3-093",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:yaml.load]",
+   "verdict": "verified",
+   "source_excerpt": "built u0338 (PyYAML 3.13) snapshot:lib/yaml/__init__.py:64 'def load(stream, Loader=Loader):' (identical at snapshot:lib3/yaml/__init__.py:65) || running u0339 (PyYAML 5.1) snapshot:lib/yaml/__init__.py:103 'def load(stream, Loader=None):' with :108-110 'if Loader is None: / load_warning('load') / Loader = FullLoader'"
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:yaml.load]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0340/snapshot/tools/roslaunch/src/roslaunch/loader.py:412 (opened this session): 'data = yaml.load(text)' (inside 'try:' at :411, followed at :418 by 'except yaml.MarkedYAMLError as e:')"
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:yaml.load]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0338/snapshot/lib/yaml/__init__.py:64: 'def load(stream, Loader=Loader):' - default is the global Loader class that receives constructors registered by yaml.add_constructor",
+   "running_excerpt": "s2_work/tasks/u0339/snapshot/lib/yaml/__init__.py:103: 'def load(stream, Loader=None):' + :108-110 'if Loader is None: / load_warning('load') / Loader = FullLoader' - the default Loader was changed, so a caller invoking load() without Loader no longer sees constructors registered on the old default"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The upgrade unit encodes built=u0338 (PyYAML 3.13; setup.py:3 \"VERSION = '3.13'\"), running=u0339 (5.1; setup.py:3 \"VERSION = '5.1'\"), consumer=u0340 (ros_comm 1.14.3, whose loader.py:412 is the yaml.load call named in the reporter's log), matching the spec's UPGRADE with consumer_built_against.broken=3.13. The consumer call and the provider declaration change are both read at the cited lines."
+ },
+ "notes": "The declaration change is a default-value change (Loader=Loader -> Loader=None with internal FullLoader substitution), which is substantive under the adjudication rubric (default), and it is precisely the mechanism the spec documents: constructors registered via add_constructor's old default are not seen by the new default load, producing the '!degrees' constructor failure. Corroboration: the resolved consumer u0341 loader.py:413 reads 'data = yaml.safe_load(text)' (explicit Loader choice), showing the adaptation. The changed_fields list also contains api:yaml.load_all (3.13 :75 'def load_all(stream, Loader=Loader):' vs 5.1 :118 'def load_all(stream, Loader=None):' - both read this session, same substantive pattern), but it is not a trigger path for this item."
+}

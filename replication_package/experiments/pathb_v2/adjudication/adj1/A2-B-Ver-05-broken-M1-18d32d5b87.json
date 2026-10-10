@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-B-Ver-05-broken-M1-18d32d5b87",
+  "kind": "A2",
+  "case_id": "B-Ver-05",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[msg:control_msgs/FollowJointTrajectoryActionResult]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0249/snapshot/control_msgs/CMakeLists.txt:6\nadd_action_files(DIRECTORY action FILES\n  FollowJointTrajectory.action\n\nsnapshot:s2_work/tasks/u0249/snapshot/control_msgs/action/FollowJointTrajectory.action:28\n---\nint32 error_code\nint32 SUCCESSFUL = 0\nint32 INVALID_GOAL = -1\nint32 INVALID_JOINTS = -2\nint32 OLD_HEADER_TIMESTAMP = -3\nint32 PATH_TOLERANCE_VIOLATED = -4\nint32 GOAL_TOLERANCE_VIOLATED = -5\n\n---\nHeader header\n\nsnapshot:s2_work/tasks/u0250/snapshot/control_msgs/CMakeLists.txt:6\nadd_action_files(DIRECTORY action FILES\n  FollowJointTrajectory.action\n\nsnapshot:s2_work/tasks/u0250/snapshot/control_msgs/action/FollowJointTrajectory.action:29\nint32 error_code\nint32 SUCCESSFUL = 0\nint32 INVALID_GOAL = -1\nint32 INVALID_JOINTS = -2\nint32 OLD_HEADER_TIMESTAMP = -3\nint32 PATH_TOLERANCE_VIOLATED = -4\nint32 GOAL_TOLERANCE_VIOLATED = -5\n\n# Human readable description of the error code. Contains complementary\n# information that is especially useful when execution fails, for instance:\n# - INVALID_GOAL: The reason for the invalid goal (e.g., the requested\n#   trajectory is in the past).\n# - INVALID_JOINTS: The mismatch between the expected controller joints\n#   and those provided in the goal.\n# - PATH_TOLERANCE_VIOLATED and GOAL_TOLERANCE_VIOLATED: Which joint\n#   violated which tolerance, and by how much.\nstring error_string\n\n---\n\nhttps://raw.githubusercontent.com/ros/common_msgs/1.12.8/actionlib_msgs/scripts/genaction.py\nHeader header\nactionlib_msgs/GoalStatus status\n%sResult result"
+    },
+    {
+      "path": "ver_delta.consumer_reads[msg:control_msgs/FollowJointTrajectoryActionResult]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0247/artifact.txt:2\nClient [/matlab_global_node_65047] wants topic /arm_controller/follow_joint_trajectory/result to have datatype/md5sum [control_msgs/FollowJointTrajectoryActionResult]"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[msg:control_msgs/FollowJointTrajectoryActionResult]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0249/snapshot/control_msgs/CMakeLists.txt:6\nadd_action_files(DIRECTORY action FILES\n  FollowJointTrajectory.action\n\nsnapshot:s2_work/tasks/u0249/snapshot/control_msgs/action/FollowJointTrajectory.action:28\n---\nint32 error_code\nint32 SUCCESSFUL = 0\nint32 INVALID_GOAL = -1\nint32 INVALID_JOINTS = -2\nint32 OLD_HEADER_TIMESTAMP = -3\nint32 PATH_TOLERANCE_VIOLATED = -4\nint32 GOAL_TOLERANCE_VIOLATED = -5\n\n---\nHeader header\n\nhttps://raw.githubusercontent.com/ros/common_msgs/1.12.8/actionlib_msgs/scripts/genaction.py\nHeader header\nactionlib_msgs/GoalStatus status\n%sResult result",
+      "running_excerpt": "snapshot:s2_work/tasks/u0250/snapshot/control_msgs/CMakeLists.txt:6\nadd_action_files(DIRECTORY action FILES\n  FollowJointTrajectory.action\n\nsnapshot:s2_work/tasks/u0250/snapshot/control_msgs/action/FollowJointTrajectory.action:29\nint32 error_code\nint32 SUCCESSFUL = 0\nint32 INVALID_GOAL = -1\nint32 INVALID_JOINTS = -2\nint32 OLD_HEADER_TIMESTAMP = -3\nint32 PATH_TOLERANCE_VIOLATED = -4\nint32 GOAL_TOLERANCE_VIOLATED = -5\n\n# Human readable description of the error code. Contains complementary\n# information that is especially useful when execution fails, for instance:\n# - INVALID_GOAL: The reason for the invalid goal (e.g., the requested\n#   trajectory is in the past).\n# - INVALID_JOINTS: The mismatch between the expected controller joints\n#   and those provided in the goal.\n# - PATH_TOLERANCE_VIOLATED and GOAL_TOLERANCE_VIOLATED: Which joint\n#   violated which tolerance, and by how much.\nstring error_string\n\n---\n\nhttps://raw.githubusercontent.com/ros/common_msgs/1.12.8/actionlib_msgs/scripts/genaction.py\nHeader header\nactionlib_msgs/GoalStatus status\n%sResult result"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE compares control_msgs 1.2.0 (u0249, built-against) with 1.4.0 (u0250, running) for the MATLAB R2017b consumer u0247. The result wrapper is consumed on the action result topic, not the goal direction. Evidence:\nsnapshot:s2_work/tasks/u0247/artifact.txt:1\n[urArm, urGoalMsg] = rosactionclient('arm_controller/follow_joint_trajectory');\nClient [/matlab_global_node_65047] wants topic /arm_controller/follow_joint_trajectory/result to have datatype/md5sum [control_msgs/FollowJointTrajectoryActionResult]\n\nhttps://raw.githubusercontent.com/ros/common_msgs/1.12.8/actionlib_msgs/scripts/genaction.py\nHeader header\nactionlib_msgs/GoalStatus status\n%sResult result\nAgreement covers the attempted action-server-to-client result edge, not successful communication or independently documented exact installed package versions."
+  },
+  "notes": "Substantive: the CMake registration itself is unchanged, but opening the action it registers shows a new serialized string error_string in the result section. The opened genaction template embeds that Result in ActionResult. Thus this is a change in the actual generated message definition, not a different transcription of the identical CMake line. The fresh ROS1 hashes reproduce bce83d50f7bb28226801436caf0e2043 (built) and c4fb3b000dc9da4fd99699380efcc5d9 (running)."
+}

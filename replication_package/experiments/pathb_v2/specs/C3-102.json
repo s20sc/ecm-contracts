@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-102",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/2766",
+    "https://github.com/ros-navigation/navigation2/pull/2773",
+    "https://github.com/ros-navigation/navigation2/commit/a1e8ea3f578f6edc9a6048d3b94c6c2cb5755694"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter gives the full params file, a reproduction repository and revisions (\"Galactic sync 5 version (4a6878c2f8fb95e5bc3be8e6f0b531d17d9bebb2)\" fails, \"(ca37b228a3b96fe2a3e2c17b4ea6c7567222e601)\" and main \"(b201d058a7b15f1786c57afe69d079ac5d502018)\" work); maintainer SteveMacenski confirms and reverts the change on galactic (PR #2773). https://github.com/ros-navigation/navigation2/issues/2766"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "nav2_regulated_pure_pursuit_controller (RPP controller plugin)",
+        "nav2_controller controller_server with nav2_costmap_2d local costmap (host providing costmap and robot footprint)"
+      ],
+      "interface_kind": null,
+      "evidence": "The false \"detected collision ahead\" comes from RPP's own collision-checking algorithm introduced in Galactic sync 5: projecting the robot footprint along the commanded arc for a fixed time (`while (i * projection_time < max_allowed_time_to_collision_)` with `collision_checker_->footprintCostAtPose(...)`), which on main is bounded by the carrot distance. SteveMacenski: \"The only change in that sync was changing from point costs at the center to using the robot footprint given to the controller server as the basis of collision checking.\" and \"We added a change to it so that the time to look ahead for collision is bounded by the lookahead point distance and that may also largely resolve your problem\". The values crossing the boundary are correct: asked \"Is your footprint properly set?\", the reporter answers \"The footprint for the turtlebot is properly set to the standard robot_radius 0.22. In our project it's a rectangle, but I double checked if it's properly set.\" The same footprint and costmap work with RPP at ca37b228 and at main b201d058, and the fix (PR #2773) reverts code only inside nav2_regulated_pure_pursuit_controller. The defect would occur with any correct costmap/footprint provider, so it is internal to the RPP plugin."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stopped at step 2 (internal). The observed situation is the controller plugin running in controller_server near obstacles after a binary sync."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: robot \"getting stuck most of the time while spaming \\\"RegulatedPurePursuitController detected collision ahead!\\\"\" and \"The robot get's stuck and fails to navigate the navigation goal.\" https://github.com/ros-navigation/navigation2/issues/2766"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Fix: PR #2773 \"Revert footprint based collision checking for Galactic (2766)\" merged to galactic as a1e8ea3f578f6edc9a6048d3b94c6c2cb5755694 (restores the center-point `inCollision(x, y)` check against INSCRIBED_INFLATED_OBSTACLE); maintainer recommends moving to main, where footprint checking is kept with the time bounded to the carrot. Checked and set aside: the reporter's params file uses the main-branch parameter name `max_allowed_time_to_collision_up_to_carrot: 1.0`, whereas galactic sync 5 (4a6878c2) declares `.max_allowed_time_to_collision` with default `rclcpp::ParameterValue(1.0)`; the name difference exists but yields the same value (1.0), and no source attributes the failure to it. The reporter also notes \"it's kind of hard to reproduce the problems with the turtlebot reliable\"; the problem was confirmed on the rectangular robot. Could also be viewed as an UPGRADE of the RPP binary (galactic sync 5) under an unchanged user configuration, but the configuration is not what changed behaviour."
+}

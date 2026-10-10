@@ -1,0 +1,54 @@
+{
+  "task_id": "u0173",
+  "package": "MinimalSubscriber",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "msg:std_msgs/String",
+      "side": "consumes",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/topic",
+      "side": "consumes",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": "reliable", "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "topic:topic",
+    "msg:std_msgs/String"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].msg_type": "artifact.txt:5: subscription_ = this->create_subscription<std_msgs::msg::String>(",
+    "ports[0].frame": "artifact.txt:5: create_subscription<std_msgs::msg::String> (a string payload; no frame is set anywhere in the excerpt)",
+    "ports[1].msg_type": "artifact.txt:5: subscription_ = this->create_subscription<std_msgs::msg::String>(",
+    "ports[1].frame": "artifact.txt:5-6: create_subscription<std_msgs::msg::String>( \"topic\", qos, ...) (a string payload; no frame is set anywhere in the excerpt)",
+    "ports[1].qos.reliability": "artifact.txt:1: \"The subscriber was set to \"reliable\".\" (prose line of the artifact, not a code line; the subscription passes the variable `qos` at artifact.txt:6, whose construction is not in the excerpt)",
+    "references[topic:topic]": "artifact.txt:6:   \"topic\", qos, std::bind(&MinimalSubscriber::topic_callback, this, _1), subscription_options);",
+    "references[msg:std_msgs/String]": "artifact.txt:5: subscription_ = this->create_subscription<std_msgs::msg::String>("
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The excerpt sets the subscriber on /topic to reliable and registers an incompatible_qos_callback, which suggests a QoS mismatch with some publisher was anticipated or being debugged; whether that is a defect depends on the peer's profile, which is not in the artifact."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task: the only source is artifact.txt (6 lines: one prose line quoting a Q&A answer with its URL, then a C++ fragment). The URL on line 1 was not followed, and no dependency definition files were fetched because excerpt tasks allow only the artifact. Both packet elements are consumed, so declares and not_declared are empty. The subscription topic is written as the relative name \"topic\" (recorded verbatim in references as topic:topic); it resolves to /topic only if the node's namespace is the root, and the node constructor and namespace are not in the excerpt. The message type is std_msgs::msg::String (ROS 2 form std_msgs/msg/String), recorded as std_msgs/String to match the packet's naming. QoS: the code passes a variable `qos` whose construction (history depth, reliability, durability, deadline) is not shown. Reliability 'reliable' comes only from the artifact's prose line 1, not from a code line; durability and deadline are null because the object is built outside the excerpt, so the rclcpp default cannot be assumed. The msg-element port carries null QoS because a message type is not a channel. definition_id is null for both ports: the std_msgs/String definition is not in the artifact, and excerpt tasks may not fetch it. frame 'none' is based on the type being std_msgs String (a text payload with no header). The excerpt also sets subscription_options.event_callbacks.incompatible_qos_callback to MinimalSubscriber::incompatible_qos_info_callback (artifact.txt:3); its body is not shown, so it is not recorded as a recovery declaration. Permissions, recovery and exclusive resources could not be checked beyond these 6 lines: perm/recovery are 'unknown'; exclusive is empty because nothing in the excerpt claims a resource exclusively. manifest_version is null because no package.xml is available."
+}

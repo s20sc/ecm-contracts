@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-robust_21b86f6",
+  "kind": "A1",
+  "case_id": "robust_21b86f6",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: a concrete IK-versus-rendered-pose reproduction, corroborated by the maintainer PR. E2 stops at 6: separately packaged robot description and kinematics disagree on geometry used to interpret the same joint solution; numerical model values cross the interface. E3: PAIR, with visualization as the observation rather than a separate diagnosed defect.",
+    "quote": "With the unmodified URDF I can see a clear difference between a pose I give to the inverse kinematics from ur_kinematics and the one visualized in rviz.",
+    "url": "https://groups.google.com/g/swri-ros-pkg-dev/c/1e3A_1BTQWQ"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The source diagnoses numeric link-geometry disagreement, not a changed message definition, unit, or named frame. other fits. The listed joints and terminal frame identify the affected kinematic chain; the original and resolved URDF and the pose report support that chain-level scope.",
+      "quote": "Currently, the kinematic paramaters in the UR10 urdf disagree with those in the ur_kinematics/ur_kin.h files.",
+      "url": "https://github.com/ros-industrial/universal_robot/pull/82"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The defect is observed by comparing poses, without a build/connect/activation mismatch diagnostic: silent_documented.",
+    "quote": "With the unmodified URDF I can see a clear difference between a pose I give to the inverse kinematics from ur_kinematics and the one visualized in rviz.",
+    "url": "https://groups.google.com/g/swri-ros-pkg-dev/c/1e3A_1BTQWQ"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The comparison occurs while executing IK and visualizing its result: run.",
+    "quote": "With the unmodified URDF I can see a clear difference between a pose I give to the inverse kinematics from ur_kinematics and the one visualized in rviz.",
+    "url": "https://groups.google.com/g/swri-ros-pkg-dev/c/1e3A_1BTQWQ"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The accepted final change was tested against UR controllers. The mailing-list successful visual comparison used different drawing-derived lengths, not the final specified revision pair. recommended for ur_description/ur_kinematics is supported.",
+    "quote": "This was tested on UR10 with version v1.6 and v1.7. I will merge this pull request.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/82"
+  },
+  "notes": "The source explicitly corrects the initially suspected ur_kinematics parameters in issue #74: controller configuration agrees with them. The final URDF derives geometry from urcontrol.conf. Mesh rendering, inertias, simulation and MoveIt end-effector-group warnings belong to other interactions and are not added here."
+}

@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-032",
+  "kind": "A1",
+  "case_id": "C3-032",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Issue #976 gives a reproducer (\"ros2 service call /rosapi/message_details rosapi_msgs/srv/MessageDetails \\\"{'type': 'sensor_msgs/JointState'}\\\"\") and the full traceback ending in \"[rosapi_node-5] KeyError: 'check_fields'\" and \"[ERROR] [rosapi_node-5]: process has died [pid 6530, exit code 1, ...\" (https://github.com/RobotWebTools/rosbridge_suite/issues/976). The maintainer approved and merged PR #1031 and closed the issue with \"Fixed by #1031\".",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Iron\u2019s `rosidl_generator_py` templates now inject extra private slots (e.g. [_check_fields](https://github.com/ros2/rosidl_python/blob/iron/rosidl_generator_py/resource/_msg.py.em#L212)) into every message\u2019s `__slots__`. Those names don\u2019t appear in the message\u2019s `_fields_and_field_types` dict, so code that blindly walks `__slots__` will hit a KeyError.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976#issuecomment-2880232385"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "No existing tooling reports a mismatch at build, connection, or activation. The failure appears only as an unhandled exception in rosapi's own code when the service is called: \"[rosapi_node-5] KeyError: 'check_fields'\" and \"[ERROR] [rosapi_node-5]: process has died [pid 6530, exit code 1, ...\" (https://github.com/RobotWebTools/rosbridge_suite/issues/976).",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/976#issuecomment-2880232385"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The patch author shows the patched rosapi answering the reproducer call (\"This seems to fix the issue:\" followed by a MessageDetails_Response listing fieldnames=['header', 'name', 'position', 'velocity', 'effort'], https://github.com/RobotWebTools/rosbridge_suite/issues/976#issuecomment-2880232385). The distro and the revisions of both units in that run are not stated, so the resolved composition is not identified by revision."
+  },
+  "notes": "Adjudicated case C3-032: fully agrees with specification eligibility (E1-E4 step 6), failed conditions, loudness (silent_documented), and resolution status (recommended)."
+}

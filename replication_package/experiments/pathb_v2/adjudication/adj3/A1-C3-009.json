@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-009",
+  "kind": "A1",
+  "case_id": "C3-009",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "I notice in the logs \"terminate called without an active exception\" - which usually means that a std::thread went out of scope while not joined/stopped - I notice we have a std::thread in this test - but I don't actually see how it could go out of scope...",
+    "url": "https://github.com/moveit/moveit2/issues/1334"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Issue #1334 is a flaky CI test report with no root cause and no fix. I read the issue body (\"Only encountered this once, so it is difficult to say how to reproduce it. Possibly just repeated runs of CI will do it.\"; \"Test appears to fail inconsistently\") and the comment thread. The only diagnosis is mikeferguson's speculative attribution of the abort to a std::thread going out of scope inside the test process, and the closing comment by henningkayser (\"I haven't seen this one lately. Are we still running into this? Maybe it really was an unrelated threading issue somewhere...\" then \"closing for now\"). No two interacting units are named and no boundary-crossing value/frame/name/timing is documented, so E2 stops at step 2 (internal). This is correct. The spec also marks E1=false (no reliable reproducer, CI logs now 404, no maintainer confirmation of a root cause), which is defensible; the substantive reason is the internal classification. Loudness and resolution are correctly null for an ineligible case. I did not verify PRs 1348/1411/1422/1458 in this session beyond the spec's claim that they are unrelated; that claim does not affect the eligibility verdict."
+}

@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_55e84a6-broken-M1-75d44f2350",
+ "kind": "A2",
+ "case_id": "robust_55e84a6",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot._curves]",
+   "verdict": "verified",
+   "source_excerpt": "built (u0079, rqt_plot 0.3.6, snapshot:rqt_plot/package.xml:3 '  <version>0.3.6</version>'; flat layout confirmed: u0079 snapshot:rqt_plot/src/rqt_plot/ lists mat_data_plot.py directly, setup.py:7 \"    packages=['rqt_plot'],\") snapshot:rqt_plot/src/rqt_plot/mat_data_plot.py:94: \"        self._curves = {}\". running (u0080, rqt_plot 0.3.8, snapshot:rqt_plot/package.xml:3 '  <version>0.3.8</version>'): flat module absent, verified by opening the layout — 'ls: .../u0080/snapshot/rqt_plot/src/rqt_plot/mat_data_plot.py: No such file or directory'; 'find ... -iname *mat_data*' over the u0080 snapshot returns only rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py; setup.py:7-8 \"    packages=['rqt_plot', 'rqt_plot.data_plot'],\" / \"    package_dir={'': 'src'},\"; src/rqt_plot/__init__.py is 0 bytes; grep 'mat_data_plot' over u0080 rqt_plot/src hits only data_plot/__init__.py:47 \"    from mat_data_plot import MatDataPlot\". Relocated declaration opened at snapshot:rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:93: \"        self._curves = {}\"."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:rqt_plot.mat_data_plot.MatDataPlot._curves]",
+   "verdict": "verified",
+   "source_excerpt": "consumer task u0078 (kobuki_qtestsuite @ f04c615) snapshot:kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py:53: \"        for curve in self._curves.values():\" — inside 'class FullSizeDataPlot(MatDataPlot):' (:20), whose base is bound by the import at :14 \"from rqt_plot.mat_data_plot import MatDataPlot\"; the attribute is read again at :69."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:rqt_plot.mat_data_plot.MatDataPlot._curves]",
+   "verdict": "substantive",
+   "built_excerpt": "u0079 snapshot:rqt_plot/src/rqt_plot/mat_data_plot.py:94 (module rqt_plot.mat_data_plot, flat layout, setup.py installs packages=['rqt_plot']): \"        self._curves = {}\"",
+   "running_excerpt": "u0080 snapshot:rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py:93 (module rqt_plot.data_plot.mat_data_plot; no src/rqt_plot/mat_data_plot.py exists in this snapshot, setup.py installs only ['rqt_plot','rqt_plot.data_plot'], rqt_plot/__init__.py is empty): \"        self._curves = {}\""
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Assembled broken unit is UPGRADE with built=u0079 (rqt_plot 0.3.6), running=u0080 (rqt_plot 0.3.8), consumer=u0078 (kobuki_qtestsuite @ f04c615) — matching the spec (operation UPGRADE; provider rqt_plot broken_rev 8374c8074c8e3592d00d5e5f8a7f18e55d1d33ab; consumer broken_rev f04c615cd9216e1b7b6949db2745dc8fa25acc0b; consumer_built_against broken 7d11bea7145e712538930a7e4b0632780240a85b, inferred). Versions confirmed from package.xml:3 of each snapshot. The two ports are genuinely connected through this token: the provider declares _curves on MatDataPlot (u0079 mat_data_plot.py:94) and the consumer reaches it by importing that exact module path (u0078 full_size_data_plot.py:14) and reading self._curves (:53, :69) inside its MatDataPlot subclass. The running-side pair_view is marked unassessable_edge/port_missing because no producer port exists under rqt_plot.mat_data_plot at u0080 — that absence is the break itself, not an assembly error."
+ },
+ "notes": "All layout claims in the running-side provenance were re-executed and reproduced (file absence, find result, setup.py packages, empty __init__.py, single grep hit at data_plot/__init__.py:47 — a Python-2 implicit relative import, which makes the class reachable only as rqt_plot.data_plot.mat_data_plot, never as rqt_plot.mat_data_plot). Substance: the two declarations are textually identical, but the element is module-qualified and the module rqt_plot.mat_data_plot is gone at the running revision; the consumer depends on that exact qualified path (import at u0078:14), so the element's presence at the consumer-visible name changed — substantive. Context from the spec: in the reporter's actual run the import evidently resolved (stale install artifact) and the crash surfaced on autoscroll instead; that affects which condition fired first, not whether this recorded change is substantive."
+}

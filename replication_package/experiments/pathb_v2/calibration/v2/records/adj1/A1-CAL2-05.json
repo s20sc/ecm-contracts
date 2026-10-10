@@ -1,0 +1,70 @@
+{
+  "item_id": "A1-CAL2-05",
+  "kind": "A1",
+  "case_id": "CAL2-05",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "proposed_eligible": true,
+    "proposed_operation": "PAIR",
+    "proposed_units": ["rclcpp", "rmw_cyclonedds_cpp"],
+    "quote": "That said, I see exactly what you mean about the loaned APIs.  They do not work like that; once the memory is returned to the underlying middleware, they should be considered invalid.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1724283083",
+    "reason": "E1/E4: the Docker reproducer, startup exception, and maintainer-confirmed ownership mismatch establish the defect. E2: rclcpp retains a pointer to memory loaned by a separate RMW provider and returns that loan before its retained pointer is finished. The boundary includes lifetime/ownership, not merely the initially correct clock value. Correct behavior depends on the provider's loan contract; non-loaned APIs do not exhibit this lifetime behavior. This is an interface failure even though the consumer-side executor needs changing. E3: PAIR through the loan/return API, via rcl.",
+    "supporting_evidence": [
+      {
+        "quote": "And in point of fact, if you use the non-loaned APIs, it works exactly as you expect; the object can live beyond the scope of the callback, assuming the callback takes a reference.",
+        "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1724283083"
+      }
+    ]
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:rmw_take_loaned_message", "api:rmw_return_loaned_message_from_subscription"],
+      "quote": "In the above code the excecutor creates dummy **shared_ptr** with empty destructor and loads the loaned message, than calls the subscription callbacks (`cache_last_msg`) and frees the memory, altought the shared_ptr is still kept by `ClockState`.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1723688992",
+      "reason": "A loaned-buffer lifetime/ownership precondition is violated. It is not an encoding, ROS message type, clock-unit, permission, or resource-claim mismatch. These are proposed inventory entries because the specification supplies none.",
+      "supporting_evidence": [
+        {
+          "quote": "extern \"C\" rmw_ret_t rmw_take_loaned_message(\n  const rmw_subscription_t * subscription,\n  void ** loaned_message,",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_cyclonedds/7cb3b38a21e14fbcc84aadcc460e4d812d0c7a7f/rmw_cyclonedds_cpp/src/rmw_node.cpp"
+        },
+        {
+          "quote": "extern \"C\" rmw_ret_t rmw_return_loaned_message_from_subscription(\n  const rmw_subscription_t * subscription,\n  void * loaned_message)",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_cyclonedds/7cb3b38a21e14fbcc84aadcc460e4d812d0c7a7f/rmw_cyclonedds_cpp/src/rmw_node.cpp"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "loud_documented",
+    "quote": "Random nodes fail startup with the following exception:\n```\nterminate called after throwing an instance of 'std::runtime_error'\n  what():  cannot store a negative time point in rclcpp::Time",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469",
+    "reason": "The source expressly records a library exception during node startup. This is a startup failure diagnostic, although it reports corrupted time rather than directly identifying the lifetime violation."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "activate",
+    "quote": "Random nodes fail startup with the following exception:",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469",
+    "reason": "Use the reporter's observed startup stage, not the later Valgrind investigation. activate here denotes process startup, not a particular ROS lifecycle-state transition."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "We disabled loans by default via https://github.com/ros2/rclcpp/pull/2335 and https://github.com/ros2/rcl/pull/1110",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1877574593",
+    "reason": "There is a documented workaround and backport, not an absent resolution. The closing account does not identify both tested unit revisions, so it does not meet observed. Disabling subscription loaning avoids the failure; it does not prove repaired ownership semantics when loaning is re-enabled.",
+    "supporting_evidence": [
+      {
+        "quote": "The above works around the issue.  There is one remaining issue here, which is to re-enable loaned messages along with shared_ptrs.",
+        "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1877574593"
+      }
+    ]
+  },
+  "notes": "The chosen composition is rclcpp with the loan-providing RMW, not a clock publisher with a subscriber whose incoming clock value is intrinsically wrong. The separately discussed MessagePoolMemoryStrategy defect is a different allocation composition and is not added as another condition here."
+}

@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-robust_7284788",
+  "kind": "A1",
+  "case_id": "robust_7284788",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "TF 1.11.4 with TF2 0.5.9",
+    "url": "https://github.com/ros/geometry2/issues/102#issuecomment-94836006",
+    "reason": "E1/E4: the issue documents failed waitForTransform behavior and enumerates broken version pairs. E2: separately released tf and tf2_ros interact through the timed transform API; the new roscpp-initialization assumption fails for the Python caller, while initialized C++ callers need not fail. This is an API precondition/timing defect, not build-only or deployment wiring. E3: retaining tf while upgrading tf2, with rollback to 0.5.7 removing the problem, supports UPGRADE."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "When running inside rospy, the roscpp client is not initialized and thus ros::ok is false.",
+      "url": "https://github.com/ros/geometry2/issues/102#issuecomment-95081747",
+      "reason": "The signature and type of canTransform remain unchanged; an added process-initialization precondition prematurely ends its timeout loop. other is appropriate, and the inspected fix changes both timed Buffer::canTransform overloads."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "waitForTransform throws a tf.Exception if one of the frames doesn't exist yet",
+    "url": "https://github.com/ros/geometry2/issues/102",
+    "reason": "The failure is a runtime API exception rather than an early build/connect/activation compatibility diagnostic. silent_documented is supported."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This was causing the timer to abort immediately.",
+    "url": "https://github.com/ros/geometry2/commit/7284788fc1646c6c6afb42bd0e50969387b4cf34.patch",
+    "reason": "The observed effect occurs while executing the timed wait: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This should be fixed in geometry_experimental 0.5.11",
+    "url": "https://github.com/ros/geometry2/issues/102#issuecomment-95297349",
+    "reason": "The fix allows waiting when roscpp was never initialized, and the maintainer announces an expected fixed release. The inspected report does not show the selected tf revision tested with that fixed provider; recommended is correct."
+  },
+  "notes": "Read the complete issue #102 comments and the 7284788 patch. The documented successful rollback uses a different provider revision and is not proof of the specified resolved pair. The fix's acknowledged loss of early shutdown interruption in pytf is a separate shutdown behavior, not an additional defect observed in this case's timed lookup operation. No verdict relies on the unvisited ROS Answers or Wayback links."
+}

@@ -1,0 +1,45 @@
+{
+  "case_id": "robust_332f09f",
+  "corpus": "C1",
+  "source_refs": [
+    "packet: bug_title \"New features unavailable in older systems\", bug_description (no issue URL, fix_status confidential, no fix commits)"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The packet gives no issue, PR, commit, or Q&A URL, and the fix is marked confidential. The only text is the dataset description, which states a general concern (\"Currently, if using an older system version, then this will be attempted and reported as a failed communication. It might be prudent to check the current system's version and then report if a specific function is unavailable.\") without a reproducer, an error log, a named RobotWare/RWS version, a named function, or a maintainer's confirmation in a public thread. No public commit 332f09f exists in ros-industrial/abb_librws, abb_libegm, or abb_robot_driver (GitHub API: \"No commit found for SHA: 332f09f\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["RWS client library (abb_librws or an ABB-internal equivalent)", "ABB robot controller RobotWare RWS server"],
+      "interface_kind": "wire protocol field",
+      "evidence": "Reading of the description only: a client that uses RWS resources added in newer RobotWare versions fails against a controller whose RobotWare/RWS lacks them. The two units (client library and controller system software) are separately released and interact over the RWS HTTP interface. Not verifiable against any public artifact."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Reading of the description only: UPGRADE in reverse (the client is written against a newer RWS provider revision than the controller runs). No revisions are named."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Description states the effect: \"this will be attempted and reported as a failed communication.\" Not tied to a public observation."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "no_public_report",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Public discussion of the same class of problem exists in ros-industrial/abb_librws: issue #50 (a user cannot subscribe to RapidData ValueChanged on a RobotWare 6.01 controller while it works on a 6.06 virtual controller; the maintainer replies \"I know that there are some issues with RWS subscriptions on earlier RobotWare versions\") and issue #51 \"Implement version checking\" (open, no fix: \"it would be beneficial to implement a check for if the targeted robot controller's RobotWare version is supported by the version of abb_librws used.\"). The packet names neither, its issue_url is null and its fix is confidential, so they cannot be identified as this case's source; they are recorded here only as related public material. E2-E4 above are a reading of the description and are not the basis of the verdict."
+}

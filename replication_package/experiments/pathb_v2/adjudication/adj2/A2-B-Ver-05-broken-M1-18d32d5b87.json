@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-B-Ver-05-broken-M1-18d32d5b87",
+ "kind": "A2",
+ "case_id": "B-Ver-05",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[msg:control_msgs/FollowJointTrajectoryActionResult]",
+   "verdict": "verified",
+   "source_excerpt": "built u0249 (1.2.0) snapshot:control_msgs/CMakeLists.txt:6-7 'add_action_files(DIRECTORY action FILES / FollowJointTrajectory.action' with result section snapshot:control_msgs/action/FollowJointTrajectory.action:29-35 ('int32 error_code / int32 SUCCESSFUL = 0 / ... / int32 GOAL_TOLERANCE_VIOLATED = -5', no error_string) || running u0250 (1.4.0) snapshot:control_msgs/CMakeLists.txt:6-7 'add_action_files(DIRECTORY action FILES / FollowJointTrajectory.action' with result section snapshot:control_msgs/action/FollowJointTrajectory.action:29-45 ending 'string error_string' (line 45); wrapper hashes reproduced this session from those sections: u0249 -> bce83d50f7bb28226801436caf0e2043, u0250 -> c4fb3b000dc9da4fd99699380efcc5d9"
+  },
+  {
+   "path": "ver_delta.consumer_reads[msg:control_msgs/FollowJointTrajectoryActionResult]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0247/artifact.txt:2 (opened this session): 'Client [/matlab_global_node_65047] wants topic /arm_controller/follow_joint_trajectory/result to have datatype/md5sum [control_msgs/FollowJointTrajectoryActionResult]'"
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[msg:control_msgs/FollowJointTrajectoryActionResult]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0249/snapshot/control_msgs/action/FollowJointTrajectory.action:29-35 result section: 'int32 error_code / int32 SUCCESSFUL = 0 / int32 INVALID_GOAL = -1 / int32 INVALID_JOINTS = -2 / int32 OLD_HEADER_TIMESTAMP = -3 / int32 PATH_TOLERANCE_VIOLATED = -4 / int32 GOAL_TOLERANCE_VIOLATED = -5' (section ends; no error_string)",
+   "running_excerpt": "s2_work/tasks/u0250/snapshot/control_msgs/action/FollowJointTrajectory.action:29-45 result section: same error_code/constants, then after the comment block 'string error_string' at line 45 - the generated FollowJointTrajectoryResult (and hence the ActionResult wrapper embedding it) gains a field, changing the md5 from bce83d50... to c4fb3b00..."
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The upgrade unit encodes built=u0249 (control_msgs 1.2.0; package.xml:3 '<version>1.2.0</version>'), running=u0250 (1.4.0; package.xml:3 '<version>1.4.0</version>'), consumer=u0247 (MATLAB R2017b excerpt), matching the spec's UPGRADE with consumer_built_against.broken=1.2.0. The consumer read of the ActionResult on the action's result topic is documented by u0247/artifact.txt:1-2 ('[urArm, urGoalMsg] = rosactionclient( ... )' plus the quoted connection error naming the result topic and the ActionResult datatype)."
+ },
+ "notes": "Both wrapper hashes and both Result-only hashes (u0249 -> 6243274b5d629dc838814109754410d5, u0250 -> 493383b18409bfb604b4e26c676401d2) reproduce via the genaction expansion 'Header header / actionlib_msgs/GoalStatus status / FollowJointTrajectoryResult result'; sanity checks actionlib_msgs GoalStatus d388f9b87b3c471f784434d671988d4a and GoalID 302881f31927c1df708a2dbab0e80ee8 at common_msgs 1.12.8 also reproduce. The md5s match the two hashes in the MathWorks error quoted in the spec. The added 'string error_string' is a field-presence change, not transcription."
+}

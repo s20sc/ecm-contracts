@@ -1,0 +1,92 @@
+{
+  "task_id": "u0049",
+  "package": "kobuki_gazebo_plugins",
+  "manifest_version": "0.2.0",
+  "ports": [
+    {
+      "element": "api:sdf::Element::Get",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:sdf::Element::GetElement",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:sdf::Element::GetParent",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:sdf::Element::HasElement",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:sdf::Element::Get",
+    "api:sdf::Element::GetElement",
+    "api:sdf::Element::GetParent",
+    "api:sdf::Element::HasElement"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "wheel speed commands set to 0.0 when sim time since last commands/velocity message exceeds velocity_command_timeout or motors are disabled"},
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_gazebo_plugins/package.xml:3",
+    "ports[0].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83 | std::string model_name = sdf->GetParent()->Get<std::string>(\"name\");",
+    "ports[0].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:110 | left_wheel_joint_name_ = sdf->GetElement(\"left_wheel_joint_name\")->Get<std::string>();",
+    "ports[0].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:151 | publish_tf_ = sdf->GetElement(\"publish_tf\")->Get<bool>(); (SDF value accessor; no coordinate frame attached)",
+    "ports[1].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:170 | wheel_sep_ = sdf->GetElement(\"wheel_separation\")->Get<double>();",
+    "ports[1].side": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:68 | void Load(physics::ModelPtr parent, sdf::ElementPtr sdf);",
+    "ports[1].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:292 | bumper_name = sdf->GetElement(\"bumper_name\")->Get<std::string>(); (returns an sdf::ElementPtr; no coordinate frame attached)",
+    "ports[2].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83 | std::string model_name = sdf->GetParent()->Get<std::string>(\"name\");",
+    "ports[2].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83",
+    "ports[2].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83 | returns the parent sdf element (used to read the model name); no coordinate frame attached",
+    "ports[3].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:108 | if (sdf->HasElement(\"left_wheel_joint_name\"))",
+    "ports[3].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:108",
+    "ports[3].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:108 | returns a bool presence check; no coordinate frame attached",
+    "references[api:sdf::Element::Get]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83 | sdf->GetParent()->Get<std::string>(\"name\"); also Get<std::string>() at lines 110, 120, 222, 232, 242, 292; Get<bool>() at line 151; Get<double>() at lines 170, 180, 190, 205, 273",
+    "references[api:sdf::Element::GetElement]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:110 | sdf->GetElement(\"left_wheel_joint_name\"); also lines 120, 151, 170, 180, 190, 205, 222, 232, 242, 273, 292",
+    "references[api:sdf::Element::GetParent]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83 | sdf->GetParent()",
+    "references[api:sdf::Element::HasElement]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:108 | sdf->HasElement(\"left_wheel_joint_name\"); also lines 118, 149, 168, 178, 188, 203, 220, 230, 240, 271, 290",
+    "perm_requires.state": "searched snapshot/kobuki_gazebo_plugins package.xml, CMakeLists.txt, src/gazebo_ros_kobuki.cpp, include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h: no permission requirement declared",
+    "perm_grants.state": "searched snapshot/kobuki_gazebo_plugins package.xml, CMakeLists.txt, src/gazebo_ros_kobuki.cpp, include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h: no permission grant declared",
+    "recovery.state": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:442 | if (((time_now - last_cmd_vel_time_).Double() > cmd_vel_timeout_) || !motors_enabled_)",
+    "recovery.value": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:442-446 | wheel_speed_cmd_[LEFT] = 0.0; wheel_speed_cmd_[RIGHT] = 0.0;"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The plugin reads its SDF configuration only through sdf::Element::HasElement, GetElement, GetParent and the templated Get<T>() accessor, and never calls the GetValueBool/GetValueDouble/GetValueString accessors; nothing in the listed API usage looks inconsistent with a hydro-era sdformat."
+  },
+  "confidence": "high",
+  "notes": "All seven packet elements are consumed APIs; the package provides none of them, so declares and not_declared are empty. The sdf pointer is sdf::ElementPtr (header line 68); GetElement and GetParent return sdf::ElementPtr, so every Get<T>() call is sdf::Element::Get. Get is called both with a key (Get<std::string>(\"name\") on the parent element, line 83) and without (Get<std::string>/Get<bool>/Get<double> on child elements). api:sdf::Element::GetValueBool, api:sdf::Element::GetValueDouble and api:sdf::Element::GetValueString are not referenced anywhere in the snapshot (grep for 'GetValue' over the whole snapshot returns nothing), including in comments; they are consumed-side elements and so appear in neither declares nor not_declared, and have no port. Commented-out lines 96-97 mention _sdf->HasElement/GetElement/Get<std::string>() for node_namespace but are inactive. ROS 1 package, so QoS fields are null; frame 'none' because these are SDF configuration accessors with no coordinate frame. exclusive is empty: the plugin drives wheel joints via SetVelocity/SetMaxForce (lines 447-450) but claims no resource exclusively in code or configuration. The SDF element values (joint names, publish_tf, wheel_separation, wheel_diameter, torque, velocity_command_timeout, cliff sensor names, cliff_detection_threshold, bumper_name) are supplied by a robot description outside the snapshot (robot.xml loads kobuki_description/urdf/kobuki_standalone.urdf.xacro). Recovery is recorded as the velocity-command timeout safe stop; a missing required SDF element instead makes Load log ROS_ERROR and return early. Observations outside the listed elements, not investigated: Load returns early when publish_tf is absent although the log says only 'Won't publish tf' (line 166); the error message for velocity_command_timeout refers to wheel separation (line 209); sensor_msgs is used (header line 116, cpp line 39) but not listed in package.xml; odom_pose_ is never initialised; max_floot_dist_ is an int holding float ranges."
+}

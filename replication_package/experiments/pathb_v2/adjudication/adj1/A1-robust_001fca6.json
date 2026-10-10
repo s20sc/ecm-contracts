@@ -1,0 +1,64 @@
+{
+  "item_id": "A1-robust_001fca6",
+  "kind": "A1",
+  "case_id": "robust_001fca6",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: minimal Python reproducer, exception backtrace and maintainer-confirmed fix. E2 stops at 6: tf calls separately packaged tf2_ros under rospy, where the C++ time-initialization assumption is not met. E3: PAIR.",
+    "quote": "This is a workaround for the case that we're running inside of\n+    rospy and ros::Time is not initialized inside the c++ instance.",
+    "url": "https://github.com/ros/geometry2/commit/001fca6f33c108c83da4416db3bf43dfeffbe7dd.patch"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The backtrace reaches tf2_ros::Buffer::canTransform from tf::Transformer::waitForTransform; the provider wrongly assumes initialized C++ ROS time. other and the specified canTransform API are supported.",
+      "quote": "terminate called after throwing an instance of 'ros::TimeNotInitializedException'",
+      "url": "https://github.com/ros/geometry/issues/30"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The maintainer distinguishes the remaining sleep failure; the patch replaces the polling sleep inside the same canTransform API. Same composition and other class.",
+      "quote": "There was a second issue with the sleep failing due to being uninitialized.",
+      "url": "https://github.com/ros/geometry/issues/30#issuecomment-27668937"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "Agree only in the narrow S1 sense: this is a runtime exception, not a build/connect/activation interface diagnostic. The source is not literally free of error output.",
+    "quote": "terminate called after throwing an instance of 'ros::TimeNotInitializedException'",
+    "url": "https://github.com/ros/geometry/issues/30"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The exception is triggered by the executed API call: run.",
+    "quote": "listener.waitForTransform('test_1', 'test_2', rospy.Time(0), rospy.Duration(0))",
+    "url": "https://github.com/ros/geometry/issues/30"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "reason": "The follow-up genuinely verifies the geometry_issue_30 fix with a tf Python client, but never states the tf package revision. The specification itself estimates that tester used 1.10.6 while its resolved consumer is pinned to 1.10.5. That is insufficient evidence of the specified revision pair; recommended under the strict S1 resolution rule.",
+    "quote": "Awesome, it works for me, thanks for fixing it!",
+    "url": "https://github.com/ros/geometry/issues/30#issuecomment-28261862",
+    "supporting_evidence": [
+      {
+        "quote": "the source shows the resolved composition working, with both of its units identified by revision",
+        "url": "snapshot:prompts/S1_specify.md:34"
+      }
+    ]
+  },
+  "notes": "Both time lookup and sleep assumptions are documented. The runtime crash is not recoded as loud_documented because S1 restricts that category to earlier interface diagnostics. Successful retesting is acknowledged; only its attribution to the exact pinned consumer is rejected."
+}

@@ -1,0 +1,38 @@
+{
+ "item_id": "A1-CAL-02",
+ "kind": "A1",
+ "case_id": "CAL-02",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+  "url": "https://github.com/ros2/ros2/issues/1080"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "disagree",
+   "proposed_elements": [
+    "api:rmw_wait"
+   ],
+   "quote": "When you call `rcl_wait()`, the timeout passed to `rmw_wait()` is calculated [like](https://github.com/ros2/rcl/blob/c83119c826c75fbaf6e741658927a953318832ad/rcl/src/rcl/wait.c#L546-L582):\n\n`min(rcl_wait_timeout, minimal_timeout_to_next_timer_trigger)`\n\nbut the timer might be using a different clock that the one `rmw_wait()` uses ....\n\nAs a consequence:\n- if `rmw_wait` uses the system clock, a rcl timer using steady time isn't going to work fine (issue happens when system time is adjusted backwards)...",
+   "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-763000000"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+  "url": "https://github.com/ros2/ros2/issues/1080"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "current work-around is upgrading `gcc/g++` into version 10 (from 9) with `update-alternatives` and `colcon build`, we've confirmed `fastdds` works."
+ },
+ "notes": "Implicated element corrected to api:rmw_wait since rmw_wait is where the timeout duration is consumed and waited upon."
+}

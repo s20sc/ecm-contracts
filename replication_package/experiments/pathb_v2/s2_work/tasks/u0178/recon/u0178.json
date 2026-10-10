@@ -1,0 +1,52 @@
+{
+  "task_id": "u0178",
+  "package": "forward_position_controller",
+  "status": "evidence_inadequate",
+  "searched": "Whole snapshot (81 files, the ros2_controllers repository with packages ros2_controllers, forward_command_controller, position_controllers, velocity_controllers, effort_controllers, joint_state_controller, joint_trajectory_controller, diff_drive_controller) grepped for 'forward_position_controller', 'joint1', 'joint2', 'interface_name', '\"joints\"', and exclusive/claim/permission/recover keywords; all package.xml, plugin .xml, CMakeLists.txt, *.yaml (only test/config/test_diff_drive_controller.yaml and test/config/test_joint_trajectory_controller.yaml exist) and launch/urdf/xacro (none exist) inspected. The string 'forward_position_controller' occurs nowhere: no package, plugin class, controller-instance configuration or launch file of that name. 'joint1'/'joint2' occur only in unit-test fixtures (e.g. forward_command_controller/test/test_forward_command_controller.cpp:119,130). What the snapshot does contain is the generic plugin forward_command_controller/ForwardCommandController (and its subclass position_controllers/JointGroupPositionController), which claims command interfaces whose names are built at run time as joint + \"/\" + interface_name_ from the parameters 'joints' and 'interface_name'.",
+  "manifest_version": "0.2.0",
+  "ports": [
+    {
+      "element": "resource:joint1/position",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:joint2/position",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:forward_command_controller/package.xml:4 (<version>0.2.0</version>); every package.xml in the snapshot, including position_controllers/package.xml:4 and ros2_controllers/package.xml:4, carries the same version. No manifest named forward_position_controller exists.",
+    "ports[0]": "snapshot:forward_command_controller/src/forward_command_controller.cpp:95-97 (for (const auto & joint : joint_names_) { command_interfaces_config.names.push_back(joint + \"/\" + interface_name_); }) with joint_names_ from parameter 'joints' (line 61) and interface_name_ from parameter 'interface_name' (line 70) or fixed to hardware_interface::HW_IF_POSITION by the subclass (snapshot:position_controllers/src/joint_group_position_controller.cpp:30). The name joint1/position is not written anywhere outside tests.",
+    "ports[1]": "snapshot:forward_command_controller/src/forward_command_controller.cpp:95-97, same mechanism as ports[0]; joint2/position is not written anywhere outside tests.",
+    "perm_requires": "Searched forward_command_controller/ and position_controllers/ sources, headers, package.xml and plugin xml, plus all configuration files in the snapshot: no permission declaration.",
+    "perm_grants": "Same search as perm_requires: no permission grant.",
+    "recovery": "snapshot:forward_command_controller/src/forward_command_controller.cpp:129-179: on_activate returns ERROR on missing interfaces and update() returns ERROR on command size mismatch; no recovery behaviour or declaration in code or snapshot configuration."
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The unit name does not appear in the snapshot; the generic ForwardCommandController at this revision forms '<joint>/<interface_name>' claims consistently with its matching logic (get_name()==joint, get_interface_name()==interface), so nothing visible here points to a defect in the two resource elements, but the instance configuration that binds joint1/joint2 and 'position' is not in the snapshot."
+  },
+  "confidence": "low",
+  "notes": "The snapshot is the ros2_controllers repository at 0.2.0 and contains no package, plugin or configuration named forward_position_controller; I treat the unit as an instance of the generic ForwardCommandController only for the purpose of describing the resource-claim mechanism, and that mapping is not established by the snapshot. Both packet elements are consumed hardware command interfaces, not topics: msg_type, frame, units, QoS, rates and definition_id do not apply or are not stated (the value written is a double via command_interfaces_[index].set_value, forward_command_controller.cpp:175; units and the HW_IF_POSITION string come from hardware_interface, outside the snapshot). Their names are supplied at run time (parameters 'joints', declared std::vector<std::string> default {} at forward_command_controller.cpp:47, and 'interface_name', declared std::string default \"\" at line 49; the subclass position_controllers/JointGroupPositionController hard-codes interface_name_ = hardware_interface::HW_IF_POSITION and undeclares 'interface_name', joint_group_position_controller.cpp:30,43), so they go into neither references nor declares. 'exclusive' is empty because no verbatim resource token is named in code or snapshot configuration; the controller requests INDIVIDUAL command interfaces '<joint>/<interface_name>' (line 93-97), and whether that claim is exclusive is enforced by controller_manager/hardware_interface, outside the snapshot. Other interface of the generic controller, not a packet element: subscribes to '~/commands' of type std_msgs/msg/Float64MultiArray with rclcpp::SystemDefaultsQoS() (forward_command_controller.cpp:78-79; CmdType alias in forward_command_controller.hpp:32); state_interface_configuration is NONE (line 105-106). on_activate requires exactly the configured interfaces and no others (lines 135-144). No version history was consulted."
+}

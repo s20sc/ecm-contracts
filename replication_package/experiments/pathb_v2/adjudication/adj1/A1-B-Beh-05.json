@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-B-Beh-05",
+  "kind": "A1",
+  "case_id": "B-Beh-05",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Requested time 1691424773.212782 but the latest data is at time 3617.600000, when looking up transform from frame [map] to frame [odom]",
+    "url": "https://github.com/ros-navigation/navigation2/issues/3746",
+    "reason": "E1/E4: a concrete navigation attempt fails on an incompatible time base. E2: the goal stamp crosses from the rviz plugin to the planner, rather than remaining an internal value. The source-code correction changes timestamp production, not just deployment names. E3: PAIR is supported as a data-flow composition, mediated by bt_navigator rather than a direct shared action endpoint."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Requested time 1691424773.212782 but the latest data is at time 3617.600000, when looking up transform from frame [map] to frame [odom]",
+      "url": "https://github.com/ros-navigation/navigation2/issues/3746",
+      "reason": "The incompatible interpretation is the clock epoch of Header.stamp in a PoseStamped, not its nominal type or a seconds-versus-milliseconds conversion. representation_convention and the two listed elements fit that evidence.",
+      "supporting_evidence": [
+        {
+          "quote": "  pose.header.stamp = rclcpp::Clock().now();",
+          "url": "https://raw.githubusercontent.com/ros-navigation/navigation2/3bb9a95719539fcdfedf520c63339bc3157f80b4/nav2_rviz_plugins/src/nav2_panel.cpp"
+        },
+        {
+          "quote": "  blackboard->set<geometry_msgs::msg::PoseStamped>(goal_blackboard_id_, goal->pose);",
+          "url": "https://raw.githubusercontent.com/ros-navigation/navigation2/3bb9a95719539fcdfedf520c63339bc3157f80b4/nav2_bt_navigator/src/navigators/navigate_to_pose.cpp"
+        },
+        {
+          "quote": "We're just making a clock willy-nilly which is going to default to system time.",
+          "url": "https://github.com/ros-navigation/navigation2/issues/3586"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[planner_server-2] [WARN] [1691424774.006158189] [planner_server]: Could not transform the start or goal pose in the costmap frame",
+    "url": "https://github.com/ros-navigation/navigation2/issues/3746",
+    "reason": "Under S1's restricted definition this is silent_documented: the diagnostic occurs during navigation, not at build, connection, or component activation. It is not literally an absence of runtime errors."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "when I do Nav2Goal it throws the above provided error and robot do not move.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/3746",
+    "reason": "The stack is already running; sending a navigation goal exposes the mismatch."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-  pose.header.stamp = rclcpp::Clock().now();\n+  // pose.header.stamp = client_node_->now();  // client node doesn't respect sim time yet",
+    "url": "https://github.com/ros-navigation/navigation2/commit/3a258a6e2da9250c9a398debcfde17a77d307647.patch",
+    "reason": "The published fix removes the system-clock stamp. The #3746 thread does not demonstrate the specification's exact mixed-revision composition working, so recommended rather than observed is justified."
+  },
+  "notes": "The concrete #3746 failure is established, but attribution to the exact installed 1.1.8 binary remains an inference: the report says ROS2 Humble Binary. The #3586 investigation and the inspected plugin code support the mechanism, not proof of that exact checkout. Later reports that rviz use_sim_time helped do not prove the separately constructed clock obeyed that parameter. The action inventory has a relay: navigate_to_pose and compute_path_to_pose are not one directly connected action pair."
+}

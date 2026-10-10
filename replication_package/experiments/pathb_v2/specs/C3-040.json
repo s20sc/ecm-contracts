@@ -1,0 +1,49 @@
+{
+  "case_id": "C3-040",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/5025",
+    "https://github.com/lopsided98/nix-ros-overlay/pull/591"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives launch commands for failing and working configurations and a full log with the error \"[component_container_isolated-6] [ERROR] [1743133382.389389291] [global_costmap.global_costmap]: Original error: MultiLibraryClassLoader: Could not create object of class type nav2_costmap_2d::StaticLayer as no factory exists for it. Make sure that the library exists and was explicitly loaded through MultiLibraryClassLoader::loadLibrary()\" (Humble, Nav2 built from source with clang 14)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": [
+        "nav2_costmap_2d (Costmap2DROS pluginlib host inside the composed controller_server / planner_server)",
+        "nav2_costmap_2d layer plugins (nav2_costmap_2d::StaticLayer, nav2_costmap_2d::VoxelLayer)"
+      ],
+      "interface_kind": null,
+      "evidence": "The failing and working compositions differ only in how the same sources were built: with Nav2 compiled from source by clang the costmap layers cannot be instantiated under composition, while \"5. if I launch nav2 (built from apt-get installation), it could always success\". No declared interface of the host or the plugins differs between the two. The maintainer attributes it to the build: \"I expect the issue is just a cross compilation issue with something in ROS 2 core in gcc with plugins done in clang (not necessarily anything to do with Nav2)\". The only change linked as a fix, nix-ros-overlay PR #591 (\"With this changes `navigation2` compiles for jazzy and humble.\"), adds compiler flag overrides such as \"NIX_CFLAGS_COMPILE = toString [ \"-Wno-error=array-bounds\"];\" for nav2-costmap-2d, and a later comment shows the same error persisting in the Nix build after that PR was merged (\"Could not create object of class type nav2_costmap_2d::VoxelLayer as no factory exists for it\", 2025-10-14). The issue was closed without a diagnosis or fix (\"OK - I'm going to close this then.\"). With no interface change identified and the only discriminating change being the build toolchain, the case stops at step 4. The root cause is undetermined in the source; a maintainer's other hypothesis concerns nested plugin loading (\"This might be something with plugins inside of plugins\")."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: Costmap2DROS loads its configured layer plugins at configure; the failure is observed only when the Nav2 servers are loaded into one component container (use_composition True): \"4. ... if we set \"use_composition:=False\", nav2 could work correctly\"."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: costmap configuration fails (\"Caught exception in callback for transition 10\"), lifecycle bringup aborts (\"Failed to bring up all requested nodes. Aborting bringup.\"), and goals are rejected (\"Goal was rejected by server\")."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

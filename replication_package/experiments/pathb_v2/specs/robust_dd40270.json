@@ -1,0 +1,92 @@
+{
+  "case_id": "robust_dd40270",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/338",
+    "https://github.com/yujinrobot/kobuki/commit/dd40270d17cdd3e1729437f0988c0acb6c622d5e",
+    "https://github.com/yujinrobot/kobuki/commit/f0e021c38f366bedf1aaa07333e5ea0ae09a6bb6",
+    "https://github.com/yujinrobot/kobuki/commit/52aca4c7a167f3478ebf7f90c10af4658ff5819c",
+    "https://github.com/yujinrobot/kobuki/blob/0.6.1/kobuki_node/scripts/getOdom2D.py",
+    "https://github.com/yujinrobot/kobuki/blob/0.6.1/kobuki_node/scripts/getYaw.py",
+    "https://github.com/ros/ros_comm/blob/1.11.8/clients/rospy/src/rospy/topics.py",
+    "https://github.com/ros/ros_comm/blob/1.9.55/clients/rospy/src/rospy/topics.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #338 \"Add queue_size for publishers.\" (maintainer jihoonl, 2014-08-08): \"for indigo\", closed with the commits that add `queue_size=10` to every rospy.Publisher(...) call (f0e021c and 52aca4c for kobuki_testsuite, dd40270 \"add queue_size on publiehrs #338\" for kobuki_node/scripts/getOdom2D.py and getYaw.py). The defect is concrete in code: at 0.6.1 the scripts call `rospy.Publisher(\"pose2d\", Pose2D)`, `rospy.Publisher(\"angle\", Float64)` and `rospy.Publisher(\"angle_rate\", Float64)` without the keyword that indigo's rospy requires, and the provider's code (ros_comm 1.11.8, rospy/topics.py) states the consequence (a SyntaxWarning and synchronous publishing). No run log is posted in the issue."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_node", "rospy"],
+      "interface_kind": "library API",
+      "evidence": "Unit 1: kobuki_node's Python helper nodes getOdom2D.py and getYaw.py (installed programs of the kobuki_node package). Unit 2: rospy, the client library from ros_comm, a separately released package. The failure depends on the peer: the same calls are silent on hydro's rospy (Publisher.__init__ has no queue_size parameter at ros_comm 1.9.55) and warn on indigo's rospy (queue_size added to the signature, warning when omitted), so it is not internal (step 2); no launch/config name binding (step 3); the resolving change is an edit of the consumer's API call, not a build-system change (step 4); not firmware (step 5). Interface kind: library API (rospy.Publisher constructor)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the scripts (added 2012-07-11, fuerte era, carried unchanged through hydro) reference rospy.Publisher as declared before ros_comm 1.11 (no queue_size parameter); the provider under indigo (ros_comm 1.11.x) runs at a newer revision whose Publisher.__init__ declares queue_size and warns when it is missing. The issue's only context is \"for indigo\"."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch in the provider at the running revision: rospy/topics.py 1.11.8, Publisher.__init__: `if queue_size is not None: self.impl.set_queue_size(queue_size) else: import warnings; warnings.warn(\"The publisher should be created with an explicit keyword argument 'queue_size'. \" \"Please see http://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers for more information.\", SyntaxWarning, stacklevel=2)`, and its docstring: \"When the keyword is not being used or when None is passed all publishing will happen synchronously and a warning message will be printed.\" The issue thread itself shows no output."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_node",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "0.6.1",
+      "resolved_rev": "0.6.2",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distro (indigo) on 2014-08-08. Tag 0.6.1 (2014-08-08, kobuki_node version 0.6.1) is an ancestor of the fix's parent 8c30446 and its kobuki_node/scripts are byte-identical to that parent (the intervening commits touch only kobuki_testsuite); the fix dd40270 (2014-08-11) is three commits before tag 0.6.2 (2014-08-11), which contains the queue_size arguments.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "rospy",
+      "role": "provider",
+      "repo": "https://github.com/ros/ros_comm",
+      "broken_rev": "1.11.8",
+      "resolved_rev": "1.11.8",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distro. 1.11.8 (tagged 2014-08-04) was the newest indigo ros_comm release at the issue date (the next, 1.11.9, came later); the Publisher queue_size parameter and the warning for its absence are present in every indigo tag from 1.11.1 (2014-05-07) through 1.11.8 and absent in 1.11.0 and in all hydro 1.9.x tags. The resolution does not change rospy, so resolved_rev keeps the broken revision.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {"broken": "1.9.55", "resolved": "1.11.8", "basis": "inferred"},
+  "inventory": [
+    {"element": "api:rospy.Publisher", "sides": {"rospy": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:rospy.Subscriber", "sides": {"rospy": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:rospy.init_node", "sides": {"rospy": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:rospy.spin", "sides": {"rospy": "provides", "kobuki_node": "consumes"}},
+    {"element": "api:rospy.ROSInterruptException", "sides": {"rospy": "provides", "kobuki_node": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:rospy.Publisher"],
+      "quote": "    def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):\n[...]\n        if queue_size is not None:\n            self.impl.set_queue_size(queue_size)\n        else:\n            import warnings\n            warnings.warn(\"The publisher should be created with an explicit keyword argument 'queue_size'. \"\n                \"Please see http://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers for more information.\", SyntaxWarning, stacklevel=2)",
+      "url": "https://github.com/ros/ros_comm/blob/1.11.8/clients/rospy/src/rospy/topics.py#L749-L794"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Diagnostic from the provider at publisher construction (node activation): rospy 1.11.8 topics.py lines 792-794 emit `SyntaxWarning: The publisher should be created with an explicit keyword argument 'queue_size'. Please see http://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers for more information.` whenever queue_size is omitted (https://github.com/ros/ros_comm/blob/1.11.8/clients/rospy/src/rospy/topics.py#L789-L794). The composition keeps working (publishing falls back to synchronous mode per the docstring). The issue thread contains no captured output; the evidence is the provider's code, not a posted log.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Commit dd40270 adds `queue_size=10` to the three rospy.Publisher calls in kobuki_node/scripts/getOdom2D.py (\"pose2d\") and getYaw.py (\"angle\", \"angle_rate\"), matching the indigo rospy signature; rospy is unchanged.",
+    "status": "recommended",
+    "evidence": "The fix is committed and the issue closed by the maintainer with links to the commits (https://github.com/yujinrobot/kobuki/issues/338#issuecomment-51578196, #issuecomment-51741633); no run of the changed scripts under indigo rospy is shown."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "consumer_built_against is inferred from the consumer's references: the scripts call rospy.Publisher(name, data_class) with no queue_size, matching Publisher.__init__ as declared at ros_comm 1.9.55 (`def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None)`, the last hydro release before the indigo line) and every earlier release back to the scripts' creation (2012-07-11, fuerte); 1.9.55 is used as the label because the kobuki indigo branch inherits the scripts unchanged from the hydro line. After the fix the scripts use the queue_size keyword that exists only from 1.11.1, so the resolved built-against label is the running revision 1.11.8. The condition is element_retyped: rospy.Publisher is still present, its constructor declaration changed (new queue_size parameter with a deprecation-style warning and a behavioural change to synchronous publishing when omitted). The same provider change was addressed for other consumers in the same issue, kobuki_testsuite's motion_rotate.py, motion_travel_forward.py, motion_wander.py (f0e021c) and drift_estimation.py (52aca4c); those are separate compositions, not conditions of this case. Loudness is recorded as loud_documented on the strength of the provider's source (the warning is emitted by existing tooling at activation); if only posted logs count, it should be read as unknown."
+}

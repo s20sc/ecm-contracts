@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_4115400",
+  "kind": "A1",
+  "case_id": "robust_4115400",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Update: The above patch is not sufficient, and indeed, we would not expect it to be because there is apparently correct behavior in the case of a single Kobuki. I have nearly identified the bug and will report soon.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76661468"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The basic problem is that the sensor name, as obtained on [line 289 of gazebo_ros_kobuki_loads.cpp](https://github.com/yujinrobot/kobuki_desktop/blob/06d8fa710928ba5623939ce42f760838cd0f4667/kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp#L289) is not scoped. Thus it is the same when multiple models are spawned using the same URDF file, namely kobuki_gazebo.urdf.xacro, which declares the imu name [at line 186](https://github.com/yujinrobot/kobuki/blob/06e60c2bba4c73699f69ffc61250f1ad152a931a/kobuki_description/urdf/kobuki_gazebo.urdf.xacro#L186). Hence, the sensor obtained by `sensors::SensorManager::Instance()->GetSensor()` is subject to a race condition.",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76669013"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "KGP does not post rotations to the odom topic (translations are there)",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have confirmed that it resolves #38. Thanks @slivingston!!!"
+  },
+  "notes": "Independently verified. (1) E1/E4: issue #38 body (jihoonl, 2014-09-23, 'Multi-Gazebo Kobukis not updating orientations') matches the spec reproducer verbatim; single-instance correctness confirmed in comment 76661468 quoted above; slivingston 76666000: 'The bug is due to the different Kobuki plugins using the same ImuSensor. I am creating a patch now.' (2) E2/E3: broken-side code read directly at 06d8fa71: 'sensors::SensorManager::Instance()->GetSensor(imu_name));' at line 298, with the same unscoped GetSensor pattern for cliff sensors at lines 216/218/220 and bumper at 271; URDF at 06e60c2b line 148 '<sensor type=\"imu\" name=\"imu\">' and line 186 '<imu_name>imu</imu_name>' — both instances bind the same registry object, CONCURRENT-only failure, exclusive-resource framing sound. (3) Fix chain verified: commit 494e73708ca02da29d6ea7c0a264bd4379a7ab78 (parent 06d8fa71, message 'kobuki_gazebo_plugins: Resolve IMU sensor using fully scoped name') changes exactly the imu lookup to 'sensors::get_sensor(world_->GetName()+\"::\"+node_name_+\"::base_footprint::\"+imu_name)'; merge 4115400a (parents 06d8fa71 + 494e7370, 2015-03-02) is the merge of PR #39; tag 0.4.1 -> 06d8fa71 and 0.4.2 contains 4115400a both confirmed. (4) Loudness silent_documented/run: the wrong orientation is visible only in published odom/tf data; no error branch taken. (5) Resolution observed: maintainer confirmation quoted above (PR #39 comment 76671612) plus issue closure 'This has been resolved witih #39' (76671649), both instances identified at 4115400a."
+}

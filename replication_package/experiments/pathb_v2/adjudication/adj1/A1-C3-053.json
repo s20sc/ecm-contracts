@@ -1,0 +1,63 @@
+{
+  "item_id": "A1-C3-053",
+  "kind": "A1",
+  "case_id": "C3-053",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The subscriber crashes with the following message:\r\n\r\n```\r\nmake_tuple(): unable to convert argument of type 'object' to Python object\r\n```",
+    "url": "https://github.com/ros2/rclpy/issues/848",
+    "reason": "E1 and E4 pass on the concrete publisher/echo reproducer and runtime crash. The two separately deployed nodes exchange /nan: E3 is PAIR. The C++ producer permits non-finite float values while the generated Python receiver rejects them; that is a disagreement about the accepted value domain at the message boundary. It does not occur with every correct publisher independently of sent values. A valid producer value does not turn the consumer's incompatible acceptance constraint into a boundary-independent internal fault. Stop at E2 step 6, not step 2.",
+    "proposed_eligible": true
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "topic:/nan",
+        "field:std_msgs/Float32.data"
+      ],
+      "quote": "The conversion triggers an assertion, and fails to deserialize.",
+      "url": "https://github.com/ros2/rosidl_python/issues/162",
+      "reason": "Non-finite value-domain incompatibility between C++ publishing and generated Python deserialization. The nominal message type and layout do not differ; the allowed classes have no dedicated floating-point value-domain category. Treat the failed conversion and downstream tuple error as the same failed message-taking condition, not duplicate conditions.",
+      "additional_evidence": [
+        {
+          "quote": "publisher_ = this->create_publisher<std_msgs::msg::Float32>(\"nan\", 1);",
+          "url": "https://github.com/jacobperron/nan_publisher/blob/05a7c39e879e8370123fd47cad921d7b2af7f4eb/src/nan_publisher.cpp#L29"
+        },
+        {
+          "quote": "message.data = -1.0 / 0.0;",
+          "url": "https://github.com/jacobperron/nan_publisher/blob/05a7c39e879e8370123fd47cad921d7b2af7f4eb/src/nan_publisher.cpp#L33"
+        },
+        {
+          "quote": "While the ticket mentions NaN, the logic also fails for positive and negative `inf`.",
+          "url": "https://github.com/ros2/rosidl_python/issues/162#issuecomment-1152535444"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "The subscriber crashes with the following message:\r\n\r\n```\r\nmake_tuple(): unable to convert argument of type 'object' to Python object\r\n```",
+    "url": "https://github.com/ros2/rclpy/issues/848",
+    "reason": "Under the supplied operational definition, loud_documented requires an existing-tool diagnostic at build, connection, or activation. This report instead reaches message taking and then crashes. The runtime pybind11 error is explicitly preserved: silent_documented here means no documented pre-run interface diagnostic, not an absence of runtime error text."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "run",
+    "quote": "which then causes the executor to crash on the subscriber end when taking the message (I don't know why).",
+    "url": "https://github.com/ros2/rclpy/issues/848#issuecomment-966769543",
+    "reason": "The message reaches the subscription and fails during conversion/take, not during discovery or activation."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Yes, good call.  I'm actually going to close this one as a duplicate, since it is already fixed in Rolling and there is now a backport PR to humble for it.",
+    "url": "https://github.com/ros2/rclpy/issues/848#issuecomment-1305867642",
+    "reason": "PR #167 accepts NaN/Inf in the generated bounds checks and has maintainer/CI acceptance. The cited closure is not a demonstrated successful rerun of this exact publisher/echo composition with both units identified by revision."
+  },
+  "notes": "Proposed operation PAIR; outcome failure. Source discrepancy: although issue #848 calls the values NaN, its linked reproducer at its sole source-file commit 05a7c39e assigns -1.0 / 0.0 (negative infinity under the floating-point behavior at issue), not a NaN expression. Do not present NaN as verified from that code. Independent rosidl_python #162 confirms NaN rejection and explicitly also confirms Inf rejection; both are covered by #167. The unchecked convert_to_py result in subscription.cpp explains the downstream error, not a second independent message-interface condition. Stereo fixture repairs, other BatteryState users, and Humble-upgrade reports are not substituted for the reporter's PAIR. Only the error at run time is documented; no earlier compatibility diagnostic is claimed."
+}

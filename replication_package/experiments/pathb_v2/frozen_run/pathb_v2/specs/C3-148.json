@@ -1,0 +1,51 @@
+{
+  "case_id": "C3-148",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/1047",
+    "https://github.com/ros2/rclpy/pull/1050",
+    "https://github.com/ros2/rclpy/pull/1051",
+    "https://github.com/ros2/rclpy/commit/2da35a4f1c7d056f3852411469bc017c19191664",
+    "https://github.com/ros2/rclpy/commit/6b6617af3ebf8caf03b969c71074dcbc6a725ee7",
+    "https://github.com/fujitatomoya/ros2_test_prover/commit/63b3c1e2bff85f7f0c87efdd3019132e7f5a3ed8",
+    "https://github.com/ros2/rclpy/blob/c7feb4b70c33aaf22e8ad467605c0a58451299c9/rclpy/rclpy/duration.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter gives the QoSOverridingOptions call and the traceback \"File \\\"/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/qos_overriding_options.py\\\", line 165, in _get_qos_policy_parameter\\nvalue = value.nanoseconds()\\nTypeError: 'int' object is not callable\"; maintainer: \"this can be fixed with https://github.com/ros2/rclpy/pull/1050.\" (https://github.com/ros2/rclpy/issues/1047)"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rclpy", "reporter's node (application declaring a subscriber with QoSOverridingOptions)"],
+      "interface_kind": null,
+      "evidence": "The crash is inside rclpy's own code: rclpy/qos_overriding_options.py calls `value.nanoseconds()` on an rclpy Duration whose `nanoseconds` is a `@property` in rclpy/duration.py of the same package. The fix (#1050) is the one-line change `-        value = value.nanoseconds()` / `+        value = value.nanoseconds`. It occurs for any caller that requests DEADLINE, LIFESPAN, or LIVELINESS_LEASE_DURATION overrides; nothing crosses a boundary between two separately deployable units."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated beyond E2: the failing code path is a single library's internal call."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed TypeError at node start-up: \"TypeError: 'int' object is not callable\" (https://github.com/ros2/rclpy/issues/1047)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Reporter ran humble binaries (path /opt/ros/humble/...). Fix merged on rolling as 2da35a4f1c7d056f3852411469bc017c19191664 (2022-12-02) and on humble via #1051 as 6b6617af3ebf8caf03b969c71074dcbc6a725ee7 (2022-12-22). The other listed commits (fork copies of #1050/#1051, and 'Rebase humble/pr-1033 (#1107)' 1fa2d197/729ebee4) carry the same one-line change or are unrelated rebases; none documents a second composition."
+}

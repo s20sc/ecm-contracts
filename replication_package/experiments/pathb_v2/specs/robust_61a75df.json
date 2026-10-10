@@ -1,0 +1,100 @@
+{
+  "case_id": "robust_61a75df",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/turtlebot/turtlebot/issues/250",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/61a75df171e8ac8f34ed848456a7a267d4d9d3e3",
+    "https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic",
+    "https://github.com/ros-visualization/python_qt_binding"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #250 (fishcu, 2017-01-30) gives the reproducer \"When trying \\\"rqt -s kobuki_dashboard\\\", I get \\\"ImportError: cannot import name QMessageBox\\\"\"; the linked ROS Answers question (migrated to robotics.stackexchange.com/questions/78536) carries the full traceback. Maintainer stonier: \"Coming in 0.5.3, thanks @yuki-asano\"."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "kobuki_dashboard",
+        "python_qt_binding"
+      ],
+      "interface_kind": "library API",
+      "evidence": "kobuki_dashboard (package in yujinrobot/kobuki_desktop) imports Qt classes through the module names registered by python_qt_binding (ros-visualization/python_qt_binding): `from QtGui import QMessageBox, QAction` (dashboard.py line 8) and `from python_qt_binding.QtGui import QToolButton` (battery_widget.py). python_qt_binding's binding_helper registers each loaded module under its bare name (`sys.modules[module_name] = module`). At 0.2.x it registered PyQt4 modules with required_modules ['QtCore', 'QtGui']; from 0.3.0 it registers PyQt5 modules with required_modules ['QtCore', 'QtGui', 'QtWidgets'] (`_named_import('PyQt5.%s' % module_name)`), and the widget classes are no longer in QtGui. The symbol location crosses the library boundary; the fix edits the consumer's references (not only build/packaging), so it is an interface change, not `build`."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider python_qt_binding runs at its Kinetic (Qt5) release 0.3.x while kobuki_dashboard 0.5.1 still references the Qt4-era module layout. Bug description: \"The issue is that the application's GUI was built on top of Qt4, but Ubuntu 16.04 uses Qt5 which changed the API\"; yuki-asano: \"This problem is related to qt5 used on ubuntu16.04.\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"PluginManager._load_plugin() could not load plugin \\\"kobuki_dashboard/KobukiDashboard\\\"\" ... \"ImportError: cannot import name QMessageBox\" (robotics.stackexchange.com/questions/78536)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_dashboard",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "0.5.1",
+      "resolved_rev": "61a75df171e8ac8f34ed848456a7a267d4d9d3e3",
+      "pinned": true,
+      "revision_basis": "The reporter installed the Kinetic debs via apt-get (\"I did indeed install everything using apt-get\"); the traceback path /opt/ros/kinetic/lib/python2.7/dist-packages/kobuki_dashboard/dashboard.py line 8 `from QtGui import QMessageBox, QAction` matches tag 0.5.1. kobuki_desktop 0.5.1 entered kinetic/distribution.yaml on 2016-09-20 (ros/rosdistro#12758) and the next release, 0.5.2/0.5.3, was bloomed on 2017-02-23 (#14004), after the report of 2017-01-23. 0.5.1 (3d837662) is also the parent of the fix commit. Resolved: fix commit 61a75df (first released in tags 0.5.2/0.5.3 via merge 97c8d53 of PR #49).",
+      "excerpt": false,
+      "ros_distro": "kinetic"
+    },
+    {
+      "name": "python_qt_binding",
+      "role": "provider",
+      "repo": "https://github.com/ros-visualization/python_qt_binding",
+      "broken_rev": "0.3.1",
+      "resolved_rev": "0.3.1",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distro (Kinetic debs on Ubuntu 16.04, question posted 2017-01-23). python_qt_binding 0.3.1 (tag 621fc06a, 2016-04-21) was the Kinetic release until 0.3.2 was merged into kinetic/distribution.yaml on 2017-01-24 (ros/rosdistro#13675); a public sync between 2017-01-24 and the report dates is not documented, so 0.3.1 is taken as installed. 0.3.1 and 0.3.2 differ only in CHANGELOG.rst, cmake/sip_configure.py and package.xml (git diff --stat 0.3.1 0.3.2), so the Python module layout is identical in both. The resolution does not change this unit, so the resolved revision is the broken one.",
+      "excerpt": false,
+      "ros_distro": "kinetic"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "0.2.19",
+    "resolved": "0.3.1",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:QtGui.QMessageBox", "sides": {"python_qt_binding": "provides", "kobuki_dashboard": "consumes"}},
+    {"element": "api:QtGui.QAction", "sides": {"python_qt_binding": "provides", "kobuki_dashboard": "consumes"}},
+    {"element": "api:python_qt_binding.QtGui.QToolButton", "sides": {"python_qt_binding": "provides", "kobuki_dashboard": "consumes"}},
+    {"element": "api:python_qt_binding.QtCore.QSize", "sides": {"python_qt_binding": "provides", "kobuki_dashboard": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:QtGui.QMessageBox", "api:QtGui.QAction"],
+      "quote": "  File \"/opt/ros/kinetic/lib/python2.7/dist-packages/kobuki_dashboard/dashboard.py\", line 8, in <module>\n    from QtGui import QMessageBox, QAction\nImportError: cannot import name QMessageBox",
+      "url": "https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic"
+    },
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:python_qt_binding.QtGui.QToolButton"],
+      "quote": "in battery_widgets.py\r\nfrom python_qt_binding.QtGui import QToolButton\r\n->\r\nfrom QtWidgets import QToolButton",
+      "url": "https://github.com/turtlebot/turtlebot/issues/250#issuecomment-281542245"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "rqt's plugin loader reports the import error: \"PluginManager._load_plugin() could not load plugin \\\"kobuki_dashboard/KobukiDashboard\\\"\" ... \"ImportError: cannot import name QMessageBox\" (https://robotics.stackexchange.com/questions/78536/cannot-launch-kobuki-dashboard-on-kinetic).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Consumer-side: kobuki_dashboard changes its imports to the Qt5 module layout exposed by python_qt_binding 0.3.x: `from QtWidgets import QMessageBox, QAction` in dashboard.py and `from QtWidgets import QToolButton` in battery_widget.py (commit 61a75df, released in 0.5.2/0.5.3). Provider unchanged.",
+    "status": "observed",
+    "evidence": "yuki-asano (issue #250, 2017-02-22, Ubuntu 16.04 + ROS Kinetic via apt-get): \"As correcting following two lines, it looks like working as shown in the attached screenshot.\" The two edits are exactly the import changes committed the same day as 61a75df (authored by Yuki Asano); the provider is the Kinetic python_qt_binding deb of that date (0.3.1 or 0.3.2, identical Python module layout). Maintainer stonier: \"Coming in 0.5.3, thanks @yuki-asano\"."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "consumer_built_against.broken = 0.2.19 is inferred: kobuki_dashboard's references (QMessageBox/QAction/QToolButton in QtGui) match every Qt4 python_qt_binding release (0.2.x, required_modules ['QtCore', 'QtGui'] loaded from PyQt4) and none from 0.3.0 on; 0.2.19 (2016-03-31) is the last Qt4 release before 0.3.0 switched to PyQt5, the tightest bound. The import line itself dates from 2013-01-23 (da40a9d). Other compositions in the source, not conditions of this case: (1) the reporter's workaround `from PyQt4.QtGui import QMessageBox, QAction` made python segfault in libQtGui.so.4 (loading PyQt4 into an rqt process that already loaded PyQt5 via python_qt_binding); (2) the reporter also could not find ros-kinetic-rocon-remocon and ros-kinetic-rocon-qt-library (packaging, separate). A 2018 answer on the migrated question reports the same QtGui->QtWidgets change \"fixed the roomba dashboard for me\" (a different dashboard package)."
+}

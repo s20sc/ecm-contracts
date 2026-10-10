@@ -1,0 +1,105 @@
+{
+  "task_id": "u0412",
+  "package": "controller_manager",
+  "manifest_version": "4.39.2",
+  "ports": [
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::assign_interfaces",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::command_interface_configuration",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::release_interfaces",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::state_interface_configuration",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:controller_interface::InterfaceConfiguration",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": ["resource:LF_HAA/position"],
+  "references": [
+    "api:controller_interface::ControllerInterfaceBase::assign_interfaces",
+    "api:controller_interface::ControllerInterfaceBase::command_interface_configuration",
+    "api:controller_interface::ControllerInterfaceBase::release_interfaces",
+    "api:controller_interface::ControllerInterfaceBase::state_interface_configuration",
+    "api:controller_interface::InterfaceConfiguration"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "on a controller update error the failing controllers are deactivated and the controllers listed in the '<controller_name>.fallback_controllers' parameter are activated (STRICT)"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:controller_manager/package.xml:5",
+    "ports[0].side": "snapshot:controller_manager/src/controller_manager.cpp:2386",
+    "ports[1].side": "snapshot:controller_manager/src/controller_manager.cpp:2298",
+    "ports[1].frame": "snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:59",
+    "ports[2].side": "snapshot:controller_manager/src/controller_manager.cpp:526",
+    "ports[2].frame": "snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:154",
+    "ports[3].side": "snapshot:controller_manager/src/controller_manager.cpp:2349",
+    "ports[3].frame": "snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:59",
+    "ports[4].side": "snapshot:controller_manager/test/test_release_interfaces.cpp:244",
+    "ports[4].frame": "snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:59",
+    "references[api:controller_interface::ControllerInterfaceBase::assign_interfaces]": "snapshot:controller_manager/src/controller_manager.cpp:2386",
+    "references[api:controller_interface::ControllerInterfaceBase::command_interface_configuration]": "snapshot:controller_manager/src/controller_manager.cpp:2298",
+    "references[api:controller_interface::ControllerInterfaceBase::release_interfaces]": "snapshot:controller_manager/src/controller_manager.cpp:526",
+    "references[api:controller_interface::ControllerInterfaceBase::state_interface_configuration]": "snapshot:controller_manager/src/controller_manager.cpp:2349",
+    "references[api:controller_interface::InterfaceConfiguration]": "snapshot:controller_manager/test/test_release_interfaces.cpp:244",
+    "not_declared[resource:LF_HAA/position]": "grep -rn 'LF_HAA' and case-insensitive 'lf_haa' over the whole snapshot (331 files, all locally readable, 0 .icloud placeholders): 0 hits in controller_manager or any other directory; controller_manager hard-codes no joint/interface names and obtains hardware resources at run time from robot_description (snapshot:controller_manager/src/controller_manager.cpp:574 subscription, :702 load_and_initialize_components)",
+    "perm_requires": "grep -rniE 'permission|sros|enclave|security' over snapshot/controller_manager: only license-header hits; no SROS2 enclave or permission configuration",
+    "perm_grants": "grep -rniE 'permission|sros|enclave|security' over snapshot/controller_manager: only license-header hits; no SROS2 enclave or permission configuration",
+    "recovery.value": "snapshot:controller_manager/src/controller_manager.cpp:3159 (deactivate failing controllers, collect fallback_controllers_names), :3207 (activate_controllers(..., fallback_controllers_list, SwitchController::Request::STRICT)); parameter declared at snapshot:controller_manager/src/controller_manager.cpp:1044"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All four ControllerInterfaceBase calls and the InterfaceConfiguration members used (.type, .names) match the declarations in the controller_interface header of the same snapshot; the resource LF_HAA/position is not a static property of controller_manager at all (it would come from robot_description at run time), so nothing in the listed elements looks broken in this code."
+  },
+  "confidence": "high",
+  "notes": "Only one packet element is on the provides side (resource:LF_HAA/position); it is absent from the entire snapshot, so it is in not_declared and no port is recorded for it. controller_manager offers command/state interfaces only as loaned from hardware_interface::ResourceManager, whose resource names are loaded at run time from robot_description; any LF_HAA/position resource would therefore be supplied at run time, not declared by this package. The five consumed api elements are C++ calls/types, not ROS communication endpoints: msg_type, units, rate and definition_id do not apply (null), and QoS is null because no ROS QoS applies to a virtual method call. frame is 'none' for the configuration calls and InterfaceConfiguration (the struct holds only an interface_configuration_type enum and a vector of interface-name strings, header lines 59-63) and for release_interfaces (void, no data); frame for assign_interfaces is null because the loaned command/state interfaces carry hardware values whose frame the code does not declare. InterfaceConfiguration is spelled out only in the package's tests (e.g. test/test_release_interfaces.cpp:244, test/test_controller_manager_srvs.cpp:77); production source consumes it through 'auto' return values and its members .type/.names (src/controller_manager.cpp:2298-2307, 2349-2358). exclusive is empty: command interfaces are claimed exclusively at run time (command_interface_is_claimed check then claim_command_interface, src/controller_manager.cpp:2315-2327, 'Resource conflict ... already claimed'), but no resource token is named in code or configuration in the snapshot. No dependency definition files were fetched (no msg/srv/action element in the packet)."
+}

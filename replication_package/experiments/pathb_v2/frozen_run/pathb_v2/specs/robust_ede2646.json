@@ -1,0 +1,88 @@
+{
+  "case_id": "robust_ede2646",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/issues/89",
+    "https://github.com/ros/geometry2/pull/90",
+    "https://github.com/ros/geometry2/commit/ede2646d463c8ae1bbbf2460941df2b07d39824e",
+    "https://raw.githubusercontent.com/ros/geometry2/1bbf910815aa83f7476cd4c8d6370f3a1feec643/tf2_ros/src/tf2_ros/transform_broadcaster.py",
+    "https://raw.githubusercontent.com/ros/geometry2/1bbf910815aa83f7476cd4c8d6370f3a1feec643/tf2_ros/src/tf2_ros/transform_listener.py",
+    "https://raw.githubusercontent.com/ros/geometry2/1bbf910815aa83f7476cd4c8d6370f3a1feec643/tf2_ros/src/transform_broadcaster.cpp",
+    "https://raw.githubusercontent.com/ros/geometry2/1bbf910815aa83f7476cd4c8d6370f3a1feec643/tf2_tools/scripts/view_frames.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #89 (marbosjo, 2015-03-18) gives a complete Python reproducer (node tf2_timing_test with two tf2_ros.TransformBroadcaster objects sending three TransformStamped per 5 Hz cycle) and the observed effect: \"If two or more transforms are sended from the same node using successive calls to: tf2_ros.TransformBroadcaster().sendTransform() Even with different TransformBroadcaster objects, only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.\" with a view_frames output image (https://github.com/ros/geometry2/issues/89). Maintainer confirmation: tfoote: \"It looks like the c++ broadcaster as a sending queue of 100 while the python implementation has a send queue of 1 ... The python should be made to match the c++ as this is causing a problem.\" (https://github.com/ros/geometry2/issues/89#issuecomment-83259331); \"Fixed in #90\" (https://github.com/ros/geometry2/issues/89#issuecomment-84090881)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["tf2_ros", "tf2_tools"],
+      "interface_kind": "topic",
+      "evidence": "Provider: tf2_ros, whose Python TransformBroadcaster (tf2_ros/src/tf2_ros/transform_broadcaster.py line 44 at 1bbf9108) declares \"self.pub_tf = rospy.Publisher(\\\"/tf\\\", TFMessage, queue_size=1)\"; it runs inside the reporter's tf2_timing_test node (script quoted in the issue). Consumer: tf2_tools, whose view_frames node (tf2_tools/scripts/view_frames.py) instantiates \"buffer = tf2_ros.Buffer()\" and \"listener = tf2_ros.TransformListener(buffer)\", whose subscriber is \"rospy.Subscriber(\\\"/tf\\\", TFMessage, self.callback)\" (tf2_ros/src/tf2_ros/transform_listener.py line 52); the reporter's evidence is the view_frames graph in which only the last transform of each burst appears. The two nodes interact only through the /tf topic, so they are separate units although both link tf2_ros. Step 2: the loss is a property of the interaction (the provider's outgoing queue depth versus the burst the consumer needs to receive), not of either unit's own logic; the C++ broadcaster with the same consumer works (\"This bug does not happen in the tf2 cpp implementation neither in tf.\"). Steps 3-5 do not apply: the fix edits the publisher declaration (queue depth), not names, build, or firmware. Interface kind: topic."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: tf2_msgs/TFMessage messages published by the tf2_ros Python TransformBroadcaster on /tf are the input of the view_frames listener. Both units are at the same repository snapshot (1bbf9108, both 0.5.8), so no UPGRADE; the reporter's alternative with a sleep between sends is a timing variation of the same pairing, not a SWITCH."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"only the last one is received by the tf core\" with the attached view_frames image showing the missing frames (https://github.com/ros/geometry2/issues/89); the maintainer names the mismatch (queue of 100 in C++ versus 1 in Python, https://github.com/ros/geometry2/issues/89#issuecomment-83259331)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf2_ros",
+      "role": "provider",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "1bbf910815aa83f7476cd4c8d6370f3a1feec643",
+      "resolved_rev": "ede2646d463c8ae1bbbf2460941df2b07d39824e",
+      "pinned": true,
+      "revision_basis": "Broken: 1bbf9108, the base of the fixing PR #90 on indigo-devel and first parent of the merge commit, where tf2_ros/src/tf2_ros/transform_broadcaster.py line 44 reads \"queue_size=1\" (tf2_ros/package.xml <version>0.5.8</version>). The reporter states only that they were \"porting ... to indigo\" and does not name a release; this is the head of indigo-devel two days after the report. Resolved: ede2646d, the merge commit of PR #90 (\"same queue size of transform boradcaster in c++ and Python\", sole PR commit 411d5c52), which sets queue_size=100.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "tf2_tools",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "1bbf910815aa83f7476cd4c8d6370f3a1feec643",
+      "resolved_rev": "1bbf910815aa83f7476cd4c8d6370f3a1feec643",
+      "pinned": true,
+      "revision_basis": "Same indigo-devel snapshot as the provider (tf2_tools/package.xml <version>0.5.8</version> at 1bbf9108); the view_frames script and the tf2_ros TransformListener it uses are not touched by PR #90, so the unit keeps its broken revision in the resolved composition.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "topic:/tf", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}},
+    {"element": "msg:tf2_msgs/TFMessage", "sides": {"tf2_ros": "provides", "tf2_tools": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["topic:/tf"],
+      "quote": "It looks like the c++ broadcaster as [a sending queue of 100](https://github.com/ros/geometry_experimental/blob/indigo-devel/tf2_ros/src/transform_broadcaster.cpp#L42)\nwhile the python implementation has [a send queue of 1](https://github.com/ros/geometry_experimental/blob/indigo-devel/tf2_ros/src/tf2_ros/transform_broadcaster.py#L44)\n\nThe python should be made to match the c++ as this is causing a problem. It's a magic number and should probably be parameterized but just making them match would be better. ",
+      "url": "https://github.com/ros/geometry2/issues/89#issuecomment-83259331"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The loss is observed only as missing frames in the consumer's view_frames graph, with no diagnostic from ROS tooling: \"only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.\" (https://github.com/ros/geometry2/issues/89). In ROS 1 a publisher whose outgoing queue is full drops messages without a connection-time or run-time warning.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Provider-side change in tf2_ros/src/tf2_ros/transform_broadcaster.py: \"-        self.pub_tf = rospy.Publisher(\\\"/tf\\\", TFMessage, queue_size=1)\" / \"+        self.pub_tf = rospy.Publisher(\\\"/tf\\\", TFMessage, queue_size=100)\", matching the C++ broadcaster's \"publisher_ = node_.advertise<tf2_msgs::TFMessage>(\\\"/tf\\\", 100);\" (PR #90, merged as ede2646d).",
+    "status": "recommended",
+    "evidence": "The PR author states \"Fixed with queue_size 100 in pull request #90.\" (https://github.com/ros/geometry2/issues/89#issuecomment-83945648) and the maintainer closed the issue with \"Fixed in #90\" (https://github.com/ros/geometry2/issues/89#issuecomment-84090881); neither the reporter nor the source shows the reproducer re-run against the merged revision, so the status is recommended."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Failed-condition class: the defect is the provider's outgoing message queue depth (rospy Publisher queue_size=1 keeps only the newest message when several are enqueued before the publishing thread sends them), a history/queue-depth property with no dedicated class in the schema; rate_shortfall (delivered rate below the sent rate) and the QoS classes are the nearest named ones but none is exact, so it is recorded as other. The dataset summary frames the bug as API inconsistency between the C++ and Python TransformBroadcaster; the primary source frames it as message loss on /tf caused by the Python queue size, and the fix aligns the two. The reporter's reproducer script (node tf2_timing_test, quoted in full in the issue) is the process hosting the provider's publisher; it is not modelled as a separate unit because its only interface declaration on /tf is the tf2_ros library line the fix changes. The reporter also observed that inserting rospy.sleep(0.01) between sends avoids the loss and that using two TransformBroadcaster objects does not. The consumer's subscriber is declared inside tf2_ros (TransformListener) but runs in the tf2_tools view_frames node; the reporter's real consumer (the camera_pose_calibration port) is not shown. The C++ broadcaster (transform_broadcaster.cpp line 42, queue 100) forms a working composition with the same consumer and is the reference the fix copies; tfoote also suggests the value should be parameterised, which PR #90 did not do."
+}

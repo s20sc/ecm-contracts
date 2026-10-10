@@ -1,0 +1,65 @@
+{
+  "task_id": "u0041",
+  "package": "rviz",
+  "manifest_version": "1.11.14",
+  "ports": [
+    {
+      "element": "param:/robot_description",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "param:robot_description"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3",
+    "ports[0].element": "snapshot:src/rviz/default_plugin/robot_model_display.cpp:145 (update_nh_.getParam( robot_description_property_->getStdString(), content ); searchParam fallback at :148; content parsed as URDF at :177-186); same pattern in snapshot:src/rviz/default_plugin/effort_display.cpp:172-174",
+    "ports[1].element": "snapshot:src/rviz/robot/robot_link.cpp:581 (std::string model_name = mesh.filename;) and :585 (loadMeshFromResource(model_name);); .stl dispatch at snapshot:src/rviz/mesh_loader.cpp:696; resource fetched via resource_retriever::Retriever::get at snapshot:src/rviz/mesh_loader.cpp:702; parsed by ogre_tools::STLLoader snapshot:src/rviz/ogre_helpers/stl_loader.cpp:92-156",
+    "ports[2].element": "snapshot:src/rviz/robot/robot_link.cpp:581 and :585; snapshot:src/rviz/mesh_loader.cpp:696; snapshot:src/rviz/ogre_helpers/stl_loader.cpp:92-156",
+    "references[param:robot_description]": "snapshot:src/rviz/default_plugin/robot_model_display.cpp:82 (new StringProperty( \"Robot Description\", \"robot_description\", \"Name of the parameter to search for to load the robot description.\", ...)); also snapshot:src/rviz/default_plugin/effort_display.cpp:107",
+    "perm_requires": "searched snapshot for sros/permission/security: only BSD license boilerplate and a NodeHandle doc link (mainpage.dox:81); no permission declarations in code or configuration",
+    "perm_grants": "same search as perm_requires; none found",
+    "recovery": "snapshot:src/rviz/default_plugin/robot_model_display.cpp:150-158 (missing parameter -> clear() and error status, no retry); snapshot:src/rviz/robot/robot_link.cpp:587-594 (mesh load failure -> ROS_ERROR, link has no entity); no declared recovery policy found"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "rviz 1.11.14 routes .stl/.STL/.stlb/.STLB meshes to its own binary-only STLLoader, which refuses any file that starts with 'solid' and contains 'endsolid' (ASCII STL) and rejects binary files shorter than the header's triangle count implies (stl_loader.cpp:97-144); whether the two motoman meshes trip either check depends on the mesh files, which are not in this workspace. The robot_description consumption itself looks ordinary."
+  },
+  "confidence": "medium",
+  "notes": "No packet element is provided by rviz, so declares and not_declared are empty. The robot description parameter is named in code only as the relative default 'robot_description' of the user-editable 'Robot Description' property (RobotModel and Effort displays); it is read with update_nh_ (a default ros::NodeHandle, display.h:261), so it resolves to /robot_description when rviz runs in the root namespace, and otherwise searchParam() walks up the namespaces; recorded verbatim as param:robot_description. The value is read as std::string and parsed as URDF XML (TiXml + urdf::Model::initXml). The two mesh resources are not named anywhere in the snapshot: their package:// URIs arrive at run time as urdf::Mesh::filename inside the robot description, so they are in neither references nor not_declared; package:// resolution is delegated to resource_retriever (not in the snapshot). Frame: link geometry is attached to scene nodes positioned from TF using the URDF link names plus the optional 'TF Prefix' property (default \"\"), all determined at run time, so frame is null for all three ports. Units: the STL path applies no unit conversion (getMeshUnitRescale at mesh_loader.cpp:573 applies only to the assimp/Collada path); vertices are scaled only by the URDF mesh scale (robot_link.cpp:579), so no units are stated and units are null. ROS 1, so QoS is null; no message types are involved, so no dependency definitions were fetched and definition_id is null. STLLoader behaviour at this revision: files beginning 'solid' and containing 'endsolid' are rejected with an error; 'solid' without 'endsolid' draws a warning and is parsed as binary; fewer bytes than 84 + 50*num_triangles is an error, more is a warning. No exclusive resources are claimed."
+}

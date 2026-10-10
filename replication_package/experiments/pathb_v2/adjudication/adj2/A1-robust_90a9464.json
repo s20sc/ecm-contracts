@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_90a9464",
+  "kind": "A1",
+  "case_id": "robust_90a9464",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "unknown macro name: xacro:motoman_sda10f",
+    "url": "https://github.com/ros-industrial/motoman/issues/166"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "unknown macro name: xacro:motoman_sda10f (a loud diagnostic from the xacro processor during roslaunch-check exists in the Travis log quoted in issue #166; loudness null in the spec conforms to the ineligible-case schema)",
+    "url": "https://github.com/ros-industrial/motoman/issues/166"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Subject: [PATCH] Fixed issue #166, added tests to ensure it is fixed (null resolution status conforms to the ineligible-case schema; the fix commit exists but the spec records no resolved composition)"
+  },
+  "notes": "Independently verified: issue #166 (gavanderhoorn, 2017-04-05, 'sda10f: incorrect macro usage in top-level xacro') body quotes the Travis roslaunch-check log with 'unknown macro name: xacro:motoman_sda10f' and the diagnosis 'sda10f.xacro is trying to instantiate a macro called motoman_sda10f, but that doesn't exist'; its comment adds 'The macro is actually called sda10f'. PR #164 comments (read via gh api) contain verbatim 'BTW, I did verify that this is not an issue in Indigo.  Apparently xacro naming was not a checked as closely?' and \"I'm not sure why this is suddenly a problem. That file (`sda10f.xacro`) hasn't changed since it was originally committed.\". Code at the fix's parent ab90e745d3b0a691f137dc0c6c9f9f8804d9a73d (confirmed as parent via commits API): sda10f.xacro contains '<xacro:include filename=\"$(find motoman_sda10f_support)/urdf/sda10f_macro.xacro\" />' followed by '<xacro:motoman_sda10f prefix=\"\"/>'; sda10f_macro.xacro opens '<robot xmlns:xacro=\"http://ros.org/wiki/xacro\"' 'name=\"sda10f\">' and a grep of the whole file finds NO xacro:macro definition of any name (both files read from raw.githubusercontent.com). Fix 90a9464 (2017-04-10) edits only files under motoman_sda10f_support (test/launch_test.xml, test/sda10f_test.xacro, urdf/arm_macro.xacro, urdf/common_torso_macro.xacro, urdf/sda10f_macro.xacro — file list read from the patch) and adds '+     <xacro:macro name=\"motoman_sda10f\" params=\"prefix\">' plus the compatibility macro '+     <xacro:macro name=\"sda10f\">'. E2 walk: the top-level xacro and its macro file ship in one package and are not separately deployable (one unit by the tree's 'a node and its own launch file are one unit' analogy); the name mismatch is entirely inside that unit; any correct xacro processor rejects an undefined macro (the Indigo leniency shaun-edwards reports was weaker checking, not a different interface). Stop at step 2, internal: agree."
+}

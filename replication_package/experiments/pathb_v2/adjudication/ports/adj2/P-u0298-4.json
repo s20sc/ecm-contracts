@@ -1,0 +1,11 @@
+{"item_id": "P-u0298-4", "kind": "P", "task_id": "u0298", "element": "topic:/camera/image", "side": "consumes",
+ "values": [{"field": "msg_type", "recorded": "sensor_msgs/msg/Image", "verdict": "verified",
+   "source_excerpt": "std::function<void(const sensor_msgs::msg::Image::ConstSharedPtr & msg)> fcn =\nclass RawSubscriber : public SimpleSubscriberPlugin<sensor_msgs::msg::Image>",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "per_message", "verdict": "verified",
+   "source_excerpt": "void internalCallback(\n    const std::shared_ptr<const sensor_msgs::msg::Image> & message,\n    const Callback & user_cb) override\n  {\n    user_cb(message);\n  }",
+   "qos_basis": null},
+  {"field": "definition_id", "recorded": {"algorithm": "sha256_normalised", "kind": "msg", "value": "267cbd7aaf66b2a1493535ac6bb9e37f14244b8e8f9772b92e2f682faf72ba85"}, "verdict": "unverifiable",
+   "source_excerpt": "",
+   "qos_basis": null}],
+ "notes": "Opened s2_work/tasks/u0298/snapshot/image_transport/test/test_qos_override.cpp line 109 and image_transport/include/image_transport/raw_subscriber.hpp lines 44-72. msg_type: both cited lines state sensor_msgs::msg::Image (canonical sensor_msgs/msg/Image); getTopicToSubscribe at lines 67-70 returns base_topic as the provenance claims. frame: cited line 64 'user_cb(message);' passes each received Image unchanged to the user callback, and the plugin interface (lines 49-71) contains no frame parameter or hard-coded frame — the frame travels with each message, supporting per_message; the provenance's added clause citing sensor_msgs/msg/Image.msg lines 4-5 at ros2/common_interfaces (rolling) is a non-snapshot reference I could not open offline, and no Image.msg exists anywhere under the u0298 snapshot (find returned nothing). definition_id: the provenance is a definition_hash.py sha256 command whose operand is a raw.githubusercontent.com URL fetched 2026-09-27, not a file in the snapshot; the run-and-compare exception applies only to snapshot files, so the hash 267cbd7a... cannot be checked and the value is unverifiable; nothing was run (the algorithm label sha256_normalised does match definition_hash.py's sha256-mode output label, but the value itself is untested)."}

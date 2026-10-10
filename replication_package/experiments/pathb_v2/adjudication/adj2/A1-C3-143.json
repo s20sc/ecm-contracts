@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-143",
+  "kind": "A1",
+  "case_id": "C3-143",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create(name, \"rviz_rendering\");",
+    "url": "https://raw.githubusercontent.com/ros2/rviz/8.2.6/rviz_rendering/src/rviz_rendering/material_manager.cpp (line 77, read this session)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Fixes a bug causing RViz to print a ton of error messages about material not existing in the `General` resource group when adding a mesh to the planning scene",
+      "url": "https://github.com/moveit/moveit2/pull/672 (PR body, read this session via API)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rviz2-4] [ERROR] [1649066982.936072797] [rviz2]: Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?",
+    "url": "https://github.com/moveit/moveit2/issues/1164 (issue body, read this session)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I found the changes in #672 at two positions. So I changed the code at branch foxy manually. It works! Thank you very much!"
+  },
+  "notes": "Independently verified: (1) E1 — issue 1164 body contains the reproducer code (shapes::createMeshFromResource / processCollisionObjectMsg) and the per-mesh error log, environment 'ROS install: apt' / 'moveit2 install: source build, branch foxy'; JafarAbdi's comment points to PR 672. (2) E2 stop 6 — provider side read at rviz 8.2.6: shape.cpp L107-108 'material_name_ = entity_name + \"Material\";' / 'material_ = MaterialManager::createMaterialWithLighting(material_name_);' and material_manager.cpp L77 creating in group \"rviz_rendering\"; consumer side read at moveit2 517c34fb mesh_shape.cpp L77 'manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST);' and L129 'entity_->setMaterialName(material_name_);' — the unqualified name resolves in Ogre's default group 'General', so the failing reference crosses the unit boundary and a peer passing the group would work; the fix edits consumer code, not deployment names, build files, or firmware. Interface kind library API. (3) fa983f73 verified via API: parent 517c34fb, touches only mesh_shape.cpp, patch is exactly the two lines adding the \"rviz_rendering\" group argument (matches the reporter's hand-applied change). (4) Class 'other' is the honest choice: the name string matches; what differs is the resource-group qualifier under which the provider registers it; no canonical class covers a namespace/group-scope mismatch, and the spec itself names representation_convention as the alternative — I agree with keeping 'other'. (5) Loudness: Ogre's resource lookup is existing tooling refusing the assignment and naming the cause ('does not exist in group General'), the same genre as the enumerated resource-manager claim refusals; the S1 rule that runtime-enforced refusals are loud_documented supports this; detection at run (each mesh added). (6) Resolution observed: the reporter's foxy state (report 2022-04-04, foxy head 517c34fb 2022-04-01, next foxy commit fa983f73 2022-04-06) plus the hand-applied two lines equals fa983f73 content with apt rviz; 'It works!' shows the resolved composition working; both revisions identified (rviz 8.2.6 inferred from Foxy apt + date is reasonable). Caveat: the reporter applied the diff manually rather than checking out fa983f73, and the spec correctly excludes the earlier failed attempt at main commit 5099f700."
+}

@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-B-Ver-02-broken-M2-22aac3cde2",
+ "kind": "A2",
+ "case_id": "B-Ver-02",
+ "composition": "broken",
+ "method_label": "M2",
+ "rule": "di_definition_mismatch",
+ "values": [
+  {
+   "path": "producer.outputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "[re-ran the cited command this session] $ python3 definition_hash.py ros1 franka_msgs/FrankaState s2_work/tasks/u0242/snapshot <std_msgs/Header from ros-gbp kinetic std_msgs 0.5.11-0> -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"7782ef1d208d3efc42f6a4cc3c41c065\"}; producer port read at s2_work/tasks/u0242/snapshot/franka_control/include/franka_control/franka_state_controller.h:62: 'realtime_tools::RealtimePublisher<franka_msgs::FrankaState> publisher_franka_states_;'"
+  },
+  {
+   "path": "consumer.inputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "[re-ran the cited command this session] $ python3 definition_hash.py ros1 franka_msgs/FrankaState s2_work/tasks/u0241/snapshot <std_msgs/Header from ros/std_msgs@0.5.11> -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"ed28b9cbecdc83fa7d31efb59f1ce010\"}; consumer side corroborated at s2_work/tasks/u0239/artifact.txt:7: 'Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState]'"
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Broken pair_view on topic:/franka_state_controller/franka_states: producer=u0242 (running provider, publishes FrankaState at 30 Hz per snapshot:franka_control/config/default_controllers.yaml:30 'publish_rate: 30  # [Hz]'), consumer=u0239 (MoveRobot) with built=u0241 (0.6.0). This is the spec's UPGRADE composition (subscriber compiled against the 0.6.0-era definition, publisher running the unreleased one); the two ports are joined on the identical topic role and the two md5s match the two hashes in the quoted ROS Answers error (ed28b9cb... requested, 7782ef1d... served)."
+ },
+ "notes": "Hashes reproduce exactly; swapping the two cited Header dependency sources (ros/std_msgs 0.5.11 vs ros-gbp kinetic 0.5.11-0) leaves both results unchanged. The definition difference behind the hashes was read directly: u0242 FrankaState.msg adds the ROBOT_MODE constants and 'uint8 robot_mode' absent from u0241's 35-line file."
+}

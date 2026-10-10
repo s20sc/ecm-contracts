@@ -1,0 +1,107 @@
+{
+  "task_id": "u0373",
+  "package": "rclcpp",
+  "manifest_version": "24.0.0",
+  "ports": [
+    {
+      "element": "api:rclcpp::Node::create_publisher",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Node::create_subscription",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::NodeOptions::use_intra_process_comms",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::SystemDefaultsQoS",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rclcpp::Node::create_publisher": "api rclcpp::Node::create_publisher: template< typename MessageT, typename AllocatorT = std::allocator<void>, typename PublisherT = rclcpp::Publisher<MessageT, AllocatorT>> std::shared_ptr<PublisherT> create_publisher( const std::string & topic_name, const rclcpp::QoS & qos, const PublisherOptionsWithAllocator<AllocatorT> & options = PublisherOptionsWithAllocator<AllocatorT>() );",
+    "api:rclcpp::Node::create_subscription": "api rclcpp::Node::create_subscription: template< typename MessageT, typename CallbackT, typename AllocatorT = std::allocator<void>, typename SubscriptionT = rclcpp::Subscription<MessageT, AllocatorT>, typename MessageMemoryStrategyT = typename SubscriptionT::MessageMemoryStrategyType > std::shared_ptr<SubscriptionT> create_subscription( const std::string & topic_name, const rclcpp::QoS & qos, CallbackT && callback, const SubscriptionOptionsWithAllocator<AllocatorT> & options = SubscriptionOptionsWithAllocator<AllocatorT>(), typename MessageMemoryStrategyT::SharedPtr msg_mem_strat = ( MessageMemoryStrategyT::create_default() ) );",
+    "api:rclcpp::NodeOptions::use_intra_process_comms": "api rclcpp::NodeOptions::use_intra_process_comms: RCLCPP_PUBLIC bool use_intra_process_comms() const; RCLCPP_PUBLIC NodeOptions & use_intra_process_comms(bool use_intra_process_comms);",
+    "api:rclcpp::SystemDefaultsQoS": "api rclcpp::SystemDefaultsQoS: class RCLCPP_PUBLIC SystemDefaultsQoS : public QoS { public: explicit SystemDefaultsQoS( const QoSInitialization & qos_initialization = ( QoSInitialization::from_rmw(rmw_qos_profile_system_default) )); };"
+  },
+  "not_declared": [],
+  "references": [
+    "api:rmw_qos_profile_system_default"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "declares[api:rclcpp::Node::create_publisher]": "snapshot:rclcpp/include/rclcpp/node.hpp:191 (declaration lines 191-201, inside class Node at node.hpp:78, namespace rclcpp at node.hpp:74; definition node_impl.hpp:73)",
+    "declares[api:rclcpp::Node::create_subscription]": "snapshot:rclcpp/include/rclcpp/node.hpp:212 (declaration lines 212-229, inside class Node at node.hpp:78; definition node_impl.hpp:92)",
+    "declares[api:rclcpp::NodeOptions::use_intra_process_comms]": "snapshot:rclcpp/include/rclcpp/node_options.hpp:183 (getter lines 183-185) and snapshot:rclcpp/include/rclcpp/node_options.hpp:197 (setter lines 197-199), inside class NodeOptions at node_options.hpp:35; definitions src/rclcpp/node_options.cpp:213 and :219",
+    "declares[api:rclcpp::SystemDefaultsQoS]": "snapshot:rclcpp/include/rclcpp/qos.hpp:494 (class lines 494-502, namespace rclcpp at qos.hpp:28); constructor definition src/rclcpp/qos.cpp:413",
+    "references[api:rmw_qos_profile_system_default]": "snapshot:rclcpp/include/rclcpp/qos.hpp:500 (header rmw/qos_profiles.h included at qos.hpp:25); also snapshot:rclcpp/src/rclcpp/qos.cpp:414",
+    "perm_requires.state": "searched snapshot/rclcpp/include, snapshot/rclcpp/src, snapshot/rclcpp/package.xml, snapshot/rclcpp/CMakeLists.txt (case-insensitive) for permission|enclave|security: only Apache license header lines match",
+    "perm_grants.state": "searched snapshot/rclcpp/include, snapshot/rclcpp/src, snapshot/rclcpp/package.xml, snapshot/rclcpp/CMakeLists.txt (case-insensitive) for permission|enclave|security: only Apache license header lines match",
+    "recovery.state": "searched snapshot/rclcpp/include and snapshot/rclcpp/src (case-insensitive) for recover: no matches"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "With intra-process enabled, the publisher validates the requested QoS (publisher.hpp:166-177) while the subscription validates the middleware-resolved actual QoS (subscription.hpp:157-169); SystemDefaultsQoS maps system-default history to KeepLast depth 0 (qos.cpp:69) and system-default durability, so Node::create_publisher with SystemDefaultsQoS and use_intra_process_comms(true) appears to throw where the matching create_subscription would not."
+  },
+  "confidence": "high",
+  "notes": "All four packet elements are C++ API symbols provided by rclcpp and all are declared at this revision. Ports carry no message type, frame, units, rate or definition_id because the elements are API symbols, not topics or message definitions (create_publisher/create_subscription are templated on MessageT, chosen by the caller). QoS: create_publisher and create_subscription take qos as a required parameter with no default in the declaration (node.hpp:198, :222), so the value is supplied by the caller at run time and is recorded null. SystemDefaultsQoS is documented as History/Depth/Reliability/Durability/Liveliness = System default and Deadline/Lifespan = Default (qos.hpp:482-493); these are delegated to the middleware via rmw_qos_profile_system_default and are not representable as reliable/best_effort or volatile/transient_local, so recorded null. rmw_qos_profile_system_default is defined in an rmw C header, not a .msg/.srv/.action/.idl definition file, so it was not fetched. use_intra_process_comms defaults to false (node_options.hpp:47, :430) and is passed to NodeBase in Node::Node (node.cpp:184); per-endpoint PublisherOptions/SubscriptionOptions default use_intra_process_comm to IntraProcessSetting::NodeDefault (publisher_options.hpp:41, subscription_options.hpp:59). The declares entry for use_intra_process_comms joins the getter and setter overload declarations with a single space; the SystemDefaultsQoS entry is the whole class declaration (lines 494-502), whitespace collapsed. No exclusive resource claims found (only callback-group 'MutuallyExclusive' scheduling types, which are not resource claims). references lists only the other-package symbol named inside the declarations of the packet elements. The snapshot also contains rclcpp_action, rclcpp_components and rclcpp_lifecycle, which were not described."
+}

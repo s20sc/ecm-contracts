@@ -1,0 +1,38 @@
+{
+ "item_id": "A1-CAL-02",
+ "kind": "A1",
+ "case_id": "CAL-02",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "problem confirmed, changing system time causes this issue. (cyclonedds has the same problem)",
+  "url": "https://github.com/ros2/ros2/issues/1080"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "disagree",
+   "proposed_elements": ["api:rmw_wait"],
+   "quote": "When you call `rcl_wait()`, the timeout passed to `rmw_wait()` is calculated [like](https://github.com/ros2/rcl/blob/c83119c826c75fbaf6e741658927a953318832ad/rcl/src/rcl/wait.c#L546-L582):\n\n`min(rcl_wait_timeout, minimal_timeout_to_next_timer_trigger)`\n\nbut the timer might be using a different clock that the one `rmw_wait()` uses ....",
+   "url": "https://github.com/ros2/ros2/issues/1080"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": "run",
+  "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+  "url": "https://github.com/ros2/ros2/issues/1080"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I have confirmed that the bug is fixed in the following environments.\n\n- Ubuntu22.04\n- rolling\n- rmw_fastrtps_cpp\n- (docker ros2:nightly [DIGEST:9c3250e5675f])",
+  "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-1122131046"
+ },
+ "notes": "Verified via gh api: issue body (reproducer with `sudo date -s` and the 5 s stall), fujitatomoya's confirmation, ivanpauno's full timeout-calculation comment, Barry-Xu-2018's gcc-10 FUTEX_CLOCK_REALTIME finding, jwakely's pthreads analysis, the fix-confirmation comment, and the rmw PR #316 diff changing rmw.h from 'Elapsed time is measured against the system clock.' to 'Elapsed time should be measured using a monotonic clock, though rmw implementations could use a different one.' Class 'other' is right: the condition is the clock base of the timeout duration crossing rcl -> rmw_wait, which no listed class names. Elements verdict disagree: the quoted condition is about the timeout argument of rmw_wait, so the implicated element is api:rmw_wait, not api:rmw_create_wait_set (the wait set is created without any timeout or clock involvement). Resolution 'recommended' is correct: the reporter's confirmation names no git revision of either unit (docker digest only), and rmw_fastrtps itself was never edited."
+}

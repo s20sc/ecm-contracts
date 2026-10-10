@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_eab0d3c",
+  "kind": "A1",
+  "case_id": "robust_eab0d3c",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "It is definitely an issue in the modified code of `TransportTCP::connect()`.",
+    "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11396370"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "I am currently looking at the code. It is definitely an issue in the modified code of `TransportTCP::connect()`.\n\nA simple scenario to reproduce is:\n- three shells A, B and C\n- A and B which normal ROS groovy environment\n- C with ROS_IP set to the ip of the machine\n- A: `roscore`\n- C: `rosrun ros(cpp|py)_tutorials talker`\n- B: `rosrun roscpp_tutorials listener`\n\nB is not receiving any messages from C.",
+      "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11396370"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "With the roscpp nodes running in this setup, rosnode info /talker doesn't show any outgoing connections, but rosnode info /listener indicates that it's connected.",
+    "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11361752"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "fix tcp connection when host is an ip (fix #35)"
+  },
+  "notes": "roscpp subscriber fails to establish TCP connection when publisher endpoint is an IP address literal due to inet_pton buffer overwrite."
+}

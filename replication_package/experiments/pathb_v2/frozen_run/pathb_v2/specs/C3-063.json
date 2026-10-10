@@ -1,0 +1,120 @@
+{
+  "case_id": "C3-063",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/vision_opencv/issues/524",
+    "https://github.com/ros-perception/vision_opencv/pull/526",
+    "https://github.com/ros-perception/vision_opencv/pull/527",
+    "https://github.com/ros-perception/image_pipeline/issues/572"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #524 names the call site (cameramodels.py mkmat/PinholeCameraModel members built as numpy.matrix, linked at commit 8b42d66f) and the effect (\"image_geometry/cameramodels.py uses deprecated `numpy.matrix` subclass causing runtime `PendingDeprecationWarning`.\"); PR #526 shows the warning in a test run (\"image_geometry/test/directed.py: 425 warnings\" followed by the numpy matrix warning); the maintainer accepts the fix plan (\"Everything in general looks good, strategies for preventing API breakage are good too.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "image_geometry",
+        "numpy"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the image_geometry Python library (vision_opencv) and the numpy library, separately released. Step 2: the effect depends on the provider revision: numpy's matrix.__new__ gained `warnings.warn('the matrix subclass is not the recommended way to ' ... PendingDeprecationWarning, stacklevel=2)` at v1.15.0 (absent at v1.14.6), so image_geometry's unchanged `numpy.matrix(L, dtype='float64')` warns only with newer numpy. Steps 3-5: the resolving change rewrites image_geometry's use of the numpy API; not wiring, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: image_geometry still constructs numpy.matrix as it could without warning before numpy's pending deprecation, while running against a numpy that deprecates the subclass."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed warning while the composition keeps working (PR #526: \"2 passed, 425 warnings in 0.45s\")."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "image_geometry",
+      "role": "consumer",
+      "repo": "https://github.com/ros-perception/vision_opencv",
+      "broken_rev": "8b42d66f4946f4204387b30aabc8c2921e5d9f47",
+      "resolved_rev": "4.1.0",
+      "pinned": true,
+      "revision_basis": "Issue #524 (2024-03-23) links cameramodels.py at 8b42d66f4946f4204387b30aabc8c2921e5d9f47, which was also the rolling head on that date. The fix is PR #527 (merge 25b733e27ab11e6e92fd217152d77a86ac91c3c1, 2024-04-18); the reporter names the release carrying it (\"the updated image_geometry 4.1.0 package\"), and tag 4.1.0 (f5b738d9694f0cee5904440d03912fc249943f8a) contains the merge.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "numpy",
+      "role": "provider",
+      "repo": "https://github.com/numpy/numpy",
+      "broken_rev": "v1.21.5",
+      "resolved_rev": "v1.21.5",
+      "pinned": false,
+      "revision_basis": "The numpy version is not stated. Bounds: the quoted warning text is emitted by numpy/matrixlib/defmatrix.py from v1.15.0 on (checked identical at v1.15.0, v1.21.5, v2.0.0; absent at v1.14.6), so the provider is at or after v1.15.0. The reporter's test run in PR #526 shows \"platform linux -- Python 3.10.12\", the Ubuntu 22.04 Python used by rolling at the time; v1.21.5 (Ubuntu 22.04's python3-numpy) is inferred on that basis and could differ for a pip-installed numpy. image_geometry's package.xml at the broken revision declares no numpy dependency. The resolution does not change numpy.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "v1.14.6",
+    "resolved": "v1.21.5",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {
+      "element": "api:numpy.matrix",
+      "sides": {
+        "numpy": "provides",
+        "image_geometry": "consumes"
+      }
+    },
+    {
+      "element": "api:numpy.matrix.resize",
+      "sides": {
+        "numpy": "provides",
+        "image_geometry": "consumes"
+      }
+    },
+    {
+      "element": "api:numpy.ndarray",
+      "sides": {
+        "numpy": "provides",
+        "image_geometry": "consumes"
+      }
+    },
+    {
+      "element": "api:numpy.zeros",
+      "sides": {
+        "numpy": "provides",
+        "image_geometry": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": [
+        "api:numpy.matrix"
+      ],
+      "quote": "image_geometry/cameramodels.py uses deprecated `numpy.matrix` subclass causing runtime `PendingDeprecationWarning`.",
+      "url": "https://github.com/ros-perception/vision_opencv/issues/524"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "numpy's own deprecation diagnostic, shown in the PR #526 test run: \"Warning: the matrix subclass is not the recommended way to represent matrices or deal with linear algebra (see https://docs.scipy.org/doc/numpy/user/numpy-for-matlab-users.html). Please adjust your code to use regular ndarray.\" (https://github.com/ros-perception/vision_opencv/pull/526). It is raised at run time when the matrix is constructed (issue #524: \"This will cause the warning during initialization every time the public API members below are called\").",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "image_geometry stops constructing numpy.matrix in its supported API: mkmat builds numpy.ndarray (np.array), new snake_case methods return ndarray, and the old camelCase methods and K/D/R/P/full_K/full_P properties are kept as @deprecated wrappers that still return numpy.matrix (PR #527, released in image_geometry 4.1.0).",
+    "status": "recommended",
+    "evidence": "The contributor reports the warning gone after the fix (\"The original issue has been fixed with https://github.com/ros-perception/vision_opencv/pull/527.\" on image_pipeline #572, with a camera_calibration test log that no longer lists the matrix warning), but the numpy revision of that run is not given."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class element_retyped is used for a deprecation: numpy.matrix's declaration changed (its constructor now warns) while the element is still present. consumer_built_against.broken v1.14.6 is the last numpy tag before the warning was added (inferred from the consumer's unconditional use of numpy.matrix); consumer_built_against.resolved is the provider revision the fixed consumer ran against (same inference as numpy's broken_rev). The deprecated wrappers kept in 4.1.0 still call numpy.matrix, so callers of the deprecated API still get numpy's warning. Other compositions touched by these sources: (1) downstream image_pipeline camera_calibration tests, where the warning was first seen (image_pipeline #572, on foxy) and which after the fix get image_geometry's own deprecation warnings (\"Call to deprecated method fromCameraInfo. ...\"); (2) PR #526 fixed image_geometry's directed.py test, which used ROS 1 CameraInfo field names against ROS 2 sensor_msgs (\"AttributeError: 'CameraInfo' object has no attribute 'D'\") and had been disabled since the ROS 2 port."
+}

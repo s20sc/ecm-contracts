@@ -1,0 +1,46 @@
+{
+  "case_id": "robust_1f01916",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/72",
+    "https://github.com/mavlink/mavros/commit/1f019166ccedf8ce5151944f5e33302afaf82679"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #72 gives the reproducing command chain (uvc_camera -> gcs_image_bridge over ROS, gcs_image_bridge -> mavros over MAVLink tcp-l/tcp) and the symptom \"Connection done, but no data transfers until mavros sends some data (e.g. mavsafety arm). After that it works some time and hangs again.\"; the maintainer (vooon, the reporter) fixes it, and commit 1f01916 \"mavconn: Fix TCP server client deletion.\" references \"Issue #72.\""
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["mavros_extras gcs_image_bridge (mavconn tcp-l server)", "mavros mavros_node (mavconn tcp client)"],
+      "interface_kind": null,
+      "evidence": "Both endpoints in the reported chain use the same mavconn library, and the hang reproduced with every transport (\"I also tried this with UDP ... and serial ... and it breaks with same symptoms.\") while the older library did not hang (\"Checked 0.6, it works fine. While same test with newer library hangs.\"). The defect is in mavconn's own I/O implementation, which the maintainer replaced (\"I decide return to ASIO.\"). The listed fix 1f01916 changes only MAVConnTCPServer::client_closed and the signal binding in async_accept_end (a shared_ptr bound into the client's own port_closed signal replaced by a weak_ptr), i.e. object-lifetime handling inside the mavconn TCP server; no value, name, frame, or timing assumption between two separately deployable units is involved."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: gcs_image_bridge's MAVLink output feeds mavros_node's input over the tcp-l/tcp link."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed hang: \"no data transfers until mavros sends some data ... After that it works some time and hangs again.\"; later \"TCP-L: don't send data back!\" during the rewrite."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "The packet's description (lock not acquired before closing a client, possible deadlock or segfault) matches 1f01916 only loosely: the diff binds a weak_ptr instead of a shared_ptr into port_closed and locks the weak pointer before taking the server mutex and removing the client from client_list. Either reading places the defect inside the mavconn TCP server/client classes of one library. Issue #72 is an umbrella issue for the mavconn rewrite from libev back to Boost.ASIO; related symptoms during the rewrite (\"UDP: fails with std::system_error:  Resource deadlock avoide.\", \"pure virtual method called\", buildfarm unit-test segfault, #74) are also internal to mavconn."
+}

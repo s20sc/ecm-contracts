@@ -1,0 +1,88 @@
+{
+  "task_id": "u0254",
+  "package": "compressed_image_transport",
+  "manifest_version": "5.0.3",
+  "ports": [
+    {
+      "element": "api:rclcpp::Node::get_effective_namespace",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:camera.image_raw.compressed.format",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:camera.image_raw.compressed.jpeg_quality",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:camera.image_raw.compressed.png_level",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:camera.image_raw.compressed.format": "param camera.image_raw.compressed.format: string",
+    "param:camera.image_raw.compressed.jpeg_quality": "param camera.image_raw.compressed.jpeg_quality: int",
+    "param:camera.image_raw.compressed.png_level": "param camera.image_raw.compressed.png_level: int"
+  },
+  "not_declared": [],
+  "references": [
+    "api:rclcpp::Node::get_effective_namespace"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:compressed_image_transport/package.xml:3 | <version>5.0.3</version>",
+    "ports[0].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:144 | uint ns_len = node->get_effective_namespace().length(); (also snapshot:compressed_image_transport/src/compressed_subscriber.cpp:83, same line); node is rclcpp::Node * (compressed_publisher.cpp:134 | rclcpp::Node * node,)",
+    "ports[0].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:144-146 | the returned namespace string is used only for its length to strip the parameter base name (base_topic.substr(ns_len); '/' replaced by '.'); no spatial meaning",
+    "ports[1].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:388 | param_value = node_->declare_parameter(param_name, definition.defaultValue, definition.descriptor); with param_name built at compressed_publisher.cpp:381-382 | const std::string param_name = base_name + \".\" + transport_name + \".\" + definition.descriptor.name;",
+    "ports[1].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:68 | .set__description(\"Compression method\") (a compression-format string; no spatial meaning)",
+    "ports[2].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:388 | param_value = node_->declare_parameter(param_name, definition.defaultValue, definition.descriptor);",
+    "ports[2].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:90 | .set__description(\"Image quality for JPEG format\") (an encoder quality level; no spatial meaning)",
+    "ports[3].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:388 | param_value = node_->declare_parameter(param_name, definition.defaultValue, definition.descriptor);",
+    "ports[3].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:77 | .set__description(\"Compression level for PNG format\") (an encoder compression level; no spatial meaning)",
+    "declares[param:camera.image_raw.compressed.format]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:64-67 | ParameterValue(\"jpeg\"), ParameterDescriptor() .set__name(\"format\") .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_STRING); transport segment from snapshot:compressed_image_transport/include/compressed_image_transport/compressed_publisher.hpp:61 | return \"compressed\"; name assembled at compressed_publisher.cpp:144-149 and 381-382",
+    "declares[param:camera.image_raw.compressed.jpeg_quality]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:86-89 | ParameterValue(static_cast<int>(95)), ParameterDescriptor() .set__name(\"jpeg_quality\") .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER); integer_range 1..100 step 1 at lines 92-96; transport segment from compressed_publisher.hpp:61 | return \"compressed\";",
+    "declares[param:camera.image_raw.compressed.png_level]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:73-76 | ParameterValue(static_cast<int>(3)), ParameterDescriptor() .set__name(\"png_level\") .set__type(rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER); integer_range 0..9 step 1 at lines 79-83; transport segment from compressed_publisher.hpp:61 | return \"compressed\";",
+    "references[api:rclcpp::Node::get_effective_namespace]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:144 | uint ns_len = node->get_effective_namespace().length(); and snapshot:compressed_image_transport/src/compressed_subscriber.cpp:83 | uint ns_len = node->get_effective_namespace().length();",
+    "perm_requires": "searched snapshot/compressed_image_transport (package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/, include/, src/) for permission, SROS2/security or access-control declarations; only license-text matches of 'permission'; none declared",
+    "perm_grants": "same search as perm_requires; no granted permissions declared",
+    "recovery": "searched snapshot/compressed_image_transport for recovery/respawn/fallback declarations; none declared. Code only logs encoder errors (compressed_publisher.cpp:231-238) and on ParameterAlreadyDeclaredException reads the existing value (compressed_publisher.cpp:390-392), which is error handling, not a declared recovery policy"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The parameter base name is derived as base_topic.substr(get_effective_namespace().length()) with '/' replaced by '.' (compressed_publisher.cpp:144-146). This yields camera.image_raw.compressed.* only when the node is in the root namespace '/'. For a node in a non-root namespace such as '/ns', the separating '/' after the namespace is not removed, so the names would start with '.', and a base topic not under the node's namespace would be cut at an arbitrary character. The names of the listed parameters therefore depend on how get_effective_namespace is used, and that use looks fragile."
+  },
+  "confidence": "medium",
+  "notes": "Parameter names are partly built at run time. The package declares '<param_base_name>.compressed.<descriptor name>', where param_base_name is base_topic with its first get_effective_namespace().length() characters removed and '/' replaced by '.' (compressed_publisher.cpp:144-149, 381-382). The packet names match base topic '/camera/image_raw' published from a node whose effective namespace is '/'. The suffix 'compressed.<name>', the types, the defaults and the ranges are fixed in code, so the three params are recorded under declares with the packet names. Static values: format string, default \"jpeg\", additional_constraints 'Supported values: [jpeg, png, tiff]'; png_level PARAMETER_INTEGER, default 3, range 0..9 step 1; jpeg_quality PARAMETER_INTEGER, default 95, range 1..100 step 1 (the comment at line 85 says 0 to 100). All three have read_only false. The publisher also declares jpeg_compress_bayer (bool), tiff.res_unit (string), tiff.xdpi and tiff.ydpi (int); none of these is a packet element. The subscriber plugin makes the same get_effective_namespace call (compressed_subscriber.cpp:83-85) and declares '<base>.compressed.mode' (string, default \"unchanged\"). QoS, rate and definition_id are null for all ports because the elements are parameters and a C++ API call, not topics or message definitions. No dependency definition files were fetched and definition_hash.py was not needed. The cfg/CompressedPublisher.cfg and cfg/CompressedSubscriber.cfg files are ROS 1 dynamic_reconfigure definitions with different defaults (jpeg_quality 80 in 1..100, png_level 9 in 1..9). CMakeLists.txt does not build them (ament_cmake, no dynamic_reconfigure), so they are not taken as this revision's ROS 2 interface. The snapshot also holds the sibling packages of the image_transport_plugins repository (compressed_depth, theora, zstd). They appeared in a snapshot-wide search for the element names but are not part of this package and are not described."
+}

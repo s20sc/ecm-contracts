@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-B-Sig-01",
+  "kind": "A1",
+  "case_id": "B-Sig-01",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Client [/rostopic_11410_1596202092781] wants topic /move_group/display_planned_path to have datatype/md5sum [moveit_msgs/DisplayTrajectory/c3c039261ab9e8a11457dac56b6316c8], but our version has [moveit_msgs/DisplayTrajectory/41936b74e168ba754279ae683ce3f121]. Dropping connection.",
+    "url": "https://answers.ros.org/question/358435/",
+    "reason": "E1/E4: the topic-echo reproducer and connection rejection are concrete. E2: separately built publisher/client use different definitions of the same message, rather than merely different deployment names. E3: the report's previously-working connection and divergent installed/workspace definitions support an inferred definition UPGRADE, but do not independently pin the exact provider commit."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Client [/rostopic_11410_1596202092781] wants topic /move_group/display_planned_path to have datatype/md5sum [moveit_msgs/DisplayTrajectory/c3c039261ab9e8a11457dac56b6316c8], but our version has [moveit_msgs/DisplayTrajectory/41936b74e168ba754279ae683ce3f121]. Dropping connection.",
+      "url": "https://answers.ros.org/question/358435/",
+      "reason": "The nominal type is identical while the definition hashes differ. Both the DisplayTrajectory definition and display_planned_path topic are explicitly named. No nominal-type mismatch is documented."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "but our version has [moveit_msgs/DisplayTrajectory/41936b74e168ba754279ae683ce3f121]. Dropping connection.",
+    "url": "https://answers.ros.org/question/358435/",
+    "reason": "The ROS 1 definition-hash handshake emits an explicit diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Dropping connection.",
+    "url": "https://answers.ros.org/question/358435/",
+    "reason": "The publisher rejects the client during connection negotiation, before delivering trajectory messages."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Either you unistall that package and use only the compile version of your workspace or just do not compile it and use the one that is in ROS path.",
+    "url": "https://answers.ros.org/question/358435/",
+    "reason": "A single shared definition build is recommended but not shown working in a revision-identified composition. Overwriting a generated hash is not evidence that the definitions have been reconciled.",
+    "supporting_evidence": [
+      {
+        "quote": "That hash is there for a reason, and it's not to be changed by users.",
+        "url": "https://answers.ros.org/question/358435/"
+      }
+    ]
+  },
+  "notes": "The primary thread confirms duplicate headers with unequal hashes and a previously working interaction. The inspected 3bf6c810 patch adds geometry_msgs/Pose pose to CollisionObject, consistent with a transitive schema change; the exact mapping of both reported hashes to all candidate revisions was not recomputed in this adjudication. Thus the UPGRADE history remains inferred, not a reporter-stated version pair. No additional field-specific failure is inferred solely from that patch."
+}

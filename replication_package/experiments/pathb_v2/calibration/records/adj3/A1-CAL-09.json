@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-09",
+  "kind": "A1",
+  "case_id": "CAL-09",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "`ros2 topic echo /statistics` fails with the following error:\n\n```\nUnable to convert call argument to Python object (compile in debug mode for details)\n```",
+    "url": "https://github.com/ros2/ros2/issues/1341"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "statistics include `NaN` data in the message, when it is being converted with `rosidl_python`, it detects the following.\n\n```bash\nUnable to convert call argument to Python object (compile in debug mode for details)\n```",
+      "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1304061993"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "`ros2 topic echo /statistics` fails with the following error:\n\n```\nUnable to convert call argument to Python object (compile in debug mode for details)\n```",
+    "url": "https://github.com/ros2/ros2/issues/1341"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "using https://github.com/ros2/ros2/blob/humble/ros2.repos ... + https://github.com/ros2/rosidl_python/tree/clalancette/humble-backport-nan-fixes, it works.",
+    "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1306087432"
+  },
+  "notes": "Eligibility agreed (stop_step 6, PAIR, topic /statistics). Issue #1341 body carries the Dockerfile reproducer and the 'Unable to convert call argument to Python object' error. fujitatomoya's comment 1304061993 names NaN in StatisticDataPoint.data as the trigger. Class 'other' (a definition-legal NaN rejected by the generated setter's value-domain check) agreed. LOUDNESS ERROR: the spec records 'loud_documented' but its own evidence states 'No build, connection, or activation diagnostic is reported' and the only diagnostic is a run-time conversion error. loud_documented requires a build/connect/activate tooling diagnostic; this is a run-stage error, so the correct value is silent_documented with detection_stage run. Resolution 'recommended' agreed (fix confirmed with the demos humble branch from ros2.repos, not the reporter's rolling clone, so the specified resolved composition is not itself observed)."
+}

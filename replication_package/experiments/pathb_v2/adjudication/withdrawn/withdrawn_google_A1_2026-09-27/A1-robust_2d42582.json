@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_2d42582",
+  "kind": "A1",
+  "case_id": "robust_2d42582",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The position limits for `joint_s`, `joint_r` and `joint_t` are specified as `(-)3.1416` for the SIA20 in [sia20d_macro.xacro](https://github.com/ros-industrial/motoman/blob/e2384f02d926da5b9716fdf915783af31962138c/motoman_sia20d_support/urdf/sia20d_macro.xacro), which is incorrect",
+    "url": "https://github.com/ros-industrial/motoman/issues/102"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It would appear the values in the urdf are _rounded up_, while they should'be been either _floored_ or written out with more digits.",
+      "url": "https://github.com/ros-industrial/motoman/issues/102"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error, refusing to complete the motion.",
+    "url": "https://github.com/ros-industrial/motoman/issues/102#issuecomment-232274026"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed in 2d42582."
+  },
+  "notes": "URDF joint limits for SIA20 rounded up pi to 3.1416 causing planner to plan motions out-of-bounds for the physical controller."
+}

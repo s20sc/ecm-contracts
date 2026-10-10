@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-CAL2-04",
+ "kind": "A1",
+ "case_id": "CAL2-04",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "However that can lead to situations where when the FTS broadcaster is loaded but not yet configured and another controller is configured the controller sorting in configuring the other controller will also check the FTS broadcasterf for sorting. For this it will try to fetch all state and command interfaces which will use the [`force_torque_sensor_` object](https://github.com/ros-controls/ros2_controllers/blob/232154dab5f5363704c7f7640b2d42f5d6f3665b/force_torque_sensor_broadcaster/src/force_torque_sensor_broadcaster.cpp#L124) which unfortunately is a nullpointer before the FTS broadcaster has been configured.",
+  "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "However that can lead to situations where when the FTS broadcaster is loaded but not yet configured and another controller is configured the controller sorting in configuring the other controller will also check the FTS broadcasterf for sorting. For this it will try to fetch all state and command interfaces",
+   "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "1. Make a hardware with a JS broadcaster and an FTS broadcaster. 2. Load both controllers 3. configure the JS broadcaster 4. controller_manager will die",
+  "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+ },
+ "resolution": {
+  "verdict": "disagree",
+  "proposed": "recommended",
+  "quote": "Thank you for reporting the issue. I've addressed the above bug in the linked PR. I've tested it on my end and it works. Please test us and let us know.",
+  "url": "https://github.com/ros-controls/ros2_control/issues/1164#issuecomment-1808709963"
+ },
+ "notes": "Eligibility agreed at step 6: plugin and host framework are separate units, and the host's controller sorting calls state_interface_configuration()/command_interface_configuration() on an unconfigured plugin, violating the documented lifecycle precondition ('The method is called only in inactive or active state, i.e., on_configure has to be called first.') — a call-order contract across the boundary, class 'other', both API elements implicated. Loudness silent_documented/activate agreed: the process dies during controller configuration with no diagnostic naming the cause. Resolution: the spec records status 'none' with summary 'No resolving change is documented', but that is contradicted by the thread and by the spec's own revision_basis: maintainer saikishor addressed the bug in the linked PR the same day, PR #1165 ('Fix the controller sorting bug when the interfaces are not configured (fixes #1164)') was merged 2023-11-14 as 75e7efd1, and the spec itself names the humble backport ee1e2e1 as the resolved revision. The maintainer's 'I've tested it on my end and it works' does not identify both units by revision, so the correct status is 'recommended', not 'none' and not 'observed'."
+}

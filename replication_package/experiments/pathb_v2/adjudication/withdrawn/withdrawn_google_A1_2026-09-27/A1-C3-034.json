@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-034",
+  "kind": "A1",
+  "case_id": "C3-034",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The issue gives a complete reproducer (node source, two XML launch files, build and run commands) with expected \"[env_bug_node-1] my_env_var = '2'\" and actual \"[env_bug_node-1] my_env_var = '4'\". A maintainer confirms the cause: \"https://github.com/ros2/launch/pull/567 seems to have introduced the behavior change in Foxy.\"",
+    "url": "https://github.com/ros2/ros2/issues/1244"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "`set_env` behaviour seems to have changed. It now \"leaks\" - `set_env` now affects places that are sequentially before the tag, including overriding those that are set deeper. Now one can only override the last `set_env` with an `env` in `node`/`executable`.",
+      "url": "https://github.com/ros2/ros2/issues/1244"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "No diagnostic is shown; the node simply prints the wrong value (\"[env_bug_node-1] my_env_var = '4'\" where '2' was expected), and the reporter notes it \"is also quite difficult to debug\" (issue #1244).",
+    "url": "https://github.com/ros2/ros2/issues/1244"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Maintainer: \"The change for Foxy has been merged and will be in the upcoming patch release.\" The issue was then closed; no one reports the reporter's env_bug launch files run against launch 0.10.9 with the expected output."
+  },
+  "notes": "Adjudicated case C3-034: fully agrees with specification eligibility (E1-E4 step 6), failed conditions, loudness (silent_documented), and resolution status (recommended)."
+}

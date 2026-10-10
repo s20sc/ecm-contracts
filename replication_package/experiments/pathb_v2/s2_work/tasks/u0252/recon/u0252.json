@@ -1,0 +1,30 @@
+{
+  "task_id": "u0252",
+  "package": "rclcpp",
+  "manifest_version": "21.0.3",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rmw_event_set_callback"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "references[api:rmw_event_set_callback]": "snapshot:rclcpp/include/rclcpp/event_handler.hpp:158 (doxygen '\\sa rmw_event_set_callback' on EventHandlerBase::set_on_ready_callback; documentation cross-reference only, the call goes through rcl_event_set_callback at snapshot:rclcpp/src/rclcpp/event_handler.cpp:86); also test comments at snapshot:rclcpp/test/rclcpp/test_qos_event.cpp:317,363,442,486 ('rmw_connextdds doesn't support rmw_event_set_callback() interface')",
+    "ports": "grep over the whole snapshot (rclcpp, rclcpp_action, rclcpp_lifecycle, rclcpp_components; src, include, test) for rmw_create_publisher, rmw_destroy_publisher, rmw_event_fini, rmw_event_set_callback, rmw_publisher_event_init: zero call sites; only the 5 comment mentions of rmw_event_set_callback listed above",
+    "perm_requires": "grep -i permission|enclave over rclcpp/src, rclcpp/include, rclcpp/package.xml, rclcpp/CMakeLists.txt: only Apache license boilerplate; no permission files (*.p7s, permissions.xml) in snapshot",
+    "perm_grants": "same search as perm_requires; none found",
+    "recovery": "grep -i recover over rclcpp/src, rclcpp/include, rclcpp/package.xml, rclcpp/CMakeLists.txt: none; destruction failures of rcl publisher/event handles are only logged (snapshot:rclcpp/src/rclcpp/publisher_base.cpp:59, snapshot:rclcpp/src/rclcpp/event_handler.cpp:49)",
+    "exclusive": "grep -i exclusive: only CallbackGroupType::MutuallyExclusive (snapshot:rclcpp/src/rclcpp/executor.cpp:936), an executor scheduling mode, not an exclusive resource claim"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "rclcpp does not call any of the five rmw functions directly; it reaches the middleware only through rcl wrappers and guards the one feature known to vary by middleware (event callbacks) with test skips for rmw_connextdds. Nothing in rclcpp itself looks inconsistent with these elements; any gap would sit in the rmw implementation that provides them."
+  },
+  "confidence": "high",
+  "notes": "All five packet elements are rmw C API functions with side 'consumes'. At this revision rclcpp calls none of them directly. It calls the rcl-layer wrappers instead: rcl_publisher_init (snapshot:rclcpp/src/rclcpp/publisher_base.cpp:73), rcl_publisher_fini (publisher_base.cpp:59), rcl_publisher_event_init passed as the event init function to EventHandler (snapshot:rclcpp/include/rclcpp/publisher_base.hpp:333), rcl_event_fini (snapshot:rclcpp/src/rclcpp/event_handler.cpp:49) and rcl_event_set_callback (event_handler.cpp:86). Which rmw functions those rcl wrappers invoke is defined in rcl, outside the snapshot and outside the allowed sources, so no port is recorded for any element (ports list only direct publish/offer/subscribe/call). publisher_base.hpp:19 and publisher_base.cpp:18 include <rmw/rmw.h>, which declares these functions, but no call follows; the only direct rmw call on the publisher is rmw_get_gid_for_publisher. api:rmw_event_set_callback is listed in references because the public header event_handler.hpp:158 names it in a doxygen \\sa and the tests name it in comments; it is a documentation/comment reference, not a call. api:rmw_create_publisher, api:rmw_destroy_publisher, api:rmw_event_fini and api:rmw_publisher_event_init are not named anywhere in the snapshot, so they are in neither references nor declares/not_declared (declares/not_declared cover provided elements only; this package provides none of the packet elements). No definition files apply (API elements, no .msg/.srv/.action/.idl), so no definition_id was computed and nothing was fetched."
+}

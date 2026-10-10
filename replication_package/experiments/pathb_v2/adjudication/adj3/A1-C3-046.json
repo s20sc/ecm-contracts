@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-046",
+  "kind": "A1",
+  "case_id": "C3-046",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/262"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:cv_bridge/cv_bridge.h"],
+      "quote": "All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!",
+      "url": "https://github.com/ros-perception/vision_opencv/issues/262"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "renaming the header files will create a problem on other packages that depends on this package.",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/262"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Compiles locally with jazzy."
+  },
+  "notes": "E1 confirmed: issue #262 asks for the header rename and a commenter anticipates the downstream break; the maintainer confirms removal (\"have removed for J-turtle onwards!\", verified in issue comments). E2 stop_step 6 (library API header include): cv_bridge removed cv_bridge/cv_bridge.h (commit 5d6148ab \"remove header files that were deprecated in I-turtle\", verified; PR #517 merged), and the consumer autoware_traffic_light_visualization still included it. The failed-condition element_removed_or_renamed on api:cv_bridge/cv_bridge.h is correct. The consumer fix is verified in the Autoware PR #11873 diff (\"-#include <cv_bridge/cv_bridge.h>\" / \"+#if __has_include(<cv_bridge/cv_bridge.hpp>) ... #include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer\"). Loudness unknown is right: no compiler output for this package is shown. Resolution observed is right: PR #11873 body states \"Compiles locally with jazzy.\", and the consumer revision (merge f50b5c39) plus the provider revision (Jazzy's single vision_opencv 4.1.0-1) are both identified. The spec's documented-only inference of consumer_built_against 3.2.1 is reasonable and clearly flagged."
+}

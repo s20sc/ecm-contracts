@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_fc95a19",
+  "kind": "A1",
+  "case_id": "robust_fc95a19",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Hi,\nI am using moveit for path planning of a ur5. After finding a valid path, I want to execute it to the real robot (which is connected and communicating properly) but I always receive an error message like:\n[ERROR] [WallTime: 1412925263.358047] Received a goal with velocities that are higher than 2.000000",
+    "url": "https://robotics.stackexchange.com/questions/63223/path-planning-exceeding-velocity-limits-of-ur5"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Planning with MoveIt often results in:\n\n```\n[ERROR] [WallTime: 1412925263.358047] Received a goal with velocities that are higher than 2.000000\n```\n\nThe private parameter `max_velocity` is currently undocumented (as are all other parameters).",
+      "url": "https://github.com/ros-industrial/universal_robot/issues/124"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "# Checks that the velocities are withing the specified limits\n        if not has_limited_velocities(goal_handle.get_goal().trajectory):\n            message = \"Received a goal with velocities that are higher than %f\" % max_velocity\n            rospy.logerr(message)\n            goal_handle.set_rejected(text=message)",
+    "url": "https://github.com/ros-industrial/universal_robot/blob/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur_driver/src/ur_driver/driver.py"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-    max_velocity = rospy.get_param(\"~max_velocity\", 2.0)\n+    max_velocity = rospy.get_param(\"~max_velocity\", MAX_VELOCITY) # [rad/s]"
+  },
+  "notes": "Independently verified this session. (1) Eligibility: issue #124 verified via gh api (gavanderhoorn, 2014-10-10, title 'driver: undocumented max_velocity parameter causes plan execution to fail', body matches the failed-condition quote verbatim; comments by fmessmer id 60883012, shaun-edwards id 61040646, gvdhoorn id 61054535, abubeck 'Fixed in #136 .' id 61494474 all read and matching). ROS Answers thread verified twice: Stack Exchange API for migrated q 63223 (reporter psfa_fz question text with the full error log and MoveIt 'Execution completed: FAILED') and the Wayback snapshot of answers.ros.org/question/194667 (gvdhoorn's accepted answer 'not caused by exceeding a real, actual velocity limit ... a (private) parameter called max_velocity ... default of 2 rad/s'; reporter's 2014-10-27 update 'I adjusted the max_velocity level to 3.5. I could excecute some paths on the real robot.'; the failed first workaround 'seems to have no effect' with gvdhoorn's catkin_make reply; 'for some paths, even 3.5 seems not high enough' and the security-stop observations pointing to issues #67/#98). Code verified at facbe421: driver.py line 662 actionlib.ActionServer(\"follow_joint_trajectory\", ...), lines 735-741 the goal-validation rejection with rospy.logerr and set_rejected, line 930 max_velocity = rospy.get_param(\"~max_velocity\", 2.0); ur5_moveit_config/config/controllers.yaml action_ns follow_joint_trajectory / type FollowJointTrajectory; joint_limits.yaml max_velocity 3.15 x3 and 3.2 x3; ur5.urdf.xacro velocity=\"3.15\" / velocity=\"3.2\". Stop at 6 with interface kind action is right: the velocities value range crossing the action boundary is what fails (fmessmer's maintainer statement verified), and the fix changes the driver's accepted range and default in code (fc95a19 diff verified: MAX_VELOCITY = 10.0 with the quoted comment, launch arg default 10.0, startup loginfo), which is not a deployment name-binding. (2) Condition: 'other' agrees — no schema class covers a numeric limit disagreement (both sides are rad/s; not unit_mismatch; not a QoS dimension). (3) Loudness loud_documented / run: this is a runtime-enforced refusal with an explicit ERROR diagnostic from the driver's existing check, which the S1 rules say to mark loud_documented; verified at driver.py lines 735-741. (4) Resolution recommended: fc95a19 verified as the merge commit of PR #136 (parents facbe421 + 8af0285a, committer Alexander Bubeck, 2014-11-03T15:30:23Z; PR comment 'Discussions are in #124. Solves the feature proposed in discussion. I will merge.' id 61494398 verified); no source shows the composition at fc95a19 executing a MoveIt trajectory — the only working observations are with a manually raised parameter on unstated revisions, so recommended, not observed."
+}

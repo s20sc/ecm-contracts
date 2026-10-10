@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-C3-143",
+  "kind": "A1",
+  "case_id": "C3-143",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: reproduced material lookup errors. E2: rviz_rendering creates the material in a resource group that the separately built MoveIt rendering consumer must specify; the fix changes consumer API calls, not deployment wiring. E3: PAIR of the material provider and consumer.",
+    "quote": "Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?",
+    "url": "https://github.com/moveit/moveit2/issues/1164"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create(name, \"rviz_rendering\");",
+      "url": "https://raw.githubusercontent.com/ros2/rviz/8.2.6/rviz_rendering/src/rviz_rendering/material_manager.cpp#L77",
+      "reason": "The inherited material name and corresponding Shape<N>Material resource are implicated. This is a resource-group lookup contract, not a type, frame, unit, or exclusive-resource conflict. The 1165 diff explicitly adds the rviz_rendering group to both consumer references."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "I want to add mesh file (e.g. *.stl, *.obj, *.dae) to planning scene as collision object, but rviz2 print a lot of error messages about materials.",
+    "url": "https://github.com/moveit/moveit2/issues/1164",
+    "reason": "The errors occur while adding/rendering meshes at run time, not during build, connection, or activation. Under S1's restricted definition they do not establish loud_documented. This does not mean the execution literally emitted no errors."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I want to add mesh file (e.g. *.stl, *.obj, *.dae) to planning scene as collision object, but rviz2 print a lot of error messages about materials.",
+    "url": "https://github.com/moveit/moveit2/issues/1164"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "So I changed the code at branch `foxy` manually. It works! Thank you very much!",
+    "url": "https://github.com/moveit/moveit2/issues/1164#issuecomment-1088609471",
+    "reason": "The local fix demonstrably helped, but neither both tested revisions nor the installed RViz version are identified. A branch plus apt installation is insufficient for S1's revision-qualified observed status. Equating the hand edit with the backport does not identify the provider revision."
+  },
+  "notes": "Read the public issue and its displayed comments, PR 672, PR 1165's two-line fix, and the RViz 8.2.6 material creation code. The source supports successful local repair, but the specification's exact RViz revision is an inference, not a reported test fact."
+}

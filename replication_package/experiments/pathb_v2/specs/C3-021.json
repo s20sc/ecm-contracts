@@ -1,0 +1,163 @@
+{
+  "case_id": "C3-021",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_cyclonedds/issues/279",
+    "https://github.com/ros2/rmw_implementation/pull/175",
+    "https://github.com/ros2/rmw_cyclonedds/pull/280",
+    "https://github.com/ros2/rmw_cyclonedds/pull/408",
+    "https://github.com/ros2/rmw_implementation/blob/c91768aaf674d71f88d74e4c43b5462285157e60/test_rmw_implementation/test/test_subscription.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue rmw_cyclonedds#279 (by maintainer clalancette) gives the failing CI test, a full stack trace ending in `__GI_abort ()` from `sertype_rmw_realloc_samples` (serdata.cpp:458), and a root-cause analysis; eboasson (Cyclone DDS) and clalancette confirm and fix it in rmw_implementation#175."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "test_rmw_implementation",
+        "rmw_cyclonedds_cpp"
+      ],
+      "interface_kind": "library API",
+      "evidence": "The test (package test_rmw_implementation) calls `rmw_take_sequence()` implemented by rmw_cyclonedds_cpp with a message sequence that was initialized by `rmw_message_sequence_init()` but whose element pointers were never set. rmw_cyclonedds_cpp passes that array to Cyclone DDS `dds_take`, which allocates when `buf[0] == NULL`, and rmw_cyclonedds_cpp's realloc callback aborts. The documented precondition of rmw_take_sequence requires the sequence to be \"populated with ROS messages whose type matches the message type support registered with the `subscription` on creation.\" The failure depends on the argument crossing the API boundary (a caller that populates the sequence does not trigger it); the resolving change is in the caller's code, not in deployment wiring or build configuration."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: an output of the test (the message_sequence argument) feeds an input of rmw_cyclonedds_cpp's rmw_take_sequence (stack frames #9 -> #8 -> #7 -> #6 in the issue)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: occasional CI failures of test_subscription__rmw_cyclonedds_cpp::take_sequence, with the captured abort stack trace in the issue body."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rmw_cyclonedds_cpp",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rmw_cyclonedds",
+      "broken_rev": "d024823043504ea40af24bf22365a21cd203df55",
+      "resolved_rev": "d024823043504ea40af24bf22365a21cd203df55",
+      "pinned": true,
+      "revision_basis": "The reporter built from source (paths /home/ubuntu/ros2_ws/src/ros2/rmw_cyclonedds) on the rolling/master line on or before 2021-02-01 without stating a commit; the rolling head at the report time was d0248230 (tag 0.18.4, 2021-01-25), and eboasson's analysis links the code at d0248230. The resolution does not change this unit (its proposed change, rmw_cyclonedds#280, was closed unmerged).",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "test_rmw_implementation",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rmw_implementation",
+      "broken_rev": "c91768aaf674d71f88d74e4c43b5462285157e60",
+      "resolved_rev": "ef0fcda0a98ce64ddd07ca9403c65b56b9b4f074",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter links the test on master and does not state a commit; the master head at the report time (2021-02-01T13:40Z) was c91768aa (tag 2.1.2, 2021-01-29), whose take_sequence test (lines 526-547) matches the frame #9 line 538 call in the stack trace. Resolved: PR #175 merged as ef0fcda0 on 2021-02-08 (parent 55b893da).",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "api:rmw_take_sequence",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "api:rmw_create_subscription",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "api:rmw_destroy_subscription",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "api:rmw_create_node",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "api:rmw_destroy_node",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "api:rmw_init_options_init",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "api:rmw_init",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "api:rmw_shutdown",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "api:rmw_context_fini",
+      "sides": {
+        "rmw_cyclonedds_cpp": "provides",
+        "test_rmw_implementation": "consumes"
+      }
+    },
+    {
+      "element": "msg:test_msgs/BasicTypes",
+      "sides": {
+        "rmw_cyclonedds_cpp": "consumes",
+        "test_rmw_implementation": "provides"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:rmw_take_sequence"
+      ],
+      "quote": "As it stands, the take_sequence test fulfills the first part of that\r\n(it was initialized by rmw_message_sequence_init()), but doesn't fulfill\r\nthe second part (populated by ROS messages).  In certain situations,\r\nthis could lead to an aborted test later on.",
+      "url": "https://github.com/ros2/rmw_implementation/pull/175"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The failure is a runtime abort inside the call, found only as an intermittent CI failure: \"#1  0x0000ffff81ca9d68 in __GI_abort () at abort.c:79\r\n#2  0x0000ffff81af782c in sertype_rmw_realloc_samples (ptrs=0xaaaaca346c10, d=0xaaaaca027250, old=0x0, oldcount=0, count=1)\" (https://github.com/ros2/rmw_cyclonedds/issues/279). No build, connection, or activation diagnostic flags the unpopulated sequence; the reporter notes \"In most cases, the sequence of bytes stored in that pointer is *not* zero, so we never end up trying to call `ddsi_sertype_realloc_samples` (and hence we don't `abort()`).\"",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "The test populates the sequence after rmw_message_sequence_init() (sets each `sequence.data[ii]` to an element of a test_msgs Strings sequence) before calling rmw_take_sequence (rmw_implementation#175, ef0fcda0).",
+    "status": "recommended",
+    "evidence": "clalancette: \"So I think that between the fix to rmw_cyclonedds and the fix to test_rmw_implementation, we can consider this issue fixed.\" (https://github.com/ros2/rmw_cyclonedds/issues/279#issuecomment-772621695); eboasson later withdrew the rmw_cyclonedds change: \"the sequence of messages passed in actually conforms to what Cyclone DDS expects (an initialised array of pointers to messages), and https://github.com/ros2/rmw_implementation/pull/175 seems to clarify that.\" (https://github.com/ros2/rmw_cyclonedds/pull/280#issuecomment-1185252159); issue closed \"as we fixed it years ago.\" (https://github.com/ros2/rmw_cyclonedds/issues/279#issuecomment-1589917827). The source does not show the resolved composition running the test without the abort (the failure was intermittent)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class `other`: the consumer violates a documented call precondition of rmw_take_sequence (argument state), which fits none of the type, frame, unit, QoS, or encoding classes. Calls pass through the rmw_implementation dispatch library (frame #8, rmw_implementation/src/functions.cpp) into rmw_cyclonedds_cpp, and rmw_cyclonedds_cpp then calls Cyclone DDS (eclipse-cyclonedds, revision not stated). A second composition was discussed: rmw_cyclonedds_cpp -> Cyclone DDS `dds_take` (the `buf[0] == NULL` allocation convention and rmw_cyclonedds_cpp's abort() in the sertype realloc callback); eboasson first called a type confusion there \"the real bug\" and proposed rmw_cyclonedds#280, then withdrew it as \"a non-existent problem\"; it is not part of this case. The packet's fix ref rmw_cyclonedds#408 (\"Improve error message when create_topic fails (backport #405)\", foxy, 2022) is unrelated to the fix: it cross-references #279 only because eboasson cites it as a flaky test (https://github.com/ros2/rmw_cyclonedds/pull/408#issuecomment-1231161848). Observation: the fixture's subscription uses `ROSIDL_GET_MSG_TYPE_SUPPORT(test_msgs, msg, BasicTypes)` while the fix populates the sequence with test_msgs Strings elements; the test expects `taken == 0`, so no sample is deserialized into them. clalancette did not add a test for the NULL-pointer case: \"I didn't add the `nullptr` test because all of the RMWs seem to have the same problem.\""
+}

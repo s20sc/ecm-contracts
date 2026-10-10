@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-072",
+  "kind": "A1",
+  "case_id": "C3-072",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: a CI assertion and a deterministic discovery-delay reproducer establish the failure. E2 reaches step 6: separately built test code assumes immediate visibility from rmw_cyclonedds graph introspection, while the provider updates asynchronously. E3: PAIR through the query API; it is not an unconditional internal crash of the test or provider.",
+    "quote": "And then we are immediately calling `publisher->get_publishers_info_by_topic()`, which doesn't wait around at all; it just returns what it has right now.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629",
+      "reason": "The issue traces the call through rclcpp and rcl to rmw_get_publishers_info_by_topic. The failure is an immediate-consistency/timing assumption, not evidence of incompatible QoS despite the test name. Class other and the publisher-info query are appropriate."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Expected equality of these values:\r\n  publishers_info.size()\r\n    Which is: 0\r\n  1u\r\n    Which is: 1",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440",
+    "reason": "A runtime test assertion detects the consequence. It is not an existing middleware/build/connection/activation diagnostic of the interoperability condition, so silent_documented is consistent with S1's specialized definition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The above test patch makes the test case fail easily on my machine.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1455684646",
+    "reason": "The injected discovery delay triggers a test execution failure at run time."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I think @iuhilnehc-ynos already did this in https://github.com/ros2/system_tests/pull/513 .",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1494753455",
+    "reason": "The retry implementation and asynchronous-discovery documentation are accepted fixes. Linked CI badges and this discussion do not identify a successful execution of the nominated pair at both pinned revisions, so recommended is appropriate."
+  },
+  "notes": "The inspected fix adds bounded polling and the rmw documentation explicitly permits asynchronous discovery. The analogous subscription-test edit is not evidence of a separately observed subscriber-query failure in the publisher-test operation selected here."
+}

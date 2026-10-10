@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-C3-115-resolved-M2-ebed982dc1",
+ "kind": "A2",
+ "case_id": "C3-115",
+ "composition": "resolved",
+ "method_label": "M2",
+ "rule": "di_definition_mismatch",
+ "values": [
+  {
+   "path": "producer.outputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "u0371/snapshot/nav2_msgs/action/FollowPath.action (controller_server 1.2.9 provider side), lines 17-24: \"--- / #result definition / std_msgs/Empty result / uint16 error_code / --- / #feedback definition / float32 distance_to_goal / float32 speed\" — I ran `python3 definition_hash.py sha256 snapshot/nav2_msgs/action/FollowPath.action` in s2_work/tasks/u0371 and got {\"algorithm\": \"sha256_normalised\", \"kind\": \"action\", \"value\": \"e019de7b50bb059127fee0663d1495d72b8c8e7faf121d40c9e547a611a8ec57\"}, matching the producer value."
+  },
+  {
+   "path": "consumer.inputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "u0370/snapshot/nav2_msgs/action/FollowPath.action (bt_navigator 640196af consumer side), lines 5-6: \"string path_handler_id / ---\" and lines 23-24: \"std_msgs/Empty result / uint16 error_code / string error_msg\" and line 29: \"nav2_msgs/TrackingFeedback tracking_feedback\" — I ran `python3 definition_hash.py sha256 snapshot/nav2_msgs/action/FollowPath.action` in s2_work/tasks/u0370 and got {\"algorithm\": \"sha256_normalised\", \"kind\": \"action\", \"value\": \"b789a494a89017d4245cc676ca334897f4d4416d307e31b78757d69041b1a228\"}, matching the consumer value."
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The encoding represents the spec's PAIR operation (controller_server provides action:follow_path, bt_navigator consumes) at the resolved revisions (producer u0371 = controller_server 1.2.9, consumer u0370 = bt_navigator 640196af). Both ports are actually connected: u0371/snapshot/nav2_controller/src/controller_server.cpp:244 creates the action server named \"follow_path\" (type nav2_msgs::action::FollowPath per controller_server.hpp:111-112), and u0370/snapshot/nav2_behavior_tree/plugins/action/follow_path_action.cpp:137 instantiates the BT node with \"name, \\\"follow_path\\\", config\" whose client is created at u0370/snapshot/nav2_behavior_tree/include/nav2_behavior_tree/bt_action_node.hpp:99 \"action_client_ = node_->create_action_client<ActionT>(action_name, callback_group_);\" — same action name, same action type, opposite roles."
+ },
+ "notes": "The two hashes verify and the definitions genuinely differ (producer side: no path_handler_id, result without error_msg, feedback distance_to_goal/speed; consumer side: extra goal field path_handler_id, result with error_msg and CONTROLLER_TIMED_OUT=107, feedback tracking_feedback) — the mismatch values are real observations of the two snapshots. Recorded caveats: (1) both units come from the same monorepo (navigation2), so the definition mismatch is inherent to composing the consumer at the fix commit with the provider pinned at 1.2.9, each snapshot bundling its own nav2_msgs; it is not an independent claim about either unit alone. (2) The case's failed conditions per spec are timing-based ('other' class: goal-acknowledgement and cancel-result timeouts), not a definition mismatch; the spec's resolution (PR #5895 cancel_timeout in bt_navigator) does not touch FollowPath.action. I judge sources, not the rule, so these caveats do not change the verified/wrong verdicts. (3) Absent states checked: producer perm_requires absent, producer and consumer perm_grants absent — supported: grep -rniE 'permission|grant|privilege|authoriz|allowlist|is_remote' over u0371 nav2_controller and u0370 nav2_behavior_tree + nav2_bt_navigator returns only Apache license boilerplate; the server is created from rcl_action_server_get_default_options() (controller_server.cpp:236-237) and the client from create_action_client (bt_action_node.hpp:99) with no permission gating."
+}

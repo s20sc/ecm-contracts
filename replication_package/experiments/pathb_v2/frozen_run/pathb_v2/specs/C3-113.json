@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-113",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_cyclonedds/issues/390",
+    "https://github.com/eclipse-cyclonedds/cyclonedds/pull/1269",
+    "https://github.com/eclipse-cyclonedds/cyclonedds/commit/7b6466020bd46be452146bb2d6a5091b585c5bca"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives a minimal reproducer (rclcpp publisher with rclcpp::LivelinessPolicy::ManualByTopic, packaged at https://github.com/Aposhian/repro_lease_renew_segfault) and an AddressSanitizer trace ending in lease_renew in libddsc.so.0; maintainer clalancette reproduced it: \"I tried out this example with the latest sources on Ubuntu 22.04, and the crash is still there.\" -- https://github.com/ros2/rmw_cyclonedds/issues/390#issuecomment-1111464898"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "rmw_cyclonedds_cpp",
+        "cyclonedds"
+      ],
+      "interface_kind": null,
+      "evidence": "The crash is inside Cyclone DDS's own writer object: the writer lease pointer was left uninitialised when the lease duration is infinite, and lease renewal on write dereferenced it. Any caller that creates a writer with manual-by-topic liveliness and the default (infinite) lease duration triggers it; no assumption between rmw_cyclonedds_cpp and Cyclone is violated. Maintainer: \"Ouch. Definitely in Cyclone DDS proper.\" -- https://github.com/ros2/rmw_cyclonedds/issues/390#issuecomment-1111871668 . Root cause: \"Cyclone assumes that the lease duration is not infinite (the default) in case the manual-by-topic liveliness policy is used, and the problem that causes the segfault is that it does not correctly check this when renewing the writer lease.\" -- https://github.com/ros2/rmw_cyclonedds/issues/390#issuecomment-1114799836 . Fix PR body: \"This fixes the issue that the lease renewal for writers incorrectly checks for a non-null writer lease, which is not initialized in case the lease duration is infinite.\" -- https://github.com/eclipse-cyclonedds/cyclonedds/pull/1269 ; the diff adds only `wr->lease = NULL;` in new_writer_guid in src/core/ddsi/src/q_entity.c. Additional context (confidence in this eligibility decision: high): Reported versions: ros-galactic-rmw-cyclonedds-cpp 0.22.4, ros-galactic-cyclonedds 0.8.0 (also rolling rmw_cyclonedds 1.1.2 / cyclonedds 0.8.0). The reporter notes the crash does not occur with rmw_fastrtps_cpp, which is consistent with a defect inside Cyclone rather than in the rmw-to-Cyclone boundary. The fix shipped in Cyclone DDS 0.9.1 (per eboasson, 2022-05-18). Workaround in the thread: set a finite liveliness_lease_duration."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the application's rclcpp publisher, through rmw_publish in rmw_cyclonedds_cpp, calls dds_write in libddsc (stack: rmw_publish -> dds_write -> dds_write_impl -> lease_renew)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed segfault: \"Exits with -11 _sometimes_.\" and \"SUMMARY: AddressSanitizer: SEGV (/opt/ros/galactic/lib/x86_64-linux-gnu/libddsc.so.0+0x88638) in lease_renew\" -- https://github.com/ros2/rmw_cyclonedds/issues/390"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

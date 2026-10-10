@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-C3N-022",
+  "kind": "A1",
+  "case_id": "C3N-022",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: a simulation reproducer, wrong navigation behavior, and maintainer confirmation. E2: the decorator depends on status set by its separately released host framework; this crosses a plugin/host boundary. E3: the older SUCCESS-until-tree-reset assumption conflicts with the newer host reset behavior, supporting UPGRADE with an inferred revision basis.",
+    "quote": "Crux of the issue seems that the status of the node is set to IDLE. Last year, when I had implemented, the status ended up to success and went IDLE only when the entire BT was IDLE.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4110#issuecomment-1965487222"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "+        // reset the previous children, to make sure that they are in IDLE state\n+        // the next time we tick them\n+        for (size_t i = 0; i < index; i++)",
+      "url": "https://github.com/BehaviorTree/BehaviorTree.CPP/commit/51f92c49c2ed258b773960d3762c7cbbcf748f78.diff",
+      "reason": "The inspected ReactiveSequence change resets earlier children instead of later ones. Together with the maintainer's status diagnosis and the decorator fix, this supports other for behavioral lifecycle semantics and implicates ReactiveSequence and TreeNode::status, not a nominal type or representation-order change."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "But nav2 seems to ignore the new beaviour xml by following its path without stopping at the obstacle.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4110",
+    "reason": "The reporter describes a running robot exhibiting wrong behavior, not a build, connection, or activation rejection. No such diagnostic accompanies the retrieved reproduction."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the robot does not stop when a longer path is recalculated waiting for the obstacle to go away, and takes the longer path",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4110"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Resolved by the PR linked above! Thanks for the report @kevinpretell",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4110#issuecomment-2096539924",
+    "reason": "The accepted decorator fix supports recommended. The retrieved material does not show the reporter's fixed Iron composition working with both revisions identified; a platform name or issue closure is insufficient for observed."
+  },
+  "notes": "Read the initial report, displayed discussion through the Smac-related reopening, PR 4300 and its diff, PR 4622's displayed discussion, and the BehaviorTree.CPP reset change. GitHub's embedded timeline reported another page; an after-cursor request repeated the first page and the comments API returned 403. Therefore no claim of exhaustive late-thread inspection is made. The Smac path-header comparison issue concerns a different provider/consumer composition and is not added here. Exact installed host versions remain inferred, not independently confirmed by the reporter."
+}

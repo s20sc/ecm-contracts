@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3N-027",
+  "kind": "A1",
+  "case_id": "C3N-027",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Compiling TF next to Nav2, I bisected commits from the last time I knew it was working properly for us `0.30.0` and now and found the behavior breaks when https://github.com/ros2/geometry2/commit/3bac620777043a1c8761cd74c1bb814667341b65 is introduced",
+    "url": "https://github.com/osrf/ros2_test_cases/issues/1042#issuecomment-1533951366"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "There was an oversight in how the code, before introduction of `error_code`, handled the `error_string`. In particular, one code path saves the error in a \"side\" (so not directly in `error_string` but in `extrapolation_error_string`) and this HAS to be done also with the new `error_code` stuff.",
+      "url": "https://github.com/ros2/geometry2/pull/601"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I don't think (but I could be wrong) its at the Nav2 level, since we always have the base `TransformException` in try/excepts that log to terminal error messages of any sort via TF ... As such, I would expect to see some kind of logging but I see none.",
+    "url": "https://github.com/ros2/geometry2/issues/600#issuecomment-1535275903"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "That fixes it! Can you submit the PR?"
+  },
+  "notes": "All key claims verified against primary sources. (1) E1/E4: issue 600 body 'We're seeing Nav2 receiving AMCL localization service requests, but not honoring the content of them (and seems to randomly just bounce around)'; bisection comment (1533951366) verbatim matches the spec's 'Compiling TF next to Nav2 ... 0.30.0 ... breaks when ... 3bac6207 ... is introduced' (title '#586 done broke me'). (2) Regression commit 3bac6207 'Extend TimeCache API to provide rich ExtrapolationException infos (#586)'; fix merge ac2479e1 'Solve #600 (ExtrapolationException & its error_code) (#601)'. (3) E2: library API (tf2::BufferCore::lookupTransform returning a transform without raising its documented exception) — eligible at step 6; the resolving edit is a C++ source change in tf2/src/buffer_core.cpp, not deployment/build/firmware. (4) Failed condition class 'other' is correct: the provider's declared interface (signature and documented exceptions) did not change, but its behaviour violated it (error_code not propagated, so no exception raised); no schema class (type/definition/frame/unit/qos) fits a silent behaviour violation. Implicated elements (lookupTransform, TransformException) correct. (5) Loudness silent_documented + run: reporter states 'I would expect to see some kind of logging but I see none' and 'The silence is illustrative.'; no build/connect/activate diagnostic; failure observed only at run time. (6) Resolution 'observed': reporter tested patch 23de342f (roncapat fork, same logic as merged ac2479e1; the only other PR commit is 'Lint') and confirmed 'That fixes it! Can you submit the PR?'; later 'Resolved and binaries released!' (navigation2#3557 comment 1574445070). Caveat the spec itself notes: the Nav2 side is identified by branch (main) + date, not a stated commit. (7) E3 operation UPGRADE: Nav2 worked with geometry2 0.30.0, broke after the provider advanced to a revision containing #586 — direction is the canonical provider-newer-than-consumer. No missed conditions in this composition (nav2_costmap_2d / Gazebo / CI test failures are other compositions)."
+}

@@ -1,0 +1,53 @@
+{
+  "case_id": "C3-039",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/639",
+    "https://github.com/FelipeGdM/ros-bridge/commit/381c403c0d513eb9e62434f5f3b60c40693d196a",
+    "https://github.com/FelipeGdM/ros-bridge/commit/9be6dfe235266aaa4ec96d6f637ed66921675fc6",
+    "https://github.com/mikeferguson/graceful_controller/commit/f08b884d5598df9207ca26716f2167e87a5243d4",
+    "https://github.com/mikeferguson/graceful_controller/pull/71",
+    "https://github.com/ros2/geometry2/blob/b9b06ecb673fa52bb4a721ff6117348221cf3404/tf2/include/tf2/impl/utils.h"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives reproduction steps (build CARLA ros-bridge, load rviz_carla_plugin) and the error \"rviz2: symbol lookup error: /home/felipe/Documents/Github/carla_ws/install/rviz_carla_plugin/lib/librviz_carla_plugin.so: undefined symbol: _ZN3tf27fromMsgERKN13geometry_msgs3msg11Quaternion_ISaIvEEERNS_10QuaternionE\", with objdump output; a maintainer explains: \"Yes, you need to have this definition.  It is generally provided by tf2_geometry_msgs\". Reporter's tf2 version: \"0.25.5-1jammy.20231117.203705\" (Humble binaries)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": [
+        "rviz_carla_plugin (carla ros-bridge)",
+        "tf2 (geometry2)"
+      ],
+      "interface_kind": null,
+      "evidence": "Units: the rviz2 plugin rviz_carla_plugin calls tf2's header API (tf2/utils.h), whose implementation calls a function tf2 only declares: \"// Forward declare functions needed in this header\nvoid fromMsg(const geometry_msgs::msg::Quaternion & in, tf2::Quaternion & out);\" (tf2/impl/utils.h@b9b06ecb); the definition is supplied by the tf2_geometry_msgs header. The failure depends on that header-level requirement, so it is not internal (step 2), and it is not a launch/config name binding (step 3). The resolving change only adds the missing dependency: \"+  find_package(tf2_geometry_msgs REQUIRED)\", \"+                            tf2_geometry_msgs)\" in ament_target_dependencies, and \"+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>\" before \"#include <tf2/utils.h>\" (FelipeGdM/ros-bridge 381c403c and 9be6dfe2, identical changes on two parents). Neither tf2's declared API nor the plugin's calls change; the fix is dependency resolution (build configuration plus a header include providing the definition), so the case stops at step 4. The maintainer states the upstream alternative is blocked by dependency structure: \"it creates a circular dependency between `tf2_geometry_msgs` and `tf2`\". A second consumer with the same missing dependency, mikeferguson/graceful_controller on Iron (tf2 0.31.5), was fixed the same way (#include of tf2_geometry_msgs.hpp in commit f08b884d, PR #71 \"fix build when RelWithDebInfo\"); no upstream tf2 change was made."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the plugin, loaded into rviz2, calls tf2's header functions (tf2::getYaw path per a commenter: \"Use tf2::getYaw<geometry_msgs::msg::Quaternion>\" ... \"Which then calls fromMsg(geometry_msgs::msg::Quaternion, tf2::Quaternion)\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"Rviz2 crashes with the message:\" followed by the symbol lookup error quoted above."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

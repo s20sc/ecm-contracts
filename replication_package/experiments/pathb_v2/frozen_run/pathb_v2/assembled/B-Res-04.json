@@ -1,0 +1,1910 @@
+{
+ "case_id": "B-Res-04",
+ "corpus": "C2",
+ "operation": "PAIR",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface",
+     "status": "done",
+     "direction": {
+      "producer": "ros2_control",
+      "consumer": "franka_hardware"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface",
+       "in_role": "api:hardware_interface::SystemInterface"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "consumer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "consumer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "consumer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "consumer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "consumer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "consumer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "consumer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:hardware_interface/include/hardware_interface/system_interface.hpp:72",
+      "consumer.inputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:41 (class FrankaHardwareInterface : public hardware_interface::SystemInterface {); snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:68; snapshot:franka_hardware/franka_hardware.xml:4,13 (base_class_type=\"hardware_interface::SystemInterface\")"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::on_init",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_init",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_init",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::on_init",
+       "in_role": "api:hardware_interface::SystemInterface::on_init"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:57 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:84 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:170, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:21",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:57 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:41"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::export_state_interfaces",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::export_state_interfaces",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::export_state_interfaces",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::export_state_interfaces",
+       "in_role": "api:hardware_interface::SystemInterface::export_state_interfaces"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:49 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:76 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:35, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:161",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:189"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::export_command_interfaces",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::export_command_interfaces",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::export_command_interfaces",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::export_command_interfaces",
+       "in_role": "api:hardware_interface::SystemInterface::export_command_interfaces"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:50 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:77 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:66, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:200",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:194"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::on_activate",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_activate",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_activate",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::on_activate",
+       "in_role": "api:hardware_interface::SystemInterface::on_activate"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:51 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:78 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:96, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:234",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:51 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:126",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/src/system.cpp:126 (switch (impl_->on_activate(impl_->get_state())) -- argument is an rclcpp_lifecycle::State, no spatial data)"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::on_deactivate",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_deactivate",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_deactivate",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::on_deactivate",
+       "in_role": "api:hardware_interface::SystemInterface::on_deactivate"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:52 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:79 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:106, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:248",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:52 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:148",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/src/system.cpp:148 (switch (impl_->on_deactivate(impl_->get_state())) -- argument is an rclcpp_lifecycle::State, no spatial data)"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::read",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::read",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::read",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::read",
+       "in_role": "api:hardware_interface::SystemInterface::read"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:53-54 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:80-81 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:114, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:260",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:222"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::write",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::write",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::write",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::write",
+       "in_role": "api:hardware_interface::SystemInterface::write"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:55-56 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:82-83 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:130, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:279",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:238"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::prepare_command_mode_switch",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::prepare_command_mode_switch",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::prepare_command_mode_switch",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::prepare_command_mode_switch",
+       "in_role": "api:hardware_interface::SystemInterface::prepare_command_mode_switch"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:43-45 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:70-72 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:296, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:317",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:43-45 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:201",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/include/hardware_interface/system_interface.hpp:139 (arguments are const std::vector<std::string> & start/stop interface keys, no spatial data)"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::perform_command_mode_switch",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::perform_command_mode_switch",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::perform_command_mode_switch",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::read/System::write call System::error() when the SystemInterface returns return_type::ERROR; System::error() calls impl_->on_error(), SUCCESS -> UNCONFIGURED, FAILURE/ERROR -> FINALIZED",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::perform_command_mode_switch",
+       "in_role": "api:hardware_interface::SystemInterface::perform_command_mode_switch"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:46-48 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:73-75 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:261, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:493",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:46-48 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].side": "snapshot:hardware_interface/src/system.cpp:208",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/include/hardware_interface/system_interface.hpp:158 (arguments are const std::vector<std::string> & start/stop interface keys, no spatial data)"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface",
+     "status": "done",
+     "direction": {
+      "producer": "ros2_control",
+      "consumer": "franka_hardware"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface",
+       "in_role": "api:hardware_interface::SystemInterface"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "consumer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "consumer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "consumer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "consumer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "consumer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "consumer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "consumer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "consumer.inputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:41 (class FrankaHardwareInterface : public hardware_interface::SystemInterface {); snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:68; snapshot:franka_hardware/franka_hardware.xml:4,13 (base_class_type=\"hardware_interface::SystemInterface\")"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::on_init",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_init",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_init",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::on_init",
+       "in_role": "api:hardware_interface::SystemInterface::on_init"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:57 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:84 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:170, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:21",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:57 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/include/hardware_interface/system_interface.hpp:174"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::export_state_interfaces",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::export_state_interfaces",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::export_state_interfaces",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::export_state_interfaces",
+       "in_role": "api:hardware_interface::SystemInterface::export_state_interfaces"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:49 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:76 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:35, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:161"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::export_command_interfaces",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::export_command_interfaces",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::export_command_interfaces",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::export_command_interfaces",
+       "in_role": "api:hardware_interface::SystemInterface::export_command_interfaces"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:50 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:77 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:66, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:200"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::on_activate",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_activate",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_activate",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::on_activate",
+       "in_role": "api:hardware_interface::SystemInterface::on_activate"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:51 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:78 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:96, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:234",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:51 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/src/system.cpp:161"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::on_deactivate",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_deactivate",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::on_deactivate",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::on_deactivate",
+       "in_role": "api:hardware_interface::SystemInterface::on_deactivate"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:52 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:79 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:106, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:248",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:52 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/src/system.cpp:188"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::read",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::read",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::read",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::read",
+       "in_role": "api:hardware_interface::SystemInterface::read"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:53-54 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:80-81 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:114, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:260"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::write",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::write",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::write",
+         "msg_type": null,
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::write",
+       "in_role": "api:hardware_interface::SystemInterface::write"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:55-56 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:82-83 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:130, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:279"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::prepare_command_mode_switch",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::prepare_command_mode_switch",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::prepare_command_mode_switch",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::prepare_command_mode_switch",
+       "in_role": "api:hardware_interface::SystemInterface::prepare_command_mode_switch"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:43-45 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:70-72 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:296, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:317",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:43-45 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/include/hardware_interface/system_interface.hpp:373"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:hardware_interface::SystemInterface::perform_command_mode_switch",
+     "status": "done",
+     "direction": {
+      "producer": "franka_hardware",
+      "consumer": "ros2_control"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::perform_command_mode_switch",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "info_.joints[i].name, hardware_interface::HW_IF_EFFORT",
+        "info_.joints[i].name, hardware_interface::HW_IF_POSITION",
+        "info_.joints[i].name, hardware_interface::HW_IF_VELOCITY",
+        "\"ee_cartesian_position\", cartesian_matrix_names[i]",
+        "\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]",
+        "cartesian_position_prefix, cartesian_matrix_names[i]",
+        "cartesian_velocity_prefix, cartesian_velocity_command_names[i]"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "service ~/error_recovery (franka_msgs/srv/ErrorRecovery) on node error_recovery_service_server invokes franka::Robot::automaticErrorRecovery(), clears the error flag and stops the control loop",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:hardware_interface::SystemInterface::perform_command_mode_switch",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "System::error() calls impl_->on_error(); SUCCESS -> PRIMARY_STATE_UNCONFIGURED, FAILURE/ERROR -> PRIMARY_STATE_FINALIZED; a read/write return_type::ERROR triggers error() (system.cpp:347, 382)",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:hardware_interface::SystemInterface::perform_command_mode_switch",
+       "in_role": "api:hardware_interface::SystemInterface::perform_command_mode_switch"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_EFFORT]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:74 (CommandInterface, JOINT EFFORT); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:209",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_POSITION]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:76 (CommandInterface, JOINT POSITION); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:211",
+      "producer.exclusive[info_.joints[i].name, hardware_interface::HW_IF_VELOCITY]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:78 (CommandInterface, JOINT VELOCITY); snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:213",
+      "producer.exclusive[\"ee_cartesian_position\", cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:82 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:69",
+      "producer.exclusive[\"ee_cartesian_velocity\", cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_hardware_interface.cpp:86 (CommandInterface); names from snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:70",
+      "producer.exclusive[cartesian_position_prefix, cartesian_matrix_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:223 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_position\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:218",
+      "producer.exclusive[cartesian_velocity_prefix, cartesian_velocity_command_names[i]]": "snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:227 (CommandInterface); prefix = arm.robot_name_ + \"_ee_cartesian_velocity\" at snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:219",
+      "producer.recovery": "snapshot:franka_hardware/src/franka_error_recovery_service_server.cpp:9-10 create_service<franka_msgs::srv::ErrorRecovery>(\"~/error_recovery\", ...); node name prefix+\"error_recovery_service_server\" at :7; handler calls robot_->doAutomaticErrorRecovery() at :32 -> robot_->automaticErrorRecovery() at snapshot:franka_hardware/include/franka_hardware/robot.hpp:103; service node created in on_init at snapshot:franka_hardware/src/franka_hardware_interface.cpp:242 and snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:121",
+      "producer.outputs[0].side": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:46-48 and snapshot:franka_hardware/include/franka_hardware/franka_multi_hardware_interface.hpp:73-75 (override declarations); definitions snapshot:franka_hardware/src/franka_hardware_interface.cpp:261, snapshot:franka_hardware/src/franka_multi_hardware_interface.cpp:493",
+      "producer.outputs[0].frame": "snapshot:franka_hardware/include/franka_hardware/franka_hardware_interface.hpp:46-48 -- parameters/return are lifecycle state, HardwareInfo or command-interface name lists; no spatial data",
+      "consumer.inputs[0].frame": "snapshot:hardware_interface/include/hardware_interface/system_interface.hpp:390"
+     }
+    }
+   ]
+  }
+ }
+}

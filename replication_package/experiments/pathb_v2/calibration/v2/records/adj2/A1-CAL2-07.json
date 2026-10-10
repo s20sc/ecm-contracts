@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL2-07",
+ "kind": "A1",
+ "case_id": "CAL2-07",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "There is a heavy mismatch here between the message/C++ types and Python types. `string` is 8-bit data which does not have encoding, neither does `std::string`. Message strings *ought* to be UTF-8, but this is not enforced. But Python strings always enforce an encoding.",
+  "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1210405369"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "So it is perfectly possible to publish data from C++, which gets mangled when received in Python.",
+   "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1210405369"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "disagree",
+  "proposed": "silent_documented (run)",
+  "quote": "File \"/opt/ros/foxy/lib/python3.8/site-packages/rclpy/executors.py\", line 347, in _take_subscription\n    msg_info = _rclpy.rclpy_take(capsule, sub.msg_type, sub.raw)\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "With https://github.com/ros2/rosidl_python/pull/176 merged, I believe this issue is resolved for Rolling.\n\nSince this is a significant behavior change, I'm not sure it's worth backporting to existing distros.  (PR 176 'Change decode mode into replace.' verified merged 2022-08-09; foxy backport PR 181 verified merged 2022-10-18 as 3788639b)"
+ },
+ "notes": "Sources opened this session: issue 881 body in full (foxy binaries, ros-foxy-rclcpp 2.4.0-1focal.20211112.191736 / ros-foxy-rclpy 1.0.7-1focal.20211112.191643; publisher code bytes 120..129 matching artifacts/CAL2-07.txt verbatim; full traceback ending in the UnicodeDecodeError line above); comments 1020572058 (fujitatomoya's rolling reproduction), 1020574514 (the decode-mode diff), 1209988539 (jacobperron: 'If a `string` or `wstring` field is populated with the wrong encoding then the behavior is undefined.'), 1209995906, 1210405369; rosidl_generator_py 0.9.4 _msg_support.c.em with \"strict\" at both decode sites (line 657 'PyObject * decoded_item = PyUnicode_DecodeUTF8(src[i].data, strlen(src[i].data), \"strict\");' and lines 720-723); PRs 176/181 merge status. Eligibility, class (representation_convention: the encoding of the string value crossing the boundary) and elements all agree. LOUDNESS DISAGREEMENT: the spec records loud_documented/connect with the evidence text 'The mismatch is reported when the two units connect: the consumer logs an incompatibility error naming the element before any data is exchanged' — the source contradicts this. The publisher and subscriber share the same nominal type (std_msgs/String); the connection succeeds, and the UnicodeDecodeError is raised while decoding a RECEIVED message inside rclpy spin (executors.py:347 _take_subscription), i.e. during data exchange (run). A runtime decode exception is not one of the loudness definition's diagnostics from existing tooling at build, connection, or activation (compiler/import error, ROS 1 md5sum mismatch, ROS 2 incompatible-QoS event, resource-manager claim error, launch error); it is the failure itself observed. Proposed: silent_documented, detection_stage run. Resolution recommended agree: merged fixes plus fujitatomoya's demonstration on a rolling source build with his own publisher, but the reporter's foxy composition with the backport is never shown working."
+}

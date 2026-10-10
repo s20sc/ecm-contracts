@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-121",
+  "kind": "A1",
+  "case_id": "C3-121",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "If launching the same node with pixel_format =\"mjpeg\" the terminal outputs a continuing stream of these warnings: [swscaler @ 0x1545460] deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/67"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["field:libavcodec/AVCodecContext.pix_fmt", "api:sws_getContext"],
+      "quote": "[swscaler @ 0x1545460] deprecated pixel format used, make sure you did set range correctly",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/67"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the terminal outputs a continuing stream of these warnings: [swscaler @ 0x1545460] deprecated pixel format used, make sure you did set range correctly",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/67"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Suppress warnings of the form: [swscaler @ 0x############] deprecated pixel format used, make sure you did set range correctly ... This warning can be safely ignored at present."
+  },
+  "notes": "Issue body verbatim confirms the warning stream and that frames otherwise work ('the frames seem to be captured normally otherwhise, and the live image works fine'). Eligibility is a documented judgment call the spec itself flags: the offending full-range YUVJ pixel-format value is produced by FFmpeg's own decoder and consumed by FFmpeg's scaler, with usb_cam passing it through unchanged; the spec treats FFmpeg as one provider unit and usb_cam as the consumer passing the value across the boundary. This is defensible but borderline (an adjudicator treating decoder+scaler as the real composition would call it internal to FFmpeg). outcome warning_only, loudness loud_documented (provider library emits the diagnostic, detection_stage run), and resolution recommended (PR #115 merged to develop 37451954 suppresses the warning; no resolved composition with an identified FFmpeg revision is shown) are all correct."
+}

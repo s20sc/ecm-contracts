@@ -1,0 +1,97 @@
+{
+  "task_id": "u0203",
+  "package": "ur5_moveit_config",
+  "manifest_version": "1.1.9",
+  "ports": [
+    {
+      "element": "param:/move_group/moveit_controller_manager",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/moveit_manage_controllers",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/trajectory_execution/allowed_execution_duration_scaling",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/trajectory_execution/allowed_goal_duration_margin",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/move_group/trajectory_execution/execution_duration_monitoring",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "param:/move_group/moveit_controller_manager",
+    "param:/move_group/moveit_manage_controllers",
+    "param:/move_group/trajectory_execution/allowed_execution_duration_scaling",
+    "param:/move_group/trajectory_execution/allowed_goal_duration_margin",
+    "param:/move_group/trajectory_execution/execution_duration_monitoring"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "<node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" respawn=\"true\" output=\"screen\" />"},
+  "provenance": {
+    "manifest_version": "snapshot:ur5_moveit_config/package.xml:4",
+    "ports[0].frame": "snapshot:ur5_moveit_config/launch/ur5_moveit_controller_manager.launch.xml:5 (value is a plugin class name string, no spatial meaning)",
+    "ports[1].frame": "snapshot:ur5_moveit_config/launch/trajectory_execution.launch.xml:7 (boolean flag, no spatial meaning)",
+    "ports[2].frame": "snapshot:ur5_moveit_config/launch/trajectory_execution.launch.xml:9-10 (multiplicative duration factor, no spatial meaning)",
+    "ports[3].frame": "snapshot:ur5_moveit_config/launch/trajectory_execution.launch.xml:11-12 (time margin, no spatial meaning)",
+    "ports[4].frame": "snapshot:ur5_moveit_config/launch/ur5_moveit_controller_manager.launch.xml:4 (boolean flag, no spatial meaning)",
+    "references[param:/move_group/moveit_controller_manager]": "snapshot:ur5_moveit_config/launch/ur5_moveit_controller_manager.launch.xml:5 <param name=\"moveit_controller_manager\" value=\"moveit_simple_controller_manager/MoveItSimpleControllerManager\"/>; also snapshot:ur5_moveit_config/launch/fake_moveit_controller_manager.launch.xml:4 (value moveit_fake_controller_manager/MoveItFakeControllerManager); included via snapshot:ur5_moveit_config/launch/trajectory_execution.launch.xml:16, which is included with ns=\"move_group\" at snapshot:ur5_moveit_config/launch/move_group.launch:31",
+    "references[param:/move_group/moveit_manage_controllers]": "snapshot:ur5_moveit_config/launch/trajectory_execution.launch.xml:7 <param name=\"moveit_manage_controllers\" value=\"$(arg moveit_manage_controllers)\"/>; arg set to true at snapshot:ur5_moveit_config/launch/move_group.launch:32; ns=\"move_group\" at snapshot:ur5_moveit_config/launch/move_group.launch:31",
+    "references[param:/move_group/trajectory_execution/allowed_execution_duration_scaling]": "snapshot:ur5_moveit_config/launch/trajectory_execution.launch.xml:10 <param name=\"trajectory_execution/allowed_execution_duration_scaling\" value=\"1.2\"/>; ns=\"move_group\" at snapshot:ur5_moveit_config/launch/move_group.launch:31",
+    "references[param:/move_group/trajectory_execution/allowed_goal_duration_margin]": "snapshot:ur5_moveit_config/launch/trajectory_execution.launch.xml:12 <param name=\"trajectory_execution/allowed_goal_duration_margin\" value=\"0.5\"/>; ns=\"move_group\" at snapshot:ur5_moveit_config/launch/move_group.launch:31",
+    "references[param:/move_group/trajectory_execution/execution_duration_monitoring]": "snapshot:ur5_moveit_config/launch/ur5_moveit_controller_manager.launch.xml:4 <param name=\"trajectory_execution/execution_duration_monitoring\" value=\"false\"/>; included via snapshot:ur5_moveit_config/launch/trajectory_execution.launch.xml:16 (moveit_controller_manager arg = ur5 unless fake_execution, snapshot:ur5_moveit_config/launch/move_group.launch:33), ns=\"move_group\" at snapshot:ur5_moveit_config/launch/move_group.launch:31",
+    "perm_requires.state": "searched all files under snapshot:ur5_moveit_config/ (package.xml, CMakeLists.txt, launch/*, config/*); no permission requirement declared",
+    "perm_grants.state": "searched all files under snapshot:ur5_moveit_config/ (package.xml, CMakeLists.txt, launch/*, config/*); no permission grant declared",
+    "recovery.value": "snapshot:ur5_moveit_config/launch/demo.launch:27"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All trajectory-execution parameters are set under the move_group/trajectory_execution/ namespace, which is the namespace the MoveIt trajectory execution manager reads; the packet's top-level /move_group/allowed_execution_duration_scaling and /move_group/allowed_goal_duration_margin names are not used, so no stale-name mismatch is visible at this revision."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the whole universal_robot repository; only snapshot/ur5_moveit_config was treated as the package. All packet elements are consumed ROS 1 parameters that this config package sets on the parameter server for the move_group node (launch files included with ns=\"move_group\"), so declares and not_declared are empty and QoS is null (ROS 1). Parameter values set in code: moveit_manage_controllers=true (move_group.launch passes true; trajectory_execution.launch.xml arg default true), trajectory_execution/allowed_execution_duration_scaling=1.2, trajectory_execution/allowed_goal_duration_margin=0.5, trajectory_execution/execution_duration_monitoring=false (set only by the ur5 controller-manager include, not by the fake one used when fake_execution=true, e.g. from demo.launch), moveit_controller_manager=moveit_simple_controller_manager/MoveItSimpleControllerManager (ur5) or moveit_fake_controller_manager/MoveItFakeControllerManager (fake). Units for the two duration parameters are not stated in code (comments only say 'multiplicative factor' and 'Allow more than the expected execution time'), so units are null. The packet elements param:/move_group/allowed_execution_duration_scaling and param:/move_group/allowed_goal_duration_margin (without the trajectory_execution/ prefix) are not referenced anywhere in snapshot/ur5_moveit_config (grep of all launch and config files for allowed_execution_duration_scaling and allowed_goal_duration_margin finds only the trajectory_execution/-prefixed forms); as consumed elements they are in neither declares nor not_declared, and no port is recorded for them. exclusive is empty: config/controllers.yaml lists a controller (name \"\", action_ns follow_joint_trajectory, type FollowJointTrajectory) and its six joints, but no exclusive resource claim or hardware command interface is declared. Recovery: the only restart policy declared is respawn=\"true\" on robot_state_publisher in demo.launch; the move_group node itself is declared respawn=\"false\" (move_group.launch:43). Other move_group parameters set by this package (use_controller_manager=false, controller_list, capabilities, planning_scene_monitor/*, octomap_resolution, max_range) are outside the packet and not listed."
+}

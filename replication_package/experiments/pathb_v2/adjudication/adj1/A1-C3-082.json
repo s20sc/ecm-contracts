@@ -1,0 +1,97 @@
+{
+  "item_id": "A1-C3-082",
+  "kind": "A1",
+  "case_id": "C3-082",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: a full launch log and camera format enumeration establish a concrete capture/decode failure. E2 reaches step 6: MJPEG payload chroma layout crosses from the camera to usb_cam, whose fixed YUV422P allocation differs from the decoded picture; the result depends on the camera peer. E3: PAIR. The same log also documents two refused camera-control interactions of this pair, which must be included under S1.",
+    "quote": "[ERROR] [1627971395.349416416]: outbuf size mismatch.  pic_size: 3110400 bufsize: 4147200",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/164"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "disagree",
+      "proposed_elements": [
+        "api:VIDIOC_DQBUF"
+      ],
+      "quote": "[ERROR] [1627971395.349416416]: outbuf size mismatch.  pic_size: 3110400 bufsize: 4147200",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/164",
+      "reason": "representation_convention is supported by the decoded 4:2:0 versus assumed 4:2:2 payload layout. However, the camera enumerates MJPG and the node requests mjpeg; there is no demonstrated disagreement in the V4L2 negotiated pixelformat field itself. Attribute the mismatch to the dequeued encoded frame payload, not to that format selector.",
+      "elements_evidence": {
+        "quote": "Pixel Format: 'MJPG' (compressed)",
+        "url": "https://github.com/ros-drivers/usb_cam/issues/164"
+      },
+      "evidence": [
+        {
+          "quote": "avframe_camera_size_ = avpicture_get_size(PIX_FMT_YUV422P, image_width, image_height);",
+          "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/0.3.5/src/usb_cam.cpp"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "resource:/dev/video0"
+      ],
+      "description": "Camera control white_balance_temperature_auto is unavailable to the consumer control-setting request.",
+      "quote": "[ WARN] [1627971395.305685019]: unknown control 'white_balance_temperature_auto'",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/164",
+      "loudness": "loud_documented",
+      "detection_stage": "activate",
+      "reason": "usb_cam_node calls set_v4l_parameter for this control during initialization. That function invokes v4l2-ctl against camera_dev_ and forwards its error output. This is a refused interaction with the same camera, not an unrelated calibration-file problem. No removal history is established, so other is preferable to element_removed_or_renamed.",
+      "evidence": [
+        {
+          "quote": "cam_.set_v4l_parameter(\"white_balance_temperature_auto\", 1);",
+          "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/0.3.5/nodes/usb_cam_node.cpp"
+        }
+      ]
+    },
+    {
+      "class": "other",
+      "implicated_elements": [
+        "resource:/dev/video0"
+      ],
+      "description": "Camera control focus_auto is unavailable to the consumer control-setting request.",
+      "quote": "[ WARN] [1627971395.319171151]: unknown control 'focus_auto'",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/164",
+      "loudness": "loud_documented",
+      "detection_stage": "activate",
+      "reason": "This is a second distinct control refusal during initialization of the same camera-node pair. S1 includes enforced refusals within the selected composition even if they are not the main reported symptom.",
+      "evidence": [
+        {
+          "quote": "cam_.set_v4l_parameter(\"focus_auto\", 0);",
+          "url": "https://raw.githubusercontent.com/ros-drivers/usb_cam/0.3.5/nodes/usb_cam_node.cpp"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "loud_documented",
+    "quote": "[ WARN] [1627971395.305685019]: unknown control 'white_balance_temperature_auto'",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/164",
+    "reason": "The main per-frame decoder error alone is a runtime check, but the composition also includes the two omitted startup control refusals diagnosed by existing v4l2-ctl tooling. With all required same-composition conditions included, silent_documented is not a defensible aggregate label."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "activate",
+    "quote": "[ WARN] [1627971395.319171151]: unknown control 'focus_auto'",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/164",
+    "reason": "The control-setting calls occur in UsbCamNode construction before its capture loop; this is the earliest documented detection for the full composition. The originally listed MJPEG payload condition is still detected at run, not activate."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "A new parameter `color_format` is introduced with possible values `yuv420p` and `yuv422p`, because some cameras like Mobius Maxi does not support `yuv422p` which is the default.",
+    "url": "https://github.com/ros-drivers/usb_cam/pull/110",
+    "reason": "Recommended remains the right status for the proposed decoder fix: successful tests identify different cameras, not this camera at a known firmware revision. The color_format fix does not establish resolution of the two added control refusals; those have no demonstrated resolution here."
+  },
+  "notes": "The specification explicitly excludes the two unknown-control warnings, but S1 requires every documented failed interaction within the selected pair, including enforced refusals. Both are attributable to this pair through inspected node initialization and v4l2-ctl invocation code. They are represented on the existing resource:/dev/video0 inventory entry; the inventory should be expanded if finer-grained control tokens are needed. Missing calibration-file and log-disk-space warnings are outside the selected camera boundary and remain excluded. Main-condition loudness/run and aggregate loudness/activate must not be conflated."
+}

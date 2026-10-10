@@ -1,0 +1,65 @@
+{
+  "task_id": "u0371",
+  "package": "controller_server",
+  "manifest_version": "1.2.9",
+  "ports": [
+    {
+      "element": "action:follow_path",
+      "side": "provides",
+      "msg_type": "nav2_msgs/action/FollowPath",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": "reliable", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "action", "value": "e019de7b50bb059127fee0663d1495d72b8c8e7faf121d40c9e547a611a8ec57"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "action:follow_path": "action follow_path: nav2_msgs/action/FollowPath"
+  },
+  "not_declared": [],
+  "references": [
+    "msg:nav_msgs/Path",
+    "field:nav2_msgs/action/FollowPath.path",
+    "field:nav2_msgs/action/FollowPath.controller_id",
+    "field:nav2_msgs/action/FollowPath.goal_checker_id",
+    "field:nav2_msgs/action/FollowPath.progress_checker_id",
+    "field:nav2_msgs/action/FollowPath.error_code",
+    "field:nav2_msgs/action/FollowPath.distance_to_goal",
+    "field:nav2_msgs/action/FollowPath.speed"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "computeControl catches every exception, calls publishZeroVelocity() (zero Twist on cmd_vel and reset() of all controller plugins) and terminates the goal with a FollowPath error_code; on cancel it terminates all goals and publishes zero velocity; NoValidControl is tolerated with a zero command for failure_tolerance seconds (parameter, default 0.0, -1.0 = unlimited) before PatienceExceeded"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:nav2_controller/package.xml:5",
+    "ports[0].msg_type": "snapshot:nav2_controller/include/nav2_controller/controller_server.hpp:111",
+    "ports[0].frame": "snapshot:nav2_controller/src/controller_server.cpp:589 (end_pose_.header.frame_id = path.header.frame_id; goal path frame taken from each goal message) and :759-761 (end pose transformed from that frame to costmap_ros_->getGlobalFrameID())",
+    "ports[0].qos.reliability": "snapshot:nav2_controller/src/controller_server.cpp:236-237 (server_options = rcl_action_server_get_default_options(); only result_timeout changed) passed via snapshot:nav2_util/include/nav2_util/simple_action_server.hpp:122-131 to rclcpp_action::create_server; documented default of rcl_action_server_get_default_options() in rcl_action/include/rcl_action/action_server.h (ROS 2 iron): goal/cancel/result services = rmw_qos_profile_services_default (RELIABLE), feedback topic = rmw_qos_profile_default (RELIABLE), status topic = rcl_action_qos_profile_status_default (RELIABLE)",
+    "ports[0].qos.durability": "same code path as ports[0].qos.reliability; documented default of rcl_action_server_get_default_options() (rcl_action/include/rcl_action/action_server.h, iron): goal/cancel/result services rmw_qos_profile_services_default = VOLATILE, feedback topic rmw_qos_profile_default = VOLATILE; the status topic uses rcl_action_qos_profile_status_default = TRANSIENT_LOCAL (see notes)",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 snapshot/nav2_msgs/action/FollowPath.action",
+    "declares[action:follow_path]": "snapshot:nav2_controller/src/controller_server.cpp:242-248 (action_server_ = std::make_unique<ActionServer>(shared_from_this(), \"follow_path\", ...)) with ActionServer = nav2_util::SimpleActionServer<nav2_msgs::action::FollowPath> at snapshot:nav2_controller/include/nav2_controller/controller_server.hpp:111-112",
+    "references[msg:nav_msgs/Path]": "snapshot:nav2_controller/include/nav2_controller/controller_server.hpp:159 (void setPlannerPath(const nav_msgs::msg::Path & path);)",
+    "references[field:nav2_msgs/action/FollowPath.path]": "snapshot:nav2_controller/src/controller_server.cpp:469 (setPlannerPath(action_server_->get_current_goal()->path);)",
+    "references[field:nav2_msgs/action/FollowPath.controller_id]": "snapshot:nav2_controller/src/controller_server.cpp:445",
+    "references[field:nav2_msgs/action/FollowPath.goal_checker_id]": "snapshot:nav2_controller/src/controller_server.cpp:453",
+    "references[field:nav2_msgs/action/FollowPath.progress_checker_id]": "snapshot:nav2_controller/src/controller_server.cpp:461",
+    "references[field:nav2_msgs/action/FollowPath.error_code]": "snapshot:nav2_controller/src/controller_server.cpp:516",
+    "references[field:nav2_msgs/action/FollowPath.distance_to_goal]": "snapshot:nav2_controller/src/controller_server.cpp:665",
+    "references[field:nav2_msgs/action/FollowPath.speed]": "snapshot:nav2_controller/src/controller_server.cpp:646",
+    "perm_requires": "searched snapshot:nav2_controller (package.xml, CMakeLists.txt, src/, include/, plugins/, test/) for permission/sros/security declarations; none found (matches only in license headers)",
+    "perm_grants": "same search as perm_requires; none found",
+    "recovery": "snapshot:nav2_controller/src/controller_server.cpp:482-486 (cancel), :512-568 (exception handlers -> publishZeroVelocity + terminate_current with error_code), :624-642 (failure_tolerance patience), :726-744 (publishZeroVelocity), :64 (failure_tolerance default 0.0)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The action server name, the type alias and the nav2_msgs FollowPath definition in the same snapshot agree: every goal field the server reads (path, controller_id, goal_checker_id, progress_checker_id), the result field error_code, the feedback fields distance_to_goal and speed, and every error constant used (UNKNOWN, INVALID_CONTROLLER, TF_ERROR, INVALID_PATH, PATIENCE_EXCEEDED, FAILED_TO_MAKE_PROGRESS, NO_VALID_CONTROL) exist in FollowPath.action."
+  },
+  "confidence": "high",
+  "notes": "Packet package 'controller_server' is the node and executable of the nav2_controller package in the snapshot (snapshot:nav2_controller/src/controller_server.cpp:38 LifecycleNode(\"controller_server\", ...); CMakeLists.txt:24 executable_name controller_server); manifest_version is taken from nav2_controller/package.xml. The action name \"follow_path\" is relative and resolves in the node's namespace. The action type is defined in the separate nav2_msgs package (snapshot:nav2_msgs/action/FollowPath.action, nav2_msgs package.xml version 1.2.9); definition_id is the sha256_normalised proxy over that file, not a ROS 2 type hash. QoS: the code sets no QoS on the action; it passes rcl_action_server_get_default_options() with only result_timeout overridden (parameter action_server_result_timeout, default 10.0 s, controller_server.cpp:53, :234-237). Under that default all five action endpoints are RELIABLE; durability is VOLATILE for the goal, cancel and result services and the feedback topic, and TRANSIENT_LOCAL for the status topic; the single durability field records VOLATILE (goal/feedback path) and the status-topic exception is stated here. No deadline is set (deadline_ms null). QoS citations are to the rcl_action header documentation from knowledge; that source is not in the snapshot and was not fetched. rate_hz left null: the code sets no rate for the action itself; feedback is published once per control-loop iteration while a goal is active, with the loop driven by rclcpp::WallRate(controller_frequency_) where controller_frequency is a parameter with default 20.0 (controller_server.cpp:51, :473, :667). units null: FollowPath.action states no units for distance_to_goal or speed, and the code does not state any. The server also calls action_server_->get_current_goal()/accept_pending_goal() (preemption, :673-715) and the error constants Action::Goal::* (:516-565), all present in the snapshot's FollowPath.action (constants are declared in the goal section). Other interfaces of the node that are not packet elements (cmd_vel publisher, odom subscription via nav_2d_utils::OdomSubscriber, speed_limit subscription whose topic name comes from a parameter, parameters) are not enumerated in references. No dependency definition files were fetched; none were needed for the sha256 proxy."
+}

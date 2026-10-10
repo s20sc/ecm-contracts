@@ -1,0 +1,38 @@
+{
+ "item_id": "A1-CAL-06",
+ "kind": "A1",
+ "case_id": "CAL-06",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+  "url": "https://github.com/ros2/ros2/issues/1517"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "1. `ros2 param dump` needs to handle empty list as exception if happens instead of proceeding zipping results. if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.",
+   "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1933083033"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": "run",
+  "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+  "url": "https://github.com/ros2/ros2/issues/1517"
+ },
+ "resolution": {
+  "verdict": "disagree",
+  "proposed": "recommended",
+  "quote": "We merged in the fixes here, and backported the ones we could.  So closing this out, thanks for the report.",
+  "url": "https://github.com/ros2/ros2/issues/1517"
+ },
+ "notes": "Verified via gh api: the issue body (reproducer node declaring an uninitialized statically-typed param_2, the wrong dump output spelling out '# Parameter not set', and 'Individual `ros2 param get`s seem to work fine'), fujitatomoya's cause comment, the closing comment quoted above, and the reporter's follow-up 'If no fix is going to be merged for Iron though, I think this ticket is still \"Open\".' Eligibility, class (representation_convention: an uninitialized parameter encoded as an empty values array instead of per-name PARAMETER_NOT_SET entries), elements, loudness and detection stage all agreed. Resolution disagree: the spec records status 'none', but two resolving changes (ros2/rclpy#1216, ros2/ros2cli#881) were proposed, reviewed and merged on rolling, which is at least 'recommended' under the schema ('proposed or accepted but not shown working in this composition'); 'none' would mean no resolving change exists, and it contradicts the spec's own resolved_rev entries."
+}

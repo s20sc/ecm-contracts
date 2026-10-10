@@ -1,0 +1,51 @@
+{
+  "case_id": "C3N-004",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/5763",
+    "https://github.com/ros-navigation/navigation2/pull/5773",
+    "https://github.com/ros-navigation/navigation2/pull/5776",
+    "https://raw.githubusercontent.com/ros-navigation/navigation2/0fc9a10b9c2cdb28ac7a1ff8bd726650a4a9b8f1/nav2_costmap_2d/plugins/costmap_filters/keepout_filter.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer (`ros2 launch nav2_system_tests test_updown_launch.py` on main commit 0fc9a10) and stack trace ending \"in nav2_costmap_2d::KeepoutFilter::updateBounds(double, double, double, double*, double*, double*, double*)\" / \"Segmentation fault (Address not mapped to object [0x8])\" -- https://github.com/ros-navigation/navigation2/issues/5763"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "nav2_costmap_2d KeepoutFilter plugin (in controller_server local costmap)",
+        "keepout filter info / mask servers (nav2_map_server) managed by lifecycle_manager_keepout_zone"
+      ],
+      "interface_kind": null,
+      "evidence": "The crash is a null-pointer dereference in the filter's own logic: `filter_mask_` starts null and is set only in `maskCallback`, but `updateBounds` evaluates `filter_mask_->header.frame_id` whenever `override_lethal_cost_` is set (keepout_filter.cpp at 0fc9a10). Reporter: \"we initialize `filter_mask_` as `nullptr` and update it in `maskCallback` via `/keepout_costmap_filter_info` topic. There are no publishers for this topic, so `nullptr` is passed to the function.\" and, with the info server running, \"Even though `keepout_costmap_filter_info_server` is launched, `updateBounds` is called and we have the same result.\" -- https://github.com/ros-navigation/navigation2/issues/5763#issuecomment-3620023572. It therefore occurs with any correct peer that has not yet delivered a mask (absent or not yet active); nothing the peer sends is wrong. The fix is a guard inside the filter: `if (!filter_mask_) { ... \"KeepoutFilter: Filter mask was not received\"); return; }` -- https://github.com/ros-navigation/navigation2/pull/5773."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "If treated as a composition, the failure is observed at startup/activation ordering (the filter active before the mask provider publishes), closest to SWITCH/CONCURRENT. Not evaluated further because E2 fails."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"[ERROR] [controller_server-14]: process has died [pid 65597, exit code -11, ...]\" -- https://github.com/ros-navigation/navigation2/issues/5763"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Two fixes: PR 5773 (merge 2779b43ed9b236ff3570214e6e550e16fdf9a1cd, parent 80b72d27811965a8a22b6d0e6f0cf95a7d74818a) adds the null check in KeepoutFilter::updateBounds; PR 5776 (merge b02d4a9e23312d7074f4de6d48111d47632a453d) changes only the test program nav2_system_tests/src/updown/test_updown.cpp to also start up/shut down lifecycle_manager_keepout_zone and lifecycle_manager_speed_zone and to fail correctly when any manager is inactive. The reporter's root-cause statement for the test: \"the test is missing a call to the corresponding lifecycle managers for `keepout_zone` and `speed_zone`, which were added relatively recently. And therefore, publishers were not created for the necessary topics.\" -- https://github.com/ros-navigation/navigation2/issues/5763#issuecomment-3626348699. That second part is test-harness/deployment wiring (lifecycle activation of the mask provider), not an interface change; the crash itself is the filter's missing null guard."
+}

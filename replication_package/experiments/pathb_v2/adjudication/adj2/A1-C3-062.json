@@ -1,0 +1,18 @@
+{"item_id": "A1-C3-062", "kind": "A1", "case_id": "C3-062",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+   "quote": "I had no intention to declare parameters against documentation. Most probably a mistake.",
+   "url": "https://github.com/ros-perception/image_transport_plugins/issues/140"},
+ "failed_conditions": [
+   {"index": 0, "class_verdict": "agree", "proposed_class": null,
+    "elements_verdict": "agree", "proposed_elements": [],
+    "quote": "std::string format_param_name = param_base_name + \".format\";  (with analogous \".png_level\" / \".jpeg_quality\" lines)",
+    "url": "https://github.com/ros-perception/image_transport_plugins/blob/ef9442d8e92c14dcb5ed9023b9577e6d9e5cad39/compressed_image_transport/src/compressed_publisher.cpp"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+   "quote": "# this is artificial, what I would expect\nros2 param list\n/camera/camera:\n  .color.image_raw.compressed.format",
+   "url": "https://github.com/ros-perception/image_transport_plugins/issues/140"},
+ "resolution": {"verdict": "agree", "proposed": null,
+   "quote": "I am in favor of moving to the fully-qualified parameter names.  I think we should come up with a way of deprecating the current behavior ... to make sure that we don't unexpectedly break users relying on this implementation, though.",
+   "url": "https://github.com/ros-perception/image_transport_plugins/issues/140"},
+ "notes": "Verified this session: issue #140 body (ros2 param list shows '.color.image_raw.format/.jpeg_quality/.png_level'; reporter's framing 'Is there a reason this was not taken into account when migrating from ROS1 to ROS2?'; clash hypothetical 'There is a clash between transports on parameter namespace.'); maintainer comments lukaszmitka 'I had no intention to declare parameters against documentation. Most probably a mistake.' and mjcarroll 'While it has been a little bit, I would agree that this is likely a mistake.'; provider code at broken rev ef9442d8 declares param_base_name + \".format\"/\".png_level\"/\".jpeg_quality\" (read via gh api); ROS1 1.15.0 CompressedPublisher.cfg and the reconfigure_server_ line match the artifact file verbatim (cfg declares format/jpeg_quality/png_level under the transport's own generator namespace, consistent with the documented '<base topic>/<transport name>/<parameter name>' form); PR #143 'add transport scoped parameters for CompressedPublisher' merged 2023-04-18 as 2bc3a64117c78df7c43898d099914134caf65f3e (rolling); PR #144 merged 2023-04-20 as b8ac0b4f67ecd2fe544fd1182c280cc7382d401c (rolling); tag 3.2.0 = b95daa8e7517bde3ef90d6f698f6e55149e3e336 and tag 3.1.0 both contain both merges (compare ...: ahead, behind_by 0), while compare 2bc3a641...humble = diverged behind_by 14, i.e. the fix is not in humble, as the spec states. Caveat noted (the spec also flags it): no consuming unit is identified anywhere in the source, so the consumer is hypothetical and consumer_built_against 1.15.0 is inferred; E4's code-level-statement path with outcome undocumented covers this, and the UPGRADE reading is grounded in the reporter's own migration question, so the eligibility decision stands. Class element_removed_or_renamed fits: from the consumer/document side the scoped names (with the transport segment) do not exist at the broken revision."}

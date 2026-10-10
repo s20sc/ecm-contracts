@@ -1,0 +1,105 @@
+{
+ "case_id": "CAL-08",
+ "corpus": "C2",
+ "source_refs": [
+  "https://answers.ros.org/question/371257",
+  "https://web.archive.org/web/20240304091108/https://answers.ros.org/question/371257/ros2-foxy-incompatible-qos-policies-no-warnings/",
+  "https://github.com/ros2/rclcpp/blob/234b5e423b1e0f094c22be66214070312825017d/rclcpp/src/rclcpp/subscription_base.cpp#L248"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Q&A thread with a concrete setup (rclcpp publisher set to best effort, subscriber set to reliable), the observed effect (\"I can observe that no messages are received in the subscriber\"), subscriber code, and an error log for the event-callback attempt. The archived thread (static archive and 2024 Wayback snapshot) has no answers or comments."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "publisher_node",
+    "MinimalSubscriber"
+   ],
+   "interface_kind": "topic",
+   "evidence": "Two separate rclcpp nodes that interact only through a topic (\"I setup a simple publisher and subscriber with rclcpp.\"). The failure is the reliability QoS offered by one node versus requested by the other, which crosses the boundary; it is not internal, not a name binding, not a build issue, not firmware."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: the publisher's output topic feeds the subscriber's input; the failure (no messages received) is observed on that pairing."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "\"Now this should be incompatible and I can observe that no messages are received in the subscriber.\""
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "publisher_node",
+   "role": "provider",
+   "repo": null,
+   "broken_rev": "as-reported-2021-02",
+   "resolved_rev": "as-reported-2021-02",
+   "pinned": false,
+   "revision_basis": "No public repository. The reporter's publisher node is described only in the question text (asked 2021-02-07); the label names the artifact section. No resolved composition is documented, so the resolved revision repeats the broken label.",
+   "excerpt": true,
+   "ros_distro": "foxy"
+  },
+  {
+   "name": "MinimalSubscriber",
+   "role": "consumer",
+   "repo": null,
+   "broken_rev": "as-reported-2021-02",
+   "resolved_rev": "as-reported-2021-02",
+   "pinned": false,
+   "revision_basis": "No public repository. The reporter's subscriber (class MinimalSubscriber) is known only from the code quoted in the question (asked 2021-02-07). The error log names ros-foxy-rmw-fastrtps-shared-cpp-1.2.4 as the middleware build in use. No resolved composition is documented.",
+   "excerpt": true,
+   "ros_distro": "foxy"
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "topic:/topic",
+   "sides": {
+    "publisher_node": "provides",
+    "MinimalSubscriber": "consumes"
+   }
+  },
+  {
+   "element": "msg:std_msgs/String",
+   "sides": {
+    "publisher_node": "provides",
+    "MinimalSubscriber": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "qos_reliability",
+   "implicated_elements": [
+    "topic:/topic"
+   ],
+   "quote": "On the publisher I switched on \"best offert\". The subscriber was set to \"reliable\". Now this should be incompatible and I can observe that no messages are received in the subscriber.",
+   "url": "https://answers.ros.org/question/371257"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "silent_documented",
+ "loudness_evidence": "\"Checking https://github.com/ros2/rclcpp/blob/234b5e423b1e0f094c22be66214070312825017d/rclcpp/src/rclcpp/subscription_base.cpp#L248 tells me that there should be some warning but yet there isnt.\" (https://answers.ros.org/question/371257). The referenced rclcpp default callback would print \"New publisher discovered on this topic, offering incompatible QoS. No messages will be sent to it.\", which the reporter did not see.",
+ "detection_stage": "run",
+ "resolution": {
+  "summary": "None documented. The thread has no answers or comments; no matching-reliability configuration or middleware change is shown or proposed.",
+  "status": "observed",
+  "evidence": "Static archive https://answers.ros.org/question/371257 shows empty Comments and Answers sections; the 2024-03-04 Wayback snapshot of the original Askbot page shows no answers."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": true,
+ "confidence": "medium",
+ "notes": "The code uses the relative topic name \"topic\"; it is written as topic:/topic assuming the root namespace (the node namespace is not stated). The publisher's message type is not stated; std_msgs/String is taken from the subscriber's create_subscription<std_msgs::msg::String> call. Second composition in the same thread, not specified here: MinimalSubscriber (registering subscription_options.event_callbacks.incompatible_qos_callback) with rmw_fastrtps_cpp in Foxy; the runtime refused at startup with \"terminate called after throwing an instance of 'rclcpp::UnsupportedEventTypeException' what(): Failed to initialize event: provided event_type is not supported by rmw_fastrtps_cpp, at /tmp/binarydeb/ros-foxy-rmw-fastrtps-shared-cpp-1.2.4/src/rmw_event.cpp:59\" (loud, activate stage). That refusal suggests the missing default warning comes from the middleware not reporting the incompatible-QoS event in this version, but the thread does not confirm this."
+}

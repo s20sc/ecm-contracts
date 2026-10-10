@@ -1,0 +1,95 @@
+{
+  "case_id": "robust_9299530",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/turtlebot/turtlebot/issues/65",
+    "https://github.com/ros-visualization/rviz/issues/622",
+    "https://github.com/ros-visualization/rviz/pull/603",
+    "https://github.com/turtlebot/turtlebot_create/pull/7",
+    "https://github.com/turtlebot/turtlebot_create/commit/9299530eb77b9e8a2a18160fb6ece325d38abfbc",
+    "https://github.com/turtlebot/turtlebot/pull/66",
+    "https://github.com/turtlebot/turtlebot/commit/8cf9d9710e9f2bfb1a7256e2ef292dd70138339c"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "turtlebot#65 \"turtlebot 1 visualisation broken\" links rviz#622, where pirobot reports after updating Groovy debs: \"now collada meshes no longer appear in RViz.  In particular, the TurtleBot is now basically invisible.\" and names the version (\"Yes, 1.9.28 is what I meant.\"); rviz maintainer dgossow confirms: \"Oh well, I was worried already that this would cause trouble. We didn't test this with the turtlebot meshes, sorry.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "rviz",
+        "create_description"
+      ],
+      "interface_kind": "definition (robot model: robot_description parameter and the COLLADA mesh resource it references, including the mesh's <unit> declaration)",
+      "evidence": "rviz (ros-visualization/rviz) loads the robot model and the COLLADA meshes that create_description (turtlebot/turtlebot_create) ships and references. rviz PR #603 (\"Collada loader units fix\") made rviz apply the COLLADA unit scaling factor: \"Previously, it was acceptable to simply ignore this attribute as nothing else used it, but the current version of Gazebo does, and so it must be used to maintain consistency.\" The mesh create_body.dae declares `<unit meter=\"0.01\" name=\"centimeter\"/>`, so the model is scaled differently once rviz honours the declaration. The value's unit crosses the boundary; the resolving change edits a provider-side declaration (not a deployment name binding, not build/packaging)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the failure appeared when rviz was updated to its unit-aware release (rviz#622: \"I just updated my Groovy debian installation with the release that was posted today on ros-users and now collada meshes no longer appear in RViz\"), while the TurtleBot meshes still carry declarations authored for the earlier rviz behaviour that ignored the unit attribute."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong rendering: \"the TurtleBot is now basically invisible\" (pirobot), \"whole robot is just a few speckles of gray and white scattered around\" (mikeferguson), and \"applying the following scales to the meshes fixed the problem: ... create_body: 100\" (pirobot, rviz#622). PR turtlebot_create#7: \"Fixes broken create visualisation\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rviz",
+      "role": "provider",
+      "repo": "https://github.com/ros-visualization/rviz",
+      "broken_rev": "1.9.28",
+      "resolved_rev": "1.9.28",
+      "pinned": true,
+      "revision_basis": "rviz#622 reporter states the installed Groovy deb version: \"Yes, 1.9.28 is what I meant.\" (2013-03-23). Tag 1.9.28 (1e91b209, 2013-03-20) was the latest rviz release until 1.9.29 (2013-04-15), so it is also the rviz of the resolution window (turtlebot_create 2.0.1, 2013-04-01). The resolution does not change rviz.",
+      "excerpt": false,
+      "ros_distro": "groovy"
+    },
+    {
+      "name": "create_description",
+      "role": "consumer",
+      "repo": "https://github.com/turtlebot/turtlebot_create",
+      "broken_rev": "54f896e697ed988f8e192f108d3cccb8d787ff36",
+      "resolved_rev": "9299530eb77b9e8a2a18160fb6ece325d38abfbc",
+      "pinned": true,
+      "revision_basis": "Broken: 54f896e (commit \"2.0.1\", 2013-03-28), the base of bit-pirate's PR turtlebot_create#7 (\"Fixes broken create visualisation\", first commit 9f7ac4f has parent 54f896e) and first parent of the fix merge 9299530. At this revision create_description ships meshes/create_body.dae with `<unit meter=\"0.01\" name=\"centimeter\"/>` and references it as package://create_description/meshes/create_body.dae. Resolved: 9299530 (merge of PR #7), which is what tag 2.0.1 points to; bit-pirate: \"turtlebot_create version 2.0.1 fixes this issue.\"",
+      "excerpt": false,
+      "ros_distro": "groovy"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "1.9.24",
+    "resolved": "1.9.28",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "param:robot_description", "sides": {"create_description": "provides", "rviz": "consumes"}},
+    {"element": "resource:package://create_description/meshes/create_body.dae", "sides": {"create_description": "provides", "rviz": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "unit_mismatch",
+      "implicated_elements": ["resource:package://create_description/meshes/create_body.dae"],
+      "quote": "-\t\t<unit meter=\"0.01\" name=\"centimeter\"/>\n+\t\t<unit meter=\"1.0\" name=\"meter\"/>",
+      "url": "https://github.com/turtlebot/turtlebot_create/commit/9299530eb77b9e8a2a18160fb6ece325d38abfbc"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The meshes are rendered at the wrong size with no diagnostic reported: \"the TurtleBot is now basically invisible\"; \"it is pretty messed up on my machine as well (whole robot is just a few speckles of gray and white scattered around)\" (https://github.com/ros-visualization/rviz/issues/622).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Provider-side data change in create_description: create_body.dae's unit declaration changed from `<unit meter=\"0.01\" name=\"centimeter\"/>` to `<unit meter=\"1.0\" name=\"meter\"/>` so that unit-aware rviz renders it at the intended size; unused M_PI/SCALE properties removed from create.urdf.xacro (merge 9299530 of PR #7, released as turtlebot_create 2.0.1). rviz unchanged.",
+    "status": "recommended",
+    "evidence": "bit-pirate (turtlebot#65, 2013-04-01): \"turtlebot_create version 2.0.1 fixes this issue. It's now available on shadow-fixed.\" This is a statement of the fix, not a shown observation of 2.0.1 rendering correctly in a named rviz revision; pirobot's earlier observation (\"applying the following scales to the meshes fixed the problem\") used his own copy of the meshes and a scale change, not this revision."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Roles: for the UPGRADE, rviz is the unit at the newer revision (its mesh-loading behaviour changed), and create_description's mesh declarations were written against the earlier behaviour; data flows from create_description to rviz, as the inventory sides show. consumer_built_against.broken = 1.9.24 is inferred: unit scaling entered rviz with the merge of branch collada_loader_units_fix (10235373, released in 1.9.25, 2013-03-07) and was refactored in 1.9.28 (20f3ae73 \"refactored unit rescaling to be inside the mesh loading instead of being applied afterwards\"); 1.9.24 (36a7e04, 2013-02-16) is the last release that ignored the attribute, and create_body.dae (created 2011-04-04, Blender/Illusoft exporter) was authored for rviz that ignored it. The previously installed public rviz version is not stated in the source. History: at the time of the original reports the byte-identical create_body.dae (same md5) lived in turtlebot_description (turtlebot repo, release 2.0.0: turtlebot_description/meshes/base/create_body.dae) and create_description 2.0.0's create.urdf.xacro referenced it as package://turtlebot_description/meshes/base/create_body.dae; on 2013-03-28 it was moved into create_description (turtlebot_create e66633b \"adds files formerly located at turtlebot_description\"; turtlebot 3a04822), where PR #7 fixed it. Other composition in the same report, not a condition of this case: rviz <-> turtlebot_description (circles stack meshes plate_0/1/2_logo.dae with `<unit meter=\"0.01\" name=\"centimeter\"/>`, spacer/standoff meshes scaled by M_SCALE 0.001 in circles.urdf.xacro), fixed in turtlebot PR #66 / merge 8cf9d97 (\"removes scaling\", \"corrects unit in collada mesh\"); the kinect mesh (pirobot: \"kinect: 100\") was replaced in turtlebot 3a04822 (\"updates collada meshes with correct units to be properly visualised in both rviz and gazebo ... introduces new kinect mesh with nice surface\"). rviz#617 (slow mesh loading after 1.9.25) is unrelated. bit-pirate on rviz#622 also points to his ROS Answers question 59514 (migrated: https://robotics.stackexchange.com/questions/49863/did-rviz-become-unit-aware), which supports the built-against inference: \"I think to remember, that it was ignoring the unit information nested inside Collada files so far. That's why we had to add the scale parameter in our URDFs.\""
+}

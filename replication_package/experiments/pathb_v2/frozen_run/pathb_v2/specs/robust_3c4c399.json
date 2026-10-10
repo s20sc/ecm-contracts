@@ -1,0 +1,109 @@
+{
+  "case_id": "robust_3c4c399",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/240",
+    "https://github.com/yujinrobot/kobuki/issues/240#issuecomment-14257672",
+    "https://github.com/yujinrobot/kobuki/issues/240#issuecomment-14343459",
+    "https://github.com/yujinrobot/kobuki/issues/240#issuecomment-22916230",
+    "https://github.com/yujinrobot/kobuki/commit/3c4c399a460b314152722de6b99804e138d68e88",
+    "https://github.com/yujinrobot/kobuki/issues/226"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Maintainer's confirmation: the issue was opened by the maintainer (stonier): \"All of the getXXX functions need to be protected against people calling them whilst in the middle of a sensitive part of the spin loop.\" and \"its dangerous code as soon as someone starts calling those getXXX functions asynchronously, like you have done with a polling method\"; the fix commit 3c4c399a adds data_mutex and lockDataAccess()/unlockDataAccess() with a comment 'refer to https://github.com/yujinrobot/kobuki/issues/240'. No reproducer or error log exists; the confirmation is concrete at code level."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_driver", "mirzashah_polling_program"],
+      "interface_kind": "library API",
+      "evidence": "Step 1: kobuki_driver is a library (package kobuki_driver, kobuki repository); the consumer is a separately built user program described by mirzashah that links the library and polls its getters from its own loop (no public repository; excerpt-based). Step 2: the failure depends on an assumption between the units: the driver's spin thread (spawned by init()) writes the sensor structures without a lock and the getters return them without a lock, which is safe only for callers that call getXXX from the driver's slot callbacks; the maintainer states the in-house consumer that does so (kobuki_node) 'is fine' while a caller polling asynchronously has 'no guarantee of safety'. It is therefore not a defect independent of the peer. Steps 3-5: no name binding, build, or firmware issue. Interface kind: library API (kobuki::Kobuki getXXX / init)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the driver's getters return sensor data that the consumer's loop reads (\"polls the sensors via the get*() calls, then calls updateOdometry\"). The defect manifests only while the driver's serial thread and the consumer's loop are both running, which also reads as CONCURRENT; the interaction the source describes is the API call, so PAIR is recorded and CONCURRENT noted."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Effect never observed in the source: mirzashah: \"So far it seems to work fine, so it may be a non-issue.\"; stonier: \"its dangerous code as soon as someone starts calling those getXXX functions asynchronously\". Eligible with outcome class undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "kobuki_driver",
+      "role": "provider",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "45ede229d40c4408f4f6a4689c5543c719a473b8",
+      "resolved_rev": "3c4c399a460b314152722de6b99804e138d68e88",
+      "pinned": true,
+      "revision_basis": "The reporter names no revision. 45ede229 (2013-08-20, hydro-devel) is the parent of the fix and the last revision without the data mutex; the same unprotected getters (e.g. kobuki.hpp: CoreSensors::Data getCoreSensorData() const { return core_sensors.data; } with only command_mutex declared) are present at release 0.3.6 (400374f2, 2013-02-28, the release current on the report date), so every revision from the report to the fix parent declares the same interface. 3c4c399a (2013-08-22) is the fix ('lock api for protecting data access with asynchronous getXXX calls.'), contained in tag 0.5.0 and later.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "mirzashah_polling_program",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2013-02-28",
+      "resolved_rev": "as-reported-2013-02-28",
+      "pinned": false,
+      "revision_basis": "A user program with no public repository, described only in mirzashah's comment of 2013-02-28 (a single-threaded loop that polls the get*() calls and updateOdometry after init()). The committed resolution changes only the driver; no change to this program is shown, so the same label is kept for the resolved composition (the fix's comments ask such callers to wrap getXXX calls in lockDataAccess()/unlockDataAccess()).",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "api:kobuki::Kobuki::init", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::getHeading", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::getAngularVelocity", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::getCoreSensorData", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::getDockIRData", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::getCliffData", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::getCurrentData", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::getInertiaData", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::getGpInputData", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}},
+    {"element": "api:kobuki::Kobuki::updateOdometry", "sides": {"kobuki_driver": "provides", "mirzashah_polling_program": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:kobuki::Kobuki::init",
+        "api:kobuki::Kobuki::getHeading",
+        "api:kobuki::Kobuki::getAngularVelocity",
+        "api:kobuki::Kobuki::getCoreSensorData",
+        "api:kobuki::Kobuki::getDockIRData",
+        "api:kobuki::Kobuki::getCliffData",
+        "api:kobuki::Kobuki::getCurrentData",
+        "api:kobuki::Kobuki::getInertiaData",
+        "api:kobuki::Kobuki::getGpInputData"
+      ],
+      "quote": "All of the getXXX functions need to be protected against people calling them whilst in the middle of a sensitive part of the spin loop.",
+      "url": "https://github.com/yujinrobot/kobuki/issues/240"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No failure was ever observed: \"So far it seems to work fine, so it may be a non-issue.\" (https://github.com/yujinrobot/kobuki/issues/240#issuecomment-14257672). A data race between the driver's serial thread and the caller's getters would produce no diagnostic from any tooling.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "kobuki_driver adds ecl::Mutex data_mutex with public lockDataAccess()/unlockDataAccess(); Kobuki::spin() holds the lock while parsing a received packet into the sensor structures, and callers that poll the getters are told to hold the lock around their getXXX calls (kobuki 3c4c399a; kobuki_node receives only a documentation comment).",
+    "status": "recommended",
+    "evidence": "\"Mutex protection is in hydro. I'll just check that we have a synchronous way of accessing the bundle of sensor data at one time so it's all synchronised. 3c4c399a460b314152722de6b99804e138d68e88 Its fugly - user should take care of locking and unlocking around his getXXX calls. This ensures that the data is all synchronised.\" (https://github.com/yujinrobot/kobuki/issues/240#issuecomment-22916230). The fix is committed but not shown running with a polling client; the polling client would additionally have to adopt the lock API."
+  },
+  "ros_generation": "other",
+  "excerpt_based": true,
+  "confidence": "low",
+  "notes": "The consumer is a plain C++ program against the driver library, not a ROS node (\"I don't use any of the ecl sigslots stuff\"), hence ros_generation 'other'; the driver itself is ROS-independent. Alternative operation reading: CONCURRENT (the driver's thread spawned by init() and the caller's polling loop are simultaneously active in one process); recorded as PAIR because the interaction the source describes is the API call whose returned data is read. The in-house composition kobuki_driver + kobuki_node is stated not to fail (\"Our kobuki node is fine because we use liberal doses of black magic by calling these functions only in the slot callbacks\"; issue #226: \"Kobuki node is ok because it all getXXX kobuki diff driver commands are all called in the slots ... If any of these calls were being made outside the slot callbacks, then we have no guarantee of safety.\"), so it is not the failing composition. The getters listed in the inventory are those declared in kobuki.hpp at 45ede229 (lines 107-120) plus init and updateOdometry named by the consumer's description; the consumer's exact set of get*() calls is not stated. Distro: the discussion says the fix was deferred from groovy and targeted at hydro (\"Target for hydro\", \"Mutex protection is in hydro\"), but no distro is stated for the consumer's run. The resolved composition as committed still races unless the consumer calls lockDataAccess()/unlockDataAccess(); the committed spin() lock only makes the driver's own parse atomic."
+}

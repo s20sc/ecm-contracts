@@ -1,0 +1,98 @@
+{
+  "case_id": "robust_c779432",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/commit/c7794329bf632592bf1d345d1290ff4b8d13580a",
+    "https://github.com/ros-industrial/universal_robot/pull/286",
+    "https://github.com/ros-industrial/universal_robot/commit/3d8acc4d683c344b9760c0a12bb799df517c48d5",
+    "https://github.com/moveit/moveit/pull/361",
+    "https://github.com/moveit/moveit_msgs/issues/3",
+    "https://github.com/moveit/moveit_msgs/pull/35",
+    "https://github.com/moveit/moveit_msgs/commit/2f3f97b92c35af4672c1b63268861767d0a9850b",
+    "https://github.com/moveit/geometric_shapes/pull/51",
+    "https://github.com/moveit/geometric_shapes/commit/ba21fbf7bd7d9ea6e8654318d65d0c16ff781861"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #286 (davetcoleman, \"Fixup for MoveIt! Kinetic\") states \"Fixes https://github.com/ros-planning/moveit/pull/361 among other things\" and changes ur_kinematics' #include <moveit_msgs/GetKinematicSolverInfo.h> to #include <moveit_msgs/KinematicSolverInfo.h>; maintainer shaun-edwards merged it (\"+1..\nThanks for the contribution....merging.\"). moveit_msgs commit 2f3f97b removed srv/GetKinematicSolverInfo.srv (moveit_msgs issue #3: \"It is only used by pr2_arm_kinematics and nobody calls it.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["moveit_msgs", "ur_kinematics"],
+      "interface_kind": "definition",
+      "evidence": "ur_kinematics' ur_moveit_plugin.h includes the generated header of the service definition moveit_msgs/GetKinematicSolverInfo (to obtain moveit_msgs::KinematicSolverInfo); moveit_msgs removed srv/GetKinematicSolverInfo.srv on kinetic-devel (2f3f97b, merged via moveit_msgs PR #35 on 2016-11-17), so the referenced definition no longer exists. The consumer must follow the provider's removal; the fix changes the consumer's reference, not only build configuration."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: ur_kinematics (release 1.1.9) still references a moveit_msgs definition as it existed before 2f3f97b, built against MoveIt Kinetic sources after the removal (PR title \"Fixup for MoveIt! Kinetic\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch in the merged fix: \"-#include <moveit_msgs/GetKinematicSolverInfo.h>\" / \"+#include <moveit_msgs/KinematicSolverInfo.h>\", mirroring MoveIt PR #361 (\"``GetKinematicSolverInfo`` is no longer used. Here I replace an inappropriate dependency with the message ``KinematicSolverInfo``\"). No build log is shown."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "moveit_msgs",
+      "role": "provider",
+      "repo": "https://github.com/moveit/moveit_msgs",
+      "broken_rev": "cf3a83ed3e2ea1e1fdfae75b26e18af36cfd75a5",
+      "resolved_rev": "cf3a83ed3e2ea1e1fdfae75b26e18af36cfd75a5",
+      "pinned": true,
+      "revision_basis": "The reporter names only \"MoveIt! Kinetic\". moveit_msgs kinetic-devel head at PR creation (2017-01-05T07:34Z) was cf3a83ed (merge of moveit_msgs PR #35, 2016-11-17). Lower bound: removal commit 2f3f97b (2016-11-16); the removal was not in a release until 0.9.1 (2017-02-06), so the broken composition used moveit_msgs from source. The UR fix does not change moveit_msgs.",
+      "excerpt": false,
+      "ros_distro": "kinetic"
+    },
+    {
+      "name": "ur_kinematics",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "1.1.9",
+      "resolved_rev": "c7794329bf632592bf1d345d1290ff4b8d13580a",
+      "pinned": true,
+      "revision_basis": "Broken: tag 1.1.9 (7958c81), the kinetic-devel first parent of merge c779432, whose ur_moveit_plugin.h includes <moveit_msgs/GetKinematicSolverInfo.h>. Resolved: merge c779432 of PR #286 (fix commit 3d8acc4), which includes <moveit_msgs/KinematicSolverInfo.h> and also adds add_compile_options(-std=c++11) and DEPENDS Boost.",
+      "excerpt": false,
+      "ros_distro": "kinetic"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "280ec03b6c243c9f3ec605bc204d2c44065a087b",
+    "resolved": "cf3a83ed3e2ea1e1fdfae75b26e18af36cfd75a5",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "msg:moveit_msgs/GetKinematicSolverInfo", "sides": {"moveit_msgs": "provides", "ur_kinematics": "consumes"}},
+    {"element": "msg:moveit_msgs/KinematicSolverInfo", "sides": {"moveit_msgs": "provides", "ur_kinematics": "consumes"}},
+    {"element": "msg:moveit_msgs/GetPositionFK", "sides": {"moveit_msgs": "provides", "ur_kinematics": "consumes"}},
+    {"element": "msg:moveit_msgs/GetPositionIK", "sides": {"moveit_msgs": "provides", "ur_kinematics": "consumes"}},
+    {"element": "msg:moveit_msgs/MoveItErrorCodes", "sides": {"moveit_msgs": "provides", "ur_kinematics": "consumes"}},
+    {"element": "msg:moveit_msgs/JointLimits", "sides": {"moveit_msgs": "provides", "ur_kinematics": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["msg:moveit_msgs/GetKinematicSolverInfo"],
+      "quote": "-#include <moveit_msgs/GetKinematicSolverInfo.h>\n+#include <moveit_msgs/KinematicSolverInfo.h>",
+      "url": "https://github.com/ros-industrial/universal_robot/commit/3d8acc4d683c344b9760c0a12bb799df517c48d5"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No diagnostic is quoted; the PR only states \"Fixes https://github.com/ros-planning/moveit/pull/361 among other things\". A removed service definition would surface when compiling ur_kinematics against the post-removal moveit_msgs, but the source does not show it.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "In ur_kinematics/include/ur_kinematics/ur_moveit_plugin.h include <moveit_msgs/KinematicSolverInfo.h> instead of the removed service header <moveit_msgs/GetKinematicSolverInfo.h>.",
+    "status": "recommended",
+    "evidence": "PR #286 merged 2017-01-05 (merge c779432); no post-fix build or run is shown with an identified moveit_msgs revision."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Composition choice departs from the packet title. PR #286 fixes three things in ur_kinematics: (1) the moveit_msgs/GetKinematicSolverInfo include (the one the reporter names: \"Fixes https://github.com/ros-planning/moveit/pull/361 among other things\"), (2) add_compile_options(-std=c++11), and (3) catkin_package DEPENDS boost -> Boost. Following the rule to specify the composition the reporter names, this spec covers moveit_msgs/ur_kinematics. The packet's bug title (\"required C++11 compiler\") refers to (2): geometric_shapes PR #51 (merge ba21fbf7, 2016-08-16) added to include/geometric_shapes/shapes.h \"#if __cplusplus <= 199711L\\n#error This header requires at least C++11\\n#endif\" (and in shape_messages.h \"#error This header requires at least C++11 (boost::variant is incompatible between c++98 and c++11 and we enforce 11)\"), which ur_kinematics reaches through MoveIt headers; its resolving change in ur_kinematics is a compiler flag only, so that composition would stop at E2 step 4 (build). (3) is a build-system change. Element naming: the service type is written as msg:moveit_msgs/GetKinematicSolverInfo (definition type) for lack of a canonical srv-type form. consumer_built_against.broken is the moveit_msgs kinetic-devel parent of the removal commit (280ec03b, still containing srv/GetKinematicSolverInfo.srv); resolved is the kinetic-devel head the fix was written for."
+}

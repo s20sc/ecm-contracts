@@ -1,0 +1,164 @@
+{
+ "task_id": "u0156",
+ "package": "mavros",
+ "manifest_version": "0.17.3",
+ "ports": [
+  {
+   "element": "field:mavlink/COMMAND_ACK.command",
+   "side": "consumes",
+   "msg_type": "mavlink/COMMAND_ACK",
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "field:mavlink/COMMAND_ACK.result",
+   "side": "consumes",
+   "msg_type": "mavlink/COMMAND_ACK",
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "field:mavlink/COMMAND_LONG.confirmation",
+   "side": "provides",
+   "msg_type": "mavlink/COMMAND_LONG",
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "field:mavlink/HEARTBEAT.autopilot",
+   "side": "consumes",
+   "msg_type": "mavlink/HEARTBEAT",
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "msg:mavlink/COMMAND_ACK",
+   "side": "consumes",
+   "msg_type": "mavlink/COMMAND_ACK",
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "msg:mavlink/COMMAND_INT",
+   "side": "provides",
+   "msg_type": "mavlink/COMMAND_INT",
+   "frame": "per_message",
+   "units": "x: latitude in deg * 1E7 or local x * 1E4 m; y: longitude in deg * 1E7 or local y * 1E4 m; z: altitude (unit not stated)",
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "msg:mavlink/COMMAND_LONG",
+   "side": "provides",
+   "msg_type": "mavlink/COMMAND_LONG",
+   "frame": null,
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  }
+ ],
+ "exclusive": [],
+ "declares": {},
+ "not_declared": [],
+ "references": [
+  "msg:mavlink/COMMAND_ACK",
+  "field:mavlink/COMMAND_ACK.command",
+  "field:mavlink/COMMAND_ACK.result",
+  "msg:mavlink/HEARTBEAT",
+  "field:mavlink/HEARTBEAT.autopilot"
+ ],
+ "perm_requires": {
+  "state": "absent",
+  "values": []
+ },
+ "perm_grants": {
+  "state": "absent",
+  "values": []
+ },
+ "recovery": {
+  "state": "present",
+  "value": "command plugin waits up to ACK_TIMEOUT_MS = 5000 for COMMAND_ACK and returns success=false on timeout without retry; sys_status resends REQUEST_AUTOPILOT_CAPABILITIES via cmd/command (COMMAND_LONG) up to RETRIES_COUNT = 6 times, broadcast first then unicast, then falls back to default capabilities"
+ },
+ "provenance": {
+  "manifest_version": "snapshot:mavros/package.xml:4",
+  "ports[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:105",
+  "ports[0].frame": "snapshot:mavros/src/plugins/command.cpp:110 (ack.command is a MAV_CMD id compared with expected_command; no spatial meaning)",
+  "ports[1].msg_type": "snapshot:mavros/src/plugins/command.cpp:105",
+  "ports[1].frame": "snapshot:mavros/src/plugins/command.cpp:111 (ack.result is a MAV_RESULT code; no spatial meaning)",
+  "ports[2].msg_type": "snapshot:mavros/src/plugins/command.cpp:240",
+  "ports[2].frame": "snapshot:mavros/src/plugins/command.cpp:244 (cmd.confirmation = confirmation_fixed; a counter/flag, no spatial meaning)",
+  "ports[3].msg_type": "snapshot:mavros/src/plugins/sys_status.cpp:619",
+  "ports[3].frame": "snapshot:mavros/src/plugins/sys_status.cpp:629 (hb.autopilot passed to UAS::update_heartbeat; MAV_AUTOPILOT enum, no spatial meaning)",
+  "ports[4].msg_type": "snapshot:mavros/src/plugins/command.cpp:105",
+  "ports[4].frame": "snapshot:mavros/src/plugins/command.cpp:105-117 (only command and result are read; no spatial content)",
+  "ports[5].msg_type": "snapshot:mavros/src/plugins/command.cpp:271",
+  "ports[5].frame": "snapshot:mavros/src/plugins/command.cpp:274 (cmd.frame = frame; taken from each service request req.frame at mavros/src/plugins/command.cpp:307)",
+  "ports[5].units": "snapshot:mavros_msgs/srv/CommandInt.srv:13-15 (int32 x # latitude in deg * 1E7 or local x * 1E4 m / int32 y # longitude in deg * 1E7 or local y * 1E4 m / float32 z # altitude); copied unchanged into cmd.x, cmd.y, cmd.z at mavros/src/plugins/command.cpp:282-284",
+  "references[msg:mavlink/COMMAND_ACK]": "snapshot:mavros/src/plugins/command.cpp:105",
+  "references[field:mavlink/COMMAND_ACK.command]": "snapshot:mavros/src/plugins/command.cpp:110",
+  "references[field:mavlink/COMMAND_ACK.result]": "snapshot:mavros/src/plugins/command.cpp:111",
+  "references[msg:mavlink/HEARTBEAT]": "snapshot:mavros/src/plugins/sys_status.cpp:619",
+  "references[field:mavlink/HEARTBEAT.autopilot]": "snapshot:mavros/src/plugins/sys_status.cpp:629",
+  "perm_requires.state": "searched snapshot mavros/src, mavros/include, mavros/launch (*.yaml) for permission/capability-gating declarations; none found",
+  "perm_grants.state": "searched snapshot mavros/src, mavros/include, mavros/launch (*.yaml) for permission/capability-gating declarations; none found",
+  "recovery.value": "snapshot:mavros/src/plugins/command.cpp:99,122-127,184 (ACK_TIMEOUT_MS = 5000; timeout gives success=false, no retry); snapshot:mavros/src/plugins/sys_status.cpp:497,735,757-767 (RETRIES_COUNT = 6; broadcast then unicast fallback; on exhaustion update_capabilities(false))"
+ },
+ "blinding_guess": {
+  "defective": "yes",
+  "why": "send_command_long_and_wait treats COMMAND_LONG.confirmation as an ACK-required flag (is_ack_required = (confirmation != 0 || is_ardupilotmega()) && !is_px4(), command.cpp:158) and the arming/set_home/takeoff/land/trigger_control services send confirmation = 1 on the first transmission (command.cpp:320,331,342,355,367); ACK waiting is gated on HEARTBEAT.autopilot so COMMAND_ACK.result from a PX4 FCU is never read and success is reported as ACCEPTED unconditionally (command.cpp:190-193). This looks inconsistent with a confirmation counter whose first transmission is 0."
+ },
+ "confidence": "medium",
+ "notes": "MAVLink message types appear in code as mavlink::common::msg::COMMAND_LONG / COMMAND_INT / COMMAND_ACK / HEARTBEAT (common dialect), generated from the external mavlink package (build_depend mavlink, mavros/package.xml:26; dependencies.rosinstall points to mavlink-gbp-release release/kinetic/mavlink). Their definitions are MAVLink XML dialect files, not .msg/.srv/.action/.idl, and none is in the snapshot; ros_distro is null, so no dependency definition could be fetched. Hence definition_id is null for every port, and the provided elements msg:mavlink/COMMAND_LONG, msg:mavlink/COMMAND_INT and field:mavlink/COMMAND_LONG.confirmation are in neither declares nor not_declared: the package does use and send them (command.cpp:240-253, 271-286; confirmation set at command.cpp:244 from a const uint8_t confirmation_fixed, which is forced to 0 in broadcast mode at command.cpp:238), but the declaration templates need the definition hash / definition field type, which is unavailable. QoS is null throughout: ROS 1, and these are MAVLink wire messages sent via UAS_FCU(m_uas)->send_message_ignore_drop, not ROS topics. COMMAND_LONG frame is null: the message has no frame field and the code declares none, although param5-7 are commented x_lat/y_lon/z_alt in mavros_msgs/srv/CommandLong.srv:11-13. COMMAND_INT is sent without waiting for COMMAND_ACK (command.cpp:210-219, success always true). No rate is set for any element; sys_status sends the capabilities request COMMAND_LONG from a 1.0 s timer (sys_status.cpp:450), which is a retry schedule rather than a declared rate, so rate_hz is left null. The ROS services wrapping these messages (~cmd/command: mavros_msgs/CommandLong, ~cmd/command_int: mavros_msgs/CommandInt, command.cpp:68-69) are not packet elements and are not listed in declares. Config key cmd/use_comp_id_system_control (default false) selects the target component id (command.cpp:66, 235-237; launch/apm_config.yaml:35, px4_config.yaml:35)."
+}

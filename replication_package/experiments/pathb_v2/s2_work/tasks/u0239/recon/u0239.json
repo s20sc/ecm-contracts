@@ -1,0 +1,54 @@
+{
+  "task_id": "u0239",
+  "package": "MoveRobot",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "msg:franka_msgs/FrankaState",
+      "side": "consumes",
+      "msg_type": "franka_msgs/FrankaState",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/franka_state_controller/franka_states",
+      "side": "consumes",
+      "msg_type": "franka_msgs/FrankaState",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "msg:franka_msgs/FrankaState",
+    "topic:/franka_state_controller/franka_states"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].msg_type": "void FrankaStateCallback (const franka_msgs::FrankaState& FState2)",
+    "ports[1].msg_type": "Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState]",
+    "references[msg:franka_msgs/FrankaState]": "franka_msgs::FrankaState contact;",
+    "references[topic:/franka_state_controller/franka_states]": "Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState]",
+    "perm_requires.state": "excerpt-based task: artifact.txt lines 1-7 are the only allowed source; no manifest, launch or configuration files available to check",
+    "perm_grants.state": "excerpt-based task: artifact.txt lines 1-7 are the only allowed source; no manifest, launch or configuration files available to check",
+    "recovery.state": "excerpt-based task: artifact.txt lines 1-7 are the only allowed source; the full node code and configuration are not available to check"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "artifact line 7 is the opening of the roscpp publisher-side header check message ('Client [...] wants topic ... to have datatype/md5sum [...], but our version has [...]. Dropping connection.'), which is emitted only when the subscriber's md5sum differs from the publisher's; so MoveRobot's compiled franka_msgs/FrankaState (msg:franka_msgs/FrankaState, possibly via a nested type such as franka_msgs/Errors) does not match the one published on /franka_state_controller/franka_states, and FrankaStateCallback would never receive data."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based ROS 1 (kinetic) task; the only source is artifact.txt (7 lines). Lines 1-6 are C++ from the node: a global 'franka_msgs::FrankaState contact;' and the subscriber callback 'FrankaStateCallback(const franka_msgs::FrankaState&)'. Line 7 is a roscpp runtime log line naming client /MoveRobot, topic /franka_state_controller/franka_states and datatype franka_msgs/FrankaState; the md5sum part inside the brackets is not present in the excerpt. The ros::Subscriber / nh.subscribe call itself is not in the excerpt, so the topic name recorded is the resolved name the node requested at run time; whether it is hard-coded in the code or produced by remapping cannot be determined (it is kept in references because the log attributes the request to /MoveRobot). msg:franka_msgs/Errors is not named anywhere in the excerpt; whether the node uses it (directly or as a nested field type of FrankaState) cannot be determined from the artifact, so it has no port and is not in references. All three packet elements are consumed, so declares and not_declared are empty by definition. definition_id is null for both ports: for excerpt-based tasks only the artifact may be used, and it contains neither the FrankaState definition text nor the md5sum. QoS is null (ROS 1). frame and units are null: the excerpt hard-codes no frame and states no units. manifest_version null: no package.xml in the excerpt. exclusive is empty only in the sense that the excerpt claims no exclusive resource; the rest of the package could not be checked. rate_hz/min_rate_hz not set in the excerpt."
+}

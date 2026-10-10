@@ -1,0 +1,87 @@
+{
+  "task_id": "u0139",
+  "package": "mavsetp",
+  "manifest_version": "0.16.5",
+  "ports": [
+    {
+      "element": "api:mavros.command.guided_enable",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/mavros/setpoint_accel/accel",
+      "side": "provides",
+      "msg_type": "geometry_msgs/Vector3Stamped",
+      "frame": "mavsetp",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/mavros/setpoint_position/local",
+      "side": "provides",
+      "msg_type": "geometry_msgs/PoseStamped",
+      "frame": "mavsetp",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/mavros/setpoint_velocity/cmd_vel",
+      "side": "provides",
+      "msg_type": "geometry_msgs/TwistStamped",
+      "frame": "mavsetp",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "topic:/mavros/setpoint_accel/accel": "topic /mavros/setpoint_accel/accel: geometry_msgs/Vector3Stamped",
+    "topic:/mavros/setpoint_position/local": "topic /mavros/setpoint_position/local: geometry_msgs/PoseStamped",
+    "topic:/mavros/setpoint_velocity/cmd_vel": "topic /mavros/setpoint_velocity/cmd_vel: geometry_msgs/TwistStamped"
+  },
+  "not_declared": [],
+  "references": [
+    "api:mavros.command.guided_enable"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:mavros/package.xml:4 (<version>0.16.5</version>; mavsetp is a script of the mavros package, snapshot:mavros/scripts/mavsetp, installed via snapshot:mavros/CMakeLists.txt:156 file(GLOB SCRIPTS ${PROJECT_SOURCE_DIR}/scripts/*); it has no manifest of its own)",
+    "ports[0].frame": "snapshot:mavros/scripts/mavsetp:40 command.guided_enable(value=True) -- the only argument is a boolean enable flag, no spatial data",
+    "ports[1].msg_type": "snapshot:mavros/src/mavros/setpoint.py:22 return rospy.Publisher(mavros.get_topic('setpoint_accel', 'accel'), Vector3Stamped, **kvargs); Vector3Stamped imported from geometry_msgs.msg at snapshot:mavros/src/mavros/setpoint.py:14-15; called at snapshot:mavros/scripts/mavsetp:69",
+    "ports[1].frame": "snapshot:mavros/scripts/mavsetp:71 vel = sp.Vector3Stamped(header=sp.Header(frame_id='mavsetp', stamp=rospy.get_rostime()))",
+    "ports[2].msg_type": "snapshot:mavros/src/mavros/setpoint.py:57 return rospy.Publisher(mavros.get_topic('setpoint_position', 'local'), PoseStamped, **kvargs); PoseStamped imported from geometry_msgs.msg at snapshot:mavros/src/mavros/setpoint.py:14; called at snapshot:mavros/scripts/mavsetp:46",
+    "ports[2].frame": "snapshot:mavros/scripts/mavsetp:48 pos = sp.PoseStamped(header=sp.Header(frame_id='mavsetp', stamp=rospy.get_rostime()))",
+    "ports[3].msg_type": "snapshot:mavros/src/mavros/setpoint.py:64 return rospy.Publisher(mavros.get_topic('setpoint_velocity', 'cmd_vel'), TwistStamped, **kvargs); TwistStamped imported from geometry_msgs.msg at snapshot:mavros/src/mavros/setpoint.py:14; called at snapshot:mavros/scripts/mavsetp:59",
+    "ports[3].frame": "snapshot:mavros/scripts/mavsetp:61 vel = sp.TwistStamped(header=sp.Header(frame_id='mavsetp', stamp=rospy.get_rostime()))",
+    "declares[topic:/mavros/setpoint_accel/accel]": "snapshot:mavros/scripts/mavsetp:69 pub = sp.get_pub_accel_accel(queue_size=10, latch=True) -> snapshot:mavros/src/mavros/setpoint.py:22 mavros.get_topic('setpoint_accel', 'accel'), Vector3Stamped; namespace default '/mavros' at snapshot:mavros/scripts/mavsetp:91, set at :112; name joined by '/' at snapshot:mavros/src/mavros/__init__.py:53",
+    "declares[topic:/mavros/setpoint_position/local]": "snapshot:mavros/scripts/mavsetp:46 pub = sp.get_pub_position_local(queue_size=10, latch=True) -> snapshot:mavros/src/mavros/setpoint.py:57 mavros.get_topic('setpoint_position', 'local'), PoseStamped; namespace default '/mavros' at snapshot:mavros/scripts/mavsetp:91, set at :112; name joined at snapshot:mavros/src/mavros/__init__.py:53",
+    "declares[topic:/mavros/setpoint_velocity/cmd_vel]": "snapshot:mavros/scripts/mavsetp:59 pub = sp.get_pub_velocity_cmd_vel(queue_size=10, latch=True) -> snapshot:mavros/src/mavros/setpoint.py:64 mavros.get_topic('setpoint_velocity', 'cmd_vel'), TwistStamped; namespace default '/mavros' at snapshot:mavros/scripts/mavsetp:91, set at :112; name joined at snapshot:mavros/src/mavros/__init__.py:53",
+    "references[api:mavros.command.guided_enable]": "snapshot:mavros/scripts/mavsetp:40 command.guided_enable(value=True) (module imported at snapshot:mavros/scripts/mavsetp:18 from mavros import command, setpoint as sp)",
+    "perm_requires.state": "searched snapshot:mavros/scripts/mavsetp (117 lines) and the helpers it calls (snapshot:mavros/src/mavros/setpoint.py, command.py, __init__.py, utils.py): no permission requirement declared",
+    "perm_grants.state": "same search as perm_requires: no permission grant declared",
+    "recovery.state": "same search: no recovery behaviour declared; on rospy.ServiceException enable_offboard() calls fault(ex), which prints and sys.exit(1) (snapshot:mavros/scripts/mavsetp:41-42, snapshot:mavros/src/mavros/utils.py:25-28)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "mavsetp calls command.guided_enable(value=True) (mavsetp:40), but mavros/src/mavros/command.py at this revision never defines guided_enable: it only appears in the global statement of _setup_services (command.py:40) and is never assigned, there is no module-level binding, and the C++ command plugin advertises no guided_enable service (command.cpp:64-70). The call would raise AttributeError, which the except rospy.ServiceException clause does not catch."
+  },
+  "confidence": "high",
+  "notes": "The unit is the Python script mavros/scripts/mavsetp inside the mavros package (0.16.5); it runs as node 'mavsetp' (anonymous). Provided topic names are composed at run time from the --mavros-ns option (default '/mavros', mavsetp:91) plus the fixed suffixes in mavros/src/mavros/setpoint.py; the declares entries use the default namespace. Each publisher is created with queue_size=10, latch=True and publishes a single message (publish_once, mavsetp:25-35), so no rate is set; QoS fields are null because this is ROS 1. Units: the code states none (position/velocity/acceleration come from CLI floats; yaw is converted from degrees with math.radians only when -d is given, mavsetp:51), so units are null. definition_id is null for all ports: the geometry_msgs and std_msgs definitions are not in the snapshot and ros_distro is null, so no dependency release tag is defined from which to fetch them (the snapshot's .travis.yml:9 names ROS_DISTRO=hydro but the packet does not set a distro, so nothing was fetched). api:mavros.command.guided_enable: mavsetp references it, but its type cannot be determined at this revision because command.py does not define it (see blinding_guess); msg_type and definition_id are therefore null. service:/mavros/cmd/guided_enable: not named anywhere in mavsetp, and command.py's _setup_services (command.py:39-47) builds no proxy for 'guided_enable', so at this revision the code does not reference or call this service; not listed in ports or references. service:/mavros/set_mode: not referenced by mavsetp (grep over the snapshot finds set_mode only in mavros/scripts/mavsys:45 and mavros/src/plugins/sys_status.cpp:411); not listed. Other mavros Python symbols mavsetp uses but that are not packet elements: mavros.set_namespace, mavros.setpoint.get_pub_position_local, get_pub_velocity_cmd_vel, get_pub_accel_accel, mavros.utils.print_if, fault. No exclusive resources claimed."
+}

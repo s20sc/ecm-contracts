@@ -1,0 +1,20 @@
+{
+ "item_id": "A1-CAL2-10",
+ "kind": "A1",
+ "case_id": "CAL2-10",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+  "quote": "I just updated my Groovy debian installation with the release that was posted today on ros-users and now collada meshes no longer appear in RViz.  In particular, the TurtleBot is now basically invisible.",
+  "url": "https://github.com/ros-visualization/rviz/issues/622"},
+ "failed_conditions": [
+  {"index": 0, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+   "quote": "-\t\t<unit meter=\"0.01\" name=\"centimeter\"/>\n+\t\t<unit meter=\"1.0\" name=\"meter\"/>",
+   "url": "https://github.com/turtlebot/turtlebot_create/commit/9299530eb77b9e8a2a18160fb6ece325d38abfbc"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "disagree", "proposed": "silent_documented",
+  "quote": "the TurtleBot is now basically invisible",
+  "url": "https://github.com/ros-visualization/rviz/issues/622"},
+ "resolution": {"verdict": "agree", "proposed": null,
+  "quote": "turtlebot_create version 2.0.1 fixes this issue. It's now available on shadow-fixed."},
+ "notes": "Eligibility (UPGRADE, rviz became unit-aware while create_body.dae still declared centimeters), class unit_mismatch, and resolution recommended all agree with the sources I read (rviz #622 body + comments, turtlebot_create PR #7 merged 2013-04-01, commit 9299530 changing the <unit> declaration). The loudness is WRONG: the spec claims loud_documented/connect with evidence 'the consumer logs an incompatibility error naming the element before any data is exchanged'. No such diagnostic exists in the source. The symptom is silent wrong rendering ('the TurtleBot is now basically invisible', 'whole robot is just a few speckles of gray and white scattered around') with no error log. Correct: silent_documented, detection_stage run."
+}

@@ -1,0 +1,55 @@
+{
+  "task_id": "u0216",
+  "package": "urdfdom_headers",
+  "manifest_version": "0.4.2",
+  "ports": [
+    {
+      "element": "api:urdf::ModelInterface",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:urdf::ModelInterfaceSharedPtr",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:urdf::ModelInterface": "api urdf::ModelInterface: class ModelInterface",
+    "api:urdf::ModelInterfaceSharedPtr": "api urdf::ModelInterfaceSharedPtr: typedef boost::shared_ptr<ModelInterface> ModelInterfaceSharedPtr;"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:CMakeLists.txt:6-8 | set (URDF_MAJOR_VERSION 0) / set (URDF_MINOR_VERSION 4) / set (URDF_PATCH_VERSION 2); no package.xml exists in the snapshot (README.md says it is added during the ROS release process), so this is the CMake project version, also emitted as Version: @URDF_VERSION@ in cmake/pkgconfig/urdfdom_headers.pc.in",
+    "ports[0]": "snapshot:urdf_model/include/urdf_model/model.h:48 | class ModelInterface (inside namespace urdf { opened at line 46)",
+    "ports[1]": "snapshot:urdf_world/include/urdf_world/types.h:48 | typedef boost::shared_ptr<ModelInterface> ModelInterfaceSharedPtr; (inside namespace urdf{ opened at line 43, after forward declaration class ModelInterface; at line 45)",
+    "declares[api:urdf::ModelInterface]": "snapshot:urdf_model/include/urdf_model/model.h:48",
+    "declares[api:urdf::ModelInterfaceSharedPtr]": "snapshot:urdf_world/include/urdf_world/types.h:48",
+    "perm_requires.state": "searched all 25 snapshot files (5 header subtrees, CMake files, pkg-config template, README, LICENSE); header-only C++ library with no permission, capability or access declarations",
+    "perm_grants.state": "same search as perm_requires; nothing granted",
+    "recovery.state": "same search; no recovery, fallback or retry declaration; the only error handling is throwing urdf::ParseError in model.h:123-182"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "ModelInterfaceSharedPtr is declared only in urdf_world/types.h as a boost::shared_ptr typedef, which neither urdf_model/model.h nor urdf_model/types.h includes; the URDF_TYPEDEF_CLASS_POINTER list in urdf_model/types.h (lines 55-70) covers every other model class but omits ModelInterface, and no ModelInterfaceConstSharedPtr or ModelInterfaceWeakPtr exists, so a consumer that includes urdf_model/model.h and names urdf::ModelInterfaceSharedPtr (or its const variant) would not compile. This is a guess from the header layout, not a verified failure."
+  },
+  "confidence": "high",
+  "notes": "Header-only C++ library (ROS 1, distro lunar); the two packet elements are C++ API symbols, not ROS topics/services, so msg_type, frame, units, QoS (null for ROS 1), rates and definition_id are all null (no .msg/.srv/.action/.idl exists in the snapshot and none applies). Both elements are declared in namespace urdf. urdf::ModelInterface is a concrete class in urdf_model/include/urdf_model/model.h:48 with inline getRoot/getLink/getJoint/getName/getLinks/clear/getMaterial/initTree/initRoot and public members links_, joints_, materials_, name_, root_link_. urdf::ModelInterfaceSharedPtr is declared in a different installed header, urdf_world/include/urdf_world/types.h:48, as typedef boost::shared_ptr<ModelInterface>; it is reachable through urdf_world/world.h (which includes urdf_world/types.h at line 81 and uses ModelInterfaceSharedPtr at line 88) but not through urdf_model/model.h or urdf_model/types.h. Smart pointers throughout are boost::shared_ptr / boost::weak_ptr (urdf_model/types.h:40-47). grep for ModelInterface over the whole snapshot returns only 4 lines (model.h:48, world.h:88, urdf_world/types.h:45 and :48); no ModelInterfaceConstSharedPtr or ModelInterfaceWeakPtr is declared. The code also uses boost smart pointers and tinyxml TiXmlElement (urdf_world/world.h), but these are not packet elements and are not listed in references. No exclusive resources. manifest_version comes from CMakeLists.txt because the snapshot has no package.xml."
+}

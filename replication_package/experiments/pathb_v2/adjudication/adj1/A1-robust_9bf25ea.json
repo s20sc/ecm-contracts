@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-robust_9bf25ea",
+  "kind": "A1",
+  "case_id": "robust_9bf25ea",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106",
+    "reason": "A maintained robot-description package supplies a wrong transform value to a model consumer. The declaration crosses a boundary, so an edit inside the description package does not make the defect internal. PAIR is supported at the model/consumer level; the particular robot_state_publisher identity is inferred rather than named by the reporter."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-      <origin xyz=\"0 0 0.0\" rpy=\"0 0 -3.1416\"/>\n+      <origin xyz=\"0 0 0.0\" rpy=\"0 0 -3.1415926535\"/>",
+      "url": "https://github.com/ros-industrial/motoman/commit/9bf25eae1b495fd9ccacb904d93f82c959227582",
+      "reason": "The SIA20 hunk changes the fixed link_t-tool0 orientation. frame_mismatch is defensible for the wrong physical frame definition, not a frame-ID spelling conflict; robot_description is the coarse-grained model interface element."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106",
+    "reason": "The report describes a comparison with the robot, not a parser or runtime interface diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "off by as much as 3 degrees wrt to the values reported by the robot.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed in 9bf25ea.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106#issuecomment-243097763",
+    "reason": "The issue closure and PR merge identify the patch, but show neither a corrected transform measurement nor the revision of a tested consumer. recommended is appropriate."
+  },
+  "notes": "Read issue #106 and PR #110 with comments and the complete fixing diff. The SIA10F edit concerns another model composition. The reported three-degree effect is quoted, not independently validated or inferred from the small rounding delta. The generic model-boundary eligibility is better supported than the specification's exact consumer choice."
+}

@@ -1,0 +1,43 @@
+{
+  "task_id": "u0057",
+  "package": "motoman_sia20d_support",
+  "manifest_version": "0.3.5",
+  "ports": [
+    {
+      "element": "param:/robot_description",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:/robot_description": "param robot_description: string"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:motoman_sia20d_support/package.xml:4",
+    "ports[0].element": "snapshot:motoman_sia20d_support/launch/load_sia20d.launch:2",
+    "ports[0].side": "snapshot:motoman_sia20d_support/launch/load_sia20d.launch:2 (<param name=\"robot_description\" command=\"$(find xacro)/xacro.py '$(find motoman_sia20d_support)/urdf/sia20d.xacro'\" />) sets the parameter on the ROS 1 parameter server",
+    "declares[param:/robot_description]": "snapshot:motoman_sia20d_support/launch/load_sia20d.launch:2; no type= attribute is given, and roslaunch stores the output of a <param command=...> as a string (roslaunch XML <param> tag documentation: 'The output of the command will be read and stored as a string')",
+    "exclusive": "searched all files under snapshot/motoman_sia20d_support (launch/, config/, urdf/, test/, package.xml, CMakeLists.txt); no hardware command interface or exclusive device claim",
+    "perm_requires": "searched all files under snapshot/motoman_sia20d_support; no permission requirement declared",
+    "perm_grants": "searched all files under snapshot/motoman_sia20d_support; no permission grant declared",
+    "recovery": "searched all files under snapshot/motoman_sia20d_support; no recovery behaviour declared"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The single listed element is declared in load_sia20d.launch via xacro.py (available in indigo), the xacro chain (sia20d.xacro -> sia20d_macro.xacro) resolves inside the package, and the checked-in generated sia20d.urdf matches the macro in link names, joint origins, axes and limits; I saw nothing wrong with the declaration itself, but I did not check the kinematic content against the physical robot."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (indigo) support package with no compiled code; the only interface it defines is launch-file parameters. The parameter name is written relative ('robot_description') at load_sia20d.launch:2 and resolves to /robot_description when the launch file is included at the root namespace (the file is also included by test_sia20d.launch:2 and robot_state_visualize_sia20d.launch:25; test/launch_test.xml:33-35 includes it under ns 'load_sia20d'). The value is the xacro-expanded URDF of robot 'motoman_sia20d' (root link 'base_link', tip 'tool0', joints joint_s, joint_l, joint_e, joint_u, joint_r, joint_b, joint_t, fixed joint link_t-tool0), so the parameter has no message type, no header frame, and no msg definition hash; frame is left null because a URDF string defines its own link frames rather than carrying one frame. Units are not stated in the package (URDF convention would be metres/radians, but the code does not say so explicitly). QoS is null (ROS 1). The package also loads param controller_joint_names from config/joint_names_sia20d.yaml (robot_interface_streaming_sia20d.launch:16, robot_state_visualize_sia20d.launch:16) and sets use_gui (test_sia20d.launch:3); these are not packet elements. It includes motoman_driver launch files and starts robot_state_publisher, joint_state_publisher and rviz nodes from other packages, but names no other package's topic/service/param element, so references is empty. package.xml marks the package deprecated (to be replaced by motoman_sia_support). No version history consulted."
+}

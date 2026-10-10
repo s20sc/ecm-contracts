@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-CAL2-01",
+  "kind": "A1",
+  "case_id": "CAL2-01",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Error arises because kobuki.urdf.xacro just defines a component tag `<kobuki/>` that can be used by other xacros (e.g. turtlebot). I've added a kobuki standalone xacro there now.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515",
+    "reason": "E1 and E4: the maintainer reproduces robot_state_publisher's rejection. E2: kobuki_description supplies an incomplete expanded model to a separately deployed consumer. The fix adds a model that actually instantiates the macro, not merely a deployment name binding. E3: PAIR through robot_description."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[ERROR] [1356608164.609420111]: No link elements found in urdf file",
+      "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175",
+      "reason": "The failed requirement is the structural completeness of a robot model, not component order, byte order, handedness, or value encoding. robot_description is the affected parameter."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [1356608164.610010689]: Failed to extract kdl tree from xml robot description",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175",
+    "reason": "The consumer reports a model-loading error at startup."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "process[robot_state_publisher-1]: started with pid [5377]\n[ERROR] [1356608164.609420111]: No link elements found in urdf file",
+    "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175",
+    "reason": "The failure occurs during node startup/model loading, corresponding to activate."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+  <!-- Defines the kobuki component tag. -->\n+  <include filename=\"$(find kobuki_description)/urdf/kobuki.urdf.xacro\" />\n+\n+  <kobuki/>",
+    "url": "https://github.com/yujinrobot/kobuki/commit/4ea5ea7ff535323baeada165764b5b8ceb7bfa87.diff",
+    "reason": "The committed standalone model instantiates the component. The thread does not demonstrate the resolved pair with both units identified by revision; recommended is appropriate."
+  },
+  "notes": "The parser and KDL errors are consequences of the same missing-model-content condition, not additional independent conditions."
+}

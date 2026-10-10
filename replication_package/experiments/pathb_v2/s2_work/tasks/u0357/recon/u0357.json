@@ -1,0 +1,61 @@
+{
+  "task_id": "u0357",
+  "package": "rmw_cyclonedds",
+  "manifest_version": "0.5.1",
+  "ports": [
+    {
+      "element": "api:rmw_create_subscription",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rmw_create_subscription": "api rmw_create_subscription: extern \"C\" rmw_subscription_t * rmw_create_subscription( const rmw_node_t * node, const rosidl_message_type_support_t * type_supports, const char * topic_name, const rmw_qos_profile_t * qos_policies #if RMW_VERSION_GTE(0, 8, 1) , const rmw_subscription_options_t * subscription_options #else , bool ignore_local_publications #endif )"
+  },
+  "not_declared": [
+    "msg:geometry_msgs/PoseStamped",
+    "msg:visualization_msgs/Marker",
+    "topic:/test"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rmw_cyclonedds_cpp/package.xml:5",
+    "ports[0].frame": "snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:1599 (element is a C API function symbol; it carries no spatial data)",
+    "declares[api:rmw_create_subscription]": "snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:1599",
+    "not_declared[msg:geometry_msgs/PoseStamped]": "Searched all 38 snapshot files: no .msg/.srv/.action files (only definition file is rmw_cyclonedds_cpp/src/rmw_cyclonedds_topic.idl), and grep -i for 'PoseStamped', 'geometry_msgs', 'pose' finds no definition or reference; the RMW handles message types only generically through rosidl typesupport passed at run time",
+    "not_declared[msg:visualization_msgs/Marker]": "Searched all 38 snapshot files: no .msg definitions; grep -i for 'visualization_msgs', 'Marker' finds no definition or reference (only unrelated substrings in comments at serdata.cpp:455,467 and rmw_node.cpp:1084)",
+    "not_declared[topic:/test]": "Searched all snapshot files for '/test' and any quoted string containing 'test': the only hit is the include \"rmw_cyclonedds_cpp/rmw_version_test.hpp\" at rmw_node.cpp:50; the package hard-codes no ROS topic names, topic names arrive at run time via the topic_name argument (rmw_node.cpp:1601, 1543)",
+    "perm_requires.state": "snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:669 '(void) security_options;' (node security options are discarded; no DDS-Security governance/permissions configuration found in snapshot)",
+    "perm_grants.state": "snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:669 '(void) security_options;' (no permissions documents or grants in snapshot)",
+    "recovery.state": "snapshot:rmw_cyclonedds_cpp/src/rmw_node.cpp:1639-1651 (only error-path cleanup labels fail_topic_name/fail_subscription/fail_common_init returning nullptr; no declared recovery policy)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The element set (subscription creation API, two unrelated message types, one topic /test) hints at a scenario with two types on one topic name; create_cdds_subscription creates a DDS topic per call from the caller's typesupport (rmw_node.cpp:1543-1553) and fails with 'failed to create topic' if that call fails, but whether that path misbehaves for such a case cannot be judged without further investigation."
+  },
+  "confidence": "high",
+  "notes": "Packet package 'rmw_cyclonedds' is the repository; the snapshot holds two packages, rmw_cyclonedds_cpp (package.xml version 0.5.1, used for manifest_version) and cyclonedds_cmake_module (also 0.5.1). The provided API rmw_create_subscription (rmw_node.cpp:1599-1652) has a signature selected by the preprocessor: with RMW_VERSION_GTE(0, 8, 1) the last parameter is 'const rmw_subscription_options_t * subscription_options', otherwise 'bool ignore_local_publications'; RMW_VERSION_* come from the rmw package's version at build time (CMakeLists.txt:81-83), and the rmw version at the eloquent tag was not checked because only .msg/.srv/.action/.idl files may be fetched. The declares entry reproduces the full declaration lines 1599-1607 including the #if/#else/#endif lines, whitespace collapsed. QoS for the API port is null: it is a function, not a topic; each subscription's QoS is taken at run time from the caller's qos_policies and mapped by create_readwrite_qos (rmw_node.cpp:1078, called at 1554), so no static value exists. msg_type and definition_id are null for the API port (no message type or definition file belongs to the symbol). Topic names are supplied at run time and prefixed with ROS_TOPIC_PREFIX by make_fqtopic (rmw_node.cpp:1543). The packet lists no consumed elements, so references is empty; the code calls many Cyclone DDS and rmw C API functions, which are not listed. No exclusive resources are claimed."
+}

@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Res-02",
+  "kind": "A1",
+  "case_id": "B-Res-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This means that switching between controllers which have conflicting joints with a single service call will not be possible, because the controllers being stopped will not release their interfaces, while those being started will try to claim the interfaces, and fail.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/345"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[controller_manager]: Resource conflict for controller 'forward_position_controller2'. Command interface 'joint1/position' is already claimed.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/343"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Then running `ros2 control switch_controllers --start-controllers forward_position_controller2 --stop-controllers forward_position_controller` yields the error message: [controller_manager]: Resource conflict for controller 'forward_position_controller2'. Command interface 'joint1/position' is already claimed.",
+    "url": "https://github.com/ros-controls/ros2_control/pull/343"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "const auto new_state = controller->deactivate();\n+      controller->release_interfaces();",
+    "url": "https://github.com/ros-controls/ros2_control/commit/29efb0beaffdc86ea074b5b8d9dcb890cfa5d489"
+  },
+  "notes": "独立核验通过。issue 345 正文与评论逐字核到关键句（含报告者 '@bmagyar Thank you for the feedback, actually, I did the exact experiments you mentioned, where I tried to switch between two different forward command controller, each of which claims the same joints.'——注意该句在评论中而非正文，无碍）；维护者 'As I believe your encountered behavior is the same as being addressed in #343' 与报告者 'it matches perfectly with what I patched locally on the repo' 亦逐字核到。PR343 正文含复现命令、错误消息与 'The same occurs if the command is split into two separate calls, one stopping the old and one starting the new controller.'（SWITCH 操作证据）。PR343 评论核到 '`forward_command_controller` does not release the interfaces (which is probably where most who test the code may have a problem)'、'`joint_trajectory_controller` releases the interfaces in `on_deactivate`'、'so the issue can also be handled by clearing the interfaces in `forward_command_controller`.'——E2 的跨单元假设论证成立。源码核到：commit 29efb0be 在 stop_controllers 的 deactivate 后插入 controller->release_interfaces()，且文件清单含 controller_manager/test/test_release_interfaces.cpp；forward_command_controller.cpp@a80ce8d2 的 on_deactivate 仅 'return CallbackReturn::SUCCESS;'。class=exclusive_resource_conflict 与元素 resource:joint1/position、joint2/position 认可；loud_documented/activate 认可（资源管理器在激活期拒绝声明，属枚举的 resource-manager claim error）；recommended 认可（修复仅以测试控制器展示成功，未在 forward_command_controller 实例上展示；#345 报告者仅口头确认补丁一致，无运行记录）。"
+}

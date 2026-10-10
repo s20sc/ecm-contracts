@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-028",
+  "kind": "A1",
+  "case_id": "C3-028",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Build failure due to deprecated header. Should change ``cv_bridge.h`` to ``cv_bridge.hpp``. ... 10:27:13 /opt/ros/rolling/include/cv_bridge/cv_bridge/cv_bridge.h:42:2: warning: #warning This header is obsolete, please include cv_bridge/cv_bridge.hpp instead [-Wcpp]",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/113"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Build failure due to deprecated header. Should change ``cv_bridge.h`` to ``cv_bridge.hpp``.",
+      "url": "https://github.com/ros-perception/image_transport_plugins/issues/113"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "/opt/ros/rolling/include/cv_bridge/cv_bridge/cv_bridge.h:42:2: warning: #warning This header is obsolete, please include cv_bridge/cv_bridge.hpp instead [-Wcpp]",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/113"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Resolves: #114\nResolves: #113 (duplicate of #114)",
+    "url": "https://github.com/ros-perception/image_transport_plugins/pull/118"
+  },
+  "notes": "独立核验：(1) issue #113 正文与标题（\"Deprecated header cv_bridge.h\"）逐字确认，日志同时含 \"Finished <<< compressed_depth_image_transport [39.0s]\"，包实际构建完成，规格据原始日志判 warning_only 而非 failure，符合\"以一手来源为准\"。(2) PR #118 已合并（2022-12-09，merge f0f40fbc）；本会话查其 merge commit 的 check-runs 为 0、combined status 为 pending，确无已解析组合的构建证据，recommended 成立。(3) PR #112 的 CI 评论 \"PR failing due to #113\" 已核。(4) vision_opencv PR #448 \"Deprecate .h files in favor of .hpp headers\" 合并于 2022-09-10，merge fa5213bb 的第一父提交确为 c75d4095（规格所记 built-against 基线）。(5) E3 判 UPGRADE 成立：消费端仍引用 #448 之前的真实头文件名，provider 3.4.0 中该名已是弃用 shim。未发现规格遗漏的失败条件（同 PR 修复的 compressed_image_transport/theora 属其他组合，已在 notes 记录）。"
+}

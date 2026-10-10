@@ -1,0 +1,68 @@
+{
+  "item_id": "A1-robust_292b5cc",
+  "kind": "A1",
+  "case_id": "robust_292b5cc",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: maintainer-confirmed wire-field mismatch and a concrete fixing diff. E2 stops at 6: separately built controller application and ROS driver exchange declared SimpleMessage requests/replies; wrong echoed fields cross the wire, so this is not an undeclared firmware fault. E3: PAIR.",
+    "quote": "the expected reply to a JointTrajPtFull message should mirror the \n> robot_id and sequence from the incoming message.",
+    "url": "https://github.com/ros-industrial/motoman/issues/1"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The reachable fallback sets groupNo and sequence to -1. other and the two reply fields are correct; the issue opening misnames the request, but its detailed analysis identifies JointTrajPtFull.",
+      "quote": "replyMsg->body.motionReply.groupNo = -1;",
+      "url": "https://raw.githubusercontent.com/ros-industrial/motoman/8d770631b15002a69469ca4481c5372100f2e4d2/fs100/MotoPlus/SimpleMessage.c"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "Same echo-semantics violation and same implicated fields as index 0. This is corroborating evidence, not a second independent failed condition.",
+      "quote": "replyMsg->body.motionReply.sequence = -1;",
+      "url": "https://raw.githubusercontent.com/ros-industrial/motoman/8d770631b15002a69469ca4481c5372100f2e4d2/fs100/MotoPlus/SimpleMessage.c"
+    },
+    {
+      "index": 2,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The repaired branch echoes the two fields from the correct request structure. This is again the same other condition, not a third independent condition; its class and element set are nevertheless correct.",
+      "quote": "+\t\treplyMsg->body.motionReply.groupNo = receiveMsg->body.jointTrajData.groupNo;\n+\t\treplyMsg->body.motionReply.sequence = receiveMsg->body.jointTrajData.sequence;",
+      "url": "https://github.com/ros-industrial/motoman/commit/292b5cc8a10a640a8b364a529e3eadffffc9b56b.patch"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The evidence is manual packet/source investigation of incorrect values, not a build/connect/activation rejection: silent_documented.",
+    "quote": "when a reply message is sent to anything \n> other than a MOTO_MOTION_CTRL message (type 2001), the robot_id and \n> sequence fields are set to -1.",
+    "url": "https://github.com/ros-industrial/motoman/issues/1"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The incorrect fields occur in generated motion replies: run.",
+    "quote": "when a reply message is sent to anything \n> other than a MOTO_MOTION_CTRL message (type 2001), the robot_id and \n> sequence fields are set to -1.",
+    "url": "https://github.com/ros-industrial/motoman/issues/1"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "A released fix is identified, but no successful post-fix request/reply capture with both revisions is shown; recommended.",
+    "quote": "Fixed in 292b5cc",
+    "url": "https://github.com/ros-industrial/motoman/issues/1#issuecomment-19638767"
+  },
+  "notes": "Three listed entries duplicate one two-field echo defect; agreement on their class/elements must not be read as evidence for three independent failures. The command field is not missed: the reachable fallback already sets command to the incoming msgType, equal to the repaired JointTrajPtFull value. The concurrent MotionServer multi-group fix concerns a different controller interaction."
+}

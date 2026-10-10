@@ -1,0 +1,25 @@
+{
+  "item_id": "A2-robust_263650d-broken-M1-0",
+  "kind": "A2",
+  "case_id": "robust_263650d",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[topic:/mavros/gps/fix]",
+      "verdict": "verified",
+      "source_excerpt": "built: snapshot:mavros/src/plugins/gps.cpp:47 | fix_pub = gps_nh.advertise<sensor_msgs::NavSatFix>(\"fix\", 10); || running: snapshot:mavros/src/plugins/global_position.cpp:66-74 advertises raw/fix, global, local etc.; snapshot:mavros/mavros_plugins.xml has no gps plugin."
+    },
+    {
+      "path": "ver_delta.consumer_reads[topic:/mavros/gps/fix]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:mavros/scripts/mavcmd:105 | gps_fix = mavros.get_topic('gps', 'fix')"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "In the broken composition for robust_263650d, UPGRADE models mavcmd (built against mavros 0.12.0 where topic /mavros/gps/fix existed) running against mavros_node at 0.13.0 where the gps plugin was removed and topic /mavros/gps/fix was changed to /mavros/global_position/raw/fix."
+  },
+  "notes": ""
+}

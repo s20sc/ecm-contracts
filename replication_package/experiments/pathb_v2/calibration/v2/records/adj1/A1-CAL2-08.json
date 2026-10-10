@@ -1,0 +1,64 @@
+{
+  "item_id": "A1-CAL2-08",
+  "kind": "A1",
+  "case_id": "CAL2-08",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "MAVLink move some of messages between dialects, that's not a problem for the protocol itself or C implementation, but for C++ it is because here i have a namespace for each dialect.",
+    "url": "https://github.com/mavlink/mavros/issues/2088#issuecomment-3664322233",
+    "reason": "A separately supplied MAVLink generated C++ declaration moves dialect/namespace while mavros still references the old symbol. The build log and reporter's old-version success establish E1/E4. This is an interface change, not merely dependency resolution, and meets E2 step 6 and E3 UPGRADE."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-    mavlink::common::msg::GLOBAL_POSITION_INT & gpos,\n+    mavlink::standard::msg::GLOBAL_POSITION_INT & gpos,",
+      "url": "https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a.diff",
+      "reason": "The old fully qualified C++ symbol is removed from common and supplied in standard. element_removed_or_renamed applies. This is not evidence of changed wire units or changed ROS message definitions.",
+      "supporting_evidence": [
+        {
+          "quote": "    <message id=\"33\" name=\"GLOBAL_POSITION_INT\">",
+          "url": "https://raw.githubusercontent.com/ros2-gbp/mavlink-gbp-release/release/humble/mavlink/2025.9.9-1/message_definitions/v1.0/common.xml"
+        },
+        {
+          "quote": "    <message id=\"33\" name=\"GLOBAL_POSITION_INT\">",
+          "url": "https://raw.githubusercontent.com/ros2-gbp/mavlink-gbp-release/release/humble/mavlink/2025.12.12-1/message_definitions/v1.0/standard.xml"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "error: ‘mavlink::common::msg::GLOBAL_POSITION_INT’ has not been declared",
+    "url": "https://github.com/mavlink/mavros/issues/2088",
+    "reason": "The compiler directly diagnoses the missing declaration."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "4. Building mavros fails:",
+    "url": "https://github.com/mavlink/mavros/issues/2088",
+    "reason": "The report places the failure in compilation, hence build."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Ah, i overlooked https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a - so, i'll release 2.14.0 today.",
+    "url": "https://github.com/mavlink/mavros/issues/2088#issuecomment-3686286212",
+    "reason": "The namespace fix and release intent are documented, but successful compilation of the specified new-provider/fixed-consumer pair is not shown. The reporter's successful downgrade is not that resolved composition, so recommended is correct.",
+    "supporting_evidence": [
+      {
+        "quote": "Yes, it works with 2025.9.9.",
+        "url": "https://github.com/mavlink/mavros/issues/2088#issuecomment-3662064008"
+      }
+    ]
+  },
+  "notes": "The inspected release XML locations and fixing diff outweigh the intervening suggestion that the two releases have the same standard.xml. Follow-on member-access compiler errors stem from the same missing type. The installation-instructions typo and MAVLink CMake developer warning are not additional failed conditions of this pair."
+}

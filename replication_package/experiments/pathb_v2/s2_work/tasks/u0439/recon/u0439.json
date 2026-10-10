@@ -1,0 +1,141 @@
+{
+  "task_id": "u0439",
+  "package": "tf2",
+  "manifest_version": "0.32.0",
+  "ports": [
+    {
+      "element": "api:tf2::BufferCore::lookupTransform",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::TimePoint",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": "nanoseconds",
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::Transform",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::TransformException",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::getYaw",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::impl::Converter",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:tf2::BufferCore::lookupTransform": "api tf2::BufferCore::lookupTransform: geometry_msgs::msg::TransformStamped lookupTransform( const std::string & target_frame, const std::string & source_frame, const TimePoint & time) const override;",
+    "api:tf2::TimePoint": "api tf2::TimePoint: using TimePoint = std::chrono::time_point<std::chrono::system_clock, Duration>;",
+    "api:tf2::Transform": "api tf2::Transform: class Transform {",
+    "api:tf2::TransformException": "api tf2::TransformException: class TransformException : public std::runtime_error",
+    "api:tf2::getYaw": "api tf2::getYaw: template<class A> double getYaw(const A & a)",
+    "api:tf2::impl::Converter": "api tf2::impl::Converter: template<bool IS_MESSAGE_A, bool IS_MESSAGE_B> class Converter"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:tf2/package.xml:4",
+    "ports[1].frame": "snapshot:tf2/include/tf2/time.h:41 (TimePoint is a std::chrono time_point alias; no spatial content)",
+    "ports[1].units": "snapshot:tf2/include/tf2/time.h:40-41 (using Duration = std::chrono::nanoseconds; TimePoint = std::chrono::time_point<std::chrono::system_clock, Duration>)",
+    "ports[3].frame": "snapshot:tf2/include/tf2/exceptions.h:95 (exception class deriving std::runtime_error; carries only an error description string, exceptions.h:99-100)",
+    "declares[api:tf2::BufferCore::lookupTransform]": "snapshot:tf2/include/tf2/buffer_core.h:136-139 (inside namespace tf2 at buffer_core.h:54, class BufferCore at buffer_core.h:90; preceded by TF2_PUBLIC at line 135; defined at snapshot:tf2/src/buffer_core.cpp:572-598)",
+    "declares[api:tf2::TimePoint]": "snapshot:tf2/include/tf2/time.h:41 (namespace tf2 at time.h:38)",
+    "declares[api:tf2::Transform]": "snapshot:tf2/include/tf2/LinearMath/Transform.h:33 (namespace tf2 at Transform.h:25)",
+    "declares[api:tf2::TransformException]": "snapshot:tf2/include/tf2/exceptions.h:95 (namespace tf2 at exceptions.h:40)",
+    "declares[api:tf2::getYaw]": "snapshot:tf2/include/tf2/utils.h:46-47 (namespace tf2 at utils.h:23; forwards to impl::getYaw(const tf2::Quaternion & q) at snapshot:tf2/include/tf2/impl/utils.h:139-140)",
+    "declares[api:tf2::impl::Converter]": "snapshot:tf2/include/tf2/impl/convert.h:37-38 (namespace tf2 at convert.h:32, namespace impl at convert.h:34)",
+    "perm_requires.state": "searched snapshot/tf2 (include/, src/, CMakeLists.txt, package.xml) case-insensitively for permission/exclusive/recover: only license-text hits; tf2 is a C++ library with no node, security or permission configuration",
+    "perm_grants.state": "same search as perm_requires.state; no permission grants declared",
+    "recovery.state": "same search as perm_requires.state; no recovery declaration in code or configuration"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All six provided API symbols are present in the tf2 headers at 0.32.0 in their conventional forms (BufferCore::lookupTransform returning geometry_msgs::msg::TransformStamped, TimePoint as a nanosecond system_clock time_point, Transform class, TransformException deriving std::runtime_error, templated getYaw, impl::Converter<bool,bool>); nothing in the snapshot looks removed, renamed or deprecated for these symbols, though a defect relative to a consumer's expectations (e.g. header naming or signature changes at other revisions) cannot be seen from one revision."
+  },
+  "confidence": "high",
+  "notes": "Snapshot holds the whole geometry2 repository; the task package is snapshot/tf2 (package.xml name tf2, version 0.32.0, ros_generation ROS2, distro rolling). All packet elements are C++ API symbols provided by header files (tf2 uses .h headers at this revision). Ports: msg_type, qos, rate and definition_id are null because these are C++ library symbols, not ROS topics/services/actions with message definitions; no QoS applies. frame is null for lookupTransform (frames are supplied as call arguments target_frame/source_frame and copied into the returned message header.frame_id/child_frame_id at run time, buffer_core.cpp:594-595; not hard-coded and not read from an incoming message header), for Transform (frame-agnostic rigid transform, no frame declared), for getYaw (frame-agnostic angle extraction), and for Converter (generic type conversion); 'none' for TimePoint and TransformException. getYaw units left null: the result comes from atan2 but the code does not state radians for getYaw. BufferCore::lookupTransform has two overloads at this revision; declares records the first (target_frame, source_frame, time) overload at buffer_core.h:136-139; the second (target_frame, target_time, source_frame, source_time, fixed_frame) is at buffer_core.h:154-158, also 'const override' returning geometry_msgs::msg::TransformStamped. The TF2_PUBLIC visibility macro on the line preceding lookupTransform is not included in the declaration string. getYaw also exists as tf2::impl::getYaw(const tf2::Quaternion &) (impl/utils.h:140); the packet symbol tf2::getYaw is the template in utils.h. impl::Converter has specializations Converter<true,true> (declared only, impl/convert.h:52-54), <true,false>, <false,true>, <false,false> (impl/convert.h:56-75); it is used by tf2::convert in tf2/convert.h:150-151 via rosidl_generator_traits::is_message. The package consumes no packet elements, so references is empty; the lookupTransform signature itself names geometry_msgs::msg::TransformStamped (not a packet element). No exclusive resources."
+}

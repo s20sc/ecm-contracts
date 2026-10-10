@@ -1,0 +1,54 @@
+{
+  "case_id": "robust_248cb38",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/pull/351",
+    "https://github.com/mavlink/mavros/commit/248cb389b122fa94a68578a48e50d4f240df4629",
+    "https://github.com/mavlink/mavros/issues/352",
+    "https://github.com/mavlink/mavros/blob/3a82c908b6dba4b784c46106c51ae73ff1e881b8/mavros/src/plugins/setpoint_attitude.cpp",
+    "https://github.com/mavlink/mavros/commit/411b7e7e1af0bd39273633e0c6f87bea6dcb8a54",
+    "https://github.com/mavlink/mavros/commit/805112a059c4ccb07f2c680c1d1b51e2c2bc3ed6",
+    "https://github.com/mavlink/mavros/blob/0.13.0/mavros/CHANGELOG.rst"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #351 (base 3a82c908b6dba4b784c46106c51ae73ff1e881b8, head 248cb389b122fa94a68578a48e50d4f240df4629, merged 2015-07-28T22:45:12Z) documents the defect: \"The transformed quaternion wasn't being passed to set_attitude_target(), resulting in an incorrect attitude setpoint. I've now fixed this issue.\" (https://github.com/mavlink/mavros/pull/351). Maintainer vooon first disputed it (\"I don't see change. `Eigen::Map<>` should place values in q[4] in wxyz, so your code does nothing.\", https://github.com/mavlink/mavros/pull/351#issuecomment-125763498), then posted a gtest reproducer (TEST(QMAP, eigen_map_storage) mapping Eigen::Map<Eigen::Quaternionf> onto float q2[4] and checking q2[0]==w) and confirmed: \"And it fails. So bug confirmed. But there should be another way to fix Map.\" (https://github.com/mavlink/mavros/pull/351#issuecomment-125763805). He opened issue #352 \"Eigen::Map<Quaternionf> place data in xyzw order instead of wxyz.\" with body \"Found in PR #351.\" (https://github.com/mavlink/mavros/issues/352). The PR author reports a flight test: \"Yes. Flew with this code yesterday. I've verified that it now behaves the same as release 0.12.0\" (https://github.com/mavlink/mavros/pull/351#issuecomment-125707818)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "mavros",
+        "Eigen3"
+      ],
+      "interface_kind": null,
+      "evidence": "Step 1: the code that misbehaves is entirely inside the mavros package (mavros/src/plugins/setpoint_attitude.cpp, SetpointAttitudePlugin::send_attitude_target). The only cross-unit interaction implicated by the primary sources is mavros consuming the Eigen3 library API Eigen::Map<Eigen::Quaternionf> (issue #352 title: \"Eigen::Map<Quaternionf> place data in xyzw order instead of wxyz.\"; vooon: \"That issue is surprise to me, because at API level Eigen::Quaternion uses wxyz, so different internal representation is weird.\" https://github.com/mavlink/mavros/issues/352#issuecomment-125913947). The runtime victim is the unnamed MAVLink flight controller that receives SET_ATTITUDE_TARGET with the wrongly ordered q[4]. Step 2: the minimal resolving change is confined to mavros internal logic. The fix diff touches only mavros/src/plugins/setpoint_attitude.cpp (+8/-1): it adds `float q_transformed[4];` filled with `q_out.w()`, `q_out.x()`, `q_out.y()`, `q_out.z()` and passes `q_transformed` instead of `q` to set_attitude_target (https://github.com/mavlink/mavros/commit/248cb389b122fa94a68578a48e50d4f240df4629). Nothing at any boundary changed: the MAVLink SET_ATTITUDE_TARGET packing call, the ROS subscriptions (`~setpoint_attitude/attitude`, `~setpoint_attitude/cmd_vel`, `~setpoint_attitude/att_throttle`) and the Eigen API are unchanged. The broken code at the parent revision 3a82c908 lines 119-121 reads: \"// Eigen use same convention as mavlink: w x y z\" / \"Eigen::Map<Eigen::Quaternionf> q_out(q);\" / \"q_out = UAS::transform_frame_enu_ned(Eigen::Quaterniond(tr.rotation())).cast<float>();\" and was introduced by commit 411b7e7e1af0bd39273633e0c6f87bea6dcb8a54 (\"plugin #71: Implement TF2 listener. Change param names.\", 2015-07-10), which replaced the explicit copy in release 0.12.0 (`q[0] = qt.w();` etc.). The follow-up commit 805112a059c4ccb07f2c680c1d1b51e2c2bc3ed6 (\"plugin: setpoint_attitude #352: use new helper.\") replaced the fix with `UAS::quaternion_to_mavlink(...)`, again internal to mavros. Therefore ineligible: `internal`."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Recorded for completeness although the case stops at E2. The operation in which the defect manifests is PAIR: mavros's SET_ATTITUDE_TARGET output feeds the flight controller's attitude controller (\"Send setpoint attitude/orientation/thrust to FCU controller.\", setpoint_attitude.cpp header comment at 3a82c908). LorenzMeier asked for \"a system-level verification\" and the author flight-tested (https://github.com/mavlink/mavros/pull/351#issuecomment-125707504, #issuecomment-125707818)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Outcome stated in the PR: \"resulting in an incorrect attitude setpoint\" (https://github.com/mavlink/mavros/pull/351); maintainer's gtest for the Map storage order: \"And it fails. So bug confirmed.\" (https://github.com/mavlink/mavros/pull/351#issuecomment-125763805). No FCU-side log is shown."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 stop at step 2 (`internal`): the minimal resolving change is confined to mavros's own plugin code (quaternion coefficient order when copying an Eigen::Map<Eigen::Quaternionf> into the float[4] handed to the MAVLink packer); no declared or referenced interface of any unit changed.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Secondary-source disagreement: the packet's bug_description says the higher-level function \"fails to convert the resulting quaternion to the NED frame\". The primary source disagrees: at the broken revision 3a82c908 the ENU->NED conversion is already applied (`UAS::transform_frame_enu_ned(...)`, line 121); the defect confirmed by the maintainer is the coefficient order, because Eigen::Map<Eigen::Quaternionf> stores x,y,z,w in memory while the MAVLink q[4] field and the code comment assume w,x,y,z (issue #352). The primary source is followed. Revisions for reference: broken = mavros master 3a82c908b6dba4b784c46106c51ae73ff1e881b8 (unreleased; mavros/package.xml version 0.12.0; the bug entered after tag 0.12.0 via 411b7e7e on 2015-07-10), resolved = 248cb389b122fa94a68578a48e50d4f240df4629 (shipped in mavros 0.13.0, CHANGELOG 0.13.0 (2015-08-01): \"Fixed bug in send_attitude_target()\"). ROS generation ROS1 (roscpp NodeHandle API). No browser was used; all material fetched via `gh api`."
+}

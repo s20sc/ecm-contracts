@@ -1,0 +1,72 @@
+{
+  "item_id": "A1-robust_928306b",
+  "kind": "A1",
+  "case_id": "robust_928306b",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "battery info is on /sys/class/power_supply/BAT0, and not on default /proc/acpi/battery/BAT0",
+    "url": "https://github.com/turtlebot/turtlebot/issues/102"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "But  the new **laptop_hardware.py** file doesn't work because some files was renamed:\n- no **energy_now** file but a **charge_now**\n- no **energy_full_design** file but a **charge_full_design**\n- no **power_now** file",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+    },
+    {
+      "index": 2,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "- The problem stated in the issue doesn't get affected neither; the problem is in the way we process the information on BAT0 files (I'll fix all this tomorrow)\n  - Values must be divided by 10e6",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+    },
+    {
+      "index": 3,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-        state = _read_string(_battery_acpi_path+'/status', 'discharging').lower()\n+        # Charging state; make lowercase and remove trailing eol\n+        state = _read_string(_battery_acpi_path+'/status', 'discharging').lower().rstrip()",
+      "url": "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f"
+    },
+    {
+      "index": 4,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "  - _Design Capacity_ is lower than _Capacity_; I suppose this is wrong",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "charging symbol doesn't appear in the dashboard",
+    "url": "https://github.com/turtlebot/turtlebot/issues/102"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Issue #102: Battery info fixed for new laptops"
+  },
+  "notes": "Agree with specification. Upgraded kernel changed sysfs power supply layout and scaling relative to the consumer expectation."
+}

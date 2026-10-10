@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-B-Ver-02",
+ "kind": "A1",
+ "case_id": "B-Ver-02",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "The publisher (franka_state_controller from franka_ros, run in franka_control) and the reporter's own subscriber node /MoveRobot (\"No this Node is my own, because i need some data from the robot for my application.\") are separate units interacting through the topic /franka_state_controller/franka_states of type franka_msgs/FrankaState. The two sides carry different franka_msgs/FrankaState definitions (md5 ed28b9cb... vs 7782ef1d...). The resolving change is a CMakeLists.txt find_package edit, but its effect is to rebuild the consumer against the provider's changed definition, which the tree counts as an interface change, not build-only.",
+  "url": "https://answers.ros.org/question/318190/"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+   "url": "https://answers.ros.org/question/318190/"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+  "url": "https://answers.ros.org/question/318190/"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I find the solution: I forget to rework the CMakeList.txt to add the line franka_msgs in the find_package part"
+ },
+ "notes": "Agree with all case specifications and classifications for B-Ver-02."
+}

@@ -1,0 +1,37 @@
+{
+  "task_id": "u0265",
+  "package": "rosidl_generator_py",
+  "status": "evidence_inadequate",
+  "manifest_version": "0.14.3",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "status": "The package is present in the snapshot (snapshot:rosidl_generator_py/package.xml:4 <name>rosidl_generator_py</name>), but none of the four packet elements is named anywhere in it. Searched all 34 files under snapshot/ (4536 lines, every file readable per wc -l): grep -rniE 'statistic|metrics|MetricsMessage|StatisticDataPoint' -> 0 hits; grep -rn '/statistics' -> 0 hits; grep -rniE 'rclpy|create_subscription|create_publisher|subscri|publish|topic|/statistics|statistics_msgs|test_msgs|find_package' -> only find_package lines for build dependencies (ament_cmake, rmw, rosidl_*, python_cmake_module, test_interface_files, linters), none for statistics_msgs; grep -rnE '\\bdata\\b' over test/ and msg/ -> 0 hits.",
+    "manifest_version": "snapshot:rosidl_generator_py/package.xml:5",
+    "exclusive": "grep -rniE 'exclusive|lock|device|/dev/|hardware' over the snapshot (LICENSE excluded) -> 0 hits; the package is a build-time code generator with no hardware or device handles.",
+    "perm_requires.state": "grep -rniE 'permission|sros|security|enclave|access_control' over the snapshot -> only Apache license header lines ('governing permissions and'); no permission declarations in code, CMake, package.xml or setup.cfg.",
+    "perm_grants.state": "Same search as perm_requires.state; no grants declared.",
+    "recovery.state": "grep -rniE 'recover|retry|fallback' over the snapshot -> 0 hits."
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The package is a Python code generator that never names statistics_msgs types, the data field, or the /statistics topic; the only link is generic handling of whatever float64 fields it is given at build time, and nothing in the recorded evidence ties a defect to a listed element."
+  },
+  "confidence": "high",
+  "notes": "rosidl_generator_py 0.14.3 (humble) is a build-time generator of Python message classes and C type-support glue. It does not publish, subscribe to, offer, or call anything, so no port exists for any packet element. The interface types it processes are supplied at build time, not named in code: the CMake extension iterates rosidl_generate_interfaces_ABS_IDL_FILES (snapshot:rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:43) and passes IDL_TUPLES (same file:116), and generate_py reads idl_tuples from the generator arguments file (snapshot:rosidl_generator_py/rosidl_generator_py/generate_py_impl.py:56,63,69). If statistics_msgs were built with this generator, msg:statistics_msgs/MetricsMessage, msg:statistics_msgs/StatisticDataPoint and field:statistics_msgs/StatisticDataPoint.data would be supplied through those build-time arguments, which is why they are in neither declares/not_declared (all four elements are consumes-side) nor references. For float64 ('double') fields the message template emits a setter assertion 'assert not (value < -1.7976931348623157e+308 or value > 1.7976931348623157e+308) or math.isinf(value)' (snapshot:rosidl_generator_py/resource/_msg.py.em:572-578); recorded only as generic context, not as a declaration of any listed element. No definition_id was computed because no port exists and no listed definition is part of this package; no dependency files were fetched. status evidence_inadequate is set because the packet elements cannot be found in the snapshot after a full search, per the task rules; the remaining fields record what the code does declare."
+}

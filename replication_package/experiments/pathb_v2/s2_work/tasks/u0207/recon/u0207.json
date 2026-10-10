@@ -1,0 +1,208 @@
+{
+ "task_id": "u0207",
+ "package": "laptop_battery (linux_hardware)",
+ "manifest_version": "2.2.2",
+ "ports": [
+  {
+   "element": "api:/proc/acpi/battery/BAT0/info",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": "mAh,Ah,mWh,Wh (unit suffix parsed from each value text)",
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.016666666666666666,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "api:/proc/acpi/battery/BAT0/state",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": "mA,A,mW,W (present rate); mAh,Ah,mWh,Wh (remaining capacity); mV,V (present voltage) (unit suffix parsed from each value text)",
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.2,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "api:/sys/class/power_supply/BAT0/energy_full",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": "Wh * 10e5",
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.016666666666666666,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "api:/sys/class/power_supply/BAT0/energy_full_design",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": "Wh * 10e5",
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.016666666666666666,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "api:/sys/class/power_supply/BAT0/energy_now",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.2,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "api:/sys/class/power_supply/BAT0/power_now",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.2,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "api:/sys/class/power_supply/BAT0/present",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.2,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "api:/sys/class/power_supply/BAT0/status",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.2,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "api:/sys/class/power_supply/BAT0/voltage_now",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": 0.2,
+   "min_rate_hz": null,
+   "definition_id": null
+  }
+ ],
+ "exclusive": [],
+ "declares": {},
+ "not_declared": [],
+ "references": [
+  "api:/sys/class/power_supply/BAT0/energy_full",
+  "api:/sys/class/power_supply/BAT0/energy_full_design",
+  "api:/sys/class/power_supply/BAT0/energy_now",
+  "api:/sys/class/power_supply/BAT0/power_now",
+  "api:/sys/class/power_supply/BAT0/present",
+  "api:/sys/class/power_supply/BAT0/status",
+  "api:/sys/class/power_supply/BAT0/voltage_now"
+ ],
+ "perm_requires": {
+  "state": "absent",
+  "values": []
+ },
+ "perm_grants": {
+  "state": "absent",
+  "values": []
+ },
+ "recovery": {
+  "state": "present",
+  "value": "sysfs fallbacks (charge_full_design/charge_full/current_now/charge_now when energy_*/power_now absent); on battery info/state read or parse exception: rospy.logwarn then rospy.signal_shutdown; data older than 5 poll periods reported as DiagnosticStatus.ERROR 'Laptop battery data stale'; no respawn in launch"
+ },
+ "provenance": {
+  "ports[0].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:112 | o = slerp(_battery_acpi_path+'/info')  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[0].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:232 | self._batt_info_rate = 1 / 60.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:244 | rate = rospy.Rate(self._batt_info_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:247 | design_cap, last_full_cap = _check_battery_info(self._batt_acpi_path)  (file read inside _check_battery_info, polled at 1/60.0 Hz)",
+  "ports[1].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:152 | o = slerp(_battery_acpi_path+'/state')  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[1].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:238 | self._batt_state_rate = 1 / 5.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:259 | rate = rospy.Rate(self._batt_state_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:262 | msg = _check_battery_state(self._batt_acpi_path)  (file read inside _check_battery_state, polled at 1/5.0 Hz)",
+  "ports[2].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:127 | last_full_capacity = _read_number(_battery_acpi_path + '/energy_full')/10e5  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[2].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:232 | self._batt_info_rate = 1 / 60.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:244 | rate = rospy.Rate(self._batt_info_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:247 | design_cap, last_full_cap = _check_battery_info(self._batt_acpi_path)  (file read inside _check_battery_info, polled at 1/60.0 Hz)",
+  "ports[3].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:122 | design_capacity    = _read_number(_battery_acpi_path + '/energy_full_design')/10e5  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[3].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:232 | self._batt_info_rate = 1 / 60.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:244 | rate = rospy.Rate(self._batt_info_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:247 | design_cap, last_full_cap = _check_battery_info(self._batt_acpi_path)  (file read inside _check_battery_info, polled at 1/60.0 Hz)",
+  "ports[4].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:184 | rv.charge   = _read_number(_battery_acpi_path + '/energy_now')/10e5  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[4].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:238 | self._batt_state_rate = 1 / 5.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:259 | rate = rospy.Rate(self._batt_state_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:262 | msg = _check_battery_state(self._batt_acpi_path)  (file read inside _check_battery_state, polled at 1/5.0 Hz)",
+  "ports[5].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:176 | rv.rate     = _read_number(_battery_acpi_path + '/power_now')/10e5  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[5].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:238 | self._batt_state_rate = 1 / 5.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:259 | rate = rospy.Rate(self._batt_state_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:262 | msg = _check_battery_state(self._batt_acpi_path)  (file read inside _check_battery_state, polled at 1/5.0 Hz)",
+  "ports[6].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:189 | rv.present  = _read_number(_battery_acpi_path + '/present') == 1  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[6].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:238 | self._batt_state_rate = 1 / 5.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:259 | rate = rospy.Rate(self._batt_state_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:262 | msg = _check_battery_state(self._batt_acpi_path)  (file read inside _check_battery_state, polled at 1/5.0 Hz)",
+  "ports[7].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:172 | state = _read_string(_battery_acpi_path+'/status', 'discharging').lower().rstrip()  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[7].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:238 | self._batt_state_rate = 1 / 5.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:259 | rate = rospy.Rate(self._batt_state_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:262 | msg = _check_battery_state(self._batt_acpi_path)  (file read inside _check_battery_state, polled at 1/5.0 Hz)",
+  "ports[8].frame": "snapshot:linux_hardware/scripts/laptop_battery.py:188 | rv.voltage  = _read_number(_battery_acpi_path + '/voltage_now')/10e5  (scalar battery reading from a kernel file; no spatial meaning)",
+  "ports[8].rate_hz": "snapshot:linux_hardware/scripts/laptop_battery.py:238 | self._batt_state_rate = 1 / 5.0 ; snapshot:linux_hardware/scripts/laptop_battery.py:259 | rate = rospy.Rate(self._batt_state_rate) ; snapshot:linux_hardware/scripts/laptop_battery.py:262 | msg = _check_battery_state(self._batt_acpi_path)  (file read inside _check_battery_state, polled at 1/5.0 Hz)",
+  "ports[0].units": "snapshot:linux_hardware/scripts/laptop_battery.py:61 | raise Exception('Value %s did not have supported units. (mAh,Ah,mWh,Wh)' % raw_val) ; snapshot:linux_hardware/scripts/laptop_battery.py:117 | design_capacity    = _strip_Ah(batt_info.get('design capacity',    '0 mAh')) ; snapshot:linux_hardware/scripts/laptop_battery.py:118 | last_full_capacity = _strip_Ah(batt_info.get('last full capacity', '0 mAh'))",
+  "ports[1].units": "snapshot:linux_hardware/scripts/laptop_battery.py:160 | rv.rate     = _strip_A(batt_info.get('present rate',        '-1 mA')) ; snapshot:linux_hardware/scripts/laptop_battery.py:164 | rv.charge   = _strip_Ah(batt_info.get('remaining capacity', '-1 mAh')) # /energy_now ; snapshot:linux_hardware/scripts/laptop_battery.py:165 | rv.voltage  = _strip_V(batt_info.get('present voltage',     '-1 mV')) # /voltage_now ; parsers snapshot:linux_hardware/scripts/laptop_battery.py:51 | def _strip_Ah(raw_val): / snapshot:linux_hardware/scripts/laptop_battery.py:64 | def _strip_V(raw_val): / snapshot:linux_hardware/scripts/laptop_battery.py:73 | def _strip_A(raw_val): (suffix branches lines 52-59, 65-68, 74-81)",
+  "ports[2].units": "snapshot:linux_hardware/scripts/laptop_battery.py:120 | # Provided as Wh * 10e5 ; snapshot:linux_hardware/scripts/laptop_battery.py:127 | last_full_capacity = _read_number(_battery_acpi_path + '/energy_full')/10e5",
+  "ports[3].units": "snapshot:linux_hardware/scripts/laptop_battery.py:120 | # Provided as Wh * 10e5 ; snapshot:linux_hardware/scripts/laptop_battery.py:122 | design_capacity    = _read_number(_battery_acpi_path + '/energy_full_design')/10e5",
+  "references[api:/sys/class/power_supply/BAT0/energy_full]": "snapshot:linux_hardware/scripts/laptop_battery.py:127 | last_full_capacity = _read_number(_battery_acpi_path + '/energy_full')/10e5 ; default path snapshot:linux_hardware/scripts/laptop_battery.py:227 | self._batt_acpi_path = rospy.get_param('~acpi_path', \"/sys/class/power_supply/BAT0\") ; existence check snapshot:linux_hardware/scripts/laptop_battery.py:121 | if os.path.exists(_battery_acpi_path + '/energy_full'): ; snapshot:linux_hardware/scripts/laptop_battery.py:126 | if os.path.exists(_battery_acpi_path + '/energy_full_design'):",
+  "references[api:/sys/class/power_supply/BAT0/energy_full_design]": "snapshot:linux_hardware/scripts/laptop_battery.py:122 | design_capacity    = _read_number(_battery_acpi_path + '/energy_full_design')/10e5 ; default path snapshot:linux_hardware/scripts/laptop_battery.py:227 | self._batt_acpi_path = rospy.get_param('~acpi_path', \"/sys/class/power_supply/BAT0\") ; existence check snapshot:linux_hardware/scripts/laptop_battery.py:126 | if os.path.exists(_battery_acpi_path + '/energy_full_design'): ; snapshot:linux_hardware/scripts/laptop_battery.py:121 | if os.path.exists(_battery_acpi_path + '/energy_full'):",
+  "references[api:/sys/class/power_supply/BAT0/energy_now]": "snapshot:linux_hardware/scripts/laptop_battery.py:184 | rv.charge   = _read_number(_battery_acpi_path + '/energy_now')/10e5 ; default path snapshot:linux_hardware/scripts/laptop_battery.py:227 | self._batt_acpi_path = rospy.get_param('~acpi_path', \"/sys/class/power_supply/BAT0\") ; existence check snapshot:linux_hardware/scripts/laptop_battery.py:183 | if os.path.exists(_battery_acpi_path + '/energy_now'):",
+  "references[api:/sys/class/power_supply/BAT0/power_now]": "snapshot:linux_hardware/scripts/laptop_battery.py:176 | rv.rate     = _read_number(_battery_acpi_path + '/power_now')/10e5 ; default path snapshot:linux_hardware/scripts/laptop_battery.py:227 | self._batt_acpi_path = rospy.get_param('~acpi_path', \"/sys/class/power_supply/BAT0\") ; existence check snapshot:linux_hardware/scripts/laptop_battery.py:175 | if os.path.exists(_battery_acpi_path + '/power_now'):",
+  "references[api:/sys/class/power_supply/BAT0/present]": "snapshot:linux_hardware/scripts/laptop_battery.py:189 | rv.present  = _read_number(_battery_acpi_path + '/present') == 1 ; default path snapshot:linux_hardware/scripts/laptop_battery.py:227 | self._batt_acpi_path = rospy.get_param('~acpi_path', \"/sys/class/power_supply/BAT0\")",
+  "references[api:/sys/class/power_supply/BAT0/status]": "snapshot:linux_hardware/scripts/laptop_battery.py:172 | state = _read_string(_battery_acpi_path+'/status', 'discharging').lower().rstrip() ; default path snapshot:linux_hardware/scripts/laptop_battery.py:227 | self._batt_acpi_path = rospy.get_param('~acpi_path', \"/sys/class/power_supply/BAT0\")",
+  "references[api:/sys/class/power_supply/BAT0/voltage_now]": "snapshot:linux_hardware/scripts/laptop_battery.py:188 | rv.voltage  = _read_number(_battery_acpi_path + '/voltage_now')/10e5 ; default path snapshot:linux_hardware/scripts/laptop_battery.py:227 | self._batt_acpi_path = rospy.get_param('~acpi_path', \"/sys/class/power_supply/BAT0\")",
+  "manifest_version": "snapshot:linux_hardware/package.xml:3 | <version>2.2.2</version>",
+  "perm_requires.state": "searched snapshot linux_hardware/{package.xml,CMakeLists.txt,scripts/laptop_battery.py,msg/LaptopChargeStatus.msg} and turtlebot_bringup/launch/{minimal.launch,minimal_with_appmanager.launch,includes/netbook.launch.xml}: no permission/capability requirement declared",
+  "perm_grants.state": "same search as perm_requires: no permission grant declared",
+  "recovery.state": "snapshot:linux_hardware/scripts/laptop_battery.py:175 | if os.path.exists(_battery_acpi_path + '/power_now'): ; snapshot:linux_hardware/scripts/laptop_battery.py:178 | rv.rate     = _read_number(_battery_acpi_path + '/current_now')/10e5 ; snapshot:linux_hardware/scripts/laptop_battery.py:252 | except Exception, e: ; snapshot:linux_hardware/scripts/laptop_battery.py:254 | rospy.signal_shutdown('Battery : unable to check laptop battery info [%s]' % e) ; snapshot:linux_hardware/scripts/laptop_battery.py:293 | diag_stat.message = 'Laptop battery data stale'",
+  "recovery.value": "snapshot:linux_hardware/scripts/laptop_battery.py:175 | if os.path.exists(_battery_acpi_path + '/power_now'): ; snapshot:linux_hardware/scripts/laptop_battery.py:178 | rv.rate     = _read_number(_battery_acpi_path + '/current_now')/10e5 ; snapshot:linux_hardware/scripts/laptop_battery.py:252 | except Exception, e: ; snapshot:linux_hardware/scripts/laptop_battery.py:254 | rospy.signal_shutdown('Battery : unable to check laptop battery info [%s]' % e) ; snapshot:linux_hardware/scripts/laptop_battery.py:293 | diag_stat.message = 'Laptop battery data stale' ; snapshot:turtlebot_bringup/launch/includes/netbook.launch.xml:6 | <node pkg=\"linux_hardware\" type=\"laptop_battery.py\" name=\"turtlebot_laptop_battery\"> (no respawn attribute)"
+ },
+ "blinding_guess": {
+  "defective": "yes",
+  "why": "In _check_battery_info the sysfs existence checks are crossed: os.path.exists(.../energy_full) gates the read of energy_full_design (lines 121-122) and os.path.exists(.../energy_full_design) gates the read of energy_full (lines 126-127), so a battery exposing only one of the two files reads a missing file or the wrong fallback; also _read_number catches exceptions.ValueError without importing exceptions (line 105), so any empty/missing numeric file (e.g. present, voltage_now) raises NameError and shuts the node down. Additionally energy_*/power_now (Wh/W scale) are stored into fields documented as Ah/A."
+ },
+ "confidence": "high",
+ "notes": "All nine packet elements are kernel file interfaces this package consumes; it provides none of them, so declares and not_declared are empty. The node (rospy.init_node('laptop_battery'), line 301) reads files under the private param ~acpi_path, default \"/sys/class/power_supply/BAT0\" (line 227); turtlebot_bringup sets it from arg battery = $(optenv TURTLEBOT_BATTERY /sys/class/power_supply/BAT0) (minimal.launch:3, netbook.launch.xml:7). The /sys branch is used unless the path starts with '/proc' (lines 109, 149). The two /proc elements are read only when ~acpi_path is set at run time to /proc/acpi/battery/BAT0 (named only in a launch-file comment, minimal.launch:3); their full names are therefore supplied at run time and they are in neither references nor declares. The seven /sys elements are named by the code's default path plus literal suffixes and are listed in references. Other consumed files not in the packet: /charge_full_design, /charge_full, /current_now, /charge_now (fallbacks). /proc info/state are parsed with yaml.load; keys used: 'design capacity', 'last full capacity', 'charging state', 'present rate', 'remaining capacity', 'present voltage', 'present'. All /sys numeric values are divided by 10e5 (=1e6); units stated only for energy_full/energy_full_design by the comment '# Provided as Wh * 10e5' (line 120); energy_now/power_now/voltage_now have no stated file units (their values go into LaptopChargeStatus.charge 'Current charge in Ah', .rate 'Negative when discharging (A)', .voltage 'Voltage in Volts'). status is lowercased and mapped via state_to_val; present is compared == 1. rate_hz is the polling rate of the reader thread (info 1/60.0 Hz, state 1/5.0 Hz). Staleness threshold is 5.0/rate seconds (300 s info, 25 s state, lines 277-278); not recorded as min_rate_hz since it is a derived staleness bound. QoS null (ROS 1; file interfaces). msg_type and definition_id null: file interfaces have no ROS definition. Package also provides (not packet elements) topic laptop_charge: linux_hardware/LaptopChargeStatus (latch=True, published at 1 Hz, line 223/305) and topic /diagnostics: diagnostic_msgs/DiagnosticArray (line 224). Recovery recorded as present because the code declares a failure response (fallback files, shutdown on exception, stale diagnostic); there is no retry/restart."
+}

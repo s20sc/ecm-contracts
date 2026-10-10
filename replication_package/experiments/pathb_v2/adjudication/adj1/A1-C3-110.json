@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-110",
+  "kind": "A1",
+  "case_id": "C3-110",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "It's an optional output argument, so the vector isn't used if nullptr is provided.\nReferences cannot be nullptr, so they cannot be used in this case.\nFor some reason I forgot the obvious if() in the original PR.",
+    "url": "https://github.com/ros2/rclcpp/pull/2008",
+    "reason": "E1 is supported by the default-argument reproducer, maintainer confirmation and regression tests. The old declaration explicitly defaults pruned_requests to nullptr, but the implementation dereferences it without checking. A correct caller follows the API; no incompatible assumption between that caller and the declared library interface is shown. E2 therefore stops at the library's internal null dereference. E3's API call and E4's segmentation fault do not override this exclusion."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Segfault happens here:",
+    "url": "https://github.com/ros2/rclcpp/issues/2007",
+    "reason": "Retain null for the excluded case; a reported runtime crash is not an early interface diagnostic, and no literal crash log is provided."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "client->prune_requests_older_than(someTimeAgo /*, nullptr by default */);",
+    "url": "https://github.com/ros2/rclcpp/issues/2007",
+    "reason": "The source places the failure at execution of this call. The retained specification field is null because the case is excluded."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+        if (pruned_requests) {\n+          pruned_requests->push_back(it->first);\n+        }",
+    "url": "https://github.com/ros2/rclcpp/pull/2008.diff",
+    "reason": "Null follows exclusion. The null guard and tests repair the library implementation without changing the caller's declared input contract."
+  },
+  "notes": "No listed or missed integration condition. Read issue #2007, PR #2008 including the explanation that the optional pointer is intentional, its full diff/tests, and client.hpp at dab9f5e0a331b9694c4b5aceb8263d49aa052ecb lines 755-778. The specification's ancillary note that no backport appears among the given references is stale/incomplete: the PR discussion I read says '#2065 fix nullptr dereference in prune_requests_older_than (backport #2008) has been created for branch humble'. That does not alter the internal exclusion or establish a resolved two-unit composition."
+}

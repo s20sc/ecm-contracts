@@ -1,0 +1,53 @@
+{
+  "case_id": "robust_9ffffca",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/turtlebot/turtlebot/issues/234",
+    "https://github.com/turtlebot/turtlebot/pull/235",
+    "https://github.com/turtlebot/turtlebot/commit/9ffffcaeca7dd5a1fbb327c7289b8a11f84da39f",
+    "https://github.com/turtlebot/turtlebot/blob/3292af40f04706d44c4f275fbe3f7255fb0e5dce/turtlebot_teleop/launch/includes/velocity_smoother.launch.xml",
+    "https://github.com/turtlebot/turtlebot/blob/3292af40f04706d44c4f275fbe3f7255fb0e5dce/turtlebot_bringup/launch/includes/kobuki/mobile_base.launch.xml",
+    "https://github.com/turtlebot/turtlebot/blob/3292af40f04706d44c4f275fbe3f7255fb0e5dce/turtlebot_teleop/package.xml"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #234 \"Velocity smoother for Teleop non compatible with namespaces\" (lc75, 2016-10-26): \"It seems that the Velocity Smoother for teleop is not compatible with namespaces. If I use the smoother inside a group namespace <group ns=\\\"robot1\\\">, it will not work and use the wrong topics.\" (https://github.com/turtlebot/turtlebot/issues/234). Maintainer stonier: \"It's a reasonable improvement...send us a Pull Request\" (https://github.com/turtlebot/turtlebot/issues/234#issuecomment-256300195). PR #235 (base 3292af40f04706d44c4f275fbe3f7255fb0e5dce, head 9ffffcaeca7dd5a1fbb327c7289b8a11f84da39f, merged 2016-12-20T02:18:36Z); tfoote: \"This looks good. I haven't had a chance to test it yet.\" (https://github.com/turtlebot/turtlebot/pull/235#issuecomment-256424475); rohbotics: \"@tfoote, I tested it, It is good to merge.\" (https://github.com/turtlebot/turtlebot/pull/235#issuecomment-268080231). Reproduction context is given (launch inside `<group ns=\"robot1\">`); no error log is shown."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": [
+        "turtlebot_teleop",
+        "yocs_velocity_smoother"
+      ],
+      "interface_kind": null,
+      "evidence": "Step 1: turtlebot_teleop (launch file turtlebot_teleop/launch/includes/velocity_smoother.launch.xml, package.xml version 2.3.12 with `<run_depend>yocs_velocity_smoother</run_depend>` and `<run_depend>turtlebot_bringup</run_depend>`) loads the nodelet `yocs_velocity_smoother/VelocitySmootherNodelet` from the separately released package yocs_velocity_smoother and wires it to the base stack that turtlebot_bringup launches (`<node pkg=\"nodelet\" type=\"nodelet\" name=\"mobile_base_nodelet_manager\" args=\"manager\"/>` and the `cmd_vel_mux` nodelet in turtlebot_bringup/launch/includes/kobuki/mobile_base.launch.xml). Step 2: not internal; the change is in the consumer's launch wiring, not in any node's logic. Step 3: the minimal resolving change binds names at deployment only. The whole fix commit 9ffffcaeca7dd5a1fbb327c7289b8a11f84da39f (+4/-4, one file) changes the nodelet-manager argument from `/mobile_base_nodelet_manager` to `mobile_base_nodelet_manager` and the three `<remap>` targets from `/cmd_vel_mux/input/teleop`, `/odom`, `/mobile_base/commands/velocity` to `cmd_vel_mux/input/teleop`, `odom`, `mobile_base/commands/velocity` (https://github.com/turtlebot/turtlebot/commit/9ffffcaeca7dd5a1fbb327c7289b8a11f84da39f); commit message: \"Changed topic remapping and nodelet manager to avoid absolute paths. In this way the velocity smoother will work even inside a namespace created with the tag <group ns=\\\"\\\">.\" No unit's declared or referenced interface changed: the smoother's topics (`~smooth_cmd_vel`, `~odometry`, `~robot_cmd_vel`), the mux input `cmd_vel_mux/input/teleop`, `odom` and `mobile_base/commands/velocity` keep their names and types; only the global-vs-relative resolution of the remap targets and the manager name changed. Therefore ineligible: `deployment_wiring`."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Recorded for completeness although the case stops at E2. The operation would be PAIR under a namespace: the smoother's output feeds `cmd_vel_mux/input/teleop` and it consumes `odom` and `mobile_base/commands/velocity` as feedback (launch file comment at 3292af40: \"Robot velocity feedbacks; use the one configured as base default\"); with global remap targets the namespaced instance binds to the root-namespace topics instead."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Only the reporter's description: \"it will not work and use the wrong topics.\" (https://github.com/turtlebot/turtlebot/issues/234). No log, rostopic listing or measured behaviour is in the source; the fix was reported working by a third party (\"I tested it, It is good to merge.\")."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 stop at step 3 (`deployment_wiring`): the resolving change only rewrites launch-file remap targets and the nodelet-manager name from global to relative names; no unit's declared or referenced interface changed.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "The issue also names two sibling launch files with the same pattern (turtlebot_follower/launch/includes/velocity_smoother.launch.xml and turtlebot_navigation/launch/includes/velocity_smoother.launch.xml); the listed fix commit touches only the turtlebot_teleop one. turtlebot_teleop/package.xml version is 2.3.12 at both the broken parent 3292af40 and the fix 9ffffca. ROS generation ROS1 (roslaunch XML, nodelet). The packet's bug_description matches the primary source. No browser was used; all material fetched via `gh api`; no repositories were cloned."
+}

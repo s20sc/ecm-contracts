@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-11",
+  "kind": "A1",
+  "case_id": "CAL-11",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The `link_t-tool0` transform defining the orientation of the `tool0` frame currently specifies only a rotation over Z of `-pi`, but it uses the value `3.1416` for it",
+    "url": "https://github.com/ros-industrial/motoman/issues/106"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The `link_t-tool0` transform defining the orientation of the `tool0` frame currently specifies only a rotation over Z of `-pi`, but it uses the value `3.1416` for it.\n\nThe difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+      "url": "https://github.com/ros-industrial/motoman/issues/106"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed in 9bf25ea.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106"
+  },
+  "notes": "Eligibility agreed (stop_step 6, PAIR, parameter robot_description URDF content). Issue #106 body carries the quoted rpy='0 0 -3.1416' error and the 3-degree effect; comment 'Fixed in 9bf25ea.' closes it. Fix commit 9bf25ea changes sia20d_macro.xacro origin rpy from '0 0 -3.1416' to '0 0 -3.1415926535' (and the same for sia10f). Class frame_mismatch agreed as a defensible reading (the tool0 frame's orientation definition is wrong); the spec's own notes correctly flag 'other'/'representation_convention' as the alternative, and I note the numeric magnitude concern (3.1416-pi is ~7e-6 rad, not 3 degrees) is already flagged there. The consumer (robot_state_publisher) is inferred; acceptable at the given low confidence. Loudness silent/run agreed (URDF parses and loads; the mismatch is found only by comparing base->tool0 with the robot). Resolution 'recommended' agreed (fix merged, but no post-fix transform comparison shown)."
+}

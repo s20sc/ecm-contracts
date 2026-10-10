@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-152",
+  "kind": "A1",
+  "case_id": "C3-152",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "There, the `future_available_command_interfaces` are based on the names in the command interface configuration, although these are empty in case of the `ALL` interface configuration type, and therefore the switch fails",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2846 (issue body, read this session)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "There, the `future_available_command_interfaces` are based on the names in the command interface configuration, although these are empty in case of the `ALL` interface configuration type, and therefore the switch fails",
+      "url": "https://github.com/ros-controls/ros2_control/issues/2846 (issue body, read this session)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[gazebo-11] [WARN] [controller_manager]: Unable to activate controller 'joint_trajectory_controller' since the command interface 'LF_HAA/position' is currently claimed by another controller.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2846 (issue body, read this session)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixes https://github.com/ros-controls/ros2_control/issues/2846"
+  },
+  "notes": "Independently verified: (1) E1 — reproducer steps and both log lines verified verbatim in the issue body; maintainer saikishor: 'i never imagined someone would use ALL for the command interfaces, but you have a point that it should never fail'; PR 2856 body 'Fixes https://github.com/ros-controls/ros2_control/issues/2846'. (2) E2 stop 6 — the host's availability check verified at cde86ae8 controller_manager.cpp L3951-3952: 'const auto controller_cmd_interfaces =' / 'controller_it->c->command_interface_configuration().names;' — exactly the linked line L3952; the plugin's ALL-type declaration (empty names) is read under the wrong convention, so with an INDIVIDUAL-type peer the switch succeeds (peer-dependent, not internal); resolving edit is host code, not deployment names/build/firmware. (3) Class representation_convention is defensible: the claimed-interface set is represented differently (wildcard-ALL vs enumerated names) and the host misinterprets the representation; 'other' is the conservative alternative — I agree with the spec's choice, and with its note that the runtime's refusal is the exclusive_resource_conflict symptom rather than a second condition. (4) Loudness loud_documented/activate: the resource-manager claim refusal is explicitly in the S1 loud list; verified quote. (5) Resolution recommended: PR 2856 verified merged to master (merge_commit_sha 03372e09c6cb8c7c9eda2e146dea817095e0e474) with test 'switch_controller_test_two_controllers_using_all_interface' and 'cmd_cfg = {controller_interface::interface_configuration_type::ALL, {}};' read in the PR patch — a fix shown working with a test peer, not the reporter's controller, and the reporter did not confirm; jazzy backport PR 2858 merge_commit_sha 829f9c3942e6095dd8278bb4be3d30a1c7147b1d verified. (6) Revisions: jazzy tag 4.39.2 verified to point at 1abab95234d5762aef30164aee136f72eca46f4f; the spec itself flags 4.39.1 as equally possible — an acknowledged inference, acceptable. The excerpt-based second unit (reporter's non-public controller) is permitted; artifact file quotes match the issue body verbatim."
+}

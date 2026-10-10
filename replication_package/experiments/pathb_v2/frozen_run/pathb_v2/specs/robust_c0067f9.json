@@ -1,0 +1,104 @@
+{
+  "case_id": "robust_c0067f9",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/commit/c0067f9f27a5a6ef5354e06fea18279541934520",
+    "https://github.com/mavlink/mavros/commit/b3ef10ff8f0567019ee10b1d24fd0e5b85d04112",
+    "https://github.com/mavlink/mavros/issues/414",
+    "https://github.com/mavlink/mavros/issues/465",
+    "https://github.com/mavlink/mavros/commit/86f32ca9efd32486bd19a8eea8de9932c06149a2",
+    "https://github.com/mavlink/mavros/blob/19760fa90593c2dfb2dc4adbf06492e3423df23c/mavros/src/mavros/mission.py",
+    "https://github.com/mavlink/mavros/tree/19760fa90593c2dfb2dc4adbf06492e3423df23c/mavros_msgs/srv"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "No issue thread; the defect is documented by the maintainer's own commits. Fix commit c0067f9f (vooon, 2015-11-13): \"python: fix import error of goto service\", whose whole diff removes WaypointGOTO from the import list in mavros/src/mavros/mission.py (\"-    WaypointSetCurrent, WaypointGOTO\" / \"+    WaypointSetCurrent\"). The removal commit b3ef10ff (vooon, 2015-11-02): \"plugin: waypoint fix #414: remove GOTO service. It is replaced with more standard global setpoint messages.\" deletes mavros_msgs/srv/WaypointGOTO.srv and its CMakeLists entry. Maintainer issue #465 (2016-01-10): \"@mangritosh found that i forgot to remove that service.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["mavros", "mavros_msgs"],
+      "interface_kind": "definition",
+      "evidence": "Unit 1: package mavros, whose Python client library module mavros.mission (mavros/src/mavros/mission.py) imports service definitions from the generated module mavros_msgs.srv. Unit 2: package mavros_msgs, a separate catkin package (own CMakeLists.txt with add_service_files) that generates those definitions. The failed interaction crosses the package boundary: mission.py line 17-18 at 19760fa reads 'from mavros_msgs.srv import WaypointPull, WaypointPush, WaypointClear, \\' / '    WaypointSetCurrent, WaypointGOTO' while mavros_msgs/srv at 19760fa contains no WaypointGOTO.srv (b3ef10ff removed it: '-  WaypointGOTO.srv' from mavros_msgs/CMakeLists.txt and the 7-line file mavros_msgs/srv/WaypointGOTO.srv deleted). Not internal (with mavros_msgs at 90694f8c the import succeeds); not deployment wiring (a definition was removed from the provider package); not a build-only change (the consumer's referenced interface element no longer exists); not firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer still references the provider element mavros_msgs/WaypointGOTO as it existed at provider revision 90694f8c (parent of the removal commit b3ef10ff), while the provider package it is built with (19760fa9, first released as 0.16.0) no longer defines it. The two packages are separately built catkin packages."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Maintainer's commit names the effect: \"python: fix import error of goto service\" (c0067f9f). No traceback text is in the source; the effect is an ImportError when mavros.mission is imported (line 17-18 at 19760fa9)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros",
+      "role": "consumer",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "19760fa90593c2dfb2dc4adbf06492e3423df23c",
+      "resolved_rev": "c0067f9f27a5a6ef5354e06fea18279541934520",
+      "pinned": true,
+      "revision_basis": "Broken revision is the single parent of the listed fix commit c0067f9f (19760fa9, 2015-11-09, 'Merge pull request #425'). mavros/src/mavros/mission.py is unchanged from 431b62a3 (2015-08-10) to 19760fa9, so every revision from the removal commit b3ef10ff (2015-11-02) up to 19760fa9 has the same broken import; release tag 0.16.0 (ce923214, 2015-11-09) contains b3ef10ff and not c0067f9f and therefore ships the broken module. Resolved revision is the listed fix commit c0067f9f (2015-11-13T05:25:02Z), contained in release 0.16.1 (d60c16c4, 2015-11-13T05:30:40Z). Caveat recorded in notes: at c0067f9f mission.py still names WaypointGOTO at line 145 inside _setup_services(); that residual was removed by 86f32ca9 (issue #465, 2016-01-10).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "mavros_msgs",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "19760fa90593c2dfb2dc4adbf06492e3423df23c",
+      "resolved_rev": "19760fa90593c2dfb2dc4adbf06492e3423df23c",
+      "pinned": true,
+      "revision_basis": "Same repository checkout as the consumer (mavros_msgs is a sibling package in the mavlink/mavros repository). At 19760fa9 mavros_msgs/srv contains CommandBool, CommandHome, CommandInt, CommandLong, CommandTOL, CommandTriggerControl, File*, Param*, SetMode, StreamRate, WaypointClear, WaypointPull, WaypointPush, WaypointSetCurrent and no WaypointGOTO (removed by b3ef10ff). The fix commit does not touch mavros_msgs, so the provider keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "90694f8c375bb294473f56c729df49ec98e7919e",
+    "resolved": "19760fa90593c2dfb2dc4adbf06492e3423df23c",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "msg:mavros_msgs/Waypoint", "sides": {"mavros": "consumes", "mavros_msgs": "provides"}},
+    {"element": "msg:mavros_msgs/WaypointList", "sides": {"mavros": "consumes", "mavros_msgs": "provides"}},
+    {"element": "msg:mavros_msgs/CommandCode", "sides": {"mavros": "consumes", "mavros_msgs": "provides"}},
+    {"element": "msg:mavros_msgs/WaypointPull", "sides": {"mavros": "consumes", "mavros_msgs": "provides"}},
+    {"element": "msg:mavros_msgs/WaypointPush", "sides": {"mavros": "consumes", "mavros_msgs": "provides"}},
+    {"element": "msg:mavros_msgs/WaypointClear", "sides": {"mavros": "consumes", "mavros_msgs": "provides"}},
+    {"element": "msg:mavros_msgs/WaypointSetCurrent", "sides": {"mavros": "consumes", "mavros_msgs": "provides"}},
+    {"element": "msg:mavros_msgs/WaypointGOTO", "sides": {"mavros": "consumes", "mavros_msgs": "provides"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["msg:mavros_msgs/WaypointGOTO"],
+      "quote": "plugin: waypoint fix #414: remove GOTO service.\n\nIt is replaced with more standard global setpoint messages.",
+      "url": "https://github.com/mavlink/mavros/commit/b3ef10ff8f0567019ee10b1d24fd0e5b85d04112"
+    },
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["msg:mavros_msgs/WaypointGOTO"],
+      "quote": "python: fix import error of goto service",
+      "url": "https://github.com/mavlink/mavros/commit/c0067f9f27a5a6ef5354e06fea18279541934520"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Python import error, named by the maintainer: \"python: fix import error of goto service\" (commit c0067f9f). The failing statement is the module-level import at mission.py lines 17-18 ('from mavros_msgs.srv import WaypointPull, WaypointPush, WaypointClear, \\' / '    WaypointSetCurrent, WaypointGOTO'), so the error is raised when any process imports mavros.mission (for example the mavwp script: 'from mavros import mission as M'), before any ROS connection. No traceback text appears in the source.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Commit c0067f9f drops WaypointGOTO from the mavros_msgs.srv import in mavros/src/mavros/mission.py ('-    WaypointSetCurrent, WaypointGOTO' -> '+    WaypointSetCurrent'); mavros_msgs is unchanged.",
+    "status": "recommended",
+    "evidence": "The fix is the maintainer's merged commit; the source contains no observation of the resolved composition working. The same commit leaves 'goto = _get_proxy('goto', WaypointGOTO)' at mission.py line 145 (inside _setup_services(), run on mavros.set_namespace()), which references the removed definition; the maintainer removed that residual and the mavwp 'goto' subcommand in 86f32ca9 (\"scripts: mavwp #465: Remove WaypointGOTO from scrips and python library\", 2016-01-10), opened as issue #465 (\"@mangritosh found that i forgot to remove that service.\")."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Interface elements WaypointPull, WaypointPush, WaypointClear, WaypointSetCurrent and WaypointGOTO are .srv definitions in mavros_msgs/srv; they are written in the msg:<pkg/Type> canonical form because no srv form is defined. Release view: b3ef10ff (removal) is in 0.16.0 (2015-11-09); c0067f9f is in 0.16.1 (2015-11-13); the complete removal 86f32ca9 is in 0.16.5 (2016-01-10). consumer_built_against.resolved is 19760fa9 for the import statement, which after c0067f9f names only definitions present at that revision; the residual proxy line at 145 still matches the pre-b3ef10ff provider (90694f8c), so a checker that reads the whole module will still see one reference to WaypointGOTO in the resolved composition, and the resolution status is recorded as recommended rather than observed. The other composition affected by the same removal, the mavros node's waypoint plugin (mavros/src/plugins/waypoint.cpp) and its 'goto' service consumers such as the mavwp script's do_goto (M.goto(waypoint=wp)), was changed in b3ef10ff and 86f32ca9 and is not part of this case. Issue #414 gives the removal rationale: \"APM now support position setpoints, so this non-standard interface should be removed.\" and the replacement: \"Use setpoint_raw with GlobalPositionTarget messages (#415).\" No ROS distro is stated."
+}

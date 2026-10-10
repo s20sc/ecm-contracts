@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_932c6ca-broken-M1-44ed81c651",
+ "kind": "A2",
+ "case_id": "robust_932c6ca",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2_msgs::TFMessage::__connection_header]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0105/snapshot/scripts/msg.h.template:128 '  boost::shared_ptr<std::map<std::string, std::string> > __connection_header;' (grep over u0105/snapshot hits exactly this one line). running: grep -rn 'connection_header' over s2_work/tasks/u0106/snapshot/ returns nothing (exit 1); u0106/snapshot/scripts/msg.h.template:94-129 opened: struct body declares typedef Type (97), the two constructors (100-108), per-field typedef+member (110-114), constants (117-123), Ptr/ConstPtr typedefs (126-127) and closes at 129 with no __connection_header member; u0106/snapshot/scripts/gen_cpp.py:43 \"msg_template_map = { 'msg.h.template':'@NAME@.h' }\" confirms msg files map only to this template."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:tf2_msgs::TFMessage::__connection_header]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0107/snapshot/tf2_ros/src/transform_listener.cpp:108 '    std::map<std::string, std::string>* msg_header_map = msg_in.__connection_header.get();' (inside subscription_callback_impl(const tf2_msgs::TFMessageConstPtr& msg, ...) declared at :102)."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:tf2_msgs::TFMessage::__connection_header]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0105/snapshot/scripts/msg.h.template:128 '  boost::shared_ptr<std::map<std::string, std::string> > __connection_header;'",
+   "running_excerpt": "s2_work/tasks/u0106/snapshot/scripts/msg.h.template:126-129 '  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> > Ptr;' / '  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> const> ConstPtr;' / '' / '}; // struct @(cpp_class)' — no __connection_header member anywhere in the running template (grep over the whole u0106 snapshot: 0 hits)"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The broken upgrade unit records provider gencpp built=u0105 (0.4.16) and running=u0106 (0.5.0) with consumer tf2_ros=u0107. The producer port is the __connection_header member the built template emits into every generated message struct (msg.h.template:128); the consumer port is tf2_ros's read of exactly that member on a tf2_msgs::TFMessage value (transform_listener.cpp:108, msg_in declared as tf2_msgs::TFMessage at :105). Both ports exist in the sources opened and name the same element, so the assembled composition represents the UPGRADE operation with the two ports genuinely connected; at the running revision the member is no longer generated, which is the recorded change."
+ },
+ "notes": "All embedded claims of the running-side provenance reproduced independently this session: 11-file snapshot grep 0 hits, struct-body contents at msg.h.template:94-129, and gen_cpp.py:43 template map. The element's presence differs between the built and running generator revisions (member emitted vs not emitted), a presence difference under the substance criterion. Caveat recorded: the producer here is the code generator (gencpp) rather than tf2_msgs itself; the finding is sound only insofar as the study models generated message fields as provided by the generator at the built-against revision, which the assembled encoding does."
+}

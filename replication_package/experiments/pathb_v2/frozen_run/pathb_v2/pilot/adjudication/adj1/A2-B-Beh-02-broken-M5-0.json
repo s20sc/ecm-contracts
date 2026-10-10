@@ -1,0 +1,49 @@
+{
+  "item_id": "A2-B-Beh-02-broken-M5-0",
+  "kind": "A2",
+  "case_id": "B-Beh-02",
+  "composition": "broken",
+  "method_label": "M5",
+  "rule": "dq_qos_reliability",
+  "values": [
+    {
+      "path": "producer.outputs[0].qos.reliability",
+      "verdict": "verified",
+      "source_excerpt": "Run a ROS2 node that publishes data to a topic using **Best Effort** reliability.",
+      "url": "snapshot:s2_work/tasks/u0011/artifact.txt:1"
+    },
+    {
+      "path": "consumer.inputs[0].qos.reliability",
+      "verdict": "verified",
+      "source_excerpt": "self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10)",
+      "url": "snapshot:s2_work/tasks/u0012/snapshot/rosbridge_library/src/rosbridge_library/internal/subscribers.py:108",
+      "reason": "The literal 10 specifies history depth, not reliability. The Foxy dependency sources read in this session establish the reliable default.",
+      "dependency_evidence": [
+        {
+          "url": "https://raw.githubusercontent.com/ros2/rclpy/foxy/rclpy/rclpy/node.py",
+          "quote": "of the parameter, and all other QoS settings are set to their default values."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/ros2/rclpy/foxy/rclpy/rclpy/qos.py",
+          "quote": "__qos_profile_default_dict = _rclpy.rclpy_get_rmw_qos_profile('qos_profile_default')"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/ros2/rclpy/foxy/rclpy/rclpy/qos.py",
+          "quote": "self.reliability = kwargs.get(\n            'reliability', QoSProfile.__qos_profile_default_dict['reliability'])"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/ros2/rmw/foxy/rmw/include/rmw/qos_profiles.h",
+          "quote": "static const rmw_qos_profile_t rmw_qos_profile_default =\n{\n  RMW_QOS_POLICY_HISTORY_KEEP_LAST,\n  10,\n  RMW_QOS_POLICY_RELIABILITY_RELIABLE,"
+        }
+      ]
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "PAIR represents the reported publisher and rosbridge subscription on the same topic. This is an attempted application-level connection, not a successful DDS match or delivery. The reproduction explicitly subscribes to the publisher topic, and the log identifies /my_topic.",
+    "url": "https://api.github.com/repos/RobotWebTools/rosbridge_suite/issues/551",
+    "quote": "Run `rosbridge_server` and attempt to subscribe to that topic using a rosbridge client library (roslibpy, roslibjs). The subscriber should not receive any data.",
+    "additional_quote": "[INFO] [1611352926.636802670] [rosbridge_websocket]: [Client 1] Subscribed to /my_topic"
+  },
+  "notes": "No permission-grant set is encoded as absent: producer grants are unknown and consumer grants are present. The absent perm_requires state is not an absent grant set and is not a triggering value. Dependency checked in rmw/qos_profiles.h rather than relying on the provenance description naming types.h."
+}

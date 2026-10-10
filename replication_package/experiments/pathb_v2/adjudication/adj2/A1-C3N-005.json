@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3N-005",
+  "kind": "A1",
+  "case_id": "C3N-005",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "* The method is called only in `inactive` or `active` state, i.e., `on_configure` has to be\n * called first.",
+    "url": "https://raw.githubusercontent.com/ros-controls/ros2_control/0863acd6905af0eba4db1074f11edd60215758d5/controller_interface/include/controller_interface/controller_interface_base.hpp (lines 94-95, read this session)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "However that can lead to situations where when the FTS broadcaster is loaded but not yet configured and another controller is configured the controller sorting in configuring the other controller will also check the FTS broadcasterf for sorting. For this it will try to fetch all state and command interfaces which will use the [`force_torque_sensor_` object](https://github.com/ros-controls/ros2_controllers/blob/232154dab5f5363704c7f7640b2d42f5d6f3665b/force_torque_sensor_broadcaster/src/force_torque_sensor_broadcaster.cpp#L124) which unfortunately is a nullpointer before the FTS broadcaster has been configured.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1164 (issue body, read this session)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "1. Make a hardware with a JS broadcaster and an FTS broadcaster.\r\n2. Load both controllers\r\n3. configure the JS broadcaster\r\n4. controller_manager will die",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164 (issue body, read this session)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Looks good and I tested this locally as mentioned in #1164 on Humble. As expected, this fixes the crash there."
+  },
+  "notes": "Independently verified: (1) E1 — labelled bug with reproducer steps and 'First of all I would expect things not to crash.'; maintainer saikishor: 'Thank you for reporting the issue. I've addressed the above bug in the linked PR.' (2) E2 stop 6 — the documented call-order precondition crosses the plugin/host boundary: the header at 0863acd6 states the method is called only in inactive/active state (on_configure first); the host at b9cdcfe0 verified calling both configuration methods on every loaded controller in controller_sorting (L2276-2277: 'const std::vector<std::string> cmd_itfs = ctrl_a.c->command_interface_configuration().names;' / 'const std::vector<std::string> state_itfs = ctrl_a.c->state_interface_configuration().names;'); the plugin at 6d753144 verified creating force_torque_sensor_ in on_configure (L77/L84) and dereferencing it in state_interface_configuration() (L126: 'state_interfaces_config.names = force_torque_sensor_->get_state_interface_names();'). The failure is peer-dependent (a plugin not dereferencing uninitialized members would not crash) and the resolving edit changes the host's calls — not internal/wiring/build/firmware. (3) Class 'other' is right: a lifecycle call-order precondition has no canonical class; implicating both configuration methods is defensible since the host calls both on the unconfigured controller and both violate the documented precondition (the crash itself comes from state_interface_configuration()). (4) Loudness silent_documented: the process dies with no diagnostic before the crash; detection_stage 'activate' is a defensible bucket for a failure during a controller lifecycle transition (configure) handled by the running controller_manager, though 'configure' itself is not an enumerated stage — minor, does not change the verdict. (5) Resolution recommended: PR 1165 verified merged to master (merge_commit_sha 75e7efd1ae2ce5316114f73345b182f600717aa3); humble backport ee1e2e18 verified with parent b9cdcfe0 and message 'Fix the controller sorting bug when the interfaces are not configured (fixes #1164) (#1165) (#1166)'; fmauch's approval shows the fix working in this composition but on a local Humble build without either unit's revision pinned, so the strict 'observed' requirement (both units identified by revision) is not met — recommended is correct."
+}

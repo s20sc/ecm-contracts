@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-robust_292b5cc",
+  "kind": "A1",
+  "case_id": "robust_292b5cc",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The robot id and sequence fields in the MOTO_MOTION_CTRL reply are not set correctly.",
+    "url": "https://github.com/ros-industrial/motoman/issues/1"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The robot id and sequence fields in the MOTO_MOTION_CTRL reply are not set correctly.",
+      "url": "https://github.com/ros-industrial/motoman/issues/1"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "bugFix #1: FS100 reply to JointTrajPtFull message contains invalid sequence/robot_id fields",
+      "url": "https://github.com/ros-industrial/motoman/commit/292b5cc8a10a640a8b364a529e3eadffffc9b56b"
+    },
+    {
+      "index": 2,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-\telse if(receiveMsg->header.msgType == ROS_MSG_MOTO_MOTION_CTRL)\n+\telse if(receiveMsg->header.msgType == ROS_MSG_JOINT_TRAJ_PT_FULL)\n \t{\n-\t\treplyMsg->body.motionReply.groupNo = receiveMsg->body.motionCtrl.groupNo;\n-\t\treplyMsg->body.motionReply.sequence = receiveMsg->body.motionCtrl.sequence;\n-\t\treplyMsg->body.motionReply.command = ROS_MSG_MOTO_MOTION_CTRL;\n+\t\treplyMsg->body.motionReply.groupNo = receiveMsg->body.jointTrajData.groupNo;\n+\t\treplyMsg->body.motionReply.sequence = receiveMsg->body.jointTrajData.sequence;\n+\t\treplyMsg->body.motionReply.command = ROS_MSG_JOINT_TRAJ_PT_FULL;",
+      "url": "https://github.com/ros-industrial/motoman/commit/292b5cc8a10a640a8b364a529e3eadffffc9b56b"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the robot_id and sequence fields are set to -1. This probably comes across as 0xFFFFFFFF.",
+    "url": "https://github.com/ros-industrial/motoman/issues/1"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Eric has released a fix already. I will try to upload this weekend."
+  },
+  "notes": "FS100 MotoROS controller firmware set robot_id and sequence to -1 on JointTrajPtFull replies due to copy-paste bug checking MOTO_MOTION_CTRL twice."
+}

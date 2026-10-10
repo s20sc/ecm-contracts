@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-C3-099-resolved-M3-aae36fa6c3",
+ "kind": "A2",
+ "case_id": "C3-099",
+ "composition": "resolved",
+ "method_label": "M3",
+ "rule": "sv_major",
+ "values": [
+  {
+   "path": "ver_delta.semver_old",
+   "verdict": "verified",
+   "source_excerpt": "u0353/snapshot/rmw_dds_common/package.xml:5: \"  <version>1.6.0</version>\" (built-against revision of rmw_dds_common, task u0353, resolved_commit e26ba1079886c5598614172db0b27526aa6af07d)."
+  },
+  {
+   "path": "ver_delta.semver_new",
+   "verdict": "verified",
+   "source_excerpt": "u0354/snapshot/rmw_dds_common/package.xml:5: \"  <version>3.1.0</version>\" (running revision of rmw_dds_common, task u0354, resolved_commit 973ad5c8b60140dbdafe80eb8a192f1d913f94f6)."
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The UPGRADE encoding represents the spec's operation: provider rmw_dds_common moved from 1.6.0 (built-against, u0353) to 3.1.0 (running, u0354) with consumer rmw_fastrtps reading it; the consumer side of the composition is supported by u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:94/:122 (publisher and subscription of ParticipantEntitiesInfo on \"ros_discovery_info\") and u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171-174 (\"reinterpret_cast<char *>(&msg.gid.data), / RMW_GID_STORAGE_SIZE\"). Both version values come from package.xml:5 at the cited revisions, and 1.6.0 -> 3.1.0 is a major-version change."
+ },
+ "notes": "Trigger paths are semver fields, not ver_delta.changed_fields[...] paths, so substance is empty. Both versions verified at the exact cited locations. Note that both trigger-path provenance entries cite the same relative path (snapshot:rmw_dds_common/package.xml:5); they resolve to different task workspaces (old -> u0353, new -> u0354), which I confirmed by the task roles in the assembled UPGRADE unit (built=u0353, running=u0354)."
+}

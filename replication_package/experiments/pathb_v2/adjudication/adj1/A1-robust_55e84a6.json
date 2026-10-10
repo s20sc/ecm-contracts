@@ -1,0 +1,73 @@
+{
+  "item_id": "A1-robust_55e84a6",
+  "kind": "A1",
+  "case_id": "robust_55e84a6",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "rqt_plot API has been changed by this commit.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33",
+    "reason": "E1/E4: the reporter supplies the plugin-load traceback and links the provider refactor. E2: kobuki_qtestsuite's backend subclass no longer satisfies rqt_plot's expected widget interface; consumer references, not packaging alone, must change. E3: UPGRADE is supported by the old consumer API usage and newer provider refactor."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "AttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33",
+      "reason": "autoscroll was removed from the backend class. switch_data_plot_widget is the API operation that requires it on the supplied widget, so both elements are implicated; the switch method itself was not removed.",
+      "supporting_evidence": [
+        {"quote": "-    def autoscroll(self, enabled=True):\n-        self._autoscroll = enabled", "url": "https://github.com/ros-visualization/rqt_common_plugins/commit/c8223f54aff207c4092f65dcccb91d567619cad9.patch"}
+      ]
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "rename rqt_plot/src/rqt_plot/{ => data_plot}/mat_data_plot.py (100%)",
+      "url": "https://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0bea3f942c19f354512284ec146491fe4.patch",
+      "reason": "The old module-qualified MatDataPlot reference is removed by the move, supporting element_removed_or_renamed. This is a source-level mismatch, not an import failure shown in the reporter's traceback, which gets past importing the subclass."
+    }
+  ],
+  "missed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:rqt_plot.mat_data_plot.MatDataPlot._curves", "api:rqt_plot.mat_data_plot.MatDataPlot.redraw"],
+      "quote": "        self._curves[curve_id] = line",
+      "url": "https://raw.githubusercontent.com/ros-visualization/rqt_common_plugins/0.3.8/rqt_plot/src/rqt_plot/data_plot/mat_data_plot.py",
+      "reason": "At the specified provider release, curve entries are plot-line objects, while the broken consumer's redraw still unpacks four fields. This is an additional code-level record-shape mismatch within the same subclass/provider composition. The inventory's old qualified names are retained to identify the consumer's references. It is not claimed as a separately observed runtime error: startup fails earlier, and the actually loaded backend version is not established by the report.",
+      "supporting_evidence": [
+        {"quote": "            data_x, data_y, plot, min_max_y = curve", "url": "https://raw.githubusercontent.com/yujinrobot/kobuki_desktop/f04c615cd9216e1b7b6949db2745dc8fa25acc0b/kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py"},
+        {"quote": "-        self._curves[curve_id] = ([], [], line)\n-        self.update_values(curve_id, x, y)\n+        self._curves[curve_id] = line", "url": "https://github.com/ros-visualization/rqt_common_plugins/commit/c8223f54aff207c4092f65dcccb91d567619cad9.patch"}
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PluginManager._load_plugin() could not load plugin \"kobuki_qtestsuite/Kobuki Test Suite\":",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33",
+    "reason": "The plugin manager rejects activation with an explicit traceback: loud_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "    self._widget.setupUi()",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33",
+    "reason": "The traceback follows plugin construction into UI setup before normal plotting: activate."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Battery profiling now has fixed y scale [0, 180]. and gyro looks fine too.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33#issuecomment-51742356",
+    "reason": "This is genuine working-behavior evidence, but it does not identify the tested rqt_plot revision. The specification substitutes the newest available release for the installed version; that does not establish both units by revision as required for observed. The inspected three-commit consumer fix is supported, but the strict status is recommended."
+  },
+  "notes": "Read the complete issue #33 comment set, provider refactor/removal patches, all three consumer-fix patches, and the broken consumer and 0.3.8 provider source excerpts. The module-move and curve-layout findings are code-level evidence for the reconstructed composition, not additional tracebacks. The unexplained survival of the old import prevents treating the installed tree as definitively identical to a clean 0.3.8 checkout."
+}

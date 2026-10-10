@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-027",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/image_common/issues/212",
+    "https://github.com/ros-perception/image_common/pull/306",
+    "https://github.com/ros-perception/image_common/pull/310"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "Issue #212 is a feature request, not a defect report: \"Any plans to support zero-copy IPC in [CameraPublisher](...)? I think this means adding publish methods in Publisher and CameraPublisher that take unique_ptrs. I'd be willing to look into this if there is interest.\" (https://github.com/ros-perception/image_common/issues/212). The discussion is about avoiding copies for performance (\"the copying eats quite a lot of CPU\", https://github.com/ros-perception/image_common/issues/212#issuecomment-966304130). There is no reproducer or error, and no failed interaction between two units. The closing PR adds a new API: \"This PR is my attempt to add support for publishing using `std::unique_ptr` without breaking any of the existing APIs.\" (https://github.com/ros-perception/image_common/pull/306; jazzy backport #310). The issue was closed with \"This is already supported thank to this PR https://github.com/ros-perception/image_common/pull/306.\" (https://github.com/ros-perception/image_common/issues/212#issuecomment-2142188575)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated: no defect is documented, so there is no failed interaction whose units could be named."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No failing operation is documented."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No defect effect is documented; the request concerns a missing capability (zero-copy publishing) and CPU cost."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: feature request (zero-copy intra-process publishing via unique_ptr in image_transport Publisher/CameraPublisher), not a concrete defect; resolved by adding a new API in PR #306 (rolling) and #310 (jazzy backport).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "PR #306 merge fd51363e (rolling, 2024-05-16); PR #310 merge a3c2cc64 (jazzy, 2024-05-24). A request to backport to humble in the PR #306 thread is unanswered in the fetched comments."
+}

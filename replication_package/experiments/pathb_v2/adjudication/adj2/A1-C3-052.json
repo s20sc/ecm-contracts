@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-052",
+  "kind": "A1",
+  "case_id": "C3-052",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "/path/ros_ws/build/my_ros_package/rclcpp_components/node_main_sensor_scan_generation_node.cpp:43:24: warning:  redundant call to 'c_str' [readability-redundant-string-cstr]\\nstd::string name = clazz.c_str(); -- and PR #2718 diff: \"-    std::string name = clazz.c_str();\\n-    if (name.compare(class_name) == 0) {\\n+    if (clazz.compare(class_name) == 0) {\"",
+    "url": "https://github.com/ros2/rclcpp/issues/2717"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The following warning is raised during the `ament_clang_tidy` test: ... warning:  redundant call to 'c_str' [readability-redundant-string-cstr]"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "fujitatomoya: \"https://github.com/ros2/rclcpp/pull/2718 can close this.\"; PR #2718 \"Redundant .c_str() usage in rclcpp_components triggers ament_clang_tidy warning\" merged into humble 2024-12-29, changing only rclcpp_components/src/node_main.cpp.in."
+  },
+  "notes": "Independently verified: issue #2717 body (title \"Redundant `.c_str()` usage in `rclcpp_components` triggers `ament_clang_tidy` warning\"; the exact clang-tidy diagnostic with file:line 43:24 as quoted above; the snippet \"std::string name = clazz.c_str();\"); the maintainer's closing comment referencing PR #2718; and the PR #2718 diff, which removes the intermediate std::string and compares clazz directly — exactly as the spec quotes. My independent reading: the defect is a style redundancy inside rclcpp_components' own generated main() template; it fires for any correct consuming package that enables readability-redundant-string-cstr, and no wrong value, name, type, or timing crosses any boundary between units — tree step 2 internal. The spec's noted alternative (build@4, since it surfaces only in the consumer's lint test) is also ineligible; the recorded stop is defensible because the faulty code itself lives in rclcpp_components' own logic. E3 pass:false (no runtime interaction fails) matches the source. Ineligible outcome stands."
+}

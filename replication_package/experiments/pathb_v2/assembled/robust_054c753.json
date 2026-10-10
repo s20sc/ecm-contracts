@@ -1,0 +1,898 @@
+{
+ "case_id": "robust_054c753",
+ "corpus": "C1",
+ "operation": "PAIR",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::Serial",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::Serial",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::Serial",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin(): if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)() and retry; other exceptions rethrown",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::Serial",
+       "in_role": "api:ecl::Serial::Serial"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "consumer.recovery": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:155-179 | if ( !serial.open() ) { try { serial.open(...); ... } catch (const ecl::StandardException &e) { ... ecl::Sleep(5)(); // five seconds ... continue; } }",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:163",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:156 (@param port_name : the device name.; parameters are a device name and enumerated BaudRate/DataBits/StopBits/Parity, no spatial data)",
+      "consumer.inputs[0].side": "snapshot:snapshot/kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | ecl::Serial serial;",
+      "consumer.inputs[0].frame": "snapshot:snapshot/kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | serial device object; carries raw bytes, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0038"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::open",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::open",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::open",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin(): if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)() and retry; other exceptions rethrown",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::open",
+       "in_role": "api:ecl::Serial::open"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "consumer.recovery": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:155-179 | if ( !serial.open() ) { try { serial.open(...); ... } catch (const ecl::StandardException &e) { ... ecl::Sleep(5)(); // five seconds ... continue; } }",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:210",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:203 (@param port_name : the device name.; configuration arguments only, no spatial data)",
+      "consumer.inputs[0].side": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:95 | serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);",
+      "consumer.inputs[0].frame": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:95 | opens a serial port by device name, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0038"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::block",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::block",
+         "msg_type": null,
+         "frame": "none",
+         "units": "ms",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::block",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin(): if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)() and retry; other exceptions rethrown",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::block",
+       "in_role": "api:ecl::Serial::block"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "consumer.recovery": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:155-179 | if ( !serial.open() ) { try { serial.open(...); ... } catch (const ecl::StandardException &e) { ... ecl::Sleep(5)(); // five seconds ... continue; } }",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:290",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:290 (argument is a read timeout, no spatial data)",
+      "producer.outputs[0].units": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:288 (@param timeout : timeout measured in ms.)",
+      "consumer.inputs[0].side": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:93 | serial.block(4000); // blocks by default, but just to be clear!",
+      "consumer.inputs[0].frame": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:93 | read-blocking/timeout setting, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0038"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::read",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::read",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::read",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin(): if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)() and retry; other exceptions rethrown",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::read",
+       "in_role": "api:ecl::Serial::read"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "consumer.recovery": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:155-179 | if ( !serial.open() ) { try { serial.open(...); ... } catch (const ecl::StandardException &e) { ... ecl::Sleep(5)(); // five seconds ... continue; } }",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:340",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:484 (ecl_compile_time_assert( is_byte<Byte>::value ); raw bytes, no spatial data)",
+      "consumer.inputs[0].side": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:185 | int n = serial.read((char*)buf, packet_finder.numberOfDataToRead());",
+      "consumer.inputs[0].frame": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:185 | raw byte buffer, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0038"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::write",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::write",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::write",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin(): if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)() and retry; other exceptions rethrown",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::write",
+       "in_role": "api:ecl::Serial::write"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "consumer.recovery": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:155-179 | if ( !serial.open() ) { try { serial.open(...); ... } catch (const ecl::StandardException &e) { ... ecl::Sleep(5)(); // five seconds ... continue; } }",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:258",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:424 (ecl_compile_time_assert( is_byte<Byte>::value ); raw bytes, no spatial data)",
+      "consumer.inputs[0].side": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:487 | serial.write((const char*)&command_buffer[0], command_buffer.size());",
+      "consumer.inputs[0].frame": "snapshot:snapshot/kobuki_driver/src/driver/kobuki.cpp:487 | raw byte buffer, no spatial meaning"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0038"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::Serial",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::Serial",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::Serial",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin() loop: if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)(), set is_connected=false, is_alive=false, continue; other errors rethrown; read timeout (n == 0 and > 0.1 s since last signal) sets is_alive=false",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::Serial",
+       "in_role": "api:ecl::Serial::Serial"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:163",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:156 (@param port_name : the device name.; parameters are a device name and enumerated BaudRate/DataBits/StopBits/Parity, no spatial data)",
+      "consumer.inputs[0].side": "snapshot:kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | ecl::Serial serial;",
+      "consumer.inputs[0].frame": "snapshot:kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | member device object default-constructed (not in Kobuki::Kobuki() initialiser list, snapshot:kobuki_driver/src/driver/kobuki.cpp:50-56); no spatial data"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0037"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::open",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::open",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::open",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin() loop: if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)(), set is_connected=false, is_alive=false, continue; other errors rethrown; read timeout (n == 0 and > 0.1 s since last signal) sets is_alive=false",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::open",
+       "in_role": "api:ecl::Serial::open"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:210",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:203 (@param port_name : the device name.; configuration arguments only, no spatial data)",
+      "consumer.inputs[0].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:94 | serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);  // this will throw exceptions - NotFoundError, OpenError",
+      "consumer.inputs[0].frame": "snapshot:kobuki_driver/src/driver/kobuki.cpp:94 | arguments are a device port name and serial line settings, no spatial data"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0037"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::block",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::block",
+         "msg_type": null,
+         "frame": "none",
+         "units": "ms",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::block",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin() loop: if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)(), set is_connected=false, is_alive=false, continue; other errors rethrown; read timeout (n == 0 and > 0.1 s since last signal) sets is_alive=false",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::block",
+       "in_role": "api:ecl::Serial::block"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:290",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:290 (argument is a read timeout, no spatial data)",
+      "producer.outputs[0].units": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:288 (@param timeout : timeout measured in ms.)",
+      "consumer.inputs[0].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:96 | serial.block(4000); // blocks by default, but just to be clear!",
+      "consumer.inputs[0].frame": "snapshot:kobuki_driver/src/driver/kobuki.cpp:96 | argument is a blocking timeout value, no spatial data"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0037"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::read",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::read",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::read",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin() loop: if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)(), set is_connected=false, is_alive=false, continue; other errors rethrown; read timeout (n == 0 and > 0.1 s since last signal) sets is_alive=false",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::read",
+       "in_role": "api:ecl::Serial::read"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:340",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:484 (ecl_compile_time_assert( is_byte<Byte>::value ); raw bytes, no spatial data)",
+      "consumer.inputs[0].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:186 | int n = serial.read((char*)buf, packet_finder.numberOfDataToRead());",
+      "consumer.inputs[0].frame": "snapshot:kobuki_driver/src/driver/kobuki.cpp:144,186 | raw byte buffer unsigned char buf[256], no spatial data"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0037"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "api:ecl::Serial::write",
+     "status": "done",
+     "direction": {
+      "producer": "ecl_devices",
+      "consumer": "kobuki_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:ecl::Serial::write",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "port_name"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:ecl::Serial::write",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "spin() loop: if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)(), set is_connected=false, is_alive=false, continue; other errors rethrown; read timeout (n == 0 and > 0.1 s since last signal) sets is_alive=false",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "api:ecl::Serial::write",
+       "in_role": "api:ecl::Serial::write"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[port_name]": "snapshot:ecl_devices/src/lib/serial_pos.cpp:95 (file_descriptor = ::open(port_name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);) and :122-127 (file_lock.l_type = F_WRLCK; ... if (fcntl(file_descriptor, F_SETLK, &file_lock) != 0)); documented at snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:126 (- it is locked for the one process, if already locked it will throw.)",
+      "producer.outputs[0].side": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:258",
+      "producer.outputs[0].frame": "snapshot:ecl_devices/include/ecl/devices/serial_pos.hpp:424 (ecl_compile_time_assert( is_byte<Byte>::value ); raw bytes, no spatial data)",
+      "consumer.inputs[0].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:488 | serial.write((const char*)&command_buffer[0], command_buffer.size());",
+      "consumer.inputs[0].frame": "snapshot:kobuki_driver/src/driver/kobuki.cpp:475-488 | serialised command byte buffer with checksum, no spatial data"
+     },
+     "tasks": {
+      "producer": "u0036",
+      "consumer": "u0037"
+     }
+    }
+   ]
+  }
+ }
+}

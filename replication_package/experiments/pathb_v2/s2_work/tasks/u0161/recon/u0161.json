@@ -1,0 +1,102 @@
+{
+  "task_id": "u0161",
+  "package": "roscpp",
+  "manifest_version": "1.9.34",
+  "ports": [
+    {
+      "element": "api:requestTopic",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:std_msgs/String",
+      "side": "consumes",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "992ce8a1687cec8c8bd883ec73ca41d1"
+      }
+    },
+    {
+      "element": "topic:/chatter",
+      "side": "consumes",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "992ce8a1687cec8c8bd883ec73ca41d1"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:requestTopic",
+    "msg:std_msgs/String",
+    "topic:chatter"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "TCPROS publisher link reconnects after TransportDisconnect: retry_period starts at 0.1 s and doubles to a 20 s cap; UDPROS links are not retried but removed"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:clients/roscpp/package.xml:3",
+    "ports[0].frame": "snapshot:clients/roscpp/src/libros/subscription.cpp:390-392 (requestTopic params are caller id, topic name, protocol list; no spatial data)",
+    "references[api:requestTopic]": "snapshot:clients/roscpp/src/libros/subscription.cpp:406",
+    "ports[1].msg_type": "snapshot:clients/roscpp/src/libros/service_publication.cpp:42 (#include <std_msgs/String.h>); :131 (std_msgs::String error_string;)",
+    "ports[1].frame": "std_msgs/String definition body is the single line 'string data' (no header, no spatial field); raw https://raw.githubusercontent.com/ros/std_msgs/0.5.7/msg/String.msg",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 std_msgs/String <dir holding std_msgs/msg/String.msg fetched from https://raw.githubusercontent.com/ros/std_msgs/0.5.7/msg/String.msg; byte-identical at tags 0.5.4-0.5.8 and branch groovy-devel>",
+    "ports[2].msg_type": "snapshot:clients/roscpp/test/src/subscription_callback_types.cpp:152",
+    "ports[2].frame": "std_msgs/String definition body is the single line 'string data' (no header, no spatial field)",
+    "ports[2].definition_id": "python3 definition_hash.py ros1 std_msgs/String (same fetched String.msg as ports[1])",
+    "references[msg:std_msgs/String]": "snapshot:clients/roscpp/src/libros/service_publication.cpp:42; snapshot:clients/roscpp/test/src/subscription_callback_types.cpp:39",
+    "references[topic:chatter]": "snapshot:clients/roscpp/test/src/subscription_callback_types.cpp:151",
+    "perm_requires": "grep -rniE 'permission|security|access control|authoriz' over clients/roscpp/src and include: only BSD licence text; no permission declaration in code or package.xml",
+    "perm_grants": "same search as perm_requires; nothing granted",
+    "recovery": "snapshot:clients/roscpp/src/libros/transport_publisher_link.cpp:202 (retry_period_ = std::min(retry_period_ * 2, WallDuration(20))), :209 (TCPROS only), :234-236 (non-TCPROS link removed via removePublisherLink), :266 (retry_period_ = WallDuration(0.1))"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The requestTopic call sends (caller id, topic, protocol list) and parses a 3-element response exactly as roscpp's own requestTopic handler builds it, and std_msgs/String is used with the standard 'string data' definition; nothing in the three consumed elements looks inconsistent."
+  },
+  "confidence": "high",
+  "notes": "All three packet elements are on the consumes side, so declares and not_declared are empty. api:requestTopic is an XML-RPC slave-API call (no .msg/.srv definition, so msg_type and definition_id are null); roscpp calls it on publishers at src/libros/subscription.cpp:406 and also serves it itself (TopicManager::requestTopicCallback bound at src/libros/topic_manager.cpp:92), the latter being outside the packet's consumes side. std_msgs/String is referenced in the library (service_publication.cpp serialises an error string on service-call exceptions) and in tests; CMakeLists.txt:100 says std_msgs is needed by tests. The topic appears only as the relative name \"chatter\" (recorded verbatim as topic:chatter) in the rostest test test/src/subscription_callback_types.cpp:151-178, subscribed with queue size 1000; the launch file test/launch/subscription_callback_types.xml sets no namespace, so it resolves to /chatter at run time. '/chatter' elsewhere occurs only in comments (publication.cpp:286, subscription.cpp:122). ROS 1: QoS null; no rate set on this topic. No exclusive resources claimed. Master-contact retry (master.cpp:201-215, setRetryTimeout) is a further recovery behaviour not tied to these elements."
+}

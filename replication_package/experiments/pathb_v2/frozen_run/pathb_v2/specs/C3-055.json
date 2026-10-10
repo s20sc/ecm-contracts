@@ -1,0 +1,97 @@
+{
+  "case_id": "C3-055",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_cyclonedds/issues/276",
+    "https://github.com/eclipse-cyclonedds/cyclonedds/pull/2255",
+    "https://github.com/ros2/rmw/blob/690c72d09931d41d4a223bb64dbef4d3fc8a878d/rmw/include/rmw/rmw.h#L2634-L2637",
+    "https://github.com/ros2/rmw_cyclonedds/blob/45179db533fc01e47c9904ca8aa42f60766806fc/rmw_cyclonedds_cpp/src/rmw_node.cpp",
+    "https://github.com/eclipse-cyclonedds/cyclonedds/blob/af7aba56d44ab8b92925cfb150fb58b2089177be/src/core/ddsc/src/dds_waitset.c",
+    "https://github.com/eclipse-cyclonedds/cyclonedds/blob/af7aba56d44ab8b92925cfb150fb58b2089177be/src/core/ddsc/include/dds/dds.h",
+    "https://github.com/ros2/ros2/blob/57b618fb80e6e93fc0323650378f1630a7d4773b/ros2.repos",
+    "https://github.com/ros2/ros2/issues/1080"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #276 gives a reproducer (\"ros2 run demo_nodes_cpp talker\" in one terminal; \"sudo timedatectl set-ntp no\" and \"sudo date -s @`date +%s | xargs -I@ echo @-5 | bc`\" in another), an strace showing \"FUTEX_WAIT_BITSET_PRIVATE|FUTEX_CLOCK_REALTIME\", and a gdb stack through \"dds_waitset_wait_impl ... rmw_wait () from ... librmw_cyclonedds_cpp.so\". Cyclone maintainer confirmed: \"the implementation of the timeout in `rmw_wait` (which is simply passed on to Cyclone's `dds_waitset_wait`) is using the wall clock rather than a monotonic clock.\" https://github.com/ros2/rmw_cyclonedds/issues/276"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rmw_cyclonedds_cpp", "cyclonedds"],
+      "interface_kind": "library API",
+      "evidence": "rmw_cyclonedds_cpp implements rmw_wait by forwarding a relative timeout to Cyclone's C API: \"const dds_return_t ntrig = dds_waitset_wait(ws->waitseth, ws->trigs.data(), ws->trigs.size(), timeout);\" (rmw_node.cpp at 45179db5). Cyclone converts it to an absolute wall-clock deadline: \"const dds_time_t tnow = dds_time ();\" / \"const dds_time_t abstimeout = (DDS_INFINITY - reltimeout <= tnow) ? DDS_NEVER : (tnow + reltimeout);\" (dds_waitset.c at af7aba56), where dds_time is documented as \"Get the current time in nanoseconds since the UNIX Epoch.\" The rmw layer's contract states the clock expected for this wait: \"Elapsed time should be measured using a monotonic clock, though rmw implementations could use a different one.\" (rmw.h). The failure depends on this clock assumption across the rmw_cyclonedds/cyclonedds boundary and the wrong timing (a late return from dds_waitset_wait) crosses it; the resolving edit is inside cyclonedds. Separate units: rmw_cyclonedds (ros2/rmw_cyclonedds) and the Cyclone DDS C library (eclipse-cyclonedds/cyclonedds) are separately built and released."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: rmw_cyclonedds_cpp passes the wait timeout into cyclonedds' dds_waitset_wait and consumes its return time; the failure is observed in that call path (gdb stack: dds_waitset_wait_impl <- rmw_wait <- rcl_wait <- rclcpp::Executor::wait_for_work)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"once system time jumps back in 5 seconds, timer will be in sleep in 5 more seconds.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rmw_cyclonedds_cpp",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rmw_cyclonedds",
+      "broken_rev": "45179db533fc01e47c9904ca8aa42f60766806fc",
+      "resolved_rev": "45179db533fc01e47c9904ca8aa42f60766806fc",
+      "pinned": true,
+      "revision_basis": "The reporter built from source at ros2/ros2 commit 57b618fb, whose ros2.repos lists ros2/rmw_cyclonedds at \"version: master\"; no rmw_cyclonedds commit is named. 45179db5 is the master head immediately before the issue was opened (2021-01-19T07:39Z; commit dated 2021-01-18T07:57Z); the actual build could be any master commit from about 2021-01-11 (ros2.repos commit date) to that head. The resolution does not change rmw_cyclonedds, so the resolved revision is the broken one; note that a 2021 rmw_cyclonedds is unlikely to build against 2025 Cyclone master.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "cyclonedds",
+      "role": "provider",
+      "repo": "https://github.com/eclipse-cyclonedds/cyclonedds",
+      "broken_rev": "af7aba56d44ab8b92925cfb150fb58b2089177be",
+      "resolved_rev": "49c313a4a32e35475866ce9269add2661a936e93",
+      "pinned": true,
+      "revision_basis": "Broken: ros2.repos at 57b618fb lists eclipse-cyclonedds/cyclonedds at \"version: master\"; af7aba56 is the master head immediately before the issue was opened (commit dated 2021-01-19T06:50Z). The reporter's gdb stack shows the same code path (\"dds_waitset_wait_impl (... abstimeout=1611042784228497624) at .../cyclonedds/src/core/ddsc/src/dds_waitset.c:79\"), consistent with this snapshot, whose dds_waitset_wait computes a wall-clock absolute timeout. Resolved: PR #2255 'Gracefully handle time jumps' was rebase-merged into master on 2025-08-05; 49c313a4 is its merge_commit_sha (last commit of the series on master).",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:dds_waitset_wait", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_create_waitset", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_waitset_attach", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_waitset_detach", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_create_guardcondition", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_set_guardcondition", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_take_guardcondition", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_create_readcondition", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_time", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}},
+    {"element": "api:dds_sleepfor", "sides": {"rmw_cyclonedds_cpp": "consumes", "cyclonedds": "provides"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:dds_waitset_wait"],
+      "quote": "Just to be sure: the issue you're running into is that implementation of the timeout in `rmw_wait` (which is simply passed on to Cyclone's `dds_waitset_wait`) is using the wall clock rather than a monotonic clock. Correct?",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/276#issuecomment-762678460"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The delay is observed only as missing timer output and in strace/gdb, with no diagnostic from any tool: \"once system time jumps back in 5 seconds, timer will be in sleep in 5 more seconds.\"",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Cyclone DDS associates its condition variables with a clock and implements relative waits on the elapsed (monotonic) clock: dds_waitset_wait now computes \"const ddsrt_etime_t abstimeout = ddsrt_etime_add_duration (ddsrt_time_elapsed (), reltimeout);\" instead of adding the timeout to dds_time(). No change in rmw_cyclonedds.",
+    "status": "recommended",
+    "evidence": "cyclonedds PR #2255 body: \"The main commit in this PR allows blocking with timeouts based on a monotonic clock rather than the system clock. This should address the various problems with time jumps people have been facing. I haven't actually tested it with time jumps yet because of some practicalities\" and \"Fixes #1995 https://github.com/ros2/rmw_cyclonedds/issues/276\". Merged 2025-08-05; no report in the sources shows rmw_cyclonedds running with the fixed Cyclone across a time jump."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "The composition chosen is rmw_cyclonedds_cpp -> cyclonedds because the maintainers located the defect there (clalancette: \"Is the problem here in `rmw_cyclonedds`, or in CycloneDDS itself?\"; fujitatomoya: \"with current implementation, this is because of [cyclonedds]\") and the fix is in cyclonedds. The same wrong timing propagates one layer up through the rmw API to rcl/rclcpp (rcl_wait -> rmw_wait), where rmw.h states the clock attribute (\"Elapsed time should be measured using a monotonic clock, though rmw implementations could use a different one.\"); fujitatomoya: \"rmw suggests monotonic, but not a requirement.\" That rcl -> rmw_cyclonedds_cpp composition (element api:rmw_wait) is the same failure seen from the client library. Failure class 'other' was used because the mismatch is the clock against which a relative timeout is measured (wall clock vs. monotonic), which fits none of the listed classes; it is not a unit or encoding difference in the value itself. Related: ros2/ros2#1080 (same symptom with other rmw implementations, attributed there to libstdc++ condition variables) and cyclonedds #1995 ('Event thread is freezed when time is changed to past'). fujitatomoya reports the defect still present on Humble / Ubuntu 22.04 (2022-04-28). The issue was closed on 2022-09-30 before any fix existed; eboasson later described a local workaround (switching Cyclone's clocks to CLOCK_BOOTTIME). Inventory is limited to the Cyclone API functions rmw_cyclonedds uses around waiting and timing (the full set of used Cyclone APIs is much larger)."
+}

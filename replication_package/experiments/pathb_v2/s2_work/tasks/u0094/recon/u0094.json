@@ -1,0 +1,69 @@
+{
+  "task_id": "u0094",
+  "package": "rospy",
+  "manifest_version": "1.9.40",
+  "ports": [
+    {
+      "element": "api:rospy.Publisher",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.Publisher.__init__",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rospy.Publisher.publish",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rospy.Publisher": "api rospy.Publisher: class Publisher(Topic):",
+    "api:rospy.Publisher.__init__": "api rospy.Publisher.__init__: def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None):",
+    "api:rospy.Publisher.publish": "api rospy.Publisher.publish: def publish(self, *args, **kwds):"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:clients/rospy/package.xml:3",
+    "ports[0]": "snapshot:clients/rospy/src/rospy/topics.py:738",
+    "ports[1]": "snapshot:clients/rospy/src/rospy/topics.py:743",
+    "ports[2]": "snapshot:clients/rospy/src/rospy/topics.py:774",
+    "declares[api:rospy.Publisher]": "snapshot:clients/rospy/src/rospy/topics.py:738 (exported as rospy.Publisher via snapshot:clients/rospy/src/rospy/__init__.py:70 and __all__ at snapshot:clients/rospy/src/rospy/__init__.py:124)",
+    "declares[api:rospy.Publisher.__init__]": "snapshot:clients/rospy/src/rospy/topics.py:743",
+    "declares[api:rospy.Publisher.publish]": "snapshot:clients/rospy/src/rospy/topics.py:774",
+    "perm_requires": "searched snapshot:clients/rospy/src/rospy/ (grep 'permission'): only BSD licence header lines; no permission declarations in code or package.xml",
+    "perm_grants": "searched snapshot:clients/rospy/src/rospy/ (grep 'permission'): only BSD licence header lines; no permission declarations in code or package.xml",
+    "recovery": "Publisher.publish (snapshot:clients/rospy/src/rospy/topics.py:774-803) and _PublisherImpl.publish (topics.py:926-1020) declare no recovery policy; failed connections are closed and dropped (topics.py:1013-1020)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The three Publisher declarations are internally consistent. Publisher.__init__ at this revision has no queue_size parameter (publish is synchronous), and the manifest version 1.9.40 looks older than the indigo distro named in the packet; a caller passing queue_size would fail, but whether any paired consumer does so cannot be told from this workspace."
+  },
+  "confidence": "high",
+  "notes": "Package located at snapshot/clients/rospy (the snapshot is the ros_comm metapackage tree; snapshot/ros_comm/package.xml:3 also reads 1.9.40). All three packet elements are Python API symbols provided by rospy: class Publisher(Topic) in src/rospy/topics.py, re-exported from src/rospy/__init__.py. They are not topics, so msg_type, frame, units, rate and definition_id do not apply and are null; QoS is null because this is ROS 1. Publisher.__init__ signature: name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None (no queue_size keyword; Subscriber.__init__ at topics.py:453-454 does take queue_size). Publisher.publish accepts a message instance or constructor args/kwargs, converts via args_kwds_to_message, raises ROSException if unregistered or node not initialized, and raises ROSSerializationException on genpy.SerializationError. No packet element is consumed, so references is empty; no exclusive resources are claimed."
+}

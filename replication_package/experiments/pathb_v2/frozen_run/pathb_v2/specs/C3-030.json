@@ -1,0 +1,46 @@
+{
+  "case_id": "C3-030",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/cra-ros-pkg/robot_localization/issues/937",
+    "https://github.com/cra-ros-pkg/robot_localization/pull/942"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #937 gives reproduction steps, the full EKF/navsat_transform configuration, sample NavSatFix and odometry/gps messages, and a debug-log excerpt of the divergence. The maintainer confirmed it: \"Regardless, this appears to be a bug.\" (https://github.com/cra-ros-pkg/robot_localization/issues/937#issuecomment-3205116830)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["navsat_transform_node", "ekf_localization_node"],
+      "interface_kind": null,
+      "evidence": "The two nodes interact through the odometry/gps topic (nav_msgs/Odometry). According to the maintainer, the value crossing the boundary is correct and the defect is in the EKF's own two_d_mode handling: \"The GPS sensor you have is (correctly) providing nonzero covariance values in the off-diagonal positions, indicating correlation between altitude and lat/long.\" and \"The cause of this is the code for [zeroing out variables](...) when we're in 2D mode. We're correctly providing measurements of 0 for the 3D variables, and we're giving tiny measurement covariance _diagonal_ values. But we also need to zero out any off-diagonal values that involve the 3D variables.\" (https://github.com/cra-ros-pkg/robot_localization/issues/937#issuecomment-3205116830). The fix (PR #942) changes only RosFilter::forceTwoD in src/ros_filter.cpp, which zeroes the rows and columns of the 3D state variables in the measurement covariance. The failure comes from the filter's own arithmetic on a legal input. Any correct peer that reports z-correlated covariance would trigger it; it does not depend on a mismatched assumption between the two units, and no wrong value, frame, unit, order, name, or timing crosses the boundary."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR (not evaluated further because E2 fails): navsat_transform_node's odometry/gps output feeds ekf_localization_node's odom1 input."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"cause the localization to behave unpredictably eventually leading to complete divergence.\" (https://github.com/cra-ros-pkg/robot_localization/issues/937)"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): the maintainer attributes the divergence to ekf_localization_node's forceTwoD, which zeroed only the diagonal of 3D-variable covariance in two_d_mode. navsat_transform_node's off-diagonal covariance output is described as correct, and the fix is confined to the filter's own handling of any such input.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Reporter environment: jazzy, robot_localization 3.8.2, GPS receiver Septentrio mosaic-H. Fix: PR #942 (merge 46bd6a81 on jazzy-devel, 2025-08-27). The reporter confirmed the fix branch 937-two-d-mode-fix on the same bag file: \"Yes, running on the same bag file it looks good, no divergence, good covariance matrix. Seems fixed, thank you!\" (https://github.com/cra-ros-pkg/robot_localization/issues/937#issuecomment-3209549859). Reporter workarounds: zero the z-related covariance entries in odometry/gps, or run with two_d_mode: false. Alternative reading, not adopted: the EKF implicitly assumed inputs in 2D mode carry no z-correlated covariance, which would make this an interface assumption between the units. It was not adopted because the maintainer explicitly calls the provider's output correct and the assumption is not stated anywhere as part of the topic's contract."
+}

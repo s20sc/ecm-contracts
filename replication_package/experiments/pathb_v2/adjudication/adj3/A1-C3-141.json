@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-141",
+  "kind": "A1",
+  "case_id": "C3-141",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "You are right. This was recently introduced in https://github.com/ros-controls/ros2_control/commit/465e5d0264dcaca71858022ec907a85cba45f811.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747220409"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:controller_interface::ChainableControllerInterface::exported_state_interfaces_"],
+      "quote": "The ``exported_state_interfaces_`` and ``exported_reference_interfaces_`` now uses the the full interface name as the key to the unordered_map, instead of the interface type.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/2129"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ros2_control_node-2] Segmentation fault (Address not mapped to object [0x80])",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The issue is solved, it was the interface_name being incomplete. I did not add the node name to it."
+  },
+  "notes": "Issue body verbatim confirms the segfault trace into hardware_interface::Handle::set_value<double>; maintainer comment 2747220409 verbatim confirms PR #2038 introduced the key change; comment 2747238062 verbatim confirms 'We merged this kind of breaking change in Jazzy'; reporter comment 2747169475 verbatim confirms the resolved composition works. class representation_convention is correct for the map-key string convention change (the member declaration is unchanged). loudness silent_documented and detection_stage run are correct (segfault with no build/load/activation diagnostic). Resolution observed is defensible: the reporter confirms the fix works; the spec's own notes flag the caveat that the consumer's resolved revision is only an as-reported label with an empty artifact section, so a strict revision-identification reading could downgrade to recommended. I accept observed with that caveat on record."
+}

@@ -1,0 +1,82 @@
+{
+  "item_id": "A1-C3-119",
+  "kind": "A1",
+  "case_id": "C3-119",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: concrete code-level mismatch with an accepted correcting diff. E2: separately released MAVROS and ArduPlane disagree about the meaning of a MAVLink mode value crossing their boundary; not internal, wiring, build-only, or an undeclared firmware fault. E3: UPGRADE is supported qualitatively by the report of the newer ArduPlane assignment versus the stale MAVROS interpretation. E4: the predicted interaction effect is documented, although no flight failure is observed.",
+    "quote": "Since ArduPlane-3.7.0, mode 14, previously assigned to LAND, has changed to AVOID_ADSB.",
+    "url": "https://github.com/mavlink/mavros/issues/2048"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "representation_convention",
+      "elements_verdict": "disagree",
+      "proposed_elements": [
+        "field:mavlink/SET_MODE.custom_mode",
+        "field:mavlink/HEARTBEAT.custom_mode"
+      ],
+      "quote": "Since ArduPlane-3.7.0, mode 14, previously assigned to LAND, has changed to AVOID_ADSB.",
+      "url": "https://github.com/mavlink/mavros/issues/2048",
+      "reason": "This is the semantic encoding of integer mode 14, not two incompatible declarations of the same transmitted message type. MAVROS uses its own cmode_map; it does not consume a C++ FlightMode API from the flight controller. Retain the two custom_mode wire fields and remove api:FlightMode.",
+      "supporting_evidence": [
+        {
+          "quote": "\t{ 14, \"LAND\" },\t\t// not in list",
+          "url": "https://raw.githubusercontent.com/mavlink/mavros/1.20.1/mavros/src/lib/uas_stringify.cpp"
+        },
+        {
+          "quote": "    AVOID_ADSB    = 14,",
+          "url": "https://raw.githubusercontent.com/ArduPilot/ardupilot/ArduPlane-3.7.0/ArduPlane/defines.h"
+        },
+        {
+          "quote": "auto vehicle_mode = m_uas->str_mode_v10(hb.base_mode, hb.custom_mode);",
+          "url": "https://raw.githubusercontent.com/mavlink/mavros/1.20.1/mavros/src/plugins/sys_status.cpp"
+        },
+        {
+          "quote": "sm.custom_mode = custom_mode;",
+          "url": "https://raw.githubusercontent.com/mavlink/mavros/1.20.1/mavros/src/plugins/sys_status.cpp"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "class_verdict": "disagree",
+      "proposed_class": "representation_convention",
+      "elements_verdict": "disagree",
+      "proposed_elements": [
+        "field:mavlink/SET_MODE.custom_mode",
+        "field:mavlink/HEARTBEAT.custom_mode"
+      ],
+      "quote": "+\t{ 14, \"AVOID_ADSB\" },\t// renamed, prev name: LAND",
+      "url": "https://github.com/mavlink/mavros/pull/2049.diff",
+      "reason": "The patch changes a string literal in the mode translation table, not the type of a still-present declared element. This is the same condition as index 0, not an independent element_retyped condition; consolidate the two into one representation_convention condition."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "could result in unwanted behaviors if the user asks for LAND mode using mavros",
+    "url": "https://github.com/mavlink/mavros/issues/2048",
+    "reason": "The source predicts a possible effect; it reports neither an execution nor a diagnostic. Unknown is appropriate."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "could result in unwanted behaviors if the user asks for LAND mode using mavros",
+    "url": "https://github.com/mavlink/mavros/issues/2048",
+    "reason": "No observed execution establishes a detection stage."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+\t{ 14, \"AVOID_ADSB\" },\t// renamed, prev name: LAND",
+    "url": "https://github.com/mavlink/mavros/pull/2049.diff",
+    "reason": "The accepted translation-table fix is evidenced; no source reviewed demonstrates the selected MAVROS/ArduPlane revision pair running successfully. Recommended is appropriate."
+  },
+  "notes": "Primary code corroborates one wire-value interpretation mismatch. MAVROS 1.20.1 maps 14 to LAND and ArduPlane 3.7.0 declares AVOID_ADSB = 14. The ArduPlane 3.6.0 enum read in this session jumps from LOITER = 12 to GUIDED = 15; it does not establish a LAND = 14 built-against baseline. Agreement on eligibility is not verification of that inferred revision. The two listed conditions should be collapsed, not counted twice. No additional independent failed condition was found."
+}

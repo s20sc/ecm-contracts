@@ -1,0 +1,47 @@
+{
+  "task_id": "u0343",
+  "package": "rosbridge_suite",
+  "manifest_version": "2.2.0",
+  "ports": [
+    {
+      "element": "msg:tf2_msgs/TFMessage",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "msg", "value": "c4eca5d2ce24bce7c7a12af0eed741dad50bbb5ab3f3abe97b1bf73ad0902a90"}
+    },
+    {
+      "element": "topic:/tf",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "present", "values": ["topics_glob", "services_glob", "params_glob"]},
+  "recovery": {"state": "present", "value": "rosbridge_websocket retries binding the server socket on OSError, sleeping retry_startup_delay seconds between attempts (declared default 2.0; launch default 5.0)"},
+  "provenance": {
+    "manifest_version": "snapshot:rosbridge_suite/package.xml:4",
+    "ports[0].msg_type": "packet element msg:tf2_msgs/TFMessage; not named anywhere in snapshot code; message classes are loaded by a run-time type string at snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:98 (msg_class = ros_loader.get_message_class(msg_type)); tf2_msgs is declared only as <test_depend>tf2_msgs</test_depend> at snapshot:rosbridge_library/package.xml:45",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 on https://raw.githubusercontent.com/ros2/geometry2/0.36.0/tf2_msgs/msg/TFMessage.msg (content: geometry_msgs/TransformStamped[] transforms); identical text and hash at jazzy tags 0.36.4 and 0.36.8",
+    "perm_requires": "searched snapshot for auth, permission, sros, security, enclave: no permission requirement, authentication, or SROS enclave is declared in code, package.xml, or snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml",
+    "perm_grants": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:223 topics_glob = self.declare_parameter(\"topics_glob\", \"\").value; :225 services_glob; :227 params_glob; :327 Subscribe.topics_glob = RosbridgeWebSocket.topics_glob; snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:240-256 (\"Topic security glob enabled\" ... cancelling subscription when no glob matches); launch defaults \"\" at snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:23-25",
+    "recovery": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:136 retry_startup_delay = self.declare_parameter(\"retry_startup_delay\", 2.0).value; :155-172 while not connected ... except OSError ... time.sleep(retry_startup_delay); snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:11 <arg name=\"retry_startup_delay\" default=\"5.0\" />"
+  },
+  "blinding_guess": {"defective": "cannot_tell", "why": "The snapshot never names /tf or tf2_msgs/TFMessage; both reach the bridge only at run time (client subscribe request or graph discovery), so nothing element-specific is declared that could be judged defective. The only element-relevant behaviour is the generic subscriber QoS rule, which is peer-dependent."},
+  "confidence": "medium",
+  "notes": "The snapshot holds the whole rosbridge_suite repository (rosbridge_suite meta-package plus rosbridge_library, rosbridge_server, rosapi, rosapi_msgs, rosbridge_msgs, rosbridge_test_msgs, all 2.2.0); rosbridge_suite/package.xml itself is a meta-package with exec_depend only, so the code of the member packages was treated as the unit. Neither packet element is named anywhere in the snapshot (grep for tf2_msgs, TFMessage, /tf, tf_static): the topic name arrives at run time in the rosbridge protocol 'subscribe' op ('topic' required, 'type' optional; snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:209-210, 238, 270), so both elements are in neither declares nor references. The only tf2_msgs mentions are a test_depend (rosbridge_library/package.xml:45, rosbridge_test_msgs/package.xml:42) and tests naming tf2_msgs/FrameGraph, tf2_msgs/LookupTransform, tf2_msgs/GetDualQuaternionRepresentation, not the packet elements. ports[1].msg_type is null: the type is either the optional client-supplied 'type' or the first type discovered in the ROS graph for the topic (snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:80-95; a warning is logged if more than one type is found, and TypeConflictException is raised if the client type differs from the established one, :100-103; TopicNotEstablishedException if neither exists, :84-85). ports[0].msg_type is the packet element itself with its jazzy definition hash (sha256_normalised, a proxy for the ROS 2 type hash); the package does not declare it. Frame: rosbridge forwards messages whole without reading or setting any frame, so frame is null for both ports (TFMessage carries a frame_id per transform header in the definition, but that is not taken by this code). QoS (topic subscription path, applies to /tf when a client subscribes to it): subscribers.py:116-127 builds QoSProfile(depth=10, durability=VOLATILE, reliability=BEST_EFFORT), then, from get_publishers_info_by_topic, sets durability=TRANSIENT_LOCAL and reliability=RELIABLE if any publisher is TRANSIENT_LOCAL, then reliability=BEST_EFFORT if any publisher is BEST_EFFORT; so with no publishers it is BEST_EFFORT/VOLATILE. When a further client joins an existing subscriber (subscribers.py:184-188) the rule is re-applied but only sets TRANSIENT_LOCAL durability (without forcing RELIABLE) and BEST_EFFORT reliability. Reliability and durability are therefore peer-selected and recorded null per instructions. No deadline, lifespan or liveliness is set in code (rclpy QoSProfile then uses the RMW default deadline, i.e. no deadline), so deadline_ms is null; history depth 10 is fixed. No rate is set in code; throttle_rate (minimum ms between forwarded messages) and queue_length are client-supplied per subscription (subscribe.py:89-90, 185-186, 271-273). perm_grants: the bridge grants remote clients access to topics/services/params filtered by the configurable security globs named in values; the glob contents are configuration supplied at launch (default empty string = no filtering), not fixed in the snapshot. exclusive: none declared; the websocket server binds a TCP listening port (parameter 'port', default 9090, rosbridge_websocket.py:110, 161) but the code does not name any exclusively claimed hardware or device resource. Recovery value is package-level (server startup); the subscription path itself has no retry. launch also exposes respawn (default false, launch.xml:29)."
+}

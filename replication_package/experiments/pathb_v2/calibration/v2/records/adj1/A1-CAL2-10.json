@@ -1,0 +1,60 @@
+{
+  "item_id": "A1-CAL2-10",
+  "kind": "A1",
+  "case_id": "CAL2-10",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I just updated my Groovy debian installation with the release that was posted today on ros-users and now collada meshes no longer appear in RViz.  In particular, the TurtleBot is now basically invisible.",
+    "url": "https://github.com/ros-visualization/rviz/issues/622",
+    "reason": "The concrete rendering regression occurs after upgrading RViz's mesh-loading behavior while retaining a separately supplied model. E1/E4 hold; the mesh unit declaration crosses the model/renderer boundary and the fix changes it, so E2 stops at 6, not deployment wiring. E3 UPGRADE is supported by the reporter."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-\t\t<unit meter=\"0.01\" name=\"centimeter\"/>\n+\t\t<unit meter=\"1.0\" name=\"meter\"/>",
+      "url": "https://github.com/turtlebot/turtlebot_create/commit/9299530eb77b9e8a2a18160fb6ece325d38abfbc.diff",
+      "reason": "The create_body.dae unit declaration changes from centimeters to meters. The resource and unit_mismatch class are directly supported.",
+      "supporting_evidence": [
+        {
+          "quote": "This patch introduces the ability to read the unit scaling factor from Collada mesh resources.",
+          "url": "https://github.com/ros-visualization/rviz/pull/603"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "Actually, it doesn't look like scaling, but it is pretty messed up on my machine as well (whole robot is just a few speckles of gray and white scattered around)",
+    "url": "https://github.com/ros-visualization/rviz/issues/622#issuecomment-15330155",
+    "reason": "The symptom is incorrect visualization. The source shows no diagnostic identifying incompatible units at connection or activation."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "run",
+    "quote": "In particular, the TurtleBot is now basically invisible.",
+    "url": "https://github.com/ros-visualization/rviz/issues/622",
+    "reason": "The failure is observed in the rendered result, not while negotiating a connection."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "turtlebot_create version 2.0.1 fixes this issue. It's now available on shadow-fixed.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/65#issuecomment-15744659",
+    "reason": "The fix and its model-package release are identified, but the source does not show that released model working in a test with an explicitly identified RViz revision. The earlier successful scale workaround used the commenter's own possibly older meshes. recommended is therefore appropriate.",
+    "supporting_evidence": [
+      {
+        "quote": "I can't promise that my older meshes are the same as in the newest turtlebot_description package.",
+        "url": "https://github.com/ros-visualization/rviz/issues/622#issuecomment-15330455"
+      }
+    ]
+  },
+  "notes": "The other TurtleBot mesh fixes concern other description packages; they are not additional independent conditions of this selected create_description/RViz composition. The UPGRADE assignment is based on the changed renderer behavior; it is distinct from which side supplies the mesh file's bytes."
+}

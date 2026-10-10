@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-B-Ver-02-broken-M1-49aadae494",
+  "kind": "A2",
+  "case_id": "B-Ver-02",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[msg:franka_msgs/FrankaState]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0241/snapshot/franka_msgs/msg/FrankaState.msg:33\nfloat64 time\nfranka_msgs/Errors current_errors\nfranka_msgs/Errors last_motion_errors\n\nsnapshot:s2_work/tasks/u0241/snapshot/franka_msgs/CMakeLists.txt:6\nadd_message_files(FILES Errors.msg FrankaState.msg)\n\nsnapshot:s2_work/tasks/u0242/snapshot/franka_msgs/msg/FrankaState.msg:33\nfloat64 time\nuint8 ROBOT_MODE_OTHER=0\nuint8 ROBOT_MODE_IDLE=1\nuint8 ROBOT_MODE_MOVE=2\nuint8 ROBOT_MODE_GUIDING=3\nuint8 ROBOT_MODE_REFLEX=4\nuint8 ROBOT_MODE_USER_STOPPED=5\nuint8 ROBOT_MODE_AUTOMATIC_ERROR_RECOVERY=6\nuint8 robot_mode\nfranka_msgs/Errors current_errors\nfranka_msgs/Errors last_motion_errors"
+    },
+    {
+      "path": "ver_delta.consumer_reads[msg:franka_msgs/FrankaState]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0239/artifact.txt:1\nfranka_msgs::FrankaState contact;\nvoid FrankaStateCallback (const franka_msgs::FrankaState& FState2)\n{\n    ROS_INFO(\"Callback gestartet\");\n    contact = FState2;"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[msg:franka_msgs/FrankaState]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0241/snapshot/franka_msgs/msg/FrankaState.msg:33\nfloat64 time\nfranka_msgs/Errors current_errors\nfranka_msgs/Errors last_motion_errors",
+      "running_excerpt": "snapshot:s2_work/tasks/u0242/snapshot/franka_msgs/msg/FrankaState.msg:33\nfloat64 time\nuint8 ROBOT_MODE_OTHER=0\nuint8 ROBOT_MODE_IDLE=1\nuint8 ROBOT_MODE_MOVE=2\nuint8 ROBOT_MODE_GUIDING=3\nuint8 ROBOT_MODE_REFLEX=4\nuint8 ROBOT_MODE_USER_STOPPED=5\nuint8 ROBOT_MODE_AUTOMATIC_ERROR_RECOVERY=6\nuint8 robot_mode\nfranka_msgs/Errors current_errors\nfranka_msgs/Errors last_motion_errors"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE uses u0241 (0.6.0) as the consumer-built-against provider, u0242 as the running provider, and u0239 as the broken consumer. The topic carries FrankaState, not an unrelated same-named port. Publisher and attempted subscriber evidence:\nsnapshot:s2_work/tasks/u0242/snapshot/franka_control/include/franka_control/franka_state_controller.h:62\n  realtime_tools::RealtimePublisher<franka_msgs::FrankaState> publisher_franka_states_;\n\nsnapshot:s2_work/tasks/u0242/snapshot/franka_control/src/franka_state_controller.cpp:174\n  publisher_franka_states_.init(controller_node_handle, \"franka_states\", 1);\n\nsnapshot:s2_work/tasks/u0239/artifact.txt:1\nfranka_msgs::FrankaState contact;\nvoid FrankaStateCallback (const franka_msgs::FrankaState& FState2)\n{\n    ROS_INFO(\"Callback gestartet\");\n    contact = FState2;\n}\nClient [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState]\nThe connection is the attempted transport edge; agreement does not assert successful delivery. The inferred historical build mapping remains the specification's inference."
+  },
+  "notes": "Substantive: the running declaration adds ROBOT_MODE_* constants and the serialized uint8 robot_mode field between time and the error messages; this is not a line-selection or transcription difference. The consumer callback accepts and copies the entire FrankaState. The unlocated consumer provenance snippet was located and opened in the explicitly supplied u0239 artifact. No absent permission-grant state is triggered."
+}

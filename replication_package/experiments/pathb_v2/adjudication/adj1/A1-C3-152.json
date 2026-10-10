@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-C3-152",
+  "kind": "A1",
+  "case_id": "C3-152",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: a concrete switch reproducer, refusal log, and maintainer confirmation. E2: the controller's ALL declaration crosses the plugin/host boundary and is consumed as an empty explicit-name list. E3: the specified plugin/host PAIR is supported, although its failing call occurs during a controller SWITCH. Fixing that interpretation requires host code, not deployment name binding.",
+    "quote": "It fails when we try to switch from a controller that uses `controller_interface::interface_configuration_type::ALL` as command interface configuration type to one which has explicitly set command interfaces.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2846"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "There, the `future_available_command_interfaces` are based on the names in the command interface configuration, although these are empty in case of the `ALL` interface configuration type, and therefore the switch fails:",
+      "url": "https://github.com/ros-controls/ros2_control/issues/2846",
+      "reason": "ALL with an empty names vector encodes a set of interfaces, not an empty set. The API, InterfaceConfiguration value, and LF_HAA/position resource named in the refusal are implicated. The fix uses claimed_interfaces for non-INDIVIDUAL declarations."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[gazebo-11] [WARN] [controller_manager]: Unable to activate controller 'joint_trajectory_controller' since the command interface 'LF_HAA/position' is currently claimed by another controller.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2846"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Unable to activate controller 'joint_trajectory_controller' since the command interface 'LF_HAA/position' is currently claimed by another controller.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2846"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+        : controller_it->info.claimed_interfaces;",
+    "url": "https://github.com/ros-controls/ros2_control/pull/2856.diff",
+    "reason": "The patch and added switch_controller_test_two_controllers_using_all_interface establish a concrete proposed repair and regression test. They do not establish a successful run with the reporter's unpublished controller. recommended remains appropriate."
+  },
+  "notes": "The refusal is included as the loud manifestation of the ALL interpretation condition, not omitted. It is not independent evidence of an actual incompatible simultaneous claim: the requested operation was to release one controller's interfaces before activating the other. The positive/negative test cases for other controllers in the fixing diff are not extra conditions of the reporter's composition."
+}

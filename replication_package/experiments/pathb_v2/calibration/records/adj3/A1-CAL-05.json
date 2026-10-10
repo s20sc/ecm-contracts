@@ -1,0 +1,34 @@
+{
+  "item_id": "A1-CAL-05",
+  "kind": "A1",
+  "case_id": "CAL-05",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Then FCU confirms this with GPS_GLOBAL_ORIGIN message containing the same coordinates as LLA. But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.",
+    "url": "https://github.com/mavlink/mavros/issues/1381"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "frame_mismatch",
+      "implicated_elements": ["topic:mavros/global_position/gp_origin"],
+      "quote": "gps_global_origin: remove LLA to ECEF conversion",
+      "url": "https://github.com/mavlink/mavros/pull/1942"
+    }
+  ],
+  "loudness": {
+    "verdict": "silent_documented",
+    "proposed": "silent_documented",
+    "quote": "When I send a request containing LLA, I expect to receive a response containing LLA too in order to compare it and ensure that global_origin has been successfully set.",
+    "url": "https://github.com/mavlink/mavros/issues/1381"
+  },
+  "resolution": {
+    "verdict": "recommended",
+    "proposed": "recommended",
+    "quote": "gps_global_origin: remove LLA to ECEF conversion",
+    "url": "https://github.com/mavlink/mavros/commit/20c15364e26117669fcfd3fa11170a5034d528a3"
+  },
+  "notes": "ELIGIBILITY DISAGREE. The spec stops at E2 step 2 ('internal') claiming 'no interaction between two units failed; the value crossing the interface is valid'. I read the failure differently: the plugin publishes gp_origin in ECEF while the message type geographic_msgs::GeoPointStamped declares LLA (WGS 84). The wrong coordinate frame crosses the gp_origin topic boundary to the consumer (the reporter's client, a separate node that sends set_gp_origin and reads gp_origin), which interprets the fields per the type and gets ECEF instead of LLA. Per S1_specify E2 step 2, 'A wrong value, frame, unit ... that crosses the boundary is an interface failure even when the resolving edit is inside one unit.' PR #1942 title 'gps_global_origin: remove LLA to ECEF conversion' and body 'However the messages are published in ECEF coordinates.' confirm the frame/representation crossing. Commenter lopsided98: 'I just ran into this as well and agree that it is very confusing and probably wrong to use ECEF in a GeoPoint.' So the case is eligible (stop_step 6), operation PAIR (gp_origin topic), interface kind topic; the missed condition is frame_mismatch (representation_convention is the close alternative). Loudness silent_documented / run (no build/connect/activate diagnostic; the reporter finds the wrong value by comparison). Resolution recommended: the fix PR is merged (commit 20c15364) but the issue thread shows no reporter re-run confirming the resolved composition working, so not observed."
+}

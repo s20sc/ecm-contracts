@@ -1,0 +1,63 @@
+{
+  "item_id": "A1-robust_ff581a0",
+  "kind": "A1",
+  "case_id": "robust_ff581a0",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "-\t\t\tpnh.param(\"sensor_position/x\", y, 0.0);\n-\t\t\tpnh.param(\"sensor_position/x\", z, 0.0);\n+\t\t\tpnh.param(\"sensor_position/y\", y, 0.0);\n+\t\t\tpnh.param(\"sensor_position/z\", z, 0.0);",
+    "url": "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847",
+    "reason": "The mavros package supplies per-sensor configuration and the separately packaged mavros_extras plugin consumes it: PAIR. The referenced keys disagree with the coordinate meanings of the provided keys. This does depend on boundary values: a configuration with x=y=z masks the defect, while the supplied z=-0.3 does not. Step 2 does not exclude wrong names/values crossing a boundary merely because the repair is inside the consumer. The fix changes consumer references, not deployment-only wiring or build metadata. The correction accepted in PR #296 establishes E1 and a code-level mismatch for E4; a runtime manifestation of this particular coordinate defect is not documented.",
+    "proposed_eligible": true
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "param:~distance_sensor/hrlv_ez4_pub/sensor_position/x",
+        "param:~distance_sensor/hrlv_ez4_pub/sensor_position/y",
+        "param:~distance_sensor/hrlv_ez4_pub/sensor_position/z",
+        "param:~distance_sensor/lidarlite_pub/sensor_position/x",
+        "param:~distance_sensor/lidarlite_pub/sensor_position/y",
+        "param:~distance_sensor/lidarlite_pub/sensor_position/z"
+      ],
+      "quote": "-\t\t\tpnh.param(\"sensor_position/x\", y, 0.0);\n-\t\t\tpnh.param(\"sensor_position/x\", z, 0.0);\n+\t\t\tpnh.param(\"sensor_position/y\", y, 0.0);\n+\t\t\tpnh.param(\"sensor_position/z\", z, 0.0);",
+      "url": "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847",
+      "reason": "The consumer reads x into all three position components instead of consuming the separate y/z keys. This is a parameter-reference/coordinate-assignment mismatch, not a nominal message type or serialized component-order change.",
+      "additional_evidence": [
+        {
+          "quote": "sensor_position: {x:  0.0, y:  0.0, z:  -0.3}",
+          "url": "https://github.com/mavlink/mavros/blob/ff581a0752107f7ad875c16f83f7b75ccd92f847/mavros/launch/px4_config.yaml#L122"
+        },
+        {
+          "quote": "transform.setOrigin(sensor->position);",
+          "url": "https://github.com/mavlink/mavros/blob/5dd2e1e5742cea77e6b133bca753b4d8f3e404c6/mavros_extras/src/plugins/distance_sensor.cpp#L230"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "distance_sensor: minor correction",
+    "url": "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847",
+    "reason": "There is no observed failure or diagnostic specifically for these misread coordinates. Debug-print code is not evidence that the problem was diagnosed in a run."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "distance_sensor: minor correction",
+    "url": "https://github.com/mavlink/mavros/commit/ff581a0752107f7ad875c16f83f7b75ccd92f847",
+    "reason": "The code identifies a defect but no observed detection stage."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Now looks good to merge.",
+    "url": "https://github.com/mavlink/mavros/pull/296#issuecomment-104330328",
+    "reason": "The correction is accepted, but the thread does not demonstrate correct sensor-position consumption with both units pinned. Other tests concern subscription/covariance or operation with TF disabled."
+  },
+  "notes": "Proposed operation PAIR; outcome undocumented. Pre-merge existence is not an eligibility exclusion. The introducing a3b5934 diff actually has sensor_posisiton spelling errors; the three x-key reads are directly verified at parent 5dd2e1e, rather than attributed to that earlier diff. The later orientation_matching symbol lookup error and range observations with TF disabled in PR #296 are not proof about this coordinate fix and are not added to this parameter composition. No method/checker capability was used to decide eligibility."
+}

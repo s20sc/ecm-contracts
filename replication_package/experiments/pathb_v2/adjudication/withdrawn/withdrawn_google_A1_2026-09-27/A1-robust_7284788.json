@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_7284788",
+  "kind": "A1",
+  "case_id": "robust_7284788",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "waitForTransform throws a tf.Exception if one of the frames doesn't exist yet (which is actually the point of waitForTransform). It must be a bug in TF2.",
+    "url": "https://github.com/ros/geometry2/issues/102"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "When running inside rospy, the roscpp client is not initialized and thus ros::ok is false. I'm going to have to think about how to make this work cleanly in both roscpp and rospy. .",
+      "url": "https://github.com/ros/geometry2/issues/102#issuecomment-95081747"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "listener.waitForTransform(\"/turtle2\", \"/carrot1\", rospy.Time(), rospy.Duration(4.0))\ntf.Exception",
+    "url": "https://web.archive.org/web/20231201073917/https://answers.ros.org/question/207039/tfexception-thrown-while-using-waitfortransform/"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "do not short circuit waitForTransform timeout when running inside pytf. Fixes #102"
+  },
+  "notes": "tf2_ros::Buffer::canTransform added ros::ok() condition which immediately aborted in rospy processes where roscpp is not initialized."
+}

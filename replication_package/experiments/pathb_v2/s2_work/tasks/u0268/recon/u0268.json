@@ -1,0 +1,27 @@
+{
+  "task_id": "u0268",
+  "package": "rosidl_generator_py",
+  "status": "evidence_inadequate",
+  "searched": "All 28 files under snapshot/ (package.xml, CMakeLists.txt, cmake/*.cmake, rosidl_generator_py-extras.cmake.in, bin/rosidl_generator_py, rosidl_generator_py/*.py, resource/*.em, msg/StringArrays.msg, test/test_interfaces.py, top-level LICENSE/CONTRIBUTING/.gitignore/.clang-format). Case-insensitive grep for 'topic' (0 hits), 'std_msgs'/'std_msg' (0 hits), 'publish'/'subscri'/'create_publisher'/'create_subscription'/'rclpy' (0 hits); whole-word 'data' hits are only generic template code (ros_message->@(member.name).data, a local dict named data in generate_py_impl.py:149), never the field std_msgs/String.data. package.xml declares no dependency on std_msgs. None of the three packet elements (field:std_msgs/String.data, msg:std_msgs/String, topic:/topic) is named anywhere in the snapshot.",
+  "manifest_version": "0.9.4",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rosidl_generator_py/package.xml:5",
+    "perm_requires": "grep -rni 'permission|security|sros|policy' over snapshot/: only Apache license boilerplate (LICENSE, file headers); no permission declarations in code or configuration",
+    "perm_grants": "grep -rni 'permission|security|sros|policy' over snapshot/: only Apache license boilerplate; no grants in code or configuration",
+    "recovery": "grep -rni 'recover|retry|fallback' over snapshot/: 0 hits in code or configuration"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The package is the Python message code generator; it never names std_msgs/String, its data field, or /topic. Any bearing on these elements would come through its generic string-field templates, which I did not assess for correctness."
+  },
+  "confidence": "medium",
+  "notes": "rosidl_generator_py is a build-time code generator, not a node: it has no publishers, subscriptions, service clients/servers, or action endpoints, so no packet element maps to a port and ports is empty. All three packet elements are on the consumes side; the code does not name any of them, so references is empty, and declares/not_declared (which cover provided elements only) are empty. Message types reach the generator as inputs at generation time: generate_py() reads package_name and idl_tuples from the generator arguments file (snapshot:rosidl_generator_py/rosidl_generator_py/generate_py_impl.py:56-75) and renders templates generically, so a type such as std_msgs/String would only be processed if some other package's rosidl_generate_interfaces call supplied it. A 'string' field such as String.data would go through the generic AbstractString/AbstractGenericString template branches (resource/_msg.py.em:216, :521; resource/_msg_support.c.em:413-421 Python-to-C via PyUnicode_AsUTF8String + rosidl_runtime_c__String__assign, :719-725 C-to-Python via PyUnicode_DecodeUTF8), which are not specific to std_msgs/String. std_msgs/String's definition was not fetched because the snapshot's definitions and code do not depend on std_msgs (no definition_id is needed since there are no ports). No QoS, frame, units, or rate values apply. Status set to evidence_inadequate per the rule for elements not found after a careful search; the remaining fields record what the snapshot does contain."
+}

@@ -1,0 +1,47 @@
+{
+  "case_id": "C3N-029",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/671",
+    "https://github.com/ros-controls/ros2_control/pull/310",
+    "https://github.com/ros2/rclpy/pull/959"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is labelled by its author as a feature request (\"## Feature request\") asking to \"Provide a standard interface for parsing parameters from yaml files to avoid code duplication.\" It reports no defect, reproducer, or error log; the maintainer reply treats it as a proposal (\"The proposal sounds good to me, a PR implementing this is appreciated.\", https://github.com/ros2/rclpy/issues/671#issuecomment-780714896)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 1,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "No failed interaction between two units is documented, so no pair of units can be named. The linked ros2_control PR #310 (\"Add spawner and unspawner scripts\", \"Fixes https://github.com/ros-controls/ros2_control/issues/294\") adds new spawner.py/unspawner.py scripts and a launch helper; its author mentions the rclpy issue only as the reason for writing a script instead of a node (\"I started as a node, but I would need to duplicate much code from ros2controlcli and from the ros2param load. I opened https://github.com/ros2/rclpy/issues/671 and went to work as a script to above duplication.\"). The issue was later closed by pointing to an rclpy API addition (PR #959, \"implement parameter_client\")."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No failing operation is documented; the request concerns code duplication across launch_ros, ros2cli, and ros2_control."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No failure, warning, or interface mismatch is documented."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1 fails: a feature request for a shared YAML parameter-parsing API, with no documented defect; E2 cannot name two units whose interaction failed (stop at step 1).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "The packet's fix pointer (ros-controls/ros2_control PR #310, merged 2021-03-28 as f31c7eb4) implements ros2_control issue #294 (spawner/unspawner) and is not a fix for this rclpy issue; it only cross-references it. PR #310 also changes one line in controller_manager.cpp (`response->ok = load_controller(request->name).get() != nullptr;`), unrelated to parameter parsing. rclpy issue #671 was closed on 2024-03-10 by a maintainer pointing to rclpy/parameter.py lines 276-325 at 6f2507f9 and to rclpy PR #959."
+}

@@ -1,0 +1,130 @@
+{
+  "case_id": "robust_753226d",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/387",
+    "https://github.com/mavlink/mavros/commit/753226d93a735ba01744620b5654b8a038d1c89d",
+    "https://github.com/mavlink/mavros/commit/ef384edac7e0f5f6ab4145bc462e1cc2c43d91dc",
+    "https://github.com/mavlink/mavros/blob/ef384edac7e0f5f6ab4145bc462e1cc2c43d91dc/mavros_extras/src/servo_state_publisher.cpp",
+    "https://github.com/mavlink/mavros/blob/ef384edac7e0f5f6ab4145bc462e1cc2c43d91dc/test_mavros/launch/apm/apm_local_position_test.launch",
+    "https://github.com/ros/robot_state_publisher/blob/8235bce9b65ee9723a4f0a0e03d7258737cf07ff/src/joint_state_listener.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Maintainer commit 753226d (vooon, 2015-09-17T16:22Z) \"extras #387: fix header stamp in joint_states\" adds the single line `states->header.stamp = msg->header.stamp;` to `ServoStatePublisher::rc_out_cb` in mavros_extras/src/servo_state_publisher.cpp. At the parent revision ef384ed the callback builds `auto states = boost::make_shared<sensor_msgs::JointState>();`, fills only `states->name` and `states->position`, and calls `joint_states_pub.publish(states);` with the header stamp left at its zero default. Issue #387 (\"Make Joint state publisher from rc/out\") is the feature request for the node; it has no comments and was closed before the fix. No reproducer or error log is given; the maintainer's fix commit is the confirmation."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "mavros_extras (servo_state_publisher node)",
+        "robot_state_publisher (robot_state_publisher node)"
+      ],
+      "interface_kind": "topic",
+      "evidence": "The parent commit ef384ed (\"test: new test for local_position + SSP (#387) + URDF\", 18 minutes before the fix) adds test_mavros/launch/apm/apm_local_position_test.launch, which starts `<node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" />` and `<node pkg=\"mavros_extras\" type=\"servo_state_publisher\" name=\"servo_state_publisher\">` in the same launch, both under the same `robot_description`. The two nodes are separate processes from separate packages interacting only through the `joint_states` topic (`joint_states_pub = nh.advertise<sensor_msgs::JointState>(\"joint_states\", 10);` in servo_state_publisher.cpp; `joint_state_sub_ = n.subscribe(\"joint_states\", 1, &JointStateListener::callbackJointState, this);` in robot_state_publisher). The defect is a value crossing that boundary: the message's `header.stamp` is sent unset (zero) while the consumer reads it (`if (state->header.stamp >= last_published + publish_interval_)` and `state_publisher_.publishTransforms(joint_positions, state->header.stamp, tf_prefix_);`). A wrong timing value that crosses the boundary is an interface failure even though the resolving edit is inside the provider (step 2 does not stop). Steps 3-5 do not apply: the fix changes the published message content, not names, build, or firmware. Eligible; interface kind: topic."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the servo_state_publisher output (`sensor_msgs/JointState` on `joint_states`) feeds robot_state_publisher's input; both run concurrently in the test launch, but the failing interaction is the data hand-off."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement by the maintainer's commit \"extras #387: fix header stamp in joint_states\" with the added line `states->header.stamp = msg->header.stamp;` (https://github.com/mavlink/mavros/commit/753226d93a735ba01744620b5654b8a038d1c89d). No observed effect (no log, no rviz observation) is recorded anywhere in the issue or commits, so the outcome class is `undocumented`."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros_extras",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "ef384edac7e0f5f6ab4145bc462e1cc2c43d91dc",
+      "resolved_rev": "753226d93a735ba01744620b5654b8a038d1c89d",
+      "pinned": true,
+      "revision_basis": "broken: the parent of the fix, ef384edac7e0f5f6ab4145bc462e1cc2c43d91dc (2015-09-17T16:04Z), which is also the commit that adds the test launch composing servo_state_publisher with robot_state_publisher (mavros_extras package version 0.14.2 plus unreleased commits; released later in 0.15.0). resolved: the fix commit 753226d93a735ba01744620b5654b8a038d1c89d (2015-09-17T16:22Z), the master head on that date.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "robot_state_publisher",
+      "role": "consumer",
+      "repo": "https://github.com/ros/robot_state_publisher",
+      "broken_rev": "8235bce9b65ee9723a4f0a0e03d7258737cf07ff",
+      "resolved_rev": "8235bce9b65ee9723a4f0a0e03d7258737cf07ff",
+      "pinned": true,
+      "revision_basis": "The source names only the package (`pkg=\"robot_state_publisher\"`), not a version or distro. On the reproduction date 2015-09-17 the indigo-devel and jade-devel branch heads were the same commit, 8235bce9b65ee9723a4f0a0e03d7258737cf07ff (2015-09-01, package version 1.10.4 plus unreleased commits; released tag 1.10.4 = 388dd24 of 2014-11-30 is the nearest prior release). The resolution does not change this unit, so the same revision is kept.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "topic:/joint_states",
+      "sides": {
+        "mavros_extras": "provides",
+        "robot_state_publisher": "consumes"
+      }
+    },
+    {
+      "element": "msg:sensor_msgs/JointState",
+      "sides": {
+        "mavros_extras": "provides",
+        "robot_state_publisher": "consumes"
+      }
+    },
+    {
+      "element": "field:sensor_msgs/JointState.header.stamp",
+      "sides": {
+        "mavros_extras": "provides",
+        "robot_state_publisher": "consumes"
+      }
+    },
+    {
+      "element": "field:sensor_msgs/JointState.name",
+      "sides": {
+        "mavros_extras": "provides",
+        "robot_state_publisher": "consumes"
+      }
+    },
+    {
+      "element": "field:sensor_msgs/JointState.position",
+      "sides": {
+        "mavros_extras": "provides",
+        "robot_state_publisher": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "topic:/joint_states",
+        "field:sensor_msgs/JointState.header.stamp"
+      ],
+      "quote": "extras #387: fix header stamp in joint_states\n\n\t\tauto states = boost::make_shared<sensor_msgs::JointState>();\n+\t\tstates->header.stamp = msg->header.stamp;\n+",
+      "url": "https://github.com/mavlink/mavros/commit/753226d93a735ba01744620b5654b8a038d1c89d"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "No run of the composition is described in the source; the only record is the maintainer's fix commit (https://github.com/mavlink/mavros/commit/753226d93a735ba01744620b5654b8a038d1c89d). No ROS tooling reports an unset header stamp at connection or activation.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Provider side: copy the incoming RCOut header stamp into the published JointState, `states->header.stamp = msg->header.stamp;` in ServoStatePublisher::rc_out_cb (mavros_extras/src/servo_state_publisher.cpp, commit 753226d). The consumer is unchanged.",
+    "status": "recommended",
+    "evidence": "The fix is committed to master by the maintainer (\"extras #387: fix header stamp in joint_states\", https://github.com/mavlink/mavros/commit/753226d93a735ba01744620b5654b8a038d1c89d) but the source never shows the test composition running with it."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class `other`: the message type and definition match on both sides; the defect is the timing value carried in `header.stamp` (left at the zero default). Inference, not documented in the source: at robot_state_publisher 8235bce the callback publishes only when `state->header.stamp >= last_published + publish_interval_` and stamps the TF transforms with `state->header.stamp`, so a zero stamp would suppress or zero-stamp the joint transforms; the source records no such observation, hence `undocumented`. The upstream composition mavros (rc_io plugin, `/mavros/rc/out`, mavros_msgs/RCOut) -> servo_state_publisher (`<remap from=\"rc_out\" to=\"/mavros/rc/out\" />`) is not a failed interaction; the fix merely forwards its stamp. Both units also read `param:/robot_description` set by the launch file (servo_state_publisher: `model.initParam(\"robot_description\")`), a shared input rather than an element exchanged between the two, so it is not listed in the inventory. Topic name: advertised as relative `joint_states` on a public NodeHandle, i.e. `/joint_states` in the test launch's root namespace. The test launch lives in the `test_mavros` package of the same repository; it wires but does not own either node. The ROS distro is not stated; the repository's .travis.yml at ef384ed still says `ROS_DISTRO=hydro` with a comment \"wait until travis will update to 14.04\", which is CI configuration rather than a statement about the test."
+}

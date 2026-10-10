@@ -1,0 +1,178 @@
+{
+ "case_id": "B-Rec-03",
+ "corpus": "C2",
+ "source_refs": [
+  "https://arxiv.org/html/2407.19292v1",
+  "https://answers.ros.org/question/9108",
+  "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image",
+  "https://github.com/ros-perception/image_pipeline/blob/image_pipeline-1.4.0/image_view/src/nodes/stereo_view.cpp",
+  "https://github.com/ros-perception/image_pipeline/blob/image_pipeline-1.4.0/stereo_image_proc/src/nodelets/disparity.cpp",
+  "https://github.com/ros-perception/image_pipeline/blob/image_pipeline-1.4.0/stereo_image_proc/src/nodes/stereo_image_proc.cpp"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "The source is a taxonomy paper with several examples; this spec takes its Figure 5 example, the one the paper analyses end to end (cause, effect, fix) and which it links to ROS Answers question 9108 (footnote 7). That thread (migrated to Robotics Stack Exchange 29632) carries the error log (\"[ WARN] [1297946062.739511145]: [stereo_view] Low number of synchronized left/right/disparity triplets received.\" ... \"Synchronized triplets: 0\") and an accepted answer by Patrick Mihelich confirming the cause (the image_pipeline commits that added stereo_view's approximate_sync/queue_size options, 29478c9, and the disparity nodelet's approximate sync, dd51a00, are authored by 'mihelich')."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "stereo_image_proc",
+    "image_view"
+   ],
+   "interface_kind": "topic",
+   "evidence": "stereo_image_proc (node that loads image_proc/rectify and the disparity nodelet, publishing left/image_rect, right/image_rect and disparity) and image_view's stereo_view node (subscribes to <stereo>/left/<image>, <stereo>/right/<image>, <stereo>/disparity and synchronises them with message_filters ExactTime/ApproximateTime, queue_size default 5) are separate nodes interacting only through topics. The failure depends on assumptions between them: the disparity rate relative to stereo_view's queue depth, and exactly equal time stamps on the left/right/disparity triplet. The resolving change sets stereo_view parameter values (_approximate_sync, _queue_size), not name bindings, so step 3 does not apply; no build or firmware change."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: stereo_image_proc's outputs (/stereo/left/image_rect, /stereo/right/image_rect, /stereo/disparity) feed stereo_view's synchronised inputs: \"rosrun image_view stereo_view stereo:=/stereo image:=image_rect\"."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed failure: \"there is just three gray windows (no image) and a [WARN] message as below\" with \"Disparity images received: 18 (topic '/stereo/disparity')\" and \"Synchronized triplets: 0\"."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "stereo_image_proc",
+   "role": "provider",
+   "repo": "https://github.com/ros-perception/image_pipeline",
+   "broken_rev": "image_pipeline-1.4.0",
+   "resolved_rev": "image_pipeline-1.4.0",
+   "pinned": true,
+   "revision_basis": "Inferred, not stated: the reporter names no version or distro. The thread is dated 2011-02-17 (log stamp 1297946062). The disparity nodelet's optional approximate sync (which the maintainer infers the reporter enabled) was added in dd51a00 (2011-01-27); the latest image_pipeline release tag before the report is image_pipeline-1.4.0 (cbc946e, 2011-02-11); the next, image_pipeline-1.4.1, is dated 2011-03-23. Bounds: dd51a00 .. image_pipeline-1.4.0 (only a doc-build commit 5f4927a on 2011-02-22 follows before the report). The resolution does not change this unit.",
+   "excerpt": false,
+   "ros_distro": null
+  },
+  {
+   "name": "image_view",
+   "role": "consumer",
+   "repo": "https://github.com/ros-perception/image_pipeline",
+   "broken_rev": "image_pipeline-1.4.0",
+   "resolved_rev": "image_pipeline-1.4.0",
+   "pinned": true,
+   "revision_basis": "Inferred, not stated. The reporter's log carries stereo_view's warning text with the hints \"_approximate_sync:=True\" and \"increasing parameter 'queue_size' (currently 5)\", which first exist in image_view/src/nodes/stereo_view.cpp at 29478c9 (2011-02-02, \"stereo_view has approximate_sync and queue_size options\"); image_pipeline-1.3.0 (2010-11-12) has no approximate_sync in stereo_view. The latest release tag before the 2011-02-17 report is image_pipeline-1.4.0 (2011-02-11), whose stereo_view.cpp contains that warning verbatim. The resolution changes only stereo_view's run-time parameter values, not its revision.",
+   "excerpt": false,
+   "ros_distro": null
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "topic:/stereo/left/image_rect",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "topic:/stereo/right/image_rect",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "topic:/stereo/disparity",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "msg:sensor_msgs/Image",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "msg:stereo_msgs/DisparityImage",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "field:sensor_msgs/Image.header",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "field:stereo_msgs/DisparityImage.header",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "field:stereo_msgs/DisparityImage.image",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "field:stereo_msgs/DisparityImage.min_disparity",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  },
+  {
+   "element": "field:stereo_msgs/DisparityImage.max_disparity",
+   "sides": {
+    "stereo_image_proc": "provides",
+    "image_view": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "rate_shortfall",
+   "implicated_elements": [
+    "topic:/stereo/disparity",
+    "topic:/stereo/left/image_rect",
+    "topic:/stereo/right/image_rect"
+   ],
+   "quote": "A second potential problem is that stereo_image_proc is not running at frame rate. You can see that stereo_view is getting less than one disparity image for every five image pairs. I guess the Prosilica images are too high resolution (or your computer not beefy enough :) for stereo_image_proc to keep up. stereo_view keeps a queue of size 5 (by default) on each input topic, which means the left/right image messages may drop off the queues by the time their matching disparity image arrives. The solution is to increase ~queue_size.",
+   "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+  },
+  {
+   "class": "other",
+   "implicated_elements": [
+    "field:sensor_msgs/Image.header",
+    "field:stereo_msgs/DisparityImage.header",
+    "topic:/stereo/left/image_rect",
+    "topic:/stereo/right/image_rect",
+    "topic:/stereo/disparity"
+   ],
+   "quote": "If you're running two prosilica_camera instances, probably they are not synchronized - that is, left and right image time stamps don't match up exactly. All the image_pipeline nodes assume exact synchronization for stereo (the ideal case) by default. Since you're getting disparity images from stereo_image_proc, you must have started it with ~approximate_sync set to True. You need to do the same with stereo_view, as the warning message recommends.",
+   "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "silent_documented",
+ "loudness_evidence": "No build, connection or activation diagnostic is shown; the failure is seen at run time as blank windows, with stereo_view's own periodic run-time warning: \"there is just three gray windows (no image) and a [WARN] message as below\" ... \"[ WARN] [1297946062.739511145]: [stereo_view] Low number of synchronized left/right/disparity triplets received.\" ... \"Synchronized triplets: 0\" (https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image)",
+ "detection_stage": "run",
+ "resolution": {
+  "summary": "Run stereo_view with approximate synchronisation and a larger input queue: \"rosrun image_view stereo_view stereo:=/stereo image:=image_rect _approximate_sync:=True _queue_size:=10\". The paper's alternative: \"To fix this misconfiguration, the developer can increase the queue size to avoid overwriting or throttle the publishing rate of the cameras to account for time taken to produce the disparity image.\"",
+  "status": "recommended",
+  "evidence": "Accepted answer by Patrick Mihelich (https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image); no follow-up in the thread shows the resolved composition working. The paper states the fix but shows no run (https://arxiv.org/html/2407.19292v1)."
+ },
+ "ros_generation": "ROS1",
+ "excerpt_based": false,
+ "confidence": "low",
+ "notes": "Case selection: the packet gives only the paper (Canelas et al., 'Understanding Misconfigurations in ROS: An Empirical Study and Current Approaches'), a taxonomy built from 228 ROS Answers questions. It names no single case. It presents four concrete examples: Figure 2 (question 231458, rgbdslam_v2 fed by the Realsense R200 driver; accepted fix sets rgbdslam's config/topic_points to \"\", a topic-name binding in launch, so that composition would be ineligible deployment_wiring), Figure 4 (subscriber topic typo imu/data vs imu_data; deployment_wiring), Listing 1 (missing ~tf_prefix parameter on robot_state_publisher in a multi-robot launch; deployment configuration), and Figure 5 (stereo_image_proc -> stereo_view, question 9108). This spec takes Figure 5 because it is the only example the paper analyses as a failed interaction end to end (it recurs under Queues, Frequency, Synchronization and Compute) and its linked thread has an error log and a maintainer's confirmation. The words recover/recovery/fallback/restart/respawn do not occur anywhere in the paper, so no recovery-related defect can be taken from it. Other compositions in the same thread and paper, not conditions of this case: the unsynchronised time stamps originate at the two prosilica_camera driver instances (camera -> stereo_image_proc/stereo_view); the disparity rate shortfall is caused by camera resolution versus stereo_image_proc's compute (the paper's 'throttle the publishing rate of the cameras' fix acts on the cameras); the reporter had also locally modified image_geometry's stereo_camera_model.cpp before disparity was published at all. At the broken revision the disparity message carries the left camera_info header (disp_msg->header = l_info_msg->header in stereo_image_proc/src/nodelets/disparity.cpp), so stereo_view's exact match on the triplet depends on the right image's stamp equalling the left one. The thread was read via the Stack Exchange API because answers.ros.org redirects to robotics.stackexchange.com and returns 403."
+}

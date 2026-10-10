@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-C3-127",
+  "kind": "A1",
+  "case_id": "C3-127",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "In this example, for almost 3 seconds of TF waiting, the TF Buffer didn't get updated once. We can confirm that the TF frames are not lost, as they are added later in the TF Buffer (more frames received afterwards).",
+    "url": "https://github.com/ros2/geometry2/issues/727",
+    "reason": "Eligible PAIR: broadcaster_node sends transforms consumed by listener_node. E1 has source code, runnable commands and timeout logs; E4 shows failure of timely transform availability. E2 step 3 excludes only name-binding changes, not every deployment configuration change. Removing FASTRTPS_DEFAULT_PROFILES_FILE is not documented as remapping a topic, parameter, namespace or device path. The observed boundary-crossing timing failure therefore is not excluded at step 3. Nor does the source establish an independent internal defect that would fail with any correct peer under step 2. No build-only or firmware exclusion applies. The interface kind is topic."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "rate_shortfall",
+      "implicated_elements": ["topic:/tf"],
+      "quote": "Terminal 4 shows error about not receiving a TF in the timeout time (500 ms), while it should have received it during that long period.",
+      "url": "https://github.com/ros2/geometry2/issues/727",
+      "reason": "Transform delivery/availability falls below the listener's temporal requirement, despite the broadcaster continuing to publish. This is the reported TF composition; image traffic is a load trigger, not a second failed condition of this edge. No DDS deadline policy, reliability incompatibility or frame-name mismatch is demonstrated."
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "At this point, there should not be any error (everything is working as expected).",
+    "url": "https://github.com/ros2/geometry2/issues/727",
+    "reason": "The connected composition initially operates, then fails under CPU/image load. The report shows runtime lookup exceptions and added measurement logs, not an existing build/connect/activation interface diagnostic. 'Silent' is used in the supplied rubric's early-diagnostic sense; it does not mean the runtime exception was absent."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "run",
+    "quote": "[ERROR] [1731371281.812124135] [listener]: Lookup would require extrapolation into the future.  Requested time 1731371281.299778 but the latest data is at time 1731371281.283326, when looking up transform from frame [base_link] to frame [odom] (timeout=0.500)",
+    "url": "https://github.com/ros2/geometry2/issues/727",
+    "reason": "The error occurs in the image callback after nodes have connected and CPU stress is introduced."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "observed",
+    "quote": "By removing that specific config and by re-running the test above, I have now similar results than with ROS1, here ROS2 default DDS:",
+    "url": "https://github.com/ros2/geometry2/issues/727#issuecomment-2481510627",
+    "reason": "The reporter reruns the same published reproducer after removing the local DDS profile and supplies restored timing measurements. Both application units are identified by their source members in the versioned tf2_buffer_lag_ros2_v3.zip attachment, which I opened in memory; no node-code change is claimed for the resolution. These artifact revisions, rather than invented git SHAs, identify the pair."
+  },
+  "notes": "Source for both units in the follow-up/retest: https://github.com/user-attachments/files/17727580/tf2_buffer_lag_ros2_v3.zip, members tf2_buffer_lag/src/broadcaster_node.cpp and tf2_buffer_lag/src/listener_node.cpp. I read the lines 'rclcpp::Rate r(25);' and 'tmp = tf_buffer_->lookupTransform(\"odom\", \"base_link\", stamp, rclcpp::Duration::from_seconds(0.5));' there. This v3 follow-up uses 25 Hz and 100 ms transform timestamp delay, unlike the initial report's embedded 30 Hz/50 ms example; those revisions must not be conflated. The retest's unchanged v3 application sources support observed resolution, while the precise middleware binary revision and removed XML contents remain unspecified. The source attributes the problem to a local profile, not a general Fast DDS defect, and withdraws confidence in the earlier cross-DDS comparison. The linked rtabmap_ros PR calls #727 a 'current issue' and is not its fixing patch."
+}

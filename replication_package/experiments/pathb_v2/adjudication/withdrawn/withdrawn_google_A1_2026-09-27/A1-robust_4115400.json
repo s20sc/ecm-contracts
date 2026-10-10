@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_4115400",
+  "kind": "A1",
+  "case_id": "robust_4115400",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The bug is due to the different Kobuki plugins using the same ImuSensor.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76666000"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The basic problem is that the sensor name, as obtained on [line 289 of gazebo_ros_kobuki_loads.cpp](https://github.com/yujinrobot/kobuki_desktop/blob/06d8fa710928ba5623939ce42f760838cd0f4667/kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp#L289) is not scoped. Thus it is the same when multiple models are spawned using the same URDF file, namely kobuki_gazebo.urdf.xacro, which declares the imu name [at line 186](https://github.com/yujinrobot/kobuki/blob/06e60c2bba4c73699f69ffc61250f1ad152a931a/kobuki_description/urdf/kobuki_gazebo.urdf.xacro#L186). Hence, the sensor obtained by `sensors::SensorManager::Instance()->GetSensor()` is subject to a race condition.",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38#issuecomment-76669013"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "- KGP does not post rotations to the odom topic (translations are there)\n- **KGP does not publish rotation information on base_footprint-odom tf.**",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/38"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have confirmed that it resolves #38. Thanks @slivingston!!!"
+  },
+  "notes": "Multiple spawned Gazebo plugin instances conflict over the unscoped sensor resource 'imu'."
+}

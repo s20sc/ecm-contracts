@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-C3-135",
+  "kind": "A1",
+  "case_id": "C3-135",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: maintainer report gives the exact calling idiom, warning, and affected rosidl source. E2: separately released rosidl_cli and CPython disagree about the current entry-point API usage; a consumer source change adopts the new selection API. Not dependency-resolution-only. E3: UPGRADE to Python 3.10 is explicit. E4: a warning is observed, even though compatibility remains.",
+    "quote": "Python 3.10, however, has deprecated the use of a 'dict' interface for the entry_points.",
+    "url": "https://github.com/ros2/ros2/issues/1254"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.",
+      "url": "https://github.com/ros2/ros2/issues/1254",
+      "reason": "The provider entry_points API changes its returned object from a plain dict to SelectableGroups, and the consumed get method gains deprecation behavior. The API names remain present, so element_retyped rather than removal is defensible. Both listed API elements participate in the warning-producing call chain.",
+      "supporting_evidence": [
+        {
+          "quote": "def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:",
+          "url": "https://raw.githubusercontent.com/python/cpython/v3.10.0/Lib/importlib/metadata/__init__.py"
+        },
+        {
+          "quote": "def get(self, name, default=None):\n        self._warn()\n        return super().get(name, default)",
+          "url": "https://raw.githubusercontent.com/python/cpython/v3.10.0/Lib/importlib/metadata/__init__.py"
+        },
+        {
+          "quote": "    return {\n        group: tuple(eps)\n        for group, eps in grouped\n        }",
+          "url": "https://raw.githubusercontent.com/python/cpython/v3.9.0/Lib/importlib/metadata.py"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.",
+    "url": "https://github.com/ros2/ros2/issues/1254",
+    "reason": "The evidence is a deprecation warning during an executed entry-point lookup, not a shown build/connect/activation diagnostic or a refusal. The phase-limited loud_documented definition is therefore not established. Nor is this a diagnostic-free failure, so unknown is preferable to silent_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "When accessing the entry_points in this way with Python 3.10, we get a deprecation warning:",
+    "url": "https://github.com/ros2/ros2/issues/1254",
+    "reason": "The warning is emitted when the dict-style API is called during runtime module discovery, supporting run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "All of the failing tests seem to be there in the nightlies, so I'm going to go ahead and merge these all in.",
+    "url": "https://github.com/ros2/ros2/issues/1254#issuecomment-1092005934",
+    "reason": "The maintainer accepts the fixes after CI, but does not identify a passing fixed rosidl_cli / Python 3.10 revision-pair observation. Recommended is appropriate."
+  },
+  "notes": "The CPython 3.10 implementation explicitly preserves a dict-compatible result and warns from get; the effect is warning_only, not removal or functional failure. The diff adopts select with a fallback for earlier Python. Loudness disagreement applies the written stage restriction; unlike the action-state and Joy cases, this source documents no runtime-enforced refusal. The other ROS Python-package fixes are separate compositions and are not additional conditions here."
+}

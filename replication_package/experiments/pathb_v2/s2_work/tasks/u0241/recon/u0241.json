@@ -1,0 +1,114 @@
+{
+  "task_id": "u0241",
+  "package": "franka_ros",
+  "manifest_version": "0.6.0",
+  "ports": [
+    {
+      "element": "msg:franka_msgs/Errors",
+      "side": "provides",
+      "msg_type": "franka_msgs/Errors",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "420c43ed3349b66b110f24531e7b53e5"
+      }
+    },
+    {
+      "element": "msg:franka_msgs/FrankaState",
+      "side": "provides",
+      "msg_type": "franka_msgs/FrankaState",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "ed28b9cbecdc83fa7d31efb59f1ce010"
+      }
+    },
+    {
+      "element": "topic:/franka_state_controller/franka_states",
+      "side": "provides",
+      "msg_type": "franka_msgs/FrankaState",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": 30,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "ed28b9cbecdc83fa7d31efb59f1ce010"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "msg:franka_msgs/Errors": "msg franka_msgs/Errors: 420c43ed3349b66b110f24531e7b53e5",
+    "msg:franka_msgs/FrankaState": "msg franka_msgs/FrankaState: ed28b9cbecdc83fa7d31efb59f1ce010",
+    "topic:/franka_state_controller/franka_states": "topic /franka_state_controller/franka_states: franka_msgs/FrankaState"
+  },
+  "not_declared": [],
+  "references": [
+    "msg:std_msgs/Header",
+    "api:franka::Errors",
+    "api:franka::RobotState"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "action ~error_recovery: franka_control/ErrorRecovery (calls robot.automaticErrorRecovery())"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:franka_ros/package.xml:4 (<version>0.6.0</version>; franka_msgs/package.xml:4 and franka_control/package.xml:4 also 0.6.0)",
+    "ports[0].msg_type": "snapshot:franka_msgs/CMakeLists.txt:6 add_message_files(FILES Errors.msg FrankaState.msg); package name snapshot:franka_msgs/package.xml:3",
+    "ports[0].frame": "snapshot:franka_msgs/msg/Errors.msg:1-36 (36 bool flags only, no spatial content)",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 franka_msgs/Errors snapshot -> 420c43ed3349b66b110f24531e7b53e5 (from snapshot:franka_msgs/msg/Errors.msg:1-36)",
+    "ports[1].msg_type": "snapshot:franka_msgs/CMakeLists.txt:6 add_message_files(FILES Errors.msg FrankaState.msg)",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 franka_msgs/FrankaState snapshot <deps> -> ed28b9cbecdc83fa7d31efb59f1ce010; snapshot:franka_msgs/msg/FrankaState.msg:1-35; nested std_msgs/Header from https://raw.githubusercontent.com/ros/std_msgs/0.5.11/msg/Header.msg (md5 2176decaecbce78abc3b96ef049fabed, matches the published value), nested franka_msgs/Errors from snapshot",
+    "ports[2].msg_type": "snapshot:franka_control/include/franka_control/franka_state_controller.h:62 realtime_tools::RealtimePublisher<franka_msgs::FrankaState> publisher_franka_states_;",
+    "ports[2].definition_id": "same definition as ports[1]: python3 definition_hash.py ros1 franka_msgs/FrankaState -> ed28b9cbecdc83fa7d31efb59f1ce010",
+    "ports[2].rate_hz": "snapshot:franka_control/config/default_controllers.yaml:30 publish_rate: 30  # [Hz]; code default snapshot:franka_control/src/franka_state_controller.cpp:150 double publish_rate(30.0); gating snapshot:franka_control/src/franka_state_controller.cpp:155,229 and snapshot:franka_hw/src/trigger_rate.cpp:7-14",
+    "declares[msg:franka_msgs/Errors]": "snapshot:franka_msgs/msg/Errors.msg:1-36; snapshot:franka_msgs/CMakeLists.txt:6",
+    "declares[msg:franka_msgs/FrankaState]": "snapshot:franka_msgs/msg/FrankaState.msg:1-35; snapshot:franka_msgs/CMakeLists.txt:6",
+    "declares[topic:/franka_state_controller/franka_states]": "snapshot:franka_control/src/franka_state_controller.cpp:174 publisher_franka_states_.init(controller_node_handle, \"franka_states\", 1); controller name snapshot:franka_control/config/default_controllers.yaml:28-29 and snapshot:franka_control/launch/franka_control.launch:19 args=\"franka_state_controller\"; controller manager on root-namespace public handle snapshot:franka_control/src/franka_control_node.cpp:34,168 with node launched at root snapshot:franka_control/launch/franka_control.launch:13",
+    "references[msg:std_msgs/Header]": "snapshot:franka_msgs/msg/FrankaState.msg:1 std_msgs/Header header; snapshot:franka_msgs/package.xml:16 <depend>std_msgs</depend>",
+    "references[api:franka::Errors]": "snapshot:franka_control/src/franka_state_controller.cpp:28 franka_msgs::Errors errorsToMessage(const franka::Errors& error) {",
+    "references[api:franka::RobotState]": "snapshot:franka_control/include/franka_control/franka_state_controller.h:67 franka::RobotState robot_state_;",
+    "perm_requires.state": "searched all snapshot code, launch and yaml files: no permission/authorization declarations",
+    "perm_grants.state": "searched all snapshot code, launch and yaml files: no permission/authorization grants",
+    "recovery.value": "snapshot:franka_control/src/franka_control_node.cpp:124-136 actionlib::SimpleActionServer<franka_control::ErrorRecoveryAction> recovery_action_server(node_handle, \"error_recovery\", ... robot.automaticErrorRecovery(); ...); action definition snapshot:franka_control/action/ErrorRecovery.action"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "Both message definitions are complete and registered in franka_msgs/CMakeLists.txt; the only publisher fills every FrankaState field (35/35) and maps all 36 Errors flags one-to-one from franka::Errors; topic name, type and rate agree across the controller code, header, default_controllers.yaml and franka_control.launch; the in-repo consumer (interactive_marker.py) uses the same topic name and type."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (kinetic): QoS recorded null for all ports. The topic publisher uses a realtime_tools::RealtimePublisher with queue size 1 (franka_state_controller.cpp:174). The published FrankaState header sets only seq and stamp (franka_state_controller.cpp:333-334); header.frame_id is never assigned, so the topic frame is recorded null (message fields such as O_T_EE/F_T_EE/EE_T_K encode frames only by naming convention, not declared). FrankaState.msg carries no unit annotations, so units are null. The topic's absolute name /franka_state_controller/franka_states is resolved from the relative name 'franka_states' on the controller node handle; the controller name comes from default_controllers.yaml and the spawner in franka_control.launch. publish_rate 30 Hz is an upper bound enforced by TriggerRate (publishes only when more than 1/rate s has elapsed). The same repository also consumes the topic in franka_example_controllers/scripts/interactive_marker.py:61-62 (rospy.Subscriber(\"franka_state_controller/franka_states\", FrankaState, ...)); since it is this package's own element it is not listed in references. exclusive is empty for these elements: FrankaStateController uses only franka_hw::FrankaStateInterface (read-only state handle arm_id_ + \"_robot\", franka_state_controller.cpp:141,166-167); exclusive command-interface claims elsewhere in franka_hw/franka_example_controllers are unrelated to the listed elements and were not enumerated. Dependency std_msgs/Header.msg was fetched from the ros/std_msgs 0.5.11 tag (kinetic release) into a scratch directory outside the workspace, with a stub package.xml containing only <name>std_msgs</name> so definition_hash.py could resolve the package name; no other file was taken from that repository. Libfranka (franka::Errors, franka::RobotState) headers are not in the snapshot and were not fetched; CMake requires Franka >= 0.5.0 (franka_control/CMakeLists.txt:24)."
+}

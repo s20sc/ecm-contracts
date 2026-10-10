@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-100",
+  "kind": "A1",
+  "case_id": "C3-100",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This issue happens when a single node subscribes to a topic multiple times and each subscriber has a different message type.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/111"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The program crashes as soon as the second `create_subscription` call is made.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/111"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "terminate called after throwing an instance of 'rclcpp::exceptions::RCLError'\n  what():  could not create subscription: failed to create topic, at /tmp/binarydeb/ros-eloquent-rmw-cyclonedds-cpp-0.4.4/src/rmw_node.cpp:1446, at /tmp/binarydeb/ros-eloquent-rcl-0.8.4/src/rcl/subscription.c:168",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/111"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "@pjreed this problem should have disappeared about two weeks ago with #114 getting merged (certainly for a build from source, I don't know if the binary packages have been updated yet). I'd appreciate it if you could confirm this before closing the issue.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/111"
+  },
+  "notes": "Independently verified: issue body states version 0.4.4-1bionic.20200121.221538, rviz2 with Pose and Marker displays on /test, \"Note that FastRTPS behaves correctly.\" (so the refusal does not occur with any correct peer — not internal), \"This bug also exists with the binary version in ROS Dashing.\", and the RCLError console output verbatim. Maintainer (eboasson): \"From the description, this is a duplicate of #72, which got fixed for Foxy (https://github.com/eclipse-cyclonedds/cyclonedds/pull/382 and #96).\" The reporter could only test an older binary (\"I see in that `package.xml` file that it's version `0.5.1`, although the latest version of `ros-dashing-rmw-cyclonedds-cpp` in the apt repository is `0.4.2-1bionic.20200318.032607` ... I tested that and it still crashes.\"). Class: nominal_type_mismatch (two nominal types requested on one topic name, refused by the provider's per-participant one-type-per-topic binding) is defensible and the spec itself discusses the exclusive_resource_conflict alternative in notes; the primary refusal text (\"failed to create topic\") supports either, so I do not overturn. Loudness: loud_documented/activate is right — the runtime refuses the second subscription at entity creation with an explicit rcl error that crashes the process; that is a diagnostic at activation of the interface element, not a silent run-time effect. Resolution: recommended is right — the fix was never shown working in this composition (maintainer asked for confirmation, none arrived; the issue was closed later by age per the spec's citation of clalancette's closing comment, which I take from the spec since I did not re-fetch that line)."
+}

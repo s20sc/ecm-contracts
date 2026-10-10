@@ -1,0 +1,46 @@
+{
+ "item_id": "A1-robust_0481047",
+ "kind": "A1",
+ "case_id": "robust_0481047",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "after #74 I get this error\n/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'\n\nto reproduce: create a workspace with the ros/velodyne repo and the ros/geometry_experimental repo, both of them checked out to the latest version.\n\nI bisected on ros/geometry_experimental and I confirmed #74 is the culprit",
+  "url": "https://github.com/ros/geometry2/issues/84"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+   "url": "https://github.com/ros/geometry2/commit/cbcc785cae3a191d18a49128f8bef13b74e02335"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+   "url": "https://github.com/ros/geometry2/issues/84"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+  "url": "https://github.com/ros/geometry2/issues/84"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "yep that fixes it!",
+  "url": "https://github.com/ros/geometry2/issues/84"
+ },
+ "notes": "Independently re-decided and agree. E1: issue 84 (bricerebsamen, 2015-03-11) with link error, reproducer and bisection; maintainer tfoote reworked the change ('You shouldn't be using symbols from /opt/ros that depend on a source overlay. \n\nHowever I've also attempted a rework to overload instead of have a default method. Can you try the fix_84 branch?', 'I patched fix_84 for _allFramesAsDOT as well.'). E2 stop 6: tf (binary consumer, /opt/ros/indigo/lib/libtf.so -- reporter: 'no I created a dedicated workspace in my home dir that contains only those 2 repos. So tf is pulled from `/opt/ros/indigo`') and tf2 (source-overlay provider) are separately released packages; the failing value is the library symbol the consumer references across the boundary; the resolution is a provider source/declaration change (overloads instead of a default argument), i.e. an interface change, so step 4's build-only stop does not apply. E3 UPGRADE agree. E4: link error observed. Both condition classes verified: entry 0 element_retyped -- I read the PR #74 change at commit cbcc785c: '-  std::string _allFramesAsDot() const;' '+  std::string _allFramesAsDot(double current_time = 0) const;' (declaration changed, element still present; the same diff also retypes allFramesAsYAML); entry 1 element_removed_or_renamed at the binary level -- default arguments are expanded in the caller, so the zero-argument mangled symbol the compiled consumer references is no longer exported, which the linker reports; tfoote's nm output in the thread corroborates the mechanism ('U _ZNK3tf210BufferCore15allFramesAsYAMLEv' vs '_ZNK3tf210BufferCore15allFramesAsYAMLEd') and his own allFramesAsYAML link error ('/tmp/catkin_workspace/devel_isolated/tf2_ros/lib/libtf2_ros.so: undefined reference to `tf2::BufferCore::allFramesAsYAML() const'' + 'collect2: error: ld returned 1 exit status') -- that YAML observation is the tf2_ros<->tf2 composition, correctly not a condition here. The two entries describe one declaration change from its two sides; the spec says so in notes, and given the taxonomy's explicit precedent of double-listing a single change under two classes, I raise no objection on class or elements. Loudness loud_documented / build agree: the linker diagnostic at build is exactly the rubric's build-stage tooling diagnostic. Resolution observed agree: 'yep that fixes it!' (2015-03-12T01:23:13Z) after 'I patched fix_84 for _allFramesAsDOT as well.' with the unchanged binary consumer; I verified commit 04810475 ('change from default argument to overload to avoid linking issue #84') adds 'std::string _allFramesAsDot() const' implemented as 'return _allFramesAsDot(0.0);' and the allFramesAsYAML overloads under '/** Backwards compatibility for #84\n  */', matching the resolution summary."
+}

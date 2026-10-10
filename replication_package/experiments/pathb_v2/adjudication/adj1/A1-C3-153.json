@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-C3-153",
+  "kind": "A1",
+  "case_id": "C3-153",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the compiler reports the concrete deprecated consumer call. E2: separately built provider and controller package interact through init; changing that call is an interface adaptation, not a build-system-only repair. E3: the provider's newly deprecated declaration is used by an older-style consumer, supporting UPGRADE. A warning-only result is eligible under E4.",
+    "quote": "const auto result = controller_->init(\"forward_command_controller\", \"\", 0, \"\", node_options);",
+    "url": "https://github.com/ros-controls/ros2_controllers/issues/1946"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "+  [[deprecated(\n+    \"Use the init(const controller_interface::ControllerInterfaceParams & params) method instead. \"\n+    \"This method will be removed in the future ROS 2 releases.\")]]",
+      "url": "https://github.com/ros-controls/ros2_control/pull/2390.diff",
+      "reason": "S1 defines element_retyped broadly as a changed declaration whose element remains present. The inspected diff adds the deprecation attribute to init while retaining the old overload. This is not evidence that the five-argument overload has already been removed or that compilation fails."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "warning: ‘controller_interface::return_type controller_interface::ControllerInterfaceBase::init(const std::string&, const std::string&, unsigned int, const std::string&, const rclcpp::NodeOptions&)’ is deprecated: Use the init(const controller_interface::ControllerInterfaceParams & params) method instead. This method will be removed in the future ROS 2 releases. [-Wdeprecated-declarations]",
+    "url": "https://github.com/ros-controls/ros2_controllers/issues/1946"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[-Wdeprecated-declarations]",
+    "url": "https://github.com/ros-controls/ros2_controllers/issues/1946"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have done all the tests and fixed the issues. Please review once",
+    "url": "https://github.com/ros-controls/ros2_controllers/pull/1973",
+    "reason": "The author reports testing, and the inspected consumer diff changes to init(params). The report does not identify both tested package revisions; recommended satisfies the stricter S1 resolution rule."
+  },
+  "notes": "Only the forward_command_controller composition implicated by the issue's warning is adjudicated. Other controller packages changed in PR 1973 do not supply additional conditions for this case."
+}

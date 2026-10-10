@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-118",
+  "kind": "A1",
+  "case_id": "C3-118",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Component constructor threw an exception: intraprocess communication is not allowed with a zero qos history depth value",
+    "url": "https://github.com/moveit/moveit2/issues/2632"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Intra-process communication is disabled, consider enabling it by adding:  extra_arguments=[{'use_intra_process_comms' : True}] to the Servo composable node in the launch file",
+      "url": "https://github.com/moveit/moveit2/issues/2632"
+  }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "      if (qos.depth() == 0) {\n        throw std::invalid_argument(\n                \"intraprocess communication is not allowed with a zero qos history depth value\");",
+    "url": "https://github.com/ros2/rclcpp/blob/24.0.0/rclcpp/include/rclcpp/publisher.hpp"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-  if (!options.use_intra_process_comms())\n  {\n    RCLCPP_WARN_STREAM(node_->get_logger(),\n                       \"Intra-process communication is disabled, consider enabling it by adding: \"\n                       \"\\nextra_arguments=[{'use_intra_process_comms' : True}]\\nto the Servo composable node \"\n                       \"in the launch file\");\n  }",
+    "url": "https://github.com/moveit/moveit2/pull/2752"
+  },
+  "notes": "Independently verified: issue #2632 quotes the warning advice verbatim and the resulting refusal (\"Following advice of the warning leads to an error.\"). servo_node.cpp at tag 2.8.0 contains the warning at lines 72-76 and creates publishers with rclcpp::SystemDefaultsQoS() (lines 107, 112, 117, 123, 128, 132 — including node_->create_publisher<moveit_msgs::msg::ServoStatus>(servo_params_.status_topic, rclcpp::SystemDefaultsQoS()); exactly as the spec's evidence quotes). rclcpp publisher.hpp at 24.0.0 contains the throw statement verbatim at lines 170-173 (fetched from the tag). PR #2752's diff removes exactly the warning block and nothing else in that hunk. Eligibility: the refused value (keep-last depth-0 QoS profile on the intra-process path) crosses the moveit_servo -> rclcpp API boundary; the resolving change is deleting the misleading advice in consumer code, not a deployment name binding, build change, or firmware fault — stop_step 6 library API is right. Class `other` is right: the refused attribute is QoS history kind/depth, and the listed QoS classes cover only reliability/durability/deadline. The spec transparently marks the implicated entity as inferred from code (the subscription path throws a differently worded message) — sound. Loudness loud_documented/activate is right: a runtime-enforced refusal at component construction reported by the component container (S1 counts refusals the runtime enforced as loud). Resolution none is right: PR #2752 does not change the QoS passed to rclcpp, so the failed composition (Servo with intra-process enabled) still fails at the resolved revision; the only practical remedy is not enabling it, which is not a resolving change of the failed composition."
+}

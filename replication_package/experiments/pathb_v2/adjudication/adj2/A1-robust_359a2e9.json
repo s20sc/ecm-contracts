@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_359a2e9",
+  "kind": "A1",
+  "case_id": "robust_359a2e9",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The program that runs on the UR controller reads too many bytes from the socket connection for setting digital outputs.  See [here](https://github.com/ros-industrial/universal_robot/blob/hydro-devel/ur_driver/prog#L226).  Most times this is not an issue because multiple commands are not typically in the socket buffer (the reference read command only returns the 2 values used for setting digital IO).",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/107"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Ah, you're right. Seems number-of-bytes was specified, instead of number-of-items.",
+      "url": "https://github.com/ros-industrial/universal_robot/issues/107"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This results in several `unrecognized command` messages being reported in the ROS log (although a more critical failure could be misinterpreting the data as a valid command).",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/107"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "driver: sizeof(io_msgs) is 8 bytes, not 8 ints. Fix #107."
+  },
+  "notes": "Independently verified against sources read this session. (1) E1/E2: issue body matches the spec quote verbatim; maintainer gavanderhoorn's comment (2014-09-12) confirmed above. Broken-side code at 1373f319 read directly: driver.py packs 'params = [MSG_SET_DIGITAL_OUT] + \\n                 [pinnum] + \\n                 [value]' with 'buf = struct.pack(\"!%ii\" % len(params), *params)' (type + 2 integers; set_tool_voltage sends '[value] + \\n [0]'), while prog reads 'params_mult = socket_read_binary_integer(1+6+1)' for MSG_SET_DIGITAL_OUT — the message-size assumption crosses the PC/controller socket boundary, so stop at step 6 with interface kind 'wire protocol field'. Unit-boundary judgement (driverProg uploaded by driver.py but executing as a separate program on the UR controller) is defensible and flagged in the spec notes. (2) Condition class definition_mismatch with the four IO elements: fix commit 359a2e9 (read via API, parent = 1373f31946210e42caefedf613d93c7c111c1045, confirmed) changes exactly the four reads 'socket_read_binary_integer(1+6+1)' -> 'socket_read_binary_integer(2)' for MSG_SET_DIGITAL_OUT, MSG_SET_FLAG, MSG_SET_ANALOG_OUT, MSG_SET_TOOL_VOLTAGE, incl. comment '(also reads second dummy '0' integer)'; MSG_SET_PAYLOAD/MSG_STOPJ sends match their reads (no missed condition; maintainer found MOVEJ/SERVOJ reads correct in-thread). (3) Loudness silent_documented/run: only the application's own runtime log; no build/connect/activate tooling diagnostic. (4) Resolution recommended: 359a2e9 dated 2014-10-10 and contained in a418106 (merge of PR #117; compare 359a2e9...a418106 status ahead, behind_by 0); all six issue comments predate the merge and none shows the fixed composition exercised. Tags/revisions spot-checked via API."
+}

@@ -1,0 +1,52 @@
+{
+  "case_id": "C3-013",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/cra-ros-pkg/robot_localization/issues/732",
+    "https://github.com/cra-ros-pkg/robot_localization/pull/733",
+    "https://github.com/cra-ros-pkg/robot_localization/commit/e711bf0206c803f3c92f31cf705a3f0547f94836",
+    "https://github.com/robotechvision/robot_localization/commit/8268d36db713cc56f27067fa6bf9e59e83346675",
+    "https://github.com/robotechvision/robot_localization/commit/d1a88e257aea0096aae60087b451e5bd0f5efd56",
+    "https://github.com/KBKN-Autonomous-Robotics-Lab/IGVC2023-src/pull/66"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer and error: \"Run `navsat_transform_node`, setting `broadcast_utm_transform` to false or not setting it at all (or setting 'broadcast_cartesian_transform' instead).\" / \"Node crashes with message: parameter 'broadcast_utm_transform' has already been declared\" (https://github.com/cra-ros-pkg/robot_localization/issues/732), version 3.3.0-1focal.20220122.083819; maintainer accepts it (\"Thanks. Any chance you'd care to submit a PR? :)\")."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "robot_localization (navsat_transform_node)"
+      ],
+      "interface_kind": null,
+      "evidence": "The node declares the same parameter twice in its own constructor, so it aborts on startup whatever any peer or configuration does (the crash also occurs when the parameter is \"not setting it at all\"). At the parent revision ffbe96b2 src/navsat_transform.cpp contains `broadcast_cartesian_transform_ =\\n    this->declare_parameter(\"broadcast_utm_transform\", broadcast_cartesian_transform_);` followed in the else-branch by a second `this->declare_parameter(\"broadcast_utm_transform\", broadcast_cartesian_transform_);`. The fix only corrects the second name: \"-      this->declare_parameter(\\\"broadcast_utm_transform\\\", broadcast_cartesian_transform_);\\n+      this->declare_parameter(\\\"broadcast_cartesian_transform\\\", broadcast_cartesian_transform_);\" (https://github.com/cra-ros-pkg/robot_localization/commit/e711bf0206c803f3c92f31cf705a3f0547f94836)."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No two-unit operation is involved; the node fails during its own construction."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"Node crashes with message: parameter 'broadcast_utm_transform' has already been declared\" (issue 732)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: navsat_transform_node declares the parameter 'broadcast_utm_transform' twice in its own constructor (a copy-paste typo for 'broadcast_cartesian_transform'), so rclcpp throws ParameterAlreadyDeclared and the node crashes at startup regardless of any peer or configuration.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Fix: PR 733 merged to the ros2 branch as e711bf0206c803f3c92f31cf705a3f0547f94836 (parent ffbe96b2286c1455f56efefca13796682333a8e4); the robotechvision commits 8268d36d / d1a88e25 are the PR author's fork commits. A secondary consequence of the typo, not documented as observed, is that the documented parameter 'broadcast_cartesian_transform' was never declared, so a configuration setting it could not take effect; that is subsumed by the crash. Another composition in the packet: KBKN-Autonomous-Robotics-Lab/IGVC2023-src PR 66 (merged 2023-05-15) changes its own navsat_transform configuration igvc2023/config/navsatekf.yaml from \"broadcast_utm_transform: ture # false\" to \"broadcast_cartesian_transform: true # false\", i.e. a downstream configuration following the deprecated-to-new parameter rename (and fixing 'ture' typos); it does not document a failure of its own. Maintainer comment for Noetic: \"Noetic doesn't do parameter declaration, so I don't believe it should crash.\""
+}

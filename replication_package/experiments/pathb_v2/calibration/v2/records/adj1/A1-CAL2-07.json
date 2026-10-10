@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-CAL2-07",
+  "kind": "A1",
+  "case_id": "CAL2-07",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Publish String from C++ with arbitrary byte content:",
+    "url": "https://github.com/ros2/rclpy/issues/881",
+    "reason": "The source supplies a C++ publisher, Python subscriber, and failing receive trace. An arbitrary-byte string crosses the topic boundary into a UTF-8 decoder, so this is a PAIR interface-assumption failure, not a decoder crash with any correctly encoded peer. E1-E4 hold. rosidl_generator_py denotes the consumer-side generated type support, not a generator process subscribed to the topic."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "There is a heavy mismatch here between the message/C++ types and Python types. `string` is 8-bit data which does not have encoding, neither does `std::string`. Message strings *ought* to be UTF-8, but this is not enforced. But Python strings always enforce an encoding.",
+      "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1210405369",
+      "reason": "The nominal std_msgs/String message is unchanged; the encoding of its data field on /topic violates the Python decoder's assumption. representation_convention and the implicated field/topic are supported."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "The exception is raised by rclpy event loop during spinning, so users cannot really control it.",
+    "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1211550185",
+    "reason": "S1 restricts loud_documented to build, connection, or activation diagnostics. This exception occurs while the event loop takes an already received message; it is not a connection-compatibility rejection. Under that restricted definition it is silent_documented, despite the explicit runtime traceback."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "run",
+    "quote": "    msg_info = _rclpy.rclpy_take(capsule, sub.msg_type, sub.raw)\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+    "url": "https://github.com/ros2/rclpy/issues/881",
+    "reason": "Message taking/decoding during spin is run, not connect."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-      \"strict\");\n+      \"replace\");",
+    "url": "https://github.com/ros2/rosidl_python/pull/176.diff",
+    "reason": "The generated decoder was changed to replacement decoding. The demonstration in the discussion uses another publisher and a Rolling source environment, not both revisions of the specified Foxy pair. recommended is the correct status."
+  },
+  "notes": "The change tolerates invalid UTF-8 by replacement; it does not establish lossless delivery of arbitrary bytes. The runtime traceback is preserved as evidence, not described as absent. The loudness judgment follows the supplied early-diagnostic definition rather than the everyday meaning of loud."
+}

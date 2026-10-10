@@ -1,0 +1,51 @@
+{
+  "case_id": "robust_e1a8005",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/206",
+    "https://github.com/mavlink/mavros/commit/e1a80052fbdb8324573c8cce0401b01aa78765ae",
+    "https://github.com/mavlink/mavros/blob/f6ca8b360873a1c178dbc0cd2d8d70a11d4a9c2c/mavros/src/plugins/sys_time.cpp",
+    "https://github.com/mavlink/mavros/blob/f6ca8b360873a1c178dbc0cd2d8d70a11d4a9c2c/mavros/launch/px4_config.yaml",
+    "https://github.com/mavlink/mavros/blob/f6ca8b360873a1c178dbc0cd2d8d70a11d4a9c2c/mavros/launch/apm2_config.yaml",
+    "https://github.com/mavlink/mavros/commit/1ea29277d88a9e2a6a70963b306c70cb342e4567",
+    "https://github.com/mavlink/mavros/issues/211"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "No concrete defect is documented in the primary sources. Issue #206 (opened by the maintainer vooon, 2015-02-03) is a refactoring note: \"Fix param namespace in sys_time plugin. Frame id and others need to be moved to `~time/` ns.\"; it has no comments, no reproducer, no log and no report of misbehaviour. The fix commit e1a80052 (2015-03-11T10:27:29Z, \"plugin: sys_time: fix #206 (param ns)\") renames the parameters the plugin reads ('-\t\tnh.param(\"conn_system_time\", conn_system_time_d, 0.0);' -> '+\t\tnh.param(\"conn/system_time\", conn_system_time_d, 0.0);', likewise conn_timesync -> conn/timesync, frame_id -> time/frame_id, time_ref_source -> time/time_ref_source, timesync_avg_alpha -> time/timesync_avg_alpha). At the fix's parent f6ca8b36 the shipped configuration still used the same flat names the plugin read (mavros/launch/px4_config.yaml lines 12-14: '# sys_time' / 'conn_timesync: 0.1' / 'conn_system_time: 1.0'; apm2_config.yaml lines 7-8 'conn_heartbeat: 5.0' / 'conn_timeout: 10.0'), so plugin and configuration agreed before the change. The configurations were moved to the new namespaces two hours later by 1ea29277 (2015-03-11T12:32:25Z, \"launch #211: update configs\": '+conn:' / '+  timesync: 0.1' / '+  system_time: 1.0' and '+time:' / '+  time_ref_source: \"fcu\"' / '+  timesync_avg_alpha: 0.6'), issue #211 \"Update config.yaml files 0.11. Some of parameters outdated.\" The packet's description (namespaces introduced earlier by a refactoring, plugin left reading older names, regression undetected) is a secondary summary that the primary sources contradict: the plugin change came first and the configuration followed. The only window in which plugin and shipped configuration disagreed is e1a80052..1ea29277 on the master branch on 2015-03-11, created by the fix itself, never released and never reported."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["mavros sys_time plugin", "mavros launch configuration (px4_config.yaml / apm2_config.yaml)"],
+      "interface_kind": null,
+      "evidence": "Walked for completeness. The only candidate composition is the sys_time plugin (mavros/src/plugins/sys_time.cpp, reading ~conn/* and ~time/* parameters through nh(\"~\")) and the parameter values loaded by the mavros node's own launch files (mavros/launch/node.launch with px4_config.yaml or apm2_config.yaml). Both ship in package mavros and the configuration is the node's own launch configuration, which the eligibility rules count as one unit with the node; a parameter renamed inside one unit's code and its own configuration in the same release is not an interaction between two units."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached: no failed composition. (Had the transient 2015-03-11 window been treated as the defect it would be an UPGRADE of the plugin against a stale configuration, with no observation.)"
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on any interaction is documented: the source records no warning, no wrong value and no run; the maintainer's commit describes a namespace move, not a mismatch."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1 fails: the primary sources document a planned parameter-namespace refactoring (#206) whose code change (e1a80052) preceded the matching configuration update (1ea29277, #211) by two hours on the same day; no defect, reproducer, log or misbehaviour is reported, and the shipped configuration at the fix's parent used the same flat parameter names as the plugin. The packet's secondary description of a regression is contradicted by the repository history. E2 would also stop at step 2 (internal): the plugin and the node's own launch configuration are one unit.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Parameter names read by the plugin at f6ca8b36 (sys_time.cpp lines 148-153): conn_system_time, conn_timesync, frame_id, time_ref_source, timesync_avg_alpha, all under the node's private namespace; after e1a80052: conn/system_time, conn/timesync, time/frame_id, time/time_ref_source, time/timesync_avg_alpha. ros::NodeHandle::param returns the default when a name is absent (0.0 for the two periods, which disables the system-time and timesync timers), so a stale configuration would fail silently; that behaviour is inferred from the code and is not documented in the source. mavros/README.md at f6ca8b36 contains no documentation of these parameters. A user-written launch file that set the old flat names after 0.11 would be a deployment-wiring case (launch/config names), not an interface defect of the plugin."
+}

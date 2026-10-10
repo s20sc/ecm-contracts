@@ -1,0 +1,39 @@
+{
+  "case_id": "robust_96e2c6c",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/robust-rosin/robust/blob/master/confidential/96e2c6c/96e2c6c.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The only public source is the ROBUST dataset record confidential/96e2c6c/96e2c6c.bug ('Incorrect joint position order used in trajectory generation', system: confidential, package: core_manipulator_controller, issue: null, fix commits: confidential, fix-in: ['trajectory_generation.cpp', 'utils.h'], trace: TBD, detected-by: runtime crash, fixed 2017-02-09). It is a prose description (\"The algorithm, which is internally used by a robot controller node, assumes that the initial and target joint states are provided in the same order, and only checks that both inputs contain the full set of joints for the given _group_. ... under certain circumstances a different ordering might be used in the initial and target joint positions, resulting in highly unpredictable outcomes.\") with no reproducer, no error log, no maintainer confirmation, no code, and no public repository or revision. No publicly readable issue, PR, commit, or Q&A thread documents the defect, so E1 fails."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated (stopped at E1). The description concerns two sensor_msgs/JointState inputs (initial and target) whose joint name order may differ; where those two inputs come from (the robot's joint_states publisher versus a goal request) is not stated, so it cannot be determined publicly whether the ordering mismatch crosses a unit boundary (a representation_convention on field:sensor_msgs/JointState.name / .position) or is internal to the controller node (dataset fault codes PROGRAMMING:COPYPASTA, CONFIG:PARAM)."
+    },
+    "E3": {"pass": null, "evidence": "Not evaluated (stopped at E1)."},
+    "E4": {"pass": null, "evidence": "Not evaluated (stopped at E1)."}
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: no publicly readable issue, PR, commit, or thread; the only source is a dataset record without reproducer, error log, or maintainer confirmation, the system and package are confidential, and the fix is confidential.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Dataset codes: classification CWE-440 Expected Behavior Violation, failure SOFTWARE:BEHAVIORAL / SYSTEM:BEHAVING-INCORRECTLY, severity error, reproducibility sometimes; the only link is the sensor_msgs/JointState message documentation (http://docs.ros.org/api/sensor_msgs/html/msg/JointState.html), whose name/position arrays are the data in question."
+}

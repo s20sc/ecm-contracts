@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-082",
+  "kind": "A1",
+  "case_id": "C3-082",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "[ERROR] [1627971395.349416416]: outbuf size mismatch.  pic_size: 3110400 bufsize: 4147200",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/164"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["field:v4l2/v4l2_pix_format.pixelformat", "api:VIDIOC_DQBUF"],
+      "quote": "[ERROR] [1627971395.349416416]: outbuf size mismatch.  pic_size: 3110400 bufsize: 4147200",
+      "url": "https://github.com/ros-drivers/usb_cam/issues/164"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [1627971395.349416416]: outbuf size mismatch.  pic_size: 3110400 bufsize: 4147200",
+    "url": "https://github.com/ros-drivers/usb_cam/issues/164"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "A new parameter color_format is introduced with possible values yuv420p and yuv422p , because some cameras like Mobius Maxi does not support yuv422p which is the default."
+  },
+  "notes": "Issue body verbatim confirms the repeated [ERROR] log line and the v4l2-ctl --list-formats-ext output (MJPG only at 640x360..3840x2160); the artifact file matches the issue listing exactly. The chroma-layout mismatch (3110400 = 1920*1080*1.5 4:2:0 vs 4147200 = 1920*1080*2 4:2:2) is a representation_convention on the MJPEG payload, correctly attributed to the camera as provider (the decode-side pix_fmt is reported by libavcodec, a shared dependency). loudness silent_documented is correct: the only signal is usb_cam's own ROS_ERROR in mjpeg2rgb; device open, VIDIOC_S_FMT and stream start succeed without any V4L2/ROS/launch diagnostic, so it is not loud from existing tooling. Resolution recommended is correct: PR #110 (ROS1 develop, eba71af) and PR #188 (ros2, d647c3b) add color_format; PR #188 author tested with a Logitech C920 (H.264), not the reporter's camera, so the resolved composition is not shown working with the reporter's peer."
+}

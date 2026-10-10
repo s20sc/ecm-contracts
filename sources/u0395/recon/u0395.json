@@ -1,0 +1,74 @@
+{
+  "task_id": "u0395",
+  "package": "cpython",
+  "manifest_version": "3.9.0",
+  "ports": [
+    {
+      "element": "api:importlib.metadata.EntryPoint.load",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.EntryPoint.name",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.entry_points",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:importlib.metadata.EntryPoint.load": "api importlib.metadata.EntryPoint.load: def load(self):",
+    "api:importlib.metadata.EntryPoint.name": "api importlib.metadata.EntryPoint.name: collections.namedtuple('EntryPointBase', 'name value group')):",
+    "api:importlib.metadata.entry_points": "api importlib.metadata.entry_points: def entry_points():"
+  },
+  "not_declared": [
+    "api:importlib.metadata.SelectableGroups.get",
+    "api:importlib.metadata.SelectableGroups.select"
+  ],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:Include/patchlevel.h:26 | #define PY_VERSION              \"3.9.0\" (also snapshot:README.rst:1 | This is Python version 3.9.0); CPython has no package.xml/setup manifest for itself, patchlevel.h is the tree's version declaration",
+    "ports[0].frame": "snapshot:Lib/importlib/metadata.py:71 | def load(self): -- Python callable returning an imported object; no spatial data",
+    "ports[1].frame": "snapshot:Lib/importlib/metadata.py:42 | collections.namedtuple('EntryPointBase', 'name value group')): -- string field of a namedtuple; no spatial data",
+    "ports[2].frame": "snapshot:Lib/importlib/metadata.py:554 | def entry_points(): -- returns a dict of group -> tuple of EntryPoint; no spatial data",
+    "declares[api:importlib.metadata.EntryPoint.load]": "snapshot:Lib/importlib/metadata.py:71 | def load(self): (method of class EntryPoint declared at snapshot:Lib/importlib/metadata.py:41)",
+    "declares[api:importlib.metadata.EntryPoint.name]": "snapshot:Lib/importlib/metadata.py:42 | collections.namedtuple('EntryPointBase', 'name value group')): (base of class EntryPoint at line 41 'class EntryPoint('; 'name' is the first namedtuple field; documented at snapshot:Doc/library/importlib.metadata.rst:79 | each ``EntryPoint`` has a ``.name``, ``.group``, and ``.value`` attributes)",
+    "declares[api:importlib.metadata.entry_points]": "snapshot:Lib/importlib/metadata.py:554 | def entry_points(): (listed in __all__ at line 29; body lines 559-567 return a plain dict {group: tuple(eps)})",
+    "not_declared[api:importlib.metadata.SelectableGroups.get]": "Searched the whole snapshot (4365 files) with grep -rIl 'SelectableGroups': 0 hits. importlib.metadata exists only as snapshot:Lib/importlib/metadata.py (586 lines); its classes are PackageNotFoundError, EntryPoint, PackagePath, FileHash, Distribution, DistributionFinder, FastPath, Prepared, MetadataPathFinder, PathDistribution; no SelectableGroups class. entry_points() at line 554 returns a built-in dict (line 564).",
+    "not_declared[api:importlib.metadata.SelectableGroups.select]": "Searched the whole snapshot with grep -rIl 'SelectableGroups': 0 hits; grep -n 'select' Lib/importlib/metadata.py: 0 hits. No SelectableGroups class and no select method anywhere in importlib.metadata at this revision.",
+    "perm_requires.state": "Checked snapshot:Lib/importlib/metadata.py (whole module): no permission or access-control declarations; module is a pure-Python stdlib library with no configuration files",
+    "perm_grants.state": "Checked snapshot:Lib/importlib/metadata.py (whole module): no permission grants declared",
+    "recovery.state": "Checked snapshot:Lib/importlib/metadata.py: no declared recovery policy for the listed elements; EntryPoint.load (lines 71-79) propagates import_module/getattr errors; only fallback is a Python 2 readfp compatibility branch in _from_text (lines 109-113), not a recovery declaration"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "Two of the five listed provided elements (SelectableGroups.get, SelectableGroups.select) do not exist at 3.9.0, and entry_points() takes no parameters and returns a plain dict, so a peer written against the SelectableGroups/select interface would not find it here."
+  },
+  "confidence": "high",
+  "notes": "Package is the CPython source tree at version 3.9.0 (final). The elements are Python API symbols, not ROS interfaces: msg_type, units, QoS, rates and definition_id do not apply and are null (no .msg/.srv/.action/.idl definitions involved; definition_hash.py not applicable). Frame recorded as 'none' because the APIs carry no spatial data. EntryPoint is a namedtuple subclass ('EntryPointBase', fields 'name value group'), so .name is a tuple field rather than a def/property; the declaring line is line 42. entry_points() signature is 'def entry_points():' with no keyword parameters and returns dict[group -> tuple[EntryPoint]] (lines 559-567); calling .get on its result works only because it is a built-in dict, which is not a SelectableGroups.get declaration. No other packages' elements are referenced by these symbols, so references is empty. Declaration strings for EntryPoint.name use the single source line that names the field (line 42), whitespace collapsed and leading indentation stripped."
+}

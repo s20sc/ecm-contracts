@@ -1,0 +1,70 @@
+{
+  "task_id": "u0039",
+  "package": "motoman_sda10f_support",
+  "manifest_version": "0.3.5",
+  "ports": [
+    {
+      "element": "param:/robot_description",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "base_link",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:/robot_description": "param robot_description: string",
+    "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl": "resource package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl: 65fc7e5a85579a9614b3f76e96125f5fdeb178cab664aea29238c89ae9692015",
+    "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl": "resource package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl: fc2392d73a0bb4a228b8caa28034c1fc47844a7dd6955f55f3b1706fbec3bd43"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:motoman_sda10f_support/package.xml:4 | <version>0.3.5</version>",
+    "ports[0]": "snapshot:motoman_sda10f_support/launch/load_sda10f.launch:3 | <param name=\"robot_description\" command=\"$(find xacro)/xacro.py '$(find motoman_sda10f_support)/urdf/sda10f.xacro'\" />",
+    "ports[1]": "snapshot:motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl (file present); used at snapshot:motoman_sda10f_support/urdf/common_torso_macro.xacro:27 and :45 | <mesh filename=\"package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl\"/>",
+    "ports[2]": "snapshot:motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl (file present); used at snapshot:motoman_sda10f_support/urdf/common_torso_macro.xacro:8 | <mesh filename=\"package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl\" />",
+    "ports[2].frame": "snapshot:motoman_sda10f_support/urdf/common_torso_macro.xacro:5 | <link name=\"base_link\"> (the visual at :6-13 has no <origin>, so the mesh is placed at the base_link origin)",
+    "declares[param:/robot_description]": "snapshot:motoman_sda10f_support/launch/load_sda10f.launch:3 | <param name=\"robot_description\" command=\"$(find xacro)/xacro.py '$(find motoman_sda10f_support)/urdf/sda10f.xacro'\" /> ; no type= attribute, and roslaunch stores the output of a command= param as a string",
+    "declares[resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl]": "snapshot:motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl | binary STL, 494784 bytes = 84 + 50*9894 facets; value is SHA-256 of the raw file bytes (shasum -a 256), not definition_hash.py output",
+    "declares[resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl]": "snapshot:motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl | binary STL, 175984 bytes = 84 + 50*3518 facets; value is SHA-256 of the raw file bytes (shasum -a 256), not definition_hash.py output",
+    "perm_requires": "searched every file under snapshot:motoman_sda10f_support (package.xml, CMakeLists.txt, launch/*.launch, config/*.yaml, urdf/*.xacro, test/launch_test.xml) for permission/capability declarations; none",
+    "perm_grants": "same search as perm_requires; none",
+    "recovery": "same search (grep -i recover/permission/exclusive/hardware_interface/claim over the package); no recovery behaviour declared"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Both mesh files exist at the paths their package:// URIs name, are well-formed binary STL (size = 84 + 50*facets) and are metre-scale, so the two resource elements look sound. robot_description is declared, but the top-level xacro (urdf/sda10f.xacro:5) calls <xacro:motoman_sda10f prefix=\"\"/>, and no file in the snapshot defines a macro of that name: sda10f_macro.xacro instantiates the torso and arms directly at <robot> level, so the model only comes out if the xacro in use ignores the undefined call. The command also goes through $(find xacro)/xacro.py. Whether either breaks depends on the xacro release, and ros_distro is null."
+  },
+  "confidence": "medium",
+  "notes": "ROS 1 package; QoS fields null throughout. param:/robot_description: the code names it relatively as robot_description (copied verbatim into declares); it resolves to /robot_description when load_sda10f.launch is included at the root namespace, as robot_state_visualize_sda10f.launch:27 and test_sda10f.launch:3 do (test/launch_test.xml:35 includes it under ns load_sda10f). It is a URDF string generated by xacro from urdf/sda10f.xacro -> sda10f_macro.xacro -> common_torso_macro.xacro + arm_macro.xacro. It is a parameter, not a message: msg_type is null and definition_id is null (the value is generated from several xacro files, so no single definition file exists to hash). frame null because the description declares a whole link tree (root link base_link) rather than one frame. Units are not stated in code; URDF lengths and angles are used without comment. Resources: the declares templates have no form for resource elements, so I used 'resource <uri>: <SHA-256 of raw file bytes>', by analogy with the msg template; other runs may have chosen a different form. definition_id is null for both meshes because definition_hash.py sha256 reads the file as UTF-8 text and fails on binary STL (UnicodeDecodeError at byte 80). Mesh facts: visual/motoman_axis_b1.stl has 9894 facets, header 'dilos b1_link', extents x[-0.1215,0.2224] y[-0.129,0.129] z[0,0.4589]. visual/motoman_base.stl has 3518 facets, header 'dilos base_link', extents x[-0.2498,0.2502] y[-0.25,0.25] z[0,0.8935]; the torso joint_b1 origin is z=0.8835 (common_torso_macro.xacro:63). Collision counterparts exist for both (collision/motoman_axis_b1.stl, 1154 facets; collision/motoman_base.stl, 386 facets) with the same extents. motoman_axis_b1.stl is used by two links, ${prefix}link_b1 (common_torso_macro.xacro:23/27) and ${prefix}link_b2 (:41/45; b2 is a mimic of b1, :67-74), which is why ports[1].frame is null; with prefix 'torso_' from sda10f_macro.xacro:7 these become torso_link_b1 and torso_link_b2. references is empty: the launch files refer only to things outside the canonical element forms: $(find xacro)/xacro.py; motoman_driver launch files robot_multigroup_interface_streaming_$(arg controller).launch and robot_state_$(arg controller).launch; industrial_robot_client config/robot_state_visualize.rviz; and nodes robot_state_publisher, joint_state_publisher and rviz. The package also loads params not in the packet (topic_list from config/sda10f_motion_interface.yaml, controller_joint_names from config/joint_names_sda10f.yaml, use_gui in test_sda10f.launch:4). exclusive is empty: no ros_control/hardware-interface configuration or device claim exists in the package. Observations not used for any field: arm_macro.xacro:119 hard-codes parent link torso_link_b1 and ignores its parent and *origin parameters; the arm origins in sda10f_macro.xacro:11 and :15 are therefore unused."
+}

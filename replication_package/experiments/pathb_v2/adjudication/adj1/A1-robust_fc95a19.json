@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-robust_fc95a19",
+  "kind": "A1",
+  "case_id": "robust_fc95a19",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "With a `max_velocity` parameter in the driver having a value less than the MoveIt! velocity limits, this would most likely cause most trajectories to fail.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/124#issuecomment-60883012",
+    "reason": "E1/E4: an actual goal-rejection error is reported. E2: MoveIt and ur_driver disagree about the accepted range of velocities crossing the action boundary. Raising that numeric ceiling changes accepted values, not deployment name binding. E3: PAIR."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[ERROR] [WallTime: 1412925263.358047] Received a goal with velocities that are higher than 2.000000",
+      "url": "https://github.com/ros-industrial/universal_robot/issues/124",
+      "reason": "other is correct: numeric range disagreement has no dedicated class here; both sides use angular joint velocities, so unit_mismatch would be unsupported. The action and trajectory-point velocities field are precisely the rejected interface elements."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [WallTime: 1412925263.358047] Received a goal with velocities that are higher than 2.000000",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/124",
+    "reason": "The existing driver explicitly logs and rejects the goal. Agree with loud_documented under S1's explicit instruction to include runtime-enforced refusals, even though its generic loudness definition emphasizes earlier stages."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "            goal_handle.set_rejected(text=message)",
+    "url": "https://raw.githubusercontent.com/ros-industrial/universal_robot/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur_driver/src/ur_driver/driver.py#L740",
+    "reason": "The rejection is inside goal validation after action startup, hence run, not build/connect/activate."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed in #136 .",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/124#issuecomment-61494474",
+    "reason": "The accepted fix is documented. Earlier reports of increasing the parameter do not identify both units at the specified resolved revisions, so recommended rather than observed is correct."
+  },
+  "notes": "No additional condition is established within this selected MoveIt-to-driver composition. Physical-controller safety stops discussed in the thread concern a different driver-to-robot boundary. No robot speed recommendation is made by this adjudication.",
+  "supporting_evidence": [
+    {
+      "quote": "        for v in p.velocities:\n            if math.fabs(v) > max_velocity:",
+      "url": "https://raw.githubusercontent.com/ros-industrial/universal_robot/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur_driver/src/ur_driver/driver.py#L618"
+    },
+    {
+      "quote": "    action_ns: follow_joint_trajectory\n    type: FollowJointTrajectory",
+      "url": "https://raw.githubusercontent.com/ros-industrial/universal_robot/facbe421ca2ce22b58d2a941c3228c91c03e542a/ur5_moveit_config/config/controllers.yaml#L3"
+    }
+  ]
+}

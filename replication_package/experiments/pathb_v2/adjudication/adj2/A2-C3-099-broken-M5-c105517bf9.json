@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-C3-099-broken-M5-c105517bf9",
+ "kind": "A2",
+ "case_id": "C3-099",
+ "composition": "broken",
+ "method_label": "M5",
+ "rule": "di_definition_mismatch",
+ "values": [
+  {
+   "path": "producer.outputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "u0354/snapshot/rmw_dds_common/msg/Gid.msg:1: \"char[16] data\" — I ran `python3 definition_hash.py sha256 snapshot/rmw_dds_common/msg/Gid.msg` in s2_work/tasks/u0354 and got {\"algorithm\": \"sha256_normalised\", \"kind\": \"msg\", \"value\": \"18019bf8a2c05fef0196d05cadc03652406576c373119867025c235b7265bc6f\"}, matching the producer value."
+  },
+  {
+   "path": "consumer.inputs[0].definition_id",
+   "verdict": "verified",
+   "source_excerpt": "u0353/snapshot/rmw_dds_common/msg/Gid.msg:1: \"char[24] data\" — I ran `python3 definition_hash.py sha256 snapshot/rmw_dds_common/msg/Gid.msg` in s2_work/tasks/u0353 and got {\"algorithm\": \"sha256_normalised\", \"kind\": \"msg\", \"value\": \"fe832c5cdf2e6149636fbfd2c4a2a341587e91a73072ab92578cecf493c233c2\"}, matching the consumer (built-against, 1.6.0) value."
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The pair encodes the spec's UPGRADE operation: producer = provider rmw_dds_common at running 3.1.0 (u0354), consumer = rmw_fastrtps built against 1.6.0 (u0353). Producer port: u0354/snapshot/rmw_dds_common/CMakeLists.txt:29 \"msg/Gid.msg\" in rosidl_generate_interfaces (u0353:27 on the built side). Consumer port actually connected: u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:94/:122 create publisher and subscription of ParticipantEntitiesInfo on \"ros_discovery_info\"; u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171-174 reads \"reinterpret_cast<char *>(&msg.gid.data), / RMW_GID_STORAGE_SIZE\". The Gid pair is a definitional view of that edge and matches the spec inventory (rmw_dds_common provides, rmw_fastrtps consumes)."
+ },
+ "notes": "Same trigger values, encoding and tasks as the M2 item on this composition; verified independently by recomputing both hashes. Method label differences are not used in the verdict."
+}

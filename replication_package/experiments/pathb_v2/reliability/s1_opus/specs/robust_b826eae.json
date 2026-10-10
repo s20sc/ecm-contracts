@@ -1,0 +1,98 @@
+{
+  "case_id": "robust_b826eae",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ipa320/cob_robots/issues/552",
+    "https://github.com/ipa320/cob_robots/pull/553",
+    "https://github.com/ipa320/cob_robots/commit/b826eaeae5c8dc548ac2c97002725c7a8131137e",
+    "https://github.com/ipa320/schunk_modular_robotics/pull/177",
+    "https://github.com/ipa320/schunk_modular_robotics/commit/779ce503e0f6b868f04253a75590f7e10c086427",
+    "https://github.com/ipa320/cob_robots/blob/81bf65fd63db43d9636c67e0244364fc64300a52/.travis.yml",
+    "https://github.com/ipa320/care-o-bot/blob/d18ea27a08f5466910dfcf1040cc961f7668d0e7/.travis.rosinstall"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #552 quotes the Travis log with the error \"xacro.XacroException: Parameters [has_podest] were not set for macro xacro:schunk_pg70\" while processing cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro; the maintainer fixes it in PR #553 (\"fixes #552\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["schunk_description", "cob_hardware_config"],
+      "interface_kind": "definition",
+      "evidence": "schunk_description (ipa320/schunk_modular_robotics) and cob_hardware_config (ipa320/cob_robots) are separately released packages. The provider changed the declaration of its xacro macro in 779ce503 (PR #177): <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin\"> became <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin has_podest\">, adding a parameter without a default. The consumer's cob3-9.urdf.xacro still invokes <xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\"> without it. The fix edits the consumer's macro call to follow the provider's changed declaration; this is an interface change, not a name binding at deployment or a build-system change."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the CI built schunk_modular_robotics from source at branch indigo_dev (care-o-bot .travis.rosinstall: uri 'https://github.com/ipa320/schunk_modular_robotics.git', version: indigo_dev), i.e. at 870c6302 on the report date, which is newer than the macro declaration the consumer's call matches (before 779ce503)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"xacro.XacroException: Parameters [has_podest] were not set for macro xacro:schunk_pg70\" and \"Invalid <param> tag: Cannot load command parameter [robot_description]: command [...xacro.py '.../cob3-9.urdf.xacro'] returned with code [1].\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "schunk_description",
+      "role": "provider",
+      "repo": "https://github.com/ipa320/schunk_modular_robotics",
+      "broken_rev": "870c6302335a3b134d275f066944d920d4a71c36",
+      "resolved_rev": "870c6302335a3b134d275f066944d920d4a71c36",
+      "pinned": true,
+      "revision_basis": "The CI configuration pulls schunk_modular_robotics at branch indigo_dev (care-o-bot indigo_dev .travis.rosinstall as of the report date); the indigo_dev head on 2016-11-04 (report) and still on 2016-11-10 (fix) was 870c6302, the merge of PR #177 that added has_podest to schunk_pg70. The resolution does not change the provider.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "cob_hardware_config",
+      "role": "consumer",
+      "repo": "https://github.com/ipa320/cob_robots",
+      "broken_rev": "81bf65fd63db43d9636c67e0244364fc64300a52",
+      "resolved_rev": "b826eaeae5c8dc548ac2c97002725c7a8131137e",
+      "pinned": true,
+      "revision_basis": "Broken: 81bf65fd is the parent of the fix commit b826eae; cob3-9.urdf.xacro there is identical to the indigo_dev head at the report date (6ca6d502), the file's previous change being 55b38f62 (2015-08-11). The CI log does not state the consumer commit. Resolved: b826eae (\"fix cob3-9 urdf\", merged via PR #553 as 1d67d1af), which adds has_podest=\"false\" to the call.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "08471b264d345b5c5f2e8af50c42fc51fc63eaaf",
+    "resolved": "870c6302335a3b134d275f066944d920d4a71c36",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:xacro:schunk_pg70", "sides": {"schunk_description": "provides", "cob_hardware_config": "consumes"}},
+    {"element": "api:xacro:schunk_lwa4d", "sides": {"schunk_description": "provides", "cob_hardware_config": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:xacro:schunk_pg70"],
+      "quote": "-  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin\">\n+  <xacro:macro name=\"schunk_pg70\" params=\"parent name *origin has_podest\">",
+      "url": "https://github.com/ipa320/schunk_modular_robotics/commit/779ce503e0f6b868f04253a75590f7e10c086427"
+    },
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": ["api:xacro:schunk_pg70"],
+      "quote": "xacro.XacroException: Parameters [has_podest] were not set for macro xacro:schunk_pg70",
+      "url": "https://github.com/ipa320/cob_robots/issues/552"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "xacro and roslaunch-check report the mismatch: \"xacro.XacroException: Parameters [has_podest] were not set for macro xacro:schunk_pg70\" and \"FAILURE: ... Invalid <param> tag: Cannot load command parameter [robot_description]: command [/opt/ros/indigo/share/xacro/xacro.py '/home/travis/catkin_ws/src/cob_robots/cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro'] returned with code [1].\" (https://github.com/ipa320/cob_robots/issues/552)",
+  "detection_stage": "build",
+  "resolution": {
+    "summary": "Pass the new argument in the consumer's macro call: <xacro:schunk_pg70 name=\"pg70\" parent=\"arm_7_link\" has_podest=\"false\"> in cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro.",
+    "status": "recommended",
+    "evidence": "PR #553 was merged as a hotfix (\"This is a hotfix which is blocking Travis also with other repositories. I'll merge now\"); the source does not show a passing run of the resolved composition (no CI status is retained on b826eae)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Detected by roslaunch-check in the catkin test run on Travis (roslaunch-check_cob3-9__ROBOT_ENV_ipa-factory.xml), which is why detection_stage is build; the same error would occur when launching upload_robot.launch. consumer_built_against (broken) is inferred: 08471b26 is the parent of 779ce503 and the last provider revision whose schunk_pg70 params are \"parent name *origin\", matching the consumer's call. The consumer already passes has_podest=\"false\" to xacro:schunk_lwa4d, whose declaration had that parameter earlier. The dataset notes several parent xacros use schunk_pg70; only cob3-9 is reported and fixed here, so other parents are not conditions of this case. The two failed conditions describe one mismatch (a required parameter added to the macro declaration) under the two classes the specification asks to list for a changed definition element."
+}

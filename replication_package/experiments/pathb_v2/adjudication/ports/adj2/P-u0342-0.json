@@ -1,0 +1,18 @@
+{"item_id": "P-u0342-0", "kind": "P", "task_id": "u0342", "element": "topic:/tf", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "tf2_msgs/TFMessage", "verdict": "verified",
+   "source_excerpt": "README.md:18: * `tf` (`tf2_msgs/msg/TFMessage`) - The transforms corresponding to the movable joints of the robot. | robot_state_publisher.cpp:129: tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(this); | :275: tf_broadcaster_->sendTransform(tf_transforms);",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "per_message", "verdict": "verified",
+   "source_excerpt": "robot_state_publisher.cpp:270: tf_transform.header.frame_id = frame_prefix + seg->second.root; | :271: tf_transform.child_frame_id = frame_prefix + seg->second.tip;",
+   "qos_basis": null},
+  {"field": "qos.reliability", "recorded": "reliable", "verdict": "unverifiable",
+   "source_excerpt": "robot_state_publisher.cpp:129: tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(this); — the cited line sets no QoS argument and states neither 'reliable' nor any reliability setting.",
+   "qos_basis": "default"},
+  {"field": "qos.durability", "recorded": "volatile", "verdict": "unverifiable",
+   "source_excerpt": "robot_state_publisher.cpp:129: tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(this); — the cited line sets no QoS argument and states neither 'volatile' nor any durability setting.",
+   "qos_basis": "default"},
+  {"field": "definition_id", "recorded": {"algorithm": "sha256_normalised", "kind": "msg", "value": "c4eca5d2ce24bce7c7a12af0eed741dad50bbb5ab3f3abe97b1bf73ad0902a90"}, "verdict": "unverifiable",
+   "source_excerpt": "No citable location: provenance is a definition_hash.py command over tf2_msgs/msg/TFMessage.msg fetched from a URL; find in s2_work/tasks/u0342/snapshot returns no TFMessage.msg and no tf2_msgs directory.",
+   "qos_basis": null}],
+ "notes": "msg_type and frame fully supported: README.md:18 states tf publishes tf2_msgs/msg/TFMessage (canonical pkg/Type spelling recorded); cpp:129 constructs the broadcaster, cpp:270-271 set header.frame_id/child_frame_id per transform from URDF segments plus frame_prefix, and cpp:275 sends the batch — one frame pair per message, supporting the per_message token. The two QoS provenance strings are by their own text statements about tf2_ros/rclcpp API documentation ('Cited from the tf2_ros/rclcpp API documentation; tf2_ros sources are not an allowed source here and were not fetched.'), not locations in the workspace; the only snapshot location they cite (cpp:129) constructs TransformBroadcaster with no QoS argument and does not mention 'reliable' or 'volatile'. Treated as a statement instead of a location -> unverifiable. qos_basis=default: the claimed values rest on a library default (DynamicBroadcasterQoS / rmw_qos_profile_default) named only in the provenance prose, never in the cited code. definition_id cannot be recomputed: TFMessage.msg is absent from the snapshot and network use is prohibited."}

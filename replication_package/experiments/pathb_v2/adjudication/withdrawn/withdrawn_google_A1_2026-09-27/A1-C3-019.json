@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3-019",
+ "kind": "A1",
+ "case_id": "C3-019",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "There is a heavy mismatch here between the message/C++ types and Python types. `string` is 8-bit data which does not have encoding, neither does `std::string`. Message strings *ought* to be UTF-8, but this is not enforced. But Python strings always enforce an encoding. So it is perfectly possible to publish data from C++, which gets mangled when received in Python.",
+   "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1210405369"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "With https://github.com/ros2/rosidl_python/pull/176 merged, I believe this issue is resolved for Rolling."
+ },
+ "notes": "Agree with all case specifications and classifications for C3-019."
+}

@@ -1,0 +1,72 @@
+{
+  "task_id": "u0344",
+  "package": "rosbridge_suite",
+  "manifest_version": "2.2.0",
+  "ports": [
+    {
+      "element": "msg:tf2_msgs/TFMessage",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "sha256_normalised",
+        "kind": "msg",
+        "value": "c4eca5d2ce24bce7c7a12af0eed741dad50bbb5ab3f3abe97b1bf73ad0902a90"
+      }
+    },
+    {
+      "element": "topic:/tf",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "on OSError while binding the WebSocket server socket, log a warning, sleep retry_startup_delay seconds (node default 2.0, launch default 5.0) and retry bind_sockets(port, address) until bound or the rclpy context shuts down"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rosbridge_suite/package.xml:4 | <version>2.2.0</version>",
+    "ports[0].msg_type": "packet element msg:tf2_msgs/TFMessage; the snapshot never names this type: message classes are imported by type string at run time, snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:98 | msg_class = ros_loader.get_message_class(msg_type); snapshot:rosbridge_library/src/rosbridge_library/internal/ros_loader.py:199 | pypkg = importlib.import_module(f\"{modname}.{subname}\")",
+    "ports[0].definition_id": "dependency:https://raw.githubusercontent.com/ros2/geometry2/jazzy/tf2_msgs/msg/TFMessage.msg:1 | geometry_msgs/TransformStamped[] transforms (hashed with python3 definition_hash.py sha256 on the fetched file; ref is the jazzy distro branch of ros2/geometry2; tf2_msgs is a test_depend of the snapshot at snapshot:rosbridge_library/package.xml:45)",
+    "perm_requires.state": "searched rosbridge_library/src, rosbridge_server/src, rosbridge_server/scripts/rosbridge_websocket.py, rosbridge_server/launch/rosbridge_websocket_launch.xml, rosapi/src, rosapi/scripts/rosapi_node and all package.xml files for permission/capability declarations; none found. The only access control is the topics_glob client allowlist, default empty: snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:23 | <arg name=\"topics_glob\" default=\"\" />; snapshot:rosbridge_server/scripts/rosbridge_websocket.py:223 | topics_glob = self.declare_parameter(\"topics_glob\", \"\").value",
+    "perm_grants.state": "same search as perm_requires.state; no declared grants. topics_glob filters client subscribe requests only when non-empty: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:240 | if Subscribe.topics_glob is not None and Subscribe.topics_glob:",
+    "recovery.state": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:156 | while not connected and self.context.ok():",
+    "recovery.value": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:161 | sockets = bind_sockets(port, address); snapshot:rosbridge_server/scripts/rosbridge_websocket.py:170 | \"Unable to start server: {} \" \"Retrying in {}s.\".format(e, retry_startup_delay); snapshot:rosbridge_server/scripts/rosbridge_websocket.py:172 | time.sleep(retry_startup_delay); snapshot:rosbridge_server/scripts/rosbridge_websocket.py:136 | retry_startup_delay = self.declare_parameter(\"retry_startup_delay\", 2.0).value  # seconds.; snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:11 | <arg name=\"retry_startup_delay\" default=\"5.0\" />"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "rosbridge is a generic bridge: it never names /tf or tf2_msgs/TFMessage, takes the topic name and type from the client or the ROS graph at run time, and chooses subscription QoS from the discovered publishers. Nothing in the code is specific to either element, so there is nothing element-specific that could be wrong or right at this revision."
+  },
+  "confidence": "medium",
+  "notes": "Both packet elements are consumed. The snapshot does not name them: grep over the whole snapshot for 'tf' (word), 'TFMessage', 'tf_static', '/tf' finds nothing in runtime code; tf2_msgs appears only as a test_depend (rosbridge_library/package.xml:45, rosbridge_test_msgs/package.xml:42) and in test_ros_loader.py/test_services.py as other types (tf2_msgs/FrameGraph, tf2_msgs/LookupTransform, tf2_msgs/GetDualQuaternionRepresentation). The topic name /tf arrives at run time in a client 'subscribe' op (capabilities/subscribe.py:238, topic = msg[\"topic\"]); the type is either the client's optional 'type' field or inferred from node_handle.get_topic_names_and_types() (internal/subscribers.py:80-95). Hence neither element is in references, and ports[1].msg_type and definition_id are null. QoS of the rclpy subscription (internal/subscribers.py:116-130): starts as depth=10, VOLATILE, BEST_EFFORT; if at least one publisher exists and all publishers are TRANSIENT_LOCAL it switches to TRANSIENT_LOCAL + RELIABLE; if any publisher is BEST_EFFORT reliability becomes BEST_EFFORT. For a later client on an existing subscription (subscribers.py:187-194) durability is set to TRANSIENT_LOCAL under the same all-publishers rule but reliability is not raised to RELIABLE. Because reliability and durability are selected from the discovered publishers' profiles, both are recorded null. The code sets no deadline, so deadline_ms is null (no deadline requested); QoS on the msg-type port is null because QoS applies to the topic, not the type. Frame: the bridge neither declares, hard-codes nor reads any frame id; outgoing conversion copies every field of each message generically (internal/message_conversion.py:263-269), so frame ids are forwarded unchanged; recorded null. No units, rate, or minimum rate are set in code (throttle_rate and queue_length are client-supplied per subscription, default 0). Run-time dependency: tf2_msgs is not an exec_depend of any package in the snapshot; subscribing to a TFMessage topic needs the tf2_msgs Python module to be importable at run time. definition_id for msg:tf2_msgs/TFMessage is from the ros2/geometry2 'jazzy' branch ref (no tag listing was done); it is a ROS 2 proxy hash of TFMessage.msg alone (nested geometry_msgs/TransformStamped not expanded). exclusive is empty: no hardware command interfaces or device handles; the WebSocket server binds a TCP port (param 'port', default 9090, rosbridge_websocket.py:110/161), which is not recorded as an exclusive resource. declares/not_declared are empty because this package provides neither packet element. manifest_version is the rosbridge_suite metapackage; all sub-packages in the snapshot are also 2.2.0."
+}

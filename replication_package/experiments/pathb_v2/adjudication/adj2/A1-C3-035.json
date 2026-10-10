@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-C3-035",
+  "kind": "A1",
+  "case_id": "C3-035",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "3. In the install workspace, replace the new shared library with the old .so\n4. Run the generated rclcpp_components main executable.\n\n#### Expected behavior\nNode to throw exception and crash.\n\n#### Actual behavior\nExecutor starts running but with no node inside, and just hangs on waiting for work forever.\n\n#### Additional information\nTheoretically this state _shouldn't_ happen, but it did for me because of cached .so binaries that didn't have the class inside.",
+    "url": "https://github.com/ros2/rclcpp/issues/2414"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Theoretically this state _shouldn't_ happen, but it did for me because of cached .so binaries that didn't have the class inside.",
+      "url": "https://github.com/ros2/rclcpp/issues/2414"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Executor starts running but with no node inside, and just hangs on waiting for work forever.",
+      "url": "https://github.com/ros2/rclcpp/issues/2414"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Executor starts running but with no node inside, and just hangs on waiting for work forever.",
+    "url": "https://github.com/ros2/rclcpp/issues/2414"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [1707491029.558037381] [test_component_does_not_exist_executable]: Failed to load library Could not create instance of type rclcpp_components::NodeFactoryTemplate<test_rclcpp_components::DoesNotExist>",
+    "url": "https://github.com/ros2/rclcpp/pull/2415#issuecomment-1936097101"
+  },
+  "notes": "独立核验：(1) issue #2414 正文逐字确认（版本 16.0.7-1jammy.20231205.162058、复现步骤、期望抛异常而实际空转挂起、cached .so 由来）。(2) 16.0.7 的 rclcpp_components/src/node_main.cpp.in 确认第 37 行 \"std::string class_name = \"rclcpp_components::NodeFactoryTemplate<@component@>\";\"、第 41 行 getAvailableClasses、第 44 行 \"if (name.compare(class_name) == 0) {\"——循环无 not-found 分支，silent_documented（run）成立。(3) humble 分支同文件第 37/41/43 行仍无检查，确认无 Humble 回移。(4) PR #2415 \"crash on no class found\" 合并入 rolling 2024-02-13（merge 091f29fc）；clalancette 行级审查给出修复代码 \"if (std::find(classes.begin(), classes.end(), class_name) == classes.end()) { RCLCPP_ERROR(logger, \"Class %s not found in library %s\", ...); return 1; }\"，其评论 \"If that was the case, then we should definitely fail, since we failed to do what...\" 逐字确认；\"it is not something a user can really run into if they are using our tools\" 亦确认。(5) resolution=recommended 成立：PR 讨论中的运行输出用的是测试可执行文件（test_component_does_not_exist_executable）而非报告者的库，属\"以不同 peer 展示修复\"。两个条件分类（element_removed_or_renamed + 内部缺陷 other）均成立：S1 明文规定组合内部缺陷记 other。未发现遗漏条件。"
+}

@@ -1,0 +1,59 @@
+{
+  "item_id": "A1-robust_84264f0",
+  "kind": "A1",
+  "case_id": "robust_84264f0",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Move `~visualization/visualization/xxx` → `~visualization/xxx`.",
+    "url": "https://github.com/mavlink/mavros/issues/207",
+    "reason": "E1 passes on the maintainer's concrete parameter-name defect. The visualization plugin and the mavros host/configuration package form the parameter PAIR; a plugin and host are separate units under step 1. The patch changes the plugin's referenced parameter interface, not merely a launch remap. Unchanged leaf types/defaults do not make changed full parameter names deployment-only wiring. E3 is PAIR, not an inferred UPGRADE. E4 permits a code-level mismatch with an undocumented runtime effect. No configuration-driven failing run is established.",
+    "proposed_eligible": true
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "param:~visualization/visualization/fixed_frame_id",
+        "param:~visualization/visualization/child_frame_id",
+        "param:~visualization/visualization/marker_scale",
+        "param:~visualization/fixed_frame_id",
+        "param:~visualization/child_frame_id",
+        "param:~visualization/marker_scale"
+      ],
+      "quote": "-\t\tviz_nh.param<std::string>(\"visualization/fixed_frame_id\", fixed_frame_id, \"local_origin\");\n-\t\tviz_nh.param<std::string>(\"visualization/child_frame_id\", child_frame_id, \"fcu\");\n-\t\tviz_nh.param<double>(\"visualization/marker_scale\", marker_scale, 2.0);\t\t\n+\t\tviz_nh.param<std::string>(\"fixed_frame_id\", fixed_frame_id, \"local_origin\");\n+\t\tviz_nh.param<std::string>(\"child_frame_id\", child_frame_id, \"fcu\");\n+\t\tviz_nh.param<double>(\"marker_scale\", marker_scale, 2.0);",
+      "url": "https://github.com/mavlink/mavros/commit/84264f01aeea79b345fe9f397da8c4759b7846fb",
+      "reason": "The existing ~visualization node handle adds an unintended second visualization namespace to all three parameter references. Class other denotes the PAIR name/namespace mismatch; a provider upgrade or removed historical declaration is not established.",
+      "additional_evidence": [
+        {
+          "quote": "viz_nh(\"~visualization\"),",
+          "url": "https://github.com/mavlink/mavros/blob/01055466b1a97a71d2374831a43f276f392fc27d/mavros_extras/src/plugins/visualization.cpp#L31"
+        }
+      ]
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "Move `~visualization/visualization/xxx` → `~visualization/xxx`.",
+    "url": "https://github.com/mavlink/mavros/issues/207",
+    "reason": "The complete short issue and fix establish incorrect names, not a reported execution or diagnostic. Do not infer silent_documented from the lack of a log."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "Move `~visualization/visualization/xxx` → `~visualization/xxx`.",
+    "url": "https://github.com/mavlink/mavros/issues/207",
+    "reason": "No observed detection stage is reported; source inspection is not a runtime detection stage."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "uncrustify and fix #207",
+    "url": "https://github.com/mavlink/mavros/commit/84264f01aeea79b345fe9f397da8c4759b7846fb",
+    "reason": "The accepted resolving edit corrects the three references. No working configuration/plugin pair identified by both revisions is demonstrated."
+  },
+  "notes": "Proposed operation PAIR; outcome undocumented. The ruling concerns the parameter-interface defect confirmed by the maintainer, not an invented failed configured run. The lack of a concrete parameter-setting launch file limits outcome evidence but does not make this source-level interface edit a deployment-only remap. No existing failed_conditions were listed to index."
+}

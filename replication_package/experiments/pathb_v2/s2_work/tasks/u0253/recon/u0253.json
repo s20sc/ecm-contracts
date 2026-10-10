@@ -1,0 +1,111 @@
+{
+  "task_id": "u0253",
+  "package": "rmw_fastrtps_shared_cpp",
+  "manifest_version": "7.1.1",
+  "ports": [
+    {
+      "element": "api:rmw_create_publisher",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_destroy_publisher",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_event_set_callback",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_publisher_event_init",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rmw_create_publisher": "api rmw_create_publisher: rmw_publisher_t * rmw_create_publisher( const rmw_node_t * node, const rosidl_message_type_support_t * type_supports, const char * topic_name, const rmw_qos_profile_t * qos_policies, const rmw_publisher_options_t * publisher_options)",
+    "api:rmw_destroy_publisher": "api rmw_destroy_publisher: rmw_ret_t rmw_destroy_publisher(rmw_node_t * node, rmw_publisher_t * publisher)",
+    "api:rmw_event_set_callback": "api rmw_event_set_callback: rmw_ret_t rmw_event_set_callback( rmw_event_t * rmw_event, rmw_event_callback_t callback, const void * user_data)",
+    "api:rmw_publisher_event_init": "api rmw_publisher_event_init: rmw_ret_t rmw_publisher_event_init( rmw_event_t * rmw_event, const rmw_publisher_t * publisher, rmw_event_type_t event_type)"
+  },
+  "not_declared": [
+    "api:rmw_event_fini"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rmw_fastrtps_shared_cpp/package.xml:5",
+    "ports[0].frame": "snapshot:rmw_fastrtps_cpp/src/rmw_publisher.cpp:65",
+    "ports[1].frame": "snapshot:rmw_fastrtps_cpp/src/rmw_publisher.cpp:204",
+    "ports[2].frame": "snapshot:rmw_fastrtps_cpp/src/rmw_event.cpp:52",
+    "ports[3].frame": "snapshot:rmw_fastrtps_cpp/src/rmw_event.cpp:24",
+    "declares[api:rmw_create_publisher]": "snapshot:rmw_fastrtps_cpp/src/rmw_publisher.cpp:64",
+    "declares[api:rmw_destroy_publisher]": "snapshot:rmw_fastrtps_cpp/src/rmw_publisher.cpp:203",
+    "declares[api:rmw_event_set_callback]": "snapshot:rmw_fastrtps_cpp/src/rmw_event.cpp:51",
+    "declares[api:rmw_publisher_event_init]": "snapshot:rmw_fastrtps_cpp/src/rmw_event.cpp:23",
+    "not_declared[api:rmw_event_fini]": "Searched every file under snapshot/ (rmw_fastrtps_cpp, rmw_fastrtps_dynamic_cpp, rmw_fastrtps_shared_cpp) for 'rmw_event_fini' and 'event_fini': 0 matches. The extern \"C\" event blocks at snapshot:rmw_fastrtps_cpp/src/rmw_event.cpp:21-64 and snapshot:rmw_fastrtps_dynamic_cpp/src/rmw_event.cpp:21-64 define only rmw_publisher_event_init, rmw_subscription_event_init and rmw_event_set_callback; snapshot:rmw_fastrtps_shared_cpp/include/rmw_fastrtps_shared_cpp/rmw_common.hpp (lines 29-562) declares __rmw_init_event, __rmw_take_event and __rmw_event_set_callback but no event finalisation function.",
+    "perm_requires.state": "Searched snapshot for permission declarations: none for any element. Only runtime DDS-Security wiring exists at snapshot:rmw_fastrtps_shared_cpp/src/participant.cpp:337, which points the builtin Access-Permissions plugin at permissions files whose paths come from the security enclave at run time (not in the snapshot).",
+    "perm_grants.state": "Same search as perm_requires: no granted permissions declared in code or configuration in the snapshot; snapshot:rmw_fastrtps_shared_cpp/src/participant.cpp:337-346 only forwards runtime-supplied permissions/governance file paths.",
+    "recovery.state": "Searched the four element implementations (snapshot:rmw_fastrtps_cpp/src/rmw_publisher.cpp:64-221, snapshot:rmw_fastrtps_cpp/src/rmw_event.cpp:23-63, snapshot:rmw_fastrtps_shared_cpp/src/rmw_publisher.cpp:39-88, snapshot:rmw_fastrtps_shared_cpp/src/rmw_event.cpp:119-165): only argument checks, error returns and cleanup on failure; no declared recovery policy."
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "api:rmw_event_fini is listed as a provided element but has no definition anywhere in the snapshot, while the shared event layer (EventListenerInterface::set_on_new_event_callback storing callback and user_data per event type) offers no path that clears a registered event callback when an event handle is finalised; the other four elements are present and forward to shared helpers."
+  },
+  "confidence": "medium",
+  "notes": "Scoping: the snapshot is the whole rmw_fastrtps repository (three packages, all version 7.1.1). The five packet elements are the extern \"C\" rmw API symbols. Inside rmw_fastrtps_shared_cpp/ itself none of the five rmw_* symbols is declared or defined (its only extern \"C\" block is namespace_prefix). The four declared symbols are defined in the sibling front-end packages with identical signatures: rmw_create_publisher at rmw_fastrtps_cpp/src/rmw_publisher.cpp:64 and rmw_fastrtps_dynamic_cpp/src/rmw_publisher.cpp:66; rmw_destroy_publisher at rmw_fastrtps_cpp/src/rmw_publisher.cpp:203 and rmw_fastrtps_dynamic_cpp/src/rmw_publisher.cpp:205; rmw_publisher_event_init and rmw_event_set_callback at lines 23 and 51 of rmw_fastrtps_cpp/src/rmw_event.cpp and rmw_fastrtps_dynamic_cpp/src/rmw_event.cpp. rmw_fastrtps_shared_cpp supplies the implementations they forward to: rmw_fastrtps_shared_cpp::__rmw_destroy_publisher (include/rmw_fastrtps_shared_cpp/rmw_common.hpp:193, src/rmw_publisher.cpp:40), __rmw_event_set_callback (rmw_common.hpp:553, src/rmw_event.cpp:154) and __rmw_init_event (rmw_common.hpp:123, src/rmw_event.cpp:120, used by rmw_publisher_event_init); rmw_create_publisher calls the front-end rmw_fastrtps_cpp::create_publisher / rmw_fastrtps_dynamic_cpp::create_publisher, not a shared __rmw_ function. The declares entries record the rmw_* symbols where the snapshot defines them (rmw_fastrtps_cpp cited in provenance); a strictly package-directory-scoped reading would place all five in not_declared. The API prototypes themselves come from rmw/rmw.h of the rmw package, which is not in the snapshot. Ports: these are C API functions, so msg_type, units, rate and definition_id are null and frame is none (parameters are handles, a type-support pointer, a topic name, QoS/options structs and an event-type enum). QoS: rmw_create_publisher takes the QoS profile from the caller at run time and then replaces 'best available' policies via rmw_dds_common::qos_profile_get_best_available_for_topic_publisher(node, topic_name, &adapted_qos_policies, rmw_get_subscriptions_info_by_topic) (rmw_fastrtps_cpp/src/rmw_publisher.cpp:80-83), i.e. selected from discovered subscriptions' profiles, so QoS is recorded null; the other three elements carry no QoS. references is empty because no packet element is consumed; non-packet dependencies (rmw, rmw_dds_common, Fast DDS APIs) were not enumerated. definition_hash.py was not applicable (no .msg/.srv/.action/.idl element)."
+}

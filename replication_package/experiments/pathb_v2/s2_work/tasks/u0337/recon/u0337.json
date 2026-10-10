@@ -1,0 +1,62 @@
+{
+  "task_id": "u0337",
+  "package": "uvc_mjpeg_camera",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "field:v4l2/v4l2_pix_format.height",
+      "side": "provides",
+      "msg_type": "v4l2/v4l2_pix_format",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:v4l2/v4l2_pix_format.pixelformat",
+      "side": "provides",
+      "msg_type": "v4l2/v4l2_pix_format",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:v4l2/v4l2_pix_format.width",
+      "side": "provides",
+      "msg_type": "v4l2/v4l2_pix_format",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].element": "artifact.txt:6,8,10,12: Size: Discrete 640x360 | Size: Discrete 1280x720 | Size: Discrete 1920x1080 | Size: Discrete 3840x2160",
+    "ports[0].msg_type": "parent type as named by the packet element; artifact.txt:1-6 (ioctl: VIDIOC_ENUM_FMT ... Size: Discrete 640x360) gives the offered sizes but does not name the struct",
+    "ports[1].element": "artifact.txt:4: Pixel Format: 'MJPG' (compressed)",
+    "ports[1].msg_type": "parent type as named by the packet element; artifact.txt:4 (Pixel Format: 'MJPG' (compressed)) gives the offered value but does not name the struct",
+    "ports[1].frame": "artifact.txt:4-5: Pixel Format: 'MJPG' (compressed) / Name : Motion-JPEG (a pixel-format code, no spatial meaning)",
+    "ports[2].element": "artifact.txt:6,8,10,12: Size: Discrete 640x360 | Size: Discrete 1280x720 | Size: Discrete 1920x1080 | Size: Discrete 3840x2160",
+    "ports[2].msg_type": "parent type as named by the packet element; artifact.txt:1-6 (ioctl: VIDIOC_ENUM_FMT ... Size: Discrete 640x360) gives the offered sizes but does not name the struct"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The listing is an internally consistent capability set (one compressed format, four 16:9 sizes, 30 fps each). It offers no 4:3 size such as 640x480 and no uncompressed format, which a peer requesting those through VIDIOC_S_FMT would not get, but whether any peer requests them is not visible from this artifact."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task; the only source is artifact.txt (13 lines), an enumeration output headed 'ioctl: VIDIOC_ENUM_FMT'. It lists exactly one Video Capture format, Index 0: Pixel Format 'MJPG' (compressed), Name Motion-JPEG, with discrete frame sizes 640x360, 1280x720, 1920x1080 and 3840x2160, each with a single discrete interval 0.033s (30.000 fps). Ports are recorded for the three v4l2_pix_format field elements because the artifact gives the values the device offers for pixel format, width and height; the artifact values are enumeration results (format descriptor and frame-size enumeration), not a v4l2_pix_format declaration, so the field types are not stated and no declares entries are written. The v4l2_pix_format definition is a C header struct, not a .msg/.srv/.action/.idl file, so it is outside the allowed sources and definition_id is null for all ports. Frame for width/height is null (pixel dimensions; no coordinate frame stated). Units are not stated (no 'pixels' label), so null. The 30 fps interval is offered, not set, so rate_hz/min_rate_hz are null. QoS is null (ROS 1; these are not ROS topics). api:VIDIOC_DQBUF and api:VIDIOC_S_FMT do not appear in the artifact (only VIDIOC_ENUM_FMT is named); the artifact is not a complete list of supported ioctls, so neither element is recorded as declared or not declared, and no port is written for them. resource:/dev/video0: the artifact names no device path, so it is undeterminable either way and exclusive is empty. The three field elements are also in neither declares nor not_declared (values are shown, types are not). No elements are consumed, so references is empty. Permissions and recovery could not be checked from a format listing, hence unknown. No manifest version is present."
+}

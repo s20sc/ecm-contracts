@@ -1,0 +1,110 @@
+{
+  "item_id": "A1-robust_248cb38",
+  "kind": "A1",
+  "case_id": "robust_248cb38",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The transformed quaternion wasn't being passed to set_attitude_target(), resulting in an incorrect attitude setpoint. I've now fixed this issue.",
+    "url": "https://github.com/mavlink/mavros/pull/351",
+    "reason": "E1 passes: the public PR documents an incorrect attitude setpoint and the maintainer supplies a reproducer and confirms the bug. E2 stops at step 6: the mavros setpoint_attitude plugin sends a misordered quaternion across the MAVLink wire boundary to separately deployable FCU firmware. The code packs and sends the quaternion to the FCU; this is not an internal-only calculation, deployment-name binding, build-only change, or an undeclared firmware fault. E3 passes as PAIR: the plugin's SET_ATTITUDE_TARGET output feeds the FCU controller. E4 passes through the reported incorrect setpoint and confirmed storage-order mismatch. The unidentified firmware revision limits resolution evidence, not eligibility under E1-E4.",
+    "supporting_evidence": [
+      {
+        "quote": "And it fails. So bug confirmed. But there should be another way to fix Map.",
+        "url": "https://github.com/mavlink/mavros/pull/351#issuecomment-125763805"
+      },
+      {
+        "quote": "Send setpoint attitude/orientation/thrust to FCU controller.",
+        "url": "https://github.com/mavlink/mavros/blob/3a82c908b6dba4b784c46106c51ae73ff1e881b8/mavros/src/plugins/setpoint_attitude.cpp#L31"
+      },
+      {
+        "quote": "UAS_FCU(uas)->send_message(&msg);",
+        "url": "https://github.com/mavlink/mavros/blob/3a82c908b6dba4b784c46106c51ae73ff1e881b8/mavros/src/plugins/setpoint_attitude.cpp#L103"
+      }
+    ]
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Eigen::Map<Quaternionf> place data in xyzw order instead of wxyz.",
+      "url": "https://github.com/mavlink/mavros/issues/352",
+      "reason": "The mismatch is quaternion component order, so representation_convention is appropriate. The affected wire element is field:common/SET_ATTITUDE_TARGET.q. The parent already transforms ENU to NED; the fix changes the serialization order passed to set_attitude_target, not the frame transformation. No further failed condition in this composition is documented in the issue, its comment, the PR and all four comments, or the fixing and helper diffs.",
+      "supporting_evidence": [
+        {
+          "quote": "<field type=\"float[4]\" name=\"q\">Attitude quaternion (w, x, y, z order, zero-rotation is 1, 0, 0, 0)</field>",
+          "url": "https://github.com/mavlink/mavlink/blob/77a13142dfe571dfa3bcee69ab1c68e395ad258d/message_definitions/v1.0/common.xml"
+        },
+        {
+          "quote": "q_out = UAS::transform_frame_enu_ned(Eigen::Quaterniond(tr.rotation())).cast<float>();",
+          "url": "https://github.com/mavlink/mavros/blob/3a82c908b6dba4b784c46106c51ae73ff1e881b8/mavros/src/plugins/setpoint_attitude.cpp#L121"
+        },
+        {
+          "quote": "q_transformed[0] = q_out.w();",
+          "url": "https://github.com/mavlink/mavros/commit/248cb389b122fa94a68578a48e50d4f240df4629"
+        },
+        {
+          "quote": "MAVLink uses wxyz order, wile Eigen::Quaterniond uses xyzw internal order,",
+          "url": "https://github.com/mavlink/mavros/commit/9990651fe1898bc32991fbacf5afab281ba211c3"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The transformed quaternion wasn't being passed to set_attitude_target(), resulting in an incorrect attitude setpoint. I've now fixed this issue.",
+    "url": "https://github.com/mavlink/mavros/pull/351",
+    "reason": "Agree with silent_documented for the reported interaction: an incorrect setpoint is reported, rather than a compiler, connection, or activation rejection. The complete issue and PR discussions contain no such diagnostic. The inspected quaternion send path performs assignment, packing, and sending without a component-order diagnostic. The maintainer's newly written reproducer is not an existing build/connect/activate diagnostic. This is a bounded conclusion from the report and code, not proof that every possible external tool or FCU emitted no message.",
+    "supporting_evidence": [
+      {
+        "quote": "Eigen::Map<Eigen::Quaternionf> q_out(q);",
+        "url": "https://github.com/mavlink/mavros/blob/3a82c908b6dba4b784c46106c51ae73ff1e881b8/mavros/src/plugins/setpoint_attitude.cpp#L120"
+      },
+      {
+        "quote": "And it fails. So bug confirmed. But there should be another way to fix Map.",
+        "url": "https://github.com/mavlink/mavros/pull/351#issuecomment-125763805"
+      }
+    ]
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Yes. Flew with this code yesterday. I've verified that it now behaves the same as release 0.12.0",
+    "url": "https://github.com/mavlink/mavros/pull/351#issuecomment-125707818",
+    "reason": "Agree with run: the report concerns incorrect attitude setpoints and flight behavior, and the maintainer confirms the error by executing a purpose-written test. No build, connection, or activation failure is reported. The flight quote describes validation of the fix; it does not independently establish the exact first-discovery sequence.",
+    "supporting_evidence": [
+      {
+        "quote": "And it fails. So bug confirmed. But there should be another way to fix Map.",
+        "url": "https://github.com/mavlink/mavros/pull/351#issuecomment-125763805"
+      }
+    ]
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Yes. Flew with this code yesterday. I've verified that it now behaves the same as release 0.12.0",
+    "url": "https://github.com/mavlink/mavros/pull/351#issuecomment-125707818",
+    "reason": "The reporter provides genuine flight-test success, and the accepted diff explicitly copies w,x,y,z into the transmitted array. However, S1 defines observed to require both units identified by revision. Neither the complete PR discussion nor issue discussion identifies the FCU firmware or its revision, and the specification leaves its broken_rev and resolved_rev null. The reference to release 0.12.0 is a behavior comparison, not an identification of the flown firmware revision. Thus the accepted fix is recommended for this incompletely revision-identified composition; this does not deny the reported successful flight or claim the peer was different. Also, the initial fix retains Eigen::Map and copies its named components into q_transformed; removal of Map occurs in the later helper-use commit.",
+    "supporting_evidence": [
+      {
+        "quote": "status `observed` (the source shows the resolved composition working, with both of its units identified by revision)",
+        "url": "snapshot:prompts/S1_specify.md:34"
+      },
+      {
+        "quote": "q_transformed[0] = q_out.w();",
+        "url": "https://github.com/mavlink/mavros/commit/248cb389b122fa94a68578a48e50d4f240df4629"
+      },
+      {
+        "quote": "plugin: setpoint_attitude #352: use new helper.",
+        "url": "https://github.com/mavlink/mavros/commit/805112a059c4ccb07f2c680c1d1b51e2c2bc3ed6"
+      }
+    ]
+  },
+  "notes": "The packet contains two identical entries for A1-robust_248cb38 and no A2 entries. One verdict file covers both identical occurrences. Evidence was read in this session through curl from GitHub APIs and revision-pinned raw source, including issue #352 and its one comment, PR #351 and all four issue comments (zero review comments), the fixing commit and parent plugin, the historical MAVLink declaration, and the helper/helper-use commits. No method identity was inferred. The resolution disagreement follows the explicit revision-identification requirement, not a judgment about the method. Absence of an existing diagnostic is assessed only within these sources. No additional condition is inferred merely from unrelated changes in the introducing commit."
+}

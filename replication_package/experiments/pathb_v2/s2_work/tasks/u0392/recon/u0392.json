@@ -1,0 +1,102 @@
+{
+  "task_id": "u0392",
+  "package": "reporter_js_client",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "field:sensor_msgs/Joy.axes",
+      "side": "provides",
+      "msg_type": "sensor_msgs/Joy",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:sensor_msgs/Joy.buttons",
+      "side": "provides",
+      "msg_type": "sensor_msgs/Joy",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:sensor_msgs/Joy.header",
+      "side": "provides",
+      "msg_type": "sensor_msgs/Joy",
+      "frame": "",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:sensor_msgs/Joy",
+      "side": "provides",
+      "msg_type": "sensor_msgs/Joy",
+      "frame": "",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:ROSLIB.Message",
+    "api:loads"
+  ],
+  "perm_requires": {
+    "state": "unknown",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "unknown",
+    "values": []
+  },
+  "recovery": {
+    "state": "unknown",
+    "value": null
+  },
+  "provenance": {
+    "ports[0].msg_type": "let joy_msg = new ROSLIB.Message({ axes: [ 0.0 ] });",
+    "ports[1].msg_type": "msg_json = loads('{ \"header\": { \"stamp\": { \"sec\": 0, \"nanosec\": 0 }, \"frame_id\": \"\" }, \"axes\": [0], \"buttons\": [] }')",
+    "ports[2].msg_type": "msg_json = loads('{ \"header\": { \"stamp\": { \"sec\": 0, \"nanosec\": 0 }, \"frame_id\": \"\" }, \"axes\": [0], \"buttons\": [] }')",
+    "ports[3].msg_type": "joy_publisher.publish(joy_msg)",
+    "ports[2].frame": "msg_json = loads('{ \"header\": { \"stamp\": { \"sec\": 0, \"nanosec\": 0 }, \"frame_id\": \"\" }, \"axes\": [0], \"buttons\": [] }')",
+    "ports[3].frame": "msg_json = loads('{ \"header\": { \"stamp\": { \"sec\": 0, \"nanosec\": 0 }, \"frame_id\": \"\" }, \"axes\": [0], \"buttons\": [] }')",
+    "references[api:ROSLIB.Message]": "let joy_msg = new ROSLIB.Message({ axes: [ 0.0 ] });",
+    "references[api:loads]": "msg_json = loads('{ \"header\": { \"stamp\": { \"sec\": 0, \"nanosec\": 0 }, \"frame_id\": \"\" }, \"axes\": [0], \"buttons\": [] }')"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The JS client writes axes as [ 0.0 ], which reaches the wire as the integer array \"axes\": [0] (line 4), and the excerpt itself quotes that the JS side truncates float values; the published axes field therefore likely does not carry the float element type the receiver expects. The JS message literal also sets neither header nor buttons."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task: the only source is artifact.txt (5 lines). Lines 1 and 3 are JavaScript (roslibjs): the client builds joy_msg with only an axes field, value [ 0.0 ], and publishes it via joy_publisher. Line 4 is Python and holds the same message as a JSON body with header (stamp sec/nanosec 0, frame_id \"\"), axes [0] (integer, i.e. the 0.0 after JS serialisation) and buttons []. Line 5 is a quoted sentence plus an issue-tracker URL, which was not visited. msg_type: the excerpt never shows the ROSLIB.Topic construction, so the messageType string the client passes is not visible; sensor_msgs/Joy is taken from the packet elements (a field port carries its parent message type), and it is consistent with the joy_msg/joy_publisher identifiers and with the header/axes/buttons key set in line 4. declares/not_declared: all four elements are left out of both lists. The package populates axes (lines 1 and 4) and, in the line-4 JSON, header and buttons, but no sensor_msgs/Joy definition text is in the artifact and excerpt tasks may not fetch one (ros_distro is also null), so no field type as written in the definition and no definition hash can be given. header and buttons are not put in not_declared: the JS literal in line 1 omits them, but it is a message instance, not a definition body, and line 4 includes them. definition_id is null for the same reason. frame: the msg and header ports use the frame_id \"\" hard-coded in line 4 (the JS path in line 1 sets no header at all); the excerpt attaches no frame or spatial meaning to axes or buttons, so those are null. units: none stated. QoS: null throughout; the publisher (joy_publisher) is created outside the excerpt, so neither code-set QoS nor the API's documented default at a known version can be cited from the allowed source. rate: not set in the excerpt. references: ROSLIB.Message (roslibjs) and loads (Python JSON loader, unqualified in the excerpt), copied verbatim; joy_publisher.publish is a call on a local object whose type is not shown, so it is not listed. Permissions and recovery are unknown because only a fragment of the code is available; manifest_version is null (no manifest in the artifact)."
+}

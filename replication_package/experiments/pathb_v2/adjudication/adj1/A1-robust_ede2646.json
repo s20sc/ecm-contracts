@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-robust_ede2646",
+  "kind": "A1",
+  "case_id": "robust_ede2646",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "        self.pub_tf = rospy.Publisher(\"/tf\", TFMessage, queue_size=1)",
+    "url": "https://raw.githubusercontent.com/ros/geometry2/1bbf910815aa83f7476cd4c8d6370f3a1feec643/tf2_ros/src/tf2_ros/transform_broadcaster.py#L44",
+    "reason": "E1/E4 pass: message loss is reproduced and the queue repair is confirmed. E2 stops at 2 for the selected broadcaster-to-view_frames pair: the outgoing queue discards successive publications locally, before any receiver consumes them. The source identifies no assumption specific to view_frames, no receiver capacity/QoS mismatch, and no boundary timing requirement. Holding the reproduced sending burst fixed, another correct subscriber cannot recover messages already discarded by this queue. Changing the local queue or spacing the local send calls resolves the cause. PAIR describes the symptom path but does not override the internal-defect exclusion."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Even with different TransformBroadcaster objects, only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+      "url": "https://github.com/ros/geometry2/issues/89",
+      "reason": "The listed other class accurately describes publisher-local queue-depth loss, and /tf is the affected output. These descriptive agreements do not make the case eligible; they would be omitted from an ineligible specification."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Even with different TransformBroadcaster objects, only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+    "url": "https://github.com/ros/geometry2/issues/89",
+    "reason": "The documented manifestation is missing frames, not a compatibility diagnostic. Agree as a description of the report, conditional on retaining the case."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Even with different TransformBroadcaster objects, only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+    "url": "https://github.com/ros/geometry2/issues/89",
+    "reason": "Loss is detected from received transforms at runtime. A corrected ineligible specification would leave this field null."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed with queue_size 100 in pull request #90.",
+    "url": "https://github.com/ros/geometry2/issues/89#issuecomment-83945648",
+    "reason": "The repair is recommended/accepted, but no successful rerun with both pinned units is shown. Agree descriptively; a corrected ineligible specification would leave resolution null."
+  },
+  "notes": "Eligibility disagreement is scoped to the units actually selected by the specification, not a hypothetical caller-versus-broadcaster library-API case. I do not infer a receiver-side QoS or rate condition merely from missing data. The source supports one internal queue-loss cause, not an additional missed interface condition.",
+  "supporting_evidence": [
+    {
+      "quote": "Even with different TransformBroadcaster objects, only the last one is received by the tf core. If a delay is introduced by successive calls, all the transformations are received.",
+      "url": "https://github.com/ros/geometry2/issues/89"
+    },
+    {
+      "quote": "The python should be made to match the c++ as this is causing a problem.",
+      "url": "https://github.com/ros/geometry2/issues/89#issuecomment-83259331"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-028",
+  "kind": "A1",
+  "case_id": "C3-028",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: a public report gives the consumer include sites and a compiler diagnostic. E2: compressed_depth_image_transport references a header supplied by the separately released cv_bridge library; the provider changed the preferred header name, so updating the include is an interface adaptation, not merely a build-system change. E3: UPGRADE is supported by continued use of the earlier header against the newer provider.",
+    "quote": "Build failure due to deprecated header. Should change ``cv_bridge.h`` to ``cv_bridge.hpp``.",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/113"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "#warning This header is obsolete, please include cv_bridge/cv_bridge.hpp instead\n\n#include <cv_bridge/cv_bridge.hpp>",
+      "url": "https://raw.githubusercontent.com/ros-perception/vision_opencv/3.4.0/cv_bridge/include/cv_bridge/cv_bridge.h",
+      "reason": "Accept the renamed-header classification, not a claim that the old header is absent. At 3.4.0 it remains a deprecated forwarding shim; the old include and its new canonical replacement are both implicated. The consumer fix replaces the former with the latter."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "warning: #warning This header is obsolete, please include cv_bridge/cv_bridge.hpp instead [-Wcpp]",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/113",
+    "reason": "The compiler explicitly diagnoses obsolete interface use."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "10:27:13 In file included from /tmp/ws/src/image_transport_plugins/compressed_depth_image_transport/src/compressed_depth_publisher.cpp:36:",
+    "url": "https://github.com/ros-perception/image_transport_plugins/issues/113",
+    "reason": "The diagnostic occurs during compilation: build."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Resolves: #114\r\nResolves: #113 (duplicate of #114)",
+    "url": "https://github.com/ros-perception/image_transport_plugins/pull/118",
+    "reason": "The accepted consumer include replacement supports recommended. The reviewed sources do not demonstrate a successful build with both units identified by revision."
+  },
+  "notes": "The displayed issue log contains a warning and 'Finished <<< compressed_depth_image_transport [39.0s]', not a missing-header compiler error. PR #112 also reports 'PR failing due to #113'. These support the documented diagnostic but do not justify inventing a fatal compiler error. Changes to compressed_image_transport and theora_image_transport are outside the selected composition."
+}

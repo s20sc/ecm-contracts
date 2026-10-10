@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_c4e1187",
+  "kind": "A1",
+  "case_id": "robust_c4e1187",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/303"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "urdf_model changed the shared pointer type from boost::shared_ptr to std::shared_ptr.",
+      "url": "https://github.com/ros-industrial/universal_robot/pull/303"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "+#if ROS_VERSION_MINIMUM(1, 13, 0) \n+  const std::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();\n+#else\n   const boost::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();\n+#endif",
+      "url": "https://github.com/ros-industrial/universal_robot/commit/c4e118757123ef243d0f3c2e14a6c3d63549f20d"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This change is only applied to versions of ROS newer than Lunar. And it was the only change necessary to compile the whole stack into Lunar.",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/303"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "No need to bp to `indigo-devel`, as this is a Lunar only change and we include it in `kinetic-devel` only to make building on Lunar possible."
+  },
+  "notes": "Independently verified this session. (1) Eligibility: commit c4e1187 (2017-06-20, parent aa4b3b14, matching spec broken_rev) message 'Updated urdf::ModelInterface pointer type for ROS Lunar'; PR #303 by marcoesposito1988 body and maintainer gavanderhoorn's comments read verbatim via API. Provider change verified at source: urdf_world/types.h at 0.4.2 reads 'typedef boost::shared_ptr<ModelInterface> ModelInterfaceSharedPtr;' and at 1.0.0 line 48 reads 'typedef std::shared_ptr<ModelInterface> ModelInterfaceSharedPtr;', introduced by commit 729c4ded 'Use std pointers instead of boost pointers' (2016-02-13) whose urdf_world/types.h hunk I read; tag 1.0.0 resolves to 5cb0b6b6 as the spec states. Stop at step 6 with interface kind library API is right: the typedef declaration in the separately released provider changed and the consumer must follow it (an interface change, not a build-only or deployment change per the tree). Specifying urdfdom_headers as provider with MoveIt's rdf_loader as conduit is documented in notes and defensible: the changed declaration is the urdfdom typedef. (2) Conditions: element_retyped (typedef retargeted, element still present) and nominal_type_mismatch (boost::shared_ptr<urdf::ModelInterface> vs std::shared_ptr alias) are both supported; including api:urdf::ModelInterface in condition 1 is defensible since both clashing nominal type expressions instantiate over ModelInterface. (3) Loudness unknown: the sources state the stack did not compile on Lunar but quote no compiler diagnostic; detection_stage build is correct because the defect manifests at compile time. (4) Resolution recommended: PR merged 2017-09-12T22:36:04Z (merge_commit_sha b2be658918af82b8c46be60a101e86fb7e27bdc5, verified); contributor's compile report is not an observation with both units identified by revision, so 'recommended' follows the prompt's rule."
+}

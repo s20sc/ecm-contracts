@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_932c6ca-broken-M1-44ed81c651",
+  "kind": "A2",
+  "case_id": "robust_932c6ca",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_msgs::TFMessage::__connection_header]",
+      "verdict": "verified",
+      "source_excerpt": "Built revision:\n\nsnapshot:s2_work/tasks/u0105/snapshot/scripts/msg.h.template:125-130\n```\n@# Shared pointer typedefs\n  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> > Ptr;\n  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> const> ConstPtr;\n  boost::shared_ptr<std::map<std::string, std::string> > __connection_header;\n\n}; // struct @(cpp_class)\n```\n\nRunning revision:\n\nsnapshot:s2_work/tasks/u0106/snapshot/scripts/msg.h.template:110-129\n```\n@[for field in spec.parsed_fields()]\n @{cpp_type = gencpp.msg_type_to_cpp(field.type)}@\n  typedef @(cpp_type) _@(field.name)_type;\n  _@(field.name)_type @(field.name);\n@[end for]\n\n@# Constants\n@[for constant in spec.constants]@\n @[if (constant.type in ['byte', 'int8', 'int16', 'int32', 'int64', 'char', 'uint8', 'uint16', 'uint32', 'uint64'])]@\n   enum { @(constant.name) = @(int(constant.val)) };\n @[else]@\n   static const @(gencpp.msg_type_to_cpp(constant.type)) @(constant.name);\n @[end if]@\n@[end for]\n\n@# Shared pointer typedefs\n  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> > Ptr;\n  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> const> ConstPtr;\n\n}; // struct @(cpp_class)\n```\n\nsnapshot:s2_work/tasks/u0106/snapshot/scripts/gen_cpp.py:43-44\n```\nmsg_template_map = { 'msg.h.template':'@NAME@.h' }\nsrv_template_map = { 'srv.h.template':'@NAME@.h' }\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:tf2_msgs::TFMessage::__connection_header]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0107/snapshot/tf2_ros/src/transform_listener.cpp:102-110\n```\nvoid TransformListener::subscription_callback_impl(const tf2_msgs::TFMessageConstPtr& msg, bool is_static)\n{\n\n  const tf2_msgs::TFMessage& msg_in = *msg;\n  for (unsigned int i = 0; i < msg_in.transforms.size(); i++)\n  {\n    std::map<std::string, std::string>* msg_header_map = msg_in.__connection_header.get();\n    std::string authority;\n    std::map<std::string, std::string>::iterator it = msg_header_map->find(\"callerid\");\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_msgs::TFMessage::__connection_header]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0105/snapshot/scripts/msg.h.template:125-130\n```\n@# Shared pointer typedefs\n  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> > Ptr;\n  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> const> ConstPtr;\n  boost::shared_ptr<std::map<std::string, std::string> > __connection_header;\n\n}; // struct @(cpp_class)\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0106/snapshot/scripts/msg.h.template:110-129\n```\n@[for field in spec.parsed_fields()]\n @{cpp_type = gencpp.msg_type_to_cpp(field.type)}@\n  typedef @(cpp_type) _@(field.name)_type;\n  _@(field.name)_type @(field.name);\n@[end for]\n\n@# Constants\n@[for constant in spec.constants]@\n @[if (constant.type in ['byte', 'int8', 'int16', 'int32', 'int64', 'char', 'uint8', 'uint16', 'uint32', 'uint64'])]@\n   enum { @(constant.name) = @(int(constant.val)) };\n @[else]@\n   static const @(gencpp.msg_type_to_cpp(constant.type)) @(constant.name);\n @[end if]@\n@[end for]\n\n@# Shared pointer typedefs\n  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> > Ptr;\n  typedef boost::shared_ptr< @(cpp_full_name)<ContainerAllocator> const> ConstPtr;\n\n}; // struct @(cpp_class)\n```\n\nsnapshot:s2_work/tasks/u0106/snapshot/scripts/gen_cpp.py:43-44\n```\nmsg_template_map = { 'msg.h.template':'@NAME@.h' }\nsrv_template_map = { 'srv.h.template':'@NAME@.h' }\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE compares gencpp 0.4.16 with 0.5.0 and connects the generated tf2_msgs::TFMessage member to tf2_ros 0.4.10. The listener includes the generated header and directly dereferences __connection_header. This is a generated-header dependency, not a claim that gencpp publishes a ROS topic.\n\nsnapshot:s2_work/tasks/u0107/snapshot/tf2_ros/include/tf2_ros/transform_listener.h:36\n```\n#include \"tf2_msgs/TFMessage.h\"\n```\n\nsnapshot:s2_work/tasks/u0107/snapshot/tf2_ros/src/transform_listener.cpp:102-110\n```\nvoid TransformListener::subscription_callback_impl(const tf2_msgs::TFMessageConstPtr& msg, bool is_static)\n{\n\n  const tf2_msgs::TFMessage& msg_in = *msg;\n  for (unsigned int i = 0; i < msg_in.transforms.size(); i++)\n  {\n    std::map<std::string, std::string>* msg_header_map = msg_in.__connection_header.get();\n    std::string authority;\n    std::map<std::string, std::string>::iterator it = msg_header_map->find(\"callerid\");\n```"
+  },
+  "notes": "The generator removes the explicit __connection_header member from the message struct. Full running-snapshot search found no connection_header occurrence. The ordinary parsed fields are still emitted, but the removed generator-owned metadata member is not supplied by a different macro or alias. This is a substantive member-presence change."
+}

@@ -1,0 +1,93 @@
+{
+  "task_id": "u0314",
+  "package": "compressed_image_transport",
+  "manifest_version": "3.2.0",
+  "ports": [
+    {
+      "element": "param:.color.image_raw.compressed.format",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:.color.image_raw.compressed.jpeg_quality",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:.color.image_raw.compressed.png_level",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:.color.image_raw.compressed.format": "param .color.image_raw.compressed.format: string",
+    "param:.color.image_raw.compressed.jpeg_quality": "param .color.image_raw.compressed.jpeg_quality: int",
+    "param:.color.image_raw.compressed.png_level": "param .color.image_raw.compressed.png_level: int"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:compressed_image_transport/package.xml:3",
+    "ports[0].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:403",
+    "ports[0].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:73",
+    "ports[1].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:403",
+    "ports[1].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:95",
+    "ports[2].side": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:403",
+    "ports[2].frame": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:82",
+    "declares[param:.color.image_raw.compressed.format]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:74",
+    "declares[param:.color.image_raw.compressed.jpeg_quality]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:96",
+    "declares[param:.color.image_raw.compressed.png_level]": "snapshot:compressed_image_transport/src/compressed_publisher.cpp:83",
+    "perm_requires": "searched every file under snapshot/compressed_image_transport (src/*.cpp, include/*.h, package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/*.cfg) for permission requirements; none found",
+    "perm_grants": "searched every file under snapshot/compressed_image_transport (src/*.cpp, include/*.h, package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/*.cfg) for permission grants; none found",
+    "recovery": "searched every file under snapshot/compressed_image_transport (src/*.cpp, include/*.h, package.xml, CMakeLists.txt, compressed_plugins.xml, cfg/*.cfg) for a declared recovery behaviour (only error logging on encode failure, e.g. compressed_publisher.cpp:234); none found"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The code at this revision declares all three listed parameters with a name construction that yields exactly the listed dotted names (leading '.') for a node in a non-root namespace, with types string/int/int; nothing listed appears missing or retyped. The leading '.' looks like an artefact of stripping the namespace without its separator (the in-code comment says 'image_raw.compressed.format'), so if the paired side expected undotted names this revision would be the mismatch; low confidence in this guess."
+  },
+  "confidence": "medium",
+  "notes": "Parameter names are built at run time: advertiseImpl takes param_base_name = base_topic.substr(node->get_effective_namespace().length()) and replaces '/' with '.' (compressed_publisher.cpp:143-145); declareParameter then declares base_name + '.' + getTransportName() + '.' + descriptor.name (compressed_publisher.cpp:392-393, 403) with getTransportName() returning \"compressed\" (compressed_publisher.h:57-60). For a node in namespace N (non-root) and base topic N/color/image_raw this gives '.color.image_raw.compressed.<name>' with a leading '.', i.e. the packet names; with the root namespace '/' the same code gives 'color.image_raw.compressed.<name>' (no leading dot). The '.color.image_raw' prefix therefore depends on the base topic and namespace supplied at run time (and on image_transport passing a namespace-resolved base_topic, which is outside the snapshot); the suffix, types and defaults are static. Declared descriptors: format PARAMETER_STRING default \"jpeg\", additional_constraints 'Supported values: [jpeg, png, tiff]' (lines 70-78); png_level PARAMETER_INTEGER default 3, integer_range 0..9 step 1 (lines 79-91); jpeg_quality PARAMETER_INTEGER default 95, integer_range 1..100 step 1 (lines 92-104); all read_only false. The code also declares deprecated unscoped aliases base_name + '.' + descriptor.name (e.g. '.color.image_raw.format', lines 397-398, 411) and syncs them to the scoped names via a /parameter_events subscription (lines 151, 417-450). QoS, rate and definition_id are null because these elements are node parameters, not topics/services, so no message definition or QoS profile applies; units are null because neither code nor descriptors state units (comments only give ranges). cfg/CompressedPublisher.cfg is a ROS 1 dynamic_reconfigure file not referenced by CMakeLists.txt (different defaults: jpeg_quality 80, png_level 9) and was not used for the declarations. No consumed packet elements, so references is empty. Packet ros_distro is humble while package.xml states version 3.2.0; recorded as found."
+}

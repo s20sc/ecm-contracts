@@ -1,0 +1,95 @@
+{
+  "task_id": "u0398",
+  "package": "drive_controller",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "api:controller_interface::ChainableControllerInterface::exported_state_interfaces_",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:controller_interface::ChainableControllerInterface::on_export_state_interfaces",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::get_node",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:hardware_interface::Handle::set_value",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:hardware_interface::StateInterface",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:controller_interface::ChainableControllerInterface::on_export_state_interfaces": "api controller_interface::ChainableControllerInterface::on_export_state_interfaces: std::vector<hardware_interface::StateInterface> OdometryProvider::on_export_state_interfaces()"
+  },
+  "not_declared": [],
+  "references": [
+    "api:controller_interface::ChainableControllerInterface::exported_state_interfaces_",
+    "api:controller_interface::ControllerInterfaceBase::get_node",
+    "api:hardware_interface::Handle::set_value",
+    "api:hardware_interface::StateInterface"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].side": "exported_state_interfaces_[name]->set_value()",
+    "ports[1].side": "std::vector<hardware_interface::StateInterface> OdometryProvider::on_export_state_interfaces()",
+    "ports[2].side": "get_node()->get_name(), interface_name0, &state_interfaces_values_[0]));",
+    "ports[2].frame": "get_node()->get_name(), interface_name0, &state_interfaces_values_[0]));",
+    "ports[3].side": "exported_state_interfaces_[name]->set_value()",
+    "ports[4].side": "state_interfaces.push_back(hardware_interface::StateInterface(",
+    "declares[api:controller_interface::ChainableControllerInterface::on_export_state_interfaces]": "std::vector<hardware_interface::StateInterface> OdometryProvider::on_export_state_interfaces()",
+    "references[api:controller_interface::ChainableControllerInterface::exported_state_interfaces_]": "exported_state_interfaces_[name]->set_value()",
+    "references[api:controller_interface::ControllerInterfaceBase::get_node]": "get_node()->get_name(), interface_name0, &state_interfaces_values_[0]));",
+    "references[api:hardware_interface::Handle::set_value]": "exported_state_interfaces_[name]->set_value()",
+    "references[api:hardware_interface::StateInterface]": "std::vector<hardware_interface::StateInterface> state_interfaces;"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The excerpts mix two value paths for the same exported state interfaces: on_export_state_interfaces builds each hardware_interface::StateInterface with the raw-pointer constructor over state_interfaces_values_ (artifact lines 8-19), while another excerpt writes through exported_state_interfaces_[name]->set_value() (line 1) and a third writes state_interfaces_values_[0] = value directly (line 24). With the handle-based ChainableControllerInterface/Handle API that the packet elements point to (exported_state_interfaces_, get_optional, get_value, set_value), a value written by one path is plausibly not what the other path reads, so the exported state interface contract looks inconsistent at this revision. This is a guess from the excerpt alone, not verified."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task: only artifact.txt (25 lines, three excerpts) was read; the artifact labels each excerpt with an external source URL, which was not consulted. No package.xml is in the artifact, so manifest_version is null. The provided element on_export_state_interfaces is declared as an override on class OdometryProvider (artifact line 3); it returns six StateInterfaces named interface_name0..interface_name5, each built as hardware_interface::StateInterface(get_node()->get_name(), <name>, &state_interfaces_values_[i]) after state_interfaces_values_.resize(6, 0.0); the literal values of interface_name0..5 are not in the artifact. Whether state_interfaces_values_ is a base-class or OdometryProvider member cannot be told from the excerpt. Line 1 is written verbatim as exported_state_interfaces_[name]->set_value() with an empty argument list; its enclosing function and class are not shown. Elements neither declared nor referenced in the artifact, and left out of every list because the artifact is a set of partial excerpts rather than a complete definition body: api:controller_interface::ChainableControllerInterface::update_and_write_commands (provided side; cannot say it is absent), api:hardware_interface::Handle::get_optional and api:hardware_interface::Handle::get_value (consumed side; no call appears in the excerpts). All ports are C++ API symbols, not ROS messages, so msg_type, units and definition_id are null (no .msg/.srv/.action/.idl definition applies). QoS is null for every port because ros2_control in-process handles and controller-interface calls have no ROS QoS profile; there is no API default to cite. Frame is 'none' only for get_node (returns the node handle, no spatial data); for the state-interface ports the exported values belong to an odometry provider but no frame is written in the excerpt, so frame is null. exclusive is empty because no command-interface claim or exclusive device handle appears in the excerpt; this is not a positive absence claim, since the excerpt does not include command_interface_configuration or configuration files. Permissions and recovery are unknown because no code or configuration beyond the excerpts was available to check."
+}

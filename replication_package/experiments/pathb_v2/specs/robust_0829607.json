@@ -1,0 +1,106 @@
+{
+  "case_id": "robust_0829607",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/motoman/issues/123",
+    "https://github.com/ros-industrial/motoman/pull/126",
+    "https://github.com/ros-industrial/motoman/commit/082960760dd90c4040e394721b3991f4e17aac2d",
+    "https://github.com/ros-industrial/motoman/blob/93c243a33b939b925c580f7ebb5bcd24f67113fb/motoman_sda10f_support/urdf/common_torso_macro.xacro",
+    "https://github.com/ros-industrial/motoman/blob/93c243a33b939b925c580f7ebb5bcd24f67113fb/motoman_sda10f_support/launch/load_sda10f.launch",
+    "https://github.com/ros-visualization/rviz/blob/1.11.14/src/rviz/ogre_helpers/stl_loader.cpp",
+    "https://github.com/ros-visualization/rviz/commit/76e3363201306b78054c9b4b299cc9d251cbda5b",
+    "https://github.com/ros-visualization/rviz/pull/878"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue ros-industrial/motoman#123 (gavanderhoorn, maintainer, 2016-08-24) with the console log: \"[ros.rviz]: The STL file 'package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl' is malformed. It starts with the word 'solid', indicating that it's an ASCII STL file, but it does not contain the word 'endsolid' so it is either a malformed ASCII STL file or it is actually a binary STL file. Trying to interpret it as a binary STL file instead.\" (and the same for motoman_axis_b1.stl), a stated reproducer (\"Loading the SDA10F model results in the following warnings being printed on the console\") and the maintainer's fix in PR #126 / commit 08296076 (\"sda10f_support: fix malformed stl warning. Fix #123. This simply changes the 'solid' that occurs in the STL header to 'dilos', which should be enough to not result in ASCII vs Binary STL loader problems.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["motoman_sda10f_support", "rviz"],
+      "interface_kind": "resource (mesh file format: STL encoding)",
+      "evidence": "Unit 1: package motoman_sda10f_support (repository ros-industrial/motoman), which provides the robot description (load_sda10f.launch sets the robot_description parameter from urdf/sda10f.xacro) and the mesh files it references (common_torso_macro.xacro lines 8 and 27/45: '<mesh filename=\"package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl\" />', '<mesh filename=\"package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl\"/>'). Unit 2: rviz (repository ros-visualization/rviz), whose RobotModel display loads those meshes with its own STL loader (src/rviz/ogre_helpers/stl_loader.cpp). The failed interaction crosses the package boundary: the two binary STL files begin with the bytes 'solid', the marker the consumer uses to recognise an ASCII STL file; the consumer's format check (added by rviz commit 76e33632 \"orgre_helpers: robust and helpful STL filetype format check\", PR #878, 2015-04) then finds no 'endsolid' and warns before falling back to binary parsing. Not internal (the outcome depends on how the consumer interprets the provider's file header); not deployment wiring (no name binding); not build-only; not firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the mesh files produced by the support package are the input of rviz's mesh loader; the warning appears when rviz reads them. No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed warning, quoted in the issue body (two '[ros.rviz]: The STL file ... is malformed ...' lines). The composition keeps working: the loader's own message says \"Trying to interpret it as a binary STL file instead.\" and the reporter reports only warnings."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "motoman_sda10f_support",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/motoman",
+      "broken_rev": "3a242676372d0083169e1b8c41e67c530cd076b2",
+      "resolved_rev": "082960760dd90c4040e394721b3991f4e17aac2d",
+      "pinned": true,
+      "revision_basis": "The reporter names no revision. The fix targets branch indigo-devel (PR #126, base indigo-devel), whose head on the report date 2016-08-24 was 3a242676 (committed 2016-08-10); the two mesh files were added by b645a083 (2014-02-25, 'Changed to the motoman repository') and are byte-identical from then until the fix, so every indigo-devel revision in that range, including the fix's parent 93c243a3 (2016-10-21) and releases 0.3.4/0.3.5 (2016-07-04), carries the broken files. Resolved revision is the fix commit 08296076 (authored 2016-08-29, merged 2016-10-21), contained in releases 0.3.6 (2017-03-21) and 0.3.7 (2017-03-22).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "rviz",
+      "role": "consumer",
+      "repo": "https://github.com/ros-visualization/rviz",
+      "broken_rev": "1.11.14",
+      "resolved_rev": "1.11.14",
+      "pinned": true,
+      "revision_basis": "The reporter names neither rviz version nor ROS distro. The warning text quoted in the issue exists in rviz since commit 76e33632 (2015-04-03, PR #878 merged into indigo-devel 2015-04-16) and is contained in every release from 1.11.8 (2015-08-06) on, including the kinetic line (1.12.1, 2016-04-20). 1.11.14 (2016-04-04) is the indigo release current on the report date (next indigo release 1.11.15 on 2016-10-18) and indigo is the distro the fix's branch targets, so it is the pinned choice; the STL check (stl_loader.cpp: 'if (buffer_str.find(\"endsolid\", 5) != std::string::npos)' ... 'ROS_WARN_STREAM(\"The STL file '\" << origin << \"' is malformed. It starts \" ...') is the same in the 1.11.x and 1.12.x releases of that period. rviz is unchanged by the resolution.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "param:/robot_description", "sides": {"motoman_sda10f_support": "provides", "rviz": "consumes"}},
+    {"element": "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl", "sides": {"motoman_sda10f_support": "provides", "rviz": "consumes"}},
+    {"element": "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl", "sides": {"motoman_sda10f_support": "provides", "rviz": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl",
+        "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl"
+      ],
+      "quote": "[ros.rviz]: The STL file 'package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl' is malformed. It starts with the word 'solid', indicating that it's an ASCII STL file, but it does not contain the word 'endsolid' so it is either a malformed ASCII STL file or it is actually a binary STL file. Trying to interpret it as a binary STL file instead.",
+      "url": "https://github.com/ros-industrial/motoman/issues/123"
+    },
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl",
+        "resource:package://motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl"
+      ],
+      "quote": "sda10f_support: fix malformed stl warning. Fix #123.\n\nThis simply changes the 'solid' that occurs in the STL header to 'dilos', which\nshould be enough to not result in ASCII vs Binary STL loader problems.",
+      "url": "https://github.com/ros-industrial/motoman/commit/082960760dd90c4040e394721b3991f4e17aac2d"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Diagnostic from existing tooling (rviz's STL loader) printed when the RobotModel display loads the meshes: \"[ros.rviz]: The STL file '...motoman_base.stl' is malformed. ... Trying to interpret it as a binary STL file instead.\" and the same line for motoman_axis_b1.stl (issue body). The loader then parses the file as binary, so the model is displayed.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Commit 08296076 (PR #126) rewrites the first five bytes of the two binary STL files motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl and motoman_axis_b1.stl from 'solid' to 'dilos' so that the consumer's ASCII-STL detection no longer matches; rviz is unchanged. The issue also names the alternative of re-saving the meshes as binary with Meshlab.",
+    "status": "recommended",
+    "evidence": "The maintainer's commit message states the intended effect (\"should be enough to not result in ASCII vs Binary STL loader problems\") and PR #126 was merged into indigo-devel on 2016-10-21; the issue has no comments and no observation of the fixed meshes loading without the warning is recorded (the issue was closed on 2016-12-22)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Interface kind is recorded as a file resource (mesh referenced by URL from the URDF and read by the consumer's loader); of the listed kinds it is closest to 'definition', and the inventory uses the resource:<token> form. Class representation_convention: the encoding marker of the mesh file (binary STL whose header starts with the ASCII marker 'solid') crosses the boundary and is interpreted differently by the consumer. The collision meshes under meshes/sda10f/collision/ are separate files not named in the warning and not changed by the fix; rviz's RobotModel display loads visual meshes by default. The reporter is the fixing maintainer. The support package also loads the model through robot_state_publisher and joint_state_publisher (test_sda10f.launch), which do not read mesh files and are not part of this composition. No ROS distro is stated; indigo is inferred from the PR's base branch."
+}

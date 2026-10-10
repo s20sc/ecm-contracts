@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_eab0d3c",
+  "kind": "A1",
+  "case_id": "robust_eab0d3c",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Observed results:\nthe rospy listener receives messages correctly; the roscpp listener does not",
+    "url": "https://github.com/ros/ros_comm/issues/35"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "I am currently looking at the code. It is definitely an issue in the modified code of `TransportTCP::connect()`.\n\nA simple scenario to reproduce is:\n- three shells A, B and C\n- A and B which normal ROS groovy environment\n- C with ROS_IP set to the ip of the machine\n- A: `roscore`\n- C: `rosrun ros(cpp|py)_tutorials talker`\n- B: `rosrun roscpp_tutorials listener`\n\nB is not receiving any messages from C.",
+      "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11396370"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "With the roscpp nodes running in this setup, rosnode info /talker doesn't show any outgoing connections, but rosnode info /listener indicates that it's connected.\n\nI would guess that this means that the subscriber is receiving the list of publishers properly, but isn't setting up the TCP connection for the topic.",
+    "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11361752"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed, look for ros_comm v1.9.37 to come out."
+  },
+  "notes": "Independently verified this session. (1) Eligibility: ros_comm #35 (ahendrix, 2012-12-14, 'roscpp subscribers don't connect properly when using ROS_IP/ROS_HOSTNAME') body read in full: two-machine reproducer and all quoted sentences verified verbatim, including 'It only appears to be a problem with roscpp subscribers; rospy subscribers are unaffected' and 'setups which don't use ROS_IP or ROS_HOSTNAME on the publisher are also unaffected'. All six comments verified (hershwg id 11361650 naming 8f60630 as suspect; ahendrix id 11361752; hershwg id 11361946 'I have just confirmed that this bug exists in 1.9.34 but does not exist in 1.9.32.'; bit-pirate id 11362002; dirk-thomas id 11396370; schneider42 id 11398553 'Thanks for fixing it. I obviously misused the inet_pton function there.'). turtlebot #39 verified (jihoonl 2012-12-13 title/body, ahendrix link comment, stonier closure). Peer-dependence test applied correctly: hostname-advertising peers work, so not internal; interface kind wire protocol field (endpoint host) is right; PAIR is right. (2) Condition: class 'other' agrees — I read both the introducing diff (8f606302, 2012-11-21, 'merge modified patch provided by @schneider42 - Initial IPv6 support for roscpp (fix #7)') and the fix diff (eab0d3c, parent 475b969c): at 1.9.34 inet_pton wrote the address into (sockaddr_in*)&sas where sin_family/sin_port live and family/port were then written over it, and the second branch repeated AF_INET instead of AF_INET6; the protocol permits both hostname and IP-literal forms and the publisher's value is correct, so this is a consumer-side parsing defect triggered by one legal form of the field, not a representation mismatch between units. Implicating api:requestTopic and topic:/chatter is defensible. (3) Loudness silent_documented/run: no diagnostic shown; the documented symptom is connected-but-no-messages. (4) Resolution recommended: fix commit verified (message, date, diff); eab0d3c confirmed contained in tag 1.9.37 via compare API (ahead_by 1, behind_by 0); tag 1.9.34 resolves to 7d27fabb as spec states; no working observation of the resolved composition in the source (bit-pirate's test request unanswered), so recommended, not observed. ros_tutorials groovy-devel head verified 0d771e72d06eda215da9eac3f907de9bb82dea94, matching the spec's basis."
+}

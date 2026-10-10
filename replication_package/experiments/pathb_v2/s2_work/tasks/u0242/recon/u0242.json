@@ -1,0 +1,78 @@
+{
+  "task_id": "u0242",
+  "package": "franka_ros",
+  "manifest_version": "0.7.0",
+  "ports": [
+    {
+      "element": "msg:franka_msgs/Errors",
+      "side": "provides",
+      "msg_type": "franka_msgs/Errors",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "420c43ed3349b66b110f24531e7b53e5"}
+    },
+    {
+      "element": "msg:franka_msgs/FrankaState",
+      "side": "provides",
+      "msg_type": "franka_msgs/FrankaState",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "7782ef1d208d3efc42f6a4cc3c41c065"}
+    },
+    {
+      "element": "topic:/franka_state_controller/franka_states",
+      "side": "provides",
+      "msg_type": "franka_msgs/FrankaState",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": 30.0,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "7782ef1d208d3efc42f6a4cc3c41c065"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "msg:franka_msgs/Errors": "msg franka_msgs/Errors: 420c43ed3349b66b110f24531e7b53e5",
+    "msg:franka_msgs/FrankaState": "msg franka_msgs/FrankaState: 7782ef1d208d3efc42f6a4cc3c41c065",
+    "topic:/franka_state_controller/franka_states": "topic /franka_state_controller/franka_states: franka_msgs/FrankaState"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "franka_control_node action server \"error_recovery\" (franka_control::ErrorRecoveryAction, franka_control/action/ErrorRecovery.action) calling robot.automaticErrorRecovery()"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:franka_ros/package.xml:4 | <version>0.7.0</version>",
+    "ports[0].msg_type": "snapshot:franka_msgs/CMakeLists.txt:6 | add_message_files(FILES Errors.msg FrankaState.msg)",
+    "ports[0].frame": "snapshot:franka_msgs/msg/Errors.msg:1 | bool joint_position_limits_violation",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 franka_msgs/Errors snapshot -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"420c43ed3349b66b110f24531e7b53e5\"}",
+    "ports[1].msg_type": "snapshot:franka_msgs/CMakeLists.txt:6 | add_message_files(FILES Errors.msg FrankaState.msg)",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 franka_msgs/FrankaState snapshot <deps> -> 7782ef1d208d3efc42f6a4cc3c41c065; dependency std_msgs/Header.msg fetched from https://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/kinetic/std_msgs/0.5.11-0/msg/Header.msg (tool md5 2176decaecbce78abc3b96ef049fabed)",
+    "ports[2].msg_type": "snapshot:franka_control/include/franka_control/franka_state_controller.h:62 | realtime_tools::RealtimePublisher<franka_msgs::FrankaState> publisher_franka_states_;",
+    "ports[2].rate_hz": "snapshot:franka_control/config/default_controllers.yaml:30 | publish_rate: 30  # [Hz]",
+    "ports[2].definition_id": "python3 definition_hash.py ros1 franka_msgs/FrankaState snapshot <deps> -> 7782ef1d208d3efc42f6a4cc3c41c065 (same definition as ports[1])",
+    "declares[msg:franka_msgs/Errors]": "snapshot:franka_msgs/msg/Errors.msg:1 | bool joint_position_limits_violation (definition body lines 1-36); hash from definition_hash.py ros1",
+    "declares[msg:franka_msgs/FrankaState]": "snapshot:franka_msgs/msg/FrankaState.msg:1 | std_msgs/Header header (definition body lines 1-43); hash from definition_hash.py ros1",
+    "declares[topic:/franka_state_controller/franka_states]": "snapshot:franka_control/src/franka_state_controller.cpp:174 | publisher_franka_states_.init(controller_node_handle, \"franka_states\", 1); controller namespace snapshot:franka_control/config/default_controllers.yaml:28 | franka_state_controller:",
+    "perm_requires.state": "searched snapshot (grep -rni 'permission|sros|security|keystore'): hits only in LICENSE and NOTICE license text; no permission declarations in code or configuration",
+    "perm_grants.state": "searched snapshot (grep -rni 'permission|sros|security|keystore'): hits only in LICENSE and NOTICE license text; no permission declarations in code or configuration",
+    "recovery.state": "snapshot:franka_control/src/franka_control_node.cpp:124 | actionlib::SimpleActionServer<franka_control::ErrorRecoveryAction> recovery_action_server(",
+    "recovery.value": "snapshot:franka_control/src/franka_control_node.cpp:128 | robot.automaticErrorRecovery();"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "Errors.msg has 36 bool fields and errorsToMessage (franka_state_controller.cpp:28-132) assigns exactly those 36; every FrankaState.msg field is populated in publishFrankaStates; the published type matches the message the package defines. Nothing inconsistent among the three elements."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (kinetic): all QoS values null. Topic name resolution: publisher created on controller_node_handle with relative name \"franka_states\" (franka_state_controller.cpp:174); controller name franka_state_controller comes from default_controllers.yaml:28 and the spawner args in franka_control.launch:19; ControllerManager is built on the node's public NodeHandle (franka_control_node.cpp:168) and franka_control.launch sets no ns, giving /franka_state_controller/franka_states. Frame: publishFrankaStates sets only header.seq and header.stamp (franka_state_controller.cpp:365-366), never header.frame_id; the message mixes joint-space arrays and Cartesian quantities whose frames are implied only by field-name prefixes (O_, EE_, K_, F_), so no single frame is declared and frame is null for FrankaState ports. Errors is boolean flags only, hence frame none. Units are stated neither in the .msg files nor in the publishing code. rate_hz 30.0: config publish_rate: 30 (default_controllers.yaml:30); code default is also 30.0 (franka_state_controller.cpp:150, TriggerRate default in franka_hw/include/franka_hw/trigger_rate.h:11). exclusive left empty: the publisher uses franka_hw::FrankaStateInterface, a HardwareResourceManager with the default (non-claiming) policy (franka_state_interface.h:52); the ClaimResources command interfaces in franka_hw (franka_cartesian_command_interface.h:69-70, 127-128) are not involved in the listed elements. Not in references: FrankaState.msg depends on msg:std_msgs/Header (line 1), and franka_example_controllers/scripts/interactive_marker.py:61 subscribes to franka_state_controller/franka_states, which is this package's own topic. Code requires libfranka >= 0.5.0 (franka_control/CMakeLists.txt:24); franka::Errors field set not checkable here (libfranka headers are not definition files)."
+}

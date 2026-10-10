@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-065",
+  "kind": "A1",
+  "case_id": "C3-065",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "`GLOBAL_POSITION_INT` MAVlink [message](https://mavlink.io/en/messages/common.html#GLOBAL_POSITION_INT) expresses velocity in NED frame therefore a NED->ENU conversion is needed to comply with ROS 2 standard.\n\nFIX: #2054: instead of converting into `ENU`, the code was converting into `END` frame.",
+    "url": "https://github.com/mavlink/mavros/pull/2226"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "`GLOBAL_POSITION_INT` MAVlink [message](https://mavlink.io/en/messages/common.html#GLOBAL_POSITION_INT) expresses velocity in NED frame therefore a NED->ENU conversion is needed to comply with ROS 2 standard.\n\nFIX: #2054: instead of converting into `ENU`, the code was converting into `END` frame.",
+      "url": "https://github.com/mavlink/mavros/pull/2226"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "When filling mavros topic `global_position/local` and converting the linear velocity frame from `NED` to `ENU` the `z` coordinate is not consistent with the transformation, in fact, it remains positive toward down.",
+    "url": "https://github.com/mavlink/mavros/issues/2054"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "FIX: #2054: instead of converting into `ENU`, the code was converting into `END` frame.",
+    "url": "https://github.com/mavlink/mavros/pull/2226"
+  },
+  "notes": "Verified against mavros issue #2054 and PR #2226. Global position linear velocity conversion improperly left the z component positive downwards (END rather than ENU)."
+}

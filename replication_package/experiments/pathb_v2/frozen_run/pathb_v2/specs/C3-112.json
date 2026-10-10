@@ -1,0 +1,105 @@
+{
+  "case_id": "C3-112",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/599",
+    "https://github.com/ros2/rmw_fastrtps/pull/468#issuecomment-1106847128",
+    "https://github.com/ros2/rmw_fastrtps/pull/600",
+    "https://github.com/ros2/rmw_fastrtps/pull/598",
+    "https://github.com/ros2/rmw_fastrtps/commit/78c204de055e2e93e5916405a3f5ef1b9eaedca4",
+    "https://github.com/ros2/rmw_fastrtps/commit/3214dcc11896ac6a4c6b5377aca9c5c43ba8c31a",
+    "https://github.com/ros2/rmw_fastrtps/commit/27eff0cd12f373cec72a2b1f1ce1d4dcec9eca8d",
+    "https://github.com/ros2/rmw_fastrtps/commit/ed69f32ce7cebaec33dab6f9de6978c14ba3f3d7",
+    "https://github.com/timonegk/rmw_fastrtps/commit/4308a01aa5baeb2c49aa248c7f76d2b556c4e138",
+    "https://github.com/timonegk/rmw_fastrtps/commit/a2afa2d276ceed9ee3f253950d1ac8162f466f3e",
+    "https://raw.githubusercontent.com/ros2/rmw_implementation/31843adc17f28a4af0dc5f160e9e3b4dfb9710ea/rmw_implementation/src/functions.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter (a ROS 2 core maintainer) gives the reproducer \"RMW_IMPLEMENTATION=rmw_fastrtps_dynamic_cpp ros2 run demo_nodes_cpp listener\", the error output, and the commit \"https://github.com/ros2/rmw_fastrtps/commit/7a191c348554233a9e1eea9295166e86ce094b1b\"; fixed by PR #600 (\"Fixes https://github.com/ros2/rmw_fastrtps/issues/599\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rmw_implementation", "rmw_fastrtps_dynamic_cpp"],
+      "interface_kind": "library API",
+      "evidence": "rmw_implementation (ros2/rmw_implementation) loads the selected RMW shared library at runtime and resolves each rmw API function by name; rmw_fastrtps_dynamic_cpp (ros2/rmw_fastrtps) is a separately built RMW implementation library. At the reporter's revision rmw_implementation resolves \"GET_SYMBOL(rmw_subscription_set_on_new_message_callback)\", \"GET_SYMBOL(rmw_service_set_on_new_request_callback)\", \"GET_SYMBOL(rmw_client_set_on_new_response_callback)\", \"GET_SYMBOL(rmw_event_set_callback)\" (functions.cpp at 31843adc), while rmw_fastrtps_dynamic_cpp at 7a191c34 defines none of them (they exist only in rmw_fastrtps_cpp, added by PR #468). Maintainer: \"This seems to have broken `rmw_fastrtps_dynamic_cpp`, as the methods were not implemented for it.\" (https://github.com/ros2/rmw_fastrtps/pull/468#issuecomment-1106847128)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the provider's exported rmw functions feed rmw_implementation's symbol lookup when the process selects rmw_fastrtps_dynamic_cpp (\"RMW_IMPLEMENTATION=rmw_fastrtps_dynamic_cpp ros2 run demo_nodes_cpp listener\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"'failed to resolve symbol 'rmw_subscription_set_on_new_message_callback' in shared library '/home/ivanpauno/ros2_ws/install/rmw_fastrtps_dynamic_cpp/lib/librmw_fastrtps_dynamic_cpp.so', at /home/ivanpa$\" ... \"Crashes while trying to load the rmw implementation.\" (https://github.com/ros2/rmw_fastrtps/issues/599)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rmw_fastrtps_dynamic_cpp",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rmw_fastrtps",
+      "broken_rev": "7a191c348554233a9e1eea9295166e86ce094b1b",
+      "resolved_rev": "8e93400087e8ed0f637a5fae89d89877c02de724",
+      "pinned": true,
+      "revision_basis": "Broken: stated by the reporter (\"Version or commit hash: https://github.com/ros2/rmw_fastrtps/commit/7a191c348554233a9e1eea9295166e86ce094b1b\"; this is tag 6.2.1 and was the master head on the report date 2022-04-22). Resolved: PR #600 was rebase-merged on master as 78c204de055e2e93e5916405a3f5ef1b9eaedca4 (\"Add EventExecutor to rmw_fastrtps_dynamic_cpp\", adds the four functions to rmw_fastrtps_dynamic_cpp) followed by 8e93400087e8ed0f637a5fae89d89877c02de724 (PR merge_commit_sha; touches only rmw_fastrtps_cpp checks). Master between the two revisions also includes #598 (best_available QoS) and #601 (cpplint).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "rmw_implementation",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rmw_implementation",
+      "broken_rev": "31843adc17f28a4af0dc5f160e9e3b4dfb9710ea",
+      "resolved_rev": "31843adc17f28a4af0dc5f160e9e3b4dfb9710ea",
+      "pinned": true,
+      "revision_basis": "Not stated by the reporter; the log shows a source build (\"/home/ivanpauno/ros2_ws/src/ros2/rmw_implementation/rmw_implementation/src/functions.cpp:152\"). The rmw_implementation master head on the report date (2022-04-22) was 31843adc17f28a4af0dc5f160e9e3b4dfb9710ea (tag 2.8.1, released 2022-03-28 together with rmw_fastrtps 6.2.1); it contains the four GET_SYMBOL lines, which were added by \"Add EventsExecutor (#161)\" (61939927d56db49ab9ce7b4904463918b95777d5, 2022-02-24). The resolution does not change this unit.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:rmw_subscription_set_on_new_message_callback", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_service_set_on_new_request_callback", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_client_set_on_new_response_callback", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_event_set_callback", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_get_implementation_identifier", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_init", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_create_node", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_create_subscription", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_take_with_info", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}},
+    {"element": "api:rmw_wait", "sides": {"rmw_fastrtps_dynamic_cpp": "provides", "rmw_implementation": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:rmw_subscription_set_on_new_message_callback",
+        "api:rmw_service_set_on_new_request_callback",
+        "api:rmw_client_set_on_new_response_callback",
+        "api:rmw_event_set_callback"
+      ],
+      "quote": "'failed to resolve symbol 'rmw_service_set_on_new_request_callback' in shared library '/home/ivanpauno/ros2_ws/install/rmw_fastrtps_dynamic_cpp/lib/librmw_fastrtps_dynamic_cpp.so', at /home/ivanpauno/r$\r\ns2_ws/src/ros2/rmw_implementation/rmw_implementation/src/functions.cpp:152'",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/599"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "rmw_implementation's symbol lookup reports the missing functions when loading the RMW library: \"failed to resolve symbol 'rmw_event_set_callback' in shared library '/home/ivanpauno/ros2_ws/install/rmw_fastrtps_dynamic_cpp/lib/librmw_fastrtps_dynamic_cpp.so'\"; \"Crashes while trying to load the rmw implementation.\" (https://github.com/ros2/rmw_fastrtps/issues/599).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "rmw_fastrtps_dynamic_cpp implements rmw_subscription_set_on_new_message_callback, rmw_service_set_on_new_request_callback, rmw_client_set_on_new_response_callback and rmw_event_set_callback (a copy of the rmw_fastrtps_cpp implementation from PR #468); rmw_implementation unchanged.",
+    "status": "recommended",
+    "evidence": "PR #600: \"Two commits: * Copy the implementation done in #468 for dynamic version * Add some check to parameters passed to fastrtps_cpp to keep both implementations in sync\", with ci.ros2.org Linux/Linux-aarch64/Windows build badges and \"Seems fine, merging.\" (https://github.com/ros2/rmw_fastrtps/pull/600). The CI runs do not identify the rmw_implementation revision, and no one reports the listener working with the fixed library in the thread."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Class choice: the consumer resolves four rmw API functions that the provider never defined (they were added to the rmw API and to rmw_fastrtps_cpp by the EventsExecutor work, PR #468 merged 2022-02-24, but not to rmw_fastrtps_dynamic_cpp); there is no class for an element that was never present at the provider, so `other` is used rather than element_removed_or_renamed. Operation: PAIR, because both units are at contemporaneous master revisions and the provider lags the API the consumer resolves; it is not an UPGRADE in the defined sense (the provider is not newer than what the consumer was written against). The last error in the log, \"'Expected lexeme type (19) not found, search ended at index 74, at /home/ivanpauno/ros2_ws/src/ros2/rcl/rcl/src/rcl/lexer_lookahead.c:239'\", is an unrelated rcl error-state overwrite. PR #598 (best_available QoS, in the fix refs) only cross-references this issue because its author saw rmw_fastrtps_dynamic_cpp test failures; it is not part of the resolution. Commits 27eff0cd12f373cec72a2b1f1ce1d4dcec9eca8d, 3214dcc11896ac6a4c6b5377aca9c5c43ba8c31a and ed69f32ce7cebaec33dab6f9de6978c14ba3f3d7 are the same change on other bases/branches (PR branch iterations), and the timonegk fork commits carry the same message \"Add EventExecutor to rmw_fastrtps_dynamic_cpp ... Fixes #599.\" A follow-up upstream PR #602 \"Allow null arguments in the EventsExecutor parameters\" (12e514de0d2175b095d420596dc4b661839f570d) is not among the refs. Inventory elements beyond the four implicated ones are standard rmw API functions that rmw_implementation forwards and that the listener run exercises; rmw_implementation forwards many more."
+}

@@ -1,0 +1,50 @@
+{
+  "case_id": "robust_5353982",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/commit/5353982ea0f32783fcf3e296b25ab3b253550201",
+    "https://github.com/mavlink/mavros/commit/136f387ffc3bd2ac6983a59c3eb2b63f3512e020",
+    "https://github.com/ros/rosconsole/blob/1.12.4/tools/rosconsole/include/ros/assert.h"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Commit 136f387 (\"Updates for ROS_BREAK and code style\", 2016-01-31T01:17Z) introduced `ROS_BREAK(false);` at four places in mavros/src/lib/uas_frame_conversions.cpp; commit 5353982 (\"Fixed ROS_BREAK\", 2016-01-31T14:23Z, parent 136f387) replaces each `ROS_BREAK(false);` with `ROS_BREAK();` and also changes one `ROS_ERROR(\"Requested Static Frame Conversion Unkown\");` to `ROS_BREAK();`. rosconsole defines the macro without parameters: `#define ROS_BREAK() \\` (tools/rosconsole/include/ros/assert.h line 116 at tag 1.12.4) and `#define ROS_BREAK()` in the disabled branch (line 149), so `ROS_BREAK(false)` cannot preprocess. The defect is concrete and maintainer-fixed, though no error log or issue is attached."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "mavros (libmavros, mavros/src/lib/uas_frame_conversions.cpp)",
+        "rosconsole (ros/assert.h, provider of the ROS_BREAK macro)"
+      ],
+      "interface_kind": null,
+      "evidence": "The only two units one can name are mavros and the rosconsole header it includes. The failure is mavros's own invalid source: a zero-parameter function-like macro invoked with one argument. rosconsole's declaration `#define ROS_BREAK()` is the same in every revision consulted (1.12.4 and the disabled-assert branch), so the failure depends on no assumption between the two units and would occur with any correct rosconsole; nothing crosses a boundary with a wrong value, name, frame, unit, or timing. Under step 2 this is a defect in one unit's own logic: `internal`. (The resolving edit is a source change, not a build-system change, so step 4 `build` does not apply either.)"
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "Not reached. The source records no compiler output; the effect (a preprocessing error) is inferable from the macro definition but is not shown."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: mavros invoked rosconsole's zero-parameter macro as `ROS_BREAK(false)` (a coding error in its own frame-conversion library, fixed the same day to `ROS_BREAK()`); no interface assumption between two units is involved and no cross-unit effect is documented.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Alternative reading considered and rejected: treating it as a library-API misuse (`api:ROS_BREAK`, loud at build). That reading fails step 2 because the macro's arity never changed on the provider side; the consumer's code was invalid against every rosconsole revision. The packet description says the commit was made \"a day after\"; the timestamps show 13 hours (2016-01-31T01:17Z to 14:23Z). The same fix commit also upgrades one `ROS_ERROR` to `ROS_BREAK()` in `transform_static_frame(const Covariance3d&, ...)`, which is a behaviour change (abort instead of log) but still inside mavros."
+}

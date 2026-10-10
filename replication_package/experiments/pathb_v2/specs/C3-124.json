@@ -1,0 +1,80 @@
+{
+  "case_id": "C3-124",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/790",
+    "https://github.com/ros2/rclpy/pull/791",
+    "https://github.com/fujitatomoya/demos/commit/93376a47e7307da7b9fdff2f00264b00e2cdeedc",
+    "https://github.com/ros2/rclpy/blob/3186e15b83fda833e37f5b7a77b16ff5e82d74b9/rclpy/rclpy/action/server.py",
+    "https://github.com/ros2/rclpy/blob/3186e15b83fda833e37f5b7a77b16ff5e82d74b9/rclpy/src/rclpy/_rclpy_action.cpp",
+    "https://github.com/ros2/rcl/blob/29388f32a97800b86b44a772aebc84a14a134cdc/rcl_action/src/rcl_action/goal_handle.c",
+    "https://github.com/ros2/ros2/blob/9278b5ced9654bf71aa9c031212315e7bae528b7/ros2.repos"
+  ],
+  "eligibility": {
+    "E1": {"pass": true, "evidence": "Maintainer-filed issue with a reproducer (branch topic-20210509-reproducible-action-test of fujitatomoya/demos, `ros2 run action_tutorials_py fibonacci_action_server` plus `ros2 action send_goal /fibonacci ...` and Ctrl-C after 5 s) and the error log \"Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL, at /root/ros2_ws/colcon_ws/src/ros2/rcl/rcl_action/src/rcl_action/goal_handle.c:95\"."},
+    "E2": {"pass": true, "stop_step": 6, "reason_code": null, "units_identified": ["rclpy", "rcl_action"], "interface_kind": "library API", "evidence": "rclpy's ActionServer._execute_cancel_request calls \"goal_handle._update_state(GoalEvent.CANCEL_GOAL)\" after the user's cancel callback returns ACCEPT; this reaches rcl_action through rclpy's extension (\"rcl_ret_t ret = rcl_action_update_goal_state(goal_handle, event);\" / \"throw rclpy::RCLError(\"Failed to update goal state\");\"). rcl_action (separate package in ros2/rcl) holds the goal state and refuses the event because the goal already reached SUCCEEDED (goal_handle.c: \"goal_handle attempted invalid transition from state %s with event %s\"). The failure is a goal event sent across the rclpy/rcl_action API at a time the provider's state machine does not accept it, so it depends on the rclpy/rcl_action contract; the resolving change is in rclpy code, not wiring or build."},
+    "E3": {"pass": true, "evidence": "PAIR: rclpy's cancel handling passes a goal event into rcl_action's goal state machine; the refusal is observed in that call. The race that makes the goal SUCCEEDED first is between rclpy's own execute and cancel paths (MultiThreadedExecutor with 2 threads in the reproducer)."},
+    "E4": {"pass": true, "evidence": "Observed: \"Exception happens on action server.\" and \"Client cannot receive response against cancel request.\" with the logged exception."}
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclpy",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rclpy",
+      "broken_rev": "3186e15b83fda833e37f5b7a77b16ff5e82d74b9",
+      "resolved_rev": "714f69ee64ee8ea5dbc5f3067211b7886a4e7226",
+      "pinned": true,
+      "revision_basis": "The reporter gives ros2/ros2 commit 9278b5ce (2021-04-29), whose ros2.repos lists rclpy at \"version: master\". The reporter's own fix commit 50358516 (made in the reproducing workspace, fork fujitatomoya/rclpy) has parent 3186e15b (rclpy master, 2021-04-09), so the reporter's rclpy checkout was 3186e15b; master had moved to 2bb0a806/b3cd14d6 by 2021-04-29, so the stated ros2 commit and the actual rclpy checkout differ and I follow the fix commit's parent. Resolved: PR #791 merge commit 714f69ee on master (2021-05-12). The pre-merge fork commit 50358516 (catches Exception and logs at error) is the version shown working; the merged version catches RCLError and logs at debug. Backports: galactic 10bae224 (#795), foxy 87a88a93 (#796).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "rcl_action",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rcl",
+      "broken_rev": "29388f32a97800b86b44a772aebc84a14a134cdc",
+      "resolved_rev": "29388f32a97800b86b44a772aebc84a14a134cdc",
+      "pinned": true,
+      "revision_basis": "rcl_action is a package in ros2/rcl; ros2.repos at the stated ros2 commit 9278b5ce lists rcl at \"version: master\". The reporter's rclpy checkout (3186e15b) implies an import between 2021-04-09T20:13Z and 2021-04-12T13:21Z, when rcl master head was 29388f32 (2021-04-07); if the stated ros2 commit date (2021-04-29) were used instead, rcl master head was cafee72f. rcl_action/src/rcl_action/goal_handle.c and goal_state_machine.c are byte-identical at both commits (the compare touches no rcl_action source), so the choice does not affect the rcl_action interface. The resolution does not change rcl_action.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:rcl_action_take_cancel_request", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_process_cancel_request", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_update_goal_state", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_send_cancel_response", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_accept_new_goal", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_goal_handle_is_active", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_goal_handle_get_status", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_notify_goal_done", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_publish_status", "sides": {"rcl_action": "provides", "rclpy": "consumes"}},
+    {"element": "api:rcl_action_publish_feedback", "sides": {"rcl_action": "provides", "rclpy": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:rcl_action_update_goal_state"],
+      "quote": "^CThe following exception was never retrieved: Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL, at /root/ros2_ws/colcon_ws/src/ros2/rcl/rcl_action/src/rcl_action/goal_handle.c:95",
+      "url": "https://github.com/ros2/rclpy/issues/790"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "rcl_action refuses the transition and sets an error that rclpy raises: \"Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL\" (https://github.com/ros2/rclpy/issues/790). The exception is only printed at shutdown (\"The following exception was never retrieved\"), and the client meanwhile gets no cancel response.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "In ActionServer._execute_cancel_request, rclpy wraps the CANCEL_GOAL state update in try/except RCLError; on failure it logs at debug level and removes the goal from cancel_response.goals_canceling, so the cancel response is still sent (rejecting the cancel for a goal that has already succeeded).",
+    "status": "recommended",
+    "evidence": "Merged as PR #791 (714f69ee). The PR author's \"Unit Test Verification\" comment (https://github.com/ros2/rclpy/pull/791#issuecomment-835798630, 2021-05-09T12:34:49Z) shows the same reproducer with the pre-merge fork commit 50358516: \"[ERROR] [1620562815.088458091] [fibonacci_action_server]: Failed to cancel goal in cancel callback: Failed to update goal state: goal_handle attempted invalid transition from state SUCCEEDED with event CANCEL_GOAL, at /root/ros2_ws/colcon_ws/src/ros2/rcl/rcl_action/src/rcl_action/goal_handle.c:95\" on the server and \"Failed to cancel goal\" on the client, and states \"No exception happens on action server.\" and \"Client can receive response against cancel request.\" The merged revision differs from the verified one (RCLError instead of Exception, debug instead of error log) and no source shows 714f69ee itself running, and the fork commit is not reachable from ros2/rclpy branches, so the status is recommended."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Other composition affected: the action server node (fibonacci_action_server on rclpy) and the action client (`ros2 action send_goal`, CLI) interacting through action /fibonacci: because the exception aborts _execute_cancel_request before rclpy_action_send_cancel_response, \"Client cannot receive response against cancel request.\" I specify the rclpy/rcl_action composition because the reported error and the fix are at that boundary; from the client's side the failure would occur with any correct client. The failed condition is a goal state-machine protocol violation (an event invalid for the goal's current state), for which no specific class exists, hence `other`. ros_distro is not stated; the reporter built from ros2/ros2 master (rolling) in May 2021. The issue is a follow-up of ros2/rclcpp#1569 (the same scenario in rclcpp). Inventory is capped at 10; rclpy also uses rcl_action_server_init, rcl_action_expire_goals, rcl_action_server_goal_exists, rcl_action_get_goal_status_array, and the result-service take/send functions. The verification run's log timestamps (1620562800 = 2021-05-09T12:20Z) precede the committer time of 50358516 (12:21:37Z), so it ran on the working tree that became that commit."
+}

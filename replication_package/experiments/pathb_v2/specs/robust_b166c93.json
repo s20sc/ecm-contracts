@@ -1,0 +1,48 @@
+{
+  "case_id": "robust_b166c93",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_core/issues/22",
+    "https://github.com/yujinrobot/kobuki_core/commit/b166c93913e293c55a3faa7b298c5f52f6def964",
+    "https://github.com/yujinrobot/kobuki_core/commit/2d943e14e99d6d645729b97c5f6dcb10d415f8ff",
+    "https://github.com/yujinrobot/kobuki_core/blob/0.6.3/kobuki_driver/src/driver/kobuki.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #22 (pronobis, 2016-06-17): \"The following commit fixed an issue with isnan for kinetic: https://github.com/yujinrobot/kobuki_core/commit/2d943e14e99d6d645729b97c5f6dcb10d415f8ff Could we have that fix backported to indigo as well?\" Maintainer stonier: \"Cherried in b166c939. Coming soon to indigo in v0.6.4.\" The defect is concrete at code level (kobuki_driver/src/driver/kobuki.cpp line 276 at 0.6.3: `if (isnan(heading_offset) == true)`, replaced by `std::isnan` with `#include <cmath>` in both commits) and the maintainer confirmed it by applying the fix, but neither the issue nor the two commits contain a reproducer or an error log; the kinetic commit 2d943e1 has no linked issue and its message says only \"[kobuki_driver] isnan -> std::isnan\". E1 passes only on the maintainer's confirmation."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["kobuki_driver (kobuki_core, indigo 0.6.3)", "C/C++ standard library headers providing isnan (glibc <math.h> macro / libstdc++ <cmath> std::isnan)"],
+      "interface_kind": "library API",
+      "evidence": "The consumer calls the unqualified C99 macro isnan on a double while including C++ headers that (from libstdc++'s <cmath>) undefine that macro and provide std::isnan instead; whether the call compiles depends on the peer's headers, so it is not internal (step 2), involves no deployment name binding (step 3), is resolved by a source-level change of the referenced API symbol rather than a build-system change (step 4), and is not firmware (step 5). Interface kind: library API (api:isnan / api:std::isnan)."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "The source does not identify the operation or the peer: no comment states which compiler or standard-library release fails, on which platform, or what happens (the indigo binary packages for Ubuntu 14.04 build this line as is). An UPGRADE of the toolchain can only be presumed from general knowledge, not from the public source; the provider revision the consumer was written against and the revision that fails are both undeterminable from the source."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No observed failure, no warning, and no code-level statement of the mismatch: the commit message and CHANGELOG line name only the replacement (\"isnan -> std::isnan\"), the issue calls it \"an issue with isnan\" without describing it, and the indigo backport was made pre-emptively (\"Coming soon to indigo in v0.6.4\")."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E3 and E4 fail: the public source is a backport request plus a cherry-pick. It documents no failure, no environment, no error output, and no statement of what mismatched between kobuki_driver and the standard-library headers; the peer's revision and the operation cannot be determined from public sources without inventing them.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Facts established from the repository: the backport parent 57b8914 is tag 0.6.3 (indigo branch, kobuki_driver 0.6.3); b166c93 (committed 2016-06-17) is one commit before tag 0.6.4 (2016-06-17); the kinetic original 2d943e1 sits on top of tag 0.7.0 and is one commit before 0.7.1. Both diffs are identical: swap `#include <stdexcept>` for `#include <cmath>` (re-adding <stdexcept> lower) and change `isnan(heading_offset)` to `std::isnan(heading_offset)` in Kobuki::spin() (the Issue #274 heading-offset initialisation). No other kobuki_core or kobuki issue mentions isnan (GitHub issue search). If a later source documents the failing toolchain (for example a compile error on a glibc/libstdc++ release where the C isnan macro is not visible in C++), the case would become an UPGRADE of the standard library with class element_removed_or_renamed on api:isnan; that evidence is absent here."
+}

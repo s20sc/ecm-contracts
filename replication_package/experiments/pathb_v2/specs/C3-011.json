@@ -1,0 +1,106 @@
+{
+  "case_id": "C3-011",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/image_transport_plugins/issues/109",
+    "https://github.com/ros-perception/image_transport_plugins/pull/188",
+    "https://github.com/ros-perception/image_transport_plugins/pull/192",
+    "https://github.com/ros-perception/image_transport_plugins/blob/e073dbc7b4f8d7e494758a5b72d95af9b06e7fdb/compressed_image_transport/src/compressed_publisher.cpp",
+    "https://github.com/ros-perception/image_transport_plugins/blob/942199ccc906067ba7ed4ffed19e2fcd6933af0e/compressed_image_transport/src/compressed_publisher.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter lists the declared parameter names with and without a node namespace (\"When the node is put under a namespace, the plugin will add a dot character to the parameter names: .camera.image_raw.format ...\", https://github.com/ros-perception/image_transport_plugins/issues/109); maintainer confirms: \"this is not intentional and a fix PR against rolling branch would be greatly appreciated!\" (https://github.com/ros-perception/image_transport_plugins/issues/109#issuecomment-2907440077) and \"It should have no leading dot\" (https://github.com/ros-perception/image_transport_plugins/issues/109#issuecomment-2907520008)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "compressed_image_transport",
+        "image_transport host node (unspecified)"
+      ],
+      "interface_kind": "parameter",
+      "evidence": "The plugin declares its parameters on the node that loads it, and the names it declares depend on that node's namespace: \"The compressed transport plugin declares different parameters depending on the namespace of the node.\" (issue 109). A plugin and its host are separate units. The wrong parameter name crosses the boundary (it is the name under which the host node's parameter configuration must set the value). The resolving change edits the plugin's declared parameter names (PR 188, \"Fix inconsistent parameter names when running under a namespace\"), not a deployment remap, so it is not deployment_wiring."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the plugin, loaded into a host node run under a namespace, declares parameters that the host node's parameter configuration sets (issue 109 compares the same plugin in a root-namespace node and a namespaced node)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch by the maintainer (\"It should have no leading dot\", issue 109) and by the reporter pointing at the responsible lines (\"The dot is added due to these lines: https://github.com/ros-perception/image_transport_plugins/blob/rolling/compressed_image_transport/src/compressed_publisher.cpp#L144-L146\", https://github.com/ros-perception/image_transport_plugins/issues/109#issuecomment-2804633759). No consumer-side failure (a parameter setting that was ignored) is described."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "compressed_image_transport",
+      "role": "provider",
+      "repo": "https://github.com/ros-perception/image_transport_plugins",
+      "broken_rev": "e073dbc7b4f8d7e494758a5b72d95af9b06e7fdb",
+      "resolved_rev": "f461328d7cfcf0c1e7ecfed6477f5947f01afe1f",
+      "pinned": true,
+      "revision_basis": "The reporter (2022-09-19) names no distro or version. The defect was confirmed and fixed on the rolling branch: resolved_rev is the merge commit of PR 188 on rolling (2025-06-14); broken_rev is that merge's first parent on rolling (e073dbc7, 2025-06-10), so the broken/resolved difference is exactly PR 188. The same substring logic is present at the rolling head on the report date (942199ccc906067ba7ed4ffed19e2fcd6933af0e, 2022-08-18), but at that revision the parameter names had no transport segment (camera.image_raw.format), whereas by e073dbc7 they are transport-scoped (camera.image_raw.compressed.format); the reporter's quoted names match the 2022 form.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "image_transport host node (unspecified)",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2022-09",
+      "resolved_rev": "as-reported-2022-09",
+      "pinned": false,
+      "revision_basis": "The source identifies the host only as 'the node' into which the plugin is loaded, run once without and once with a namespace; no package, code or parameter file is given. The resolution does not change it.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "param:camera.image_raw.compressed.format", "sides": {"compressed_image_transport": "provides", "image_transport host node (unspecified)": "consumes"}},
+    {"element": "param:camera.image_raw.compressed.jpeg_quality", "sides": {"compressed_image_transport": "provides", "image_transport host node (unspecified)": "consumes"}},
+    {"element": "param:camera.image_raw.compressed.png_level", "sides": {"compressed_image_transport": "provides", "image_transport host node (unspecified)": "consumes"}},
+    {"element": "api:rclcpp::Node::get_effective_namespace", "sides": {"image_transport host node (unspecified)": "provides", "compressed_image_transport": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": [
+        "param:camera.image_raw.compressed.format",
+        "param:camera.image_raw.compressed.jpeg_quality",
+        "param:camera.image_raw.compressed.png_level"
+      ],
+      "quote": "When the node is put under a namespace, the plugin will add a dot character to the parameter names:\r\n```\r\n.camera.image_raw.format\r\n.camera.image_raw.jpeg_quality                                                                         \r\n.camera.image_raw.png_level\r\n```",
+      "url": "https://github.com/ros-perception/image_transport_plugins/issues/109"
+    },
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "api:rclcpp::Node::get_effective_namespace",
+        "param:camera.image_raw.compressed.format",
+        "param:camera.image_raw.compressed.jpeg_quality",
+        "param:camera.image_raw.compressed.png_level"
+      ],
+      "quote": "   uint ns_len = node->get_effective_namespace().length();\n-  std::string param_base_name = base_topic.substr(ns_len);\n+  uint ns_prefix_len = ns_len > 1 ? ns_len + 1 : ns_len;\n+  std::string param_base_name = base_topic.substr(ns_prefix_len);",
+      "url": "https://github.com/ros-perception/image_transport_plugins/pull/188/files"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "The source shows only the declared parameter names; no consumer-side effect (a parameter override or 'ros2 param set' that did not take effect) and no diagnostic is shown. PR 188 adds a runtime warning for future use of the old names (\"parameter `...` with leading dot character is deprecated; use: `...` instead\"), which did not exist in the broken composition.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "The plugin strips the namespace plus its separator when forming the parameter base name (ns_prefix_len = ns_len > 1 ? ns_len + 1 : ns_len), so a namespaced node gets camera.image_raw.compressed.<param> like a root-namespace node; the old dot-prefixed names are still declared and mirrored through a pre-set-parameters callback with a deprecation warning.",
+    "status": "recommended",
+    "evidence": "PR 188 merged into rolling as f461328d7cfcf0c1e7ecfed6477f5947f01afe1f (\"Fixes #109\"); no source shows the fixed plugin run in a namespaced host with its parameters set. The Jazzy backport PR 192 (\"This is an attempt to fix #109 for Jazzy version without breaking current ABI.\") is still open and unmerged."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "low",
+  "notes": "The source names no concrete consumer of the parameter names; I modelled the consumer as the host node together with its parameter configuration (a node and its own launch file are one unit), which receives the plugin's declarations. The inventory names are the maintainer's intended form (\"It should have no leading dot\") at broken_rev e073dbc7, where the names are transport-scoped (base.compressed.param per the code comment \"transport scoped parameter (e.g. image_raw.compressed.format)\"); the reporter's 2022 listing (camera.image_raw.format, without the transport segment) predates that scoping. For the namespace value I used api:rclcpp::Node::get_effective_namespace (an rclcpp API symbol through which the host node's namespace reaches the plugin), since no canonical form names a node namespace; the representation_convention condition records that the plugin's substring arithmetic assumes the namespace string includes its trailing separator, which holds only for the root namespace \"/\". Other compositions fixed by the same PR: compressed_depth_image_transport, theora_image_transport and zstd_image_transport plugins have the same naming defect (PR 188 edits all four publishers). A commenter reports the same logic has existed \"since at least ROS2 foxy\" (https://github.com/ros-perception/image_transport_plugins/issues/109#issuecomment-2806196724)."
+}

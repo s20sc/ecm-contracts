@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-robust_eab0d3c",
+  "kind": "A1",
+  "case_id": "robust_eab0d3c",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "It only appears to be a problem with roscpp subscribers; rospy subscribers are unaffected, and setups which don't use ROS_IP or ROS_HOSTNAME on the publisher are also unaffected.",
+    "url": "https://github.com/ros/ros_comm/issues/35",
+    "reason": "E1/E4: a talker/listener reproducer and lost messages are documented. E2: separate processes exchange the advertised TCPROS endpoint; whether the publisher supplies an IP literal affects failure. This is a boundary-value-dependent parser defect, not deployment wiring or an internal failure with every correct peer. E3: PAIR."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It is definitely an issue in the modified code of `TransportTCP::connect()`.",
+      "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11396370",
+      "reason": "other fits the consumer incorrectly parsing a valid endpoint host; there is no documented disagreement about the allowed encoding. requestTopic supplies the endpoint for the affected /chatter connection."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "With the roscpp nodes running in this setup, rosnode info /talker doesn't show any outgoing connections, but rosnode info /listener indicates that it's connected.",
+    "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11361752",
+    "reason": "The misleading connected state and missing messages document failure without a compatibility diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the rospy listener receives messages correctly; the roscpp listener does not",
+    "url": "https://github.com/ros/ros_comm/issues/35",
+    "reason": "The defect is noticed by missing runtime messages. Its mechanism is TCP connection establishment, but no connect-stage diagnostic is documented; retain run as the observed detection stage."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed, look for ros_comm v1.9.37 to come out.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/39#issuecomment-11400985",
+    "reason": "An accepted repair/upcoming release is documented, not successful reception by the identified pair at the fixed revisions; recommended is appropriate."
+  },
+  "notes": "The IPv4 sockaddr misuse and IPv6 branch correction belong to the same endpoint-parsing repair; no additional independently observed IPv6 composition is inferred. Non-literal ROS_HOSTNAME behavior is not established.",
+  "supporting_evidence": [
+    {
+      "quote": "Thanks for fixing it. I obviously misused the inet_pton function there.",
+      "url": "https://github.com/ros/ros_comm/issues/35#issuecomment-11398553"
+    }
+  ]
+}

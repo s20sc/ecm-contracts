@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-139",
+  "kind": "A1",
+  "case_id": "C3-139",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "PR #783 diff: \"-  CompactFrameID frame_id_;\\n-  CompactFrameID child_frame_id_;\\n+  CompactFrameID frame_id_{UINT32_MAX};\\n+  CompactFrameID child_frame_id_{UINT32_MAX};\" -- the only change, to default member initializers of one class; the reproducer is an in-process gtest failing with \"Value of: t1 == t2\\n  Actual: true\\nExpected: false\"",
+    "url": "https://github.com/ros2/geometry2/pull/783"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[  FAILED  ] TransformStorageTest.InvalidComparison_UninitializedMemberImpact (0 ms)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "fujitatomoya (2025-06-14): \"@andschi let's have it merged and close this. thanks for the ping.\"; PR #783 merged to rolling 2025-06-15."
+  },
+  "notes": "Independently verified: issue #771 body (gtest reproducer assigning t2.frame_id_ = tf2::CompactFrameID() and the failing ASSERT output quoted verbatim); comments 2776572539 (fujitatomoya \"this looks like a bug/problem\"), 2799844824 (andschi \"`tf2::CompactFrameID` is an alias for `uint32_t`. In `createTransformStorage()`, `frame_id_` is initialized with `0`.\" and \"Value of default-constructed uint32_t may still be 0.\"), 2831343452 (fujitatomoya \"coming back to look at the original issue report, it does not really make sense\"), 2813672697 (kscottz \"We believe that this issue came in from some sort of automated tool so it is probably overly pedantic\"); PR #783 title \"Default initialize TransformStorage's frame_id_ and child_frame_id_ with UINT32_MAX\", merged 2025-06-15, diff confined to tf2/include/tf2/transform_storage.hpp. My independent reading: no second separately deployable unit exists — the gtest drives the library's public member in-process — so no interaction between two units fails and the outcome would be identical for any caller; ineligible is correct. Minor nuance, not rising to disagreement: under a strict reading of the tree the walk stops at step 1 (two units cannot be named); the spec explicitly documents this tension in notes and records step 2 'internal' as the nearest reason code, which is substantively the same defect location (one unit's own comparison logic)."
+}

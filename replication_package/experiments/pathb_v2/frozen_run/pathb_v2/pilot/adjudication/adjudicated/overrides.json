@@ -1,0 +1,9 @@
+{
+ "robust_248cb38": {
+  "resolution": {
+   "summary": "Stop writing the quaternion into the MAVLink float[4] through Eigen::Map<Eigen::Quaternionf>; copy q_out.w(), q_out.x(), q_out.y(), q_out.z() explicitly into a new array q_transformed[4] and pass that to set_attitude_target() (commit 248cb389, PR #351). The next day the maintainer replaced this with the helper UAS::quaternion_to_mavlink() (9990651f) and used it in the plugin (805112a0), which performs the same explicit w,x,y,z copy.",
+   "status": "recommended",
+   "evidence": "Reporter on the fixed code: \"Yes. Flew with this code yesterday. I've verified that it now behaves the same as release 0.12.0\" (https://github.com/mavlink/mavros/pull/351#issuecomment-125707818). Merged 2015-07-28T22:45:12Z. Helper doc comment in 9990651f: \"MAVLink uses wxyz order, wile Eigen::Quaterniond uses xyzw internal order, so it can't be stored to array using Eigen::Map.\""
+  }
+ }
+}

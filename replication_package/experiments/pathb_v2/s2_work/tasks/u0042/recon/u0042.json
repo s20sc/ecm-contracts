@@ -1,0 +1,32 @@
+{
+  "task_id": "u0042",
+  "package": "cob_bringup",
+  "manifest_version": "0.6.5",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [
+    "param:/sound_controller/cepstral_settings",
+    "param:/sound_controller/cepstral_voice",
+    "param:/sound_controller/mode"
+  ],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:cob_bringup/package.xml:3",
+    "not_declared[param:/sound_controller/cepstral_settings]": "Searched the whole snapshot (682 files, symlinks followed with grep -R) for 'sound_controller' and case-insensitive 'sound.controller': 0 hits; no file named *sound_controller*; no launch passes component_name \"sound\" to controllers/generic_controller.launch. The only sound node launched by cob_bringup is snapshot:cob_bringup/drivers/sound.launch:8 '<node ns=\"sound\" pkg=\"cob_sound\" type=\"sound\" name=\"sound_node\" cwd=\"node\" respawn=\"false\" output=\"screen\" >' with snapshot:cob_bringup/drivers/sound.launch:9 '<rosparam command=\"load\" file=\"$(arg pkg_hardware_config)/$(arg robot)/config/sound.yaml\"/>'; the loaded key 'cepstral_settings' (snapshot:cob_hardware_config/cob4-2/config/sound.yaml:3) therefore resolves to /sound/sound_node/cepstral_settings; the includes of sound.launch in snapshot:cob_bringup/robots/{cob3-2,cob3-6,cob3-9,cob4-1,cob4-2,raw3-4}.xml sit inside <group> tags without ns.",
+    "not_declared[param:/sound_controller/cepstral_voice]": "Same search as for cepstral_settings (0 hits for 'sound_controller' in the snapshot). snapshot:cob_bringup/drivers/sound.launch:8-9 loads 'cepstral_voice' (snapshot:cob_hardware_config/cob4-2/config/sound.yaml:2) into the private namespace of node ns=\"sound\" name=\"sound_node\", i.e. /sound/sound_node/cepstral_voice.",
+    "not_declared[param:/sound_controller/mode]": "Same search as for cepstral_settings (0 hits for 'sound_controller' in the snapshot). snapshot:cob_bringup/drivers/sound.launch:8-9 loads 'mode' (snapshot:cob_hardware_config/cob4-2/config/sound.yaml:1) into the private namespace of node ns=\"sound\" name=\"sound_node\", i.e. /sound/sound_node/mode. The only other 'mode' param in cob_bringup is snapshot:cob_bringup/drivers/battery_voltage_filter.launch:10, unrelated to sound.",
+    "perm_requires": "grep -Rin 'permission|sros|security|keystore|policy' over snapshot/cob_bringup: 0 hits; package consists of roslaunch files, CMakeLists.txt, package.xml, env.sh only.",
+    "perm_grants": "grep -Rin 'permission|sros|security|keystore|policy' over snapshot/cob_bringup: 0 hits.",
+    "recovery": "snapshot:cob_bringup/drivers/sound.launch:8 'respawn=\"false\"' for the node that receives the sound params; no respawn_delay, required, or other restart declaration for it."
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "None of the three /sound_controller/* params is declared at this revision; the same three keys are loaded under /sound/sound_node/ instead. Because they are loaded as the node's private params, a consumer reading them privately would still find them, while a consumer using the absolute /sound_controller/ names would not; which applies is not visible from this package."
+  },
+  "confidence": "high",
+  "notes": "cob_bringup at this revision is a launch-only package. The three packet params are not declared under /sound_controller/. The same leaf keys are provided under the node-private namespace of the cob_sound node started by cob_bringup/drivers/sound.launch (ns=\"sound\", name=\"sound_node\"): /sound/sound_node/mode (string, value \"festival\"), /sound/sound_node/cepstral_voice (string, value \"David\"), /sound/sound_node/cepstral_settings (string, value \"\\\"speech/rate=170\\\"\"). The values come from $(arg pkg_hardware_config)/$(arg robot)/config/sound.yaml, whose default package is cob_hardware_config (a sibling package in the same snapshot, not cob_bringup). Identical files exist for cob3-2, cob3-6, cob3-9, cob4-2, raw3-4, and cob4-1 (a symlink to ../../cob4-2/config/sound.yaml). The robot is chosen at run time via arg robot (default $(optenv ROBOT !!NO_ROBOT_SET!!)). Because none of the packet elements is provided under its packet name, ports and declares are empty. No packet element is consumed, so references is empty. exclusive, permissions, and recovery are scoped to the listed elements and their providing node. Elsewhere in cob_bringup, respawn=\"true\" appears for unrelated nodes (drivers/schunk_sdh.launch, drivers/schunk_sdhx.launch, drivers/tray_sensors.launch). The snapshot contains no .msg/.srv/.action definitions relevant to these params, so no definition_hash was computed."
+}

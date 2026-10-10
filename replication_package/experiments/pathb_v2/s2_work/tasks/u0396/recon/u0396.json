@@ -1,0 +1,83 @@
+{
+  "task_id": "u0396",
+  "package": "rosidl_cli",
+  "manifest_version": "3.1.2",
+  "ports": [
+    {
+      "element": "api:importlib.metadata.EntryPoint.load",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.EntryPoint.name",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.SelectableGroups.get",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.entry_points",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:importlib.metadata.EntryPoint.load",
+    "api:importlib.metadata.EntryPoint.name",
+    "api:importlib.metadata.SelectableGroups.get",
+    "api:importlib.metadata.entry_points"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rosidl_cli/package.xml:5",
+    "ports[0].frame": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:79 | loaded_entry_points[name] = entry_point.load()  (Python library call; the loaded object has no spatial meaning)",
+    "ports[1].frame": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:40 | name = entry_point.name  (Python attribute access; a string with no spatial meaning)",
+    "ports[2].frame": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:39 | for entry_point in importlib_metadata.entry_points().get(group_name, []):  (Python library call; no spatial meaning)",
+    "ports[3].frame": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:39 | for entry_point in importlib_metadata.entry_points().get(group_name, []):  (Python library call; no spatial meaning)",
+    "references[api:importlib.metadata.EntryPoint.load]": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:79 | loaded_entry_points[name] = entry_point.load()",
+    "references[api:importlib.metadata.EntryPoint.name]": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:40 | name = entry_point.name",
+    "references[api:importlib.metadata.SelectableGroups.get]": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:39 | for entry_point in importlib_metadata.entry_points().get(group_name, []):",
+    "references[api:importlib.metadata.entry_points]": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:39 | for entry_point in importlib_metadata.entry_points().get(group_name, []):  (module bound at snapshot:rosidl_cli/rosidl_cli/entry_points.py:18 | import importlib.metadata as importlib_metadata; fallback at :20 | import importlib_metadata)",
+    "perm_requires.state": "searched all files under snapshot:rosidl_cli/ (package.xml, setup.py, rosidl_cli/*.py, rosidl_cli/command/**, completion/*, resource/*, test/**) for permission/access declarations; only license boilerplate matched 'permissions'",
+    "perm_grants.state": "same search as perm_requires.state; no grants declared",
+    "recovery.state": "searched snapshot:rosidl_cli/ for recovery/retry/fallback declarations; none declared. Only generic error handling exists (snapshot:rosidl_cli/rosidl_cli/entry_points.py:80-84 warn-and-skip when strict=False; :19-20 import fallback to the importlib_metadata backport)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "entry_points.py:39 calls importlib_metadata.entry_points().get(group_name, []), the dict-style group interface that SelectableGroups deprecates and that the EntryPoints return type of newer importlib.metadata (and the importlib_metadata backport) no longer provides; the code never uses SelectableGroups.select / entry_points(group=...), so group lookup depends on the deprecated .get path."
+  },
+  "confidence": "high",
+  "notes": "Package rosidl_cli found at snapshot/rosidl_cli (the snapshot is the full ros2/rosidl repository; only rosidl_cli was described). All five packet elements are consumed Python library APIs, so declares and not_declared are empty by rule. The only use of importlib.metadata in the package is rosidl_cli/rosidl_cli/entry_points.py (grep of the whole package for importlib, entry_points, SelectableGroups, EntryPoint, .select(, .load() found no other site); load_entry_points is reached via rosidl_cli/rosidl_cli/extensions.py:87. The module is imported as importlib.metadata with a ModuleNotFoundError fallback to the importlib_metadata backport (package.xml:16 exec_depend python3-importlib-metadata). The method called on the entry_points() result at line 39 is .get; the packet's canonical name SelectableGroups.get is used for it, but the concrete return type depends on the Python/backport version at run time (not in the snapshot). api:importlib.metadata.SelectableGroups.select is not called or named anywhere in rosidl_cli at this revision, so it has no port and is not in references (it is a consumed element, so it is not placed in not_declared). msg_type, units, QoS, rates and definition_id are null for all ports because these are Python library calls, not ROS communication interfaces; there is no message definition to hash. frame is 'none' because the data exchanged (entry point objects, names, loaded callables) has no spatial meaning. ros_distro is null in the packet, so no dependency definition files were fetched. No network access was used."
+}

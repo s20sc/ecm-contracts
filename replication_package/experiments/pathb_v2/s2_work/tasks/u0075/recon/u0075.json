@@ -1,0 +1,37 @@
+{
+  "task_id": "u0075",
+  "package": "kobuki_description",
+  "manifest_version": "0.2.1",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [
+    "param:robot_description"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:CMakeLists.txt:17 | rosbuild_make_distribution(0.2.1) (stack-level distribution version; snapshot/kobuki_description/manifest.xml lines 1-15 carry no version element, as is usual for rosbuild packages)",
+    "not_declared[param:robot_description]": "Searched every file of snapshot/kobuki_description (manifest.xml, CMakeLists.txt, Makefile, mainpage.dox, ROS_NOBUILD (empty), .project, .cproject, urdf/kobuki.urdf.xacro, urdf/common_properties.urdf.xacro, urdf/kobuki_gazebo.urdf.xacro, meshes/*): grep for 'robot_description' has no hit in the package; the package has no launch/, yaml or param file, so nothing loads the URDF onto the parameter server; snapshot:kobuki_description/urdf/kobuki.urdf.xacro:10 only defines <xacro:macro name=\"kobuki\"> and the file never instantiates it. A snapshot-wide grep for 'kobuki_description' hits only files inside the package itself, so no launch file anywhere in the snapshot sets robot_description from this package.",
+    "perm_requires": "No permission, capability or access declarations in snapshot/kobuki_description (manifest.xml has only <depend package=\"urdf\"/>, <depend package=\"xacro\"/> at lines 13-14; urdf files are model geometry and Gazebo plugin configuration).",
+    "perm_grants": "Same search as perm_requires; nothing grants permissions.",
+    "recovery": "No recovery/fallback declarations in snapshot/kobuki_description; the package contains only model description files (xacro/meshes) and build boilerplate."
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "At this revision the package ships only xacro macros (kobuki macro never instantiated) and no launch file, so it does not provide robot_description at all; that is a normal shape for a macro-only description library, and the joint names it defines (wheel_left_joint, wheel_right_joint) would satisfy a consumer that checks for them, so nothing in the content itself looks wrong, only the provision is absent."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the whole rosbuild 'kobuki' stack (fuerte); only snapshot/kobuki_description was treated as this unit. param:robot_description is listed as provided but kobuki_description does not set it at this revision: no launch or parameter file exists in the package, and urdf/kobuki.urdf.xacro defines the 'kobuki' macro (line 10) without a top-level instantiation, so even running xacro on it would not yield a full model. Hence no port entry, no declares entry, and the element is in not_declared. For context only (other packages, not this unit): kobuki_node reads it via nh.getParam(\"/robot_description\", ...) at snapshot:kobuki_node/src/library/kobuki_ros.cpp:153 and only warns if missing; kobuki_arm/resources/launch/control_panel.launch:6 sets robot_description from a different package's URDF (kobukibot_arm). manifest_version records the stack distribution version from the root CMakeLists.txt because rosbuild package manifests carry no version. No message/service definitions are involved, so definition_hash.py was not needed."
+}

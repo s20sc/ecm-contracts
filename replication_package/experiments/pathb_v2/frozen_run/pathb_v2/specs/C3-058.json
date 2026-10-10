@@ -1,0 +1,50 @@
+{
+  "case_id": "C3-058",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/679",
+    "https://github.com/ros-controls/ros2_control/pull/699",
+    "https://github.com/ros-controls/ros2_controllers/pull/329"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "Issue #679 is a planned API refactoring, not a defect report: \"On the [last WG meeting](https://docs.google.com/document/d/1818AoYucI2z82awL_-8sAA5pMCV_g_wXCJiM6SQmhSQ/edit#heading=h.6726bri1lla5) it was decided to force use of `get_node()` getter in controllers. For this `node_` member should be made private.\" It is tagged as a good-first-issue task and reports no failure, reproducer, or error log. The fix PRs implement the refactor in two coordinated steps (ros2_control#699 \"Updated node_ to private and added the function everywhere node_ was used previously.\"; ros2_controllers#329 \"Replaced node_ everywhere with get_node() and with get_node_const() inside const functions.\", which \"Depends on: ros2_control/pull/699\"). Additional context: During review of ros2_control#699 the PR author reports a build break between the in-progress provider (node_ private, get_node() non-const) and the in-progress consumer changes of ros2_controllers#329: \"`joint_trajectory_controller.cpp` wasn't building because some of it's const methods couldn't guarantee the node wouldn't be modified without a const getter function.\" with the compiler error \"error: passing ‘const joint_trajectory_controller::JointTrajectoryController’ as ‘this’ argument discards qualifiers [-fpermissive]\" (https://github.com/ros-controls/ros2_control/pull/699, review comment on controller_interface.hpp). This was resolved inside the same PR by adding a const overload of get_node() (merged header declares both get_node() and get_node() const). Both sides were unreleased PR heads written together, so this is development churn of the refactor rather than a defect of a composition; it is recorded here only for completeness. ros2_control#699 merged 2022-04-24 (8b29c2770f2e0ec59b8a9673de33c12756a9613f); ros2_controllers#329 merged 2022-04-25 (53d3b25564ac82211af8c24ef47d47169015f6dd). Also discussed in #699: a CI test failure \"free(): invalid pointer\" in controller_manager tests, which a reviewer judged unrelated (\"The test that is failing is having other issues. It is not related to this PR.\")."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [
+        "controller_interface",
+        "ros2_controllers (joint_trajectory_controller and other controllers)"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Not evaluated beyond E1. The two units that the refactor touches are the controller_interface library (ros2_control) and the controllers in ros2_controllers that accessed the protected node_ member; the interface is the ControllerInterface C++ API (node_, get_node())."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E1. Had a failure been documented it would have been an UPGRADE (controllers written against a controller_interface that exposed node_)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated beyond E1. The only failure in the sources is a transient compile error inside the in-progress pair of PRs (see notes), not an effect of a released composition."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: the source is a working-group decision to make ControllerInterface::node_ private (an API cleanup coordinated across two repositories), not a documented defect in any released composition.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

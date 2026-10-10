@@ -1,0 +1,103 @@
+{
+  "task_id": "u0103",
+  "package": "mavros_extras",
+  "manifest_version": "0.14.2",
+  "ports": [
+    {
+      "element": "field:sensor_msgs/JointState.header.stamp",
+      "side": "provides",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:sensor_msgs/JointState.name",
+      "side": "provides",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:sensor_msgs/JointState.position",
+      "side": "provides",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:sensor_msgs/JointState",
+      "side": "provides",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/joint_states",
+      "side": "provides",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "topic:/joint_states": "topic joint_states: sensor_msgs/JointState"
+  },
+  "not_declared": [],
+  "references": [
+    "topic:rc_out",
+    "msg:mavros_msgs/RCOut",
+    "field:mavros_msgs/RCOut.channels",
+    "param:robot_description"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:mavros_extras/package.xml:4 | <version>0.14.2</version>",
+    "ports[0].msg_type": "snapshot:mavros_extras/src/servo_state_publisher.cpp:186 | auto states = boost::make_shared<sensor_msgs::JointState>();",
+    "ports[0].frame": "snapshot:mavros_extras/src/servo_state_publisher.cpp:186-199 | the JointState is default-constructed at 186 and only name (195) and position (196) are assigned before publish (199); header.stamp and header.frame_id are never assigned; a time stamp has no spatial meaning",
+    "ports[1].msg_type": "snapshot:mavros_extras/src/servo_state_publisher.cpp:195 | states->name.emplace_back(desc.joint_name);",
+    "ports[1].frame": "snapshot:mavros_extras/src/servo_state_publisher.cpp:195 | states->name.emplace_back(desc.joint_name); (joint names are identifiers with no spatial frame; header.frame_id never assigned)",
+    "ports[2].msg_type": "snapshot:mavros_extras/src/servo_state_publisher.cpp:196 | states->position.emplace_back(desc.calculate_position(pwm));",
+    "ports[2].frame": "snapshot:mavros_extras/src/servo_state_publisher.cpp:99 | float position = (channel + 1.0) * (joint_upper - joint_lower) / (1.0 + 1.0) + joint_lower; (joint-space value mapped into URDF joint limits; no Cartesian frame; header.frame_id never assigned)",
+    "ports[3].msg_type": "snapshot:mavros_extras/src/servo_state_publisher.cpp:19 | #include <sensor_msgs/JointState.h>",
+    "ports[3].frame": "snapshot:mavros_extras/src/servo_state_publisher.cpp:186-199 | header.frame_id never assigned; message carries joint names and joint-space positions only",
+    "ports[4].msg_type": "snapshot:mavros_extras/src/servo_state_publisher.cpp:162 | joint_states_pub = nh.advertise<sensor_msgs::JointState>(\"joint_states\", 10);",
+    "ports[4].frame": "snapshot:mavros_extras/src/servo_state_publisher.cpp:186-199 | header.frame_id never assigned; message carries joint names and joint-space positions only",
+    "declares[topic:/joint_states]": "snapshot:mavros_extras/src/servo_state_publisher.cpp:162 | joint_states_pub = nh.advertise<sensor_msgs::JointState>(\"joint_states\", 10);",
+    "references[topic:rc_out]": "snapshot:mavros_extras/src/servo_state_publisher.cpp:161 | rc_out_sub = nh.subscribe(\"rc_out\", 10, &ServoStatePublisher::rc_out_cb, this);",
+    "references[msg:mavros_msgs/RCOut]": "snapshot:mavros_extras/src/servo_state_publisher.cpp:182 | void rc_out_cb(const mavros_msgs::RCOut::ConstPtr &msg) {",
+    "references[field:mavros_msgs/RCOut.channels]": "snapshot:mavros_extras/src/servo_state_publisher.cpp:191 | uint16_t pwm = msg->channels[desc.rc_channel - 1];",
+    "references[param:robot_description]": "snapshot:mavros_extras/src/servo_state_publisher.cpp:118 | model.initParam(\"robot_description\");",
+    "perm_requires.state": "searched snapshot/mavros_extras (src, launch, scripts, package.xml, CMakeLists.txt, mavros_plugins.xml) for permission or access-control declarations; none found",
+    "perm_grants.state": "searched snapshot/mavros_extras (src, launch, scripts, package.xml, CMakeLists.txt, mavros_plugins.xml) for permission or access-control grants; none found",
+    "recovery.state": "searched snapshot/mavros_extras for recover/retry/fallback; only hit is the CMake Eigen fallback (CMakeLists.txt:25), unrelated to runtime; servo_state_publisher.cpp only skips misconfigured joints (130-152) and exits when none are loaded (166-168)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "servo_state_publisher publishes sensor_msgs/JointState without ever assigning header.stamp (left at the default zero time), although the incoming mavros_msgs/RCOut carries a std_msgs/Header whose stamp could be copied; consumers that use the JointState stamp would receive time zero"
+  },
+  "confidence": "medium",
+  "notes": "Scope: all five packet elements are produced by the servo_state_publisher executable (CMakeLists.txt:98-103, src/servo_state_publisher.cpp); references are limited to what that node consumes. Topic name is written relative as \"joint_states\" on the default NodeHandle nh() (line 108, 162); it resolves to /joint_states in the root namespace, recorded verbatim in declares. Publishing is event-driven from the rc_out callback (no rate set); queue size 10. QoS is null because this is ROS 1. definition_id is null for every port, and the msg:sensor_msgs/JointState hash and the three field types (header.stamp, name, position) are in neither declares nor not_declared: the sensor_msgs and std_msgs definitions are not in the snapshot, and ros_distro is null, so there is no release tag from which the protocol permits fetching them (the snapshot's .travis.yml sets ROS_DISTRO=hydro for CI, but no dependency tag was inferred from it and nothing was fetched). Units are null: position is a linear map of the normalised PWM into the URDF joint's <limit> lower/upper (lines 99, 154-155), so it inherits URDF limit units, but the code does not state them (defaults -M_PI/4..M_PI/4 at lines 37-38 are only used by the unused default constructor). The node also reads its own private parameters ~<joint>/rc_channel, rc_min, rc_max, rc_trim, rc_dz, rc_rev (lines 130-142) whose joint names come from the parameter dictionary at run time; these are not packet elements. header.stamp is never assigned (only name and position are filled, lines 195-196); velocity and effort are also left empty. The rc_out subscriber topic is hard-coded as \"rc_out\" (mavros's RC plugin advertises \"out\" under its rc namespace, mavros/src/plugins/rc_io.cpp:43), so a remap is expected at launch; no launch file in the snapshot starts servo_state_publisher."
+}

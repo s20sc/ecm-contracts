@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-003",
+  "kind": "A1",
+  "case_id": "C3-003",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This would mean there is a call to `rmw_event_set_callback` after the call to `rmw_destroy_publisher`.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/717#issuecomment-1770551745",
+    "reason": "The reproducer and stack trace establish E1/E4. The failing call crosses from rclcpp, through rcl/rmw dispatch, to the separately built rmw implementation with an invalid lifetime assumption. PAIR is supported; an edit confined to rclcpp does not make this boundary call-order failure internal under E2."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Three lines after setting `info->deleted = true;` there is a `delete info;`, so it seems to me the info structure is used after it was destroyed. This would mean there is a call to `rmw_event_set_callback` after the call to `rmw_destroy_publisher`.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/717#issuecomment-1770551745",
+      "reason": "A use-after-destruction/API-lifetime condition fits other, and both APIs are explicitly implicated. The destructor diff moves callback clearing while parent_handle_ remains alive."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Thread 4 \"example_segfault\" received signal SIGSEGV, Segmentation fault.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/717",
+    "reason": "A debugger-captured crash is documented, not a build/connection/activation diagnostic or an intentional interface refusal. silent_documented is used in S1's technical sense, not to imply that no crash was visible."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "#0  0x..in rmw_fastrtps_shared_cpp::__rmw_event_set_callback (rmw_event=0x5555559ea0b0, callback=0x0, user_data=0x0)",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/717",
+    "reason": "The failure occurs during executing callback/destructor code."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Even without being able to reproduce properly on rolling, I think this fix may be correct and could avoid future issues.",
+    "url": "https://github.com/ros2/rclcpp/pull/2349",
+    "reason": "The accepted destructor change and CI support recommended, but do not identify a successful reproducer run with both units at the specification's resolved revisions."
+  },
+  "notes": "Read issue 717 and its comments, PR 2349 discussion and both changed files. ABI discussion and an unrelated rcl type-description build failure during review are not additional conditions of the reported lifetime-failure composition."
+}

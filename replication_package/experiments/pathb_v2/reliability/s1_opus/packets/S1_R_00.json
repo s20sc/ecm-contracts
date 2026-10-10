@@ -1,0 +1,137 @@
+[
+ {
+  "case_id": "robust_001fca6",
+  "corpus": "C1",
+  "bug_title": "An exception thrown by delay function, when Time object not initialized",
+  "bug_description": "The tf2_ros is a C++ package that is using the ros::Time object to sleep (a C++ object).  This object might not be initialized if running inside rospy (so from python API to ros).  In such case an exception is thrown and sleeping fails.\nThe fix of the bug catches the exception and uses the wall clock time API to delay instead.\nThe problem and the fix are ROS-specific.  However the issue of using uninitialized APIs due to configuration issues is a fairly general one.\nThe PR is rather uninformative.  The best explanation can be found in the first link in the 'links' section.\n",
+  "issue_url": null,
+  "fix_commits": [
+   {
+    "repo": "https://github.com/ros/geometry2",
+    "hash": "001fca6f33c108c83da4416db3bf43dfeffbe7dd"
+   }
+  ],
+  "fix_status": "listed"
+ },
+ {
+  "case_id": "robust_03660af",
+  "corpus": "C1",
+  "bug_title": "Potential Race Condition on Serial Writes",
+  "bug_description": "The Kobuki driver communicates with the actual robot by sending commands over a serial cable. This interface was not protected against concurrent accesses, while being used in an environment that, more often that not, features multithreading.\n",
+  "issue_url": "https://github.com/yujinrobot/kobuki/issues/125",
+  "fix_commits": [
+   {
+    "repo": "https://github.com/yujinrobot/kobuki",
+    "hash": "03660afb5917366cc6d57567e2f695450fd95feb"
+   }
+  ],
+  "fix_status": "listed"
+ },
+ {
+  "case_id": "robust_1f01916",
+  "corpus": "C1",
+  "bug_title": "Missing tcpclient lock",
+  "bug_description": "The \"MAVConnTCPServer::client_closed\" method is responsible for safely closing a given client's connection to the TCP server. In the buggy implementation of this method, the lock for the client (represented as a pointer to an MAVConnTCPClient instance) was not acquired before closing the connection, leading to a possible race condition that can result in deadlocking or a segmentation fault.\n",
+  "issue_url": "https://github.com/mavlink/mavros/issues/72",
+  "fix_commits": [
+   {
+    "repo": "https://github.com/mavlink/mavros",
+    "hash": "1f019166ccedf8ce5151944f5e33302afaf82679"
+   }
+  ],
+  "fix_status": "listed"
+ },
+ {
+  "case_id": "robust_332f09f",
+  "corpus": "C1",
+  "bug_title": "New features unavailable in older systems",
+  "bug_description": "When adding the possibility to use features that have been added in new versions of Robot Web Services (RWS), then it will not be possible to use them with older systems. Currently, if using an older system version, then this will be attempted and reported as a failed communication. It might be prudent to check the current system's version and then report if a specific function is unavailable.\n",
+  "issue_url": null,
+  "fix_commits": [],
+  "fix_status": "confidential"
+ },
+ {
+  "case_id": "robust_35682ec",
+  "corpus": "C1",
+  "bug_title": "Wrong topic remapping makes robot ignore velocity commands",
+  "bug_description": "ROS allows resource names to be remapped. Topics, in particular, are resources that can be remapped. When topic \"A\" is remapped to \"B\" and a node tries to publish/subscribe on \"A\", it will (automatically) publish/subscribe to \"B\" instead. Remappings are commonly defined in launch files. Launch files are special XML files used by the tool `roslaunch` to initialize several nodes, parameters and remappings at once. In this particular bug, a node (cmd_vel_mux) publishes velocity messages that are received by the driver node (mobile_base). A launch file defined a remapping from \"cmd_vel_mux/mux_cmd",
+  "issue_url": "https://github.com/yujinrobot/kobuki/issues/235",
+  "fix_commits": [
+   {
+    "repo": "https://github.com/yujinrobot/kobuki",
+    "hash": "35682ec3c3e7177373c66c48228ad58b2eb34aae"
+   }
+  ],
+  "fix_status": "listed"
+ },
+ {
+  "case_id": "robust_493e3f9",
+  "corpus": "C1",
+  "bug_title": "Wrong Inertia and Center of Mass in Robot Description",
+  "bug_description": "The URDF file for Kobuki's physical model assumed the center of mass to be in the center of the robot's cylinder body. This is wrong, since the battery was intentionally placed at the front of the robot to make it heavier at the front. The wrong placement of the robot's center of mass had the effect of having it constantly bouncing back and forth in the Gazebo simulator.\n",
+  "issue_url": "https://github.com/yujinrobot/kobuki/issues/271",
+  "fix_commits": [
+   {
+    "repo": "https://github.com/yujinrobot/kobuki",
+    "hash": "493e3f9c9f65fbf0283571ca92b89a7203e5f287"
+   }
+  ],
+  "fix_status": "listed"
+ },
+ {
+  "case_id": "robust_5ee65b0",
+  "corpus": "C1",
+  "bug_title": "Missing Queue Sizes for Some Publishers",
+  "bug_description": "When publishing or subscribing to a topic in ROS, the developer often declares a queue size to be associated with that publisher/subscriber.  The queues store messages temporarily, if the system is not fast enough to process every message before a new one arrives. In older versions of ROS, declaring the queue size was not mandatory when using the Python client libraries. As of ROS Indigo, this was kept optional for backward compatibility, but a warning is issued.  Not specifying the queue size is a problem because it changes the behaviour of the publisher, which might not be expected. When a q",
+  "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/32",
+  "fix_commits": [
+   {
+    "repo": "https://github.com/yujinrobot/kobuki_desktop",
+    "hash": "5ee65b061a4a919b2a32e80087f4cb3e51e924ed"
+   }
+  ],
+  "fix_status": "listed"
+ },
+ {
+  "case_id": "robust_b166c93",
+  "corpus": "C1",
+  "bug_title": "Backporting a Bug Fix",
+  "bug_description": "A commit fixed an issue where a macro was being used instead of the proper function call to determine whether a value is NaN. This commit was meant for the ROS Kinetic version of the Kobuki driver, but the issue was present in the ROS Indigo version as well.  A user requested that this fix was backported for the Indigo version.\n",
+  "issue_url": "https://github.com/yujinrobot/kobuki_core/issues/22",
+  "fix_commits": [
+   {
+    "repo": "https://github.com/yujinrobot/kobuki_core",
+    "hash": "b166c93913e293c55a3faa7b298c5f52f6def964"
+   }
+  ],
+  "fix_status": "listed"
+ },
+ {
+  "case_id": "robust_b826eae",
+  "corpus": "C1",
+  "bug_title": "Xacro broken because of missing argument",
+  "bug_description": "A xacro can reference to other xacros with the ability to pass arguments. In the example a child-xacro was changed by adding an additional argument. However, the parent-xacro (includes the edited child-xacro) was not updated. Therefore it misses the newly introduced argument. The consequence is that the xacro is broken and one can not generate an Urdf out of it anymore.  In the example the child-xacro is named \"schunk_pg70\", the parent \"cob3-9\" and the new argument is \"has_podest\".  The reason for this issue is that there are several parent-xacro using the child-xacro and one needs to update a",
+  "issue_url": "https://github.com/ipa320/cob_robots/issues/552",
+  "fix_commits": [
+   {
+    "repo": "https://github.com/ipa320/cob_robots",
+    "hash": "b826eaeae5c8dc548ac2c97002725c7a8131137e"
+   }
+  ],
+  "fix_status": "listed"
+ },
+ {
+  "case_id": "robust_ff581a0",
+  "corpus": "C1",
+  "bug_title": "Incorrect parameter names used to fetch values",
+  "bug_description": "Lines 311--313 are used to fetch the current x, y, and z coordinates. The \"ros::NodeHandle::param\" function used to fetch these values accepts the name of a parameter, a reference to the variable to which its value should be written, and a default value which should be written to the variable in the case that no parameter can be found that matches the given name. Lines 312 and 313 incorrectly retrieve the \"sensor_position/x\" value for all three dimensions of the position of the sensor (ie: x, y and z), rather than the correct \"sensor_position/y\" and \"sensor_position/z\" parameters.\n",
+  "issue_url": "N/A",
+  "fix_commits": [
+   {
+    "repo": "https://github.com/mavlink/mavros",
+    "hash": "ff581a0752107f7ad875c16f83f7b75ccd92f847"
+   }
+  ],
+  "fix_status": "listed"
+ }
+]

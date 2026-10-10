@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-030",
+  "kind": "A1",
+  "case_id": "C3-030",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "The GPS sensor you have is (correctly) providing nonzero covariance values in the off-diagonal positions, indicating correlation between altitude and lat/long.",
+    "url": "https://github.com/cra-ros-pkg/robot_localization/issues/937#issuecomment-3205116830",
+    "reason": "E1 has configuration, sample messages and maintainer confirmation. The two named nodes form a PAIR, but the maintainer locates the faulty covariance manipulation inside the EKF's forceTwoD operation on legal input. The correction zeroes its measurement covariance rows/columns before computing the gain; it does not correct a producer's wire value or an incompatible declaration. This meets E2's internal-arithmetic exclusion. E4's divergence is real but does not establish a boundary mismatch."
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "cause the localization to behave unpredictably eventually leading to complete divergence.",
+    "url": "https://github.com/cra-ros-pkg/robot_localization/issues/937",
+    "reason": "Null follows exclusion. The underlying symptom is numerical divergence, not a quoted early interface diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "And here is an excerpt from the debug log when receiving an `odometry/gps` message \"during\" the divergence.",
+    "url": "https://github.com/cra-ros-pkg/robot_localization/issues/937#issuecomment-3196304894",
+    "reason": "Inapplicable after exclusion; the observed divergence is during execution."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Yes, running on the same bag file it looks good, no divergence, good covariance matrix. Seems fixed, thank you!",
+    "url": "https://github.com/cra-ros-pkg/robot_localization/issues/937#issuecomment-3209549859",
+    "reason": "Retain null as required for an excluded case, not because repair evidence is absent. The reporter explicitly confirms the fix on the same bag."
+  },
+  "notes": "No listed conditions, and no missed eligible interface condition. Read the report/configuration/sample messages, maintainer diagnosis, reporter confirmation, and PR #942 with its forceTwoD diff. A workaround that zeroes incoming covariances does not establish that the original legal covariance was a producer-side representation error. The specification's exclusion is supported by the diagnosis, not merely by the fact that only one file was changed."
+}

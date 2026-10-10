@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-CAL2-05",
+ "kind": "A1",
+ "case_id": "CAL2-05",
+ "eligibility": {
+  "verdict": "disagree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "The whole point of the `shared_ptr` signature is exactly so that user code can hold onto the pointer without copying.  That is an explicit goal. And in point of fact, if you use the non-loaned APIs, it works exactly as you expect; the object can live beyond the scope of the callback, assuming the callback takes a reference.",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1724283083"
+ },
+ "failed_conditions": [],
+ "missed_conditions": [
+  {
+   "class": "other",
+   "implicated_elements": [
+    "resource:loaned_message_memory",
+    "api:rcl_return_loaned_message_from_subscription"
+   ],
+   "quote": "Basically, it seems that with Iceoryx enabled the \"message loaning\" mechanism is used for receiving /clock messages, and in the subscription the shared pointer to this message is stored as a field of an object and message is destroyed at the end of the callback and than stored shared pointer becomes invalid.",
+   "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+  }
+ ],
+ "loudness": {
+  "verdict": "disagree",
+  "proposed": "silent_documented (activate)",
+  "quote": "Random nodes fail startup with the following exception:\nterminate called after throwing an instance of 'std::runtime_error'\n  what():  cannot store a negative time point in rclcpp::Time",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+ },
+ "resolution": {
+  "verdict": "disagree",
+  "proposed": "recommended",
+  "quote": "We've done some work that fixes this:\n\n1.  We disabled loans by default via https://github.com/ros2/rclcpp/pull/2335 and https://github.com/ros2/rcl/pull/1110\n2.  We backported the above to Humble and Iron.\n3.  We fixed the MessageMemoryPool to honor shared_ptr references in https://github.com/ros2/rclcpp/pull/2336  — plus the user's confirmation of the earlier backport: 'Yes, it does fix the issue for us.' (zygfrydw, comment 1723688992, on rclcpp PR 2092)",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/469#issuecomment-1877574593"
+ },
+ "notes": "The spec marks the case ineligible-internal ('The documented failure is a defect inside one unit; the value crossing the interface is valid', confidence low). I disagree. Two separately released units interact over the loaned-message rmw API: rclcpp's clock subscription (consumer) and rmw_cyclonedds_cpp with Iceoryx SharedMemory (provider). The failure manifests only when the provider delivers loaned messages — the maintainer states it explicitly ('if you use the non-loaned APIs, it works exactly as you expect') — so the step-2 internal test ('would occur with any correct peer') is not met: with a correct non-loaning peer there is no failure. What crosses the boundary wrongly is a timing/lifetime property: the loaned sample's validity window ends when the loan is returned, and rclcpp reads it afterwards (use-after-free; the reporter's Valgrind trace and analysis, read this session). The tree counts 'a wrong ... timing that crosses the boundary' as an interface failure even when the resolving edit is inside one unit (the fixes landed in rclcpp/rcl). Counter-reading acknowledged: the dangling reference is created by rclcpp's own deleter design inside its process, and any correct loaning middleware reclaims returned memory; the reporter himself was unsure ('I'm not sure if this is an error in the usage of the shared pointer, or is this an error in message loaning mechanism.'), and the spec's low confidence reflects that. The maintainer's framing (shared_ptr retention is 'an explicit goal' of the API) supports reading the loan path as the side that broke the contract. Class 'other': no listed class covers a loan-lifetime contract violation. Loudness proposed silent_documented/activate: the exception is the observed failure (a crash at node start-up) naming the symptom (negative time point), not an interface-compatibility diagnostic from existing tooling. Resolution proposed recommended: multiple fixes merged and backported to Humble/Iron with a user confirmation on a backport PR, but no resolved composition shown working with both units identified by revision. The spec's E1 maintainer quote ('once the memory is returned to the underlying middleware, they should be considered invalid') sits in a part of comment 1724283083 beyond the excerpt I read this session; the eligibility disagreement does not rest on it."
+}

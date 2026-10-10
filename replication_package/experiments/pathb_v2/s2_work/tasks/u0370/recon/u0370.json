@@ -1,0 +1,62 @@
+{
+  "task_id": "u0370",
+  "package": "bt_navigator",
+  "manifest_version": "1.4.0",
+  "ports": [
+    {
+      "element": "action:follow_path",
+      "side": "consumes",
+      "msg_type": "nav2_msgs/action/FollowPath",
+      "frame": "per_message",
+      "units": null,
+      "qos": {
+        "reliability": "reliable",
+        "durability": "volatile",
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "sha256_normalised",
+        "kind": "action",
+        "value": "b789a494a89017d4245cc676ca334897f4d4416d307e31b78757d69041b1a228"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "action:follow_path"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "RecoveryNode number_of_retries=\"1\" name=\"FollowPath\" wraps FollowPath; on WouldAControllerRecoveryHelp error_code=\"{follow_path_error_code}\" it calls ClearEntireCostmap service_name=\"local_costmap/clear_entirely_local_costmap\" (default navigate_to_pose / navigate_through_poses BTs)"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:nav2_bt_navigator/package.xml:5",
+    "ports[0].msg_type": "snapshot:nav2_behavior_tree/include/nav2_behavior_tree/plugins/action/follow_path_action.hpp:32 (class FollowPathAction : public BtActionNode<nav2_msgs::action::FollowPath>), instantiated by <FollowPath .../> at snapshot:nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:26; type defined at snapshot:nav2_msgs/action/FollowPath.action:1-29",
+    "ports[0].frame": "snapshot:nav2_msgs/action/FollowPath.action:2 (nav_msgs/Path path) and snapshot:nav2_behavior_tree/plugins/action/follow_path_action.cpp:33 (getInput(\"path\", goal_.path)); the whole Path message, with its header frame, is forwarded from the blackboard {path}; no frame is hard-coded for this element",
+    "ports[0].qos.reliability": "No QoS set in code: snapshot:nav2_behavior_tree/include/nav2_behavior_tree/bt_action_node.hpp:99 -> snapshot:nav2_ros_common/include/nav2_ros_common/interface_factories.hpp:325 (rclcpp_action::create_client<ActionT>(node, action_name, callback_group), no options). Documented default rcl_action_client_get_default_options() (rcl_action/include/rcl_action/action_client.h): goal/result/cancel services rmw_qos_profile_services_default = RELIABLE; feedback rmw_qos_profile_default = RELIABLE; status rcl_action_qos_profile_status_default = RELIABLE",
+    "ports[0].qos.durability": "Same default as reliability (rcl_action_client_get_default_options(), rcl_action/include/rcl_action/action_client.h): goal/result/cancel services and feedback topic VOLATILE; the status topic uses rcl_action_qos_profile_status_default = TRANSIENT_LOCAL (see notes)",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 snapshot/nav2_msgs/action/FollowPath.action",
+    "references[action:follow_path]": "snapshot:nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:26 (<FollowPath path=\"{path}\" ...> with no server_name port) -> default action name hard-coded in the FollowPath BT plugin loaded via BT_BUILTIN_PLUGINS (snapshot:nav2_bt_navigator/src/bt_navigator.cpp:67; snapshot:nav2_behavior_tree/CMakeLists.txt:78-79): snapshot:nav2_behavior_tree/plugins/action/follow_path_action.cpp:136-137 (std::make_unique<nav2_behavior_tree::FollowPathAction>(name, \"follow_path\", config))",
+    "perm_requires": "Searched all files under snapshot:nav2_bt_navigator (src, include, behavior_trees, package.xml, CMakeLists.txt, navigator_plugins.xml) for permission/sros/security/enclave declarations: none (only Apache licence header text)",
+    "perm_grants": "Same search as perm_requires: no permission grants declared in snapshot:nav2_bt_navigator",
+    "recovery.value": "snapshot:nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:25-30; snapshot:nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:27-32"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The consumer side is internally consistent: every goal field the FollowPath BT node fills (path, controller_id, goal_checker_id, progress_checker_id, path_handler_id) exists in the snapshot's nav2_msgs/action/FollowPath.action, every FollowPath port used in the bt_navigator BT XMLs is declared by the node, the blackboard ids they read are produced by selector nodes in the same trees, and the default action name is follow_path with no server_name override."
+  },
+  "confidence": "high",
+  "notes": "The snapshot is the whole navigation2 repository at a revision where all packages are version 1.4.0 and bt_navigator depends on nav2_ros_common; the packet's ros_distro is iron. Recorded as declared in the snapshot. The action name literal \"follow_path\" does not appear in nav2_bt_navigator sources; it comes from the FollowPath BT plugin in nav2_behavior_tree (same snapshot), which bt_navigator loads as a built-in plugin and instantiates from its own default BT XMLs (all FollowPath uses: navigate_to_pose_w_replanning_and_recovery.xml:26, navigate_through_poses_w_replanning_and_recovery.xml:28, follow_point.xml:19 and the other trees under behavior_trees/, none with server_name). A user-supplied BT could remap it at run time via the server_name port. QoS: an action has several channels; reliability is RELIABLE on all of them by default, durability is VOLATILE on the goal/result/cancel services and feedback topic, TRANSIENT_LOCAL on the status topic; the port records the goal-channel durability. rate_hz is null: goals are sent when the BT ticks FollowPath and resent when the blackboard path or ids change (follow_path_action.cpp:71-115), not at a set rate; the BT loop period is the bt_loop_duration parameter (default 10 ms, nav2_behavior_tree bt_action_server_impl.hpp:157-158). Server timeout default is default_server_timeout (20 ms) and wait_for_service_timeout (1000 ms). \"follow_path\" is also in the default error_code_name_prefixes (bt_action_server_impl.hpp:71), matching the BT XML blackboard keys follow_path_error_code/follow_path_error_msg. Units null: FollowPath.action states none. declares/not_declared are empty because the only packet element is consumed."
+}

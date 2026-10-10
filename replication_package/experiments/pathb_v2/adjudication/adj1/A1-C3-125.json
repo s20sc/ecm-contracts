@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-C3-125",
+  "kind": "A1",
+  "case_id": "C3-125",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: minimal reproducer plus maintainer diagnosis and correcting PR. E2: rclcpp uses one node guard condition from multiple executor wait sets, while rmw_fastrtps can attach only one condition variable. This is a cross-library usage constraint, not an internal peer-independent failure. E3: PAIR between rclcpp and its RMW provider; the two executors are within the consumer. E4: the newly created subscriber never executes.",
+    "quote": "was that if a node is assigned to multiple executors running asynchronously, it is unable to notify all of them about creating/destroying subscriptions etc..",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1191507077"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "was that if a node is assigned to multiple executors running asynchronously, it is unable to notify all of them about creating/destroying subscriptions etc..",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1191507077",
+      "reason": "Multiple waiters contend for the single guard-condition attachment. The node notification resource and its wait/trigger APIs are implicated; exclusive_resource_conflict fits this unsupported simultaneous use even though no explicit claim error is raised.",
+      "supporting_evidence": [
+        {
+          "quote": "conditionVariable_ = conditionVariable;",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_fastrtps/6.3.0/rmw_fastrtps_shared_cpp/src/types/guard_condition.hpp"
+        },
+        {
+          "quote": "conditionVariable_->notify_one();",
+          "url": "https://raw.githubusercontent.com/ros2/rmw_fastrtps/6.3.0/rmw_fastrtps_shared_cpp/src/types/guard_condition.hpp"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "subscriber keeps not working",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613",
+    "reason": "The documented symptom is a subscription that never executes, not an automatic contract diagnostic; GDB is subsequent manual diagnosis."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Subscriber which is created with dedicated callback group at runtime not working",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613",
+    "reason": "The issue title explicitly locates creation of the affected subscription at runtime."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I confirmed that this problem has been addressed by https://github.com/ros2/rmw_fastrtps/pull/619. please feel free to reopen if you still have this issue in rolling.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1226795803",
+    "reason": "The maintainer confirms a fix in rolling, but does not identify both tested revisions. This does not establish the specified rclcpp 16.2.0 / selected rmw_fastrtps resolved revision composition, so recommended is appropriate."
+  },
+  "notes": "Read both issue timeline pages and the native Fast-DDS WaitSet replacement diff. The private attachment is overwritten and notify_one reaches the attached waiter. The unexecuted subscription is a consequence of the lost notification, not a separately evidenced rate or QoS failure. Switching to Cyclone DDS is supporting diagnosis, not an observed fix of this selected provider pair. No additional independent failed condition found."
+}

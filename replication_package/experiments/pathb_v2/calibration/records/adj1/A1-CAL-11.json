@@ -1,0 +1,53 @@
+{
+  "item_id": "A1-CAL-11",
+  "kind": "A1",
+  "case_id": "CAL-11",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106",
+    "reason": "The report and correcting diff establish E1/E4. A wrong URDF frame definition is supplied to a transform consumer in PAIR; the numeric value crosses the robot-description boundary, so E2 step 2 does not exclude it merely because the edit is in one support package."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The `link_t-tool0` transform defining the orientation of the `tool0` frame currently specifies only a rotation over Z of `-pi`, but it uses the value `3.1416` for it",
+      "url": "https://github.com/ros-industrial/motoman/issues/106",
+      "reason": "The source explicitly identifies the wrong orientation of a named tool frame. frame_mismatch is defensible for a frame-definition mismatch, not only a frame-id spelling mismatch. robot_description is the appropriate carrier for the specification's inferred URDF-consuming node.",
+      "additional_evidence": [
+        {
+          "quote": "-      <origin xyz=\"0 0 0.0\" rpy=\"0 0 -3.1416\"/>\n+      <origin xyz=\"0 0 0.0\" rpy=\"0 0 -3.1415926535\"/>",
+          "url": "https://github.com/ros-industrial/motoman/commit/9bf25eae1b495fd9ccacb904d93f82c959227582.diff"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The difference is enough to cause the `base->tool0` transform to be off by as much as 3 degrees wrt to the values reported by the robot.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106",
+    "reason": "The reported observation is numerical disagreement with robot-reported transforms, not a build, connection or activation diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "off by as much as 3 degrees wrt to the values reported by the robot.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed in 9bf25ea.",
+    "url": "https://github.com/ros-industrial/motoman/issues/106#issuecomment-243097763",
+    "reason": "The commit corrects the xacro rotation, but the thread does not show the specified consumer rerun and comparison after the fix."
+  },
+  "notes": "The precise consuming node, /robot_description name and its revision are inferred by the specification, not named in the issue; agreement on that carrier is conditional on the stated robot_state_publisher reconstruction. The reported three-degree magnitude is not independently established by the rounding edit. SIA10F corrections in the same diff concern a different composition."
+}

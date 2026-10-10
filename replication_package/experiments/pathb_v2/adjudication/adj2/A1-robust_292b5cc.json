@@ -1,0 +1,55 @@
+{
+ "item_id": "A1-robust_292b5cc",
+ "kind": "A1",
+ "case_id": "robust_292b5cc",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Looks like a copy/pasta error to me then. The 'else if' checks again for a ROS_MSG_MOTO_MOTION_CTRL, just as the 'if' before it did.",
+  "url": "https://github.com/ros-industrial/motoman/issues/1"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "The robot id and sequence fields in the MOTO_MOTION_CTRL reply are not set correctly.",
+   "url": "https://github.com/ros-industrial/motoman/issues/1"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "bugFix #1: FS100 reply to JointTrajPtFull message contains invalid sequence/robot_id fields",
+   "url": "https://github.com/ros-industrial/motoman/commit/292b5cc8a10a640a8b364a529e3eadffffc9b56b"
+  },
+  {
+   "index": 2,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-\telse if(receiveMsg->header.msgType == ROS_MSG_MOTO_MOTION_CTRL)\n+\telse if(receiveMsg->header.msgType == ROS_MSG_JOINT_TRAJ_PT_FULL)\n \t{\n-\t\treplyMsg->body.motionReply.groupNo = receiveMsg->body.motionCtrl.groupNo;\n-\t\treplyMsg->body.motionReply.sequence = receiveMsg->body.motionCtrl.sequence;\n-\t\treplyMsg->body.motionReply.command = ROS_MSG_MOTO_MOTION_CTRL;\n+\t\treplyMsg->body.motionReply.groupNo = receiveMsg->body.jointTrajData.groupNo;\n+\t\treplyMsg->body.motionReply.sequence = receiveMsg->body.jointTrajData.sequence;\n+\t\treplyMsg->body.motionReply.command = ROS_MSG_JOINT_TRAJ_PT_FULL;",
+   "url": "https://github.com/ros-industrial/motoman/commit/292b5cc8a10a640a8b364a529e3eadffffc9b56b"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "when a reply message is sent to anything other than a MOTO_MOTION_CTRL message (type 2001), the robot_id and sequence fields are set to -1. This probably comes across as 0xFFFFFFFF.",
+  "url": "https://github.com/ros-industrial/motoman/issues/1"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Fixed in 292b5cc",
+  "url": "https://github.com/ros-industrial/motoman/issues/1"
+ },
+ "notes": "Independently re-decided and agree. E1: issue #1 (shaun-edwards, 2013-06-15) with the e-mail analysis of the Wireshark capture and controller source; fix commit 292b5cc8 and maintainer comments (JeremyZoss: 'Eric has released a fix already.  I will try to upload this weekend.' 2013-06-15; 'Fixed in 292b5cc' 2013-06-18). E2 stop 6: the MotoROS FS100 firmware (fs100/MotoPlus, a firmware image rebuilt in the fix commit) and the fs100 ROS driver (PC-side package) are separately built/deployed units exchanging simple_message over TCP -- the driver's send/receive verified at fs100_joint_trajectory_streamer.cpp line 209 'if (!this->connection_->sendAndReceiveMsg(msg, reply, false))'; step 5 does not stop because the firmware HAS a declared interface whose echo semantics the reply violates: SimpleMessage.h at 8d770631 line 137 'int sequence;\t\t\t\t// Optional message tracking number that will be echoed back in the response.' and fs100/include/fs100/simple_message/motoman_motion_reply.h line 175 '\\param robot_id target robot/group # for this reply' (note: the spec's source-ref path .../FS100/... 404s on raw.githubusercontent.com; the correct-case path fs100/include/fs100/... holds the file, and I read the quote there); the wrong values (-1) cross the wire to the consumer, so step 2's interface-failure clause applies; verified the duplicated branch in the broken provider at 8d770631 (lines ~106-123 of fs100/MotoPlus/SimpleMessage.c: the second 'else if(receiveMsg->header.msgType == ROS_MSG_MOTO_MOTION_CTRL)' and the else branch setting 'replyMsg->body.motionReply.groupNo = -1;' 'replyMsg->body.motionReply.sequence = -1;') and the fix hunk quoted in condition 2 verbatim in the 292b5cc8 patch. All three condition entries: class 'other' agree (definitions unchanged on both sides; provider violates documented echo semantics; no named class fits) and elements (MotoMotionReply.robot_id + .sequence) agree; the three entries are one failed interaction documented in three sources (report, commit subject, diff) -- no objection on class or elements, but the count is a presentation choice, not three independent conditions. The exclusion of MotoMotionReply.command is correct: verified SimpleMessage.h constants 'ROS_MSG_JOINT_TRAJ_PT_FULL = 14' and 'ROS_MSG_MOTO_MOTION_CTRL = 2001'; the broken else branch sets 'replyMsg->body.motionReply.command = receiveMsg->header.msgType;' which equals 14, the same value the fix assigns. E3 PAIR, E4 agree ('Yes, -1 interpreted as an unsigned would be 0xFFFFFFFF.'). Loudness silent_documented / detection_stage run agree: the wrong values were found only by inspecting a Wireshark capture while writing a dissector ('If I get the dissector in a good enough state, I'll push it to my github \nrepo.'); no diagnostic from either side is shown. Resolution recommended agree: only maintainer assertions of the fix; no capture or run of the fixed controller with the driver is shown. The same commit's second change (MotionServer.c 'always publish state for all active robot groups') is a different composition, correctly excluded."
+}

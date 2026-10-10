@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_2d42582",
+  "kind": "A1",
+  "case_id": "robust_2d42582",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The position limits for `joint_s`, `joint_r` and `joint_t` are specified as `(-)3.1416` for the SIA20 in [sia20d_macro.xacro](...), which is incorrect",
+    "url": "https://github.com/ros-industrial/motoman/issues/102"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It would appear the values in the urdf are _rounded up_, while they should'be been either _floored_ or written out with more digits.",
+      "url": "https://github.com/ros-industrial/motoman/issues/102"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This has actually caused problems when planning motions close to the joint limits. MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error, refusing to complete the motion.",
+    "url": "https://github.com/ros-industrial/motoman/issues/102#issuecomment-232274026"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This floors PI, instead of rounding. This makes the joint limits slightly\nstricter than what is specced, but will avoid OOB errors on the controller."
+  },
+  "notes": "All key claims verified. (1) Issue 102 body: 'The position limits for `joint_s`, `joint_r` and `joint_t` are specified as `(-)3.1416` for the SIA20 ... which is incorrect ... The spec sheet has these at 180 degrees, which would be exactly `pi`.' and the failed-condition quote 'It would appear the values in the urdf are _rounded up_ ...'. (2) Effect comment 232274026 (gavanderhoorn): 'This has actually caused problems when planning motions close to the joint limits. MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error, refusing to complete the motion.' (3) Fix commit 2d42582 'Fix for issue #102: fix incorrect joint limits in SIA20 urdf/xacro (#109) ... This floors PI, instead of rounding. This makes the joint limits slightly stricter than what is specced, but will avoid OOB errors on the controller.' (PR #109, merge_commit_sha 2d42582 — this time the API merge_commit_sha equals the resolved_rev). Closing comment 243097653 'Fixed in 2d42582.' (4) E2 parameter interface eligible at step 6: a wrong limit value (3.1416 > pi, so the URDF limit is looser than the real robot's) crosses the boundary from the description package into the planner; the planner is correct and merely uses the limit it is given; the resolving edit is inside the provider (the xacro/urdf values), which the rubric counts as an interface failure. (5) Class 'other' correct: a wrong numeric value (rounded-up vs floored) is not a type/definition/frame/unit/qos/representation mismatch; no dedicated class fits. Implicated element param:/robot_description correct (the limit attributes are carried in the URDF blob). (6) Loudness silent_documented + run: the description loads and MoveIt plans normally (no build/connect/activate diagnostic); the failure surfaces only at execution when the robot controller refuses. (7) Resolution 'recommended': fix merged and issue closed, but no source shows MoveIt planning against the corrected model or the robot accepting a near-limit motion; the resolving edit is not shown working in the composition. No missed conditions (joint_l/e/u/b velocity edits are not documented by the reporter; the sister SIA10 issue #104 is a different composition)."
+}

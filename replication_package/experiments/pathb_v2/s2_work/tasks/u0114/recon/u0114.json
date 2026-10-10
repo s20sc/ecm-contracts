@@ -1,0 +1,42 @@
+{
+  "task_id": "u0114",
+  "package": "motoman_sia20d_support",
+  "manifest_version": "0.3.5",
+  "ports": [
+    {
+      "element": "param:/robot_description",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:/robot_description": "param robot_description: string"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:motoman_sia20d_support/package.xml:4",
+    "ports[0].side": "snapshot:motoman_sia20d_support/launch/load_sia20d.launch:2",
+    "declares[param:/robot_description]": "snapshot:motoman_sia20d_support/launch/load_sia20d.launch:2 | <param name=\"robot_description\" command=\"$(find xacro)/xacro.py '$(find motoman_sia20d_support)/urdf/sia20d.xacro'\" /> ; no type attribute, roslaunch stores the stdout of a param 'command' as a string",
+    "exclusive": "searched every file under snapshot/motoman_sia20d_support (package.xml, CMakeLists.txt, config/, launch/, test/, urdf/): no transmission, hardware_interface or exclusive device claim",
+    "perm_requires.state": "grep -i 'permission|exclusive|recover' over all launch/xml/yaml/xacro/urdf/txt files of the package returned no match",
+    "perm_grants.state": "same search as perm_requires; nothing granted",
+    "recovery.state": "same search; no recovery behaviour declared in the package (configuration/launch/model data only, no source code)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "load_sia20d.launch sets robot_description from xacro.py on sia20d.xacro (valid for indigo); the macro is well formed, its seven joint names match controller_joint_names in config/joint_names_sia20d.yaml, and the limits and link offsets look self-consistent; nothing visibly wrong for this element"
+  },
+  "confidence": "high",
+  "notes": "Only packet element is param:/robot_description (provides). It is declared once, at snapshot:motoman_sia20d_support/launch/load_sia20d.launch:2, as the relative name 'robot_description' (copied verbatim into declares); at the launch root it resolves to /robot_description, and it is re-used by test_sia20d.launch:2 and robot_state_visualize_sia20d.launch:25 via include. Value is the xacro expansion of urdf/sia20d.xacro -> urdf/sia20d_macro.xacro (macro motoman_sia20d, prefix=\"\"), root link base_link, 7 revolute joints joint_s..joint_t plus fixed link_t-tool0. A pre-generated urdf/sia20d.urdf exists but is not what the param loads; it matches the xacro except the tool0 fixed joint rpy (-3.1416 in the .urdf vs -3.1415926535 in the macro). msg_type and definition_id are null because a parameter has no message definition; frame is null because the URDF string carries a whole kinematic tree rather than one frame; units null because neither the xacro nor the launch file states units; QoS null (ROS 1). No other packet elements, so references is empty; the package's launch files also name non-packet items (param controller_joint_names loaded from config/joint_names_sia20d.yaml, motoman_driver launch files, industrial_robot_client rviz config, xacro.py), which are outside the packet and not recorded. The task directory had no other packages' definitions needed."
+}

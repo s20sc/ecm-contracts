@@ -1,0 +1,92 @@
+{
+  "case_id": "C3-152",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/2846",
+    "https://github.com/ros-controls/ros2_control/pull/2856",
+    "https://github.com/ros-controls/ros2_control/pull/2858",
+    "https://github.com/ros-controls/ros2_control/pull/2859",
+    "https://github.com/ros-controls/ros2_control/pull/2760",
+    "https://github.com/ros-controls/ros2_control/pull/2772",
+    "https://github.com/ros-controls/ros2_control/blob/cde86ae8145716c1b46bbaf2ac04a33fbe68e39d/controller_manager/src/controller_manager.cpp#L3952"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter gives reproduction steps (\"Create a controller with `controller_interface::interface_configuration_type::ALL` as type of the command interface configuration (and empty names)\" / \"Try to switch to another controller that has explicit command interfaces set\") and the log \"[gazebo-11] [WARN] [controller_manager]: Unable to activate controller 'joint_trajectory_controller' since the command interface 'LF_HAA/position' is currently claimed by another controller.\"; maintainer: \"you have a point that it should never fail\"; fix #2856 \"Fixes https://github.com/ros-controls/ros2_control/issues/2846\"."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["controller_manager", "reporter_all_command_interfaces_controller"],
+      "interface_kind": "library API (controller plugin interface configuration) and exclusive resource (command interfaces)",
+      "evidence": "Host framework (controller_manager) and a controller plugin are separate units. The plugin declares its command interfaces through command_interface_configuration() as type ALL with empty names; the host's early availability check (added by #2760, backported to jazzy by #2772) builds the set of interfaces freed by deactivating controllers from `controller_it->c->command_interface_configuration().names`, so an ALL-type controller frees nothing in that check. The declaration crossing the plugin-host boundary is read under a different convention; with an INDIVIDUAL-type plugin the switch succeeds. The resolving edit (#2856/#2858) is inside controller_manager and makes it use `controller_it->info.claimed_interfaces` when the type is not INDIVIDUAL. Not wiring, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the plugin's declared interface configuration is consumed by the controller_manager's switch availability check. The failure was observed while switching from the ALL-type controller (deactivated) to joint_trajectory_controller (activated)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed refusal of the switch: \"[controller_switch_manager-5] [WARN] [controller_switch_manager]: [_safely_switch_controllers_callback]: Switching controllers failed: Failed to switch controllers to ['joint_trajectory_controller']\" (https://github.com/ros-controls/ros2_control/issues/2846)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "controller_manager",
+      "role": "consumer",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "4.39.2",
+      "resolved_rev": "829f9c3942e6095dd8278bb4be3d30a1c7147b1d",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter states \"ROS 2 Jazzy\" and \"Since recent updates of ros2_control\" (report 2025-11-24) and links the check in master commit cde86ae8 without naming an installed version. The regression (#2760) reached jazzy via #2772 (merge 70ddd5f1a73f708f101c394f75d01dcc350666cf, 2025-11-03); jazzy tags 4.39.1 (2025-11-03) and 4.39.2 (2025-11-09, commit 1abab95234d5762aef30164aee136f72eca46f4f) both contain it and not the fix; 4.39.2 is the latest jazzy release before the report and is used (4.39.1 is equally possible). Resolved: merge commit of the jazzy backport #2858 (2025-11-25); first jazzy tag containing it is 4.40.0 (2025-12-01).",
+      "excerpt": false,
+      "ros_distro": "jazzy"
+    },
+    {
+      "name": "reporter_all_command_interfaces_controller",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "as-reported-2025-11",
+      "resolved_rev": "as-reported-2025-11",
+      "pinned": false,
+      "revision_basis": "The reporter's own controller is not public; it is described only by the reporter's statements of its command interface configuration (artifact section [[reporter_all_command_interfaces_controller@as-reported-2025-11]]). The resolution does not change it.",
+      "excerpt": true,
+      "ros_distro": "jazzy"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:controller_interface::ControllerInterfaceBase::command_interface_configuration", "sides": {"reporter_all_command_interfaces_controller": "provides", "controller_manager": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::state_interface_configuration", "sides": {"reporter_all_command_interfaces_controller": "provides", "controller_manager": "consumes"}},
+    {"element": "api:controller_interface::InterfaceConfiguration", "sides": {"reporter_all_command_interfaces_controller": "provides", "controller_manager": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::assign_interfaces", "sides": {"reporter_all_command_interfaces_controller": "provides", "controller_manager": "consumes"}},
+    {"element": "api:controller_interface::ControllerInterfaceBase::release_interfaces", "sides": {"reporter_all_command_interfaces_controller": "provides", "controller_manager": "consumes"}},
+    {"element": "resource:LF_HAA/position", "sides": {"controller_manager": "provides", "reporter_all_command_interfaces_controller": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": ["api:controller_interface::ControllerInterfaceBase::command_interface_configuration", "api:controller_interface::InterfaceConfiguration", "resource:LF_HAA/position"],
+      "quote": "There, the `future_available_command_interfaces` are based on the names in the command interface configuration, although these are empty in case of the `ALL` interface configuration type, and therefore the switch fails",
+      "url": "https://github.com/ros-controls/ros2_control/issues/2846"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The controller_manager's resource-claim check refuses the activation: \"[gazebo-11] [WARN] [controller_manager]: Unable to activate controller 'joint_trajectory_controller' since the command interface 'LF_HAA/position' is currently claimed by another controller.\" (https://github.com/ros-controls/ros2_control/issues/2846).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "In ControllerManager::check_for_interfaces_availability_to_activate, take the deactivating controller's interfaces from `cmd_itf_cfg.names` only for INDIVIDUAL configurations and from `controller_it->info.claimed_interfaces` otherwise (ros2_control #2856 on master, #2858 jazzy, #2859 kilted).",
+    "status": "recommended",
+    "evidence": "#2856 adds test switch_controller_test_two_controllers_using_all_interface in which a TestController configured `{controller_interface::interface_configuration_type::ALL, {}}` is deactivated while an INDIVIDUAL TestController is activated and the switch returns OK; this is the fix shown working with a test peer, not with the reporter's controller. The reporter did not confirm."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Composition choice: the failure was observed while switching from the reporter's ALL-type controller to joint_trajectory_controller (a SWITCH between two controllers under controller_manager). The specified composition is the plugin-host pair (controller_manager <-> ALL-type controller) because the mismatch (reading `.names` of an ALL-type InterfaceConfiguration) sits on that boundary and the resolving edit is in controller_manager; a controller<->controller SWITCH composition would have neither unit changed by the fix. The runtime's refusal is an exclusive-resource claim error, so exclusive_resource_conflict is the symptom-level class; representation_convention was chosen for the condition on this boundary. The reporter adds that \"This reliance on `command_interface_configuration().names` is present in other places of the codebase as well\" (e.g. other `.names` uses in controller_manager.cpp at 4.39.2); the fix only changes the deactivation branch of this check. api: element names use the C++ qualified names declared in controller_interface/controller_interface_base.hpp (controller_interface package, same repository as controller_manager). The interface name LF_HAA/position comes from the reporter's log. The regression was introduced by ros2_control#2760 (master f8903b3f, 2025-11-03)."
+}

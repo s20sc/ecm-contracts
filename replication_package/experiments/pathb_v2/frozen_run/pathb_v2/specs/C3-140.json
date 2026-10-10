@@ -1,0 +1,49 @@
+{
+  "case_id": "C3-140",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/5476",
+    "https://github.com/ros-navigation/navigation2/pull/5697",
+    "https://github.com/ros-navigation/navigation2/pull/5775",
+    "https://github.com/ros-navigation/navigation2/commit/80b72d27811965a8a22b6d0e6f0cf95a7d74818a",
+    "https://github.com/ros-navigation/navigation2/commit/3320ebf7911525af3fe632be5648cac884ea363b"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue gives configuration, a video, and a code-level diagnosis; maintainer SteveMacenski engaged and proposed the fix direction: \"Maybe we should check the `obstacle_max_range` in grid cell space then, no? I think that would resolve the issue so that they're all working on the same discretized space.\" (https://github.com/ros-navigation/navigation2/issues/5476#issuecomment-3250374983). Fixed by merged PR #5697 (main) and backport #5775 (jazzy)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["nav2_costmap_2d ObstacleLayer plugin", "laser scan source publishing /scan"],
+      "interface_kind": "topic",
+      "evidence": "The defect is an inconsistency between two computations inside the ObstacleLayer: marking compares the metric point distance with obstacle_max_range while clearing raytraces in discretized cells up to raytrace_max_range. Reporter: \"When evaluating whether a cell should be marked, it uses the actual point distance compared to the `obstacle_max_range`\" / \"When evaluating the grid cell to clear up to, it takes the last _cell_ which `min(raytrace_max_range, point_distance)`  lies within\" (https://github.com/ros-navigation/navigation2/issues/5476#issuecomment-3248253572). PR #5697: \"When marking obstacles from new observations, the check against `obstacle_max_range` is done in grid cell space for consistency with the ray tracing free space check  against `raytrace_max_range`\". Only nav2_costmap_2d/plugins/obstacle_layer.cpp (and tests) change. The scan data crossing the boundary is correct; any correct scan source produces the same clearing."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Would be PAIR (scan source feeds the obstacle layer). Not decisive because the case stops at E2."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong costmap content: \"when reversing away from an obstacle, as it moves outside the `obstacle_max_range`, the obstacle is cleared away instead of persisting.\""
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Reported on Jazzy binaries (ros-jazzy-navigation2 1.3.7). PR #5697 also excludes the observation cell from raytracing; the jazzy backport #5775 carries only the grid-space obstacle_max_range check. The obstacle_max_range/raytrace_max_range parameters are the layer's own configuration, not an interface to another unit."
+}

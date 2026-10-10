@@ -1,0 +1,48 @@
+{
+  "task_id": "u0182",
+  "package": "rostopic",
+  "manifest_version": "1.14.6",
+  "ports": [
+    {
+      "element": "msg:moveit_msgs/DisplayTrajectory",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/move_group/display_planned_path",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:tools/rostopic/package.xml:3",
+    "perm_requires.state": "searched snapshot/tools/rostopic (src, scripts, test, test_nodes, package.xml, CMakeLists.txt, setup.py, rosdoc.yaml) for perm|capabilit|auth; only license text and <author> matched; no permission requirements declared",
+    "perm_grants.state": "same search as perm_requires.state; no permission grants declared",
+    "recovery.state": "searched snapshot/tools/rostopic for recover|retry; no hits; the only wait behaviour is get_topic_type(blocking=True) polling the master until the topic is published (snapshot:tools/rostopic/src/rostopic/__init__.py:657-664), which is not a declared recovery policy"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "rostopic names neither element; it handles any topic generically (name from argv, type from the master, class via roslib.message.get_message_class). A defect would have to be in that generic path, for example echo's always-on value_transform, which rebuilds each nested message as a TransformedMessage on every callback (__init__.py:1396, 1410-1456). Nothing in the snapshot ties such a defect to DisplayTrajectory specifically."
+  },
+  "confidence": "high",
+  "notes": "The snapshot is the whole ros_comm tree. The rostopic package is snapshot/tools/rostopic (package.xml version 1.14.6, ROS 1). A case-insensitive grep of the whole snapshot for DisplayTrajectory, display_planned_path, moveit and move_group returns no hits, and rostopic has no moveit_msgs dependency in package.xml. Both packet elements are consumed only through rostopic's generic, run-time-named mechanism: the topic name comes from the command line (rosgraph.names.script_resolve_name('rostopic', args[0]), __init__.py:1370). The type comes from the master (master.getTopicTypes(), __init__.py:96, matched in _get_topic_type, __init__.py:594-639). The message class is loaded dynamically (roslib.message.get_message_class(topic_type), __init__.py:678). The subscription is made with rospy.Subscriber(real_topic, msg_class, ...): echo at __init__.py:1044, hz at 313/315, delay at 414, and bw at 500 with rospy.AnyMsg. Because both names arrive at run time, they are in neither references nor declares. The ports are recorded as consumes with all descriptive fields null because the code fixes no type, frame, units or rate for these elements. For the msg element's port, msg_type is left null because the snapshot never names that type; the only source for it is the packet. QoS is null because this is ROS 1. No definition_id is given: moveit_msgs is not a dependency of the snapshot's code or definitions, so its .msg files were not fetched. This package provides no packet elements, so declares and not_declared are empty. For completeness, the code does name some non-packet run-time resources: param use_sim_time/'/use_sim_time' via rospy.get_param (__init__.py:318, 417, 1043), and it disables auto-subscription to /clock for bw (__init__.py:495). These are not listed in references because they are not packet elements. Nothing in rostopic claims an exclusive resource."
+}

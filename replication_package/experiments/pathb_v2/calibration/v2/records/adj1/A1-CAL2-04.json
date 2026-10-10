@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-CAL2-04",
+  "kind": "A1",
+  "case_id": "CAL2-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "For this it will try to fetch all state and command interfaces which will use the [`force_torque_sensor_` object](https://github.com/ros-controls/ros2_controllers/blob/232154dab5f5363704c7f7640b2d42f5d6f3665b/force_torque_sensor_broadcaster/src/force_torque_sensor_broadcaster.cpp#L124) which unfortunately is a nullpointer before the FTS broadcaster has been configured.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164",
+    "reason": "A reproduced host/plugin call-order failure: controller_manager calls a separately provided broadcaster before its documented configured-state precondition holds. Not an unconditional internal crash. E1-E4 hold for PAIR."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "   * The method is called only in `inactive` or `active` state, i.e., `on_configure` has to be\n   * called first.",
+      "url": "https://raw.githubusercontent.com/ros-controls/ros2_control/0863acd6905af0eba4db1074f11edd60215758d5/controller_interface/include/controller_interface/controller_interface_base.hpp",
+      "reason": "The mismatch is a lifecycle precondition, appropriately other. Both configuration queries have that precondition and are called by sorting; the state query is the one implicated in the null dereference."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "4. controller_manager will die",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164",
+    "reason": "The source reports a crash, not a diagnostic rejecting the lifecycle misuse. The source does not establish that no process-exit logging existed; it establishes no qualifying diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "2. Load both controllers\n3. configure the JS broadcaster\n4. controller_manager will die",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164",
+    "reason": "activate is the closest S1 stage for lifecycle setup/configuration; this is specifically configuration, before a successful activation transition."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Thank you for reporting the issue. I've addressed the above bug in the linked PR. I've tested it on my end and it works. Please test us and let us know.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1164#issuecomment-1808709963",
+    "reason": "The assertion that no fix was merged or tested is contradicted by the maintainer's statement and the fixing diff. The tested broadcaster and host revisions are not both identified, so recommended rather than observed.",
+    "supporting_evidence": [
+      {
+        "quote": "+  if (!((is_controller_active(ctrl_a.c) || is_controller_inactive(ctrl_a.c)) &&\n+        (is_controller_active(ctrl_b.c) || is_controller_inactive(ctrl_b.c))))",
+        "url": "https://github.com/ros-controls/ros2_control/commit/75e7efd1ae2ce5316114f73345b182f600717aa3.diff"
+      }
+    ]
+  },
+  "notes": "The other controller triggers sorting but is not the defective peer in the selected host/FTS-broadcaster composition. The runtime errors added to test controllers by the fix must not be treated as diagnostics from the broken composition."
+}

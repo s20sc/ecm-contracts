@@ -1,0 +1,71 @@
+{
+  "item_id": "A1-CAL-06",
+  "kind": "A1",
+  "case_id": "CAL-06",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+    "url": "https://github.com/ros2/ros2/issues/1517",
+    "reason": "The reproducer and maintainer confirmation establish E1/E4. An empty rclpy GetParameters response crosses a service boundary to ros2param, whose consumer logic mishandles it. The operation is PAIR and is not internal-only."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "disagree",
+      "proposed_elements": [
+        "service:/param_demo/get_parameters",
+        "field:rcl_interfaces/GetParameters.values",
+        "param:param_1",
+        "param:param_2"
+      ],
+      "quote": "# List of values which is the same length and order as the provided names. If a\n# parameter was not yet set, the value will have PARAMETER_NOT_SET as the\n# type.",
+      "url": "https://raw.githubusercontent.com/ros2/rcl_interfaces/iron/rcl_interfaces/srv/GetParameters.srv",
+      "reason": "The response violates the positional representation of parameter values: an unset parameter empties the entire response instead of occupying a PARAMETER_NOT_SET slot. param_1's valid value is lost too, so the original element set is incomplete.",
+      "additional_evidence": [
+        {
+          "quote": "except (ParameterNotDeclaredException, ParameterUninitializedException):\n                response.values = node.get_parameters([])\n                return response",
+          "url": "https://raw.githubusercontent.com/ros2/rclpy/4.1.4/rclpy/rclpy/parameter_service.py#L83-L85"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "service:/param_demo/get_parameters",
+        "field:rcl_interfaces/GetParameters.values",
+        "param:param_1",
+        "param:param_2"
+      ],
+      "quote": "if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.",
+      "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1933083033",
+      "reason": "Distinct from the malformed provider response, the consumer turns an empty response into a string and zips its characters with names. This is an internal consumer defect of the selected composition, which the rubric requires recording as other. The characters are generated locally, not transmitted by rclpy."
+    }
+  ],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "❯ ros2 param dump /param_demo\n/param_demo:\n  ros__parameters:\n    param_1: '#'",
+    "url": "https://github.com/ros2/ros2/issues/1517",
+    "reason": "Wrong values are printed during the command's execution."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "We merged in the fixes here, and backported the ones we could.  So closing this out, thanks for the report.",
+    "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1948372693",
+    "reason": "Concrete fixes exist and the specification selects their rolling revisions. Missing Iron backports and lack of a successful exact-pair rerun prevent observed, but do not justify none."
+  },
+  "notes": "The listed representation condition is interpreted as the service's missing positional entries. The separately recorded other condition is ros2param's local sentinel-string iteration. The issue and the provider source distinguish these two causal defects."
+}

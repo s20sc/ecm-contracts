@@ -1,0 +1,93 @@
+{
+  "case_id": "C3-143",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/1164",
+    "https://github.com/moveit/moveit2/pull/1165",
+    "https://github.com/moveit/moveit2/commit/fa983f73c3a4b74f6c20a538b1a04821a2c1ee25",
+    "https://github.com/moveit/moveit2/pull/672",
+    "https://github.com/moveit/moveit2/commit/97f1ea5b8dffab9b36a27961694f2fe7c1879c29",
+    "https://github.com/ros2/rviz/blob/8.2.6/rviz_rendering/src/rviz_rendering/material_manager.cpp",
+    "https://github.com/ros2/rviz/blob/8.2.6/rviz_rendering/src/rviz_rendering/objects/shape.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue with reproducer code and log (\"[rviz2-4] [ERROR] [1649066982.936072797] [rviz2]: Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?\"). Maintainer JafarAbdi pointed to the existing fix PR #672 (https://github.com/moveit/moveit2/issues/1164#issuecomment-1087578688); PR #672 states: \"Fixes a bug causing RViz to print a ton of error messages about material not existing in the `General` resource group when adding a mesh to the planning scene\". Backport PR #1165 merged to foxy (fa983f73)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rviz_rendering", "moveit_ros_visualization"],
+      "interface_kind": "library API",
+      "evidence": "Step 1: MeshShape (moveit_ros/visualization/rviz_plugin_render_tools in moveit2) derives from rviz_rendering::Shape (package rviz_rendering in ros2/rviz); separately built and released packages. Step 2: the material is created by the provider's base class in its own Ogre resource group and handed to the subclass by name through the protected member material_name_: rviz_rendering 8.2.6 shape.cpp \"material_name_ = entity_name + \\\"Material\\\";\\n  material_ = MaterialManager::createMaterialWithLighting(material_name_);\" and material_manager.cpp \"Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create(name, \\\"rviz_rendering\\\");\". The consumer references that name without a group: moveit2 517c34fb mesh_shape.cpp \"manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST);\" and \"entity_->setMaterialName(material_name_);\". The failure depends on which group the provider registers the material in, so it is not internal. Step 3/4/5: the fix edits consumer code (adds the \"rviz_rendering\" group argument), not deployment names or build files."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the material created by rviz_rendering::Shape (provider output) is consumed by MeshShape when it builds the mesh for a collision object added to the planning scene (\"I want to add mesh file (e.g. *.stl, *.obj, *.dae) to planning scene as collision object, but rviz2 print a lot of error messages about materials.\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed runtime errors for each mesh: \"Can't assign material Shape24Material to the ManualObject MeshShape_ManualObject1 because this Material does not exist in group General.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rviz_rendering",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rviz",
+      "broken_rev": "8.2.6",
+      "resolved_rev": "8.2.6",
+      "pinned": true,
+      "revision_basis": "The reporter uses ROS Foxy installed from apt (\"ROS install: apt\") and reports on 2022-04-04 without an rviz version. The latest Foxy release of ros2/rviz before that date is tag 8.2.6 (9816beaa, 2022-02-04); the next, 8.2.7, is dated 2022-09-13. At 8.2.6 createMaterialWithLighting creates materials in group \"rviz_rendering\". The resolution changes only moveit2, so the provider keeps 8.2.6.",
+      "excerpt": false,
+      "ros_distro": "foxy"
+    },
+    {
+      "name": "moveit_ros_visualization",
+      "role": "consumer",
+      "repo": "https://github.com/moveit/moveit2",
+      "broken_rev": "517c34fbb966d6bdc640e86d0db83f7fc168d6c6",
+      "resolved_rev": "fa983f73c3a4b74f6c20a538b1a04821a2c1ee25",
+      "pinned": true,
+      "revision_basis": "The reporter builds moveit2 from source, \"branch foxy\", and reports on 2022-04-04; the foxy branch head then was 517c34fb (2022-04-01; the next foxy commit is fa983f73 on 2022-04-06). The reporter's working state is foxy with the two lines of #672 applied by hand (\"I found the changes in #672 at two positions. So I changed the code at branch foxy manually. It works!\"); fa983f73 (backport PR #1165) has parent 517c34fb and changes only moveit_ros/visualization/rviz_plugin_render_tools/src/mesh_shape.cpp with exactly those two lines, so it is used as the resolved revision.",
+      "excerpt": false,
+      "ros_distro": "foxy"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:rviz_rendering::Shape", "sides": {"rviz_rendering": "provides", "moveit_ros_visualization": "consumes"}},
+    {"element": "api:rviz_rendering::Shape::material_name_", "sides": {"rviz_rendering": "provides", "moveit_ros_visualization": "consumes"}},
+    {"element": "api:rviz_rendering::Shape::material_", "sides": {"rviz_rendering": "provides", "moveit_ros_visualization": "consumes"}},
+    {"element": "api:rviz_rendering::Shape::entity_", "sides": {"rviz_rendering": "provides", "moveit_ros_visualization": "consumes"}},
+    {"element": "api:rviz_rendering::Shape::offset_node_", "sides": {"rviz_rendering": "provides", "moveit_ros_visualization": "consumes"}},
+    {"element": "api:rviz_rendering::Shape::scene_manager_", "sides": {"rviz_rendering": "provides", "moveit_ros_visualization": "consumes"}},
+    {"element": "resource:Shape<N>Material", "sides": {"rviz_rendering": "provides", "moveit_ros_visualization": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:rviz_rendering::Shape::material_name_", "resource:Shape<N>Material"],
+      "quote": "Fixes a bug causing RViz to print a ton of error messages about material not existing in the `General` resource group when adding a mesh to the planning scene",
+      "url": "https://github.com/moveit/moveit2/pull/672"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Ogre's resource lookup refuses the material assignment and says why: \"[rviz2-4] [ERROR] [1649066982.936072797] [rviz2]: Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?\" (https://github.com/moveit/moveit2/issues/1164).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "MeshShape passes the provider's resource group when referencing the base-class material: manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST, \"rviz_rendering\") and entity_->setMaterialName(material_name_, \"rviz_rendering\") (moveit2 #672 on main, backported to foxy as #1165 / fa983f73).",
+    "status": "observed",
+    "evidence": "Reporter on foxy with the two #672 lines applied to branch foxy and apt rviz: \"I found the changes in #672 at two positions. So I changed the code at branch foxy manually. It works! Thank you very much!\" (https://github.com/moveit/moveit2/issues/1164#issuecomment-1088609471)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class 'other': the material name itself matches; what differs is the Ogre resource group in which the provider registers it (\"rviz_rendering\") versus the group the consumer's unqualified reference resolves in (\"General\"). No fitting canonical class exists for a resource-group (namespace) qualifier; representation_convention (how the material reference is encoded across the boundary) is a possible alternative. Canonical form for the material: resource:<token> with the token being the provider's per-instance name pattern (\"Shape\" + count + \"Material\", e.g. Shape22Material in the log). Ogre (rviz_ogre_vendor) performs the group-scoped lookup and emits the error; it is a shared dependency, not one of the two units. Outcome 'failure' because the material assignment itself is refused; the source does not say how the mesh looked in RViz. The reporter first tried checking out commit 5099f70001762e5f8ec5dbde84b6f6ff3728274d (#672 on main) and reported \"it doesn't work\" before hand-applying the diff to foxy; that attempt used a different consumer revision and is not the resolved composition. The source gives no evidence that this composition previously worked with an earlier rviz_rendering, so it is recorded as PAIR rather than UPGRADE."
+}

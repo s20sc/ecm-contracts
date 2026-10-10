@@ -1,0 +1,13 @@
+{
+ "item_id": "A1-CAL2-05",
+ "kind": "A1",
+ "case_id": "CAL2-05",
+ "eligibility": {"verdict": "agree", "stop_step": 2, "reason_code": "internal",
+  "quote": "Basically, it seems that with Iceoryx enabled the \"message loaning\" mechanism is used for receiving /clock messages, and in the subscription the shared pointer to this message is stored as a field of an object and message is destroyed at the end of the callback and than stored shared pointer becomes invalid.",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"},
+ "failed_conditions": [],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null, "quote": "", "url": ""},
+ "resolution": {"verdict": "agree", "proposed": null, "quote": ""},
+ "notes": "I agree with 'internal' (stop_step 2). The failure is a use-after-free inside rclcpp's own time_source.cpp (cache_last_msg stored a shared_ptr reference instead of a copy), fixed in rclcpp commit 7d660acc 'Fix clock state cached time to be a copy, not a reference. (#2092)'. The /clock message crossing the boundary is valid; the middleware (Iceoryx loaning) behaves per contract, and the defect is rclcpp's own misuse of the loaned message inside one process. The spec's notes are empty and confidence is 'low' (there is no second-unit interaction), but the ineligible-internal stop step is correct."
+}

@@ -1,0 +1,49 @@
+{
+  "case_id": "robust_0000000",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ipa320/cob_robots/issues/656",
+    "https://github.com/ipa320/cob_robots/files/930355/cob3-2_tray_not_moving.txt",
+    "https://github.com/robust-rosin/robust/blob/master/care-o-bot/0000000/0000000.bug",
+    "https://github.com/ros-controls/ros_control/blob/indigo-devel/hardware_interface/CHANGELOG.rst",
+    "https://github.com/ros-industrial/ros_canopen/blob/indigo-devel/canopen_motor_node/CHANGELOG.rst"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue ipa320/cob_robots#656 (NadiaHG, 2017-04-18) 'cob3-2 tray not moving (0)' gives the roslaunch output of `roslaunch cob_bringup canopen_402.launch robot:=cob3-9 can_module:=can0 component_name:=tray` ending in \"[ INFO] [1492524975.955224521]: Switched Controllers. From no_stop_controller_defined to joint_trajectory_controller\" plus a candump attachment (op_mode_display stays 00). Maintainer mathias-luedtke (ipa-mdl) confirms: \"> Switched Controllers. From no_stop_controller_defined to joint_trajectory_controller\\n\\nThe hardware did not switch.\\n`ros_control` or `ros_canopen` is outdated.\" and later \"Please  check that `canopen_motor_node` got updated.\\n(updating the metapackage does not update the individual packages)\" / \"I guess you will need  `controller_manager` and `hardware_interface` at least.\" The reporter confirms the resolution: \"updated ``controller_manager`` and ``hardware_interface``solved the problem with the tray\" (2017-04-19)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": ["canopen_motor_node", "controller_manager"],
+      "interface_kind": null,
+      "evidence": "Step 1: the two units whose interaction failed are canopen_motor_node (ros-industrial/ros_canopen; the process implementing hardware_interface::RobotHW and hosting the controller manager, launched as tray_driver) and ros_control's controller_manager/hardware_interface (ros-controls/ros_control; the library whose ControllerManager reported the switch). Step 2: the failure is between them (the manager reported 'Switched Controllers' while the hardware layer never changed operation mode), so not internal. Step 3: no names were rebound. Step 4: the only resolving change the source documents is installing newer versions of the already-released controller_manager and hardware_interface packages on the robot PC; the thread names no interface element, no API, and no revision of either unit, and the dataset record codes the fault EVOLUTION:PACKAGE (\"updating the metapackage does not update the individual packages\"). That is a dependency-resolution change with no interface change identified in the source, so the walk stops at step 4 (build). Context not stated in the source but visible in the two projects' changelogs: ros_control 0.9.4 (2016-02-12) \"Introduce prepareSwitch, replacement of canSwitch\" and \"Fix doSwitch execution point\"; canopen_motor_node 0.6.5 (2016-12-10) \"removed canSwitch implementation, added compile-time check for prepareSwitch\" / \"moved switch implemenation to non-RT prepareSwitch\". A canopen_motor_node release written against ros_control >= 0.9.4 running with a controller_manager < 0.9.4 would never have its prepareSwitch called, which matches 'the hardware did not switch'; but that would be a stale provider (the inverse of UPGRADE) and the installed versions are not stated, so it is recorded here only as a note."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: the walk stopped at E2 step 4. If the changelog reading above were confirmed, the operation would be a library-API version skew in which the provider (ros_control) is older than the revision the consumer (canopen_motor_node) was built against, which the operation set does not cover."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E2). The effect itself is documented: the tray did not move; candump shows op_mode_display 00 throughout."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 4 (build): the source documents only a package-update resolution ('updating the metapackage does not update the individual packages'; update controller_manager and hardware_interface) and names no interface element or revision of either unit.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "ROS 1 (indigo: '/rosdistro: indigo', '/rosversion: 1.11.10' in the launch summary). The reporter also mentions that a new MTS configuration was needed and that the torso later did not work; the maintainers stopped debugging cob3-2 ('we agreed to stop here and not further debug cob3-2'). No fix commit exists (dataset: 'time: unfixed'). The dataset record comment names 0656d117ba875221c66a5e354252d06c2562aced as 'the previous commit' of cob_bringup but that revision is not used here because no unit revision is part of the resolution."
+}

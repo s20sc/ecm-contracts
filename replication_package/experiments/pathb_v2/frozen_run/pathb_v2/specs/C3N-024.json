@@ -1,0 +1,123 @@
+{
+  "case_id": "C3N-024",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/1178",
+    "https://github.com/moveit/moveit2/pull/1181",
+    "https://github.com/moveit/moveit2/commit/14d2a932c74ab1dc6bed652738d17ee2bae23d4f",
+    "https://github.com/ros2/rclcpp/pull/1913",
+    "https://github.com/ros2/rclcpp/commit/6815022909086487f2b8dc14c0540b00d4cf61a0",
+    "https://github.com/ros/rosdistro/commit/887fff5d94bbd65d2b1ec1c5d3f2b382b2961745",
+    "https://github.com/ros/rosdistro/commit/9caccb638ea77ca3b89cb9ede42f615c7c2fcc45"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Maintainer-filed issue: \"We have a broken ci-testing with the changes from https://github.com/ros2/rclcpp/pull/1913.\" (https://github.com/moveit/moveit2/issues/1178). The fix PR quotes the compiler errors: \"controller_manager.h:141:67: error: no matching conversion for functional-style cast from 'int' to 'rclcpp::Duration'\" and \"gripper_controller_handle.h:152:46: error: no viable overloaded '='\" (https://github.com/moveit/moveit2/pull/1181)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "moveit_core",
+        "rclcpp"
+      ],
+      "interface_kind": "library API",
+      "evidence": "moveit_core's controller_manager header declares \"virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0;\" (moveit2 438f6d20). rclcpp PR #1913 ('remove things that were deprecated during galactic') deleted the constructor it relies on: \"-  explicit Duration(rcl_duration_value_t nanoseconds);\" from rclcpp/include/rclcpp/duration.hpp. The failure is a removed library API element across the boundary (not internal, not deployment wiring, not a build-system change; the consumer's source must change)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer was written against an rclcpp release that still had the constructor and was built against a newer release without it. PR #1181: \"I believe this is caused by https://github.com/ros2/rclcpp/pull/1913 and rclcpp getting a new release.\" Issue comment: \"They did a sync and now main is also broken\"."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Build failure in CI with the compiler error quoted in PR #1181."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "moveit_core",
+      "role": "consumer",
+      "repo": "https://github.com/moveit/moveit2",
+      "broken_rev": "438f6d208cea653238ea827f1c83ae901cedc360",
+      "resolved_rev": "14d2a932c74ab1dc6bed652738d17ee2bae23d4f",
+      "pinned": true,
+      "revision_basis": "Broken: PR #1181 was based on main at 438f6d20 (2022-04-13, 'Remove sbpl planner (#1173)'), confirmed as the base by the Codecov comment (\"into main (438f6d2)\"); the header line is unchanged on main from the issue date (2022-04-12) to that commit. The failing CI runs linked in the thread (runs 5997775137 on PR #1176 and 6026254800) are no longer retrievable. Resolved: PR #1181 squash-merged to main as 14d2a932 (2022-04-14).",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "rclcpp",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rclcpp",
+      "broken_rev": "16.0.0",
+      "resolved_rev": "16.0.0",
+      "pinned": true,
+      "revision_basis": "Not stated in the thread beyond \"rclcpp getting a new release\". PR #1913 merged 2022-04-08 as 68150229; the first tag containing it is 16.0.0 (2022-04-08). rclcpp 16.0.0-1 was bloomed into rolling on 2022-04-11 (rosdistro 887fff5d), before the issue (2022-04-12, CI 'testing' job) and before 16.0.1-1 (2022-04-14). The resolution changes only moveit, so this unit keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "15.4.0",
+    "resolved": "16.0.0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {
+      "element": "api:rclcpp::Duration",
+      "sides": {
+        "rclcpp": "provides",
+        "moveit_core": "consumes"
+      }
+    },
+    {
+      "element": "api:rclcpp::Duration::Duration(rcl_duration_value_t)",
+      "sides": {
+        "rclcpp": "provides",
+        "moveit_core": "consumes"
+      }
+    },
+    {
+      "element": "api:rclcpp::Duration::from_nanoseconds",
+      "sides": {
+        "rclcpp": "provides",
+        "moveit_core": "consumes"
+      }
+    },
+    {
+      "element": "api:rclcpp::Node",
+      "sides": {
+        "rclcpp": "provides",
+        "moveit_core": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": [
+        "api:rclcpp::Duration::Duration(rcl_duration_value_t)"
+      ],
+      "quote": "/home/runner/work/moveit2/moveit2/.work/target_ws/install/moveit_core/include/moveit/controller_manager/controller_manager.h:141:67: error: no matching conversion for functional-style cast from 'int' to 'rclcpp::Duration'\n    virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0;",
+      "url": "https://github.com/moveit/moveit2/pull/1181"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Compiler error at build: \"error: no matching conversion for functional-style cast from 'int' to 'rclcpp::Duration'\" (https://github.com/moveit/moveit2/pull/1181).",
+  "detection_stage": "build",
+  "resolution": {
+    "summary": "moveit_core's default argument uses the surviving factory: \"virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration::from_nanoseconds(-1)) = 0;\" (PR #1181, 14d2a932).",
+    "status": "recommended",
+    "evidence": "PR #1181 was approved and merged and closed the issue; a Codecov report exists for the PR head 515627a merged into main 438f6d2, indicating a CI build and test run, but the thread does not identify the rclcpp revision that run used, and no CI log is retrievable."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Composition choice: the thread documents several compositions broken by the same rclcpp release; this spec takes moveit_core against rclcpp because the Duration error is the first one reported and the first one the fix PR addressed (the reporter then added: \"I think it also fails with:\" followed by the gripper_controller_handle.h:152:46 error \"no viable overloaded '='\"). Other compositions, not specified here, all against rclcpp_action (a separate package in the same repository) through Client::SendGoalOptions::goal_response_callback, whose compatibility wrapper accepting the old std::shared_future signature was removed by the same PR #1913: moveit_simple_controller_manager (gripper_controller_handle.h and follow_joint_trajectory_controller_handle.cpp), moveit_ros_planning_interface (move_group_interface.cpp) and moveit_hybrid_planning (hybrid_planning_manager.cpp); all fixed in the same PR #1181 by switching lambdas to the GoalHandle::SharedPtr signature. The constructor had been marked deprecated before removal (rclcpp 15.4.0 duration.hpp: \"Use Duration::from_nanoseconds instead or std::chrono_literals. For example:\"); no deprecation warning from moveit's builds is shown in the sources. consumer_built_against '15.4.0' is inferred: it is the last rclcpp release before 16.0.0 (bloomed into rolling 2022-04-06, rosdistro 9caccb63) and still declares the constructor, and the maintainers state main CI broke only after the sync that brought the new release. Canonical form note: the removed element is one constructor overload, so the element name carries its parameter list (api:rclcpp::Duration::Duration(rcl_duration_value_t)) to identify the overload; other Duration constructors remained. api:rclcpp::Duration::from_nanoseconds is used only by the resolved consumer revision. The inventory is limited to the header component that failed (moveit_core/controller_manager); moveit_core uses many more rclcpp symbols elsewhere."
+}

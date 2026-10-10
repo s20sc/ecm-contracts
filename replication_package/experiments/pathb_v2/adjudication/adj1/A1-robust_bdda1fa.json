@@ -1,0 +1,68 @@
+{
+  "item_id": "A1-robust_bdda1fa",
+  "kind": "A1",
+  "case_id": "robust_bdda1fa",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "'module' object has no attribute 'guided_enable'",
+    "url": "https://github.com/mavlink/mavros/issues/478",
+    "reason": "For the specified mavsetp process versus mavros node composition, the observed failure occurs in the script's local mavros.command module before a service request is created. Any correctly running mavros node, including one still offering guided_enable, leaves the same local AttributeError unchanged. The specification incorrectly folds the local Python client module into the remote-node side to create a crossing failure. A script/library formulation would need independently deployable units to be established. UPGRADE is additionally unsupported for two artifacts shipped together without evidence of separate releases/builds.",
+    "additional_evidence": [
+      {
+        "quote": "def enable_offboard():\n    try:\n        command.guided_enable(value=True)\n    except rospy.ServiceException as ex:\n        fault(ex)",
+        "url": "https://raw.githubusercontent.com/mavlink/mavros/18131c8cb55748214ad2b455cc2ecb30f7657b05/mavros/scripts/mavsetp"
+      },
+      {
+        "quote": "-guided_enable = None",
+        "url": "https://github.com/mavlink/mavros/commit/d7bd78574a0deb5f12ff7da529c784508ddba275"
+      }
+    ]
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "disagree",
+      "proposed_elements": ["api:mavros.command.guided_enable"],
+      "quote": "-    guided_enable = _get_proxy('guided_enable', CommandBool)",
+      "url": "https://github.com/mavlink/mavros/commit/d7bd78574a0deb5f12ff7da529c784508ddba275",
+      "reason": "Removal of the Python symbol is real. The server service was also removed in this commit, but the reported diagnostic occurs before invoking that service, so the remote service is historical context rather than an independently established failed interaction in this execution."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-        command.guided_enable(value=True)\n+        set_mode = rospy.ServiceProxy(mavros.get_topic('set_mode'), SetMode)\n+        ret = set_mode(custom_mode=\"OFFBOARD\")",
+      "url": "https://github.com/mavlink/mavros/commit/bdda1fab32a9d084cfe980fe4f364b5eb35173e0",
+      "reason": "The consumer indeed retained a call to the removed symbol. This is the same missing Python API as condition 0, not a second independent failure; the taxonomy/element agreements must not be interpreted as approving double counting."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "'module' object has no attribute 'guided_enable'",
+    "url": "https://github.com/mavlink/mavros/issues/478",
+    "reason": "The interpreter reports an explicit missing-attribute error. This establishes loud failure, not a ROS service-connection diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "def publish_once(args, pub, msg):\n    pub.publish(msg)\n    rospy.sleep(0.2)\n    enable_offboard()",
+    "url": "https://raw.githubusercontent.com/mavlink/mavros/18131c8cb55748214ad2b455cc2ecb30f7657b05/mavros/scripts/mavsetp",
+    "reason": "The failing call occurs after publishing and sleeping, during execution rather than import or build."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Works for me. Thanks for the fast turnaround!",
+    "url": "https://github.com/mavlink/mavros/issues/478#issuecomment-173834273",
+    "reason": "This is genuine reporter confirmation of a working repair, but the short exchange does not identify the revision of the running mavros node or state that both processes were updated to bdda1fab. Under the required revision-specific composition criterion, the specified resolved pair is not observed; the repair is recommended for that pair. This distinction does not deny the reported success."
+  },
+  "notes": "Read issues #478 and #407 with all comments, both removal/fix diffs and the pinned pre-fix script. The specification's claim that an old server would let the same broken script work is contradicted by Python attribute lookup in the local process. The two listed conditions overlap on the same API removal. These facts are separate from the real historical removal of cmd/guided_enable, shown by the deleted advertiseService line, and from the reporter's successful test of the repair."
+}

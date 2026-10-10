@@ -1,0 +1,40 @@
+{
+  "task_id": "u0115",
+  "package": "robot_state_publisher",
+  "manifest_version": "1.11.2",
+  "ports": [
+    {
+      "element": "param:/robot_description",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": ["param:/robot_description"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "present", "value": "if ROS time moved backwards (last_callback_time_ > now), clear last_publish_time_ and force re-publish of joint transforms"},
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3",
+    "ports[0].side": "snapshot:src/joint_state_listener.cpp:156 | model.initParam(\"robot_description\");",
+    "references[param:/robot_description]": "snapshot:src/joint_state_listener.cpp:156 | model.initParam(\"robot_description\"); (relative name \"robot_description\" passed to urdf::Model::initParam from main(); resolved at run time against the node's namespace, which is / by default; urdf::Model source is not in the snapshot)",
+    "exclusive": "searched snapshot/src, snapshot/include, CMakeLists.txt, package.xml, test/*.launch: no exclusive hardware/device claims",
+    "perm_requires.state": "searched snapshot/src, snapshot/include, CMakeLists.txt, package.xml, test/*.launch: no permission requirements declared",
+    "perm_grants.state": "searched snapshot/src, snapshot/include, CMakeLists.txt, package.xml, test/*.launch: no permission grants declared",
+    "recovery.value": "snapshot:src/joint_state_listener.cpp:92-98 | // check if we moved backwards in time (e.g. when playing a bag file) ... if (last_callback_time_ > now) { // force re-publish of joint transforms ... last_publish_time_.clear(); }"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The only listed element is consumed: main() reads the URDF XML string from parameter robot_description via urdf::Model::initParam and builds a KDL tree from it; the name matches the packet element in the default namespace and nothing in this code contradicts the expected robot_description contract."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 package; QoS fields null by rule. The packet element param:/robot_description is consumed, so it is listed in references only (declares/not_declared cover provided elements, none here). Code passes the relative name \"robot_description\" (joint_state_listener.cpp:156); the packet's canonical /robot_description is its resolution in the root namespace; exact lookup semantics (getParam vs searchParam) live in urdf::Model::initParam, which is outside the snapshot. The return value of initParam is ignored; a missing or empty parameter surfaces as treeFromUrdfModel failure, which logs 'Failed to extract kdl tree from xml robot description' and exits with -1 (lines 158-160). Parameter value type is the URDF XML string; no msg definition applies, so msg_type and definition_id are null; frame and units are null because the parameter is a whole robot model with no single frame. Other interface elements in the code that are not in the packet: subscribes topic joint_states (sensor_msgs/JointState, queue 1, line 68); private params ~publish_frequency (double, default 50.0, line 58), ~use_tf_static (bool, default false, line 60), tf_prefix via searchParam (string, default \"\", lines 63-64); publishes transforms via tf2_ros::TransformBroadcaster and tf2_ros::StaticTransformBroadcaster (robot_state_publisher.h:86-87; robot_state_publisher.cpp:99,121,124) with frame_id/child_frame_id from the URDF tree resolved with tf_prefix. Test launch files (test/*.launch) set a root-namespace robot_description parameter from URDF text files; the tests read it with getParam(\"robot_description\") on a default (non-private) NodeHandle named n_tilde (test/test_one_link.cpp:73-75)."
+}

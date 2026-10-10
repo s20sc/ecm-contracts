@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-C3-132",
+  "kind": "A1",
+  "case_id": "C3-132",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: concrete late-subscriber failure with ArduPilot SITL and stated versions; maintainer accepts the correction. E2: MAVROS publisher and the reporter ROS package are separate units interacting over gp_origin. The change is declared QoS, not a topic-name remap. E3: PAIR. E4: a late subscriber misses the one-off origin publication.",
+    "quote": "This means my nodes requiring this information must be subscribed before this event happens because of the Sensor Quality of Service.",
+    "url": "https://github.com/mavlink/mavros/issues/1911"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "This means my nodes requiring this information must be subscribed before this event happens because of the Sensor Quality of Service.",
+      "url": "https://github.com/mavlink/mavros/issues/1911",
+      "reason": "The documented requirement is retention for late joiners. The VOLATILE sensor publisher does not retain the one-off origin for them; qos_durability on gp_origin fits. No actual requested/offered incompatible-QoS event is alleged for the reporter package."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This means my nodes requiring this information must be subscribed before this event happens because of the Sensor Quality of Service.",
+    "url": "https://github.com/mavlink/mavros/issues/1911",
+    "reason": "The report describes missing historical data without a middleware incompatibility warning; it is silent non-delivery rather than a documented connection refusal."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "At least in my setup using Ardupilot SITL this is published once when `GPS_GLOBAL_ORIGIN` is emitted.",
+    "url": "https://github.com/mavlink/mavros/issues/1911",
+    "reason": "The failure depends on subscription timing relative to a publication during operation, supporting run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed by #2065",
+    "url": "https://github.com/mavlink/mavros/issues/1911#issuecomment-3289277025",
+    "reason": "The maintainer accepts #2065. The reported successful test belongs to another contributor and the predecessor #2063, not the original reporter package at identified resolved revisions; recommended is correct.",
+    "supporting_evidence": [
+      {
+        "quote": "My test node received the message correctly.",
+        "url": "https://github.com/mavlink/mavros/issues/1911#issuecomment-3285476980"
+      },
+      {
+        "quote": "+  return rclcpp::QoS(10).keep_last(1).reliable().transient_local();",
+        "url": "https://github.com/mavlink/mavros/pull/2065.diff"
+      }
+    ]
+  },
+  "notes": "Read the reporter clarification distinguishing the publisher-retention request from the guided_target subscription PR. The latter is another composition and does not justify adding a reliability condition to this case. The #2065 diff also changes other latched topics; these are outside this pair. No additional failed condition found."
+}

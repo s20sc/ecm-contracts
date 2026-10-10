@@ -1,0 +1,73 @@
+{
+  "task_id": "u0435",
+  "package": "rclcpp",
+  "manifest_version": "16.0.0",
+  "ports": [
+    {
+      "element": "api:rclcpp::Duration",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Duration::from_nanoseconds",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": "nanoseconds",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Node",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rclcpp::Duration": "api rclcpp::Duration: class RCLCPP_PUBLIC Duration",
+    "api:rclcpp::Duration::from_nanoseconds": "api rclcpp::Duration::from_nanoseconds: static Duration from_nanoseconds(rcl_duration_value_t nanoseconds);",
+    "api:rclcpp::Node": "api rclcpp::Node: class Node : public std::enable_shared_from_this<Node>"
+  },
+  "not_declared": [
+    "api:rclcpp::Duration::Duration(rcl_duration_value_t)"
+  ],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "ports[0].frame": "snapshot:rclcpp/include/rclcpp/duration.hpp:26 (class holds only a time span, rcl_duration_t rcl_duration_ at line 149; no spatial frame)",
+    "ports[1].frame": "snapshot:rclcpp/include/rclcpp/duration.hpp:130 (static factory returning a time span; no spatial frame)",
+    "ports[1].units": "snapshot:rclcpp/include/rclcpp/duration.hpp:129 \"/// Create a duration object from an integer number representing nanoseconds\"",
+    "ports[2].frame": "snapshot:rclcpp/include/rclcpp/node.hpp:77 (C++ class, not spatial data)",
+    "declares[api:rclcpp::Duration]": "snapshot:rclcpp/include/rclcpp/duration.hpp:26",
+    "declares[api:rclcpp::Duration::from_nanoseconds]": "snapshot:rclcpp/include/rclcpp/duration.hpp:130 (declaration spans lines 130-131: \"static Duration\" / \"from_nanoseconds(rcl_duration_value_t nanoseconds);\"); definition at snapshot:rclcpp/src/rclcpp/duration.cpp:290",
+    "declares[api:rclcpp::Node]": "snapshot:rclcpp/include/rclcpp/node.hpp:77",
+    "not_declared[api:rclcpp::Duration::Duration(rcl_duration_value_t)]": "Searched the whole snapshot for Duration constructors. Header snapshot:rclcpp/include/rclcpp/duration.hpp declares only Duration(int32_t seconds, uint32_t nanoseconds) (39), explicit Duration(std::chrono::nanoseconds nanoseconds) (42), template Duration(const std::chrono::duration<Rep, Period> & duration) (46-50), Duration(const builtin_interfaces::msg::Duration & duration_msg) (53), explicit Duration(const rcl_duration_t & duration) (59), Duration(const Duration & rhs) (61), private Duration() = default (151). snapshot:rclcpp/src/rclcpp/duration.cpp defines only the constructors at lines 34, 40, 45, 47, 55. grep for 'Duration(rcl_duration_value_t' and 'Duration::Duration' over the snapshot finds no single-argument rcl_duration_value_t constructor; rcl_duration_value_t appears in duration.hpp only at 113 (nanoseconds() return) and 131 (from_nanoseconds parameter).",
+    "perm_requires.state": "grep -rniE 'permission|sros|enclave|security' over snapshot:rclcpp/include and snapshot:rclcpp/src: only license text, enclave graph queries (node_graph.hpp:100, node_graph.cpp:321) and a Win32 NULL security attribute (signal_handler.cpp:290); no declared permission requirement",
+    "perm_grants.state": "same search as perm_requires; no permission grant declared",
+    "recovery.state": "grep -rniE 'recover|retry|fallback' over snapshot:rclcpp/include/rclcpp/duration.hpp, node.hpp, src/rclcpp/duration.cpp, node.cpp: no hits"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The three declared symbols are present and consistent between header and source. The single-argument Duration(rcl_duration_value_t) constructor is absent, but Duration::from_nanoseconds(rcl_duration_value_t) covers the same conversion, so this looks like a deliberate API removal. It could break consumers that still call the old constructor, but that is a compatibility problem rather than a defect inside this package."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the rclcpp repository root (rclcpp, rclcpp_action, rclcpp_components, rclcpp_lifecycle); the unit described is the rclcpp package (snapshot/rclcpp, package.xml version 16.0.0). All packet elements are C++ API symbols provided by rclcpp, so msg_type, definition_id, QoS and rate do not apply and are null; QoS in particular is not a property of a C++ class or function, so no API default was recorded. Ports are recorded only for the three provided elements declared at this revision; the not-declared constructor has no port. Units for rclcpp::Duration as a class are left null: the class stores nanoseconds internally (rcl_duration_t, duration.hpp:149) but exposes both seconds() and nanoseconds(), and no single unit is stated for the class. No packet element is consumed, so references is empty. from_nanoseconds is used inside rclcpp itself (duration.cpp:160,189,220; time.cpp:202; detail/qos_parameters.hpp:243,257,264). No exclusive resources are claimed."
+}

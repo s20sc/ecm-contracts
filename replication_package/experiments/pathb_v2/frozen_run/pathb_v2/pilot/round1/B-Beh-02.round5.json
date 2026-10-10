@@ -1,0 +1,83 @@
+{
+  "case_id": "B-Beh-02",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/551",
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/551#issuecomment-990399891",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/1a2c386455067b00a9e67fb70cc711add38c3582/rosbridge_library/src/rosbridge_library/internal/subscribers.py#L108",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/690",
+    "https://github.com/RobotWebTools/rosbridge_suite/commit/adfa4d6335462e321d774400a6ffbf285cb28531",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/582",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/654"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public GitHub issue with a three-step reproducer and the server log, plus a maintainer confirmation and a merged fix. Reporter: \"Steps to Reproduce the Problem 1. Run a ROS2 node that publishes data to a topic using **Best Effort** reliability. 2. Run `rosbridge_server` and attempt to subscribe to that topic using a rosbridge client library (roslibpy, roslibjs). The subscriber should not receive any data. 3. Change the reliability policy on the publisher to **Reliable** and repeat step 2. The subscriber should now receive data from the publisher.\" (issue #551). Maintainer jtbandes 2021-12-09: \"Should be fixed by #690\"; PR #690 body: \"Fixes #551\", merged 2021-12-09 as adfa4d6335462e321d774400a6ffbf285cb28531."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rosbridge_server", "reporter_best_effort_publisher"],
+      "interface_kind": "topic",
+      "evidence": "Step 1: the two units are rosbridge_server (the rosbridge_websocket node; its ROS 2 subscriber is created in rosbridge_library/src/rosbridge_library/internal/subscribers.py, same repository and release) and the reporter's ROS 2 publisher node; they interact only through the topic. Step 2: the failure depends on the QoS assumption between the two units: rosbridge created its subscription with only a depth, `self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10)` (subscribers.py line 108 at 1a2c386), i.e. rclpy default reliability, and the reporter states \"It looks like `rosbridge_server` uses the default reliability QoS policy (which in my case ends up being **Reliable**) and only specifies the depth.\" With a Best Effort publisher no data flows; \"Change the reliability policy on the publisher to **Reliable** and repeat step 2. The subscriber should now receive data from the publisher.\" The mismatch crosses the boundary even though the resolving edit is inside rosbridge. Step 3: the fix changes rosbridge's declared subscription QoS, not deployment name binding. Step 4: not a build or packaging change. Step 5: not firmware. Stop at step 6: interface kind topic."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the publisher's output on the topic feeds rosbridge_server's subscription input. Observed in the PAIR arrangement (\"no data is ever received in the subscriber callback\"). No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"`rosbridge_server` silently fails to subscribe to topics with publishers that use **Best Effort** reliability instead of **Reliable.** The `rosbridge_server` logs indicate that the client connected and that the subscription was created, but no data is ever received in the subscriber callback.\" (issue #551)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rosbridge_server",
+      "role": "consumer",
+      "repo": "https://github.com/RobotWebTools/rosbridge_suite",
+      "broken_rev": "1a2c386455067b00a9e67fb70cc711add38c3582",
+      "resolved_rev": "adfa4d6335462e321d774400a6ffbf285cb28531",
+      "pinned": true,
+      "ros_distro": "foxy"
+    },
+    {
+      "name": "reporter_best_effort_publisher",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "as-reported-2021-01",
+      "resolved_rev": "as-reported-2021-01",
+      "pinned": false,
+      "ros_distro": "foxy"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null},
+  "inventory": [
+    {"element": "topic:/my_topic", "sides": {"reporter_best_effort_publisher": "provides", "rosbridge_server": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "qos_reliability",
+      "implicated_elements": ["topic:/my_topic"],
+      "quote": "`rosbridge_server` silently fails to subscribe to topics with publishers that use **Best Effort** reliability instead of **Reliable.** The `rosbridge_server` logs indicate that the client connected and that the subscription was created, but no data is ever received in the subscriber callback.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/551"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only diagnostics shown are the normal connection and subscription log lines, with no incompatible-QoS event: \"[INFO] [1611352924.485146047] [rosbridge_websocket]: Client connected. 1 clients total.\" and \"[INFO] [1611352926.636802670] [rosbridge_websocket]: [Client 1] Subscribed to /my_topic\", after which \"no data is ever received in the subscriber callback.\" The reporter adds: \"it would seem that a failure to connect based on QoS compatibility either fails silently or requires more verbose logging than I currently have configured.\" (issue #551). Title: \"QoS compatibility failing silently (ROS2)\".",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "PR #690 (merge commit adfa4d6335462e321d774400a6ffbf285cb28531, 2021-12-09; rosbridge_library CHANGELOG lists it under 1.1.1) changes the rosbridge subscriber to query `node_handle.get_publishers_info_by_topic(topic)` and, starting from a RELIABLE/VOLATILE depth-10 profile, set `qos.reliability = ReliabilityPolicy.BEST_EFFORT` if any existing publisher on the topic is Best Effort (and `qos.durability = DurabilityPolicy.TRANSIENT_LOCAL` if any is transient local), then `create_subscription(msg_class, topic, self.callback, qos, raw=raw)`. It also adds the launch test rosbridge_server/test/websocket/best_effort_publisher.test.py, which publishes on `/a_topic` with `ReliabilityPolicy.BEST_EFFORT` and asserts the rosbridge client receives `{\"op\": \"publish\", \"topic\": \"/a_topic\", \"msg\": {\"data\": \"hello\"}}`.",
+    "status": "recommended",
+    "evidence": "PR #690 body: \"Subscriber QoS is automatically chosen based on available publishers to achieve compatible QoS settings in more cases.\" and \"This PR attempts to use a qos profile that would accept any published message.\" Maintainer on the issue: \"Should be fixed by #690\" (https://github.com/RobotWebTools/rosbridge_suite/issues/551#issuecomment-990399891). The PR is merged with an automated test of exactly this composition, but the source contains no run output or CI record showing the test passing (no check runs or workflow runs are recorded for the PR head 6b7ba83ec589ecca79e2cbf394b07f3c225baf89 or the merge commit), and the reporter's own composition was never shown working after the fix; hence recommended rather than observed."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "high",
+  "notes": "Composition choice: the source documents one composition between the reporter's Best Effort publisher and rosbridge_server's ROS 2 subscription; the rosbridge websocket client (roslibpy/roslibjs) is a third unit on the other side of rosbridge and is not part of this composition. The issue was originally filed about custom message definitions and renamed on 2021-01-25; the body's leading Edit says the problem \"was actually regarding ROS2 QoS settings\". Other compositions addressed by the same fix, not conditions of this case: (1) a TRANSIENT_LOCAL (\"latched\") publisher such as /tf_static with rosbridge's VOLATILE subscription, which is what motivated PR #690 (\"I discovered that rosbridge was not receiving \\\"latched\\\" `/tf_static` messages\", linking foxglove/studio#1987 and ros2/ros2cli#523); the durability branch of the fix and the added transient_local_publisher.test.py cover it. PRs #582 (\"ROS2 - Add qos_durability (volatile or transient_local) option to subcriptions\", by the issue reporter, cross-referenced 2021-08-25) and #654 (\"Use topic's qos if published\") were closed by #690. Limitation stated in the fix: \"This is not perfect because more publishers may come online after our subscriber is set up, but we try to provide sane defaults.\" Revisions: the reporter states \"Rosbridge Version (`roscat rosbridge_server package.xml | grep '<version>'`): 1.0.2 (more specifically 1a2c386)\"; 1a2c386 (2020-09-19, \"Adaptations to Eloquent [Again] (#533)\") is on the ros2 branch, 6 commits after tag 1.0.2, and package.xml there says 1.0.2; at the merge commit package.xml says 1.1.0 and the CHANGELOG places #690 in release 1.1.1 (tag 62b305b8788464b8289e491a7bca06436af0dc9d, 2021-12-09, 2 commits after adfa4d6). The provider unit is the reporter's own node with no public repository, so this case is excerpt-based; its revision label as-reported-2021-01 is unchanged in the resolved composition because the fix is entirely on the rosbridge side; in the PR's test the stand-in provider is the test node's `node.create_publisher(String, \"/a_topic\", qos_profile=qos)` with `ReliabilityPolicy.BEST_EFFORT`. The message type on /my_topic is not stated. E3 alternatives: none."
+}

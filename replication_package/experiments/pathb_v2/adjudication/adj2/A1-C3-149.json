@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-149",
+  "kind": "A1",
+  "case_id": "C3-149",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "For fastdds, when the program ends, fastdds resources start to release by Destructor. \nNote that the destruction of the static executor happens after this process. This results in an exception when the executor tries to access fastdds resources during its destruction.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/761 (Barry-Xu-2018 comment 2024-06-04, read this session via API)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "For fastdds, when the program ends, fastdds resources start to release by Destructor. \nNote that the destruction of the static executor happens after this process. This results in an exception when the executor tries to access fastdds resources during its destruction.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/761 (Barry-Xu-2018 comment 2024-06-04, read this session via API)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "cannot publish data, at ./src/rmw_publish.cpp:66 during '__function__'",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/761 (issue body, read this session)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Before return, `wait_result_.reset()` should be called. ... The above modification can also fix this issue."
+  },
+  "notes": "Independently verified: (1) E1 — issue body gives the reproducer (moveit_task_constructor bb047c8 inside moveit/moveit2:rolling-source docker, launch_testing command), the log lines 'cannot publish data, at ./src/rmw_publish.cpp:66' / 'Fail in delete datareader, at ./src/rmw_service.cpp:89' / 'process has died [pid 5393, exit code -11', 'Version or commit hash: 8.5.0', 'Installation type: deb package', 'Humble and Iron don't exhibit this issue', WORKAROUND quick_exit(); maintainer reproduced: 'Besides, I can produce this issue.' (2) E2 stop 6 — the failure depends on the peer: 'In my environment, when I switched to CycloneDDS, no issues came up.' and 'I believe it's because cyclonedds doesn't release its resources when the program exits (fastdds use Destructor).' — a lifetime/teardown-order assumption crossing the rmw API boundary is an interface failure, not internal; the resolving edit is rclcpp source (wait_result_.reset() in spin scope-exit), not wiring/build/firmware. (3) rmw_fastrtps 8.5.0 sources verified at the cited lines: rmw_publish.cpp L66 'RMW_SET_ERROR_MSG(\"cannot publish data\");' and rmw_service.cpp L89 'RMW_SET_ERROR_MSG(\"Fail in delete datareader\");'. (4) Class 'other' is right: a static-destruction-order mismatch has no canonical class. Implicated elements api:rmw_publish and api:rmw_destroy_service match the two failing rmw calls in the log. (5) Loudness silent_documented/run: the RMW_SET_ERROR_MSG prints and the SIGSEGV are failure symptoms, not tooling diagnostics flagging the teardown-order assumption — the cause was only found via the maintainer's gdb backtrace; no build/connect/activate diagnostic exists. (6) Resolution recommended: rclcpp PR 2556 verified merged (merge_commit_sha 069a0018935b33a14632a1cdf4074984a1cf80fe, title 'Release ownership of entities after spinning cancelled'); the reporter's own confirmation 'Removing the static executor resolves the issue for me.' is a change in a third unit (MTC), not this composition, so it cannot make the status observed; no run with rclcpp 069a0018 + rmw_fastrtps 8.5.0 is shown."
+}

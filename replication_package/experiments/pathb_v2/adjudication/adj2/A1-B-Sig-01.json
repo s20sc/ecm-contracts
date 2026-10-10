@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Sig-01",
+  "kind": "A1",
+  "case_id": "B-Sig-01",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "There are 2 copies of this, 1 in my workspace/devel/include and the other in my opt/ros/melodic/include. Both of these copies have different md5sums defined in them.",
+    "url": "https://web.archive.org/web/20241013220537/https://answers.ros.org/question/358435/md5sum-error-client-rostopic-wants-topic-move_groupdisplay_planned_path-to-have-datatypemd5sum-moveit_msgsdisplaytrajectoryc3c039-but-our-version-has/"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[ERROR] [1596202093.852304142]: Client [/rostopic_11410_1596202092781] wants topic /move_group/display_planned_path to have datatype/md5sum [moveit_msgs/DisplayTrajectory/c3c039261ab9e8a11457dac56b6316c8], but our version has [moveit_msgs/DisplayTrajectory/41936b74e168ba754279ae683ce3f121]. Dropping connection.",
+      "url": "https://web.archive.org/web/20241013220537/https://answers.ros.org/question/358435/md5sum-error-client-rostopic-wants-topic-move_groupdisplay_planned_path-to-have-datatypemd5sum-moveit_msgsdisplaytrajectoryc3c039-but-our-version-has/"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Client [/rostopic_11410_1596202092781] wants topic /move_group/display_planned_path to have datatype/md5sum [moveit_msgs/DisplayTrajectory/c3c039261ab9e8a11457dac56b6316c8], but our version has [moveit_msgs/DisplayTrajectory/41936b74e168ba754279ae683ce3f121]. Dropping connection.",
+    "url": "https://web.archive.org/web/20241013220537/https://answers.ros.org/question/358435/md5sum-error-client-rostopic-wants-topic-move_groupdisplay_planned_path-to-have-datatypemd5sum-moveit_msgsdisplaytrajectoryc3c039-but-our-version-has/"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the solution would be to use only one of them. Either you unistall that package and use only the compile version of your workspace or just do not compile it and use the one that is in ROS path.",
+    "url": "https://web.archive.org/web/20241013220537/https://answers.ros.org/question/358435/md5sum-error-client-rostopic-wants-topic-move_groupdisplay_planned_path-to-have-datatypemd5sum-moveit_msgsdisplaytrajectoryc3c039-but-our-version-has/"
+  },
+  "notes": "独立核验通过。线程经 Wayback（2024-10-13 Askbot 快照）读取：错误行、报告者 'This was working perfectly some time ago ... and suddenly stopped working.'、双副本陈述、Weasfas 两段建议、gvdhoorn 'Don't ever do this. That hash is there for a reason, and it's not to be changed by users.'、报告者自述 'I changed the md5sum in one of the files to be the same as the other and it worked perfectly!' 均逐字核到；帖内无 Answers（仅 Comments，2020-07-31 提问，Ubuntu 18 / ROS Melodic）。发射端归属依据独立复核：ros_comm melodic-devel publication.cpp L497-499 错误串构造逐字核到（'std::string(\"], but our version has [\") + getDataType() + \"/\" + getMD5Sum()'），证实 'our version'=roscpp 发布方（move_group 侧）、'Client'=rostopic 侧。moveit_msgs 两提交核到：3bf6c81 'Add origin Pose to CollisionObject (#69)' 向 msg/CollisionObject.msg 添加 'geometry_msgs/Pose pose' 字段；cdb1133 'Revert \"Allow subframes in CollisionObjects (#50)\" (#72)'。md5→修订映射未独立重算（需全依赖闭包），但两副本两哈希的事实与上述字段级差异方向一致，UPGRADE 定性（提供方运行较新定义，消费方加载 melodic 发布版）成立。class=definition_mismatch（同名标称类型、定义不同）与元素 msg:moveit_msgs/DisplayTrajectory + topic:/move_group/display_planned_path 认可；loud_documented/connect 认可（ROS1 连接期 md5sum 校验拒绝，属枚举示例）；recommended 认可（建议使用同一构建，无已解决组合的运行展示）。"
+}

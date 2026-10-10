@@ -1,0 +1,38 @@
+{
+ "item_id": "A1-CAL-07",
+ "kind": "A1",
+ "case_id": "CAL-07",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Expected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u\n    Which is: 1",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/440"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "However, what we do next is suspicious.  In line 120, we call `publisher->toggle()`, which is the first time that we are instantiating the underlying `rclcpp::Publisher`.  And then we are immediately calling `publisher->get_publishers_info_by_topic()`, which doesn't wait around at all; it just returns what it has right now.  So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+   "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": "run",
+  "quote": "Expected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u\n    Which is: 1",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/440"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "So with all of that said, I think the fix here is to have the test attempt to `get_publishers_info_by_topic` a few times before giving up.  That will give discovery time to happen in almost all cases.",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+ },
+ "notes": "Verified via gh api: issue #440 body (the CI stacktrace from ci_linux 18164 with publishers_info.size() == 0 where 1u was expected, and the reporter's data_readers_/data_writers_ race analysis linking rmw_node.cpp at 4bec4c8c) and clalancette's comment-1490563629 quoted above. Eligible PAIR at step 6 (library API): the test assumes the graph query reflects a publisher created one line earlier; rmw_cyclonedds_cpp updates its graph cache asynchronously from its discovery thread, and with a middleware that answers synchronously the assertion holds, so the failure depends on an assumption between the two units. Class 'other' is right (a consistency/timing assumption on rmw_get_publishers_info_by_topic; no listed class names it). Silent: the middleware returned an empty list with no diagnostic; only the test's own assertion caught it. Resolution 'recommended' agreed: the retry fix (PR #513) and the rmw.h contract note (rmw PR #352) were merged, but the source does not show the resolved composition working with both units identified by revision."
+}

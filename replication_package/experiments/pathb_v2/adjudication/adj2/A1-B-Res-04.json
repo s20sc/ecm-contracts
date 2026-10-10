@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Res-04",
+  "kind": "A1",
+  "case_id": "B-Res-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "All starting and stopping interface keys are passed to all components, so the function should return return_type::OK by default when given interface keys not relevant for this component",
+    "url": "https://github.com/ros-controls/ros2_control/blob/2.35.0/hardware_interface/include/hardware_interface/system_interface.hpp"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "This PR makes sure that the start and stop interfaces in `perform_command_mode_switch` and `prepare_command_mode_switch` methods of the Hardware components will receive only the interfaces they expose, instead of all of them as of now.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/2120"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ros2_control_node-4] [ERROR] [1700586290.750508309] [resource_manager]: Component 'panda_1_FrankaHardwareInterface' did not accept new command resource combination: ... [ros2_control_node-4] [ERROR] [1700586290.750512947] [controller_manager]: Could not switch controllers since prepare command mode switch was rejected.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1177"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Looking at the content it looks like that is exactly what I was looking for and fixes the problem.",
+    "url": "https://github.com/ros-controls/ros2_control/pull/1391"
+  },
+  "notes": "独立核验通过。issue 1177 正文核到双 ERROR 日志行、'Using only the _fake_components/GenericSystem_ everything works just fine.'（E2 的 any-correct-peer 对照证据）以及 '++ panda_3_joint1/effort' 等 ++ 行；报告者收尾评论核到 'When I switch the controller manager to the moveit_simple_controller_manager/MoveItSimpleControllerManager this problem disappears.'（异组合 workaround，不改变本组合两单元）。franka_hardware_interface.cpp@b8555c7 逐行核到 L299 'Preparing command mode switch'、L301 '\"++ %s\", start_item.c_str()'、L421 '// Just in case: only allow new controller to be started if the current control mode is NONE'、L423 'Switching between control modes without stopping it first is not supported.'——与报告日志吻合，断裂版归因成立。PR2120 已合并，merge_commit_sha=157beab216ee60e662bb03e66ae2b822bd3bda72，正文引文逐字一致；PR2273 为 jazzy 回port（base=jazzy，merged，0ca2ee9c833bbfb7fe7151ad234d1b30f26adb0e），无 humble 回port，与 spec 一致。PR1391 评论核到 'I am facing this exact issue' 与结论文本。system_interface.hpp@2.35.0 L132/L151 两处 note 逐字核到。class=other 认可：被请求的 panda_3 接口未被占用，拒绝源于接口键误传而非独占冲突，spec 排除 exclusive_resource_conflict 的理由与正文证据相符；loud_documented/activate 认可（resource_manager 在激活期拒绝并打印 ERROR，属激活期既有工具诊断）；recommended 认可（#2120 从未在 franka_hardware 组合上展示工作，#1391 作者仅为阅读判断，报告者以 MoveIt 插件 workaround 关闭）。"
+}

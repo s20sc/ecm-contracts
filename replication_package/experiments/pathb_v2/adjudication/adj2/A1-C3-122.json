@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-122",
+  "kind": "A1",
+  "case_id": "C3-122",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "iuhilnehc-ynos: \"It's a potential dead-lock.\" with the lock sequence rmw_create_client L130 \"std::lock_guard<std::mutex> lck(participant_info->entity_creation_mutex_);\" then L440 \"std::lock_guard<std::mutex> guard(common_context->node_update_mutex);\", versus rmw_create_subscription L90 node_update_mutex then L104 \"rmw_ret = rmw_fastrtps_shared_cpp::destroy_subscription(\" (which takes entity_creation_mutex_); and \"accessing the `change->writer_info.previous or change->writer_info.next` in T16(mutexes: write M18210) and T37(mutexes: write M18120, write M18121) is not protected by one same mutex\"",
+    "url": "https://github.com/ros2/ros2/issues/1488#issuecomment-1752278901"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "System emit 2 different TSAN error report, within 1 in subscription.c (possible deadlock), 1 in FlowControllerImpl.hpp (data race)."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PR #725 \"avoid using dds common public mutex directly\" merged 2023-11-03 \"to address one warning TSAN about `lock-order-inversion` mentioned at https://github.com/ros2/ros2/issues/1488#issuecomment-1752278901\"; clalancette: \"All right, all linked PRs are in, so closing this out.\""
+  },
+  "notes": "Independently verified: issue #1488 body (two TSAN reports, humble source build with -fsanitize=thread); Rrooach's reproducer comment \"we can also run test_graph__rmw_fastrtps_cpp within the build/rcl_action\"; iuhilnehc-ynos comment 1752278901 with the exact lock-order analysis quoted above and \"NOTE: Besides the above two issues, there are another TSAN warnings(not checked yet).\"; the code at the cited revisions — rmw_client.cpp@fe73970 L130/L440 and rmw_subscription.cpp@79f23ae L90/L104 — matches the spec's quotes exactly; PR #725 (merged rolling 2023-11-03) addresses only the lock-order inversion; fujitatomoya's list of related PRs (rmw_dds_common#73, rmw_cyclonedds#474, rmw_connextdds#134) confirmed. My independent reading matches the spec: the inversion is between two mutexes that rmw_fastrtps itself acquires in opposite orders — node_update_mutex is a public member of rmw_dds_common::Context but rmw_dds_common takes no part in the ordering, and the inversion would persist with any correct rmw_dds_common and any correct caller; the data race is internal to Fast-DDS's FlowControllerImpl. The rmw_dds_common API refactor in the fix changes an interface, but that is incidental refactoring, not evidence the defect was an interface failure. Tree step 2 'a crash in one unit's own logic ... would occur with any correct peer' fits → internal, ineligible."
+}

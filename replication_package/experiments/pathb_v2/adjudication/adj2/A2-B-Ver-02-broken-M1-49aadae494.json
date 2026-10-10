@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-B-Ver-02-broken-M1-49aadae494",
+ "kind": "A2",
+ "case_id": "B-Ver-02",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[msg:franka_msgs/FrankaState]",
+   "verdict": "verified",
+   "source_excerpt": "built u0241 (0.6.0) snapshot:franka_msgs/msg/FrankaState.msg:1-35 read in full this session: 'std_msgs/Header header / float64[6] cartesian_collision / ... / float64 time / franka_msgs/Errors current_errors / franka_msgs/Errors last_motion_errors' (35 lines, no robot_mode); snapshot:franka_msgs/CMakeLists.txt:6 'add_message_files(FILES Errors.msg FrankaState.msg)' || running u0242 (2489b6c) snapshot:franka_msgs/msg/FrankaState.msg:1 'std_msgs/Header header', body 43 lines, lines 34-41 add 'uint8 ROBOT_MODE_OTHER=0' ... 'uint8 ROBOT_MODE_AUTOMATIC_ERROR_RECOVERY=6' and 'uint8 robot_mode'; hashes reproduced this session: u0241 -> ed28b9cbecdc83fa7d31efb59f1ce010, u0242 -> 7782ef1d208d3efc42f6a4cc3c41c065"
+  },
+  {
+   "path": "ver_delta.consumer_reads[msg:franka_msgs/FrankaState]",
+   "verdict": "unverifiable",
+   "source_excerpt": "The provenance entry is the bare snippet 'franka_msgs::FrankaState contact;' with no location, so no cited source could be opened. Independent check this session: s2_work/tasks/u0239/artifact.txt:1 contains verbatim 'franka_msgs::FrankaState contact;' (and :2 'void FrankaStateCallback (const franka_msgs::FrankaState& FState2)'), i.e. the consumer-side read is real, but the item failed to cite where."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[msg:franka_msgs/FrankaState]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0241/snapshot/franka_msgs/msg/FrankaState.msg:33-35: 'float64 time / franka_msgs/Errors current_errors / franka_msgs/Errors last_motion_errors' (section ends here; no robot_mode field anywhere in the 35-line file)",
+   "running_excerpt": "s2_work/tasks/u0242/snapshot/franka_msgs/msg/FrankaState.msg:34-41: 'uint8 ROBOT_MODE_OTHER=0 / uint8 ROBOT_MODE_IDLE=1 / uint8 ROBOT_MODE_MOVE=2 / uint8 ROBOT_MODE_GUIDING=3 / uint8 ROBOT_MODE_REFLEX=4 / uint8 ROBOT_MODE_USER_STOPPED=5 / uint8 ROBOT_MODE_AUTOMATIC_ERROR_RECOVERY=6 / uint8 robot_mode'"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The upgrade unit encodes built=u0241 (franka_ros 0.6.0; package.xml:4 '<version>0.6.0</version>'), running=u0242 (2489b6c; package.xml:4 '<version>0.7.0</version>'), consumer=u0239 (MoveRobot broken excerpt), matching the spec's UPGRADE with consumer_built_against.broken=0.6.0. The provider port is evidenced at u0242 snapshot:franka_control/include/franka_control/franka_state_controller.h:62 'realtime_tools::RealtimePublisher<franka_msgs::FrankaState> publisher_franka_states_;' and the consumer subscription by u0239/artifact.txt:1-7 (callback + connection record naming topic /franka_state_controller/franka_states with datatype franka_msgs/FrankaState)."
+ },
+ "notes": "Both md5s reproduce with either cited Header source (ros/std_msgs@0.5.11 and ros-gbp kinetic std_msgs 0.5.11-0 give identical results this session), so the hash values are robust to that provenance choice. The changed-field difference is the added robot_mode field plus seven uint8 constants - a field-presence/type change, not a transcription artifact. The consumer_reads value is substantively true but the provenance entry lacks a pointer; verdict reflects the missing location."
+}

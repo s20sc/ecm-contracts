@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-133",
+  "kind": "A1",
+  "case_id": "C3-133",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "When trying to populate a ROS message that includes a float32[] field, if the JSON data for that field is a list of integer values, the conversion raises an error instead of converting the integer values to floats.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "When trying to populate a ROS message that includes a float32[] field, if the JSON data for that field is a list of integer values, the conversion raises an error instead of converting the integer values to floats.\n\nThis can become problematic when the library on the JS side decides to truncate float values, such as with this:",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "AssertionError: The 'axes' field must be a set or sequence and each value of type 'float' and each float in [-340282299999999994960115009090224128000.000000, 340282299999999994960115009090224128000.000000]",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PR #777 fixes the issue by updating _to_list_inst to accept both ints and floats"
+  },
+  "notes": "Eligible PAIR wire protocol field representation convention mismatch between JS JSON client and rosbridge_suite."
+}

@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_c0067f9-broken-M1-27387c57e6",
+ "kind": "A2",
+ "case_id": "robust_c0067f9",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[msg:mavros_msgs/WaypointGOTO]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0144/snapshot/mavros_msgs/srv/WaypointGOTO.srv:1 '# Request go to waypoint' (full file: request field ':5 mavros_msgs/Waypoint waypoint', response ':7 bool success'); registered at s2_work/tasks/u0144/snapshot/mavros_msgs/CMakeLists.txt:62 '  WaypointGOTO.srv' inside add_service_files; ':75 generate_messages(DEPENDENCIES geometry_msgs std_msgs)'; package.xml '<version>0.15.0</version>'. running: s2_work/tasks/u0143/snapshot/mavros_msgs — find -iname '*goto*' returns nothing; CMakeLists.txt:8-34 (add_message_files) and :36-66 (add_service_files, listing WaypointClear.srv:62, WaypointPull.srv:63, WaypointPush.srv:64, WaypointSetCurrent.srv:65) contain no WaypointGOTO; grep -ri goto over *.msg/*.srv/*.xml/*.txt/*.cpp/*.h returns nothing (exit 1); package.xml '<version>0.16.0</version>'."
+  },
+  {
+   "path": "ver_delta.consumer_reads[msg:mavros_msgs/WaypointGOTO]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0141/snapshot/mavros/src/mavros/mission.py:145 '    goto = _get_proxy('goto', WaypointGOTO)' (import at :17-18 'from mavros_msgs.srv import WaypointPull, WaypointPush, WaypointClear, \\' / '    WaypointSetCurrent, WaypointGOTO')."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[msg:mavros_msgs/WaypointGOTO]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0144/snapshot/mavros_msgs/srv/WaypointGOTO.srv:1-7 '# Request go to waypoint ... mavros_msgs/Waypoint waypoint --- bool success', registered at CMakeLists.txt:62",
+   "running_excerpt": "s2_work/tasks/u0143/snapshot/mavros_msgs: no WaypointGOTO.srv (find -iname '*goto*' empty), not listed in add_message_files (CMakeLists.txt:8-34) or add_service_files (:36-66), grep -ri goto over the snapshot's interface and source files returns nothing"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The broken upgrade unit records provider mavros_msgs built=u0144 (@90694f8, version 0.15.0) and running=u0143 (@19760fa, version 0.16.0), matching the recorded semver pair, with consumer mavros=u0141 (@19760fa, the same revision as the running provider). The producer port is the WaypointGOTO service definition shipped and registered at built; the consumer port is mission.py:17-18 importing WaypointGOTO from mavros_msgs.srv and :145 constructing the service proxy with it. Both ports name the same element, so the assembled composition represents the UPGRADE operation with the two ports actually connected."
+ },
+ "notes": "Every embedded claim of both provenance strings reproduced this session, including the CMake line numbers for add_message_files (8-34), add_service_files (36-66), the srv registration line (:62), generate_messages (:75), the whole-snapshot absence searches, and both semver values. The element's presence differs between built and running (service definition shipped vs removed), a presence difference under the substance criterion. The consumer at the running revision imports a name the running provider no longer defines."
+}

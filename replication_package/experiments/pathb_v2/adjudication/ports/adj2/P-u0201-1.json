@@ -1,0 +1,8 @@
+{"item_id": "P-u0201-1", "kind": "P", "task_id": "u0201", "element": "param:/move_group/allowed_goal_duration_margin", "side": "provides",
+ "values": [{"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "expected_trajectory_duration = expected_trajectory_duration * allowed_execution_duration_scaling_ + ros::Duration(allowed_goal_duration_margin_);",
+   "qos_basis": null},
+  {"field": "units", "recorded": "s", "verdict": "verified",
+   "source_excerpt": "static const double DEFAULT_CONTROLLER_GOAL_DURATION_MARGIN = 0.5; // allow 0.5s more than the expected execution time before triggering a trajectory cancel (applied after scaling)",
+   "qos_basis": null}],
+ "notes": "Opened both cited locations in s2_work/tasks/u0201/snapshot/moveit_ros/planning/trajectory_execution_manager/src/trajectory_execution_manager.cpp. frame: line 1198 (excerpt above) is pure duration arithmetic — the margin is added to expected_trajectory_duration via ros::Duration — no spatial meaning. units: cited line 47 states '0.5s' for the margin default and defines it as a plain double; line 1198 consumes allowed_goal_duration_margin_ inside ros::Duration(...), confirming seconds."}

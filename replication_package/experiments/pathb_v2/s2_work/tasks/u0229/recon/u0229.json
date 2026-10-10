@@ -1,0 +1,59 @@
+{
+  "task_id": "u0229",
+  "package": "nav2_bt_navigator",
+  "manifest_version": "0.2.4",
+  "ports": [
+    {
+      "element": "api:BT::Blackboard",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:BT::Tree",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:BT::Blackboard",
+    "api:BT::Tree"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "behavior_trees/navigate_w_replanning_and_recovery.xml: <RecoveryNode number_of_retries=\"6\" name=\"NavigateRecovery\"> whose recovery child is <SequenceStar name=\"RecoveryActions\"> (ClearEntireCostmap service_name=\"local_costmap/clear_entirely_local_costmap\"; ClearEntireCostmap service_name=\"global_costmap/clear_entirely_global_costmap\"; Spin spin_dist=\"1.57\"; Wait wait_duration=\"5\"), plus inner <RecoveryNode number_of_retries=\"1\"> around ComputePathToPose (clears global costmap) and FollowPath (clears local costmap)"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:nav2_bt_navigator/package.xml:5",
+    "ports[0]": "snapshot:nav2_bt_navigator/include/nav2_bt_navigator/bt_navigator.hpp:114 `BT::Blackboard::Ptr blackboard_;`; snapshot:nav2_bt_navigator/src/bt_navigator.cpp:87 `blackboard_ = BT::Blackboard::create();`; bt_navigator.cpp:90-94 `blackboard_->set<...>(...)`; bt_navigator.cpp:253 `blackboard_->set(\"goal\", goal->pose);`",
+    "ports[1]": "snapshot:nav2_bt_navigator/include/nav2_bt_navigator/bt_navigator.hpp:123 `std::unique_ptr<BT::Tree> tree_;`; snapshot:nav2_bt_navigator/src/bt_navigator.cpp:115 `BT::Tree temp_tree = bt_->buildTreeFromText(xml_string_, blackboard_);`; bt_navigator.cpp:119-122 `tree_ = std::make_unique<BT::Tree>(); tree_->root_node = temp_tree.root_node; tree_->nodes = std::move(temp_tree.nodes); temp_tree.root_node = nullptr;`; bt_navigator.cpp:236 `bt_->resetTree(tree_->root_node);`",
+    "references[api:BT::Blackboard]": "snapshot:nav2_bt_navigator/include/nav2_bt_navigator/bt_navigator.hpp:114; snapshot:nav2_bt_navigator/src/bt_navigator.cpp:87",
+    "references[api:BT::Tree]": "snapshot:nav2_bt_navigator/include/nav2_bt_navigator/bt_navigator.hpp:123; snapshot:nav2_bt_navigator/src/bt_navigator.cpp:115; snapshot:nav2_bt_navigator/src/bt_navigator.cpp:119",
+    "perm_requires.state": "searched all files under snapshot/nav2_bt_navigator (package.xml, CMakeLists.txt, include/, src/, behavior_trees/, README.md) for permission/security/SROS/policy declarations; none found",
+    "perm_grants.state": "same search as perm_requires; no granted permissions declared in snapshot/nav2_bt_navigator",
+    "recovery.state": "snapshot:nav2_bt_navigator/behavior_trees/navigate_w_replanning_and_recovery.xml:7",
+    "recovery.value": "snapshot:nav2_bt_navigator/behavior_trees/navigate_w_replanning_and_recovery.xml:7-26"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The code reaches into BT::Tree's data members directly (tree_->root_node, tree_->nodes, nulling temp_tree.root_node) and the shipped recovery XML uses the v3-era builtin ID SequenceStar, so it is tightly coupled to one shape of the behaviortree_cpp_v3 API; package.xml pins no library version, and without knowing the paired library revision I cannot tell whether that coupling is broken."
+  },
+  "confidence": "high",
+  "notes": "Package is a ROS 2 lifecycle node (ros_distro null). All ten packet elements are behaviortree_cpp_v3 C++ API symbols on the consumes side, so declares and not_declared are empty by rule (they concern provided elements only). Only BT::Blackboard and BT::Tree are named in this package's own sources; ports and references are recorded for those two. The other eight consumed symbols (BT::BehaviorTreeFactory, BT::ConditionNode, BT::ControlNode, BT::CoroActionNode, BT::DecoratorNode, BT::FallbackNode, BT::SequenceNode, BT::SequenceStarNode) are not named anywhere in snapshot/nav2_bt_navigator; they are named only in the separate nav2_behavior_tree package in the same snapshot (e.g. BehaviorTreeFactory as nav2_behavior_tree/include/nav2_behavior_tree/behavior_tree_engine.hpp:68 `BT::BehaviorTreeFactory factory_;`, which bt_navigator uses indirectly through nav2_behavior_tree::BehaviorTreeEngine at bt_navigator.cpp:84), so they are in neither list and have no port. The shipped XML behavior_trees/navigate_w_replanning_and_recovery.xml:20 uses the node ID `<SequenceStar name=\"RecoveryActions\">`; the mapping of that XML ID to a C++ class is made inside BehaviorTree.CPP's factory, which is not in the snapshot or the allowed sources, so it is not recorded as a reference to api:BT::SequenceStarNode. Which XML tree actually runs is chosen at run time by parameter bt_xml_filename (declared without a default, bt_navigator.cpp:35); the node-plugin libraries come from parameter plugin_lib_names (default {\"nav2_behavior_tree_nodes\"}, bt_navigator.cpp:37-38). frame, units, QoS, rates and definition_id are null for both ports because the elements are C++ library symbols, not ROS message interfaces; no QoS applies. Recovery is recorded from the shipped recovery tree; the lifecycle on_error handler (bt_navigator.cpp:178-182) only logs and returns SUCCESS, and on CANCELED the tree is reset via bt_->resetTree (bt_navigator.cpp:236). No exclusive resource claims found. The package also subscribes to goal_pose (geometry_msgs/PoseStamped, SystemDefaultsQoS) and serves/calls the NavigateToPose action (nav2_msgs/NavigateToPose), but these are not packet elements and are not recorded as ports."
+}

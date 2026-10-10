@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_84264f0",
+  "kind": "A1",
+  "case_id": "robust_84264f0",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 3,
+    "reason_code": "deployment_wiring",
+    "quote": "Move `~visualization/visualization/xxx` → `~visualization/xxx`.",
+    "url": "https://github.com/mavlink/mavros/issues/207"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Move `~visualization/visualization/xxx` → `~visualization/xxx`. (the entire public record — maintainer self-filed issue plus fix commit — contains no error output, warning, or runtime observation)",
+    "url": "https://github.com/mavlink/mavros/issues/207"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Subject: [PATCH] uncrustify and fix #207 (null resolution status conforms to the ineligible-case schema; the fix commit exists but no resolved composition with an identified peer is shown working)"
+  },
+  "notes": "Independently verified: (1) issue #207 is by vooon (mavros maintainer), 2015-02-03, title 'Fix param names in visualization plugin', body links visualization.cpp#L54 and reads exactly as quoted; (2) commit 84264f0 (2015-03-05, parent 01055466b1a97a71d2374831a43f276f392fc27d, confirmed via commits API) changes only the three param keys: 'viz_nh.param<std::string>(\"visualization/fixed_frame_id\", fixed_frame_id, \"local_origin\");' etc. become '\"fixed_frame_id\"'/'\"child_frame_id\"'/'\"marker_scale\"' on the handle constructed as 'viz_nh(\"~visualization\")' (file read at https://raw.githubusercontent.com/mavlink/mavros/01055466b1a97a71d2374831a43f276f392fc27d/mavros_extras/src/plugins/visualization.cpp); (3) at 0ce9bce (confirmed master head on 2015-02-03 via commits API: 0ce9bce21193e4210b624cfed9da75124fce39f3) the handle was 'viz_nh = ros::NodeHandle(nh, \"visualization\");' with the same doubled keys, param line at L54; (4) repo-wide grep at 0105546 (git clone, checkout) finds no launch/YAML setting any of these parameters: px4_config.yaml and apm2_config.yaml have no visualization entries (their 'child_frame_id' hits are commented-out lines of other plugins), the only 'visualization' occurrences are a plugin blacklist entry in mavros/launch/apm2_blacklist.yaml and package metadata. Independent E2 walk: step 1 barely identifies a peer (no config provider exists anywhere in the source or repo); step 2 not internal only because the binding assumption crosses to a hypothetical config; step 3 applies because the minimal resolving change rebinds only the namespace path of three parameters whose leaf names, types (std::string/std::string/double) and defaults (\"local_origin\"/\"fcu\"/2.0) are unchanged, and no unit's declared interface changed — the tree's parenthetical about provider-side parameter renames does not apply since no provider renamed anything. The alternative reading noted by the spec (eligible PAIR, outcome undocumented, because the edit changes the plugin's referenced param paths in code) was considered and rejected for the same reason the spec gives: with no second unit documented, no exchange failed. Agree with stop_step 3 / deployment_wiring and with ineligible."
+}

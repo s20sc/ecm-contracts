@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-149",
+  "kind": "A1",
+  "case_id": "C3-149",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "cannot publish data, at ./src/rmw_publish.cpp:66 during '__function__'",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/761"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "For fastdds, when the program ends, fastdds resources start to release by Destructor. \nNote that the destruction of the static executor happens after this process. This results in an exception when the executor tries to access fastdds resources during its destruction.",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/761#issuecomment-2146876252"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "cannot publish data, at ./src/rmw_publish.cpp:66 during '__function__'",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/761"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Before return, `wait_result_.reset()` should be called. ... The above modification can also fix this issue."
+  },
+  "notes": "Process shutdown ordering / destructor lifetime assumption across the rmw API is correctly captured as class 'other' and status recommended."
+}

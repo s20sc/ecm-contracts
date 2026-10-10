@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-robust_566092b",
+  "kind": "A1",
+  "case_id": "robust_566092b",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "In rare cases the result is not available when the client SUCCEEDS.",
+    "url": "https://github.com/ros/geometry2/pull/333",
+    "reason": "E1/E4: the issue supplies a reproducer and error trace; the fix PR confirms the mismatch. E2: tf2_ros BufferClient consumes separately released actionlib state/result APIs and assumes an ordering the provider does not guarantee in practice. A consumer using the waiting API avoids it, so this is a boundary assumption rather than a failure with every correct peer. E3: PAIR fits the state/result flow."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Calling `get_state()` can give the SUCCEEDED state before a result is available.",
+      "url": "https://github.com/ros/actionlib/issues/116",
+      "reason": "This directly identifies get_state/get_result ordering, not a rate requirement, changed type, or removed symbol; other is appropriate."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "SimpleActionClient received DONE twice",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-223066155",
+      "reason": "The high-frequency goal/polling reproducer also exhibits the action client's internal state-machine inconsistency. The supplied rules retain internal defects observed in the selected composition as other. send_goal and get_state identify the goal/polling interaction; the log does not demonstrate either API was retyped."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The BufferServer returned None for result or result.error!  Something is likely wrong with the server.",
+    "url": "https://github.com/ros/geometry2/issues/178",
+    "reason": "This exception and the actionlib state-machine logs occur during running requests, not at build, connection, or activation. silent_documented is correct under the task's definition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "    return self.__process_result(self.client.get_result())",
+    "url": "https://github.com/ros/geometry2/issues/178",
+    "reason": "The traceback is in result processing after goal submission: run."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "From this short test I believe that the problem was partially mitigated.",
+    "url": "https://github.com/ros/geometry2/issues/178#issuecomment-431658241",
+    "reason": "The test demonstrates disappearance of the missing-result symptom, but still reports the second listed state-machine condition. It also does not identify the 2018 test's actionlib revision. The specification cannot carry the inferred 2016 actionlib version forward as proof of that run. The patch is a supported partial remedy, not an observed fully resolved, revision-identified composition."
+  },
+  "notes": "Read the initial 15 of 30 timeline entries of geometry2 #178, including the before/after retest; later entries were not retrieved because the GitHub REST API was rate-limited and HTML pagination did not advance. Independently read the complete actionlib #116 comments, PRs #333/#337, and the 566092b patch. PR #337 recommends replacing custom polling with wait_for_result; it is a later change, not evidence that the selected patch resolved both recorded conditions. No conclusion relies on the unread #178 comment cited in the specification."
+}

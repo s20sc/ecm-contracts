@@ -1,0 +1,72 @@
+{
+  "task_id": "u0289",
+  "package": "launch",
+  "manifest_version": "0.10.8",
+  "ports": [
+    {
+      "element": "api:group",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:include",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:set_env",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:group": "api group: @expose_action('group')",
+    "api:include": "api include: @expose_action('include')",
+    "api:set_env": "api set_env: @expose_action('set_env')"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:launch/package.xml:5",
+    "ports[0].side": "snapshot:launch/launch/actions/group_action.py:34",
+    "ports[0].frame": "snapshot:launch/launch/actions/group_action.py:34-91 (frontend action tag registered via expose_action; parse reads attr 'scoped' and child entities only; no spatial data)",
+    "ports[1].side": "snapshot:launch/launch/actions/include_launch_description.py:38",
+    "ports[1].frame": "snapshot:launch/launch/actions/include_launch_description.py:38-98 (frontend action tag; parse reads attr 'file' and child 'arg' entities with 'name'/'value'; no spatial data)",
+    "ports[2].side": "snapshot:launch/launch/actions/set_environment_variable.py:31",
+    "ports[2].frame": "snapshot:launch/launch/actions/set_environment_variable.py:31-72 (frontend action tag; parse reads attrs 'name' and 'value'; writes os.environ; no spatial data)",
+    "declares[api:group]": "snapshot:launch/launch/actions/group_action.py:34",
+    "declares[api:include]": "snapshot:launch/launch/actions/include_launch_description.py:38",
+    "declares[api:set_env]": "snapshot:launch/launch/actions/set_environment_variable.py:31",
+    "perm_requires.state": "searched snapshot:launch/ (*.py, *.xml, *.yaml, *.lark, excluding tests) for permission|policy|exclusive; only license-header hits",
+    "perm_grants.state": "searched snapshot:launch/ (*.py, *.xml, *.yaml, *.lark, excluding tests) for permission|policy; only license-header hits",
+    "recovery.state": "searched snapshot:launch/ (*.py, *.xml, *.yaml, *.lark, excluding tests) for recover|respawn; no hits"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All three frontend tags are registered with expose_action and have parse methods consistent with their constructors, so nothing looks broken in isolation; but set_env mutates the process-wide os.environ while group's 'scoped' option only pushes/pops launch configurations, so a consumer expecting group or include to scope environment variables would not get that at this revision, and whether that counts as a defect depends on what the peer expects."
+  },
+  "confidence": "high",
+  "notes": "The three packet elements are launch frontend action tags (XML/YAML front ends), registered at import time into action_parse_methods by @expose_action (snapshot:launch/launch/frontend/expose.py:124-130; launch/__init__.py:17 imports actions). 'group' decorates class GroupAction(Action) (group_action.py:35), parse accepts optional bool attr 'scoped' and child actions; the Python-only kwarg launch_configurations is not exposed to the frontend. 'include' decorates class IncludeLaunchDescription(Action) (include_launch_description.py:39), parse requires attr 'file' and optional child list 'arg' each with 'name' and 'value'. 'set_env' decorates class SetEnvironmentVariable(Action) (set_environment_variable.py:32), parse requires attrs 'name' and 'value'; execute sets os.environ directly (lines 68-72). All three inherit optional 'if'/'unless' attrs from Action.parse (action.py:52-76). The declares entries use the decorator line because it is the line that names the exposed symbol. These are not ROS communication endpoints, so msg_type, units, QoS, rates and definition_id do not apply and are null; frame is recorded as none because the elements carry no spatial data. No packet element is consumed, so references is empty. Incidental observation: UnsetEnvironmentVariable.parse (unset_environment_variable.py:51) has the docstring \"Parse a 'set_env' entity.\" although it is exposed as 'unset_env'; this is a docstring only and does not affect the set_env registration. The snapshot directory also holds sibling packages (launch_xml, launch_yaml, launch_testing, ...) which were not used for this description."
+}

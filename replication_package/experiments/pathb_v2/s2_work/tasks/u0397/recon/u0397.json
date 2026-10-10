@@ -1,0 +1,105 @@
+{
+  "task_id": "u0397",
+  "package": "rosidl_cli",
+  "manifest_version": "3.1.2",
+  "ports": [
+    {
+      "element": "api:importlib.metadata.EntryPoint.load",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.EntryPoint.name",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.SelectableGroups.get",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.SelectableGroups.select",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.entry_points",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:importlib.metadata.EntryPoint.load",
+    "api:importlib.metadata.EntryPoint.name",
+    "api:importlib.metadata.SelectableGroups.get",
+    "api:importlib.metadata.SelectableGroups.select",
+    "api:importlib.metadata.entry_points"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "strict=False (default): a duplicate entry point, an unmet spec, or an entry point whose load() raises is logged as a warning and skipped; strict=True raises RuntimeError. Import falls back to the importlib_metadata backport on ModuleNotFoundError."
+  },
+  "provenance": {
+    "manifest_version": "snapshot:snapshot/rosidl_cli/package.xml:5",
+    "ports[0].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:84",
+    "ports[0].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:84 | loaded_entry_points[name] = entry_point.load() (Python plugin-loading call; no spatial data)",
+    "ports[1].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:45",
+    "ports[1].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:45 | name = entry_point.name (string attribute; no spatial data)",
+    "ports[2].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:42",
+    "ports[2].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:42 | groups = entry_points_impl.get(group_name, []) (entry-point group lookup; no spatial data)",
+    "ports[3].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:40",
+    "ports[3].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:40 | groups = entry_points_impl.select(group=group_name) (entry-point group selection; no spatial data)",
+    "ports[4].side": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:38",
+    "ports[4].frame": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:38 | entry_points_impl = importlib_metadata.entry_points() (metadata query; no spatial data)",
+    "references[api:importlib.metadata.EntryPoint.load]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:84 | loaded_entry_points[name] = entry_point.load()",
+    "references[api:importlib.metadata.EntryPoint.name]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:45 | name = entry_point.name",
+    "references[api:importlib.metadata.SelectableGroups.get]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:39-42 | if hasattr(entry_points_impl, 'select'): ... else: groups = entry_points_impl.get(group_name, [])",
+    "references[api:importlib.metadata.SelectableGroups.select]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:39-40 | if hasattr(entry_points_impl, 'select'): groups = entry_points_impl.select(group=group_name)",
+    "references[api:importlib.metadata.entry_points]": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:17-20,38 | import importlib.metadata as importlib_metadata (except ModuleNotFoundError: import importlib_metadata); entry_points_impl = importlib_metadata.entry_points()",
+    "perm_requires": "searched all files under snapshot/rosidl_cli (package.xml, setup.py, resource/package.dsv, rosidl_cli/**/*.py, completion/*) for permission/security/sros declarations: none",
+    "perm_grants": "searched all files under snapshot/rosidl_cli (package.xml, setup.py, resource/package.dsv, rosidl_cli/**/*.py, completion/*) for permission/security/sros declarations: none",
+    "recovery.value": "snapshot:snapshot/rosidl_cli/rosidl_cli/entry_points.py:17-20,32,48-63,83-89 | :param bool strict: whether to raise or warn on error; except Exception as e: ... if strict: raise RuntimeError(msg) / logger.warning(msg)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "entry_points.py probes the entry_points() return with hasattr(..., 'select') and uses select(group=...) when available, falling back to dict-style get() only otherwise, which covers both the dict and the SelectableGroups/EntryPoints return shapes; EntryPoint.name and EntryPoint.load() are stable attributes."
+  },
+  "confidence": "high",
+  "notes": "rosidl_cli is a Python CLI package (ament_python); all five packet elements are Python standard-library APIs (importlib.metadata, with fallback to the importlib_metadata backport, package.xml:16 exec_depend python3-importlib-metadata) that the package consumes, so declares and not_declared are empty. The code never names the class SelectableGroups: it calls select()/get() on whatever importlib_metadata.entry_points() returns, taking the get() branch only when the returned object has no 'select' attribute (entry_points.py:39-42); the select branch applies to SelectableGroups and any other object exposing select. msg_type, units, QoS, rates and definition_id are null because these are Python API calls, not ROS topics/services/messages; no QoS concept applies. frame is 'none' because the data (entry-point metadata and loaded plugin objects) has no spatial meaning. Group names passed to entry_points are 'rosidl_cli.command.generate.type_extensions' / 'rosidl_cli.command.generate.typesupport_extensions' (command/generate/extensions.py:53,58) and 'rosidl_cli.command.translate.extensions' (command/translate/extensions.py:60-62). Unrelated observation: rosidl_cli/extensions.py:20 imports yaml but package.xml declares no yaml dependency (not a packet element). The snapshot also contains other rosidl packages; only snapshot/rosidl_cli was used for this record."
+}

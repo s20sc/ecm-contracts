@@ -1,0 +1,49 @@
+{
+  "case_id": "robust_8a729db",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/350",
+    "https://github.com/yujinrobot/kobuki/commit/8a729db54ee9a8b43f4634ab8052ddaa24d517fd",
+    "https://github.com/yujinrobot/kobuki/commit/d0bfb12680e05a4ea93fcbb3cf58aa2817c2aa24",
+    "https://github.com/yujinrobot/kobuki/blob/f99e495b2b3be1e62495119809c58ccb58909f67/kobuki_node/param/diagnostics.yaml",
+    "https://github.com/yujinrobot/kobuki/blob/f99e495b2b3be1e62495119809c58ccb58909f67/kobuki_node/launch/minimal.launch"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #350 'kobuki diagnostics parameter was out dated' (maintainer jihoonl, 2014-08-26): \"I found that kobuki battery is not presented on kobuki_dashboard when kobuki is started with \\n\\n> kobuki_node minimal.launch\\n\\nThe problem was [diagnostics.yaml](https://github.com/yujinrobot/kobuki/blob/indigo/kobuki_node/param/diagnostics.yaml) in `kobuki_node` uses prefix as `kobuki` whereas [diagnostics.yaml](https://github.com/turtlebot/turtlebot/blob/indigo/turtlebot_bringup/param/kobuki/diagnostics.yaml) in turtlebot_bringup uses `mobile_base_nodelet_manager`.\\n\\nKobuki diagnostics.yaml should be updated\". Closed two minutes later by commit 8a729db 'update diagnostics.yaml to show kobuki battery properly in kobuki dashboard. Fix #350'. Concrete symptom, maintainer diagnosis and fix."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": ["kobuki_node", "diagnostic_aggregator"],
+      "interface_kind": null,
+      "evidence": "Step 1: the units whose interaction failed are kobuki_node (the KobukiNodelet, loaded by minimal.launch into the nodelet manager named `mobile_base_nodelet_manager`, publishing /diagnostics through diagnostic_updater, which prefixes every status name with the node name) and diagnostic_aggregator (aggregator_node, started by the same launch file with `<rosparam command=\"load\" file=\"$(find kobuki_node)/param/diagnostics.yaml\" />`); kobuki_dashboard is the downstream observer that looks for the aggregated name `/Power System/Battery` (dashboard.py: `elif status.name == \"/Power System/Battery\":`). Step 2: the wrong value that crosses the boundary is the status-name prefix, so it is not internal. Step 3: the minimal resolving change only re-binds a deployment name: commit 8a729db changes four lines of kobuki_node/param/diagnostics.yaml from `remove_prefix: kobuki` to `remove_prefix: mobile_base_nodelet_manager`. The prefix is the launch-assigned node name: minimal.launch had been changed on 2013-02-25 (commit d0bfb126, 'Mobile base nodelet manager renamed from \"kobuki\" to \"mobile_base_nodelet_manager\" to be coherent with turtlebot') and the YAML in the same package was not updated; the file's own header already says \"The remove_prefix is important - it corresponds to the name of the node that is automatically prefixed to cpp diagnostic task names. In our case it's the mobile base nodelet manager name.\" No unit's declared or referenced interface changed: diagnostic_aggregator's `remove_prefix`/`contains` parameters, kobuki_node's diagnostic task names ('Battery', 'Watchdog', ...) and kobuki_dashboard's expected paths are all unchanged; only the node-name binding in the launch file and the matching value in the parameter file diverged. Ineligible: deployment_wiring."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "The interaction would be PAIR (kobuki_node's /diagnostics output feeds diagnostic_aggregator; its /diagnostics_agg output feeds kobuki_dashboard), but the case is already ineligible at E2 step 3."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Effect observed by the reporter: \"kobuki battery is not presented on kobuki_dashboard when kobuki is started with kobuki_node minimal.launch\" (no data reaches the dashboard's battery widget because the aggregated status keeps the unstripped prefix and does not match `/Power System/Battery`)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Fix commit 8a729db (2014-08-26, parent f99e495) is on the indigo branch and first released in kobuki 0.6.5. The four analyzers in diagnostics.yaml (power, kobuki, sensors, input_ports) all had `remove_prefix: kobuki`; at f99e495 kobuki_node/src/library/kobuki_ros.cpp registers the tasks with `updater.setHardwareID(\"Kobuki\"); updater.add(battery_diagnostics); ...`, and diagnostic_updater names them '<node name>: <task name>', so with the nodelet manager named `mobile_base_nodelet_manager` the prefix `kobuki` never matched. The dataset's description ('Outdated parameter file') matches the primary source. The turtlebot_bringup copy of the file that already used `mobile_base_nodelet_manager` is the same deployment artefact maintained in another repository (see the related case robust_8c30446, where kobuki_node's robot_with_tf.launch had been loading that copy)."
+}

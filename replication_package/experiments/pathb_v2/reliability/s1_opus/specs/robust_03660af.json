@@ -1,0 +1,47 @@
+{
+  "case_id": "robust_03660af",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/125",
+    "https://github.com/yujinrobot/kobuki/commit/03660afb5917366cc6d57567e2f695450fd95feb",
+    "https://github.com/yujinrobot/kobuki/blob/32388d7cc5591cf38385ad62d01f0f292f734b17/kobuki_driver/src/driver/kobuki.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #125 was opened and closed by the maintainer (stonier): \"These are potentially accessible from multiple threads.\n\nNeed to mutex around the serial.write().\" and fixed in 03660af (\"velocity control merged into command structure and mutex protected\"). No reproducer or log, but the maintainer states the concrete defect."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["kobuki_driver", "kobuki_node"],
+      "interface_kind": null,
+      "evidence": "At the parent revision 32388d7, kobuki_driver's own background thread (Kobuki::spin, started with thread.start(&Kobuki::spin, *this)) calls sendBaseControlCommand() -> serial.write(cmd, 9) on every received packet, while the public command functions (setLed, setDigitalOutput, playSoundSequence -> Kobuki::sendCommand -> serial.write(&command_buffer[0], ...)) run on whatever thread the caller uses. Any caller, including a strictly single-threaded one, therefore races with the driver's own internal thread on the same serial handle and shared command_buffer. The unprotected write is a concurrency defect inside kobuki_driver that occurs with any correct peer; the fix is a mutex inside Kobuki::sendCommand."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "CONCURRENT: two threads write to the serial port at the same time (the driver's spin thread and the caller's thread)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement only: \"Need to be a bit careful here, because we have no control over how the user is calling this - they may be calling from different threads (this is so for kobuki_node), so we mutex protect it here rather than relying on the user to do so above.\" (03660af). No failure was observed in the source."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "The commit comment frames the hazard as callers using several threads (\"this is so for kobuki_node\"), which could be read as a thread-safety assumption between kobuki_driver and kobuki_node. The parent code shows the race does not need a multi-threaded caller: the driver's own spin thread writes base-control packets to the same serial device that sendCommand writes to, so the defect lies inside kobuki_driver. The serial byte stream to the Kobuki firmware is the only boundary the interleaved writes cross, and the firmware is a correct peer. The same commit also refactors velocity commands into Command::SetVelocityControl and adds a debug/raw_data_command publisher in kobuki_node; those are unrelated to the defect."
+}

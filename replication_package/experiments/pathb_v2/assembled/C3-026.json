@@ -1,0 +1,1427 @@
+{
+ "case_id": "C3-026",
+ "corpus": "C3",
+ "operation": "PAIR",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "action:/panda_arm_controller/follow_joint_trajectory",
+     "status": "unassessable_edge",
+     "reason": "port_missing_consumer",
+     "direction": {
+      "producer": "joint_trajectory_controller",
+      "consumer": "pilz_industrial_motion_planner"
+     },
+     "encoding": null,
+     "provenance": {},
+     "tasks": {
+      "producer": "u0273",
+      "consumer": "u0274"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "msg:trajectory_msgs/JointTrajectory",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "msg:trajectory_msgs/JointTrajectory",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "msg:trajectory_msgs/JointTrajectory",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "msg:trajectory_msgs/JointTrajectory",
+       "in_role": "msg:trajectory_msgs/JointTrajectory"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator.cpp:355 | trajectory_msgs::msg::JointTrajectory joint_trajectory;",
+      "producer.outputs[0].frame": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator.cpp:355 | trajectory_msgs::msg::JointTrajectory joint_trajectory; -- joint-space data with no spatial meaning; the package never assigns joint_trajectory.header (grep for 'joint_trajectory.header', '.header.frame_id =', 'header.stamp' in src/ and include/ returned no hit)",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg | python3 definition_hash.py sha256 JointTrajectory.msg",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:788 | get_node()->create_subscription<trajectory_msgs::msg::JointTrajectory>(  and snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1157-1158 | std::make_shared<trajectory_msgs::msg::JointTrajectory>(goal_handle->get_goal()->trajectory);",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg -> python3 definition_hash.py sha256 JointTrajectory.msg"
+     },
+     "tasks": {
+      "producer": "u0274",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectory.joint_names",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.joint_names",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.joint_names",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectory.joint_names",
+       "in_role": "field:trajectory_msgs/JointTrajectory.joint_names"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator.cpp:355 | trajectory_msgs::msg::JointTrajectory joint_trajectory;",
+      "producer.outputs[0].frame": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:106 | joint_trajectory.joint_names.push_back(item.first); -- joint-space data with no spatial meaning; the package never assigns joint_trajectory.header (grep for 'joint_trajectory.header', '.header.frame_id =', 'header.stamp' in src/ and include/ returned no hit)",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg (identical to ros2-gbp tag release/iron/trajectory_msgs/5.0.0-2) | python3 definition_hash.py sha256 JointTrajectory.msg",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1377 | for (size_t i = 0; i < trajectory.joint_names.size(); ++i)  (parameter type const trajectory_msgs::msg::JointTrajectory & trajectory, line 1336)",
+      "consumer.inputs[0].frame": "joint_names is string[] (JointTrajectory.msg line 7), no spatial meaning; grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg -> python3 definition_hash.py sha256 JointTrajectory.msg"
+     },
+     "tasks": {
+      "producer": "u0274",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectory.points",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.points",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.points",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectory.points",
+       "in_role": "field:trajectory_msgs/JointTrajectory.points"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator.cpp:355 | trajectory_msgs::msg::JointTrajectory joint_trajectory;",
+      "producer.outputs[0].frame": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:209 | joint_trajectory.points.push_back(point); -- joint-space data with no spatial meaning; the package never assigns joint_trajectory.header (grep for 'joint_trajectory.header', '.header.frame_id =', 'header.stamp' in src/ and include/ returned no hit)",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg | python3 definition_hash.py sha256 JointTrajectory.msg",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1391 | if (trajectory.points.empty())  (parameter type const trajectory_msgs::msg::JointTrajectory & trajectory, line 1336)",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg -> python3 definition_hash.py sha256 JointTrajectory.msg"
+     },
+     "tasks": {
+      "producer": "u0274",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.positions",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.positions",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians (revolute or continuous joints), meters (prismatic joints)",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.positions",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians for revolute or continuous joints, meters for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.positions",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.positions"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:201 | trajectory_msgs::msg::JointTrajectoryPoint point;",
+      "producer.outputs[0].frame": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:205 | point.positions.push_back(velocity_profile.at(joint_name).Pos(time_stamp)); -- joint-space data with no spatial meaning; the package never assigns joint_trajectory.header (grep for 'joint_trajectory.header', '.header.frame_id =', 'header.stamp' in src/ and include/ returned no hit)",
+      "producer.outputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg:5-7 | # Single DOF joint positions for each joint relative to their \"0\" position. # The units depend on the specific joint type: radians for revolute or # continuous joints, and meters for prismatic joints.",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg | python3 definition_hash.py sha256 JointTrajectoryPoint.msg",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1449 | !validate_trajectory_point_field(joint_count, points[i].positions, \"positions\", i, false) ||",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg lines 5-7 | The units depend on the specific joint type: radians for revolute or continuous joints, and meters for prismatic joints.",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg -> python3 definition_hash.py sha256 JointTrajectoryPoint.msg"
+     },
+     "tasks": {
+      "producer": "u0274",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians/second (revolute or continuous joints), meters/second (prismatic joints)",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians/second for revolute or continuous joints, meters/second for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.velocities"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:201 | trajectory_msgs::msg::JointTrajectoryPoint point;",
+      "producer.outputs[0].frame": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:206 | point.velocities.push_back(velocity_profile.at(joint_name).Vel(time_stamp)); -- joint-space data with no spatial meaning; the package never assigns joint_trajectory.header (grep for 'joint_trajectory.header', '.header.frame_id =', 'header.stamp' in src/ and include/ returned no hit)",
+      "producer.outputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg:10-12 | # The rate of change in position of each joint. Units are joint type dependent. # Radians/second for revolute or continuous joints, and meters/second for # prismatic joints.",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg | python3 definition_hash.py sha256 JointTrajectoryPoint.msg",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1450 | !validate_trajectory_point_field(joint_count, points[i].velocities, \"velocities\", i, true) ||",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg lines 10-12 | The rate of change in position of each joint. Units are joint type dependent. Radians/second for revolute or continuous joints, and meters/second for prismatic joints.",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg -> python3 definition_hash.py sha256 JointTrajectoryPoint.msg"
+     },
+     "tasks": {
+      "producer": "u0274",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.accelerations",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.accelerations",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians/second^2 (revolute or continuous joints), meters/second^2 (prismatic joints)",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.accelerations",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians/second^2 for revolute or continuous joints, meters/second^2 for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.accelerations",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.accelerations"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:201 | trajectory_msgs::msg::JointTrajectoryPoint point;",
+      "producer.outputs[0].frame": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:207 | point.accelerations.push_back(velocity_profile.at(joint_name).Acc(time_stamp)); -- joint-space data with no spatial meaning; the package never assigns joint_trajectory.header (grep for 'joint_trajectory.header', '.header.frame_id =', 'header.stamp' in src/ and include/ returned no hit)",
+      "producer.outputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg:15-17 | # Rate of change in velocity of each joint. Units are joint type dependent. # Radians/second^2 for revolute or continuous joints, and meters/second^2 for # prismatic joints.",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg (identical to ros2-gbp tag release/iron/trajectory_msgs/5.0.0-2) | python3 definition_hash.py sha256 JointTrajectoryPoint.msg",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1451-1452 | !validate_trajectory_point_field(joint_count, points[i].accelerations, \"accelerations\", i, true))  (points is trajectory.points, elements trajectory_msgs::msg::JointTrajectoryPoint)",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg lines 15-17 | Rate of change in velocity of each joint. Units are joint type dependent. Radians/second^2 for revolute or continuous joints, and meters/second^2 for prismatic joints.",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg -> python3 definition_hash.py sha256 JointTrajectoryPoint.msg"
+     },
+     "tasks": {
+      "producer": "u0274",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "seconds",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "s",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:201 | trajectory_msgs::msg::JointTrajectoryPoint point;",
+      "producer.outputs[0].frame": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:202 | point.time_from_start = rclcpp::Duration::from_seconds(time_stamp); -- time value, no spatial meaning",
+      "producer.outputs[0].units": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:202 | point.time_from_start = rclcpp::Duration::from_seconds(time_stamp);",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg | python3 definition_hash.py sha256 JointTrajectoryPoint.msg",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1415 | if ((i > 0) && (rclcpp::Duration(trajectory.points[i].time_from_start) <= previous_traj_time))",
+      "consumer.inputs[0].frame": "time_from_start is builtin_interfaces/Duration (JointTrajectoryPoint.msg line 26), no spatial meaning",
+      "consumer.inputs[0].units": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1421 | rclcpp::Duration(trajectory.points[i].time_from_start).seconds());  (field type builtin_interfaces/Duration per JointTrajectoryPoint.msg line 26)",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg -> python3 definition_hash.py sha256 JointTrajectoryPoint.msg"
+     },
+     "tasks": {
+      "producer": "u0274",
+      "consumer": "u0273"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "action:/panda_arm_controller/follow_joint_trajectory",
+     "status": "unassessable_edge",
+     "reason": "port_missing_consumer",
+     "direction": {
+      "producer": "joint_trajectory_controller",
+      "consumer": "pilz_industrial_motion_planner"
+     },
+     "encoding": null,
+     "provenance": {},
+     "tasks": {
+      "producer": "u0273",
+      "consumer": "u0275"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "msg:trajectory_msgs/JointTrajectory",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "msg:trajectory_msgs/JointTrajectory",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "msg:trajectory_msgs/JointTrajectory",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "msg:trajectory_msgs/JointTrajectory",
+       "in_role": "msg:trajectory_msgs/JointTrajectory"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator.cpp:355",
+      "producer.outputs[0].frame": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator.cpp:355 | trajectory_msgs::msg::JointTrajectory joint_trajectory; (default-constructed; no write to header or frame_id anywhere under src/ or include/; content is joint-space)",
+      "producer.outputs[0].definition_id": "curl -s https://raw.githubusercontent.com/ros2/common_interfaces/5.0.1/trajectory_msgs/msg/JointTrajectory.msg | python3 definition_hash.py sha256 /dev/stdin -> value 02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de (identical at tag 5.0.0)",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:788 | get_node()->create_subscription<trajectory_msgs::msg::JointTrajectory>(  and snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1157-1158 | std::make_shared<trajectory_msgs::msg::JointTrajectory>(goal_handle->get_goal()->trajectory);",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg -> python3 definition_hash.py sha256 JointTrajectory.msg"
+     },
+     "tasks": {
+      "producer": "u0275",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectory.joint_names",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.joint_names",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.joint_names",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectory.joint_names",
+       "in_role": "field:trajectory_msgs/JointTrajectory.joint_names"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:106",
+      "producer.outputs[0].frame": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectory.msg:5-7 | # The names of the active joints in each trajectory point. ... string[] joint_names (joint-space identifiers, no spatial frame)",
+      "producer.outputs[0].definition_id": "curl -s https://raw.githubusercontent.com/ros2/common_interfaces/5.0.1/trajectory_msgs/msg/JointTrajectory.msg | python3 definition_hash.py sha256 /dev/stdin -> value 02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de (identical at tag 5.0.0)",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1377 | for (size_t i = 0; i < trajectory.joint_names.size(); ++i)  (parameter type const trajectory_msgs::msg::JointTrajectory & trajectory, line 1336)",
+      "consumer.inputs[0].frame": "joint_names is string[] (JointTrajectory.msg line 7), no spatial meaning; grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg -> python3 definition_hash.py sha256 JointTrajectory.msg"
+     },
+     "tasks": {
+      "producer": "u0275",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectory.points",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.points",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.points",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectory.points",
+       "in_role": "field:trajectory_msgs/JointTrajectory.points"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:209",
+      "producer.outputs[0].frame": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectory.msg:9-11 | # Array of trajectory points, which describe the positions, velocities, accelerations and/or efforts of the joints at each time point. (joint-space data, no spatial frame)",
+      "producer.outputs[0].definition_id": "curl -s https://raw.githubusercontent.com/ros2/common_interfaces/5.0.1/trajectory_msgs/msg/JointTrajectory.msg | python3 definition_hash.py sha256 /dev/stdin -> value 02f7693d24c5efc6c806e1d8c7e0c9a48b224f9968eba7ab3b0ce5459599c9de (identical at tag 5.0.0)",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1391 | if (trajectory.points.empty())  (parameter type const trajectory_msgs::msg::JointTrajectory & trajectory, line 1336)",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectory.msg -> python3 definition_hash.py sha256 JointTrajectory.msg"
+     },
+     "tasks": {
+      "producer": "u0275",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.positions",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.positions",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians for revolute or continuous joints, meters for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.positions",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians for revolute or continuous joints, meters for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.positions",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.positions"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:205",
+      "producer.outputs[0].frame": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectoryPoint.msg:5 | # Single DOF joint positions for each joint relative to their \"0\" position. (joint-space data, no spatial frame)",
+      "producer.outputs[0].units": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectoryPoint.msg:6-7 | # The units depend on the specific joint type: radians for revolute or # continuous joints, and meters for prismatic joints.",
+      "producer.outputs[0].definition_id": "curl -s https://raw.githubusercontent.com/ros2/common_interfaces/5.0.1/trajectory_msgs/msg/JointTrajectoryPoint.msg | python3 definition_hash.py sha256 /dev/stdin -> value c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705 (identical at tag 5.0.0)",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1449 | !validate_trajectory_point_field(joint_count, points[i].positions, \"positions\", i, false) ||",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg lines 5-7 | The units depend on the specific joint type: radians for revolute or continuous joints, and meters for prismatic joints.",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg -> python3 definition_hash.py sha256 JointTrajectoryPoint.msg"
+     },
+     "tasks": {
+      "producer": "u0275",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "Radians/second for revolute or continuous joints, meters/second for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians/second for revolute or continuous joints, meters/second for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.velocities"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:206",
+      "producer.outputs[0].frame": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectoryPoint.msg:10 | # The rate of change in position of each joint. (joint-space data, no spatial frame)",
+      "producer.outputs[0].units": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectoryPoint.msg:10-12 | # The rate of change in position of each joint. Units are joint type dependent. # Radians/second for revolute or continuous joints, and meters/second for # prismatic joints.",
+      "producer.outputs[0].definition_id": "curl -s https://raw.githubusercontent.com/ros2/common_interfaces/5.0.1/trajectory_msgs/msg/JointTrajectoryPoint.msg | python3 definition_hash.py sha256 /dev/stdin -> value c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705 (identical at tag 5.0.0)",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1450 | !validate_trajectory_point_field(joint_count, points[i].velocities, \"velocities\", i, true) ||",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg lines 10-12 | The rate of change in position of each joint. Units are joint type dependent. Radians/second for revolute or continuous joints, and meters/second for prismatic joints.",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg -> python3 definition_hash.py sha256 JointTrajectoryPoint.msg"
+     },
+     "tasks": {
+      "producer": "u0275",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.accelerations",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.accelerations",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "Radians/second^2 for revolute or continuous joints, meters/second^2 for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.accelerations",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "radians/second^2 for revolute or continuous joints, meters/second^2 for prismatic joints",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.accelerations",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.accelerations"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:207",
+      "producer.outputs[0].frame": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectoryPoint.msg:15 | # Rate of change in velocity of each joint. (joint-space data, no spatial frame)",
+      "producer.outputs[0].units": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectoryPoint.msg:15-17 | # Rate of change in velocity of each joint. Units are joint type dependent. # Radians/second^2 for revolute or continuous joints, and meters/second^2 for # prismatic joints.",
+      "producer.outputs[0].definition_id": "curl -s https://raw.githubusercontent.com/ros2/common_interfaces/5.0.1/trajectory_msgs/msg/JointTrajectoryPoint.msg | python3 definition_hash.py sha256 /dev/stdin -> value c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705 (identical at tag 5.0.0)",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1451-1452 | !validate_trajectory_point_field(joint_count, points[i].accelerations, \"accelerations\", i, true))  (points is trajectory.points, elements trajectory_msgs::msg::JointTrajectoryPoint)",
+      "consumer.inputs[0].frame": "grep for 'frame' over snapshot:joint_trajectory_controller/src and snapshot:joint_trajectory_controller/include returns 0 hits: header.frame_id is never read; the controller treats the data as joint-space values (JointTrajectoryPoint.msg lines 5-7: 'Single DOF joint positions for each joint relative to their \"0\" position')",
+      "consumer.inputs[0].units": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg lines 15-17 | Rate of change in velocity of each joint. Units are joint type dependent. Radians/second^2 for revolute or continuous joints, and meters/second^2 for prismatic joints.",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg -> python3 definition_hash.py sha256 JointTrajectoryPoint.msg"
+     },
+     "tasks": {
+      "producer": "u0275",
+      "consumer": "u0273"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+     "status": "done",
+     "direction": {
+      "producer": "pilz_industrial_motion_planner",
+      "consumer": "joint_trajectory_controller"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "seconds",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": null,
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "absent"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "s",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "msg",
+          "value": "c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705"
+         }
+        }
+       ],
+       "exclusive": [
+        "joint_name + \"/\" + interface_type"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on cmd_timeout, path (state) tolerance violation or goal_time_tolerance exceedance the active action goal is aborted and the controller holds current position (set_hold_position); on_error() resets the controller",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start"
+      }
+     },
+     "provenance": {
+      "consumer.exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:77,92 | conf.type = controller_interface::interface_configuration_type::INDIVIDUAL; ... conf.names.push_back(joint_name + \"/\" + interface_type);  (command_interface_configuration(); joint_name from command_joints or joints, interface_type from command_interfaces, subset_of position/velocity/acceleration/effort per src/joint_trajectory_controller_parameters.yaml:27)",
+      "producer.outputs[0].msg_type": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:202",
+      "producer.outputs[0].frame": "ros2/common_interfaces@5.0.1 trajectory_msgs/msg/JointTrajectoryPoint.msg:25 | # Desired time from the trajectory start to arrive at this trajectory point. (temporal, no spatial frame)",
+      "producer.outputs[0].units": "snapshot:moveit_planners/pilz_industrial_motion_planner/src/trajectory_generator_ptp.cpp:202 | point.time_from_start = rclcpp::Duration::from_seconds(time_stamp);",
+      "producer.outputs[0].definition_id": "curl -s https://raw.githubusercontent.com/ros2/common_interfaces/5.0.1/trajectory_msgs/msg/JointTrajectoryPoint.msg | python3 definition_hash.py sha256 /dev/stdin -> value c0bc0a554470829b9a3918476316c54834f351444260a86543d9f7c34897d705 (identical at tag 5.0.0)",
+      "consumer.inputs[0].msg_type": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1415 | if ((i > 0) && (rclcpp::Duration(trajectory.points[i].time_from_start) <= previous_traj_time))",
+      "consumer.inputs[0].frame": "time_from_start is builtin_interfaces/Duration (JointTrajectoryPoint.msg line 26), no spatial meaning",
+      "consumer.inputs[0].units": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1421 | rclcpp::Duration(trajectory.points[i].time_from_start).seconds());  (field type builtin_interfaces/Duration per JointTrajectoryPoint.msg line 26)",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/5.0.0/trajectory_msgs/msg/JointTrajectoryPoint.msg -> python3 definition_hash.py sha256 JointTrajectoryPoint.msg"
+     },
+     "tasks": {
+      "producer": "u0275",
+      "consumer": "u0273"
+     }
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,35 @@
+{
+  "item_id": "A2-robust_263650d-broken-M1-0",
+  "kind": "A2",
+  "case_id": "robust_263650d",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[topic:/mavros/gps/fix]",
+      "verdict": "verified",
+      "source_excerpt": "fix_pub = gps_nh.advertise<sensor_msgs::NavSatFix>(\"fix\", 10);",
+      "url": "snapshot:s2_work/tasks/u0008/snapshot/mavros/src/plugins/gps.cpp:47",
+      "reason": "Built-against 0.12.0 provides ~gps/fix (gps_nh(\"~gps\") at line 35); the specification-selected broken running provider is u0010 at 4fb6e7e, which instead advertises ~global_position/raw/fix. Searches of its complete snapshot show no old gps-topic publisher.",
+      "running_evidence": {
+        "url": "snapshot:s2_work/tasks/u0010/snapshot/mavros/src/plugins/global_position.cpp:66",
+        "quote": "raw_fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"raw/fix\", 10);"
+      }
+    },
+    {
+      "path": "ver_delta.consumer_reads[topic:/mavros/gps/fix]",
+      "verdict": "verified",
+      "source_excerpt": "gps_fix = mavros.get_topic('gps', 'fix')",
+      "url": "snapshot:s2_work/tasks/u0007/snapshot/mavros/scripts/mavcmd:105",
+      "reason": "Resolved task by the specification broken revision 4fb6e7e, not task listing order. u0006 is the fixed 263650d consumer and instead uses global_position/raw/fix at line 106."
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "UPGRADE compares the old provider u0008 with the running provider u0010 and the stale consumer u0007, matching the specification revisions. The get_topic lookup feeds _find_gps_topic and then rospy.Subscriber. This is the intended historical dependency whose provider endpoint was removed, not a claim that the stale port remains connected at runtime. The global_position/global branch is preferred, so this evidence establishes a conditional stale fallback, not an observed unconditional failure.",
+    "url": "snapshot:s2_work/tasks/u0007/snapshot/mavros/scripts/mavcmd:143",
+    "quote": "topic = _find_gps_topic(args, \"takeoff\")\n    if topic is None:\n        fault(\"NavSatFix topic not exist\")\n\n    sub = rospy.Subscriber(topic, NavSatFix, fix_cb)"
+  },
+  "notes": "No absent permission-grant set is supplied. Task order is not broken/resolved order: specifications select u0007/u0010 (4fb6e7e) as broken and u0006/u0009 (263650d) as resolved. The provenance path is verified in the broken consumer u0007; it would be wrong if applied to u0006. The producer endpoint is absent at runtime by the very nature of this removal finding. No successful live connection or observed runtime failure is inferred."
+}

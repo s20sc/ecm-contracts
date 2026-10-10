@@ -1,0 +1,104 @@
+{
+  "task_id": "u0162",
+  "package": "roscpp",
+  "manifest_version": "1.9.36",
+  "ports": [
+    {
+      "element": "api:requestTopic",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:std_msgs/String",
+      "side": "consumes",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "992ce8a1687cec8c8bd883ec73ca41d1"
+      }
+    },
+    {
+      "element": "topic:/chatter",
+      "side": "consumes",
+      "msg_type": "std_msgs/String",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "992ce8a1687cec8c8bd883ec73ca41d1"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:requestTopic",
+    "msg:std_msgs/String",
+    "topic:/chatter"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "dropped TCPROS publisher links are reconnected to the same host:port on a retry timer starting at 0.1 s and doubling to at most 20 s; UDPROS links are removed instead of retried; master contact is retried while waiting for the master, with an optional retry timeout"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:clients/roscpp/package.xml:3",
+    "ports[0].frame": "snapshot:clients/roscpp/src/libros/subscription.cpp:390 (requestTopic params are caller id, topic name and protocol list, lines 390-392; no spatial data)",
+    "ports[0].side": "snapshot:clients/roscpp/src/libros/subscription.cpp:406 (if (!c->executeNonBlock(\"requestTopic\", params)) calls the publisher's XML-RPC requestTopic; response checked at line 466 validateXmlrpcResponse(\"requestTopic\", result, proto))",
+    "ports[1].msg_type": "snapshot:clients/roscpp/src/libros/service_publication.cpp:131 (std_msgs::String error_string; include <std_msgs/String.h> at line 42)",
+    "ports[1].frame": "std_msgs/String definition is 'string data' (https://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/groovy/std_msgs/msg/String.msg); no spatial meaning",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 std_msgs/String on https://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/groovy/std_msgs/msg/String.msg -> 992ce8a1687cec8c8bd883ec73ca41d1",
+    "ports[2].msg_type": "snapshot:clients/roscpp/test/src/subscription_callback_types.cpp:152 (subs.push_back(n.subscribe<std_msgs::String>(\"chatter\", 1000, chatterCallback));)",
+    "ports[2].frame": "std_msgs/String definition is 'string data' (https://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/groovy/std_msgs/msg/String.msg); no spatial meaning",
+    "ports[2].definition_id": "python3 definition_hash.py ros1 std_msgs/String on https://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/groovy/std_msgs/msg/String.msg -> 992ce8a1687cec8c8bd883ec73ca41d1",
+    "references[api:requestTopic]": "snapshot:clients/roscpp/src/libros/subscription.cpp:406",
+    "references[msg:std_msgs/String]": "snapshot:clients/roscpp/src/libros/service_publication.cpp:42",
+    "references[topic:/chatter]": "snapshot:clients/roscpp/test/src/subscription_callback_types.cpp:151 (n.subscribe(\"chatter\", 1000, chatterCallback); relative name, run by rostest launch/subscription_callback_types.xml with no ns; '/chatter' also appears verbatim in comments at src/libros/subscription.cpp:122,125 and src/libros/publication.cpp:286,289)",
+    "perm_requires.state": "searched clients/roscpp src/, include/, package.xml, CMakeLists.txt for permission/access declarations; only BSD licence text matches 'permission'",
+    "perm_grants.state": "searched clients/roscpp src/, include/, package.xml, CMakeLists.txt for permission/access declarations; only BSD licence text matches 'permission'",
+    "recovery.state": "snapshot:clients/roscpp/src/libros/transport_publisher_link.cpp:193",
+    "recovery.value": "snapshot:clients/roscpp/src/libros/transport_publisher_link.cpp:202 (retry_period_ = std::min(retry_period_ * 2, WallDuration(20));), :266 (retry_period_ = WallDuration(0.1);), :209 TCPROS-only retry, :236 UDP link removed; src/libros/master.cpp:201-215 master retry and g_retry_timeout"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "roscpp issues requestTopic with a TCPROS and/or UDPROS protocol list and validates TCPROS replies of exactly 3 elements and UDPROS replies of exactly 6; std_msgs/String and /chatter appear only as a library error-response type and in a test subscriber. Nothing in the code itself shows a defect in these elements without knowing the counterpart."
+  },
+  "confidence": "medium",
+  "notes": "Snapshot holds the whole ros_comm tree; only clients/roscpp (package.xml name roscpp, version 1.9.36) was described. All three packet elements are on the consumes side, so declares and not_declared are empty. api:requestTopic: roscpp calls it on each publisher's XML-RPC URI from Subscription::negotiateConnection with params [this_node::getName(), topic name, protocols]; protocols are [\"TCPROS\"] and/or [\"UDPROS\", connection header (topic, md5sum, callerid, type), host, port, max_datagram_size], defaulting to TCP via transport_hints_.reliable() when no hint is given (subscription.cpp:349). roscpp also binds requestTopic as its own XML-RPC server method (topic_manager.cpp:92, TopicManager::requestTopicCallback), i.e. it is on the provider side of the same API, but the packet assigns consumes so no declares entry was written. msg:std_msgs/String: used inside the library as the service error response body (service_publication.cpp:131) and in tests; CMakeLists.txt:100 says std_msgs is needed by tests. topic:/chatter: named only as the relative name \"chatter\" in the test executable roscpp-subscription_callback_types (queue size 1000, callback types taking std_msgs::String), which resolves to /chatter in the root namespace used by its rostest launch file; the library itself names /chatter only in comments. QoS is null throughout (ROS 1); no rate is set. std_msgs String.msg was fetched from the ros-gbp/std_msgs-release groovy release branch (identical 'string data' at ros/std_msgs tags 0.5.6, 0.5.7, 0.5.8); definition_hash.py resolves the package name from a package.xml above the msg directory, so a one-line stub package.xml (<name>std_msgs</name>) was placed next to the fetched file in the session scratchpad, outside the workspace. No exclusive resources found."
+}

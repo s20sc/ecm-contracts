@@ -1,0 +1,68 @@
+{
+  "task_id": "u0287",
+  "package": "env_bug",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "api:group",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:include",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:set_env",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:group",
+    "api:include",
+    "api:set_env"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].frame": "artifact.txt:22 `<group>` (launch XML grouping action; carries no spatial data)",
+    "ports[1].frame": "artifact.txt:24 `<include file=\"$(find-pkg-share env_bug)/launch/inner.launch.ros2.xml\"/>` (launch XML include action; carries no spatial data)",
+    "ports[2].frame": "artifact.txt:21 `<set_env name=\"my_env_var\" value=\"1\"/>` (launch XML environment-variable action; carries no spatial data)",
+    "references[api:group]": "artifact.txt:22 `<group>`; artifact.txt:27 `<group>`",
+    "references[api:include]": "artifact.txt:24 `<include file=\"$(find-pkg-share env_bug)/launch/inner.launch.ros2.xml\"/>`",
+    "references[api:set_env]": "artifact.txt:21 `<set_env name=\"my_env_var\" value=\"1\"/>`; :23 `<set_env name=\"my_env_var\" value=\"2\"/>`; :25 `<set_env name=\"my_env_var\" value=\"3\"/>`; :28 `<set_env name=\"my_env_var\" value=\"4\"/>`; :33 `<set_env name=\"my_env_var\" value=\"5\"/>`",
+    "perm_requires.state": "artifact.txt lines 1-42 contain only a node source, two launch XML bodies, a CMake install fragment and a shell command; no package.xml or other configuration is in the artifact, so permissions could not be checked",
+    "perm_grants.state": "artifact.txt lines 1-42 contain only a node source, two launch XML bodies, a CMake install fragment and a shell command; no package.xml or other configuration is in the artifact, so permissions could not be checked",
+    "recovery.state": "artifact.txt lines 1-42 are an excerpt, not the complete package; no recovery behaviour appears in them, but the rest of the package could not be checked"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The package is a minimal reproduction (named env_bug, with a shell command at artifact.txt:42) that probes how set_env values propagate through group and include scopes to a node that prints my_env_var. Its use of <group>, <include file=...> and <set_env name= value=> matches the launch XML action forms as written; whether the listed elements exist and behave as this package expects at foxy (in particular set_env scoping inside group) is a provider-side question the excerpt alone does not settle."
+  },
+  "confidence": "high",
+  "notes": "Excerpt-based task: only artifact.txt was read; no snapshot and no network access were used. The artifact is unlabeled concatenated text: lines 1-18 are the C++ node source (reads std::getenv(\"my_env_var\") and prints it to stderr); lines 20-30 are a launch XML body that includes $(find-pkg-share env_bug)/launch/inner.launch.ros2.xml, so it is presumably outer.launch.ros2.xml (the name used by the command at line 42); lines 32-37 are a launch XML body that starts node pkg=\"env_bug\" exec=\"env_bug_node\", presumably inner.launch.ros2.xml, with an <env name=\"my_env_var\" value=\"6\"/> child commented out at line 35; lines 39-40 are a CMake install(DIRECTORY launch ...) fragment; line 42 runs `my_env_var=7 ros2 launch env_bug outer.launch.ros2.xml`. File names are inferred, not stated. All three packet elements are launch-system actions consumed by this package's launch files; none is provided, so declares and not_declared are empty. The elements are launch actions, not topics or services, so msg_type, units, definition_id, rate and QoS are not applicable and are null; frame is recorded as none because the actions carry no spatial data. No package.xml is in the artifact, so manifest_version is null. Other consumed launch constructs that are not packet elements: <node pkg= exec=> (line 34) and the find-pkg-share substitution (line 24)."
+}

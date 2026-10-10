@@ -1,0 +1,107 @@
+{
+  "case_id": "B-Sig-01",
+  "corpus": "C2",
+  "source_refs": [
+    "https://answers.ros.org/question/358435",
+    "https://github.com/ros-planning/moveit_msgs/commit/3bf6c81074cd15372fc9f5c7ddfb299b4499479c",
+    "https://github.com/ros-planning/moveit_msgs/commit/cdb1133fb5fb2e458882015dc8ae063a5e471c2d",
+    "https://github.com/ros/ros_comm/blob/melodic-devel/clients/roscpp/src/libros/publication.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public ROS Answers thread (archive) with the verbatim connection error log: \"[ERROR] [1596202093.852304142]: Client [/rostopic_11410_1596202092781] wants topic /move_group/display_planned_path to have datatype/md5sum [moveit_msgs/DisplayTrajectory/c3c039261ab9e8a11457dac56b6316c8], but our version has [moveit_msgs/DisplayTrajectory/41936b74e168ba754279ae683ce3f121]. Dropping connection.\" The reporter confirms two differing builds: \"There are 2 copies of this, 1 in my workspace/devel/include and the other in my opt/ros/melodic/include. Both of these copies have different md5sums defined in them.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "move_group (moveit_ros_move_group) built in the reporter's workspace against a source build of moveit_msgs (publisher of /move_group/display_planned_path)",
+        "rostopic (rospy tool) loading moveit_msgs from the /opt/ros/melodic binary install (subscriber)"
+      ],
+      "interface_kind": "definition",
+      "evidence": "The error is emitted by roscpp's publisher-side check (clients/roscpp/src/libros/publication.cpp: std::string msg = std::string(\"Client [\") + client_callerid + std::string(\"] wants topic \") + topic + ... std::string(\"], but our version has [\") + getDataType() + \"/\" + getMD5Sum() +), so 'our version' (41936b74...) is move_group's and the client's (c3c039...) is rostopic's. Weasfas: \"This particular error is telling you that the version (md5) of moveit_msgs/DisplayTrajectory msg is different between nodes.\" The two units carry different definitions of the same nominal type; the fix is not a name binding or a build-only change but a choice of which moveit_msgs definition both sides use."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the publisher side runs a moveit_msgs definition from the master branch at or after 3bf6c81 (2020-05-05, 'Add origin Pose to CollisionObject (#69)'), newer than the melodic release definition (0.10.0/0.10.1) that the rostopic client loads. Identified by recomputing the ROS1 md5 of moveit_msgs/DisplayTrajectory (with its full dependency closure) across moveit_msgs history: 41936b74... is produced only by master from 3bf6c81 onward (and 0.11.0+); c3c039... is produced by tags 0.10.0 and 0.10.1 and by melodic-devel after the revert cdb1133. Reporter: \"This was working perfectly some time ago ... and suddenly stopped working.\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: the connection is refused (\"Dropping connection.\") and the reporter cannot echo the topic: \"when I try to echo the contents of any /move_group/.... topic, I receive the following error\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "move_group[moveit_msgs]",
+      "role": "provider",
+      "repo": "https://github.com/ros-planning/moveit_msgs",
+      "broken_rev": "52f751e6bce3530dfe9e4fb3f4cdf3e6f5a0bf96",
+      "resolved_rev": "52f751e6bce3530dfe9e4fb3f4cdf3e6f5a0bf96",
+      "pinned": false,
+      "revision_basis": "This unit is the publisher side of the failed connection: move_group compiled in the reporter's workspace against a source build of moveit_msgs; the repository given is moveit_msgs because the interface in question is the DisplayTrajectory definition that move_group was built with, not move_group's own code. The reporter does not state the checkout. The publisher-side md5 41936b74e168ba754279ae683ce3f121 (\"our version\") is reproduced only by moveit_msgs master from 3bf6c81 (2020-05-05) onward; 52f751e6 is the master head on the report date (2020-07-31) and stands in for any master commit in [3bf6c81, 52f751e6], all of which give the same DisplayTrajectory closure. Unchanged under the recommended resolution (the consumer switches to this build).",
+      "excerpt": false,
+      "ros_distro": "melodic"
+    },
+    {
+      "name": "rostopic",
+      "role": "consumer",
+      "repo": "https://github.com/ros/ros_comm",
+      "broken_rev": "1.14.6",
+      "resolved_rev": "1.14.6",
+      "pinned": false,
+      "revision_basis": "Reporter states only \"Ubuntu 18\" and \"ROS Melodic\"; rostopic is the binary /opt/ros/melodic tool. 1.14.6 (2020-05-29) is the latest ros_comm release before the report date (1.14.7 was tagged 2020-07-31 21:10 UTC, after the post at 08:41 UTC); it stands in for the installed version. rostopic's own code is not at issue: its interface for this topic is the moveit_msgs definition it loads (see consumer_built_against). Unchanged by the resolution.",
+      "excerpt": false,
+      "ros_distro": "melodic"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "0.10.1",
+    "resolved": "52f751e6bce3530dfe9e4fb3f4cdf3e6f5a0bf96",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {
+      "element": "topic:/move_group/display_planned_path",
+      "sides": {
+        "move_group[moveit_msgs]": "provides",
+        "rostopic": "consumes"
+      }
+    },
+    {
+      "element": "msg:moveit_msgs/DisplayTrajectory",
+      "sides": {
+        "move_group[moveit_msgs]": "provides",
+        "rostopic": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": [
+        "msg:moveit_msgs/DisplayTrajectory",
+        "topic:/move_group/display_planned_path"
+      ],
+      "quote": "Client [/rostopic_11410_1596202092781] wants topic /move_group/display_planned_path to have datatype/md5sum [moveit_msgs/DisplayTrajectory/c3c039261ab9e8a11457dac56b6316c8], but our version has [moveit_msgs/DisplayTrajectory/41936b74e168ba754279ae683ce3f121]. Dropping connection.",
+      "url": "https://answers.ros.org/question/358435"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "ROS 1 md5sum mismatch refused at connection by roscpp: \"[ERROR] [1596202093.852304142]: Client [/rostopic_11410_1596202092781] wants topic /move_group/display_planned_path to have datatype/md5sum [...], but our version has [...]. Dropping connection.\"",
+  "detection_stage": "connect",
+  "resolution": {
+    "summary": "Make both sides use one moveit_msgs build: remove the /opt moveit_msgs from the consumer's path and use the workspace (master) build for rostopic too, or do not build moveit_msgs in the workspace and rebuild move_group against the /opt release. The spec records the first option (consumer switches to the provider's build).",
+    "status": "recommended",
+    "evidence": "Weasfas: \"So you need to make sure you've compiled your workspace with the same version of the msg.\" and \"the solution would be to use only one of them. Either you unistall that package and use only the compile version of your workspace or just do not compile it and use the one that is in ROS path.\" No resolved composition is shown working. The reporter's own workaround (\"I changed the md5sum in one of the files to be the same as the other and it worked perfectly!\") only overwrote the hash constant in one generated header and left the definitions different; gvdhoorn: \"Don't ever do this. That hash is there for a reason, and it's not to be changed by users.\""
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Definition difference behind the two hashes (moveit_msgs, git diff 0.10.1..52f751e6 on msg/CollisionObject.msg, which DisplayTrajectory reaches through RobotState.attached_collision_objects): master adds `geometry_msgs/Pose pose` (3bf6c81, #69) and `string[] subframe_names` / `geometry_msgs/Pose[] subframe_poses` (6350bfb, #50); melodic-devel had the subframe fields from 2019-05-20 until they were reverted in cdb1133 (2020-05-10) before 0.10.1, so the melodic release definition has neither. The mapping of hashes to revisions was established by recomputing genmsg md5s (common_msgs noetic-devel, std_msgs kinetic-devel, object_recognition_msgs master as dependencies); 0.10.0 and 0.10.1 give the identical consumer-side hash, 0.10.1 chosen as the release current in July 2020. The reporter says the same error occurs for \"any /move_group/.... topic\" (other moveit_msgs types embedding CollisionObject/RobotState would show the same mismatch); only display_planned_path is quoted, so the spec covers that topic. No answer was ever posted; the thread ends with the comments."
+}

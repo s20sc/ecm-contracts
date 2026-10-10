@@ -1,0 +1,101 @@
+{
+  "scope": "All adjudicated C3 and C3N specifications; exact canonical first-source identity only. Related PR references alone do not prove duplicated defect.",
+  "specified_counts": {
+    "C3": 152,
+    "C3N": 30
+  },
+  "overlapping_primary_sources": [
+    {
+      "primary_source_url": "https://github.com/ros-controls/ros2_controllers/issues/376",
+      "entries": [
+        {
+          "case_id": "C3-042",
+          "corpus": "C3",
+          "eligible": false,
+          "ineligible_reason": "E2 step 4 (build): the minimal resolving change adds realtime_tools to joint_state_broadcaster's ament_export_dependencies in CMakeLists.txt; no interface of either unit changed.",
+          "outcome_class": null,
+          "operation": null,
+          "E2": {
+            "pass": false,
+            "stop_step": 4,
+            "reason_code": "build",
+            "units_identified": [
+              "joint_state_broadcaster",
+              "joint_state_controller"
+            ],
+            "interface_kind": null,
+            "evidence": "The only change in fix PR #377 (merge 0d22408ebf30759c3777bb30ad476bcf178de3fa, base foxy) adds one line to the ament_export_dependencies block of joint_state_broadcaster/CMakeLists.txt: \"+  realtime_tools\" (https://github.com/ros-controls/ros2_controllers/pull/377/files). No header, message, parameter, or API of either package changes; the defect is that the broadcaster's exported build dependencies omit realtime_tools, so a downstream package that includes joint_state_broadcaster.hpp cannot find realtime_tools/realtime_publisher.h. This is a build-system/packaging change only."
+          }
+        },
+        {
+          "case_id": "C3N-014",
+          "corpus": "C3N",
+          "eligible": false,
+          "ineligible_reason": "E2 step 4 (build): missing ament_export_dependencies entry for realtime_tools in joint_state_broadcaster; the fix is a CMake export-dependency line with no interface change.",
+          "outcome_class": null,
+          "operation": null,
+          "E2": {
+            "pass": false,
+            "stop_step": 4,
+            "reason_code": "build",
+            "units_identified": [
+              "joint_state_broadcaster",
+              "joint_state_controller"
+            ],
+            "interface_kind": null,
+            "evidence": "joint_state_controller includes joint_state_broadcaster.hpp, which includes \"realtime_tools/realtime_publisher.h\", but joint_state_broadcaster did not export its realtime_tools dependency, so the include path was missing when building joint_state_controller. The resolving change is a single line in joint_state_broadcaster/CMakeLists.txt adding realtime_tools to ament_export_dependencies(...); no declared or referenced interface (header, API, message) changed. Build-system/dependency-export change only."
+          }
+        }
+      ],
+      "eligibility_disagrees": false,
+      "operation_disagrees": false
+    },
+    {
+      "primary_source_url": "https://github.com/ros-navigation/navigation2/issues/5386",
+      "entries": [
+        {
+          "case_id": "C3-057",
+          "corpus": "C3",
+          "eligible": true,
+          "ineligible_reason": null,
+          "outcome_class": "failure",
+          "operation": "PAIR",
+          "E2": {
+            "pass": true,
+            "stop_step": 6,
+            "reason_code": null,
+            "units_identified": [
+              "nav2_mppi_controller",
+              "robot_odometry_source"
+            ],
+            "interface_kind": "topic",
+            "evidence": "Step 1: the MPPI controller plugin (loaded in controller_server, which reads the robot twist from odom_topic \"/odometry/filtered\" through nav_2d_utils::OdomSubscriber and passes it to the plugin) and the separately deployed process that publishes that odometry. Step 2: the failure depends on a timing assumption across that boundary: at 1.3.7 the optimizer sets state_.speed = robot_speed and seeds the rollouts' initial velocity from it (updateInitialStateVelocities), with per-step acceleration limits max_delta_vx = model_dt * ax_max applied after it, so an odometry twist that lags the commanded velocity caps the achievable speed. The maintainer states the cross-unit assumption in #5214: \"all controllers in Nav2 assume that your robot has properly setup robot controllers to be able to execute commands given.\" A peer whose reported twist tracked the command would not trigger it. Step 3/4: the resolving change adds a new controller parameter and changes the optimizer's use of the consumed twist; not wiring or build only."
+          }
+        },
+        {
+          "case_id": "C3N-001",
+          "corpus": "C3N",
+          "eligible": false,
+          "ineligible_reason": "internal",
+          "outcome_class": null,
+          "operation": null,
+          "E2": {
+            "pass": false,
+            "stop_step": 2,
+            "reason_code": "internal",
+            "units_identified": [
+              "nav2_mppi_controller (controller_server plugin)",
+              "odometry provider publishing /odometry/filtered (not identified by package in the source)"
+            ],
+            "interface_kind": null,
+            "evidence": "The reported composition is one unit (nav2_mppi_controller) run at two distro revisions with the same user parameter file; the parameter file is that node's own configuration, not a separate unit. The reporter's diagnosis is a behaviour change inside the controller: \"I think the following parameters are not effective in the HUMBLE version. ax_max: 3.0 ax_min: -3.0 ay_min: -3.0 ay_max: 3.0 az_max: 3.5 and it is effective in JAZZY. It seems that the small acceleration value causes the vehicle to slow down.\" -- https://github.com/ros-navigation/navigation2/issues/5386#issuecomment-3125122390. The humble optimizer.cpp has no ax_max/az_max parameters, while jazzy reads them (`getParam(s.base_constraints.ax_max, \"ax_max\", 3.0f);`) and clamps the control sequence with `float max_delta_vx = s.model_dt * s.constraints.ax_max;`; both branches seed the first rollout state from the measured speed (humble: `xt::noalias(xt::view(state.vx, xt::all(), 0)) = state.speed.linear.x;`). The merged fix only adds an opt-in seeding mode inside the controller: \"Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command\" and \"Defaulting to false so no behavior change unless opted in\" -- https://github.com/ros-navigation/navigation2/pull/6336. The only candidate peer (the odometry source) sends a correct measured velocity; no value, frame, unit, name or timing crossing the boundary is wrong, and the slowdown follows from the controller's own acceleration clamp applied from the measured speed with any truthful odometry of a base that lags its setpoint (PR 5617: \"MPPI will get the current odometry and add small velocity step for next setpoint every control iteration\" -- https://github.com/ros-navigation/navigation2/pull/5617)."
+          }
+        }
+      ],
+      "eligibility_disagrees": true,
+      "operation_disagrees": true
+    }
+  ],
+  "overlap_count": 2,
+  "eligibility_disagreement_count": 1
+}

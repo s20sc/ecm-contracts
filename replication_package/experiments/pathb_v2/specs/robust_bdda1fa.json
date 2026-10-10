@@ -1,0 +1,104 @@
+{
+  "case_id": "robust_bdda1fa",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/478",
+    "https://github.com/mavlink/mavros/issues/478#issuecomment-173821917",
+    "https://github.com/mavlink/mavros/issues/478#issuecomment-173834273",
+    "https://github.com/mavlink/mavros/commit/bdda1fab32a9d084cfe980fe4f364b5eb35173e0",
+    "https://github.com/mavlink/mavros/issues/407",
+    "https://github.com/mavlink/mavros/commit/d7bd78574a0deb5f12ff7da529c784508ddba275",
+    "https://github.com/mavlink/mavros/blob/18131c8cb55748214ad2b455cc2ecb30f7657b05/mavros/scripts/mavsetp",
+    "https://github.com/mavlink/mavros/blob/18131c8cb55748214ad2b455cc2ecb30f7657b05/mavros/src/mavros/command.py",
+    "https://github.com/mavlink/mavros/blob/f7441de80a957a5044d0d36767c7b234cb2c12e9/mavros/src/plugins/command.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue mavlink/mavros#478 (title: \"'module' object has no attribute 'guided_enable'\") gives a reproducer and the error: \"I get the above error when running 'rosrun mavros mavsetp local -p 2 2 2 2' (for example) It's associated to line 40 of the mavsetp script.\" The maintainer (vooon) fixed it in commit bdda1fab (\"scripts fix #478: Remove guided_enable garbage. I'm missed this when do #407.\") and the reporter confirmed \"Works for me.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["mavsetp", "mavros"],
+      "interface_kind": "service",
+      "evidence": "Unit 1 is the command-line script mavros/scripts/mavsetp, a separate rospy process (rospy.init_node(\"mavsetp\", anonymous=True)) that publishes setpoints and requests OFFBOARD mode from the running mavros node. Unit 2 is the mavros node (package mavros: mavros_node with its command and sys_status plugins, plus the package's Python client module mavros.command through which the script reaches the node's cmd/* services). The two interact only through ROS services and topics, so they are separate units although they ship in one package. The interaction that failed crosses the boundary: the script calls command.guided_enable(value=True) (mavsetp line 40 at 18131c8), i.e. the client proxy for the node's service ~cmd/guided_enable, which commit d7bd7857 (\"plugin: command fix #407: remove guided_enable sevice\") removed from the node (deleted line: guided_srv = cmd_nh.advertiseService(\"guided_enable\", &CommandPlugin::guided_cb, this);) and from the client module (deleted lines: 'guided_enable', / guided_enable = None / guided_enable = _get_proxy('guided_enable', CommandBool)). Not internal: with the provider at its pre-#407 revision the same script works. Not deployment wiring: the provider's declared interface (a service) was removed, not renamed at launch. Not build-only, not firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer (mavsetp) still references the provider element cmd/guided_enable (via mavros.command.guided_enable) as it existed at provider revision f7441de8 (parent of d7bd7857, last revision advertising the service); the provider it ran against (18131c8c = tag 0.16.5) no longer declares it. The failure was observed in this configuration. PAIR (the script's service request feeds the node) is the alternative reading; see notes."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: issue title \"'module' object has no attribute 'guided_enable'\" and body \"I get the above error when running 'rosrun mavros mavsetp local -p 2 2 2 2' (for example) It's associated to line 40 of the mavsetp script.\" The maintainer's commit message names the mismatch: \"Remove guided_enable garbage. I'm missed this when do #407.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavsetp",
+      "role": "consumer",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "18131c8cb55748214ad2b455cc2ecb30f7657b05",
+      "resolved_rev": "bdda1fab32a9d084cfe980fe4f364b5eb35173e0",
+      "pinned": true,
+      "revision_basis": "The reporter names no version. The fix commit bdda1fab has the single parent 18131c8c, which is the release tag 0.16.5 (2016-01-10); the script mavros/scripts/mavsetp is byte-identical from commit 0d73f848 (2015-08-10) through 18131c8c, so any revision in that range reproduces the broken script; the parent of the fix is used as the pinned broken revision. Resolved revision is the fix commit itself, which rewrites enable_offboard() in mavros/scripts/mavsetp to call the set_mode service; the reporter confirmed the fix (\"Works for me.\") on 2016-01-22, and the fix is contained in release 0.16.6 (429071cb).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "mavros",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "18131c8cb55748214ad2b455cc2ecb30f7657b05",
+      "resolved_rev": "bdda1fab32a9d084cfe980fe4f364b5eb35173e0",
+      "pinned": true,
+      "revision_basis": "Same checkout as the script (both are installed from package mavros; the reporter ran 'rosrun mavros mavsetp'). At 18131c8c (tag 0.16.5) mavros/src/plugins/command.cpp advertises ~cmd/{command,command_int,arming,set_home,takeoff,land,trigger_control} and mavros/src/plugins/sys_status.cpp advertises ~set_mode; ~cmd/guided_enable had been removed by d7bd7857 (2015-10-31, first released in 0.16.0). The fix commit bdda1fab also touches the package's Python client module mavros/src/mavros/command.py (it drops the stale name guided_enable from a 'global' statement in _setup_services; no service or proxy is added or removed), so the provider is recorded at bdda1fab in the resolved composition; the node's declared services are identical at 18131c8c and bdda1fab.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "f7441de80a957a5044d0d36767c7b234cb2c12e9",
+    "resolved": "bdda1fab32a9d084cfe980fe4f364b5eb35173e0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:mavros.command.guided_enable", "sides": {"mavsetp": "consumes", "mavros": "provides"}},
+    {"element": "service:/mavros/cmd/guided_enable", "sides": {"mavsetp": "consumes", "mavros": "provides"}},
+    {"element": "service:/mavros/set_mode", "sides": {"mavsetp": "consumes", "mavros": "provides"}},
+    {"element": "topic:/mavros/setpoint_position/local", "sides": {"mavsetp": "provides", "mavros": "consumes"}},
+    {"element": "topic:/mavros/setpoint_velocity/cmd_vel", "sides": {"mavsetp": "provides", "mavros": "consumes"}},
+    {"element": "topic:/mavros/setpoint_accel/accel", "sides": {"mavsetp": "provides", "mavros": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:mavros.command.guided_enable", "service:/mavros/cmd/guided_enable"],
+      "quote": "-\t\tguided_srv = cmd_nh.advertiseService(\"guided_enable\", &CommandPlugin::guided_cb, this);",
+      "url": "https://github.com/mavlink/mavros/commit/d7bd78574a0deb5f12ff7da529c784508ddba275"
+    },
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:mavros.command.guided_enable"],
+      "quote": "scripts fix #478: Remove guided_enable garbage.\n\nI'm missed this when do #407.",
+      "url": "https://github.com/mavlink/mavros/commit/bdda1fab32a9d084cfe980fe4f364b5eb35173e0"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The Python interpreter raised AttributeError at the script's first call of the removed symbol; issue title: \"'module' object has no attribute 'guided_enable'\"; body: \"I get the above error when running 'rosrun mavros mavsetp local -p 2 2 2 2' (for example) It's associated to line 40 of the mavsetp script.\" This is an interpreter diagnostic, not an import-time error and not a ROS-level diagnostic: mavsetp imports mavros.command successfully and fails 0.2 s after its first publish when publish_once() calls enable_offboard() (mavsetp lines 25-42 at 18131c8c).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Commit bdda1fab rewrites mavsetp's enable_offboard() to request OFFBOARD through the node's set_mode service instead of the removed cmd/guided_enable proxy: '+from mavros_msgs.srv import SetMode' and '+        set_mode = rospy.ServiceProxy(mavros.get_topic('set_mode'), SetMode)' / '+        ret = set_mode(custom_mode=\"OFFBOARD\")' replacing '-        command.guided_enable(value=True)'; it also drops the stale name from the 'global' line in mavros/src/mavros/command.py.",
+    "status": "observed",
+    "evidence": "Maintainer vooon, 2016-01-22T06:13:52Z: \"@srees can you check fix?\" (https://github.com/mavlink/mavros/issues/478#issuecomment-173821917); reporter srees, 2016-01-22T07:33:14Z: \"Works for me. Thanks for the fast turnaround!\" (https://github.com/mavlink/mavros/issues/478#issuecomment-173834273). The fix commit bdda1fab (2016-01-22T06:10:42Z) precedes the check request; both units of the resolved composition are the mavros checkout at bdda1fab."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Operation: recorded as UPGRADE because the consumer still references a provider element exactly as it existed at an earlier provider revision (f7441de8, the parent of the removal commit d7bd7857; release 0.15.0 of 2015-09-17 is the last release advertising cmd/guided_enable, 0.16.0 of 2015-11-09 the first without it). Caveat: script and node ship in the same package and the reporter ran both from one installation at 18131c8c, so they were not separately released; under a strict reading of that clause the operation is PAIR (the script's service request feeds the node) with the same failed condition. consumer_built_against.resolved is bdda1fab because the fixed script references set_mode, which the node advertises at that revision (sys_status.cpp line 411: mode_srv = nh.advertiseService(\"set_mode\", ...)). Access path: the script reaches the service through the package's Python client module (mavros.command.guided_enable = rospy.ServiceProxy(mavros.get_topic('cmd', 'guided_enable'), CommandBool) at f7441de8); d7bd7857 removed the proxy from that module together with the service, so the observed diagnostic is the module AttributeError rather than a ROS service-not-found error. Names in the inventory are resolved under the script's default namespace (-n/--mavros-ns default \"/mavros\"; node handles ~cmd and ~ of node 'mavros'). The other consumer of the removed service, the mavcmd script (do_guided_en / 'guided' subcommand), was updated in d7bd7857 itself and is not part of this case. Issue #407 gives the removal rationale: \"Both APM and PX4 use custom mode for offboard. That service is unneeded and confuses users.\" and the maintainer's guidance \"Yes, `set_mode`. That works fine, while via command may not work.\" No ROS distro is stated."
+}

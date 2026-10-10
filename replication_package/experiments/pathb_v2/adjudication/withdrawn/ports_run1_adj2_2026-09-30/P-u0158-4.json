@@ -1,0 +1,13 @@
+{"item_id": "P-u0158-4", "kind": "P", "task_id": "u0158", "element": "service:~tf2_frames", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "tf2_msgs/FrameGraph", "verdict": "verified",
+   "source_excerpt": "buffer.py:34: from tf2_msgs.srv import FrameGraph, FrameGraphResponse | buffer.py:51: self.frame_server = rospy.Service('~tf2_frames', FrameGraph, self.__get_frames) | buffer.h:123: bool getFrames(tf2_msgs::FrameGraph::Request& req, tf2_msgs::FrameGraph::Response& res) ;",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "buffer.py:54: return FrameGraphResponse(self.all_frames_as_yaml()) | buffer.cpp:163: res.frame_yaml = allFramesAsYAML();",
+   "qos_basis": null},
+  {"field": "definition_id", "recorded": {"algorithm": "sha256_normalised", "kind": "srv", "value": "807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b"}, "verdict": "verified",
+   "source_excerpt": "cmd: python3 definition_hash.py sha256 snapshot/tf2_msgs/srv/FrameGraph.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b\"}",
+   "qos_basis": null}
+ ],
+ "notes": "All cited locations opened under s2_work/tasks/u0158/snapshot (geometry_experimental); line numbers confirmed with awk. buffer.cpp:46-47 holds both quoted statements verbatim (46: ros::NodeHandle n(\"~\"); 47: frames_server_ = n.advertiseService(\"tf2_frames\", &Buffer::getFrames, this);), matching the private-name service '~tf2_frames'. Type tf2_msgs/FrameGraph stated at buffer.py:34+51 (Python side) and buffer.h:123 (C++ handler signature), i.e. the canonical pkg/Type spelling of tf2_msgs::FrameGraph. frame=none: the service response is a YAML string dump of all frames (buffer.py:54, buffer.cpp:163), not tied to a single frame token. definition_id reproduced exactly by the frozen hashing tool, including algorithm and kind 'srv'."}

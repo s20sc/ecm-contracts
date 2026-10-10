@@ -1,0 +1,25 @@
+{
+  "task_id": "u0409",
+  "package": "rclcpp",
+  "manifest_version": "28.3.1",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "perm_requires.state": "searched whole snapshot (code, CMake, package.xml) for enclave/sros/permissions.xml/security: only the graph-query API get_node_names_with_enclaves (snapshot:rclcpp/include/rclcpp/node_interfaces/node_graph_interface.hpp:279); no permission requirement declared",
+    "perm_grants.state": "same search as perm_requires; no permission grants declared anywhere in the snapshot",
+    "recovery.state": "case-insensitive search of the whole snapshot for 'recover' returned no hits; no recovery behaviour declared"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "rclcpp at this revision never names any of the ten listed rmw_* symbols in code; it reaches the middleware only through rcl (rcl_node_init, rcl_publisher_init, rcl_publish, rcl_wait, ...), so there is no direct call site that could mismatch these rmw APIs."
+  },
+  "confidence": "high",
+  "notes": "All ten packet elements are rmw C API functions on the consumes side. A word-boundary grep of the entire snapshot (rclcpp, rclcpp_action, rclcpp_components, rclcpp_lifecycle; src, include, test, CMake) for rmw_create_node, rmw_create_publisher, rmw_create_service, rmw_create_subscription, rmw_destroy_node, rmw_destroy_publisher, rmw_destroy_service, rmw_destroy_subscription, rmw_publish and rmw_wait found no call, declaration, mock patch or other code reference. The only textual hit is a source comment in snapshot:rclcpp/include/rclcpp/publisher.hpp:413 ('`rmw_publish_loaned_message` explicitly the same way as `rmw_publish`'), which is not a code reference, so it is not listed in references. The package consumes these operations only transitively through rcl: rcl_node_init (snapshot:rclcpp/src/rclcpp/node_interfaces/node_base.cpp:62), rcl_node_fini (node_base.cpp:138), rcl_publisher_init (snapshot:rclcpp/src/rclcpp/publisher_base.cpp:73), rcl_publisher_fini (publisher_base.cpp:59), rcl_subscription_init (snapshot:rclcpp/src/rclcpp/subscription_base.cpp:73), rcl_subscription_fini (subscription_base.cpp:59), rcl_service_init (snapshot:rclcpp/include/rclcpp/service.hpp:335), rcl_service_fini (service.hpp:324), rcl_publish (snapshot:rclcpp/include/rclcpp/publisher.hpp:450), rcl_wait (snapshot:rclcpp/src/rclcpp/graph_listener.cpp:175). Several headers include rmw/rmw.h (e.g. snapshot:rclcpp/include/rclcpp/publisher.hpp:29) and package.xml declares <depend>rmw</depend> (snapshot:rclcpp/package.xml:44), but including the header does not reference the listed symbols. Because the package calls none of the elements directly, no ports are recorded; msg_type, frame, units, QoS, rate and definition_id do not apply to C API functions. No element is provided by this package, so declares and not_declared are empty. No exclusive resource claims (hardware command interfaces, exclusive device handles) exist in this client library."
+}

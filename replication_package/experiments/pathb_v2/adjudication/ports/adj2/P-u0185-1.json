@@ -1,0 +1,10 @@
+{"item_id": "P-u0185-1", "kind": "P", "task_id": "u0185", "element": "topic:/tf", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "tf2_msgs/TFMessage", "verdict": "unverifiable",
+   "source_excerpt": "Node.cc:56-57: 'static tf::TransformBroadcaster tf_broadcaster;\\n  tf_broadcaster.sendTransform(tf::StampedTransform(transform, current_frame_time_, map_frame_id_param_, camera_frame_id_param_));' -- no wire type named at any cited location",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "map", "verdict": "verified",
+   "source_excerpt": "Node.cc:12: '  node_handle_.param<std::string>(name_of_node_+\"/pointcloud_frame_id\", map_frame_id_param_, \"map\");' | Node.cc:57: tf::StampedTransform(transform, current_frame_time_, map_frame_id_param_, camera_frame_id_param_) | launch:13: '<param name=\"pointcloud_frame_id\" type=\"string\" value=\"map\" />'",
+   "qos_basis": null}
+ ],
+ "notes": "msg_type: the provenance itself concedes the snapshot does not name the wire type; I confirmed by grep over the whole u0185 snapshot that neither 'TFMessage' nor 'tf2_msgs' appears anywhere. The delegation chain tf::TransformBroadcaster -> tf2_ros::TransformBroadcaster -> tf2_msgs/TFMessage is real-world knowledge external to the snapshot, so the cited locations do not state the value: unverifiable. frame: Node.cc:12 defaults map_frame_id_param_ to \"map\", Node.cc:57 uses it as the StampedTransform parent frame, and the cited launch range 12-13 includes line 13 setting pointcloud_frame_id=\"map\" (line 12 is reset_map, an unrelated param; the child-frame default camera_link at Node.cc:13 is not part of this value)."}

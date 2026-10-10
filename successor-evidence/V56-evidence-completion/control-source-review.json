@@ -1,0 +1,451 @@
+{
+  "scope": "Source adjudication of all seven historically uncovered primary control findings. Completed review does not mean all semantic verdicts verified. Original fold and every actual rejection remain unchanged.",
+  "historical_coverage": {
+    "findings": 44,
+    "covered": 37,
+    "missing": 7
+  },
+  "supplementary_reviewed": 7,
+  "combined_review_record_coverage": "44/44",
+  "substance_counts": {
+    "indeterminate": 3,
+    "substantive_additive": 1,
+    "transcription_only": 3
+  },
+  "items": [
+    {
+      "item_id": "SA2-01",
+      "case_id": "C3-063",
+      "element": "api:numpy.matrix.resize",
+      "finding_rule": "field_break",
+      "review_complete": true,
+      "timing": "post hoc",
+      "trigger_paths": [
+        "ver_delta.changed_fields[api:numpy.matrix.resize]",
+        "ver_delta.consumer_reads[api:numpy.matrix.resize]"
+      ],
+      "source_anchor_check": "verbatim spans verified against hash-bound files",
+      "consumer_reference": "verified as a source reference, not a runtime observation",
+      "representation_assessment": "non-equivalent representations",
+      "supported_claim": "Both versions document a.resize(new_shape, refcheck=True). Original comparison mixed a C implementation signature with the public Python signature.",
+      "substance": "transcription_only",
+      "consumer_breakage": "not established by this source review",
+      "limits": "Equivalent public declaration only; no claim of binary or full behavior equivalence.",
+      "evidence": [
+        {
+          "path": "sources/control/u0319/numpy/add_newdocs.py",
+          "sha256": "62c56e149dedbe3f727cd039a306873eba4bfcc7beb5f1c0f477f7f9db58d940",
+          "start_line": 4154,
+          "end_line": 4156,
+          "quote": "add_newdoc('numpy.core.multiarray', 'ndarray', ('resize',\n    \"\"\"\n    a.resize(new_shape, refcheck=True)"
+        },
+        {
+          "path": "sources/control/u0320/numpy/core/_add_newdocs.py",
+          "sha256": "3812686ba8bd3d8debcf0c91b784283587f31eecf89159978892a45a2c307161",
+          "start_line": 3671,
+          "end_line": 3673,
+          "quote": "add_newdoc('numpy.core.multiarray', 'ndarray', ('resize',\n    \"\"\"\n    a.resize(new_shape, refcheck=True)"
+        },
+        {
+          "path": "sources/control/u0318/image_geometry/image_geometry/cameramodels.py",
+          "sha256": "4f0f2a6693d859c92b21c8a5d626edfc31af77306a015f9f016e6582727d8867",
+          "start_line": 6,
+          "end_line": 8,
+          "quote": "def mkmat(rows, cols, L):\n    mat = numpy.matrix(L, dtype='float64')\n    mat.resize((rows,cols))"
+        },
+        {
+          "path": "sources/control/u0318/image_geometry/image_geometry/cameramodels.py",
+          "sha256": "4f0f2a6693d859c92b21c8a5d626edfc31af77306a015f9f016e6582727d8867",
+          "start_line": 101,
+          "end_line": 103,
+          "quote": "        src = mkmat(1, 2, list(uv_raw))\n        src.resize((1,1,2))\n        dst = cv2.undistortPoints(src, self.K, self.D, R=self.R, P=self.P)"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0319.json",
+          "sha256": "087c5bcd0dd5fab97dab3e3cfc551212880c36429eb903b7d491050a0fb067b9",
+          "start_line": 70,
+          "end_line": 70,
+          "quote": "    \"api:numpy.matrix.resize\": \"api numpy.matrix.resize: array_resize(PyArrayObject *self, PyObject *args, PyObject *kwds)\",",
+          "role": "historically recorded declaration string, not raw source code"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0320.json",
+          "sha256": "f5eae02d1b4c6c222d886f45050111fc69780eca07d98717ddfcc64e3e618d0c",
+          "start_line": 54,
+          "end_line": 54,
+          "quote": "    \"api:numpy.matrix.resize\": \"api numpy.matrix.resize: a.resize(new_shape, refcheck=True)\",",
+          "role": "historically recorded declaration string, not raw source code"
+        }
+      ]
+    },
+    {
+      "item_id": "SA2-02",
+      "case_id": "C3-063",
+      "element": "api:numpy.ndarray",
+      "finding_rule": "field_break",
+      "review_complete": true,
+      "timing": "post hoc",
+      "trigger_paths": [
+        "ver_delta.changed_fields[api:numpy.ndarray]",
+        "ver_delta.consumer_reads[api:numpy.ndarray]"
+      ],
+      "source_anchor_check": "verbatim spans verified against hash-bound files",
+      "consumer_reference": "verified as a source reference, not a runtime observation",
+      "representation_assessment": "non-equivalent representations",
+      "supported_claim": "The public ndarray constructor signatures match across the two documentation sources; a PyTypeObject definition is not the same representation as that signature.",
+      "substance": "transcription_only",
+      "consumer_breakage": "not established by this source review",
+      "limits": "Matching constructor signature is not whole-library compatibility.",
+      "evidence": [
+        {
+          "path": "sources/control/u0319/numpy/add_newdocs.py",
+          "sha256": "62c56e149dedbe3f727cd039a306873eba4bfcc7beb5f1c0f477f7f9db58d940",
+          "start_line": 2430,
+          "end_line": 2433,
+          "quote": "add_newdoc('numpy.core.multiarray', 'ndarray',\n    \"\"\"\n    ndarray(shape, dtype=float, buffer=None, offset=0,\n            strides=None, order=None)"
+        },
+        {
+          "path": "sources/control/u0320/numpy/core/_add_newdocs.py",
+          "sha256": "3812686ba8bd3d8debcf0c91b784283587f31eecf89159978892a45a2c307161",
+          "start_line": 2092,
+          "end_line": 2095,
+          "quote": "add_newdoc('numpy.core.multiarray', 'ndarray',\n    \"\"\"\n    ndarray(shape, dtype=float, buffer=None, offset=0,\n            strides=None, order=None)"
+        },
+        {
+          "path": "sources/control/u0318/image_geometry/image_geometry/cameramodels.py",
+          "sha256": "4f0f2a6693d859c92b21c8a5d626edfc31af77306a015f9f016e6582727d8867",
+          "start_line": 83,
+          "end_line": 86,
+          "quote": "        self.mapx = numpy.ndarray(shape=(self.height, self.width, 1),\n                           dtype='float32')\n        self.mapy = numpy.ndarray(shape=(self.height, self.width, 1),\n                           dtype='float32')"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0319.json",
+          "sha256": "087c5bcd0dd5fab97dab3e3cfc551212880c36429eb903b7d491050a0fb067b9",
+          "start_line": 71,
+          "end_line": 71,
+          "quote": "    \"api:numpy.ndarray\": \"api numpy.ndarray: NPY_NO_EXPORT PyTypeObject PyArray_Type = {\",",
+          "role": "historically recorded declaration string, not raw source code"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0320.json",
+          "sha256": "f5eae02d1b4c6c222d886f45050111fc69780eca07d98717ddfcc64e3e618d0c",
+          "start_line": 55,
+          "end_line": 55,
+          "quote": "    \"api:numpy.ndarray\": \"api numpy.ndarray: ndarray(shape, dtype=float, buffer=None, offset=0, strides=None, order=None)\",",
+          "role": "historically recorded declaration string, not raw source code"
+        }
+      ]
+    },
+    {
+      "item_id": "SA2-03",
+      "case_id": "C3-063",
+      "element": "api:numpy.zeros",
+      "finding_rule": "field_break",
+      "review_complete": true,
+      "timing": "post hoc",
+      "trigger_paths": [
+        "ver_delta.changed_fields[api:numpy.zeros]",
+        "ver_delta.consumer_reads[api:numpy.zeros]"
+      ],
+      "source_anchor_check": "verbatim spans verified against hash-bound files",
+      "consumer_reference": "verified as a source reference, not a runtime observation",
+      "representation_assessment": "additive public parameter",
+      "supported_claim": "The new public zeros signature adds keyword-only like=None. The selected consumer call supplies shape and dtype, not like.",
+      "substance": "substantive_additive",
+      "consumer_breakage": "not established by this source review",
+      "limits": "No consumer failure follows from this signature change alone; the old encoded C declaration also differs in representation.",
+      "evidence": [
+        {
+          "path": "sources/control/u0319/numpy/add_newdocs.py",
+          "sha256": "62c56e149dedbe3f727cd039a306873eba4bfcc7beb5f1c0f477f7f9db58d940",
+          "start_line": 899,
+          "end_line": 901,
+          "quote": "add_newdoc('numpy.core.multiarray', 'zeros',\n    \"\"\"\n    zeros(shape, dtype=float, order='C')"
+        },
+        {
+          "path": "sources/control/u0320/numpy/core/_add_newdocs.py",
+          "sha256": "3812686ba8bd3d8debcf0c91b784283587f31eecf89159978892a45a2c307161",
+          "start_line": 1214,
+          "end_line": 1216,
+          "quote": "add_newdoc('numpy.core.multiarray', 'zeros',\n    \"\"\"\n    zeros(shape, dtype=float, order='C', *, like=None)"
+        },
+        {
+          "path": "sources/control/u0318/image_geometry/image_geometry/cameramodels.py",
+          "sha256": "4f0f2a6693d859c92b21c8a5d626edfc31af77306a015f9f016e6582727d8867",
+          "start_line": 306,
+          "end_line": 306,
+          "quote": "        self.Q = numpy.zeros((4, 4), dtype='float64')"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0319.json",
+          "sha256": "087c5bcd0dd5fab97dab3e3cfc551212880c36429eb903b7d491050a0fb067b9",
+          "start_line": 72,
+          "end_line": 72,
+          "quote": "    \"api:numpy.zeros\": \"api numpy.zeros: array_zeros(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds)\"",
+          "role": "historically recorded declaration string, not raw source code"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0320.json",
+          "sha256": "f5eae02d1b4c6c222d886f45050111fc69780eca07d98717ddfcc64e3e618d0c",
+          "start_line": 56,
+          "end_line": 56,
+          "quote": "    \"api:numpy.zeros\": \"api numpy.zeros: zeros(shape, dtype=float, order='C', *, like=None)\"",
+          "role": "historically recorded declaration string, not raw source code"
+        }
+      ]
+    },
+    {
+      "item_id": "SA2-04",
+      "case_id": "C3-135",
+      "element": "api:importlib.metadata.EntryPoint.name",
+      "finding_rule": "field_break",
+      "review_complete": true,
+      "timing": "post hoc",
+      "trigger_paths": [
+        "ver_delta.changed_fields[api:importlib.metadata.EntryPoint.name]",
+        "ver_delta.consumer_reads[api:importlib.metadata.EntryPoint.name]"
+      ],
+      "source_anchor_check": "verbatim spans verified against hash-bound files",
+      "consumer_reference": "verified as a source reference, not a runtime observation",
+      "representation_assessment": "different excerpt extent",
+      "supported_claim": "Both versions use the identical EntryPoint namedtuple declaration with name value group; the stored descriptions differ in whether class EntryPoint is included.",
+      "substance": "transcription_only",
+      "consumer_breakage": "not established by this source review",
+      "limits": "This finding concerns EntryPoint.name only, not entry_points return semantics or other findings in C3-135.",
+      "evidence": [
+        {
+          "path": "sources/control/u0395/Lib/importlib/metadata.py",
+          "sha256": "9d1ad76d7b26d108b90a278f531fc1ad67e7ee73879e747ad442d12049de1de1",
+          "start_line": 41,
+          "end_line": 42,
+          "quote": "class EntryPoint(\n        collections.namedtuple('EntryPointBase', 'name value group')):"
+        },
+        {
+          "path": "sources/control/u0394/Lib/importlib/metadata/__init__.py",
+          "sha256": "ec4aee0b29cbaf38dbeeb21bca438ad8cd1f8f48965ee321618f7449886ac419",
+          "start_line": 124,
+          "end_line": 125,
+          "quote": "class EntryPoint(\n        collections.namedtuple('EntryPointBase', 'name value group')):"
+        },
+        {
+          "path": "sources/control/u0396/rosidl_cli/rosidl_cli/entry_points.py",
+          "sha256": "cdc21ee5a63f6cfc049f365dfbfe6d2d5b6d2f0248883e74bbda89244e868421",
+          "start_line": 39,
+          "end_line": 40,
+          "quote": "    for entry_point in importlib_metadata.entry_points().get(group_name, []):\n        name = entry_point.name"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0395.json",
+          "sha256": "fa06243b906462cb9ca679b1cee43d7e92c856aeac281f7f93cb508a4358d0a8",
+          "start_line": 43,
+          "end_line": 43,
+          "quote": "    \"api:importlib.metadata.EntryPoint.name\": \"api importlib.metadata.EntryPoint.name: collections.namedtuple('EntryPointBase', 'name value group')):\",",
+          "role": "historically recorded declaration string, not raw source code"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0394.json",
+          "sha256": "308436399ab8db33c97ab9dc4c76772b91e7809b1a25a253e14373a97f9a99af",
+          "start_line": 85,
+          "end_line": 85,
+          "quote": "    \"api:importlib.metadata.EntryPoint.name\": \"api importlib.metadata.EntryPoint.name: class EntryPoint( collections.namedtuple('EntryPointBase', 'name value group')):\",",
+          "role": "historically recorded declaration string, not raw source code"
+        }
+      ]
+    },
+    {
+      "item_id": "SA2-05",
+      "case_id": "robust_fa64ec6",
+      "element": "api:<xacro:include>",
+      "finding_rule": "field_break",
+      "review_complete": true,
+      "timing": "post hoc",
+      "trigger_paths": [
+        "ver_delta.changed_fields[api:<xacro:include>]",
+        "ver_delta.consumer_reads[api:<xacro:include>]"
+      ],
+      "source_anchor_check": "verbatim spans verified against hash-bound files",
+      "consumer_reference": "verified as a source reference, not a runtime observation",
+      "representation_assessment": "handler predicate used as declaration",
+      "supported_claim": "Both predicates recognize xacro:include; the old positive test and new negative guard are not evidence that the prefixed tag was removed or renamed. Unprefixed-tag handling changes conditionally.",
+      "substance": "indeterminate",
+      "consumer_breakage": "not established by this source review",
+      "limits": "No whole-handler equivalence; cannot infer a breaking change for the observed prefixed consumer from these predicate strings.",
+      "evidence": [
+        {
+          "path": "sources/control/u0225/src/xacro/__init__.py",
+          "sha256": "00a01fbcf241cbaa074df86234ed3997c3335d948d393e84caf0e2768c0a8636",
+          "start_line": 226,
+          "end_line": 242,
+          "quote": "        if elt.tagName == 'xacro:include' or elt.tagName == 'include':\n\n            is_include = True\n            # Temporary fix for ROS Hydro and the xacro include scope problem\n            if elt.tagName == 'include':\n\n                # check if there is any element within the <include> tag. mostly we are concerned\n                # with Gazebo's <uri> element, but it could be anything. also, make sure the child\n                # nodes aren't just a single Text node, which is still considered a deprecated\n                # instance\n                if elt.childNodes and not (len(elt.childNodes) == 1 and\n                                           elt.childNodes[0].nodeType == elt.TEXT_NODE):\n                    # this is not intended to be a xacro element, so we can ignore it\n                    is_include = False\n                else:\n                    # throw a deprecated warning\n                    print(deprecated_include_msg, file=sys.stderr)"
+        },
+        {
+          "path": "sources/control/u0224/src/xacro/__init__.py",
+          "sha256": "4dd83e6fc7ce9643e24e57ff48a8fc8b1b16be32e80d2bc2c5ea5ec10f6c630f",
+          "start_line": 341,
+          "end_line": 360,
+          "quote": "def is_include(elt):\n    # Xacro should not use plain 'include' tags but only namespaced ones. Causes conflicts with\n    # other XML elements including Gazebo's <gazebo> extensions\n    if elt.tagName not in ['xacro:include', 'include']:\n        return False\n\n    # Temporary fix for ROS Hydro and the xacro include scope problem\n    if elt.tagName == 'include':\n        # check if there is any element within the <include> tag. mostly we are concerned\n        # with Gazebo's <uri> element, but it could be anything. also, make sure the child\n        # nodes aren't just a single Text node, which is still considered a deprecated\n        # instance\n        if elt.childNodes and not (len(elt.childNodes) == 1 and\n                                   elt.childNodes[0].nodeType == elt.TEXT_NODE):\n            # this is not intended to be a xacro element, so we can ignore it\n            return False\n        else:\n            # throw a deprecated warning\n            return check_deprecated_tag(elt.tagName)\n    return True"
+        },
+        {
+          "path": "sources/control/u0224/src/xacro/__init__.py",
+          "sha256": "4dd83e6fc7ce9643e24e57ff48a8fc8b1b16be32e80d2bc2c5ea5ec10f6c630f",
+          "start_line": 162,
+          "end_line": 167,
+          "quote": "    if tag_name.startswith('xacro:'):\n        return True\n    else:\n        if allow_non_prefixed_tags:\n            deprecated_tag()\n        return allow_non_prefixed_tags"
+        },
+        {
+          "path": "sources/control/u0222/ur_description/urdf/ur5.urdf.xacro",
+          "sha256": "c88056f4f0c15d52a747b7ce21ef47d268b0ea46761914e8f7375f3469f82e9b",
+          "start_line": 4,
+          "end_line": 5,
+          "quote": "  <xacro:include filename=\"$(find ur_description)/urdf/ur.transmission.xacro\" />\n  <xacro:include filename=\"$(find ur_description)/urdf/ur.gazebo.xacro\" />"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0225.json",
+          "sha256": "143b62ae08847700d9fcd541a78f9436b76d6f111d8663d79c51b301a3d4a940",
+          "start_line": 161,
+          "end_line": 161,
+          "quote": "    \"api:<xacro:include>\": \"api <xacro:include>: if elt.tagName == 'xacro:include' or elt.tagName == 'include':\",",
+          "role": "historically recorded declaration string, not raw source code"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0224.json",
+          "sha256": "91cbe1edade517ca2911e8760cac01fb2b7762cb96cae4140632b4ad83321688",
+          "start_line": 161,
+          "end_line": 161,
+          "quote": "    \"api:<xacro:include>\": \"api <xacro:include>: if elt.tagName not in ['xacro:include', 'include']:\",",
+          "role": "historically recorded declaration string, not raw source code"
+        }
+      ]
+    },
+    {
+      "item_id": "SA2-06",
+      "case_id": "robust_fa64ec6",
+      "element": "api:<xacro:macro>",
+      "finding_rule": "field_break",
+      "review_complete": true,
+      "timing": "post hoc",
+      "trigger_paths": [
+        "ver_delta.changed_fields[api:<xacro:macro>]",
+        "ver_delta.consumer_reads[api:<xacro:macro>]"
+      ],
+      "source_anchor_check": "verbatim spans verified against hash-bound files",
+      "consumer_reference": "verified as a source reference, not a runtime observation",
+      "representation_assessment": "handler predicate used as declaration",
+      "supported_claim": "Both recorded tag predicates recognize xacro:macro. The separately inspected handler bodies show changed registration, name normalization, and parameter handling; these behavior changes do not establish whether the selected consumer fails.",
+      "substance": "indeterminate",
+      "consumer_breakage": "not established by this source review",
+      "limits": "Recognizing the same tag is not proof of equivalent macro expansion or of the consumer failing.",
+      "evidence": [
+        {
+          "path": "sources/control/u0225/src/xacro/__init__.py",
+          "sha256": "00a01fbcf241cbaa074df86234ed3997c3335d948d393e84caf0e2768c0a8636",
+          "start_line": 301,
+          "end_line": 305,
+          "quote": "        if elt.tagName == 'macro' or elt.tagName == 'xacro:macro':\n            name = elt.getAttribute('name')\n\n            macros[name] = elt\n            macros['xacro:' + name] = elt"
+        },
+        {
+          "path": "sources/control/u0224/src/xacro/__init__.py",
+          "sha256": "4dd83e6fc7ce9643e24e57ff48a8fc8b1b16be32e80d2bc2c5ea5ec10f6c630f",
+          "start_line": 488,
+          "end_line": 516,
+          "quote": "def grab_macro(elt, macros):\n    assert(elt.tagName in ['macro', 'xacro:macro'])\n    remove_previous_comments(elt)\n\n    name, params = check_attrs(elt, ['name'], ['params'])\n    if name == 'call':\n        warning(\"deprecated use of macro name 'call'; xacro:call became a new keyword\")\n    if name.find('.') != -1:\n        warning(\"macro names must not contain '.': %s\" % name)\n    # always have 'xacro:' namespace in macro name\n    if not name.startswith('xacro:'):\n        name = 'xacro:' + name\n\n    # fetch existing or create new macro definition\n    macro = macros.get(name, Macro())\n    # append current filestack to history\n    macro.history.append(filestack)\n    macro.body = elt\n\n    # parse params and their defaults\n    macro.params = []\n    macro.defaultmap = {}\n    while params:\n        param, value, params = parse_macro_arg(params)\n        macro.params.append(param)\n        if value is not None:\n            macro.defaultmap[param] = value  # parameter with default\n\n    macros[name] = macro"
+        },
+        {
+          "path": "sources/control/u0222/ur_description/urdf/ur5.urdf.xacro",
+          "sha256": "c88056f4f0c15d52a747b7ce21ef47d268b0ea46761914e8f7375f3469f82e9b",
+          "start_line": 70,
+          "end_line": 70,
+          "quote": "  <xacro:macro name=\"cylinder_inertial\" params=\"radius length mass *origin\">"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0225.json",
+          "sha256": "143b62ae08847700d9fcd541a78f9436b76d6f111d8663d79c51b301a3d4a940",
+          "start_line": 163,
+          "end_line": 163,
+          "quote": "    \"api:<xacro:macro>\": \"api <xacro:macro>: if elt.tagName == 'macro' or elt.tagName == 'xacro:macro':\",",
+          "role": "historically recorded declaration string, not raw source code"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0224.json",
+          "sha256": "91cbe1edade517ca2911e8760cac01fb2b7762cb96cae4140632b4ad83321688",
+          "start_line": 163,
+          "end_line": 163,
+          "quote": "    \"api:<xacro:macro>\": \"api <xacro:macro>: assert(elt.tagName in ['macro', 'xacro:macro'])\",",
+          "role": "historically recorded declaration string, not raw source code"
+        }
+      ]
+    },
+    {
+      "item_id": "SA2-07",
+      "case_id": "robust_fa64ec6",
+      "element": "api:xmlns:xacro",
+      "finding_rule": "field_break",
+      "review_complete": true,
+      "timing": "post hoc",
+      "trigger_paths": [
+        "ver_delta.changed_fields[api:xmlns:xacro]",
+        "ver_delta.consumer_reads[api:xmlns:xacro]"
+      ],
+      "source_anchor_check": "verbatim spans verified against hash-bound files",
+      "consumer_reference": "verified as a source reference, not a runtime observation",
+      "representation_assessment": "diagnostic text used as declaration",
+      "supported_claim": "The encoded provider strings are an XML-error hint. Both versions write to stderr. Namespace import code differs in collision handling; the hint is not an interface declaration.",
+      "substance": "indeterminate",
+      "consumer_breakage": "not established by this source review",
+      "limits": "Original source strings exist but their adequacy as a namespace declaration is unsupported. Neither identical processing nor runtime breakage is established.",
+      "evidence": [
+        {
+          "path": "sources/control/u0225/src/xacro/__init__.py",
+          "sha256": "00a01fbcf241cbaa074df86234ed3997c3335d948d393e84caf0e2768c0a8636",
+          "start_line": 677,
+          "end_line": 683,
+          "quote": "    except xml.parsers.expat.ExpatError:\n        sys.stderr.write(\"Expat parsing error.  Check that:\\n\")\n        sys.stderr.write(\" - Your XML is correctly formed\\n\")\n        sys.stderr.write(\" - You have the xacro xmlns declaration: \" +\n                         \"xmlns:xacro=\\\"http://www.ros.org/wiki/xacro\\\"\\n\")\n        sys.stderr.write(\"\\n\")\n        raise"
+        },
+        {
+          "path": "sources/control/u0224/src/xacro/__init__.py",
+          "sha256": "4dd83e6fc7ce9643e24e57ff48a8fc8b1b16be32e80d2bc2c5ea5ec10f6c630f",
+          "start_line": 1031,
+          "end_line": 1035,
+          "quote": "            print(\"Check that:\", file=sys.stderr)\n            print(\" - Your XML is well-formed\", file=sys.stderr)\n            print(\" - You have the xacro xmlns declaration:\",\n                  \"xmlns:xacro=\\\"http://www.ros.org/wiki/xacro\\\"\", file=sys.stderr)\n        sys.exit(2)  # indicate failure, but don't print stack trace on XML errors"
+        },
+        {
+          "path": "sources/control/u0225/src/xacro/__init__.py",
+          "sha256": "00a01fbcf241cbaa074df86234ed3997c3335d948d393e84caf0e2768c0a8636",
+          "start_line": 278,
+          "end_line": 291,
+          "quote": "                for name, value in included.documentElement.attributes.items():\n                    if name.startswith('xmlns:'):\n                        namespaces[name] = value\n\n            elt.parentNode.removeChild(elt)\n            elt = None\n        else:\n            previous = elt\n\n        elt = next_element(previous)\n\n    # Makes sure the final document declares all the namespaces of the included documents.\n    for k, v in namespaces.items():\n        doc.documentElement.setAttribute(k, v)"
+        },
+        {
+          "path": "sources/control/u0224/src/xacro/__init__.py",
+          "sha256": "4dd83e6fc7ce9643e24e57ff48a8fc8b1b16be32e80d2bc2c5ea5ec10f6c630f",
+          "start_line": 387,
+          "end_line": 398,
+          "quote": "def import_xml_namespaces(parent, attributes):\n    \"\"\"import all namespace declarations into parent\"\"\"\n    for name, value in attributes.items():\n        if name.startswith('xmlns:'):\n            oldAttr = parent.getAttributeNode(name)\n            if oldAttr and oldAttr.value != value:\n                warning(\"inconsistent namespace redefinitions for {name}:\"\n                        \"\\n old: {old}\\n new: {new} ({new_file})\".format(\n                    name=name, old=oldAttr.value, new=value,\n                    new_file=filestack[-1]))\n            else:\n                parent.setAttribute(name, value)"
+        },
+        {
+          "path": "sources/control/u0222/ur_description/urdf/ur5.urdf.xacro",
+          "sha256": "c88056f4f0c15d52a747b7ce21ef47d268b0ea46761914e8f7375f3469f82e9b",
+          "start_line": 1,
+          "end_line": 2,
+          "quote": "<?xml version=\"1.0\"?>\n<robot xmlns:xacro=\"http://www.ros.org/wiki/xacro\">"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0225.json",
+          "sha256": "143b62ae08847700d9fcd541a78f9436b76d6f111d8663d79c51b301a3d4a940",
+          "start_line": 168,
+          "end_line": 168,
+          "quote": "    \"api:xmlns:xacro\": \"api xmlns:xacro: \\\"xmlns:xacro=\\\\\\\"http://www.ros.org/wiki/xacro\\\\\\\"\\\\n\\\")\"",
+          "role": "historically recorded declaration string, not raw source code"
+        },
+        {
+          "path": "sources/recorded-descriptions/u0224.json",
+          "sha256": "91cbe1edade517ca2911e8760cac01fb2b7762cb96cae4140632b4ad83321688",
+          "start_line": 168,
+          "end_line": 168,
+          "quote": "    \"api:xmlns:xacro\": \"api xmlns:xacro: print(\\\" - You have the xacro xmlns declaration:\\\", \\\"xmlns:xacro=\\\\\\\"http://www.ros.org/wiki/xacro\\\\\\\"\\\", file=sys.stderr)\"",
+          "role": "historically recorded declaration string, not raw source code"
+        }
+      ]
+    }
+  ]
+}

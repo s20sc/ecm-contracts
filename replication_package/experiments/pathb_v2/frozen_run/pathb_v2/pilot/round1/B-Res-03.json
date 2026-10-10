@@ -1,0 +1,57 @@
+{
+  "case_id": "B-Res-03",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/1179",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1911700097",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1912400524",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-2464683564",
+    "https://github.com/ros-controls/ros2_control/blob/humble/controller_manager/src/controller_manager.cpp",
+    "https://github.com/ros-controls/ros2_control/blob/humble/controller_manager_msgs/srv/SwitchController.srv",
+    "https://github.com/ros-controls/ros2_control/pull/2060",
+    "https://github.com/ros-controls/ros2_control/commit/a207bf1289e49dd63f25053521cd441ab65fc7a9",
+    "https://github.com/ros-controls/ros2_control/pull/2088"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue #1179 'Switch controllers services return always ok' (labels: bug, stale; closed 2025-05-19 by the stale bot) gives a reproducer ('ros2 service call /controller_manager/switch_controller controller_manager_msgs/srv/SwitchController \"{start_controllers: [\\\"dummy_controller\\\"]}\"'), the observed response ('controller_manager_msgs.srv.SwitchController_Response(ok=True)'), and controller_manager log output on Humble ('[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists' / '[controller_manager]: Empty activate and deactivate list, not requesting switch'). Maintainers engaged: saikishor (MEMBER) 'Please try with the `strictness` set to `STRICT` when sending the service request. I think it should respond with false.'; christophfroehlich (MEMBER) 'Hint: the problem with `STRICT` is, that it does return false also if the controller exists but is already in the desired state.'; fmauch (CONTRIBUTOR) reports a resource-manager variant ('The service response will contain `ok=True`.'). The issue has no linked fix; PR #2060 (merged 2025-02-26) addresses the same reproducer without referencing #1179."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "controller_manager",
+        "switch_controller service client (ros2 service call from ros2cli in the reproducer)"
+      ],
+      "interface_kind": null,
+      "evidence": "Step 1: the interaction that fails is the service call service:/controller_manager/switch_controller between the controller_manager node (package controller_manager, ros-controls/ros2_control) and its client (the reproducer uses ros2 service call from ros2cli; fmauch's variant uses the same service). The consumer receives a wrong response value: ok=True although nothing was switched. Step 2: the minimal resolving change is inside controller_manager's own logic and leaves its boundary unchanged. On the humble branch (fetched at commit 95d7c95b6e36067dfd3a10630a14d8801c52cc51), a request without strictness is defaulted ('Controller Manager: to switch controllers you need to specify a strictness level of controller_manager_msgs::SwitchController::STRICT (%d) or ::BEST_EFFORT (%d). Defaulting to ::BEST_EFFORT'); an unknown controller is only warned and skipped unless STRICT ('Could not '%s' controller with name '%s' because no controller with this name exists' ... 'if (strictness == controller_manager_msgs::srv::SwitchController::Request::STRICT) { RCLCPP_ERROR(get_logger(), \"Aborting, no controller is switched! ('STRICT' switch)\"); return controller_interface::return_type::ERROR; }'); with nothing left to switch the function returns success ('RCLCPP_INFO(get_logger(), \"Empty activate and deactivate list, not requesting switch\"); clear_requests(); return controller_interface::return_type::OK;'), which the service callback maps to the response ('response->ok = switch_controller(activate_controllers, deactivate_controllers, request->strictness, activate_asap, request->timeout) == controller_interface::return_type::OK;'). The resource-conflict variant is likewise a controller_manager-internal rejection ('RCLCPP_ERROR(get_logger(), \"Resource conflict for controller '%s'. Command interface '%s' is already claimed.\", ...); command_loans.clear(); assignment_successful = false;') whose result is not propagated to the response. The upstream change that makes the reporter's request return false, PR #2060 '[CM] Fix `switch_controller` behaviour with unknown controller switch request' (merge commit a207bf1289e49dd63f25053521cd441ab65fc7a9), touches only controller_manager/src/controller_manager.cpp and two test files: 'result = request_list.empty() ? controller_interface::return_type::ERROR : controller_interface::return_type::OK;' and 'return result;'. SwitchController.srv (request fields, 'bool ok' response) is not changed by it, and the client needs no change. Stop at step 2: internal."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "The operation in which the defect is observed is PAIR (the client's request feeds controller_manager; controller_manager's response feeds the client): 'ros2 service call /controller_manager/switch_controller ...' followed by 'response: controller_manager_msgs.srv.SwitchController_Response(ok=True)'. Recorded for completeness; the case stops at E2."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observable outcome in the source: 'The response expected should be ok = False but the ok is equals to true' with the response text 'controller_manager_msgs.srv.SwitchController_Response(ok=True)' and the controller_manager log lines quoted in E1. Recorded for completeness; the case stops at E2."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: the defect is the value controller_manager places in the existing 'bool ok' field of service:/controller_manager/switch_controller (success reported although no controller was switched or a resource claim was rejected); the minimal resolving change is inside controller_manager's switch_controller logic, as PR #2060 shows (controller_manager.cpp and tests only, SwitchController.srv unchanged, no client change). The rejection of a second controller claiming an already-claimed command interface (fmauch's variant, 'Resource conflict for controller [...]. Comand interface 'jointXYZ/position' is already claimed.') is controller_manager working as designed, not the reported defect. Later interface work on the same service (PR #2088 adding 'string message' to the response, 2025-03-13; PR #2224 adding strictness modes) is not the minimal resolving change and does not reference #1179.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

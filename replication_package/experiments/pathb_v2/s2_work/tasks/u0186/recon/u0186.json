@@ -1,0 +1,105 @@
+{
+  "task_id": "u0186",
+  "package": "orb_slam2_ros_rgbd",
+  "manifest_version": "0.0.1",
+  "ports": [
+    {
+      "element": "topic:/orb_slam2_d435_rgbd/map_points",
+      "side": "provides",
+      "msg_type": "sensor_msgs/PointCloud2",
+      "frame": "map",
+      "units": "m",
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "1158d486dd51d683ce2f1be655c3c181"
+      }
+    },
+    {
+      "element": "topic:/tf",
+      "side": "provides",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "map",
+      "units": "m",
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "94810edda583a504dfda3829e70d7eec"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "topic:/orb_slam2_d435_rgbd/map_points": "topic /orb_slam2_d435_rgbd/map_points: sensor_msgs/PointCloud2",
+    "topic:/tf": "topic /tf: tf2_msgs/TFMessage"
+  },
+  "not_declared": [],
+  "references": [
+    "topic:/camera/rgb/image_raw",
+    "topic:/camera/depth_registered/image_raw",
+    "topic:/camera/color/image_rect_color",
+    "topic:/camera/depth/image_rect_raw",
+    "msg:sensor_msgs/Image",
+    "msg:sensor_msgs/PointCloud2",
+    "msg:sensor_msgs/PointField",
+    "api:tf::TransformBroadcaster::sendTransform"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "tracking LOST -> Relocalization() on each new frame; if LOST while map has <= mnMinimumKeyFrames keyframes (dynamic param min_num_kf_in_map, default 5) -> System::Reset(); operator map reset via dynamic_reconfigure param reset_map"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:4 (<version>0.0.1</version>; manifest <name>orb_slam2_ros</name> at line 3, the unit is its executable target ${PROJECT_NAME}_rgbd, snapshot:CMakeLists.txt:127-135)",
+    "ports[0].element": "snapshot:ros/src/Node.cc:6 name_of_node_ = ros::this_node::getName(); snapshot:ros/src/Node.cc:22 node_handle_.advertise<sensor_msgs::PointCloud2> (name_of_node_+\"/map_points\", 1); node name set by snapshot:ros/launch/orb_slam2_d435_rgbd.launch:2 <node name=\"orb_slam2_d435_rgbd\" pkg=\"orb_slam2_ros\" type=\"orb_slam2_ros_rgbd\"",
+    "ports[0].msg_type": "snapshot:ros/src/Node.cc:22 node_handle_.advertise<sensor_msgs::PointCloud2> (name_of_node_+\"/map_points\", 1);",
+    "ports[0].frame": "snapshot:ros/src/Node.cc:115 cloud.header.frame_id = map_frame_id_param_; snapshot:ros/src/Node.cc:12 node_handle_.param<std::string>(name_of_node_+\"/pointcloud_frame_id\", map_frame_id_param_, \"map\"); snapshot:ros/launch/orb_slam2_d435_rgbd.launch:13 <param name=\"pointcloud_frame_id\" type=\"string\" value=\"map\" />",
+    "ports[0].units": "snapshot:orb_slam2/config/RealSenseD435RGBD.yaml:31-32 '# Deptmap values factor (what pixel value in the depth image corresponds to 1m?)' DepthMapFactor: 1000.0; applied in snapshot:orb_slam2/src/Tracking.cc:142-146,222-223; yaml passed by snapshot:ros/launch/orb_slam2_d435_rgbd.launch:5; x,y,z written as float32 at snapshot:ros/src/Node.cc:124-129",
+    "ports[0].definition_id": "python3 definition_hash.py ros1 sensor_msgs/PointCloud2 over raw sensor_msgs/msg/PointCloud2.msg + PointField.msg from https://raw.githubusercontent.com/ros/common_msgs/<tag>/ and msg/Header.msg from https://raw.githubusercontent.com/ros/std_msgs/<tag>/; ros_distro is null, so tags 1.12.7, 1.12.8, 1.13.1 (common_msgs) and 0.5.11, 0.5.12, 0.5.13 (std_msgs) were all hashed and gave the identical value 1158d486dd51d683ce2f1be655c3c181 (snapshot:README.md:53 states testing on ROS Kinetic and Melodic)",
+    "ports[1].element": "snapshot:ros/src/Node.cc:56-57 static tf::TransformBroadcaster tf_broadcaster; tf_broadcaster.sendTransform(tf::StampedTransform(transform, current_frame_time_, map_frame_id_param_, camera_frame_id_param_)); topic name /tf is fixed inside the tf library, not written in the snapshot",
+    "ports[1].msg_type": "snapshot:ros/src/Node.cc:56-57 (tf::TransformBroadcaster from build/run dependency tf, snapshot:package.xml:17,25); the wire type is set by the tf library, which in ROS 1 Hydro and later (incl. Kinetic/Melodic named at snapshot:README.md:53) delegates to tf2_ros and publishes tf2_msgs/TFMessage on /tf; library behaviour, not visible in the snapshot",
+    "ports[1].frame": "snapshot:ros/src/Node.cc:57 tf::StampedTransform(transform, current_frame_time_, map_frame_id_param_, camera_frame_id_param_) -> parent frame map_frame_id_param_ (default \"map\", snapshot:ros/src/Node.cc:12; launch value \"map\", snapshot:ros/launch/orb_slam2_d435_rgbd.launch:13); child frame camera_frame_id_param_ (default \"camera_link\", snapshot:ros/src/Node.cc:13; launch value \"camera_link\", snapshot:ros/launch/orb_slam2_d435_rgbd.launch:14)",
+    "ports[1].units": "translation in the metric scale set by snapshot:orb_slam2/config/RealSenseD435RGBD.yaml:31-32 (DepthMapFactor: pixel value corresponding to 1m); converted to the ROS axis convention at snapshot:ros/src/Node.cc:84-99 ('Coordinate transformation matrix from orb coordinate system to ros coordinate system')",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 tf2_msgs/TFMessage over raw tf2_msgs/msg/TFMessage.msg from https://raw.githubusercontent.com/ros/geometry2/<tag>/ (tags 0.5.20, 0.6.5, 0.7.5), geometry_msgs/msg/{TransformStamped,Transform,Vector3,Quaternion}.msg from ros/common_msgs (tags 1.12.7, 1.12.8, 1.13.1) and msg/Header.msg from ros/std_msgs (tags 0.5.11, 0.5.12, 0.5.13); all tag sets give 94810edda583a504dfda3829e70d7eec; ros_distro null",
+    "declares[topic:/orb_slam2_d435_rgbd/map_points]": "snapshot:ros/src/Node.cc:21-23 if (publish_pointcloud_param_) { map_points_publisher_ = node_handle_.advertise<sensor_msgs::PointCloud2> (name_of_node_+\"/map_points\", 1); } with publish_pointcloud default true (snapshot:ros/src/Node.cc:11) and set true in snapshot:ros/launch/orb_slam2_d435_rgbd.launch:10; node name orb_slam2_d435_rgbd from launch line 2",
+    "declares[topic:/tf]": "snapshot:ros/src/Node.cc:54-58 PublishPositionAsTransform: static tf::TransformBroadcaster tf_broadcaster; tf_broadcaster.sendTransform(...); called from snapshot:ros/src/Node.cc:35-37 when the pose is non-empty",
+    "references[topic:/camera/rgb/image_raw]": "snapshot:ros/src/RGBDNode.cc:37 new message_filters::Subscriber<sensor_msgs::Image> (node_handle, \"/camera/rgb/image_raw\", 1);",
+    "references[topic:/camera/depth_registered/image_raw]": "snapshot:ros/src/RGBDNode.cc:38 new message_filters::Subscriber<sensor_msgs::Image> (node_handle, \"/camera/depth_registered/image_raw\", 1);",
+    "references[topic:/camera/color/image_rect_color]": "snapshot:ros/launch/orb_slam2_d435_rgbd.launch:7 <remap from=\"/camera/rgb/image_raw\" to=\"/camera/color/image_rect_color\" />",
+    "references[topic:/camera/depth/image_rect_raw]": "snapshot:ros/launch/orb_slam2_d435_rgbd.launch:8 <remap from=\"/camera/depth_registered/image_raw\" to=\"/camera/depth/image_rect_raw\" />",
+    "references[msg:sensor_msgs/Image]": "snapshot:ros/include/RGBDNode.h:51-53 ApproximateTime<sensor_msgs::Image, sensor_msgs::Image>; message_filters::Subscriber<sensor_msgs::Image>",
+    "references[msg:sensor_msgs/PointCloud2]": "snapshot:ros/include/Node.h:39,63 #include <sensor_msgs/PointCloud2.h>; sensor_msgs::PointCloud2 MapPointsToPointCloud (...)",
+    "references[msg:sensor_msgs/PointField]": "snapshot:ros/src/Node.cc:129 cloud.fields[i].datatype = sensor_msgs::PointField::FLOAT32;",
+    "references[api:tf::TransformBroadcaster::sendTransform]": "snapshot:ros/src/Node.cc:56-57 static tf::TransformBroadcaster tf_broadcaster; tf_broadcaster.sendTransform(tf::StampedTransform(...));",
+    "perm_requires": "searched snapshot ros/ (src, include, launch, config), orb_slam2/src, orb_slam2/include, orb_slam2/config, package.xml, CMakeLists.txt: no permission or capability requirement declared",
+    "perm_grants": "same search as perm_requires: nothing granted or exported (snapshot:package.xml:28-30 <export> is empty)",
+    "recovery": "snapshot:orb_slam2/src/Tracking.cc:313-315 (SLAM mode, state not OK -> bOK = Relocalization();), :322-324 (localization mode, LOST -> Relocalization()), :466-473 (if LOST and mpMap->KeyFramesInMap()<=mnMinimumKeyFrames -> mpSystem->Reset()); snapshot:ros/config/dynamic_reconfigure.cfg:9-10 reset_map, min_num_kf_in_map (default 5); snapshot:ros/src/Node.cc:155-160"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Both elements are declared consistently (map_points in frame map, TF map->camera_link, same metric scale). The only irregularity seen is content-level: MapPointsToPointCloud sets width to all map points but skips bad ones, leaving zero-filled (0,0,0) entries while is_dense=true (snapshot:ros/src/Node.cc:117-146); whether that is the defect of interest cannot be told without comparison."
+  },
+  "confidence": "medium",
+  "notes": "ROS 1 package (manifest name orb_slam2_ros, format 1); task unit is the orb_slam2_ros_rgbd executable (CMakeLists.txt:127-135). map_points: topic name is name_of_node_+\"/map_points\" with name_of_node_=ros::this_node::getName(); it resolves to /orb_slam2_d435_rgbd/map_points only through the node name in launch/orb_slam2_d435_rgbd.launch (ros::init default name is \"RGBD\", RGBDNode.cc:5, which would give /RGBD/map_points); advertised only when publish_pointcloud is true (default true), queue size 1; published once per synchronized RGB-D callback (ApproximateTime queue 10, RGBDNode.cc:40,74 -> Node::Update), no rate is set in code (Camera.fps: 30.0 in the yaml is a camera setting, not a publish rate). Frame 'map' is the default/launch value of the pointcloud_frame_id parameter, not a literal in the publisher. /tf: the topic name and wire type are fixed inside the tf library (tf::TransformBroadcaster), not in the snapshot; msg_type tf2_msgs/TFMessage assumes a ROS 1 distro from Hydro on (README names Kinetic and Melodic); the transform is parent map_frame_id_param_ ('map') -> child camera_frame_id_param_ ('camera_link'), stamped with the RGB image stamp, sent only when GetCurrentPosition() is non-empty. QoS fields null (ROS 1). ros_distro is null: definition hashes were computed at several ROS 1 release tags and are identical. Other outputs not in the packet: image_transport topic name_of_node_+\"/debug_image\" (Node.cc:20) and private parameters publish_pointcloud, pointcloud_frame_id, camera_frame_id plus dynamic parameters localize_only, reset_map, min_num_kf_in_map. No exclusive resources (no hardware command interfaces or device handles) found. Consumed input topic names are hard-coded and remapped in the launch file."
+}

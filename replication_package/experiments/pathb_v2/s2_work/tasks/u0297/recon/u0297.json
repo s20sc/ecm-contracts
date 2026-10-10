@@ -1,0 +1,61 @@
+{
+  "task_id": "u0297",
+  "package": "image_transport",
+  "manifest_version": "6.4.1",
+  "ports": [
+    {
+      "element": "topic:/camera/image",
+      "side": "consumes",
+      "msg_type": "sensor_msgs/msg/Image",
+      "frame": "per_message",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "sha256_normalised",
+        "kind": "msg",
+        "value": "267cbd7aaf66b2a1493535ac6bb9e37f14244b8e8f9772b92e2f682faf72ba85"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "topic:/camera/image"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:image_transport/package.xml:3",
+    "ports[0]": "snapshot:image_transport/test/test_qos_override.cpp:117-118 (image_transport::create_subscription(*sub_node_, \"camera/image\", fcn, \"raw\", rclcpp::SystemDefaultsQoS())); base topic resolved by resolve_topic_name at snapshot:image_transport/src/subscriber.cpp:115-116; nodes created without namespace (test_qos_override.cpp:52-58)",
+    "ports[0].msg_type": "snapshot:image_transport/include/image_transport/raw_subscriber.hpp:49 (class RawSubscriber : public SimpleSubscriberPlugin<sensor_msgs::msg::Image>); getTopicToSubscribe returns base_topic at raw_subscriber.hpp:67-70",
+    "ports[0].frame": "sensor_msgs/msg/Image.msg line 4-5 (std_msgs/Header header ... Header frame_id should be optical frame of camera); raw transport passes each message through unaltered: snapshot:image_transport/include/image_transport/raw_subscriber.hpp:60-65 (user_cb(message)); no frame is hard-coded anywhere in image_transport (grep frame_id: 0 hits)",
+    "ports[0].definition_id": "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/sensor_msgs/msg/Image.msg -> python3 definition_hash.py sha256 Image.msg",
+    "references[topic:/camera/image]": "snapshot:image_transport/test/test_qos_override.cpp:57 (\"qos_overrides./camera/image.subscription.reliability\", \"best_effort\"); relative name \"camera/image\" at test_qos_override.cpp:118,125,149,156,119,129,150,160 and test_qos_override_lifecycle.cpp:58,122,128,152,160",
+    "perm_requires.state": "searched snapshot/image_transport (code, CMakeLists.txt, package.xml, default_plugins.xml) for permission|sros|enclave|security|policy.xml: only license-header text matches",
+    "perm_grants.state": "same search as perm_requires.state: no permission grants declared",
+    "recovery.state": "searched snapshot/image_transport for retry|recover|reconnect|fallback: only test wait loops (test/test_remapping.cpp:93-106); library code throws TransportLoadException on plugin load failure (src/subscriber.cpp:109-113) with no recovery path"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "test_qos_override*.cpp index endpoint_info_vec[0] from get_publishers_info_by_topic/get_subscriptions_info_by_topic immediately after creating or shutting down an endpoint, with no size check or wait, and expect SystemDefaultsQoS to be reported as Reliable (test_qos_override.cpp:71,98); both assumptions depend on the rmw implementation's graph timing and system defaults, so these tests could fail on some rmw, but nothing in the snapshot alone shows a definite defect"
+  },
+  "confidence": "medium",
+  "notes": "All five packet elements are consumed; declares and not_declared are therefore empty. topic:/camera/image is named only in tests (test_qos_override.cpp, test_qos_override_lifecycle.cpp, test_subscriber*.cpp, test_publisher*.cpp, test_message_passing*.cpp); the library itself takes the base topic at run time. The tests also publish on camera/image (e.g. test_qos_override.cpp:69, raw plugin publishes on base topic per raw_publisher.hpp:78-81), which is not the packet side. The four api:rmw_* elements are not named anywhere in the snapshot: grep 'rmw' over the snapshot matches only the rmw_qos_profile_t type and rmw_qos_profile_default constant. The package creates endpoints through rclcpp::create_subscription (include/image_transport/simple_subscriber_plugin.hpp:137) and rclcpp::create_publisher (simple_publisher_plugin.hpp:142), and its tests query the graph through rclcpp Node::get_publishers_info_by_topic / get_subscriptions_info_by_topic and NodeGraphInterface equivalents (test_qos_override.cpp:70,78,97,105,119,128-129,150,159-160). Any reach into rmw_create_publisher, rmw_create_subscription, rmw_get_publishers_info_by_topic or rmw_get_subscriptions_info_by_topic is transitive via rclcpp/rcl, which is outside the snapshot, so no ports or references were recorded for those four elements. QoS for /camera/image is not single-valued across the subscription sites: rclcpp::SystemDefaultsQoS() (test_qos_override.cpp:118,125,149,156; test_subscriber.cpp:54-55,65-66; test_message_passing.cpp:83-84), whose reliability and durability are the RMW system default selected by the rmw implementation (not in the snapshot); ImageTransport::subscribe(base_topic, queue_size, ...) builds SystemDefaultsQoS with keep_last(queue_size) (src/image_transport.cpp:259-260); rclcpp::SensorDataQoS() in the callback_groups tests (test_subscriber.cpp:209,212; test_subscriber_lifecycle.cpp:217,220); and override nodes set parameter qos_overrides./camera/image.subscription.reliability=best_effort (test_qos_override.cpp:56-57), which takes effect only where SubscriptionOptions.qos_overriding_options include Reliability (test_qos_override.cpp:139-146). Reliability and durability are therefore recorded null. Test expectations on the rmw graph queries: publisher with SystemDefaultsQoS expected Reliable (test_qos_override.cpp:71,80-82,98); publisher/subscriber with overriding options on override node expected BestEffort (test_qos_override.cpp:107-109,163-165); subscriber without options only expected != Unknown (test_qos_override.cpp:120-121,130-132); lifecycle variant uses != Unknown for the first publisher check (test_qos_override_lifecycle.cpp:75) but == Reliable at :84-86 and :102. Image.msg fetched from the rolling branch of ros2/common_interfaces since the snapshot does not pin a common_interfaces release; sha256_normalised strips comments, so comment-only changes do not affect the value."
+}

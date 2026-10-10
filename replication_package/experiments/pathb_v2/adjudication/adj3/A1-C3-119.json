@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-C3-119",
+  "kind": "A1",
+  "case_id": "C3-119",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Since ArduPlane-3.7.0, mode 14, previously assigned to LAND, has changed to AVOID_ADSB.",
+    "url": "https://github.com/mavlink/mavros/issues/2048"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:FlightMode", "field:mavlink/SET_MODE.custom_mode", "field:mavlink/HEARTBEAT.custom_mode"],
+      "quote": "Since ArduPlane-3.7.0, mode 14, previously assigned to LAND, has changed to AVOID_ADSB.",
+      "url": "https://github.com/mavlink/mavros/issues/2048"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:FlightMode"],
+      "quote": "+\t{ 14, \"AVOID_ADSB\" },\t// renamed, prev name: LAND",
+      "url": "https://github.com/mavlink/mavros/pull/2049/files"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "could result in unwanted behaviors if the user asks for LAND mode using mavros, which would translate to a request for the flight controller to change to AVOID_ADSB mode.",
+    "url": "https://github.com/mavlink/mavros/issues/2048"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+\t{ 14, \"AVOID_ADSB\" },\t// renamed, prev name: LAND"
+  },
+  "notes": "Issue body verbatim confirms the mode-14 change statement and the predicted effect; the PR #2049 diff verbatim shows `+ { 14, \"AVOID_ADSB\" }, // renamed, prev name: LAND`. No execution is reported, so outcome undocumented and loudness unknown (detection_stage unknown) are correct. The two classes follow the fix-diff framing of a renamed enumerator inside a definition (definition_mismatch + element_retyped); the spec's notes correctly correct the reporter's 'previously assigned to LAND' wording (ArduPlane never had an active LAND mode). consumer_built_against ArduPlane-3.6.0 is inferred and the spec documents the inference. Resolution recommended is correct: merged (master a5c9f96, ros2 via #2050) but no flight with ArduPlane is shown."
+}

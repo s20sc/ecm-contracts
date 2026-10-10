@@ -1,0 +1,50 @@
+{
+  "case_id": "robust_a67d81d",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/300",
+    "https://github.com/mavlink/mavros/commit/a67d81d05776a5431e9c0e77f51602ce7987fc7b",
+    "https://github.com/mavlink/mavros/blob/820a90b53a4dfe2be857b930a21d2c655be1edac/mavros/src/plugins/sys_status.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #300 comment by the maintainer (vooon, 2015-06-16): \"Seems that my fix incomplete. Just flashed stable to pixhawk, and connected via TELEM2 in companion mode.\" followed by the log `[ INFO] [1434481477.929732830]: VER: Flight software:     00000000 (0?0y0?0=0?0?0?0Z)` and `VER: Middleware software: 00000000 (0?0y0?0=0?0?0?0Z)`. Commit a67d81d (\"sys_status fix #300: fix u8->hex func.\", 2015-06-16) changes `ss << std::hex << std::setw(2) << array[i];` to `ss << std::hex << std::setw(2) << int(array[i]);` in `array_to_hex_string` (mavros/src/plugins/sys_status.cpp). Concrete defect with a log and a maintainer fix."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "mavros (mavros_node, sys_status plugin)",
+        "PX4 firmware on Pixhawk (\"stable\", the AUTOPILOT_VERSION sender)"
+      ],
+      "interface_kind": null,
+      "evidence": "The two units exchange the MAVLink AUTOPILOT_VERSION message; its `flight_custom_version`/`middleware_custom_version`/`os_custom_version` `uint8_t[8]` arrays arrive intact. The defect is entirely inside mavros's own formatting of those bytes for its console log: `array_to_hex_string` streamed each `uint8_t` into an `std::ostringstream` as a character (`ss << std::hex << std::setw(2) << array[i];`), producing `(0?0y0?0=0?0?0?0Z)` in `ROS_INFO_NAMED(\"sys\", \"VER: Flight software:     %08x (%s)\", ...)`. The result goes nowhere but the log; no value, name, frame, unit, or timing crosses a boundary wrongly, and the garbled text would appear with any correct FCU sending any custom-version bytes. Stop at step 2: `internal`."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "Not reached; the only documented effect is the garbled log line, which is not an effect on the interaction."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: mavros's helper `array_to_hex_string` printed `uint8_t` bytes as characters instead of hex numbers in its own ROS_INFO log of the received AUTOPILOT_VERSION; the bytes were received correctly and the output is not consumed by any peer.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Issue #300 as filed (\"AUTOPILOT_VERSION make quirk for APM\", 2015-05-23) is about a different composition and defect: PX4 fills the custom-version arrays \"as it described in message doc\" (raw bytes) while APM \"uses custom version array[8] as a string\" (comment in `process_autopilot_version_apm_quirk`), a representation-convention difference between mavros and APM firmware handled by the quirk added in commit c9f74b5b18252941905b617239501d912050ac64 (\"sys_status #300: AUTOPILOT_VERSION APM quirk\", 2015-05-24; \"Done.\" on 2015-06-04). The packet's fix commit a67d81d is the later, separate hex-formatting fix for the non-quirk (PX4) path, and that is the defect specified here. Parent revision 820a90b53a4dfe2be857b930a21d2c655be1edac (mavros 0.11.2); the reporter's FCU is described only as \"stable\" flashed to a Pixhawk."
+}

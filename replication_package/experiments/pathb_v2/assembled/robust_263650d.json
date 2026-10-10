@@ -1,0 +1,1409 @@
+{
+ "case_id": "robust_263650d",
+ "corpus": "C1",
+ "operation": "UPGRADE",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [
+        "topic:/mavros/global_position/raw/fix",
+        "topic:/mavros/gps/fix"
+       ],
+       "consumer_reads": [
+        "msg:mavros/State",
+        "msg:sensor_msgs/NavSatFix",
+        "service:/mavros/cmd/arming",
+        "service:/mavros/cmd/command",
+        "service:/mavros/cmd/command_int",
+        "service:/mavros/cmd/guided_enable",
+        "service:/mavros/cmd/land",
+        "service:/mavros/cmd/set_home",
+        "service:/mavros/cmd/takeoff",
+        "service:/mavros/cmd/trigger_control",
+        "topic:/mavros/global_position/global",
+        "topic:/mavros/gps/fix",
+        "topic:/mavros/state"
+       ],
+       "semver_old": "0.12.0",
+       "semver_new": "0.13.0"
+      }
+     },
+     "provenance": {
+      "ver_delta.changed_fields[topic:/mavros/global_position/raw/fix]": "built: Searched the whole snapshot (161 files) with grep -rni for 'raw/fix', '\"raw\"', 'raw_fix', '/raw': the only hits are the local variable raw_fix in snapshot:mavros/src/plugins/global_position.cpp:117-122 (auto raw_fix = uas->get_gps_fix();), which reads the GPS plugin's stored fix and does not advertise anything. The GlobalPositionPlugin advertises exactly five topics under ~global_position (snapshot:mavros/src/plugins/global_position.cpp:58-62 | \"global\", \"local\", \"gp_vel\", \"rel_alt\", \"compass_hdg\"); no plugin in mavros or mavros_extras opens a \"~global_position\" NodeHandle other than global_position.cpp:43; the raw GPS_RAW_INT fix is published only as ~gps/fix (snapshot:mavros/src/plugins/gps.cpp:47). || running: snapshot:mavros/src/plugins/global_position.cpp:66 with gp_nh(\"~global_position\") at :45; plugin registered as global_position in snapshot:mavros/mavros_plugins.xml:26 and not blacklisted in snapshot:mavros/launch/px4_pluginlists.yaml or apm_pluginlists.yaml",
+      "ver_delta.changed_fields[topic:/mavros/gps/fix]": "built: snapshot:mavros/src/plugins/gps.cpp:47 | fix_pub = gps_nh.advertise<sensor_msgs::NavSatFix>(\"fix\", 10); ; published at gps.cpp:112 | fix_pub.publish(fix); || running: grep -rn over the whole snapshot for gps/fix, \"gps\", GpsPlugin, gps_pub, raw/fix, global_position: no advertise of a gps or gps/fix topic anywhere; the only hit is a client-side lookup snapshot:mavros/scripts/mavcmd:105 | gps_fix = mavros.get_topic('gps', 'fix'); snapshot:mavros/mavros_plugins.xml:5-58 lists no gps plugin (global_position at :26 is described as \"Publish FCU fused global position and raw GPS fix.\"); snapshot:mavros/src/plugins/global_position.cpp:66-74 advertises only raw/fix, raw/gps_vel, global, local, gp_vel, rel_alt, compass_hdg under ~global_position; snapshot:mavros/CMakeLists.txt:196-214 plugin source list contains no gps.cpp",
+      "ver_delta.consumer_reads[msg:mavros/State]": "snapshot:mavros/src/mavros/utils.py:17 | import mavros.msg ; :37 and :51 | mavros.msg.State ; definition snapshot:mavros/msg/State.msg:3-7 | Header header / bool connected / bool armed / bool guided / string mode",
+      "ver_delta.consumer_reads[msg:sensor_msgs/NavSatFix]": "snapshot:mavros/scripts/mavcmd:19 | from sensor_msgs.msg import NavSatFix ; :115 | type_ == 'sensor_msgs/NavSatFix' ; :147, :176 | rospy.Subscriber(topic, NavSatFix, fix_cb)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/arming]": "snapshot:mavros/src/mavros/command.py:37 | arming = _get_proxy('arming', CommandBool) (proxy constructed; never called by mavcmd, see snapshot:mavros/scripts/mavcmd:233 | # Note: arming service provided by mavsafety)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/command]": "snapshot:mavros/src/mavros/command.py:35 | long = _get_proxy('command', CommandLong) ; snapshot:mavros/scripts/mavcmd:31",
+      "ver_delta.consumer_reads[service:/mavros/cmd/command_int]": "snapshot:mavros/src/mavros/command.py:36 | int = _get_proxy('command_int', CommandInt) ; snapshot:mavros/scripts/mavcmd:46",
+      "ver_delta.consumer_reads[service:/mavros/cmd/guided_enable]": "snapshot:mavros/src/mavros/command.py:41 | guided_enable = _get_proxy('guided_enable', CommandBool) ; snapshot:mavros/scripts/mavcmd:183",
+      "ver_delta.consumer_reads[service:/mavros/cmd/land]": "snapshot:mavros/src/mavros/command.py:40 | land = _get_proxy('land', CommandTOL) ; snapshot:mavros/scripts/mavcmd:92, :161",
+      "ver_delta.consumer_reads[service:/mavros/cmd/set_home]": "snapshot:mavros/src/mavros/command.py:38 | set_home = _get_proxy('set_home', CommandHome) ; snapshot:mavros/scripts/mavcmd:67",
+      "ver_delta.consumer_reads[service:/mavros/cmd/takeoff]": "snapshot:mavros/src/mavros/command.py:39 | takeoff = _get_proxy('takeoff', CommandTOL) ; snapshot:mavros/scripts/mavcmd:79, :132",
+      "ver_delta.consumer_reads[service:/mavros/cmd/trigger_control]": "not in the packet; snapshot:mavros/src/mavros/command.py:42 | trigger_control = _get_proxy('trigger_control', CommandTriggerControl) ; snapshot:mavros/scripts/mavcmd:192 | ret = command.trigger_control(trigger_enable=args.trigger_enable, ; definition snapshot:mavros/srv/CommandTriggerControl.srv, sha256_normalised 318ba3d55e3494366b319c9842db5be53b43d4563f2c28e1eb0c663d925341de",
+      "ver_delta.consumer_reads[topic:/mavros/global_position/global]": "snapshot:mavros/scripts/mavcmd:104 | global_fix = mavros.get_topic('global_position', 'global')",
+      "ver_delta.consumer_reads[topic:/mavros/gps/fix]": "snapshot:mavros/scripts/mavcmd:105 | gps_fix = mavros.get_topic('gps', 'fix')",
+      "ver_delta.consumer_reads[topic:/mavros/state]": "only under --wait: snapshot:mavros/scripts/mavcmd:289-290 | if args.wait: wait_fcu_connection() ; snapshot:mavros/src/mavros/utils.py:37 | msg = rospy.wait_for_message(mavros.get_topic('state'), mavros.msg.State, timeout) ; snapshot:mavros/src/mavros/utils.py:48-52 | sub = rospy.Subscriber( mavros.get_topic('state'), mavros.msg.State, handler )",
+      "ver_delta.semver_old": "snapshot:mavros/package.xml:4 | <version>0.12.0</version>",
+      "ver_delta.semver_new": "snapshot:mavros/package.xml:4 | <version>0.13.0</version> (package <name>mavros</name> at line 3; the executable mavros_node is built from src/mavros_node.cpp, CMakeLists.txt:219-220)"
+     },
+     "unknown_delta": [],
+     "tasks": {
+      "built": "u0008",
+      "running": "u0010",
+      "consumer": "u0007"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:/mavros/global_position/global",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/mavros/global_position/global",
+         "msg_type": "sensor_msgs/NavSatFix",
+         "frame": "fcu",
+         "units": "latitude: deg; longitude: deg; altitude: m",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/mavros/global_position/global",
+         "msg_type": "sensor_msgs/NavSatFix",
+         "frame": "per_message",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "topic:/mavros/global_position/global",
+       "in_role": "topic:/mavros/global_position/global"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:70 | gp_fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"global\", 10); published at :256 | gp_fix_pub.publish(fix);",
+      "producer.outputs[0].frame": "snapshot:mavros/src/plugins/global_position.cpp:56 | gp_nh.param<std::string>(\"frame_id\", frame_id, \"fcu\"); header at :188 | auto header = uas->synchronized_header(frame_id, gpos.time_boot_ms); and :191 | fix->header = header; configuration snapshot:mavros/launch/px4_config.yaml:46 and snapshot:mavros/launch/apm_config.yaml:46 | frame_id: \"fcu\"           # pose and fix frame_id",
+      "producer.outputs[0].units": "snapshot:mavros/src/plugins/global_position.cpp:105-107 | fix->latitude = msg.lat / 1E7;\t\t// deg / fix->longitude = msg.lon / 1E7;\t\t// deg / fix->altitude = msg.alt / 1E3;\t\t// m (fill_lla, applied at :193)",
+      "consumer.inputs[0].element": "snapshot:mavros/scripts/mavcmd:104 | global_fix = mavros.get_topic('global_position', 'global') ; snapshot:mavros/src/mavros/__init__.py:34 | return '/'.join((get_namespace(), ) + args) ; snapshot:mavros/src/mavros/__init__.py:11 | _mavros_ns = \"/mavros\" ; chosen at snapshot:mavros/scripts/mavcmd:109-110 | if len([topic for topic, type_ in topics if topic == global_fix]): return global_fix ; subscribed at snapshot:mavros/scripts/mavcmd:147 and :176 | sub = rospy.Subscriber(topic, NavSatFix, fix_cb)",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/global_position.cpp:58 | fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"global\", 10);",
+      "consumer.inputs[0].frame": "taken from each incoming message; the callback reads only fix.latitude and fix.longitude and never inspects the header: snapshot:mavros/scripts/mavcmd:125-127 | def fix_cb(fix): print(\"Taking-off from current coord: Lat:\", fix.latitude, \"Long:\", fix.longitude)"
+     },
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:/mavros/gps/fix",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {},
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:/mavros/global_position/raw/fix",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {},
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/takeoff",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/takeoff",
+         "msg_type": "mavros/CommandTOL",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/takeoff",
+         "msg_type": "mavros/CommandTOL",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/takeoff",
+       "in_role": "service:/mavros/cmd/takeoff"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:68 | takeoff_srv = cmd_nh.advertiseService(\"takeoff\", &CommandPlugin::takeoff_cb, this); and :317-318 | bool takeoff_cb(mavros::CommandTOL::Request &req, mavros::CommandTOL::Response &res)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandTOL.srv",
+      "consumer.inputs[0].element": "snapshot:mavros/src/mavros/command.py:39 | takeoff = _get_proxy('takeoff', CommandTOL) ; called at snapshot:mavros/scripts/mavcmd:79 | ret = command.takeoff(min_pitch=args.min_pitch, and snapshot:mavros/scripts/mavcmd:132 | ret = command.takeoff(min_pitch=args.min_pitch,",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:293-294 | bool takeoff_cb(mavros::CommandTOL::Request &req, mavros::CommandTOL::Response &res)",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandTOL.srv"
+     },
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/land",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/land",
+         "msg_type": "mavros/CommandTOL",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/land",
+         "msg_type": "mavros/CommandTOL",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/land",
+       "in_role": "service:/mavros/cmd/land"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:69 | land_srv = cmd_nh.advertiseService(\"land\", &CommandPlugin::land_cb, this); and :328-329 | bool land_cb(mavros::CommandTOL::Request &req, mavros::CommandTOL::Response &res)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandTOL.srv",
+      "consumer.inputs[0].element": "snapshot:mavros/src/mavros/command.py:40 | land = _get_proxy('land', CommandTOL) ; called at snapshot:mavros/scripts/mavcmd:92 | ret = command.land(min_pitch=0.0, and snapshot:mavros/scripts/mavcmd:161 | ret = command.land(min_pitch=0.0,",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:303-304 | bool land_cb(mavros::CommandTOL::Request &req, mavros::CommandTOL::Response &res) ; snapshot:mavros/CMakeLists.txt:93 | CommandTOL.srv",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandTOL.srv"
+     },
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/arming",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/arming",
+         "msg_type": "mavros/CommandBool",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/arming",
+         "msg_type": "mavros/CommandBool",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/arming",
+       "in_role": "service:/mavros/cmd/arming"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:66 | arming_srv = cmd_nh.advertiseService(\"arming\", &CommandPlugin::arming_cb, this); and :299-300 | bool arming_cb(mavros::CommandBool::Request &req, mavros::CommandBool::Response &res)",
+      "producer.outputs[0].frame": "snapshot:mavros/srv/CommandBool.srv:3-6 | bool value --- bool success / uint8 result (no spatial data)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandBool.srv",
+      "consumer.inputs[0].element": "snapshot:mavros/src/mavros/command.py:37 | arming = _get_proxy('arming', CommandBool) ; snapshot:mavros/src/mavros/command.py:19-20 | def _get_proxy(service, type): return rospy.ServiceProxy(mavros.get_topic('cmd', service), type) ; proxy is built at import (command.py:46 | setup_services()) and again at snapshot:mavros/scripts/mavcmd:292 | command.setup_services() ; NO mavcmd subcommand calls command.arming: snapshot:mavros/scripts/mavcmd:233 | # Note: arming service provided by mavsafety",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:277-278 | bool arming_cb(mavros::CommandBool::Request &req, mavros::CommandBool::Response &res) ; snapshot:mavros/CMakeLists.txt:91 | CommandBool.srv",
+      "consumer.inputs[0].frame": "snapshot:mavros/srv/CommandBool.srv:3-6 | bool value / --- / bool success / uint8 result (no spatial field)",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandBool.srv"
+     },
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/set_home",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/set_home",
+         "msg_type": "mavros/CommandHome",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0e8e7513d03f841812d7e2052610685b699d11ba2d4339282b12980c23f83079"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/set_home",
+         "msg_type": "mavros/CommandHome",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0e8e7513d03f841812d7e2052610685b699d11ba2d4339282b12980c23f83079"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/set_home",
+       "in_role": "service:/mavros/cmd/set_home"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:67 | set_home_srv = cmd_nh.advertiseService(\"set_home\", &CommandPlugin::set_home_cb, this); and :308-309 | bool set_home_cb(mavros::CommandHome::Request &req, mavros::CommandHome::Response &res)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandHome.srv",
+      "consumer.inputs[0].element": "snapshot:mavros/src/mavros/command.py:38 | set_home = _get_proxy('set_home', CommandHome) ; called at snapshot:mavros/scripts/mavcmd:67 | ret = command.set_home(current_gps=args.current_gps,",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:285-286 | bool set_home_cb(mavros::CommandHome::Request &req, mavros::CommandHome::Response &res) ; snapshot:mavros/CMakeLists.txt:92 | CommandHome.srv",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandHome.srv"
+     },
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/command",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/command",
+         "msg_type": "mavros/CommandLong",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "f02f435ebb83d2116761049b66562b27deaa92659e09605744136e888ecf0a86"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/command",
+         "msg_type": "mavros/CommandLong",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "46bd04dea451b3584168918e9f5ae7b491d5fdaae5be803f1db730829f3144be"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/command",
+       "in_role": "service:/mavros/cmd/command"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:64 | command_long_srv = cmd_nh.advertiseService(\"command\", &CommandPlugin::command_long_cb, this); and :277-278 | bool command_long_cb(mavros::CommandLong::Request &req, mavros::CommandLong::Response &res)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandLong.srv",
+      "consumer.inputs[0].element": "snapshot:mavros/src/mavros/command.py:35 | long = _get_proxy('command', CommandLong) ; called at snapshot:mavros/scripts/mavcmd:31 | ret = command.long(command=args.command, confirmation=int(args.confirmation),",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:257-258 | bool command_long_cb(mavros::CommandLong::Request &req, mavros::CommandLong::Response &res) ; snapshot:mavros/CMakeLists.txt:89 | CommandLong.srv",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandLong.srv"
+     },
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/command_int",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/command_int",
+         "msg_type": "mavros/CommandInt",
+         "frame": "per_message",
+         "units": "x: latitude in deg * 1E7 or local x * 1E4 m; y: longitude in deg * 1E7 or local y * 1E4 m; z: altitude",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "b5a3e266f20eb4a5d8d920934548e4aba6c45cd44d738dbb0762d780a460cf09"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/command_int",
+         "msg_type": "mavros/CommandInt",
+         "frame": "per_message",
+         "units": "x: latitude in deg * 1E7 or local x * 1E4 m; y: longitude in deg * 1E7 or local y * 1E4 m; z: altitude in m, depending on frame",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0bca892739c67266e353ae44f8de98a4089a59e2cb14924536c3b08b5a536f17"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/command_int",
+       "in_role": "service:/mavros/cmd/command_int"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:65 | command_int_srv = cmd_nh.advertiseService(\"command_int\", &CommandPlugin::command_int_cb, this); and :288-289 | bool command_int_cb(mavros::CommandInt::Request &req, mavros::CommandInt::Response &res)",
+      "producer.outputs[0].frame": "snapshot:mavros/srv/CommandInt.srv:5 | uint8 frame; passed through per request at snapshot:mavros/src/plugins/command.cpp:290-291 | return send_command_int(req.broadcast, req.frame, req.command, ...",
+      "producer.outputs[0].units": "snapshot:mavros/srv/CommandInt.srv:13-15 | int32 x # latitude in deg * 1E7 or local x * 1E4 m / int32 y # longitude in deg * 1E7 or local y * 1E4 m / float32 z # altitude",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandInt.srv",
+      "consumer.inputs[0].element": "snapshot:mavros/src/mavros/command.py:36 | int = _get_proxy('command_int', CommandInt) ; called at snapshot:mavros/scripts/mavcmd:46 | ret = command.int(frame=args.frame, command=args.command,",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:267-268 | bool command_int_cb(mavros::CommandInt::Request &req, mavros::CommandInt::Response &res) ; snapshot:mavros/CMakeLists.txt:90 | CommandInt.srv",
+      "consumer.inputs[0].frame": "request field, set per call, not a header: snapshot:mavros/srv/CommandInt.srv:5 | uint8 frame ; snapshot:mavros/scripts/mavcmd:223 | int_args.add_argument('-f', '--frame', type=int, default=3, help=\"Frame Code (default: %(default)s)\") ; snapshot:mavros/scripts/mavcmd:46 | ret = command.int(frame=args.frame, command=args.command,",
+      "consumer.inputs[0].units": "snapshot:mavros/srv/CommandInt.srv:13 | int32 x\t# latitude in deg * 1E7 or local x * 1E4 m ; snapshot:mavros/srv/CommandInt.srv:14 | int32 y\t# longitude in deg * 1E7 or local y * 1E4 m ; snapshot:mavros/srv/CommandInt.srv:15 | float32 z\t# altitude ; snapshot:mavros/scripts/mavcmd:229-231 | help=\"latitude in deg*1E7 or X*1E4 m\" / help=\"longitude in deg*1E7 or Y*1E4 m\" / help=\"altitude in m, depending on frame\"",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandInt.srv"
+     },
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/guided_enable",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/guided_enable",
+         "msg_type": "mavros/CommandBool",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/guided_enable",
+         "msg_type": "mavros/CommandBool",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/guided_enable",
+       "in_role": "service:/mavros/cmd/guided_enable"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:70 | guided_srv = cmd_nh.advertiseService(\"guided_enable\", &CommandPlugin::guided_cb, this); and :338-339 | bool guided_cb(mavros::CommandBool::Request &req, mavros::CommandBool::Response &res)",
+      "producer.outputs[0].frame": "snapshot:mavros/srv/CommandBool.srv:3-6 | bool value --- bool success / uint8 result (no spatial data)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandBool.srv",
+      "consumer.inputs[0].element": "snapshot:mavros/src/mavros/command.py:41 | guided_enable = _get_proxy('guided_enable', CommandBool) ; called at snapshot:mavros/scripts/mavcmd:183 | ret = command.guided_enable(value=args.enable)",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:312-313 | bool guided_cb(mavros::CommandBool::Request &req, mavros::CommandBool::Response &res)",
+      "consumer.inputs[0].frame": "snapshot:mavros/srv/CommandBool.srv:3-6 | bool value / --- / bool success / uint8 result (no spatial field)",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandBool.srv"
+     },
+     "tasks": {
+      "producer": "u0010",
+      "consumer": "u0007",
+      "built": "u0008"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [],
+       "consumer_reads": [
+        "msg:mavros/State",
+        "msg:sensor_msgs/NavSatFix",
+        "service:/mavros/cmd/arming",
+        "service:/mavros/cmd/command",
+        "service:/mavros/cmd/command_int",
+        "service:/mavros/cmd/guided_enable",
+        "service:/mavros/cmd/land",
+        "service:/mavros/cmd/set_home",
+        "service:/mavros/cmd/takeoff",
+        "service:/mavros/cmd/trigger_control",
+        "topic:/mavros/global_position/global",
+        "topic:/mavros/global_position/raw/fix",
+        "topic:/mavros/state"
+       ],
+       "semver_old": "0.13.0",
+       "semver_new": "0.13.0"
+      }
+     },
+     "provenance": {
+      "ver_delta.consumer_reads[msg:mavros/State]": "snapshot:mavros/src/mavros/utils.py:17 | import mavros.msg ; utils.py:37 and :51 | mavros.msg.State (via wait_fcu_connection, mavcmd:291)",
+      "ver_delta.consumer_reads[msg:sensor_msgs/NavSatFix]": "snapshot:mavros/scripts/mavcmd:19 | from sensor_msgs.msg import NavSatFix ; mavcmd:116 | t = [topic for topic, type_ in topics if type_ == 'sensor_msgs/NavSatFix'] ; mavcmd:148 / :177 | rospy.Subscriber(topic, NavSatFix, fix_cb)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/arming]": "snapshot:mavros/src/mavros/command.py:37 | arming = _get_proxy('arming', CommandBool), executed by command.setup_services() at snapshot:mavros/scripts/mavcmd:293 | command.setup_services(); never invoked by mavcmd (mavcmd:234 | # Note: arming service provided by mavsafety)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/command]": "snapshot:mavros/scripts/mavcmd:31 | ret = command.long(command=args.command, confirmation=int(args.confirmation), ; snapshot:mavros/src/mavros/command.py:35 | long = _get_proxy('command', CommandLong)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/command_int]": "snapshot:mavros/scripts/mavcmd:46 | ret = command.int(frame=args.frame, command=args.command, ; snapshot:mavros/src/mavros/command.py:36 | int = _get_proxy('command_int', CommandInt)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/guided_enable]": "snapshot:mavros/scripts/mavcmd:184 | ret = command.guided_enable(value=args.enable) ; snapshot:mavros/src/mavros/command.py:41 | guided_enable = _get_proxy('guided_enable', CommandBool)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/land]": "snapshot:mavros/scripts/mavcmd:92 and :162 | ret = command.land(min_pitch=0.0, ; snapshot:mavros/src/mavros/command.py:40 | land = _get_proxy('land', CommandTOL)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/set_home]": "snapshot:mavros/scripts/mavcmd:67 | ret = command.set_home(current_gps=args.current_gps, ; snapshot:mavros/src/mavros/command.py:38 | set_home = _get_proxy('set_home', CommandHome)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/takeoff]": "snapshot:mavros/scripts/mavcmd:79 and :133 | ret = command.takeoff(min_pitch=args.min_pitch, ; snapshot:mavros/src/mavros/command.py:39 | takeoff = _get_proxy('takeoff', CommandTOL)",
+      "ver_delta.consumer_reads[service:/mavros/cmd/trigger_control]": "snapshot:mavros/scripts/mavcmd:193-194 | ret = command.trigger_control(trigger_enable=args.trigger_enable, integration_time=args.integration_time) ; snapshot:mavros/src/mavros/command.py:42 | trigger_control = _get_proxy('trigger_control', CommandTriggerControl) (not a packet element)",
+      "ver_delta.consumer_reads[topic:/mavros/global_position/global]": "snapshot:mavros/scripts/mavcmd:105 | global_fix = mavros.get_topic('global_position', 'global') ; subscribed at mavcmd:148 / :177",
+      "ver_delta.consumer_reads[topic:/mavros/global_position/raw/fix]": "snapshot:mavros/scripts/mavcmd:106 | gps_fix = mavros.get_topic('global_position', 'raw', 'fix') ; subscribed at mavcmd:148 / :177",
+      "ver_delta.consumer_reads[topic:/mavros/state]": "snapshot:mavros/src/mavros/utils.py:37 | msg = rospy.wait_for_message(mavros.get_topic('state'), mavros.msg.State, timeout) and utils.py:48-52 | rospy.Subscriber(mavros.get_topic('state'), mavros.msg.State, handler); reached from snapshot:mavros/scripts/mavcmd:290-291 | if args.wait: wait_fcu_connection() (not a packet element)",
+      "ver_delta.semver_old": "snapshot:mavros/package.xml:4 | <version>0.13.0</version>",
+      "ver_delta.semver_new": "snapshot:mavros/package.xml:4 | <version>0.13.0</version>"
+     },
+     "unknown_delta": [],
+     "tasks": {
+      "built": "u0009",
+      "running": "u0009",
+      "consumer": "u0006"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:/mavros/global_position/global",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/mavros/global_position/global",
+         "msg_type": "sensor_msgs/NavSatFix",
+         "frame": "fcu",
+         "units": "latitude: deg; longitude: deg; altitude: m",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/mavros/global_position/global",
+         "msg_type": "sensor_msgs/NavSatFix",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "topic:/mavros/global_position/global",
+       "in_role": "topic:/mavros/global_position/global"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:45 | gp_nh(\"~global_position\"); :70 | gp_fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"global\", 10); :256 | gp_fix_pub.publish(fix); published from :178 | handle_global_position_int (MAVLINK_MSG_ID_GLOBAL_POSITION_INT, :81)",
+      "producer.outputs[0].frame": "snapshot:mavros/src/plugins/global_position.cpp:56 | gp_nh.param<std::string>(\"frame_id\", frame_id, \"fcu\"); :188 | auto header = uas->synchronized_header(frame_id, gpos.time_boot_ms); :191 | fix->header = header; snapshot:mavros/include/mavros/mavros_uas.h:247-249 | synchronized_header(...) { std_msgs::Header out; out.frame_id = frame_id; ...; configured value snapshot:mavros/launch/px4_config.yaml:46 and snapshot:mavros/launch/apm_config.yaml:46 | frame_id: \"fcu\"           # pose and fix frame_id",
+      "producer.outputs[0].units": "snapshot:mavros/src/plugins/global_position.cpp:105-107 | fix->latitude = msg.lat / 1E7;\t\t// deg / fix->longitude = msg.lon / 1E7;\t\t// deg / fix->altitude = msg.alt / 1E3;\t\t// m (fill_lla, invoked at :193 | fill_lla(gpos, fix);)",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/global_position.cpp:45 | gp_nh(\"~global_position\"); :70 | gp_fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"global\", 10); :256 | gp_fix_pub.publish(fix); published from :178 | handle_global_position_int (MAVLINK_MSG_ID_GLOBAL_POSITION_INT, :81)"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:/mavros/gps/fix",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {},
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:/mavros/global_position/raw/fix",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:/mavros/global_position/raw/fix",
+         "msg_type": "sensor_msgs/NavSatFix",
+         "frame": "fcu",
+         "units": "latitude: deg; longitude: deg; altitude: m",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:/mavros/global_position/raw/fix",
+         "msg_type": "sensor_msgs/NavSatFix",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "topic:/mavros/global_position/raw/fix",
+       "in_role": "topic:/mavros/global_position/raw/fix"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/global_position.cpp:45 | gp_nh(\"~global_position\"); :66 | raw_fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"raw/fix\", 10); :156 | raw_fix_pub.publish(fix); published from :119 | handle_gps_raw_int (MAVLINK_MSG_ID_GPS_RAW_INT, :79)",
+      "producer.outputs[0].frame": "snapshot:mavros/src/plugins/global_position.cpp:56 | gp_nh.param<std::string>(\"frame_id\", frame_id, \"fcu\"); :125 | fix->header = uas->synchronized_header(frame_id, raw_gps.time_usec); snapshot:mavros/include/mavros/mavros_uas.h:247-249; configured value snapshot:mavros/launch/px4_config.yaml:46 and snapshot:mavros/launch/apm_config.yaml:46 | frame_id: \"fcu\"",
+      "producer.outputs[0].units": "snapshot:mavros/src/plugins/global_position.cpp:105-107 | fix->latitude = msg.lat / 1E7;\t\t// deg / fix->longitude = msg.lon / 1E7;\t\t// deg / fix->altitude = msg.alt / 1E3;\t\t// m (fill_lla, invoked at :135 | fill_lla(raw_gps, fix);)",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/global_position.cpp:45 | gp_nh(\"~global_position\"); :66 | raw_fix_pub = gp_nh.advertise<sensor_msgs::NavSatFix>(\"raw/fix\", 10); :156 | raw_fix_pub.publish(fix); published from :119 | handle_gps_raw_int (MAVLINK_MSG_ID_GPS_RAW_INT, :79)"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/takeoff",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/takeoff",
+         "msg_type": "mavros/CommandTOL",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/takeoff",
+         "msg_type": "mavros/CommandTOL",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/takeoff",
+       "in_role": "service:/mavros/cmd/takeoff"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :68 | takeoff_srv = cmd_nh.advertiseService(\"takeoff\", &CommandPlugin::takeoff_cb, this); :317-318 | bool takeoff_cb(mavros::CommandTOL::Request &req, mavros::CommandTOL::Response &res); srv built by snapshot:mavros/CMakeLists.txt:105 | CommandTOL.srv",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandTOL.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51\"}",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :68 | takeoff_srv = cmd_nh.advertiseService(\"takeoff\", &CommandPlugin::takeoff_cb, this); :317-318 | bool takeoff_cb(mavros::CommandTOL::Request &req, mavros::CommandTOL::Response &res); srv built by snapshot:mavros/CMakeLists.txt:105 | CommandTOL.srv",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandTOL.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51\"}"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/land",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/land",
+         "msg_type": "mavros/CommandTOL",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/land",
+         "msg_type": "mavros/CommandTOL",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/land",
+       "in_role": "service:/mavros/cmd/land"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :69 | land_srv = cmd_nh.advertiseService(\"land\", &CommandPlugin::land_cb, this); :328-329 | bool land_cb(mavros::CommandTOL::Request &req, mavros::CommandTOL::Response &res); srv built by snapshot:mavros/CMakeLists.txt:105 | CommandTOL.srv",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandTOL.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51\"}",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :69 | land_srv = cmd_nh.advertiseService(\"land\", &CommandPlugin::land_cb, this); :328-329 | bool land_cb(mavros::CommandTOL::Request &req, mavros::CommandTOL::Response &res); srv built by snapshot:mavros/CMakeLists.txt:105 | CommandTOL.srv",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandTOL.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"0da556f21374675cc983ed9c0d76cbecab14d57919ff99d3a262e50e245e3e51\"}"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/arming",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/arming",
+         "msg_type": "mavros/CommandBool",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/arming",
+         "msg_type": "mavros/CommandBool",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/arming",
+       "in_role": "service:/mavros/cmd/arming"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :66 | arming_srv = cmd_nh.advertiseService(\"arming\", &CommandPlugin::arming_cb, this); :299-300 | bool arming_cb(mavros::CommandBool::Request &req, mavros::CommandBool::Response &res); srv built by snapshot:mavros/CMakeLists.txt:103 | CommandBool.srv",
+      "producer.outputs[0].frame": "none: snapshot:mavros/srv/CommandBool.srv:3-6 | bool value --- bool success / uint8 result (no spatial field); snapshot:mavros/src/plugins/command.cpp:301-305 | send_command_long_and_wait(false, MAV_CMD_COMPONENT_ARM_DISARM, 1, (req.value) ? 1.0 : 0.0, 0, 0, 0, 0, 0, 0, ...)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandBool.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a\"}",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :66 | arming_srv = cmd_nh.advertiseService(\"arming\", &CommandPlugin::arming_cb, this); :299-300 | bool arming_cb(mavros::CommandBool::Request &req, mavros::CommandBool::Response &res); srv built by snapshot:mavros/CMakeLists.txt:103 | CommandBool.srv",
+      "consumer.inputs[0].frame": "snapshot:mavros/srv/CommandBool.srv:3 | bool value (single boolean switch, no spatial field)",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandBool.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a\"}"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/set_home",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/set_home",
+         "msg_type": "mavros/CommandHome",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0e8e7513d03f841812d7e2052610685b699d11ba2d4339282b12980c23f83079"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/set_home",
+         "msg_type": "mavros/CommandHome",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "0e8e7513d03f841812d7e2052610685b699d11ba2d4339282b12980c23f83079"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/set_home",
+       "in_role": "service:/mavros/cmd/set_home"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :67 | set_home_srv = cmd_nh.advertiseService(\"set_home\", &CommandPlugin::set_home_cb, this); :308-309 | bool set_home_cb(mavros::CommandHome::Request &req, mavros::CommandHome::Response &res); srv built by snapshot:mavros/CMakeLists.txt:104 | CommandHome.srv",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandHome.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"0e8e7513d03f841812d7e2052610685b699d11ba2d4339282b12980c23f83079\"}",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :67 | set_home_srv = cmd_nh.advertiseService(\"set_home\", &CommandPlugin::set_home_cb, this); :308-309 | bool set_home_cb(mavros::CommandHome::Request &req, mavros::CommandHome::Response &res); srv built by snapshot:mavros/CMakeLists.txt:104 | CommandHome.srv",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandHome.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"0e8e7513d03f841812d7e2052610685b699d11ba2d4339282b12980c23f83079\"}"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/command",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/command",
+         "msg_type": "mavros/CommandLong",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "f02f435ebb83d2116761049b66562b27deaa92659e09605744136e888ecf0a86"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/command",
+         "msg_type": "mavros/CommandLong",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "f02f435ebb83d2116761049b66562b27deaa92659e09605744136e888ecf0a86"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/command",
+       "in_role": "service:/mavros/cmd/command"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :64 | command_long_srv = cmd_nh.advertiseService(\"command\", &CommandPlugin::command_long_cb, this); :277-278 | bool command_long_cb(mavros::CommandLong::Request &req, mavros::CommandLong::Response &res); srv built by snapshot:mavros/CMakeLists.txt:101 | CommandLong.srv",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandLong.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"f02f435ebb83d2116761049b66562b27deaa92659e09605744136e888ecf0a86\"}",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :64 | command_long_srv = cmd_nh.advertiseService(\"command\", &CommandPlugin::command_long_cb, this); :277-278 | bool command_long_cb(mavros::CommandLong::Request &req, mavros::CommandLong::Response &res); srv built by snapshot:mavros/CMakeLists.txt:101 | CommandLong.srv",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandLong.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"f02f435ebb83d2116761049b66562b27deaa92659e09605744136e888ecf0a86\"}"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/command_int",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/command_int",
+         "msg_type": "mavros/CommandInt",
+         "frame": "per_message",
+         "units": "x: latitude in deg * 1E7 or local x * 1E4 m; y: longitude in deg * 1E7 or local y * 1E4 m; z: altitude (unit not stated)",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "b5a3e266f20eb4a5d8d920934548e4aba6c45cd44d738dbb0762d780a460cf09"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/command_int",
+         "msg_type": "mavros/CommandInt",
+         "frame": "3",
+         "units": "x: latitude in deg * 1E7 or local x * 1E4 m; y: longitude in deg * 1E7 or local y * 1E4 m; z: altitude in m, depending on frame",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "b5a3e266f20eb4a5d8d920934548e4aba6c45cd44d738dbb0762d780a460cf09"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/command_int",
+       "in_role": "service:/mavros/cmd/command_int"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :65 | command_int_srv = cmd_nh.advertiseService(\"command_int\", &CommandPlugin::command_int_cb, this); :288-289 | bool command_int_cb(mavros::CommandInt::Request &req, mavros::CommandInt::Response &res); srv built by snapshot:mavros/CMakeLists.txt:102 | CommandInt.srv",
+      "producer.outputs[0].frame": "per_message: the frame is supplied in each request body (not a header): snapshot:mavros/srv/CommandInt.srv:5 | uint8 frame; snapshot:mavros/src/plugins/command.cpp:290-291 | return send_command_int(req.broadcast, req.frame, req.command, ...); :262-271 | mavlink_msg_command_int_pack_chan(..., frame, command, ...)",
+      "producer.outputs[0].units": "snapshot:mavros/srv/CommandInt.srv:13-15 | int32 x\t# latitude in deg * 1E7 or local x * 1E4 m / int32 y\t# longitude in deg * 1E7 or local y * 1E4 m / float32 z\t# altitude",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandInt.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"b5a3e266f20eb4a5d8d920934548e4aba6c45cd44d738dbb0762d780a460cf09\"}",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :65 | command_int_srv = cmd_nh.advertiseService(\"command_int\", &CommandPlugin::command_int_cb, this); :288-289 | bool command_int_cb(mavros::CommandInt::Request &req, mavros::CommandInt::Response &res); srv built by snapshot:mavros/CMakeLists.txt:102 | CommandInt.srv",
+      "consumer.inputs[0].frame": "snapshot:mavros/scripts/mavcmd:224 | int_args.add_argument('-f', '--frame', type=int, default=3, help=\"Frame Code (default: %(default)s)\") ; passed into request field snapshot:mavros/srv/CommandInt.srv:5 | uint8 frame (CLI-overridable default)",
+      "consumer.inputs[0].units": "snapshot:mavros/srv/CommandInt.srv:13-15 | int32 x\t# latitude in deg * 1E7 or local x * 1E4 m / int32 y\t# longitude in deg * 1E7 or local y * 1E4 m / float32 z\t# altitude ; snapshot:mavros/scripts/mavcmd:230-232 | help=\"latitude in deg*1E7 or X*1E4 m\" / help=\"longitude in deg*1E7 or Y*1E4 m\" / help=\"altitude in m, depending on frame\"",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandInt.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"b5a3e266f20eb4a5d8d920934548e4aba6c45cd44d738dbb0762d780a460cf09\"}"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "service:/mavros/cmd/guided_enable",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "service:/mavros/cmd/guided_enable",
+         "msg_type": "mavros/CommandBool",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "service:/mavros/cmd/guided_enable",
+         "msg_type": "mavros/CommandBool",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "srv",
+          "value": "8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "service:/mavros/cmd/guided_enable",
+       "in_role": "service:/mavros/cmd/guided_enable"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :70 | guided_srv = cmd_nh.advertiseService(\"guided_enable\", &CommandPlugin::guided_cb, this); :338-339 | bool guided_cb(mavros::CommandBool::Request &req, mavros::CommandBool::Response &res); srv built by snapshot:mavros/CMakeLists.txt:103 | CommandBool.srv",
+      "producer.outputs[0].frame": "none: snapshot:mavros/srv/CommandBool.srv:3-6 | bool value --- bool success / uint8 result (no spatial field); snapshot:mavros/src/plugins/command.cpp:340-344 | send_command_long_and_wait(false, MAV_CMD_NAV_GUIDED_ENABLE, 1, (req.value) ? 1.0 : 0.0, 0, 0, 0, 0, 0, 0, ...)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 snapshot/mavros/srv/CommandBool.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a\"}",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:mavros/src/plugins/command.cpp:53 | cmd_nh(\"~cmd\"); :70 | guided_srv = cmd_nh.advertiseService(\"guided_enable\", &CommandPlugin::guided_cb, this); :338-339 | bool guided_cb(mavros::CommandBool::Request &req, mavros::CommandBool::Response &res); srv built by snapshot:mavros/CMakeLists.txt:103 | CommandBool.srv",
+      "consumer.inputs[0].frame": "snapshot:mavros/srv/CommandBool.srv:3 | bool value (single boolean switch, no spatial field)",
+      "consumer.inputs[0].definition_id": "built-against provider: python3 definition_hash.py sha256 snapshot/mavros/srv/CommandBool.srv -> {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"8a18f71838d9145573124fc22a51b1d12ceabe6ea354f8e248a9fcb1584a688a\"}"
+     },
+     "tasks": {
+      "producer": "u0009",
+      "consumer": "u0006",
+      "built": "u0009"
+     }
+    }
+   ]
+  }
+ }
+}

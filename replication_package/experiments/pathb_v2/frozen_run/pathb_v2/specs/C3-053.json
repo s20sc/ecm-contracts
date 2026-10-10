@@ -1,0 +1,57 @@
+{
+  "case_id": "C3-053",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclpy/issues/848",
+    "https://github.com/ros2/rosidl_python/pull/167",
+    "https://github.com/ros2/rosidl_python/issues/162",
+    "https://github.com/ros2/rosidl_python/issues/169",
+    "https://github.com/ros2/rclpy/blob/77949d2c54b8104e48a94d0ea83c7049e18a8809/rclpy/src/rclpy/subscription.cpp",
+    "https://github.com/jacobperron/nan_publisher",
+    "https://github.com/ros-perception/image_pipeline/pull/710",
+    "https://github.com/ros-perception/image_pipeline/pull/699",
+    "https://github.com/ros-perception/image_pipeline/commit/7d06a907b1c4cc11b4a2a05dda289ff2e6c8c56b",
+    "https://github.com/ros-perception/image_pipeline/commit/78fe7e307c46146b384207a8ee87a546800cd5ad",
+    "https://github.com/ros-perception/image_pipeline/commit/bc8c41be30c1e3b0b19ae0d7fb67afd9b2333bf3",
+    "https://github.com/ros-perception/image_pipeline/commit/d5e295e80555d34acbfe9dee3cc326ea4fc08bb9",
+    "https://github.com/tier4/pilot_auto_tier4_api/pull/56"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #848 gives a reproducer (\"Clone [nan_publisher](https://github.com/jacobperron/nan_publisher) ... ros2 run nan_publisher nan_publisher ... ros2 topic echo /nan\") and the error: \"make_tuple(): unable to convert argument of type 'object' to Python object\". Maintainer (clalancette): \"https://github.com/ros2/rosidl_python/pull/167 can fix this problem.\" / \"Yes, good call.  I'm actually going to close this one as a duplicate, since it is already fixed in Rolling\". https://github.com/ros2/rclpy/issues/848"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["rclpy subscriber (ros2 topic echo) with the rosidl_generator_py-generated Python message binding", "nan_publisher (C++ publisher of NaN values on /nan)"],
+      "interface_kind": null,
+      "evidence": "The crash is in the subscriber's own conversion logic and happens for any correct publisher that sends a NaN, which is a legitimate IEEE/ROS float value. The generated Python setter asserted a range that NaN can never satisfy; rosidl_python PR #167 ('Allow NaN values to pass floating point bounds check.') changes the generated check from \"-            assert value >= -@(bound) and value <= @(bound), \\\" to \"+            assert not (value < -@(bound) or value > @(bound)) or math.isinf(value), \\\". rosidl_python #162 states the expected behavior: \"The NaN value should be converted to a NaN in python.\" and notes \"The [BatteryState] message, for example, uses NaNs to flag values that are not measured.\" rclpy then passes the failed conversion result on unchecked: \"pytaken_msg = convert_to_py(taken_msg.get(), pymsg_type);\" followed by \"return py::make_tuple(pytaken_msg, ...\" (subscription.cpp at 77949d2c). The NaN crossing the boundary is not a wrong value; the defect is the binding's rejection of a valid value plus rclpy's unchecked error path, both inside the subscribing process."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the C++ nan_publisher publishes on /nan and the rclpy-based ros2 topic echo takes the message."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"The subscriber crashes with the following message: make_tuple(): unable to convert argument of type 'object' to Python object\"."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: the rosidl_generator_py-generated Python message binding rejects NaN (and inf) with a bounds assertion, and rclpy's take path does not check the failed conversion; the failure occurs with any correct publisher of NaN, and the value crossing the boundary is valid.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Other compositions in the thread: (1) the original discovery, a stereo_image_proc test where an unpopulated CameraInfo P matrix caused a division by zero (\"A division by zero is happening here ... causing a `-nan` getting set in the ROS message\") and the Python test subscriber crashed; image_pipeline PR #710 / commits 7d06a907, 78fe7e30, bc8c41be, d5e295e8 ('Populate CameraInfo camera matrix in test fixture') work around it in the test fixture, not in the interface. (2) tier4/pilot_auto_tier4_api PR #56 ('fix: rtc distance') works around the same rclpy/rosidl_python behavior on the publisher side by replacing non-finite CooperateStatus.distance with -100000.0 (\"If subscribing NaN value on humble rclpy(version 3.3.4), rclpy is broken.\"). image_pipeline PR #699 ('[rolling] Fix image saver bug and time-based image saving') is unrelated to this defect. Alternative reading considered: rosidl_python #169 frames it as a C++/Python inconsistency after rosidl_python #128 introduced the bounds check (\"our c++ code is still able to serialize using `std::numeric_limits<T>::infinity` but the python code is not able to do so\"), which could be treated as a value-domain or UPGRADE mismatch between language bindings; it was not, because NaN/inf are valid values for the declared float types and the maintainers fixed the Python check itself. Reporter environment: Ubuntu 20.04, rclpy 77949d2c, rmw_fastrtps_cpp and rmw_cyclonedds. Issue closed 2022-11-07 as a duplicate (state_reason not_planned); rosidl_python PR #167 merged into rolling 2022-08-22 as 52e099ef."
+}

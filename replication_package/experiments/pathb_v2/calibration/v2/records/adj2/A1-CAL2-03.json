@@ -1,0 +1,35 @@
+{
+ "item_id": "A1-CAL2-03",
+ "kind": "A1",
+ "case_id": "CAL2-03",
+ "eligibility": {
+  "verdict": "disagree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(name, \"rviz_rendering\");  — while moveit's pre-fix mesh_shape.cpp (read at 97f1ea5b~1) references the inherited material under Ogre's default group: 'manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST);' / 'entity_->setMaterialName(material_name_);', and the reported error is 'Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General.'",
+  "url": "https://github.com/ros2/rviz/blob/8.2.6/rviz_rendering/src/rviz_rendering/material_manager.cpp"
+ },
+ "failed_conditions": [],
+ "missed_conditions": [
+  {
+   "class": "other",
+   "implicated_elements": [
+    "resource:shape_material_in_group_rviz_rendering"
+   ],
+   "quote": "-    manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST);\n+    manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST, \"rviz_rendering\");\n...\n-      entity_->setMaterialName(material_name_);\n+      entity_->setMaterialName(material_name_, \"rviz_rendering\");",
+   "url": "https://github.com/moveit/moveit2/pull/672/files"
+  }
+ ],
+ "loudness": {
+  "verdict": "disagree",
+  "proposed": "silent_documented (run)",
+  "quote": "Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?",
+  "url": "https://github.com/moveit/moveit2/issues/1164"
+ },
+ "resolution": {
+  "verdict": "disagree",
+  "proposed": "recommended",
+  "quote": "Hi @JafarAbdi, I have tried to checkout to branch `5099f70001762e5f8ec5dbde84b6f6ff3728274d`(#672), it doesn't work. I found the changes in #672 at two positions. So I changed the code at branch `foxy` manually. It works! Thank you very much!  (PR 672 'mesh_shape: Fix resource group for meshes' merged 2021-09-09 as 97f1ea5b; foxy backport PR 1165 '[foxy]: mesh_shape: Fix resource group for meshes (backport #672)' merged 2022-04-06 as fa983f73 — both verified this session)"
+ },
+ "notes": "The spec marks the case ineligible-internal ('the failure is a defect inside one unit; the value crossing the interface is valid'). I disagree. The failing interaction is moveit's rviz plugin (rviz_plugin_render_tools::MeshShape, deriving from rviz_rendering::Shape) against the rviz_rendering library: rviz_rendering's MaterialManager creates every material in the Ogre resource group 'rviz_rendering' (material_manager.cpp:44, verified at tag 8.2.6) and Shape names it 'Shape<n>Material' (shape.cpp:107-108: 'material_name_ = entity_name + \"Material\"; material_ = MaterialManager::createMaterialWithLighting(material_name_);'), while moveit's code resolves that same name under Ogre's default group 'General'. The failure therefore depends on the provider's group-placement convention — with a peer that created materials in General there is no failure — so E2 step 2's internal test ('does not depend on any assumption between the two units and would occur with any correct peer') is not met; a name reference with wrong group scope crosses the consumer->provider boundary, and the tree explicitly counts that as an interface failure 'even when the resolving edit is inside one unit' (the fix, PR 672, is consumer-side only). rviz_rendering is a separately released package/library, i.e. a unit under E2 step 1. Counter-reading acknowledged: the mesh data the reporter publishes is valid and both the creation and the reference calls are issued from moveit's process; the spec's confidence is medium. Class proposed as 'other': the material exists and nothing moved between provider revisions (so not element_removed_or_renamed), and group-scoping of a name is not an encoding (so not representation_convention). Loudness: the Ogre error is from existing tooling but fires when a planning-scene mesh is rendered (run), not at build/connect/activation, so the loud kinds do not apply — silent_documented, run. Resolution: fix merged on main and foxy, and the reporter showed the equivalent change working applied manually on the foxy branch ('It works!'), but no resolved composition is shown working with both units identified by revision — recommended."
+}

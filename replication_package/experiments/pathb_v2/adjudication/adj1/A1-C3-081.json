@@ -1,0 +1,68 @@
+{
+  "item_id": "A1-C3-081",
+  "kind": "A1",
+  "case_id": "C3-081",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the reporter quotes server code against the protocol document, and the maintainer confirms documentation/type inconsistencies. E2 reaches step 6: separately released roslibjs and rosbridge_suite exchange these wire fields; the inspected client code corroborates them. E3: PAIR. E4 expressly permits a code-level mismatch even without an observed runtime failure; undocumented outcome is appropriate.",
+    "quote": "In Advertising, rosbridge / roslib add fields `latch` and `queue_size` to the packet and are pulling them from the message",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "But the protocol document doesn't include these fields. Latch is mentioned briefly in its own section, and the phrase `queue_size` doesn't appear in the entire document.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012",
+      "reason": "The same advertise operation has a documented field set that omits two fields actually sent and consumed. definition_mismatch and advertise/latch/queue_size are supported."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "When Server sends `call_service` messages to the Client, it always passes args as a JSON object literal.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012#issuecomment-2686506588",
+      "reason": "The maintainer also explicitly describes acceptance of both JSON arrays and objects. The documented call_service args type/optionality is incomplete; the named message and args field are implicated."
+    },
+    {
+      "index": 2,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It returns a JSON object literal with response message fields if the service call succeeds (result set to true) or a string with the error message if it fails.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012#issuecomment-2686506588",
+      "reason": "The maintainer identifies the actual conditional type of values and says the protocol type is wrong. The message and values field, not a ROS service definition hash, are implicated."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Is this intentional? Are these fields no longer supported? Looking for some answers to guide my development.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012",
+    "reason": "This is an implementation/documentation audit; no runtime diagnostic or observed silent runtime failure is supplied. Unknown is appropriate."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I'm currently working on a PR to RosLibJS and noticed some inconsistency between the protocol doc and the actual code.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012",
+    "reason": "Inspection is documented, not one of the execution-stage detections in the schema, so unknown is appropriate."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixed any inconsistencies I could find in specification vs implementation (Fixes #1012, I think)",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/pull/1193",
+    "reason": "A protocol-document rewrite is accepted, but no revision-identified client/server execution after that rewrite is shown. Recommended is appropriate; do not turn issue closure into observed runtime success."
+  },
+  "notes": "These are declared-protocol versus implemented-field discrepancies, not proof that the inspected roslibjs and server fail to communicate. The server already supports the extra publisher fields. The differences in call_service args and service_response values are documented in the same two-unit connection and retained as separate conditions."
+}

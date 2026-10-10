@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-CAL-02",
+  "kind": "A1",
+  "case_id": "CAL-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+    "url": "https://github.com/ros2/ros2/issues/1080",
+    "reason": "A concrete timer reproducer establishes E1/E4. rcl supplies a timer-derived duration to the separately built RMW wait implementation, whose clock behavior affects that duration. This is a PAIR library-API timing assumption, not name wiring or build configuration alone."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "disagree",
+      "proposed_elements": ["api:rmw_wait"],
+      "quote": "// use timer time to to set the rmw_wait timeout",
+      "url": "https://raw.githubusercontent.com/ros2/rcl/c83119c826c75fbaf6e741658927a953318832ad/rcl/src/rcl/wait.c#L570",
+      "reason": "The mismatched clock governs rmw_wait's timeout, not rmw_create_wait_set. The schema has no specific clock-domain class, so other is appropriate."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+    "url": "https://github.com/ros2/ros2/issues/1080",
+    "reason": "The observed failure is delayed callbacks during execution, with no reported build, connection, or activation diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Adjust system time manually in another terminal.",
+    "url": "https://github.com/ros2/ros2/issues/1080"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "+ * \\remark Elapsed time should be measured using a monotonic clock,\n+ *   though rmw implementations could use a different one.",
+    "url": "https://github.com/ros2/rmw/pull/316.diff",
+    "reason": "A concrete contract correction exists. This diff is not evidence of a successful run of the exact rcl/rmw_fastrtps revisions; recommended is supported, not observed."
+  },
+  "notes": "The specification's issuecomment-763000000 excerpt was not treated as independently verified. The issue body, pinned rcl source and rmw contract diff were read instead. GitHub API rate limiting and issue-page pagination prevented a complete reread of all later comments; the exact working toolchain composition is not independently established here."
+}

@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_c0067f9-broken-M1-27387c57e6",
+  "kind": "A2",
+  "case_id": "robust_c0067f9",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[msg:mavros_msgs/WaypointGOTO]",
+      "verdict": "verified",
+      "source_excerpt": "Built revision:\n\nsnapshot:s2_work/tasks/u0144/snapshot/mavros_msgs/srv/WaypointGOTO.srv:1-7\n```\n# Request go to waypoint\n#\n# Only supported FCU will return result\n\nmavros_msgs/Waypoint waypoint\n---\nbool success\n```\n\nsnapshot:s2_work/tasks/u0144/snapshot/mavros_msgs/CMakeLists.txt:60-66\n```\n  StreamRate.srv\n  WaypointClear.srv\n  WaypointGOTO.srv\n  WaypointPull.srv\n  WaypointPush.srv\n  WaypointSetCurrent.srv\n)\n```\n\nRunning revision:\n\nsnapshot:s2_work/tasks/u0143/snapshot/mavros_msgs/CMakeLists.txt:36-66\n```\nadd_service_files(\n  DIRECTORY srv\n  FILES\n  CommandBool.srv\n  CommandHome.srv\n  CommandInt.srv\n  CommandLong.srv\n  CommandTOL.srv\n  CommandTriggerControl.srv\n  FileChecksum.srv\n  FileClose.srv\n  FileList.srv\n  FileMakeDir.srv\n  FileOpen.srv\n  FileRead.srv\n  FileRemove.srv\n  FileRemoveDir.srv\n  FileRename.srv\n  FileTruncate.srv\n  FileWrite.srv\n  ParamGet.srv\n  ParamPull.srv\n  ParamPush.srv\n  ParamSet.srv\n  SetMode.srv\n  StreamRate.srv\n  WaypointClear.srv\n  WaypointPull.srv\n  WaypointPush.srv\n  WaypointSetCurrent.srv\n)\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[msg:mavros_msgs/WaypointGOTO]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0141/snapshot/mavros/src/mavros/mission.py:135-145\n```\ndef _setup_services():\n    global pull, push, clear, set_current, goto\n\n    def _get_proxy(name, type):\n        return rospy.ServiceProxy(mavros.get_topic('mission', name), type)\n\n    pull = _get_proxy('pull', WaypointPull)\n    push = _get_proxy('push', WaypointPush)\n    clear = _get_proxy('clear', WaypointClear)\n    set_current = _get_proxy('set_current', WaypointSetCurrent)\n    goto = _get_proxy('goto', WaypointGOTO)\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[msg:mavros_msgs/WaypointGOTO]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0144/snapshot/mavros_msgs/srv/WaypointGOTO.srv:1-7\n```\n# Request go to waypoint\n#\n# Only supported FCU will return result\n\nmavros_msgs/Waypoint waypoint\n---\nbool success\n```\n\nsnapshot:s2_work/tasks/u0144/snapshot/mavros_msgs/CMakeLists.txt:60-66\n```\n  StreamRate.srv\n  WaypointClear.srv\n  WaypointGOTO.srv\n  WaypointPull.srv\n  WaypointPush.srv\n  WaypointSetCurrent.srv\n)\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0143/snapshot/mavros_msgs/CMakeLists.txt:36-66\n```\nadd_service_files(\n  DIRECTORY srv\n  FILES\n  CommandBool.srv\n  CommandHome.srv\n  CommandInt.srv\n  CommandLong.srv\n  CommandTOL.srv\n  CommandTriggerControl.srv\n  FileChecksum.srv\n  FileClose.srv\n  FileList.srv\n  FileMakeDir.srv\n  FileOpen.srv\n  FileRead.srv\n  FileRemove.srv\n  FileRemoveDir.srv\n  FileRename.srv\n  FileTruncate.srv\n  FileWrite.srv\n  ParamGet.srv\n  ParamPull.srv\n  ParamPush.srv\n  ParamSet.srv\n  SetMode.srv\n  StreamRate.srv\n  WaypointClear.srv\n  WaypointPull.srv\n  WaypointPush.srv\n  WaypointSetCurrent.srv\n)\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE compares mavros_msgs u0144 with u0143 and connects mavros mission.py to the generated WaypointGOTO service class. The quoted ServiceProxy construction uses that exact class, so the dependency is concrete rather than a matching string in unrelated packages.\n\nsnapshot:s2_work/tasks/u0141/snapshot/mavros/src/mavros/mission.py:135-145\n```\ndef _setup_services():\n    global pull, push, clear, set_current, goto\n\n    def _get_proxy(name, type):\n        return rospy.ServiceProxy(mavros.get_topic('mission', name), type)\n\n    pull = _get_proxy('pull', WaypointPull)\n    push = _get_proxy('push', WaypointPush)\n    clear = _get_proxy('clear', WaypointClear)\n    set_current = _get_proxy('set_current', WaypointSetCurrent)\n    goto = _get_proxy('goto', WaypointGOTO)\n```"
+  },
+  "notes": "Substantive service-definition removal. The running snapshot has no WaypointGOTO .srv/.msg/.action and its complete add_service_files list omits it; generate_messages remains in place. The old consumer still names the class in its import and proxy construction. WaypointGOTO denotes a service here despite the generic msg: token prefix; this does not turn the service call into a topic connection."
+}

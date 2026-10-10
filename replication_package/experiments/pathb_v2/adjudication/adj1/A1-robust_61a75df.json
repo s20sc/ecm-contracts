@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-robust_61a75df",
+  "kind": "A1",
+  "case_id": "robust_61a75df",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This problem is related to qt5 used on ubuntu16.04.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/250#issuecomment-281542245",
+    "reason": "E1/E4: the issue supplies the rqt command and ImportError, and the two import edits are reported to restore the dashboard. E2: the consumer refers to classes at old module locations exposed by a separately released Qt binding; source references must change, not merely dependency resolution. E3: the Qt4-era consumer paired with the Qt5-era provider is UPGRADE."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-from QtGui import QMessageBox, QAction\n+from QtWidgets import QMessageBox, QAction",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/commit/61a75df171e8ac8f34ed848456a7a267d4d9d3e3.patch",
+      "reason": "Both listed classes are moved from the consumer's old module location to QtWidgets. element_removed_or_renamed fits; QMessageBox is the import failure directly reported."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-from python_qt_binding.QtGui import QToolButton\n+from QtWidgets import QToolButton",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/commit/61a75df171e8ac8f34ed848456a7a267d4d9d3e3.patch",
+      "reason": "The maintainer-endorsed two-line remedy and commit identify QToolButton's old qualified location as the second broken reference. The actual changed file is battery_widget.py; the comment's plural filename is a typo."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "ImportError: cannot import name QMessageBox",
+    "url": "https://github.com/turtlebot/turtlebot/issues/250",
+    "reason": "An explicit import failure while launching the requested dashboard is loud_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "When trying \"rqt -s kobuki_dashboard\", I get \"ImportError: cannot import name QMessageBox\"",
+    "url": "https://github.com/turtlebot/turtlebot/issues/250",
+    "reason": "The error occurs when loading the dashboard, not compiling it or processing a later callback: activate."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "As correcting following two lines, it looks like working as shown in the attached screenshot.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/250#issuecomment-281542245",
+    "reason": "This supports successful behavior after the exact import edits, but the report identifies Ubuntu/ROS distributions rather than the installed python_qt_binding revision. The specification itself allows 0.3.1 or 0.3.2. Equivalent module layouts do not identify the tested revision, so the strict two-unit requirement for observed is unmet; recommended is the supported category."
+  },
+  "notes": "Read the complete GitHub issue #250 and the 61a75df patch. The migrated Stack Exchange page returned HTTP 403, so no verdict relies on its unread full traceback. The GitHub issue independently supplies the launch command and ImportError. The PyQt4 workaround's segfault and missing rocon packages concern alternative or separate compositions, not extra conditions of the specified Qt5 import failure."
+}

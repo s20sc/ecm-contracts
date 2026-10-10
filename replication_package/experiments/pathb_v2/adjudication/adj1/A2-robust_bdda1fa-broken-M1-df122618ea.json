@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-robust_bdda1fa-broken-M1-df122618ea",
+  "kind": "A2",
+  "case_id": "robust_bdda1fa",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:mavros.command.guided_enable]",
+      "verdict": "verified",
+      "source_excerpt": "Built revision:\n\nsnapshot:s2_work/tasks/u0138/snapshot/mavros/src/mavros/command.py:37-49\n```\nguided_enable = None\ntrigger_control = None\n\n\ndef _setup_services():\n    global long, int, arming, set_home, takeoff, land, guided_enable, trigger_control\n    long = _get_proxy('command', CommandLong)\n    int = _get_proxy('command_int', CommandInt)\n    arming = _get_proxy('arming', CommandBool)\n    set_home = _get_proxy('set_home', CommandHome)\n    takeoff = _get_proxy('takeoff', CommandTOL)\n    land = _get_proxy('land', CommandTOL)\n    guided_enable = _get_proxy('guided_enable', CommandBool)\n```\n\nRunning revision:\n\nsnapshot:s2_work/tasks/u0136/snapshot/mavros/src/mavros/command.py:30-51\n```\nlong = None\nint = None\narming = None\nset_home = None\ntakeoff = None\nland = None\ntrigger_control = None\n\n\ndef _setup_services():\n    global long, int, arming, set_home, takeoff, land, guided_enable, trigger_control\n    long = _get_proxy('command', CommandLong)\n    int = _get_proxy('command_int', CommandInt)\n    arming = _get_proxy('arming', CommandBool)\n    set_home = _get_proxy('set_home', CommandHome)\n    takeoff = _get_proxy('takeoff', CommandTOL)\n    land = _get_proxy('land', CommandTOL)\n    trigger_control = _get_proxy('trigger_control', CommandTriggerControl)\n\n\n# register updater\nmavros.register_on_namespace_update(_setup_services)\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:mavros.command.guided_enable]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0139/snapshot/mavros/scripts/mavsetp:18\n```\nfrom mavros import command, setpoint as sp\n```\n\nsnapshot:s2_work/tasks/u0139/snapshot/mavros/scripts/mavsetp:38-42\n```\ndef enable_offboard():\n    try:\n        command.guided_enable(value=True)\n    except rospy.ServiceException as ex:\n        fault(ex)\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:mavros.command.guided_enable]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0138/snapshot/mavros/src/mavros/command.py:37-49\n```\nguided_enable = None\ntrigger_control = None\n\n\ndef _setup_services():\n    global long, int, arming, set_home, takeoff, land, guided_enable, trigger_control\n    long = _get_proxy('command', CommandLong)\n    int = _get_proxy('command_int', CommandInt)\n    arming = _get_proxy('arming', CommandBool)\n    set_home = _get_proxy('set_home', CommandHome)\n    takeoff = _get_proxy('takeoff', CommandTOL)\n    land = _get_proxy('land', CommandTOL)\n    guided_enable = _get_proxy('guided_enable', CommandBool)\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0136/snapshot/mavros/src/mavros/command.py:30-51\n```\nlong = None\nint = None\narming = None\nset_home = None\ntakeoff = None\nland = None\ntrigger_control = None\n\n\ndef _setup_services():\n    global long, int, arming, set_home, takeoff, land, guided_enable, trigger_control\n    long = _get_proxy('command', CommandLong)\n    int = _get_proxy('command_int', CommandInt)\n    arming = _get_proxy('arming', CommandBool)\n    set_home = _get_proxy('set_home', CommandHome)\n    takeoff = _get_proxy('takeoff', CommandTOL)\n    land = _get_proxy('land', CommandTOL)\n    trigger_control = _get_proxy('trigger_control', CommandTriggerControl)\n\n\n# register updater\nmavros.register_on_namespace_update(_setup_services)\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE compares the pre-removal mavros Python provider u0138 with running u0136 and connects mavsetp u0139 through its actual mavros.command import and guided_enable call. Same-repository packaging does not erase this consumer/provider interface.\n\nsnapshot:s2_work/tasks/u0139/snapshot/mavros/scripts/mavsetp:18\n```\nfrom mavros import command, setpoint as sp\n```\n\nsnapshot:s2_work/tasks/u0139/snapshot/mavros/scripts/mavsetp:38-42\n```\ndef enable_offboard():\n    try:\n        command.guided_enable(value=True)\n    except rospy.ServiceException as ex:\n        fault(ex)\n```"
+  },
+  "notes": "Substantive module-attribute removal: the built revision initializes guided_enable and assigns its service proxy; the running revision does neither. Its remaining global declaration does not create an attribute. Independent full-snapshot search found other generic guided references (flight modes and State.guided), so the provenance narrative about all guided hits was too broad, but none reinstates mavros.command.guided_enable. The exact guided_enable hits are the stale global statement and the broken call."
+}

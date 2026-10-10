@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-083",
+  "kind": "A1",
+  "case_id": "C3-083",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 4,
+    "reason_code": "build",
+    "quote": "This LTTng dependency isn't declared. This was initially for simplicity (especially since this is a platform-specific dependency) and because of some concerns about overhead.",
+    "url": "https://github.com/ros2/ros2/issues/1177"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This means that this feature currently isn't available out-of-the-box; users need to manually install LTTng and build from source (or at least just `tracetools`), since it's not installed when installing debians or running `rosdep install`.",
+    "url": "https://github.com/ros2/ros2/issues/1177"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Install LTTng and related packages on Linux"
+  },
+  "notes": "Independent check agrees: E1 fails (feature request, not a concrete defect) and, walked anyway, the E2 tree stops at step 4 (build). Verified this session: (1) issue #1177 'Declare a dependency on the (Linux-only) LTTng userspace tracer' by christophebedard is filed under '## Feature request' with 'I would like to discuss declaring a dependency on the LTTng userspace tracer (LTTng-UST) on Linux.' — both spec quotes verbatim in the body; (2) maintainer response verified: 'I think that having the tracepoints available by default is a reasonable request.'; author closure verified: 'The PRs have been merged, so I'm closing this.'; (3) resolving changes verified as build/packaging only: ros2_tracing#31 'Include tracepoints by default on Linux' (merged 2023-04-03) edits tracetools/package.xml, tracetools/CMakeLists.txt, tracetools/include/tracetools/config.h.in, .github workflows, README (file list matches the spec exactly); ros2/ci#690 'Install LTTng and related packages on Linux' (merged 2023-04-03) edits linux_docker_resources/Dockerfile and Dockerfile-RHEL; rosdistro#36641 'Add 'lttng-tools' rosdep rule for RHEL' (merged 2023-03-29) edits rosdep/base.yaml; ros2_tracing#48 'Explicitly link against dl for dladdr()' (merged 2023-03-02) edits tracetools/CMakeLists.txt only; (4) rmw_fastrtps#591 'Add pub/sub init, publish and take instrumentation using tracetools' merged 2022-03-21T17:50:39Z — adds instrumentation only, no interface change; (5) ros2_documentation#2877 'Add guide on how to build ROS 2 with tracing instrumentation' (merged 2022-10-03) body verified verbatim: 'This guide will become invalid/unneeded if we do https://github.com/ros2/ros2/issues/1177'. No unit's declared or referenced interface changes anywhere; no failing operation between two units is documented (E3) and no interaction failure is observed (E4). Loudness/resolution null is schema-correct for an ineligible case; the quotes above are the closest observed-effect and build-change evidence I read."
+}

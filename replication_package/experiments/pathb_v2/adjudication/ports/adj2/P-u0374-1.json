@@ -1,0 +1,13 @@
+{"item_id": "P-u0374-1", "kind": "P", "task_id": "u0374", "element": "field:mavlink/HEARTBEAT.custom_mode", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "mavlink/HEARTBEAT", "verdict": "verified",
+   "source_excerpt": "GCS_Common.cpp:1617: mavlink_msg_heartbeat_send( chan, type, MAV_AUTOPILOT_ARDUPILOTMEGA, ; GCS_Mavlink.cpp:98: gcs[chan-MAVLINK_COMM_0].send_heartbeat(MAV_TYPE_FIXED_WING,",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "ArduPlane/GCS_Mavlink.cpp:15: uint32_t custom_mode = control_mode;",
+   "qos_basis": null},
+  {"field": "rate_hz", "recorded": 1, "verdict": "verified",
+   "source_excerpt": "ArduPlane.cpp:68: SCHED_TASK(one_second_loop, 1, 400), ; ArduPlane.cpp:309: gcs_send_message(MSG_HEARTBEAT); (inside void Plane::one_second_loop(), line 306) ; GCS_Mavlink.cpp:2190-2192: if (tnow - last_1hz > 1000) { last_1hz = tnow; gcs_send_message(MSG_HEARTBEAT);",
+   "qos_basis": null}
+ ],
+ "notes": "All cited locations opened and matched. mavlink_msg_heartbeat_send at GCS_Common.cpp:1617, called via send_heartbeat at GCS_Mavlink.cpp:98. custom_mode set from control_mode (flight-mode number, no spatial meaning). SCHED_TASK(one_second_loop, 1, 400) schedules 1 Hz and MSG_HEARTBEAT is sent inside one_second_loop; the mavlink_delay_cb path is gated at >1000 ms, i.e. 1 Hz. rate_hz is a rate, not a QoS setting; qos_basis left null."}

@@ -1,0 +1,145 @@
+{
+  "task_id": "u0050",
+  "package": "kobuki_gazebo_plugins",
+  "manifest_version": "0.2.0",
+  "ports": [
+    {
+      "element": "api:sdf::Element::GetParent",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:sdf::Element::GetValueString",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:sdf::Element::HasElement",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:sdf::Element::GetElement",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:sdf::Element::GetValueBool",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:sdf::Element::GetValueDouble",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:sdf::Element::GetParent",
+    "api:sdf::Element::GetValueString",
+    "api:sdf::Element::HasElement",
+    "api:sdf::Element::GetElement",
+    "api:sdf::Element::GetValueBool",
+    "api:sdf::Element::GetValueDouble"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "velocity command timeout: wheel_speed_cmd_ set to 0.0 when (time_now - last_cmd_vel_time_).Double() > cmd_vel_timeout_ or !motors_enabled_"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_gazebo_plugins/package.xml:3",
+    "ports[0].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83",
+    "references[api:sdf::Element::GetParent]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83",
+    "ports[1].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83",
+    "references[api:sdf::Element::GetValueString]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:83",
+    "ports[2].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:108",
+    "references[api:sdf::Element::HasElement]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:108",
+    "ports[3].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:110",
+    "references[api:sdf::Element::GetElement]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:110",
+    "ports[4].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:151",
+    "references[api:sdf::Element::GetValueBool]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:151",
+    "ports[5].frame": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:170",
+    "references[api:sdf::Element::GetValueDouble]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:170",
+    "perm_requires.state": "searched snapshot:kobuki_gazebo_plugins (package.xml, CMakeLists.txt, src/gazebo_ros_kobuki.cpp, include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h); no permission requirement declared",
+    "perm_grants.state": "searched snapshot:kobuki_gazebo_plugins (package.xml, CMakeLists.txt, src/gazebo_ros_kobuki.cpp, include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h); no permission grant declared",
+    "recovery.state": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:442",
+    "recovery.value": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:442"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All SDF parameter reads go through sdf::Element::GetValueString/GetValueBool/GetValueDouble on sdf::ElementPtr; the templated sdf::Element::Get is never called. My general recollection is that the GetValue* accessors were on their way to deprecation in favour of Get<T> in the SDFormat line of this period, so the code may break against a newer SDFormat, but whether it is defective depends on the SDFormat/Gazebo version it builds against, which the snapshot does not pin (CMakeLists.txt:7 pkg_check_modules(GAZEBO gazebo) has no version)."
+  },
+  "confidence": "high",
+  "notes": "All seven packet elements are C++ API symbols consumed from sdf::Element; this package provides none of them, so declares and not_declared are empty. The receiver is the Load() parameter 'sdf::ElementPtr sdf' (src/gazebo_ros_kobuki.cpp:74, header gazebo_ros_kobuki.h:68). Call sites (non-comment): GetParent 83 (sdf->GetParent()->GetValueString(\"name\")); GetValueString 83,110,120,222,232,242,292; HasElement 108,118,149,168,178,188,203,220,230,240,271,290; GetElement 110,120,151,170,180,190,205,222,232,242,273,292; GetValueBool 151; GetValueDouble 170,180,190,205,273. Lines 96-97 contain commented-out HasElement/GetElement/GetValueString calls for node_namespace, not counted. api:sdf::Element::Get is not referenced anywhere: searched the whole snapshot for 'Get<', '->Get(', '.Get(' with 0 hits; being a consumed element it goes in neither declares nor not_declared, and it has no port. SDF element names read: left_wheel_joint_name, right_wheel_joint_name, publish_tf, wheel_separation, wheel_diameter, torque, velocity_command_timeout, cliff_sensor_left_name, cliff_sensor_front_name, cliff_sensor_right_name, cliff_detection_threshold, bumper_name, plus the parent element's 'name' key. frame is 'none' for these ports because a C++ API symbol carries no coordinate frame; units, QoS (ROS 1), rates and definition_id do not apply (no .msg/.srv definition). No exclusive resource claim is declared; the plugin commands the wheel joints named by SDF at run time (SetVelocity/SetMaxForce, lines 447-450) without any exclusivity token. recovery: the only fail-safe behaviour is the velocity-command watchdog (lines 442-446); missing SDF elements cause Load() to log ROS_ERROR_STREAM and return with no fallback. Other interfaces of this plugin (topics commands/motor_power, commands/velocity, joint_states, odom, events/cliff, events/bumper; tf odom->base_footprint) are outside the packet's element list and are not recorded as ports or references."
+}

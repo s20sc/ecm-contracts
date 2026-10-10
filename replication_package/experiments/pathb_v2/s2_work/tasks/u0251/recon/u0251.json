@@ -1,0 +1,32 @@
+{
+  "task_id": "u0251",
+  "package": "rclcpp",
+  "manifest_version": "21.0.4",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rmw_event_set_callback"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "When publisher event init returns RCL_RET_UNSUPPORTED, EventHandler throws UnsupportedEventTypeException; PublisherBase::bind_event_callbacks catches it for RCL_PUBLISHER_OFFERED_INCOMPATIBLE_QOS and RCL_PUBLISHER_INCOMPATIBLE_TYPE, logs at debug level and continues without that handler; EventHandlerBase destructor logs and resets the error if rcl_event_fini fails."
+  },
+  "provenance": {
+    "manifest_version": "snapshot:snapshot/rclcpp/package.xml:5",
+    "references[api:rmw_event_set_callback]": "snapshot:snapshot/rclcpp/include/rclcpp/event_handler.hpp:158 (doxygen documentation cross-reference '* \\sa rmw_event_set_callback' on EventHandlerBase::set_on_ready_callback; not a call; the implementation calls rcl_event_set_callback at snapshot/rclcpp/src/rclcpp/event_handler.cpp:79)",
+    "recovery.value": "snapshot:snapshot/rclcpp/include/rclcpp/event_handler.hpp:251-256 (init_func; RCL_RET_UNSUPPORTED -> UnsupportedEventTypeException); snapshot/rclcpp/src/rclcpp/publisher_base.cpp:158-166 and 177-185 (catch UnsupportedEventTypeException, RCLCPP_DEBUG); snapshot/rclcpp/src/rclcpp/event_handler.cpp:42-47 (rcl_event_fini failure logged, rcl_reset_error)",
+    "perm_requires.state": "searched snapshot/rclcpp/include, src, package.xml, CMakeLists.txt for permission/sros/enclave declarations; only enclave graph-query API (node_graph_interface.hpp:269-279), no permission requirement declared",
+    "perm_grants.state": "same search as perm_requires; no permission grants declared",
+    "exclusive": "rclcpp is a client library; no hardware command interfaces or exclusive device handles claimed in snapshot/rclcpp code or configuration"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "rclcpp at this revision never calls the five rmw publisher/event functions directly; it reaches them only through rcl wrappers, so any mismatch on these elements would sit in rcl or an rmw implementation, which the snapshot does not show. The tests skip event-callback tests on rmw_connextdds, but that says nothing about a defect in rclcpp itself."
+  },
+  "confidence": "high",
+  "notes": "All five packet elements are consumed rmw C API functions. A full-text search of the whole snapshot (rclcpp, rclcpp_action, rclcpp_components, rclcpp_lifecycle; sources, headers, tests, CMake, package.xml) finds no call to rmw_create_publisher, rmw_destroy_publisher, rmw_event_fini, rmw_event_set_callback or rmw_publisher_event_init. rmw_event_set_callback appears only as a doxygen \\sa (event_handler.hpp:158) and in test comments (test/rclcpp/test_qos_event.cpp:317, 363, 442, 486: 'rmw_connextdds doesn't support rmw_event_set_callback() interface', used to GTEST_SKIP on rmw_connextdds); the other four names do not appear at all. rclcpp instead calls the rcl-layer functions: rcl_publisher_init (src/rclcpp/publisher_base.cpp:73), rcl_publisher_fini (publisher_base.cpp:59), rcl_publisher_event_init (passed as init_func in include/rclcpp/publisher_base.hpp:333), rcl_event_fini (src/rclcpp/event_handler.cpp:42) and rcl_event_set_callback (event_handler.cpp:79). That these rcl functions forward to the named rmw functions is inferred from naming only; rcl sources are outside the allowed sources and were not read. Because rclcpp does not call the elements itself, no ports were recorded; declares and not_declared are empty because every element is on the consumes side. rclcpp does call other rmw functions directly (e.g. rmw_get_gid_for_publisher at publisher_base.cpp:99, rmw_serialize, rmw_qos_profile_check_compatible), none of which are packet elements. Publisher event types bound in PublisherBase::bind_event_callbacks: RCL_PUBLISHER_OFFERED_DEADLINE_MISSED, RCL_PUBLISHER_LIVELINESS_LOST, RCL_PUBLISHER_OFFERED_INCOMPATIBLE_QOS, RCL_PUBLISHER_INCOMPATIBLE_TYPE, RCL_PUBLISHER_MATCHED (publisher_base.cpp:135-190); only the incompatible-QoS and incompatible-type registrations tolerate RCL_RET_UNSUPPORTED. The package.xml declares <depend>rcl</depend> and <depend>rmw</depend> (lines 37, 41). No dependency definition files were needed (no message elements)."
+}

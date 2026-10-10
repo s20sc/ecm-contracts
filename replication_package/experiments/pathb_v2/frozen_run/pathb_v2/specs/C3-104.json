@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-104",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/1742",
+    "https://github.com/ros-controls/ros2_controllers/pull/1850",
+    "https://github.com/ros-controls/ros2_controllers/commit/83fceaca930387ca861fe4004670d9bb5006b0a3",
+    "https://github.com/ros-controls/control_msgs/pull/67"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is a maintainer-opened good-first-issue task (label: \"good first issue\") to implement support for fields just added to the action definition, not a defect report: \"Fill the [new message fields](https://github.com/ros-controls/control_msgs/pull/67) of the joint_trajectory_controller message\". It was opened on 2025-06-07T13:35:22Z, two minutes after control_msgs PR #67 (\"Add indices to FollowJointTrajectory to store trajectory index being executed\") merged at 2025-06-07T13:33:21Z. No reproducer, error log, observed failure, or consumer relying on the field is documented; the contributor who implemented it calls it a feature (\"I'd like to work on this feature.\") and the PR is titled \"Filling `index` field in feedback message of the action interface\". https://github.com/ros-controls/ros2_controllers/issues/1742"
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated: no defect is documented (E1 fails)."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E1 fails."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on any interaction is documented; the only failures in the thread are the new unit test's expectations during PR development (\"Expected equality of these values:\" ... \"feedback_msg->index\"), caused by the contributor's own implementation (\"There was a logic error in my implementation, now it works!\")."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "no_defect (E1: feature task to populate newly added message fields; no documented defect or failure)",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Alternative reading considered and rejected: treating the unpopulated field as a defect would give an UPGRADE-like composition of control_msgs (definition provider, at b0f5dfcb4ab6a53a9efe322d568f44741c138611 adding `# the currently used point from trajectory.points array` / `int32 index` and `int32 multi_dof_index` to the FollowJointTrajectory feedback) and joint_trajectory_controller (action server written before those fields existed, leaving `index` at its default), with outcome `undocumented`. The sources frame it as planned feature work, not as wrong data observed by any action client, so E1 is not met. The implementing change, ros2_controllers 83fceaca930387ca861fe4004670d9bb5006b0a3 (PR #1850, master), sets `feedback->index = static_cast<int32_t>(next_point_index);` and adds tests; `multi_dof_index` is not populated by that PR."
+}

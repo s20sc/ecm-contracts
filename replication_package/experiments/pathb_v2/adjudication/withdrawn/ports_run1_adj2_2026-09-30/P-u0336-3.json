@@ -1,0 +1,6 @@
+{"item_id": "P-u0336-3", "kind": "P", "task_id": "u0336", "element": "field:v4l2/v4l2_pix_format.pixelformat", "side": "consumes",
+ "values": [
+  {"field": "msg_type", "recorded": "v4l2/v4l2_pix_format", "verdict": "unverifiable", "source_excerpt": "struct v4l2_format fmt;", "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified", "source_excerpt": "fmt.fmt.pix.pixelformat = pixelformat_;", "qos_basis": null}
+ ],
+ "notes": "Opened s2_work/tasks/u0336/snapshot/src/usb_cam.cpp lines 900-912 and 985-995. msg_type: line 907 declares 'struct v4l2_format fmt;' — the enclosing format struct, a different type from the recorded parent v4l2_pix_format; line 991 shows only the field access 'fmt.fmt.pix.pixelformat = pixelformat_;' with no type name. The provenance itself concedes 'parent type name as given in the packet element', i.e. the type name is not sourced from the code; and no v4l2 kernel headers (find for videodev2.h / v4l2*.h over the snapshot returns nothing) exist to state v4l2_pix_format, so no openable cited location states the recorded type name. frame: line 991 assigns a pixel-format code, no coordinate frame involved, supporting frame=none."}

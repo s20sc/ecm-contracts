@@ -1,0 +1,107 @@
+{
+  "case_id": "C3-132",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/1911",
+    "https://github.com/mavlink/mavros/pull/1862",
+    "https://github.com/mavlink/mavros/pull/2063",
+    "https://github.com/mavlink/mavros/pull/2065",
+    "https://github.com/mavlink/mavros/blob/2.6.0/mavros/src/plugins/global_position.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter describes concrete behaviour in a stated setup (\"At least in my setup using Ardupilot SITL this is published once when `GPS_GLOBAL_ORIGIN` is emitted. This means my nodes requiring this information must be subscribed before this event happens because of the Sensor Quality of Service.\", Mavros 2.6.0, Humble), and maintainer vooon closes the issue as \"Fixed by #2065\" after merging PR #2065 (\"ROS2: QoS for latched topics ... Fix #1911\") (https://github.com/mavlink/mavros/issues/1911, https://github.com/mavlink/mavros/pull/2065)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "mavros",
+        "reporter_ros_package"
+      ],
+      "interface_kind": "topic",
+      "evidence": "Two separately deployable units interact only through the ROS 2 topic ~/gp_origin of the mavros global_position plugin: the mavros node publishes it (`gp_global_origin_pub = node->create_publisher<geographic_msgs::msg::GeoPointStamped>(` / `\"~/gp_origin\", sensor_qos);` with \"auto sensor_qos = rclcpp::SensorDataQoS();\", mavros 2.6.0 global_position.cpp L111, L127-128) and the reporter's own ROS package subscribes (\"here I subscribe to `gp_origin` from the mavros global position plugin\"). The failure depends on the delivery (durability) attribute of that topic relative to when the subscriber joins, so it is not internal; the resolution changes the publisher's declared QoS in code (PR #2065), not a name binding, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the mavros output topic gp_origin feeds the reporter's subscriber input; the problem arises when the subscriber joins after the one-shot publication (\"it would be nice to allow late-joining of subscribers using another durability setting i.e. transient_local\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Reporter: \"This means my nodes requiring this information must be subscribed before this event happens because of the Sensor Quality of Service.\"; haavarpb follow-up: \"The situation right now requires the subscriber to be ready before `gp_origin` is published or perhaps requiring to use MavLink messages to directly fetch it by itself.\" (https://github.com/mavlink/mavros/issues/1911)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "2.6.0",
+      "resolved_rev": "a8e73ce14d132ea77e648afa80f09f9bd026add2",
+      "pinned": true,
+      "revision_basis": "The reporter states \"Mavros: 2.6.0\"; tag 2.6.0 (annotated tag object e1aa6655, \"release 2.6.0\", 2023-09-09) points to commit ded6c2ed9330c35893150b58bb0e9b19d574000f, whose global_position.cpp publishes ~/gp_origin with SensorDataQoS. Resolved revision is the merge commit of PR #2065 on the ros2 branch (merged 2025-09-14), which the maintainer names as the fix (\"Fixed by #2065\"). The mavros node hosts the global_position plugin that publishes gp_origin.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "reporter_ros_package",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2023-10",
+      "resolved_rev": "as-reported-2023-10",
+      "pinned": false,
+      "revision_basis": "The reporter's own ROS package is not public and is described only by the issue text (opened 2023-10-18). The resolution does not change it, so it keeps its broken label.",
+      "excerpt": true,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "topic:/mavros/global_position/gp_origin",
+      "sides": {
+        "mavros": "provides",
+        "reporter_ros_package": "consumes"
+      }
+    },
+    {
+      "element": "msg:geographic_msgs/GeoPointStamped",
+      "sides": {
+        "mavros": "provides",
+        "reporter_ros_package": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "qos_durability",
+      "implicated_elements": [
+        "topic:/mavros/global_position/gp_origin"
+      ],
+      "quote": "At least in my setup using Ardupilot SITL this is published once when `GPS_GLOBAL_ORIGIN` is emitted. This means my nodes requiring this information must be subscribed before this event happens because of the Sensor Quality of Service. Is this really necessary? In my mind it would be nice to allow late-joining of subscribers using another durability setting i.e. transient_local.",
+      "url": "https://github.com/mavlink/mavros/issues/1911"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only effect reported is that a subscriber that joins after the single publication does not receive the origin (\"The situation right now requires the subscriber to be ready before `gp_origin` is published\", https://github.com/mavlink/mavros/issues/1911); no diagnostic from ROS tooling is shown.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "PR #2065 adds mavros::LatchedStateQoS() (\"return rclcpp::QoS(10).keep_last(1).reliable().transient_local();\") and changes the gp_origin publisher from `sensor_qos` to `origin_qos` (= LatchedStateQoS) in mavros/src/plugins/global_position.cpp; the same PR also moves the mavros_extras guided_target gp_origin subscriber to LatchedStateQoS.",
+    "status": "recommended",
+    "evidence": "Maintainer: \"Fixed by #2065\" (https://github.com/mavlink/mavros/issues/1911). The only working observation is by bcrobo for the predecessor PR #2063 (publisher QoS `rclcpp::QoS(1 /* depth */).reliable().transient_local()`), with his own test node and ros2 topic echo, not the reporter's package: \"which confirms that the topic is created with the proper qos profile. My test node received the message correctly.\" (https://github.com/mavlink/mavros/issues/1911). The reporter never confirmed the merged fix."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Second composition in the same thread: mavros_extras GuidedTargetPlugin subscribed to \"global_position/gp_origin\" with depth-10 default QoS (`gp_origin_sub = node->create_subscription<geographic_msgs::msg::GeoPointStamped>(` / `\"global_position/gp_origin\", 10, std::bind(&GuidedTargetPlugin::gp_origin_cb, this, _1));`, mavros 2.6.0 guided_target.cpp L69-70) while the global_position publisher used SensorDataQoS; PR #1862 (\"Use SensorDataQoS for gp_origin subscriber\", merged 2023-10-19 as b5576dda4ffbe139d87b30576e14e2f0b219ee38) changed the subscriber to SensorDataQoS, and its author says \"I updated the subscriber QoS since it did not subscribe to data with the current setting. I am not sure about what QoS to use, but they need to be the same on both sides\" (a reliability mismatch, qos_reliability, within mavros/mavros_extras). That is not the composition the reporter asked about. PR #2065 also changes the QoS of the geofence, rallypoint and waypoint list publishers and contains formatting-only edits; those are not conditions of this case. A DronecodeBot comment links a PX4 forum thread (\"report-an-error-when-rotorcraft-flys-warn-positiontargetglobal-failed-because-no-origin\"), not read. The autopilot (ArduPilot 4.4.1 SITL) emits GPS_GLOBAL_ORIGIN over MAVLink to mavros; it is upstream of the provider and not a unit of this composition. The consumer's own subscription QoS is not stated in the source. Operation could also be read as the subscriber starting after the provider's one-shot publication; PAIR is recorded because the failing interaction is output-to-input delivery."
+}

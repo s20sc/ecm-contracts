@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-C3-135-broken-M1-f40dc10f9f",
+  "kind": "A2",
+  "case_id": "C3-135",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:importlib.metadata.SelectableGroups.get]",
+      "verdict": "verified",
+      "source_excerpt": "The built-against factory returns a plain dict and has no SelectableGroups class in its importlib snapshot. The running revision adds SelectableGroups inheriting Deprecated.get; the consumer calls get dynamically on the factory result, not by importing that class explicitly.\nBuilt-against revision:\nsnapshot:s2_work/tasks/u0395/snapshot/Lib/importlib/metadata.py:554 [lines 554-567]\n```\ndef entry_points():\n    \"\"\"Return EntryPoint objects for all installed packages.\n\n    :return: EntryPoint objects for all installed packages.\n    \"\"\"\n    eps = itertools.chain.from_iterable(\n        dist.entry_points for dist in distributions())\n    by_group = operator.attrgetter('group')\n    ordered = sorted(eps, key=by_group)\n    grouped = itertools.groupby(ordered, by_group)\n    return {\n        group: tuple(eps)\n        for group, eps in grouped\n        }\n```\nRunning revision:\nsnapshot:s2_work/tasks/u0394/snapshot/Lib/importlib/metadata/__init__.py:388 [lines 388-401]\n```\n    _warn = functools.partial(\n        warnings.warn,\n        \"SelectableGroups dict interface is deprecated. Use select.\",\n        DeprecationWarning,\n        stacklevel=2,\n    )\n\n    def __getitem__(self, name):\n        self._warn()\n        return super().__getitem__(name)\n\n    def get(self, name, default=None):\n        self._warn()\n        return super().get(name, default)\n```\nsnapshot:s2_work/tasks/u0394/snapshot/Lib/importlib/metadata/__init__.py:420 [lines 420-424]\n```\nclass SelectableGroups(Deprecated, dict):\n    \"\"\"\n    A backward- and forward-compatible result from\n    entry_points that fully implements the dict interface.\n    \"\"\"\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:importlib.metadata.SelectableGroups.get]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0396/snapshot/rosidl_cli/rosidl_cli/entry_points.py:39 [lines 39-40]\n```\n    for entry_point in importlib_metadata.entry_points().get(group_name, []):\n        name = entry_point.name\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:importlib.metadata.SelectableGroups.get]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0395/snapshot/Lib/importlib/metadata.py:554 [lines 554-567]\n```\ndef entry_points():\n    \"\"\"Return EntryPoint objects for all installed packages.\n\n    :return: EntryPoint objects for all installed packages.\n    \"\"\"\n    eps = itertools.chain.from_iterable(\n        dist.entry_points for dist in distributions())\n    by_group = operator.attrgetter('group')\n    ordered = sorted(eps, key=by_group)\n    grouped = itertools.groupby(ordered, by_group)\n    return {\n        group: tuple(eps)\n        for group, eps in grouped\n        }\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0394/snapshot/Lib/importlib/metadata/__init__.py:388 [lines 388-401]\n```\n    _warn = functools.partial(\n        warnings.warn,\n        \"SelectableGroups dict interface is deprecated. Use select.\",\n        DeprecationWarning,\n        stacklevel=2,\n    )\n\n    def __getitem__(self, name):\n        self._warn()\n        return super().__getitem__(name)\n\n    def get(self, name, default=None):\n        self._warn()\n        return super().get(name, default)\n```\nsnapshot:s2_work/tasks/u0394/snapshot/Lib/importlib/metadata/__init__.py:420 [lines 420-424]\n```\nclass SelectableGroups(Deprecated, dict):\n    \"\"\"\n    A backward- and forward-compatible result from\n    entry_points that fully implements the dict interface.\n    \"\"\"\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE uses CPython 3.9.0 as the built-against provider and 3.10.0 as the running provider for the unchanged broken rosidl_cli consumer. The import and actual call connect the consumer to this provider result/interface. The built-against assignment is specified as inferred, not proven as a historical installed interpreter by the source.\nsnapshot:specs/C3-135.json:70 [lines 70-70]\n```\n  \"operation\": \"UPGRADE\",\n```\nsnapshot:s2_work/tasks/u0396/snapshot/rosidl_cli/rosidl_cli/entry_points.py:17 [lines 17-20]\n```\ntry:\n    import importlib.metadata as importlib_metadata\nexcept ModuleNotFoundError:\n    import importlib_metadata\n```\nsnapshot:s2_work/tasks/u0396/snapshot/rosidl_cli/rosidl_cli/entry_points.py:39 [lines 39-40]\n```\n    for entry_point in importlib_metadata.entry_points().get(group_name, []):\n        name = entry_point.name\n```\nsnapshot:s2_work/tasks/u0394/snapshot/Lib/importlib/metadata/__init__.py:971 [lines 971-971]\n```\n    return SelectableGroups.load(eps).select(**params)\n```"
+  },
+  "notes": "Substantive presence and returned-object type change, not a transcription of the same declaration. The old effective operation was dict.get, whereas the new returned object has the warning-emitting inherited get. Its dict behavior remains backward-compatible; verification does not imply that get was removed or that the call crashes.\nsnapshot:s2_work/tasks/u0394/snapshot/Lib/importlib/metadata/__init__.py:420 [lines 420-424]\n```\nclass SelectableGroups(Deprecated, dict):\n    \"\"\"\n    A backward- and forward-compatible result from\n    entry_points that fully implements the dict interface.\n    \"\"\"\n```"
+}

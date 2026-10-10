@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_55e84a6",
+  "kind": "A1",
+  "case_id": "robust_55e84a6",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "rqt_plot API has been changed by this commit.\n\nhttps://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0bea3f942c19f354512284ec146491fe4\n\nkobuki_qtestsuite is crashing with this error",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "File \"/opt/ros/indigo/lib/python2.7/dist-packages/rqt_plot/plot_widget.py\", line 150, in switch_data_plot_widget\n    self.data_plot.autoscroll(self.autoscroll_checkbox.isChecked())\nAttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "rqt_plot API has been changed by this commit.\n\nhttps://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0bea3f942c19f354512284ec146491fe4",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PluginManager._load_plugin() could not load plugin \"kobuki_qtestsuite/Kobuki Test Suite\":\nTraceback (most recent call last):\n  File \"/opt/ros/indigo/lib/python2.7/dist-packages/qt_gui/plugin_handler.py\", line 98, in load\n    self._load()\n...\nAttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/33"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Battery profiling now has fixed y scale [0, 180]. and gyro looks fine too."
+  },
+  "notes": "All key claims verified. (1) Issue 33 body verbatim: 'rqt_plot API has been changed by this commit. https://github.com/ros-visualization/rqt_common_plugins/commit/f7a485e0...' plus the full traceback ending 'AttributeError: 'FullSizeDataPlot' object has no attribute 'autoscroll'' (failed conditions #0 and #1 quotes verbatim). (2) Provider refactor commit f7a485e0 'Refactor graph backends into wrapper' (2014-05-23). (3) Fix commits: 5ee65b06 'now it uses dataplot class instead of mat dataplot...', 6df4bd7e 'uses dataplot', 55e84a61 'now it uses Rqt DataPlot instead our own version' (the spec's resolved_rev). (4) Resolution comment 51742356 (jihoonl, 2014-08-11) 'Battery profiling now has fixed y scale [0, 180]. and gyro looks fine too.' (5) E2 library-API eligible at step 6: rqt_plot (separately released, /opt/ros/indigo) and kobuki_qtestsuite (rqt plugin) are separate units; PlotWidget.switch_data_plot_widget requires the handed-in widget to provide autoscroll(), which MatDataPlot provided at 0.3.3-0.3.6 and no longer provides after the refactor. (6) Two conditions both element_removed_or_renamed: the autoscroll method was stripped from the backend MatDataPlot (c8223f54 in the same series; DataPlot.autoscroll replaces it), and the module was moved from rqt_plot.mat_data_plot to rqt_plot.data_plot.mat_data_plot (f7a485e0), so 'from rqt_plot.mat_data_plot import MatDataPlot' has no target in a clean 0.3.7+ install. Implicated elements correct. The spec correctly notes the observed crash is the autoscroll AttributeError (the import evidently resolved in the reporter's run, unexplained — likely a stale compiled module), while the module move is the reporter's named API change. (7) Loudness loud_documented + activate: 'PluginManager._load_plugin() could not load plugin ...' is the rqt plugin manager's activation-time diagnostic, raised before any plotting. (8) Resolution 'observed': the maintainer reports the fixed battery/gyro display working after 55e84a61. No missed conditions."
+}

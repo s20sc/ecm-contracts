@@ -1,0 +1,47 @@
+{
+  "case_id": "robust_0e2ea0c",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/commit/0e2ea0c43b373feb490b45710fb63f4e6cde78eb"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Maintainer commit 0e2ea0c (2015-07-29, message \"plugin: ftp: Fix cppcheck errors.\") is public and concrete: it changes `if (session_file_map.size() > 0)` to `if (!session_file_map.empty())` and the `send_any_path_command` parameter `const std::string debug_msg` to `const std::string &debug_msg` in mavros/src/plugins/ftp.cpp. No issue, reproducer, or error log exists; the only documentation is the static-analyser hygiene change itself."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "mavros (ftp plugin, FTPPlugin in mavros/src/plugins/ftp.cpp)"
+      ],
+      "interface_kind": null,
+      "evidence": "The only unit involved is the mavros FTP plugin. Both edits are inside its own logic: an emptiness test on its private `session_file_map` (`size() > 0` vs `empty()`, semantically identical) and a by-value-to-by-reference change of a debug-message parameter of its own inline helper. Neither edit changes any value, name, type, frame, unit, or timing that crosses a boundary to the FCU's FTP server or to any ROS peer; the FTP wire payload built in `send_any_path_command` is untouched. The behaviour would be the same with any correct peer, so the case stops at step 2 as `internal`."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached: no interaction between two units failed."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "Not reached: the source documents no effect on any interaction (the commit only fixes cppcheck findings)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: cppcheck hygiene change (std::map::empty() instead of size() > 0; pass debug string by const reference) inside the mavros FTP plugin; no interface element of any composition changes and no cross-unit failure is documented.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Parent revision 9990651fe1898bc32991fbacf5afab281ba211c3, single file mavros/src/plugins/ftp.cpp. The FTP plugin does talk to the FCU over MAVLink FILE_TRANSFER_PROTOCOL, but this commit does not touch that exchange."
+}

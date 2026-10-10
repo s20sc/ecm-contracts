@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-030",
+  "kind": "A1",
+  "case_id": "C3-030",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "Maintainer ayrton04: \"Regardless, this appears to be a bug. ... The GPS sensor you have is (correctly) providing nonzero covariance values in the off-diagonal positions, indicating correlation between altitude and lat/long. ... We're correctly providing measurements of 0 for the 3D variables, and we're giving tiny measurement covariance _diagonal_ values. But we also need to zero out any off-diagonal values that involve the 3D variables.\"",
+    "url": "https://github.com/cra-ros-pkg/robot_localization/issues/937#issuecomment-3205116830"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Issue body: odometry/gps messages \"which contain off-diagonal elements in positions related to the z coordinate (i.e. `cov[0,2]`; `cov[1,2]`; `cov[2,0]`; `cov[2,1]`) cause the localization to behave unpredictably eventually leading to complete divergence.\""
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PR #942 \"Fixing off-diagonal covariance values in measurement\" merged 2025-08-27, changing only src/ros_filter.cpp RosFilter::forceTwoD (adds off-diagonal covariance zeroing); reporter herolada: \"Yes, running on the same bag file it looks good, no divergence, good covariance matrix. Seems fixed, thank you!\""
+  },
+  "notes": "Independently verified: issue #937 body (two_d_mode: true, odometry/gps from navsat_transform_node, Septentrio mosaic-H, divergence quote verbatim); maintainer comment 3205116830 verbatim including the measurement covariance matrix dump and the three sentences quoted above; PR #942 title/base (jazzy-devel)/merge date and its diff confined to forceTwoD in src/ros_filter.cpp (\"// Need to eliminate any off-diagonal covariance values that invol...\" adding rows/columns zeroing for the 3D state variables); the reporter's fix-confirmation comment 3209549859 verbatim. My independent reading matches the spec: the value crossing the odometry/gps boundary is declared correct by the maintainer; the divergence arises from the EKF's own forceTwoD arithmetic mishandling a legal input (z-correlated off-diagonal covariance), which any correct peer could send — tree step 2 'wrong arithmetic the same unit consumes' → internal. The spec's considered-and-rejected alternative (an implicit no-z-correlation assumption as an interface contract) is correctly rejected: no source states such a contract for the topic, and the maintainer explicitly calls the provider correct. Ineligible stands."
+}

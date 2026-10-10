@@ -1,0 +1,20 @@
+{
+ "item_id": "A1-CAL2-08",
+ "kind": "A1",
+ "case_id": "CAL2-08",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+  "quote": "MAVLink move some of messages between dialects, that's not a problem for the protocol itself or C implementation, but for C++ it is because here i have a namespace for each dialect.",
+  "url": "https://github.com/mavlink/mavros/issues/2088"},
+ "failed_conditions": [
+  {"index": 0, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+   "quote": "/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: \u2018mavlink::common::msg::GLOBAL_POSITION_INT\u2019 has not been declared",
+   "url": "https://github.com/mavlink/mavros/issues/2088"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+  "quote": "/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: \u2018mavlink::common::msg::GLOBAL_POSITION_INT\u2019 has not been declared",
+  "url": "https://github.com/mavlink/mavros/issues/2088"},
+ "resolution": {"verdict": "agree", "proposed": null,
+  "quote": "Ah, i overlooked https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a - so, i'll release 2.14.0 today."},
+ "notes": "Verified the dialect move directly from the release tags: GLOBAL_POSITION_INT is `<message id=\"33\" name=\"GLOBAL_POSITION_INT\">` at common.xml line 5427 in release/humble/mavlink/2025.9.9-1, absent as a message definition in common.xml at 2025.12.12-1, and present at standard.xml line 115 in 2025.12.12-1. Fix commit 42d26080 changes the handler parameter from mavlink::common::msg::GLOBAL_POSITION_INT to mavlink::standard::msg::GLOBAL_POSITION_INT. Eligibility (UPGRADE, library API), class element_removed_or_renamed, loudness loud_documented/build, and resolution recommended all agree. Resolution recommended is right: the maintainer announces 2.14.0 but the thread shows only the downgrade workaround ('Yes, it works with 2025.9.9.'), not 2.14.0 building against 2025.12.12."
+}

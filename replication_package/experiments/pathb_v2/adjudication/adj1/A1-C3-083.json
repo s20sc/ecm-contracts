@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-083",
+  "kind": "A1",
+  "case_id": "C3-083",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 4,
+    "reason_code": "build",
+    "reason": "E1 does not identify a concrete malfunction: the issue requests changing a deliberate optional tracing dependency into a default. If evaluated on E2, the proposed fix declares and installs dependencies and configures tracepoint inclusion, stopping at build. It does not document an incompatible interface between tracetools and LTTng.",
+    "quote": "The main change here is to explicitly depend on/expect LTTng-UST on Linux.",
+    "url": "https://github.com/ros2/ros2_tracing/pull/31"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This LTTng dependency isn't declared. This was initially for simplicity (especially since this is a platform-specific dependency) and because of some concerns about overhead.",
+    "url": "https://github.com/ros2/ros2/issues/1177",
+    "reason": "Not applicable to this excluded feature/dependency request; absence of default instrumentation is not evidence of a silent integration defect."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This also adds a new `TRACETOOLS_TRACEPOINTS_EXCLUDED` CMake option. It allows users to keep the instrumentation calls (e.g., `rclcpp`->`tracetools`) without including the actual tracepoints.",
+    "url": "https://github.com/ros2/ros2_tracing/pull/31",
+    "reason": "Build configuration is the change domain, not a documented stage detecting an eligible failure."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The PRs have been merged, so I'm closing this.",
+    "url": "https://github.com/ros2/ros2/issues/1177#issuecomment-1496203319",
+    "reason": "The enhancement was implemented, but the eligible-case resolution field remains not applicable."
+  },
+  "notes": "Read the feature request and comments, PR 31 description and package.xml changes. E1 is the first failing eligibility gate; stop_step 4 describes the separate E2 classification as in the specification. The package diff adds liblttng-ust-dev and lttng-tools dependencies. No listed or missed failed conditions."
+}

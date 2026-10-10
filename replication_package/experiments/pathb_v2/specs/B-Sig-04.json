@@ -1,0 +1,117 @@
+{
+  "case_id": "B-Sig-04",
+  "corpus": "C2",
+  "source_refs": [
+    "https://arxiv.org/abs/2106.11266",
+    "https://git.io/JtSHb",
+    "https://git.io/JtSRt",
+    "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/blob/399e75b84fd8b78a94a01ddeb505b98bfa31d766/ros/src/Node.cc#L70",
+    "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14",
+    "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/pull/15",
+    "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/commit/0903bfa20db3b5c0df48d0c087e2f8b90d20bfdf"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The PHYSFRAME paper's motivating example (Figure 3, 'Example of incorrect transform between frames', source https://git.io/JtSHb -> orb_slam_2_ros@399e75b ros/src/Node.cc#L70, fixed source https://git.io/JtSRt -> @0903bfa) is a concrete defect, backed by the linked public issue #14 'Wrong TF between map and camera_link' with reproduction steps (\"$ roslaunch realsense2_camera rs_rgbd.launch\", \"$ roslaunch orb_slam2_ros orb_slam2_d435_rgbd.launch\") and output, and by the maintainer-merged PR #15 (lennarthaller: \"I tested it, works well! Thanks for the contribution.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "orb_slam2_ros_rgbd node (orb_slam2_ros), which publishes the map->camera_link transform on /tf",
+        "rviz, which consumes /tf (and the node's map point cloud) to display the scene"
+      ],
+      "interface_kind": "topic",
+      "evidence": "The wrong value crosses the node's output boundary: the node publishes via tf_broadcaster.sendTransform(tf::StampedTransform(transform, current_frame_time_, map_frame_id_param_, camera_frame_id_param_)) a transform built by TransformFromMat that is left in ORB's axis convention instead of ROS's. PHYSFRAME: \"This component, however, uses different conventions from ROS and hence the most important task for interfacing then is to perform appropriate frame conversions.\" The consumer sees the wrong frame (issue #14: \"It looks wrong tf between map and camera_link.\"). Not a name binding, build, or firmware change; the resolving edit is inside the provider (Node::TransformFromMat) but the frame error crosses the boundary."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the node's /tf output feeds the consumer's input; the reporter observed it with the node running and rviz using camera_link as fixed frame (\"This is the screenshot in which the camera_link is fixed frame. I can see the point cloud of the map above the camera, initially.\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect in issue #14 (\"I can see the point cloud of the map above the camera, initially.\"; \"This is initial output of 'rostopic echo tf'. I can see a twisted rotation.\") and code-level statement in PHYSFRAME (\"However, the constructed transform is problematic as it forgets to further translate back to FLU.\")."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "orb_slam2_ros_rgbd",
+      "role": "provider",
+      "repo": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros",
+      "broken_rev": "399e75b84fd8b78a94a01ddeb505b98bfa31d766",
+      "resolved_rev": "62a40b29fdd8d42222e8e051fa3a1cbbaf6073bb",
+      "pinned": true,
+      "revision_basis": "Broken: PHYSFRAME links the defective code at 399e75b8 (git.io/JtSHb); it is also PR #15's base and the master head on the issue date (2019-03-13; no commits between 2019-02-15 and 2019-03-17). Resolved: 62a40b29 is the merge of PR #15 (2019-03-18); its tree equals the PR head d33a0109 that the maintainer tested, and differs from PHYSFRAME's 'fixed source' 0903bfa2 only in code comments. The original repository appliedAI-Initiative/orb_slam_2_ros now redirects to an enterprise SSO login; appliedAI-Initiative-old/orb_slam_2_ros is the public copy holding the same commits, issue and PR.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "rviz",
+      "role": "consumer",
+      "repo": "https://github.com/ros-visualization/rviz",
+      "broken_rev": null,
+      "resolved_rev": null,
+      "pinned": false,
+      "revision_basis": "The reporter shows rviz screenshots but names neither the ROS distribution nor the rviz version; the revision is unknown. rviz is not changed by the resolution.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "topic:/tf",
+      "sides": {
+        "orb_slam2_ros_rgbd": "provides",
+        "rviz": "consumes"
+      }
+    },
+    {
+      "element": "topic:/orb_slam2_d435_rgbd/map_points",
+      "sides": {
+        "orb_slam2_ros_rgbd": "provides",
+        "rviz": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "frame_mismatch",
+      "implicated_elements": [
+        "topic:/tf"
+      ],
+      "quote": "It looks wrong tf between map and camera_link.",
+      "url": "https://github.com/appliedAI-Initiative-old/orb_slam_2_ros/issues/14"
+    },
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "topic:/tf"
+      ],
+      "quote": "Third, the transform should translate the results back to ROS’s FLU orientation. The code shown fails to accomplish the last step.",
+      "url": "https://arxiv.org/abs/2106.11266"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from tooling; the error was seen in the visualization and in echoed data: \"I can see the point cloud of the map above the camera, initially.\" and \"This is initial output of 'rostopic echo tf'. I can see a twisted rotation.\" (issue #14). PHYSFRAME detected it only by its own type checking: \"The conversion implementation, however, is incorrect, and PhysFrame catches this error by type checking.\"",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Rewrite Node::TransformFromMat: take ORB's pose matrix without transposing, convert it from ORB's axis convention to ROS's (matTrans), invert it (transpose rotation, translation = -(R*t)), then convert again to ROS's convention before publishing map->camera_link.",
+    "status": "recommended",
+    "evidence": "PR #15 (\"Modify TF based on the issue \"Wrong TF between map and camera_link #14 \".\"), merged 2019-03-18. lennarthaller: \"I tested it, works well! Thanks for the contribution.\"; tiagojdias: \"The fix proposed by @saoto28 really works.\"; reporter after merge: \"Yes.\" (issue fixed). The fix is shown working, but the consumer (rviz) revision is never identified, so the resolved composition is not identified by revision on both sides."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Choice of defect: the pointer is the whole PHYSFRAME paper; this spec takes its motivating example (Figure 3), the only defect the paper develops in the main text. Other concrete examples in its appendix, not chosen: Figure 8 redundant transform (git.io/Jt5Vs -> CARMinesDouai/MultiRobotExplorationPackages pf_local_planner.cpp#L360), Figure 9 missing frame information in a published message (git.io/JtSJv -> swri-robotics/gps_umd PR #8), Figure 10 loop in the tf tree (git.io/Jt5VB -> mavros commit 1dada7e2). Choice of composition: the frame error crosses from the node to tf consumers; an alternative reading places the mismatch at the node's use of the ORB-SLAM2 library output (api:ORB_SLAM2::System::GetCurrentPosition, which returns Tcw; saoto28: \"\"position_mat\" which is output from orb looks the map position in the camera coordinates wihich is the orb coordinate system.\"), but the library value is used as documented and the node itself does not consume the wrong result, so the node->consumer composition is the one whose interaction fails. rostopic echo also observed the wrong transform. The broken code also computed translation as R^T*t instead of -(R^T*t); the fix corrects both rotation and translation. A separate distance-scale problem in the same thread (DepthMapFactor 5000 in the wrong yaml) was a configuration error unrelated to this defect."
+}

@@ -1,0 +1,109 @@
+{
+  "case_id": "robust_7284788",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros/geometry2/issues/102",
+    "https://github.com/ros/geometry2/commit/7284788fc1646c6c6afb42bd0e50969387b4cf34",
+    "https://github.com/ros/geometry2/commit/2f5ba1db9c86043221d49d25683cb2ef82211f1e",
+    "https://github.com/ros/geometry2/issues/26",
+    "https://github.com/ros/geometry/issues/93",
+    "https://github.com/ros/geometry/commit/9624370b2327480ee429c5671455e3880825d256",
+    "https://github.com/ros/geometry/commit/db1f024f95be66cfca2081e219de944a065b4efc",
+    "https://web.archive.org/web/20231201073917/https://answers.ros.org/question/207039/tfexception-thrown-while-using-waitfortransform/",
+    "https://web.archive.org/web/20240521081019/https://answers.ros.org/question/207052/rospy-tf-waitfortransform-not-waiting/",
+    "https://answers.ros.org/question/207582/does-tflookuptransform-python-take-time-to-fire-up/",
+    "https://github.com/robust-rosin/robust/blob/master/geometry2/7284788/7284788.bug"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #102 (2015-04-21, marcoesposito1988): 'waitForTransform throws a tf.Exception if one of the frames doesn't exist yet (which is actually the point of waitForTransform). It must be a bug in TF2. When I checked out geometry 1.11.4 the bug was still there, but when I also checked out geometry-experimental 0.5.7 the bug disappeared.' with sklaw's version matrix and the maintainer's diagnosis (tfoote): 'I believe I've found the issue in this commit: https://github.com/ros/geometry_experimental/commit/2f5ba1db9c86043221d49d25683cb2ef82211f1e When running inside rospy, the roscpp client is not initialized and thus ros::ok is false.' (https://github.com/ros/geometry2/issues/102). The ROS Answers thread 207039 gives the reproducer and traceback: 'listener.waitForTransform(\"/turtle2\", \"/carrot1\", rospy.Time(), rospy.Duration(4.0))' -> 'tf.Exception' and, after a manual sleep, 'tf.Exception: Lookup would require extrapolation into the future. ... It seems that the waitForTransfrom never waits.' Fixed by 7284788 ('Fixes #102')."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "tf",
+        "tf2_ros"
+      ],
+      "interface_kind": "library API",
+      "evidence": "Step 1: the units are the tf package (repository ros/geometry; its python binding tf/src/pytf.cpp calls 't->waitForTransform(...)', and tf::Transformer::waitForTransform in tf/src/tf.cpp is 'return tf2_buffer_.canTransform(strip_leading_slash(target_frame), strip_leading_slash(source_frame), time, timeout, error_msg);' on the member 'tf2_ros::Buffer tf2_buffer_;') and the tf2_ros library (repository ros/geometry2) providing tf2_ros::Buffer; they are separately released packages. Step 2: the failure crosses the library-API boundary. The provider's timed canTransform loop gained the condition 'ros::ok()) // Make sure we haven't been stopped' in 2f5ba1db; when the consumer is a rospy process that never initialises roscpp, ros::ok() is false and the wait exits immediately, so the timeout the consumer passed is not honoured (commit 7284788: 'roscpp is not initialized inside pytf which means that ros::ok is not valid. This was causing the timer to abort immediately.'). A C++ consumer that has initialised roscpp does not fail; the failure depends on an unstated precondition of the provider's API that the consumer's process does not satisfy, i.e. wrong timing crossing the boundary, an interface failure even though the fix is inside the provider. Steps 3-5: the resolving change edits the provider's C++ loop condition, not wiring, build, or firmware. Step 6: eligible, interface kind library API."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (tf2_ros) ran at a newer revision (0.5.8/0.5.9, which contain 2f5ba1db) than the consumer's use of canTransform was written against; the consumer still calls canTransform with a timeout exactly as it did against 0.5.7, where the loop had no ros::ok() term ('while (now_fallback_to_wall() < start_time + timeout && !canTransform(target_frame, source_frame, time) && now_fallback_to_wall() >= start_time) //don't wait if time jumped backwards' at tag 0.5.7). The reporters frame it as a regression after the tf2 upgrade: 'When I checked out geometry 1.11.4 the bug was still there, but when I also checked out geometry-experimental 0.5.7 the bug disappeared.' and sklaw: 'When I used tf 1.11.6 and tf2 0.5.9, the problem showed up. And I am using tf 1.11.4 and tf2 0.5.7 now, and amazingly, the problem is gone!!!' PAIR is the alternative (sklaw also saw it with the matched releases tf 1.11.6 + tf2 0.5.9), recorded in notes."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: waitForTransform returns at once and the python caller receives 'tf.Exception' (traceback in ROS Answers 207039: 'File \".../turtle_tf_listener.py\", line 18, in <module> / listener.waitForTransform(\"/turtle2\", \"/carrot1\", rospy.Time(), rospy.Duration(4.0)) / tf.Exception') and later 'tf.Exception: Lookup would require extrapolation into the future. Requested time 1429597531.491660118 but the latest data is at time 1429597531.490922928'; issue #102: 'waitForTransform throws a tf.Exception if one of the frames doesn't exist yet'."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "tf",
+      "role": "consumer",
+      "repo": "https://github.com/ros/geometry",
+      "broken_rev": "1.11.4",
+      "resolved_rev": "1.11.4",
+      "pinned": true,
+      "revision_basis": "The reporter states 'When I checked out geometry 1.11.4 the bug was still there'; sklaw lists the failing combinations 'TF 1.11.6 with TF2 0.5.9 / TF 1.11.6 with TF2 0.5.8 / TF 1.11.4 with TF2 0.5.9 / TF 1.11.4 with TF2 0.5.8'. Tag 1.11.4 (ffadc61, 2014-12-23) of ros/geometry; at that tag tf/src/tf.cpp implements waitForTransform by calling tf2_buffer_.canTransform with the timeout and tf/src/pytf.cpp's waitForTransform calls t->waitForTransform. Unchanged by the resolution (the fix is in tf2_ros), so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "tf2_ros",
+      "role": "provider",
+      "repo": "https://github.com/ros/geometry2",
+      "broken_rev": "0.5.9",
+      "resolved_rev": "7284788fc1646c6c6afb42bd0e50969387b4cf34",
+      "pinned": true,
+      "revision_basis": "sklaw names tf2 0.5.9 and 0.5.8 as failing; 0.5.9 (dfb2c9e, 2015-03-25) was the indigo release current on the report date 2015-04-21 and is the ROBUST deps.rosinstall version ('geometry2/tf2 ... 0.5.9-0'). The ros::ok() term entered tf2_ros/src/buffer.cpp in 2f5ba1db (2015-03-11, 'break out of loop if ros is shutdown. Fixes #26'), first released in 0.5.8 (2015-03-17); at 0.5.9 both timed canTransform overloads end their while-condition with 'ros::ok()) // Make sure we haven't been stopped'. Resolved: commit 7284788 on indigo-devel (parent 3c2df0c, tag 0.5.10 state), 'do not short circuit waitForTransform timeout when running inside pytf. Fixes #102', released in 0.5.11 (2015-04-22; tfoote: 'This should be fixed in geometry_experimental 0.5.11').",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "0.5.7",
+    "resolved": "0.5.7",
+    "basis": "documented"
+  },
+  "inventory": [
+    {"element": "api:tf2_ros::Buffer", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::Buffer::canTransform", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::Buffer::lookupTransform", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::Buffer::setTransform", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::Buffer::clear", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::Buffer::allFramesAsString", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::Buffer::_allFramesAsDot", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::Buffer::setUsingDedicatedThread", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::Buffer::getCacheLength", "sides": {"tf2_ros": "provides", "tf": "consumes"}},
+    {"element": "api:tf2_ros::TransformListener", "sides": {"tf2_ros": "provides", "tf": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:tf2_ros::Buffer::canTransform"
+      ],
+      "quote": "When running inside rospy, the roscpp client is not initialized and thus ros::ok is false. I'm going to have to think about how to make this work cleanly in both roscpp and rospy. .",
+      "url": "https://github.com/ros/geometry2/issues/102#issuecomment-95081747"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No tooling diagnostic at build, connection, or activation; the effect appears only when the call runs, as an exception without a message in the consumer: 'Traceback (most recent call last): File \"/home/sklaw/Desktop/experiment/ros/indigo/tutorials_ws/src/learning_tf/nodes/turtle_tf_listener.py\", line 18, in <module> listener.waitForTransform(\"/turtle2\", \"/carrot1\", rospy.Time(), rospy.Duration(4.0)) tf.Exception' (ROS Answers 207039, archived at https://web.archive.org/web/20231201073917/https://answers.ros.org/question/207039/tfexception-thrown-while-using-waitfortransform/); Stephane Caron in 207582: 'I get a generic Exception() with no error message!'.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Commit 7284788 in tf2_ros/src/buffer.cpp: both timed canTransform loops replace the term 'ros::ok()' with '(ros::ok() || !ros::isInitialized())', so a process that never initialised roscpp (pytf under rospy) keeps waiting for the requested timeout instead of leaving the loop at once.",
+    "status": "recommended",
+    "evidence": "Diff of 7284788: '-         ros::ok()) // Make sure we haven't been stopped' / '+         (ros::ok() || !ros::isInitialized())) // Make sure we haven't been stopped (won't work for pytf)' in both overloads (https://github.com/ros/geometry2/commit/7284788fc1646c6c6afb42bd0e50969387b4cf34). tfoote closed the issue with 'This should be fixed in geometry_experimental 0.5.11' (https://github.com/ros/geometry2/issues/102#issuecomment-95297349) and updated the tf python unit test in ros/geometry (db1f024, 'update unit tests to catch https://github.com/ros/geometry_experimental/issues/102'), but no run of tf against the fixed tf2_ros is shown in the source; the only working composition shown is the downgrade tf 1.11.4 + tf2 0.5.7 (sklaw: 'tf 1.11.4 and tf2 0.5.7 is the working combination that my classmates are using.'), which is a different provider revision."
+    },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Failed-condition class: the provider's timed canTransform acquired an implicit precondition (roscpp initialised, so that ros::ok() is meaningful) that the consumer's python process does not meet; the declaration of canTransform did not change, so element_retyped does not apply, and no named class covers an added precondition, hence 'other'. consumer_built_against: the reporters document that tf 1.11.4 works against tf2 0.5.7 (released the same day, 2014-12-23) and fails against 0.5.8/0.5.9; the consumer is unchanged in the resolved composition, so its written-against provider revision stays 0.5.7 while the provider moves to 7284788. Alternative operation PAIR: sklaw also observed the failure with the matched releases tf 1.11.6 + tf2 0.5.9 (both tagged 2015-03-25), because tf's python path never initialises roscpp regardless of its own version; UPGRADE is recorded because the reporters observed and framed the failure as appearing after the tf2 upgrade and identified 0.5.7 as the last working provider revision. The ros::ok() term was itself the fix for issue #26 ('tf2_ros::Buffer::canTransform() does not abort on node shutdown'); the commit message of 7284788 records the trade-off: 'This breaks support for pytf with respect to early breaking out of a loop re #26. This is conceptually broken in pytf, and is fixed in tf2_ros python implementation.' The trac tickets and geometry issue #93 (closed in favour of #102) are the same report. The ROBUST record lists tf2_ros as the fixed package and indigo as the distro."
+}

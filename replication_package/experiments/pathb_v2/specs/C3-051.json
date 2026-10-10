@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-051",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/ros2/issues/1348",
+    "https://github.com/ros-infrastructure/ros2-cookbooks/pull/51",
+    "https://github.com/ros-infrastructure/ros2-cookbooks/pull/50"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #1348: \"An upgrade to CMake 3.25.0 on our Windows hosts has resulted in failures when building rviz_assimp_vendor on the ROS 2 CI farm.\" with a CI log excerpt: \"error MSB8066: Custom build for ... exited with code 1. [C:\\ci\\ws\\build\\rviz_assimp_vendor\\assimp-4.1.0.vcxproj]\". https://github.com/ros2/ros2/issues/1348"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": ["rviz_assimp_vendor (vendored assimp 4.1.0 build)", "CMake 3.25.0 / MSVC build toolchain on the Windows CI hosts"],
+      "interface_kind": null,
+      "evidence": "The failure is a build failure of a vendor package under a new CMake release, and the resolution is a build-infrastructure change only. ros2-cookbooks PR #51 ('Back to normal CMake installation'): \"This PR reverts https://github.com/ros-infrastructure/ros2-cookbooks/commit/3e5275fb3fccdb8c612df142d768a9f956491a11, so we can install CMake as before (version 3.25.1)\". Maintainer closing comment: \"I think that with the latest CMake 3.25.1 and our unpin, this is no longer an issue.\" No ROS interface of any unit changed."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "The failure appears when the build tool is upgraded (CMake 3.24.3 -> 3.25.0) while building rviz_assimp_vendor; this is a build-time upgrade, not a runtime composition."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed build failure in CI: \"CMake Error at C:/ci/ws/build/rviz_assimp_vendor/assimp-4.1.0-prefix/src/assimp-4.1.0-stamp/assimp-4.1.0-build-Release.cmake:49 (message): Command failed: 1\"."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build: a CMake 3.25.0 regression on Windows broke the rviz_assimp_vendor build; resolved by pinning CMake 3.24.3 (ros2-cookbooks #50) and then unpinning to CMake 3.25.1 (ros2-cookbooks #51). Build-system/tooling change only, no interface change.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "The root cause was never pinned down; a commenter suspected the MSVC ABI change noted in the CMake 3.25.1 release notes (\"There was a change for Windows users related to MSVC ABI ... That could be the culprit of this problem.\"). PR #51 merged 2022-12-16 as fe4c0f7c. ROS 2 rolling, source build, Windows."
+}

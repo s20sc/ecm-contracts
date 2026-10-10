@@ -1,0 +1,53 @@
+{
+  "case_id": "C3-009",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/1334",
+    "https://github.com/moveit/moveit2/pull/1348",
+    "https://github.com/moveit/moveit2/pull/1411",
+    "https://github.com/moveit/moveit2/pull/1422",
+    "https://github.com/moveit/moveit2/pull/1458",
+    "https://github.com/moveit/moveit2/pull/1384",
+    "https://github.com/moveit/moveit2/blob/58f3828224f051b40ce0b66d217ae4335703a5d2/moveit_ros/planning/rdf_loader/test/test_rdf_integration.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue reports an intermittent CI failure of the RDF loader integration test that the reporter could not reproduce: \"Only encountered this once, so it is difficult to say how to reproduce it. Possibly just repeated runs of CI will do it.\" (https://github.com/moveit/moveit2/issues/1334). The linked CI logs (https://github.com/ros-planning/moveit2/runs/6821795888) now return HTTP 404 via the GitHub API. The only log line quoted in the thread is from a maintainer: \"I notice in the logs \\\"terminate called without an active exception\\\" - which usually means that a std::thread went out of scope while not joined/stopped - I notice we have a std::thread in this test - but I don't actually see how it could go out of scope...\" (mikeferguson, 2022-07-01). No root cause was ever identified; maintainers closed it without a fix: \"I haven't seen this one lately. Are we still running into this? Maybe it really was an unrelated threading issue somewhere...\" and \"closing for now\" (henningkayser). The four packet fix_refs (PRs 1348, 1411, 1422, 1458) are unrelated PRs whose CI hit the flaky test; each only comments that it failed because of #1334 (e.g. PR 1458: \"CI failed because of #1334, I'm merging this\")."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "moveit_ros_planning (rdf_loader test_rdf_integration)"
+      ],
+      "interface_kind": null,
+      "evidence": "No two interacting units are named by any source. The only diagnosis offered points at the test's own std::thread object going out of scope (\"which usually means that a std::thread went out of scope while not joined/stopped - I notice we have a std::thread in this test\", https://github.com/moveit/moveit2/issues/1334#issuecomment-1171819687), i.e. a defect inside the test process. The maintainer's closing assessment is \"Maybe it really was an unrelated threading issue somewhere...\". No boundary-crossing value, frame, name or timing is documented."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No composition or operation is identified by the source; the failure is an intermittent test abort in CI."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Effect observed as a CI test failure: \"Test appears to fail inconsistently\" (https://github.com/moveit/moveit2/issues/1334)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: flaky RDF loader integration test with no identified root cause and no fix; the only diagnosis (maintainer) attributes the abort to a std::thread in the test itself going out of scope, and the issue was closed 'for now' after it stopped recurring. The packet's fix_refs are unrelated PRs whose CI hit the flaky test.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "At the failing commit 58f3828224f051b40ce0b66d217ae4335703a5d2 the test file moveit_ros/planning/rdf_loader/test/test_rdf_integration.cpp contains TEST(RDFIntegration, executor), which starts `std::thread spinning_thread([&executor] { executor.spin(); });` and then runs ASSERT_NE checks on loader.getURDF()/getSRDF() before `spinning_thread.join();`. My own inference (not stated in any source): a failed ASSERT would return before join and produce exactly the logged 'terminate called without an active exception', and the underlying assertion failure could be a timeout of the topic-based load from the test's boring_string_publisher node; since no source documents which assertion failed, I did not treat this as an interface case. The CI logs linked in the issue are no longer retrievable (HTTP 404)."
+}

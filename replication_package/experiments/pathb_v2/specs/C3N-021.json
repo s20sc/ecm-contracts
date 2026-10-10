@@ -1,0 +1,48 @@
+{
+  "case_id": "C3N-021",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/1774",
+    "https://github.com/mavlink/mavros/pull/1775",
+    "https://github.com/mavlink/mavros/commit/d959d6384b3c01e68db4886b92195529cc0f8b58",
+    "https://geographiclib.sourceforge.io/C++/doc/changes.html"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Concrete build error log: \"CMake Error at /usr/share/cmake/Modules/FindPackageHandleStandardArgs.cmake:230 (message):\\n  Could NOT find GeographicLib (missing: GeographicLib_LIBRARIES)\" with \"GeographicLib version: 2.1.1\" and \"Mavros: 1.13.0-1 / ROS: Noetic / OS: Archlinux\" (https://github.com/mavlink/mavros/issues/1774); maintainer closed it with \"Fixed by #1775.\""
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": ["mavros (with libmavconn's FindGeographicLib.cmake)", "GeographicLib"],
+      "interface_kind": null,
+      "evidence": "Step 2: not internal, the failure depends on how GeographicLib is installed. Step 3: not a deployment-time name binding. Step 4: the resolving change is build-system only. PR #1775 deletes libmavconn/cmake/Modules/FindGeographicLib.cmake (which searched \"find_library (GeographicLib_LIBRARIES NAMES Geographic)\") and adds to mavros/CMakeLists.txt \"set(CMAKE_MODULE_PATH \\\"${CMAKE_MODULE_PATH};/usr/share/cmake/geographiclib\\\")\" so that the find module shipped by GeographicLib is used. PR text: \"The `FindGeographicLib.cmake` is already shipped with the distribution through the geographiclib package, hence our custom one (which seems to fail for later geographiclib versions) is not needed anymore.\" GeographicLib's 2.0 change notes state \"Library file now called libGeographicLib.so, etc., instead of libGeographic.so.\" That is a packaging (library file name) change; no GeographicLib API used by mavros and no mavros interface changed."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stops at step 4 (build). Had it been evaluated, the setting is a consumer (mavros 1.13.0) built against a newer provider (GeographicLib 2.1.1)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 fails. (The effect is a CMake configure error.)"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 4 (build): mavros's bundled CMake find module did not locate GeographicLib 2.x after its library file was renamed; the fix only switches to the find module installed by GeographicLib and extends CMAKE_MODULE_PATH, with no interface change.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "PR #1775 merged into master (ROS 1) on 2022-08-23 as d959d6384b3c01e68db4886b92195529cc0f8b58. The reporter notes \"I this issue also affects the ros2 branch and should stay open until those commits find their way there.\" The PR body also mentions it would close #1760 on the ros2 branch; that was not followed here."
+}

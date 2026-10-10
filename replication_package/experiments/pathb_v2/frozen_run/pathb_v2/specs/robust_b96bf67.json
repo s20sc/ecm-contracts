@@ -1,0 +1,163 @@
+{
+  "case_id": "robust_b96bf67",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/536",
+    "https://github.com/mavlink/mavros/pull/537",
+    "https://github.com/mavlink/mavros/commit/b96bf672a718b9f0c9694e4314283e385ba96231",
+    "https://github.com/mavlink/mavros/blob/4f317228c5d5c5bfc96f3f0dfa692bc4b93dcc43/mavros/src/plugins/setpoint_raw.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #536 (maintainer vooon, 2016-04-29): \"[setpoint_raw] attitude_cb orientation not transformed!\" / \"@justinthomas found a bug at line 255: https://github.com/mavlink/mavros/blob/master/mavros/src/plugins/setpoint_raw.cpp#L255\". PR #537 by justinthomas (merged 2016-04-30, \"CI ok. Thank you for bug hunting!\"): \"Fixes a bug where the ned_desired_orientation was not actually passed into set_attitude_target. Instead, the desired_orientation (wrong frame) was passed.\" The single-line diff replaces `desired_orientation,` with `ned_desired_orientation,` in the `set_attitude_target(` call of `attitude_cb`. Concrete, maintainer-confirmed defect at code level; no flight log."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "mavros (mavros_node, setpoint_raw plugin)",
+        "FCU (MAVLink autopilot firmware receiving SET_ATTITUDE_TARGET)"
+      ],
+      "interface_kind": "wire protocol field",
+      "evidence": "Two separately deployed units: the mavros node and the autopilot firmware, interacting over the MAVLink SET_ATTITUDE_TARGET message that `set_attitude_target` packs with `mavlink_msg_set_attitude_target_pack_chan(UAS_PACK_CHAN(uas), &msg, time_boot_ms, UAS_PACK_TGT(uas), type_mask, q, body_rate.x(), body_rate.y(), body_rate.z(), thrust);` and sends with `UAS_FCU(uas)->send_message(&msg);`. The value in field `q` crossed that boundary in the wrong frame: at 4f31722 `attitude_cb` computes `auto ned_desired_orientation = UAS::transform_orientation_enu_ned(UAS::transform_orientation_baselink_aircraft(desired_orientation));` under the comment \"// Transform desired orientation to represent aircraft->NED, // MAVROS operates on orientation of base_link->ENU\" but then passes `desired_orientation` (base_link->ENU) to `set_attitude_target`. A wrong frame crossing the boundary is an interface failure even though the resolving edit is inside mavros (step 2 does not stop). Steps 3-5: not a name binding, not a build change, not a firmware fault. Eligible; interface kind: wire protocol field (MAVLink SET_ATTITUDE_TARGET.q)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: mavros's output message SET_ATTITUDE_TARGET feeds the FCU's attitude-setpoint input; the defect lies in that hand-off."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch by the fixer and maintainer: \"the desired_orientation (wrong frame) was passed\" (https://github.com/mavlink/mavros/pull/537) and \"attitude_cb orientation not transformed!\" (https://github.com/mavlink/mavros/issues/536). No flight or simulation effect is recorded, so the outcome class is `undocumented`."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "4f317228c5d5c5bfc96f3f0dfa692bc4b93dcc43",
+      "resolved_rev": "b96bf672a718b9f0c9694e4314283e385ba96231",
+      "pinned": true,
+      "revision_basis": "broken: the issue links master line 255 on 2016-04-29T16:51Z; the master head at that time was 4f317228c5d5c5bfc96f3f0dfa692bc4b93dcc43 (the 0.17.2 release commit, tag 0.17.2), which is also the parent of the fix and has `desired_orientation,` at line 255. resolved: the fix commit b96bf672a718b9f0c9694e4314283e385ba96231 (PR #537 head; merged into master as 832c7d2abc4475ea6c93754d004cbca047b08863 on 2016-04-30).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "FCU",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "unspecified-2016-04",
+      "resolved_rev": "unspecified-2016-04",
+      "pinned": false,
+      "revision_basis": "The source never names the autopilot, its firmware, or its version; the peer is whatever MAVLink FCU receives SET_ATTITUDE_TARGET from mavros. Its only interface statement in the source is mavros's own comment on the frame the message must carry (aircraft->NED). The resolution does not change this unit, so the same label is kept.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "msg:common/SET_ATTITUDE_TARGET",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.q",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.type_mask",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.body_roll_rate",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.body_pitch_rate",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.body_yaw_rate",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.thrust",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.time_boot_ms",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.target_system",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    },
+    {
+      "element": "field:common/SET_ATTITUDE_TARGET.target_component",
+      "sides": {
+        "mavros": "provides",
+        "FCU": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "frame_mismatch",
+      "implicated_elements": [
+        "msg:common/SET_ATTITUDE_TARGET",
+        "field:common/SET_ATTITUDE_TARGET.q"
+      ],
+      "quote": "Fixes a bug where the ned_desired_orientation was not actually passed into set_attitude_target. Instead, the desired_orientation (wrong frame) was passed.",
+      "url": "https://github.com/mavlink/mavros/pull/537"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "The defect was found by reading the code (\"@justinthomas found a bug at line 255\", https://github.com/mavlink/mavros/issues/536); no run, log, or vehicle behaviour is reported, and no MAVLink tooling checks the frame of a quaternion field.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Provider side: pass the converted quaternion to the packer, `desired_orientation,` -> `ned_desired_orientation,` in `SetpointRawPlugin::attitude_cb` (mavros/src/plugins/setpoint_raw.cpp, commit b96bf67, PR #537). The FCU is unchanged.",
+    "status": "recommended",
+    "evidence": "PR #537 was merged by the maintainer with \"CI ok. Thank you for bug hunting!\" (https://github.com/mavlink/mavros/pull/537#issuecomment-215963555); the source shows no flight or simulation with the fixed composition."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "The other composition in the chain, a user node publishing mavros_msgs/AttitudeTarget on `~setpoint_raw/attitude` (subscribed as `attitude_sub = sp_nh.subscribe(\"attitude\", 10, &SetpointRawPlugin::attitude_cb, this);`) in mavros's base_link->ENU convention, is consumed correctly by mavros (the conversion is computed) and is not a failed interaction; the defect is only in what mavros forwards to the FCU. Observation from the parent code, not documented in the source and not addressed by the fix: `attitude_cb` computes `auto body_rate = UAS::transform_frame_baselink_aircraft(baselink_angular_rate);` from an uninitialised vector and then overwrites it with `tf::vectorMsgToEigen(req->body_rate, body_rate);`, so the body rates are also sent untransformed; it is recorded here only as a note. Field names follow the MAVLink common dialect (mavros vendors mavlink_msg_set_attitude_target_pack_chan); `target_system`/`target_component` are filled by `UAS_PACK_TGT(uas)`. The FCU's identity (PX4 or APM) and version are not stated anywhere in the issue or PR."
+}

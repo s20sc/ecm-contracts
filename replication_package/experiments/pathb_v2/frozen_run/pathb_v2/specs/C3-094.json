@@ -1,0 +1,106 @@
+{
+ "case_id": "C3-094",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/RobotWebTools/rosbridge_suite/issues/1022",
+  "https://github.com/RobotWebTools/rosbridge_suite/pull/1023",
+  "https://github.com/RobotWebTools/rosbridge_suite/blob/2.2.0/rosbridge_library/src/rosbridge_library/internal/subscribers.py",
+  "https://github.com/ros/robot_state_publisher/tree/3.3.3"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Reporter gives versions (rosbridge 2.2.0, Jazzy, Ubuntu 24.04), the diagnostic \"[rosbridge_websocket]: New publisher discovered on topic '/tf', offering incompatible QoS. No messages will be received from it.\", the full `ros2 topic info /tf --v` output, and the responsible code in subscribers.py; the maintainer engages and approves the fix PR #1023, which the reporter confirms: \"Yes this change resolves my issue.\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/1022 ; https://github.com/RobotWebTools/rosbridge_suite/pull/1023"
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "rosbridge_suite",
+    "robot_state_publisher"
+   ],
+   "interface_kind": "topic",
+   "evidence": "rosbridge_websocket (rosbridge_suite) subscribes to /tf, which several separately released nodes publish. Topic info shows the rosbridge subscription with \"Durability: TRANSIENT_LOCAL\" while robot_state_publisher's /tf publisher (and the ekf_se_odom, ekf_se_map, base_link_appender publishers) offer \"Durability: VOLATILE\"; only velocity_controller (ros2_control) offers TRANSIENT_LOCAL. Reporter: \"if there is any publisher with a TRANSIENT_LOCAL durability policy, the code sets the subscriber's durability policy to TRANSIENT_LOCAL and its reliability to RELIABLE.\" The QoS mismatch crosses the topic boundary; the fix is inside rosbridge_library but changes the QoS the subscription requests. -- https://github.com/RobotWebTools/rosbridge_suite/issues/1022"
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: robot_state_publisher's /tf output feeds rosbridge_websocket's /tf subscription; the incompatibility arises because rosbridge chose its durability from a third publisher on the same topic (ros2_control's velocity_controller, TRANSIENT_LOCAL) that was active concurrently."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "\"New publisher discovered on topic '/tf', offering incompatible QoS. No messages will be received from it.\" and \"This causes the client to be unable to subscribe to the topic.\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/1022"
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "rosbridge_suite",
+   "role": "consumer",
+   "repo": "https://github.com/RobotWebTools/rosbridge_suite",
+   "broken_rev": "2.2.0",
+   "resolved_rev": "fbb0769ef0d291338ca3c2836f605f298acd1d3e",
+   "pinned": true,
+   "revision_basis": "Reporter states \"Library Version: 2.2.0\"; tag 2.2.0 (00e30e3e, 2025-02-26) contains the quoted any(...TRANSIENT_LOCAL...) logic at subscribers.py lines 123-125 and 185-186. Resolved: merge commit fbb0769e of PR #1023 into the ros2 branch (2025-04-14); the reporter's confirmation was given on the PR's final head eccbd91861f9dac9842a724ad7864992accd4212, whose subscribers.py change is the one merged.",
+   "excerpt": false,
+   "ros_distro": "jazzy"
+  },
+  {
+   "name": "robot_state_publisher",
+   "role": "provider",
+   "repo": "https://github.com/ros/robot_state_publisher",
+   "broken_rev": "3.3.3",
+   "resolved_rev": "3.3.3",
+   "pinned": true,
+   "revision_basis": "The topic info names a node \"robot_state_publisher\" publishing /tf with \"Durability: VOLATILE\"; the reporter names only the distro (Jazzy, binaries in a docker container). The Jazzy release of robot_state_publisher on the report date (2025-03-27/28) is tag 3.3.3 (e0f77e62, 2024-01-24); the jazzy branch head then, bca90e6d, differs from 3.3.3 only in CI files (.github workflow, CODEOWNERS). Inferred, not stated. Unchanged by the resolution.",
+   "excerpt": false,
+   "ros_distro": "jazzy"
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "topic:/tf",
+   "sides": {
+    "robot_state_publisher": "provides",
+    "rosbridge_suite": "consumes"
+   }
+  },
+  {
+   "element": "msg:tf2_msgs/TFMessage",
+   "sides": {
+    "robot_state_publisher": "provides",
+    "rosbridge_suite": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "qos_durability",
+   "implicated_elements": [
+    "topic:/tf"
+   ],
+   "quote": "Actually my issue is not about Reliability policy, my problem is Durability policy.",
+   "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "loud_documented",
+ "loudness_evidence": "ROS 2 incompatible-QoS event logged by the subscriber: \"[rosbridge_websocket]: New publisher discovered on topic '/tf', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY\" (issue); the same event with the durability policy reproduced in rosbridge's tests: \"New publisher discovered on topic '/a_topic', offering incompatible QoS. No messages will be received from it. Last incompatible policy: DURABILITY\" -- https://github.com/RobotWebTools/rosbridge_suite/pull/1023",
+ "detection_stage": "connect",
+ "resolution": {
+  "summary": "rosbridge_library subscribers.py requests TRANSIENT_LOCAL durability only when all (and at least one) publishers on the topic offer it: \"if len(infos) > 0 and all(pub.qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL for pub in infos):\", otherwise it keeps VOLATILE, so VOLATILE /tf publishers such as robot_state_publisher match.",
+  "status": "recommended",
+  "evidence": "Reporter, on the PR: \"Yes this change resolves my issue.\" (2025-04-14) -- https://github.com/RobotWebTools/rosbridge_suite/pull/1023. This is the reporter's same setup, but the /tf provider's revision is known only from the distro (Jazzy), not stated in the source, so the resolved composition is not identified by revision on both sides."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "The failure needs three parties on /tf: a TRANSIENT_LOCAL publisher (the reporter's velocity_controller, loaded by ros2_control's controller_manager: \"In `ros2_control`, `tf` publisher initialized with RELIABLE reliability policy and TRANSIENT_LOCAL durability policy.\") makes rosbridge request TRANSIENT_LOCAL, which then refuses the VOLATILE publishers. The reporter frames the setup as \"launching rosbridge with the Controller Manager library\", but the refused interaction (\"No messages will be received from it\") is with the VOLATILE publishers, so the spec takes rosbridge_suite<->robot_state_publisher (the one standard, separately released package among them; ekf_se_odom/ekf_se_map and base_link_appender are the others and would give the same condition). rosbridge<->controller_manager's publisher itself is QoS-compatible. The first logged warning names \"Last incompatible policy: RELIABILITY\", but the topic info shows every /tf publisher RELIABLE and the reporter disclaims reliability, so no qos_reliability condition is recorded for this composition; rosbridge 2.2.0 also forces \"qos.reliability = ReliabilityPolicy.RELIABLE\" when a TRANSIENT_LOCAL publisher is present (unchanged by the fix). A maintainer notes an earlier related change: \"This should not happen after #991 was merged\". PR #1023 also applies the same all() rule when a second client subscribes (subscribers.py subscribe())."
+}

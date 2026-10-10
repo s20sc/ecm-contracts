@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-023",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/4386",
+    "https://github.com/ros-navigation/navigation2/pull/3634",
+    "https://github.com/ros-navigation/navigation2/pull/4298"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is a maintenance reminder, not a defect report: \"In https://github.com/ros-navigation/navigation2/pull/4298 we commented out stuff from old gazebo to get CI up and running. This task is a reminder to clean those up new gazebo is up and running.\" The reporter documents no failed interaction; the agreed scope is \"grep for `gazebo_ros_pkgs` and `turtlebot3_gazebo` and make sure they are removed or replaced by their superseding package. nothing else.\" (https://github.com/ros-navigation/navigation2/issues/4386#issuecomment-2142938314). The only error log is a commenter's attempt to run the rolling simulation in docker (`PackageNotFoundError: \"package 'turtlebot3_gazebo' not found, ...\"`, https://github.com/ros-navigation/navigation2/issues/4386#issuecomment-2146211447), which the maintainer answers as a known state, not a defect: \"The system tests in rolling are commented out since we do not have a working simulation in new-gazebo yet.\" (https://github.com/ros-navigation/navigation2/issues/4386#issuecomment-2146350704). The linked PR #3634 (\"Initial support to the new Gazebo\", addressing navigation2#2997) adds new-Gazebo launch files, worlds, a bridge configuration and package dependencies; it is a feature migration, not a fix of a documented defect."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated (stopped at E1). If the commenter's PackageNotFoundError were taken as the defect, it is a dependency that is not available on Rolling (Gazebo Classic `turtlebot3_gazebo`), resolved by moving nav2_bringup to other packages and adding dependencies (PR #3634 changes nav2_bringup/package.xml and adds launch/world/bridge files); it would stop at E2 step 4 (build: dependency resolution), with no interface between two units changed."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E1)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (stopped at E1)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "no_concrete_defect",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

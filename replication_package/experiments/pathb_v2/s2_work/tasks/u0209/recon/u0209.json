@@ -1,0 +1,23 @@
+{
+  "task_id": "u0209",
+  "package": "linux-kernel",
+  "status": "evidence_inadequate",
+  "manifest_version": null,
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "notes": "\"So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_\" -- https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The excerpt reports that the provider moved the battery files from the procfs ACPI directory to the sysfs power_supply directory. That reads as a deliberate relocation on the provider side, and it would break consumers of the old paths. From this line alone I cannot tell whether the provider at this revision is defective in any listed element, or which individual files exist."
+  },
+  "confidence": "low",
+  "notes": "Excerpt-based task (artifact.txt, 1 line; no snapshot). The artifact is a second-hand prose statement, not source code or a complete definition body. It names two directories only (/proc/acpi/battery/BAT0 as the old location and /sys/class/power_supply/BAT0 as the new one). It names none of the nine packet elements individually (info, state, energy_full, energy_full_design, energy_now, power_now, present, status, voltage_now). No manifest, version, revision identifier, declaration line, type, unit, permission or recovery information appears in it. Therefore: ports is empty, because the artifact does not show that any listed file is offered at this revision. declares is empty because there is no declaration line to copy. not_declared is empty because the artifact is not a complete definition body and no snapshot was searched, even though it implies the /proc/acpi/battery/BAT0 files are no longer where they were. All nine elements are undetermined either way. Permissions and recovery are unknown because no code or configuration was available to check. definition_hash.py was not applicable because the artifact contains no .msg/.srv/.action/.idl definition."
+}

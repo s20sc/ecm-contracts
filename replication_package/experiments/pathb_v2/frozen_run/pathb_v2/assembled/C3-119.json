@@ -1,0 +1,221 @@
+{
+ "case_id": "C3-119",
+ "corpus": "C3",
+ "operation": "UPGRADE",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [],
+       "consumer_reads": [
+        "field:mavlink/HEARTBEAT.custom_mode"
+       ],
+       "semver_old": "3.6.0",
+       "semver_new": "3.7.0"
+      }
+     },
+     "provenance": {
+      "ver_delta.consumer_reads[field:mavlink/HEARTBEAT.custom_mode]": "snapshot:mavros/src/plugins/sys_status.cpp:772 | auto vehicle_mode = m_uas->str_mode_v10(hb.base_mode, hb.custom_mode); also :782 it->second.custom_mode = hb.custom_mode; and :788 it->second.mode_id = hb.custom_mode;",
+      "ver_delta.semver_old": "snapshot:ArduPlane/version.h:6 (#define FIRMWARE_VERSION 3,6,0,FIRMWARE_VERSION_TYPE_OFFICIAL); snapshot:ArduPlane/version.h:5 (#define THISFIRMWARE \"ArduPlane V3.6.0\"); no package.xml exists for ArduPlane",
+      "ver_delta.semver_new": "snapshot:ArduPlane/version.h:5-6 (#define THISFIRMWARE \"ArduPlane V3.7.0\"; #define FIRMWARE_VERSION 3,7,0,FIRMWARE_VERSION_TYPE_BETA); no package.xml exists under snapshot/ArduPlane"
+     },
+     "unknown_delta": []
+    },
+    {
+     "kind": "pair_view",
+     "element": "field:mavlink/HEARTBEAT.custom_mode",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:mavlink/HEARTBEAT.custom_mode",
+         "msg_type": "mavlink/HEARTBEAT",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": 1,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:mavlink/HEARTBEAT.custom_mode",
+         "msg_type": "mavlink/HEARTBEAT",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "field:mavlink/HEARTBEAT.custom_mode",
+       "in_role": "field:mavlink/HEARTBEAT.custom_mode"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].side": "snapshot:ArduPlane/GCS_Mavlink.cpp:15 (uint32_t custom_mode = control_mode;) and :99-102 (gcs[chan-MAVLINK_COMM_0].send_heartbeat(MAV_TYPE_FIXED_WING, base_mode, custom_mode, system_status);)",
+      "producer.outputs[0].msg_type": "snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1651-1659 (GCS_MAVLINK::send_heartbeat(...) calls mavlink_msg_heartbeat_send(chan, type, MAV_AUTOPILOT_ARDUPILOTMEGA, base_mode, custom_mode, system_status))",
+      "producer.outputs[0].frame": "snapshot:ArduPlane/GCS_Mavlink.cpp:15 (custom_mode is the enum FlightMode value control_mode; no spatial meaning)",
+      "producer.outputs[0].rate_hz": "snapshot:ArduPlane/ArduPlane.cpp:69 (SCHED_TASK(one_second_loop, 1, 400), rate in Hz per ArduPlane.cpp:27) and :303-306 (one_second_loop sends gcs_send_message(MSG_HEARTBEAT)); also ArduPlane/GCS_Mavlink.cpp:2305-2307 sends MSG_HEARTBEAT every 1000 ms in mavlink_delay_cb",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1617 (mavlink_msg_heartbeat_send(); called from snapshot:ArduPlane/GCS_Mavlink.cpp:98)",
+      "consumer.inputs[0].frame": "snapshot:mavros/include/mavros/px4_custom_mode.h:50-55 | 'PX4 custom mode ... This union decodes uint32_t HEARTBEAT.custom_mode and uint32_t SET_MODE.custom_mode.' (mode code split into main_mode/sub_mode, no spatial meaning); snapshot:mavros/src/lib/uas_stringify.cpp:26 typedef std::unordered_map<uint32_t, const std::string> cmode_map;"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "field:mavlink/SET_MODE.custom_mode",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:FlightMode",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [],
+       "consumer_reads": [
+        "field:mavlink/HEARTBEAT.custom_mode"
+       ],
+       "semver_old": "3.7.0",
+       "semver_new": "3.7.0"
+      }
+     },
+     "provenance": {
+      "ver_delta.consumer_reads[field:mavlink/HEARTBEAT.custom_mode]": "snapshot:mavros/src/plugins/sys_status.cpp:772 (auto vehicle_mode = m_uas->str_mode_v10(hb.base_mode, hb.custom_mode);), also :782 and :788",
+      "ver_delta.semver_old": "snapshot:ArduPlane/version.h:5-6 (#define THISFIRMWARE \"ArduPlane V3.7.0\"; #define FIRMWARE_VERSION 3,7,0,FIRMWARE_VERSION_TYPE_BETA); no package.xml exists under snapshot/ArduPlane",
+      "ver_delta.semver_new": "snapshot:ArduPlane/version.h:5-6 (#define THISFIRMWARE \"ArduPlane V3.7.0\"; #define FIRMWARE_VERSION 3,7,0,FIRMWARE_VERSION_TYPE_BETA); no package.xml exists under snapshot/ArduPlane"
+     },
+     "unknown_delta": []
+    },
+    {
+     "kind": "pair_view",
+     "element": "field:mavlink/HEARTBEAT.custom_mode",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:mavlink/HEARTBEAT.custom_mode",
+         "msg_type": "mavlink/HEARTBEAT",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": 1,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:mavlink/HEARTBEAT.custom_mode",
+         "msg_type": "mavlink/HEARTBEAT",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "field:mavlink/HEARTBEAT.custom_mode",
+       "in_role": "field:mavlink/HEARTBEAT.custom_mode"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].side": "snapshot:ArduPlane/GCS_Mavlink.cpp:15 (uint32_t custom_mode = control_mode;) and :99-102 (gcs[chan-MAVLINK_COMM_0].send_heartbeat(MAV_TYPE_FIXED_WING, base_mode, custom_mode, system_status);)",
+      "producer.outputs[0].msg_type": "snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1651-1659 (GCS_MAVLINK::send_heartbeat(...) calls mavlink_msg_heartbeat_send(chan, type, MAV_AUTOPILOT_ARDUPILOTMEGA, base_mode, custom_mode, system_status))",
+      "producer.outputs[0].frame": "snapshot:ArduPlane/GCS_Mavlink.cpp:15 (custom_mode is the enum FlightMode value control_mode; no spatial meaning)",
+      "producer.outputs[0].rate_hz": "snapshot:ArduPlane/ArduPlane.cpp:69 (SCHED_TASK(one_second_loop, 1, 400), rate in Hz per ArduPlane.cpp:27) and :303-306 (one_second_loop sends gcs_send_message(MSG_HEARTBEAT)); also ArduPlane/GCS_Mavlink.cpp:2305-2307 sends MSG_HEARTBEAT every 1000 ms in mavlink_delay_cb",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:libraries/GCS_MAVLink/GCS_Common.cpp:1651-1659 (GCS_MAVLINK::send_heartbeat(...) calls mavlink_msg_heartbeat_send(chan, type, MAV_AUTOPILOT_ARDUPILOTMEGA, base_mode, custom_mode, system_status))",
+      "consumer.inputs[0].frame": "snapshot:mavros/include/mavros/px4_custom_mode.h:52 (union decodes uint32_t HEARTBEAT.custom_mode into main_mode/sub_mode); snapshot:mavros/src/plugins/sys_status.cpp:772 (decoded to a mode string by str_mode_v10): a mode identifier with no spatial meaning"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "field:mavlink/SET_MODE.custom_mode",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:FlightMode",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    }
+   ]
+  }
+ }
+}

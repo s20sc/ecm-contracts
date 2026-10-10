@@ -1,0 +1,44 @@
+{
+  "item_id": "A1-robust_3e32933",
+  "kind": "A1",
+  "case_id": "robust_3e32933",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 3,
+    "reason_code": "deployment_wiring",
+    "quote": "On 3dsensor.launch, depthimage_to_laserscan looks for depth/image_raw topic, but if we are using depth_registration (the default behavior) it will not work because in this case depth image topic is depth_registered/image_raw.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/103",
+    "reason": "Agree: the OpenNI depth pipeline and depthimage_to_laserscan interact over a topic, but the complete resolving diff only changes 3dsensor.launch remaps and chooses depth versus depth_registered from depth_registration. Neither unit's declared/referenced interface changes. Stop at E2 step 3.",
+    "proposed_eligible": false,
+    "additional_evidence": [
+      {
+        "quote": "-      <remap from=\"image\" to=\"$(arg camera)/depth/image_raw\"/>\n+      <remap from=\"image\" to=\"$(arg camera)/$(arg depth)/image_raw\"/>",
+        "url": "https://github.com/turtlebot/turtlebot/commit/3e32933c829e308600707a9f971334d13d1cbe19"
+      }
+    ]
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "On 3dsensor.launch, depthimage_to_laserscan looks for depth/image_raw topic, but if we are using depth_registration (the default behavior) it will not work because in this case depth image topic is depth_registered/image_raw.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/103",
+    "reason": "Agree with the specification's null: this case remains ineligible, so this field is not evaluated. This is not a finding that no diagnostic or fix exists."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "On 3dsensor.launch, depthimage_to_laserscan looks for depth/image_raw topic, but if we are using depth_registration (the default behavior) it will not work because in this case depth image topic is depth_registered/image_raw.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/103",
+    "reason": "Agree with the specification's null: this case remains ineligible, so this field is not evaluated. This is not a finding that no diagnostic or fix exists."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "add depth argument to configure scan_processing. With this configuration scan works for both depth_regratation false and true",
+    "url": "https://github.com/turtlebot/turtlebot/commit/3e32933c829e308600707a9f971334d13d1cbe19",
+    "reason": "Agree with the specification's null: this case remains ineligible, so this field is not evaluated. This is not a finding that no diagnostic or fix exists."
+  },
+  "notes": "Failure to receive depth images is documented, but conditions/loudness/stage/resolution remain null under the ineligible-case schema. The linked OpenNI driver report about no depth images is a separate problem, not evidence for an additional condition of this remapping defect."
+}

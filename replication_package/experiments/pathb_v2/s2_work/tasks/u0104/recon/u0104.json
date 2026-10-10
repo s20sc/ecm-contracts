@@ -1,0 +1,129 @@
+{
+  "task_id": "u0104",
+  "package": "robot_state_publisher",
+  "manifest_version": "1.10.4",
+  "ports": [
+    {
+      "element": "field:sensor_msgs/JointState.header.stamp",
+      "side": "consumes",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:sensor_msgs/JointState.name",
+      "side": "consumes",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:sensor_msgs/JointState.position",
+      "side": "consumes",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:sensor_msgs/JointState",
+      "side": "consumes",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/joint_states",
+      "side": "consumes",
+      "msg_type": "sensor_msgs/JointState",
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "topic:joint_states",
+    "msg:sensor_msgs/JointState",
+    "field:sensor_msgs/JointState.header.stamp",
+    "field:sensor_msgs/JointState.name",
+    "field:sensor_msgs/JointState.position"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "when ros::Time::now() is earlier than the previous callback time (clock moved backwards), last_publish_time_ is cleared to force re-publishing of joint transforms"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:package.xml:3",
+    "ports[0].msg_type": "snapshot:include/robot_state_publisher/joint_state_listener.h:50",
+    "ports[0].frame": "snapshot:src/joint_state_listener.cpp:111 (header.stamp used only as a time value: compared with last_published + publish_interval_, and passed as the tf stamp at line 124)",
+    "ports[1].msg_type": "snapshot:include/robot_state_publisher/joint_state_listener.h:50",
+    "ports[1].frame": "snapshot:src/joint_state_listener.cpp:115 (name[i] used only as a string key of joint_positions)",
+    "ports[2].msg_type": "snapshot:include/robot_state_publisher/joint_state_listener.h:50",
+    "ports[3].msg_type": "snapshot:include/robot_state_publisher/joint_state_listener.h:43",
+    "ports[4].msg_type": "snapshot:src/joint_state_listener.cpp:66 (subscribe with callbackJointState(const JointStateConstPtr&), JointStateConstPtr = boost::shared_ptr<sensor_msgs::JointState const> at include/robot_state_publisher/joint_state_listener.h:50)",
+    "references[topic:joint_states]": "snapshot:src/joint_state_listener.cpp:66",
+    "references[msg:sensor_msgs/JointState]": "snapshot:include/robot_state_publisher/joint_state_listener.h:50",
+    "references[field:sensor_msgs/JointState.header.stamp]": "snapshot:src/joint_state_listener.cpp:111",
+    "references[field:sensor_msgs/JointState.name]": "snapshot:src/joint_state_listener.cpp:85",
+    "references[field:sensor_msgs/JointState.position]": "snapshot:src/joint_state_listener.cpp:85",
+    "perm_requires.state": "searched all 21 snapshot files (src/, include/, test/, package.xml, CMakeLists.txt, doc.dox); no permission declarations",
+    "perm_grants.state": "searched all 21 snapshot files (src/, include/, test/, package.xml, CMakeLists.txt, doc.dox); no permission declarations",
+    "recovery.state": "snapshot:src/joint_state_listener.cpp:92",
+    "recovery.value": "snapshot:src/joint_state_listener.cpp:92-96"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All five elements are consumed and the code uses them consistently with the JointState fields it names; two strict preconditions stand out but may be intended: a message whose position array differs in length from name (for example an empty position array, which the JointState convention allows) is rejected with ROS_ERROR, and a message whose header.stamp is left at zero never passes the publish check for joints seen for the first time."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 node: all QoS fields null. All five packet elements are consumed, so declares and not_declared are empty. The subscription is n.subscribe(\"joint_states\", 1, ...) on a public NodeHandle: the name is relative and resolves to /joint_states only when the node runs in the root namespace; it is recorded verbatim in references as topic:joint_states. Queue size 1. definition_id is null for every port: ros_distro is null in the packet, so no release tag of sensor_msgs is defined from which the dependency definition could be fetched, and the snapshot contains no .msg/.srv/.action/.idl files. For the same reason units are null (the code states no units for position; values are passed to KDL Segment::pose(q) at src/robot_state_publisher.cpp:95). Frames: the code never reads header.frame_id; tf frames come from URDF link names resolved with tf_prefix (src/robot_state_publisher.cpp:96-97), so frame is null for the topic, msg and position ports; header.stamp and name have no spatial meaning (none). Input handling: messages with name.size() != position.size() are dropped with ROS_ERROR (src/joint_state_listener.cpp:85-88); a message is processed only if header.stamp >= least-recent per-joint publish time + publish_interval_ (line 111), and header.stamp is used as the stamp of the published transforms (line 124 -> src/robot_state_publisher.cpp:89). rate_hz/min_rate_hz null: the only rate set is the private param publish_frequency (default 50.0, line 58), which throttles tf output and drives the fixed-joint timer, not a rate on the joint_states port. Other non-packet interface seen: params ~publish_frequency (double, default 50.0), tf_prefix (searchParam, default \"\"), robot_description (urdf::Model::initParam, line 152); tf output via tf::TransformBroadcaster. Two executables (robot_state_publisher and deprecated state_publisher) are built from the same source (CMakeLists.txt:25-30). Test code (test/test_one_link.cpp:83, test/test_two_links_moving_joint.cpp:83) advertises joint_states as a test driver; not part of the node's runtime interface. No exclusive resources found."
+}

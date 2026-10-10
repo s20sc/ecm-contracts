@@ -1,0 +1,10 @@
+{"item_id": "P-u0136-3", "kind": "P", "task_id": "u0136", "element": "topic:/mavros/setpoint_velocity/cmd_vel", "side": "consumes",
+ "values": [
+  {"field": "msg_type", "recorded": "geometry_msgs/TwistStamped", "verdict": "verified",
+   "source_excerpt": "setpoint_velocity.cpp:44: vel_sub = sp_nh.subscribe(\"cmd_vel\", 10, &SetpointVelocityPlugin::vel_cb, this); ; setpoint_velocity.cpp:86: void vel_cb(const geometry_msgs::TwistStamped::ConstPtr &req) {",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "ENU", "verdict": "verified",
+   "source_excerpt": "setpoint_velocity.cpp:63: * @warning Send only VX VY VZ. ENU frame.",
+   "qos_basis": null}
+ ],
+ "notes": "Snapshot read through symlink. msg_type: line 44 subscribes \"cmd_vel\" with vel_cb; the callback signature at line 86 states the type geometry_msgs::TwistStamped — canonical spelling geometry_msgs/TwistStamped allowed. frame: line 63 comment states 'ENU frame.' verbatim for the velocity setpoint; corroborated by lines 72-76 (UAS::transform_frame_enu_ned at 72-73, MAV_FRAME_LOCAL_NED at 76) and vel_cb lines 86-92, which never reads req->header.frame_id and names the vector vel_enu (line 87) — the topic's velocities are interpreted in ENU."}

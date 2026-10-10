@@ -1,0 +1,39 @@
+{
+  "task_id": "u0060",
+  "package": "cmd_vel_mux",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "topic:cmd_vel_mux/auto_docking",
+      "side": "consumes",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": ["topic:cmd_vel_mux/output"],
+  "references": ["param:cmd_vel_mux/subscribers_cfg_file"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "ports[0].msg_type": "snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:118 | nh.subscribe<geometry_msgs::Twist>(cmd_vel_sub[i].topic, 10, CmdVelFunctor(i, this));",
+    "not_declared[topic:cmd_vel_mux/output]": "Searched all 45 snapshot files (grep -rn -i for output, mux_cmd_vel, advertise, auto_docking, yaml_cfg_file). The only publishers are snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:129 | mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"mux_cmd_vel\", 10); and snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:130 | allowed_sub_pub = nh.advertise <std_msgs::String> (\"allowed_cmd_vel\", 1, true); // latched topic. The example launcher remaps to a different name: snapshot:cmd_vel_mux/launch/example.launch:12 | <remap from=\"cmd_vel_mux/mux_cmd_vel\" to=\"cmd_vel_mux/output/cmd_vel\"/>. No file names a topic cmd_vel_mux/output.",
+    "references[param:cmd_vel_mux/subscribers_cfg_file]": "snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:96 | nh.getParam(\"subscribers_cfg_file\", subscribers_cfg_file); (nh is the nodelet private handle, snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:158 | if (cvm_->init(this->getPrivateNodeHandle())); nodelet named cmd_vel_mux in snapshot:cmd_vel_mux/launch/example.launch:10, param set at :11 | <param name=\"subscribers_cfg_file\" value=\"$(find cmd_vel_mux)/param/example.yaml\"/>)",
+    "perm_requires.state": "Checked all cmd_vel_mux sources, headers, launch, param yaml, cfg/Reload.cfg, manifest.xml and plugins/nodelet_plugins.xml: no permission or capability requirement declared.",
+    "perm_grants.state": "Same files checked: no permission grant declared.",
+    "recovery.state": "Same files checked: no declared recovery behaviour. Only an inactivity timer that releases control (snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:67-75 | cmd_vel_sub.allowed = VACANT; ... acv_msg->data = \"idle\";); no fallback command is published and init failures return false without retry (lines 101-112)."
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "At this revision the package publishes its multiplexed output as mux_cmd_vel and reads its configuration path from subscribers_cfg_file. It neither publishes cmd_vel_mux/output nor reads yaml_cfg_file. A peer that sets yaml_cfg_file would leave subscribers_cfg_file empty, so configure() throws FileNotFoundException, init() returns false and no input topic (auto_docking included) is subscribed; a peer listening on cmd_vel_mux/output would receive nothing."
+  },
+  "confidence": "medium",
+  "notes": "ROS 1 rosbuild package (manifest.xml without a version field; the stack CMakeLists.txt:17 has rosbuild_make_distribution(0.1.1), which is the stack's distribution version, not a package manifest version, so manifest_version is null). All topics and params are resolved against the nodelet's private node handle; the node name cmd_vel_mux comes from launch/example.launch, not from code. Input topics: names are read at run time from the YAML file's subscribers[i].topic entries and subscribed as geometry_msgs/Twist with queue size 10 (cmd_vel_mux_nodelet.cpp:115-118). No snapshot YAML names auto_docking (example.yaml lists default/cmd_vel, navigation/cmd_vel, joystick/cmd_vel, remote/cmd_vel, webapp/cmd_vel, keyop/cmd_vel; reconfigure.yaml lists default/cmd_vel, navigation/cmd_vel, safety/cmd_vel), so topic:cmd_vel_mux/auto_docking is in neither declares/not_declared nor references: its name would be supplied at run time. The port for it records only what the code fixes for every configured input: type geometry_msgs/Twist; the per-input timeout (the only rate-like setting) also comes from the run-time YAML, so rate fields are null. param:cmd_vel_mux/yaml_cfg_file: no file in the snapshot names yaml_cfg_file; the code reads subscribers_cfg_file instead (recorded in references), so no port is recorded for yaml_cfg_file. cfg/Reload.cfg also declares a dynamic_reconfigure parameter subscribers_cfg_file (str_t, default \"\"), but the reconfigure callback only prints \"Load configuration\" (cmd_vel_mux_nodelet.hpp:59-61). Other outputs not in the packet: allowed_cmd_vel (std_msgs/String, latched). Frame and units are null: geometry_msgs/Twist carries no header, the code hard-codes no frame and states no units. QoS is null throughout (ROS 1). definition_id is null: ros_distro is null, so no release tag exists from which to fetch geometry_msgs definitions, and geometry_msgs is not in the snapshot. No exclusive resources are claimed."
+}

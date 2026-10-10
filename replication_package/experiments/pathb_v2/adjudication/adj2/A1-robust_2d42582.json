@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-robust_2d42582",
+ "kind": "A1",
+ "case_id": "robust_2d42582",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "The position limits for `joint_s`, `joint_r` and `joint_t` are specified as `(-)3.1416` for the SIA20 in [sia20d_macro.xacro](https://github.com/ros-industrial/motoman/blob/e2384f02d926da5b9716fdf915783af31962138c/motoman_sia20d_support/urdf/sia20d_macro.xacro), which is incorrect",
+  "url": "https://github.com/ros-industrial/motoman/issues/102"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "It would appear the values in the urdf are _rounded up_, while they should'be been either _floored_ or written out with more digits.",
+   "url": "https://github.com/ros-industrial/motoman/issues/102"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "MoveIt exploited the tiny bit of extra space, while the robot (correctly) returned an error, refusing to complete the motion.",
+  "url": "https://github.com/ros-industrial/motoman/issues/102"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "This floors PI, instead of rounding. This makes the joint limits slightly\nstricter than what is specced, but will avoid OOB errors on the controller.",
+  "url": "https://github.com/ros-industrial/motoman/commit/2d42582c692191f67f1e986467822fcd3b3935b9"
+ },
+ "notes": "Independently re-decided and agree. E1: issue #102 (gavanderhoorn, 2016-07-13, on behalf of jettan and mbharatheesha) names the concrete defect, the observed effect, and is closed by the maintainer with 'Fixed in 2d42582.' (comment 2016-08-29T11:20:22Z, read in the comment thread). E2 stop 6: motoman_sia20d_support (provider of robot_description) and moveit_ros_move_group (consumer planner) are separate packages/processes; the wrong limit value (3.1416 > pi) crosses the parameter boundary into the planner, which trusts it -- verified on the broken side at e2384f02 (sia20d_macro.xacro line 143 joint_s, line 171 joint_r, line 185 joint_t all '<limit lower=\"-3.1416\" upper=\"3.1416\" ... />') and on the resolved side in commit 2d42582's hunks ('-    <limit effort=\"100\" lower=\"-3.1416\" upper=\"3.1416\" velocity=\"2.26\"/>' '+    <limit effort=\"100\" lower=\"-3.1415\" upper=\"3.1415\" velocity=\"2.2689\"/>'); the fix changes data content, not name binding (step 3), not build-only (step 4), not firmware (step 5). Condition class 'other' agree: a wrong numeric limit value carried in a parameter fits none of the named classes (unit_mismatch is about measurement units); implicated element param:/robot_description agree (the inventory's only element; the limits ride inside it). E3 PAIR agree. E4 agree (observed effect quoted above, gavanderhoorn comment 2016-07-13T07:08:07Z). Loudness silent_documented / detection_stage run agree: the description loads and MoveIt plans normally; the failure surfaced only at execution when the controller refused -- an error returned by the robot controller during execution, not a tooling diagnostic at build, connection, or activation. Resolution recommended agree: the commit ('sia20d: fix joint limits S, R & T. Fix #102.' with the quoted rationale) is merged via PR #109 and the issue closed, but no source shows MoveIt planning against the corrected model or the robot accepting a near-limit motion afterwards, so the resolved composition is not observed. The spec's notes correctly scope the case to joint_s/r/t (the commit also floors other joints' limits and velocities) and to this composition (sister issue #104/SIA10 in the parent commit)."
+}

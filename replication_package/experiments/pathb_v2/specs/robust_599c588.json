@@ -1,0 +1,136 @@
+{
+  "case_id": "robust_599c588",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/625",
+    "https://github.com/mavlink/mavros/commit/599c5887ad2aadc124d7e1354f3a1597402118da",
+    "https://github.com/mavlink/mavros/blob/cafb05e79697fc8f1cb889ffac9e5b9d68183460/mavros/src/plugins/sys_status.cpp#L951",
+    "https://github.com/mavlink/mavros/blob/cafb05e79697fc8f1cb889ffac9e5b9d68183460/mavros_msgs/srv/SetMode.srv"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #625 (tfoote, 2016-11-08): \"I was just debugging a script for controlling a vehicle and was having trouble with sequencing. And I found that the set_mode service always returns true whether or not the state transtion was accepted.\" with a link to sys_status.cpp line 951 at commit cafb05e. Maintainer confirmation (vooon, 2016-11-08): \"Yes, for some reasons `success` only show mode parsing status\". Fix commit 599c588 (2017-06-28) \"msgs fix #625: Rename SetMode.Response.success to mode_sent\" closes the issue."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "mavros (mavros_node, sys_status plugin; provider of the set_mode service)",
+        "vehicle-control script (the reporter's ROS node calling set_mode)"
+      ],
+      "interface_kind": "service",
+      "evidence": "Two separately deployable units: the mavros node (advertises `nh.advertiseService(\"set_mode\", &SystemStatusPlugin::set_mode_cb, this)` on a private handle `nh(\"~\")`, sys_status.cpp lines 407/471 at cafb05e) and the reporter's control script, a separate process that only reaches mavros through that ROS service. The failure depends on an assumption between them about the meaning of the response field: the consumer reads `success` as \"the mode change was accepted\" (\"I expect the service to return true if the SetMode service succeeded, else false. (As the name \\\"success\\\" implies.)\"), while the provider sets it after parsing and sending only (`UAS_FCU(m_uas)->send_message_ignore_drop(sm); res.success = true; return true;`, sys_status.cpp at cafb05e). A wrong value crossing the service boundary is an interface failure even though the resolving edit is on the provider side (step 2 does not stop). Step 3: the resolution changes the service definition (`bool success` -> `bool mode_sent`), not deployment names. Step 4: not a build change. Step 5: not firmware. Eligible; interface kind: service."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the provider's service response (`SetMode.Response.success`) feeds the consumer's sequencing decision; the failure was observed while the script called the service at run time."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Effect observed by the reporter: \"was having trouble with sequencing\" and \"the set_mode service always returns true whether or not the state transtion was accepted. It might fail if the state is invalid but doesn't fail otherwise.\" Maintainer's code-level statement of the mismatch: \"`success` only show mode parsing status\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "cafb05e79697fc8f1cb889ffac9e5b9d68183460",
+      "resolved_rev": "599c5887ad2aadc124d7e1354f3a1597402118da",
+      "pinned": true,
+      "revision_basis": "broken: the reporter links the offending line to blob cafb05e79697fc8f1cb889ffac9e5b9d68183460 (mavros 0.18.3, merge of PR #596, 2016-09-10), so the composition is pinned to the revision the reporter inspected; the reporter does not state the installed release. resolved: the fix commit 599c5887ad2aadc124d7e1354f3a1597402118da (mavros 0.19.0 package version) that renames the field and updates mavros's own scripts.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "vehicle-control script",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2016-11",
+      "resolved_rev": "as-reported-2016-11",
+      "pinned": false,
+      "revision_basis": "The reporter's script is not public; its interface use is known only from the issue text (it calls the set_mode service and reads the response's `success` flag as the outcome of the mode change). No revised version of the script is shown, so the unit keeps its reported label; in the recommended resolved composition the script would have to read `mode_sent` and monitor `~state` (see resolution), which the source does not show.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "service:/mavros/set_mode",
+      "sides": {
+        "mavros": "provides",
+        "vehicle-control script": "consumes"
+      }
+    },
+    {
+      "element": "msg:mavros_msgs/SetMode",
+      "sides": {
+        "mavros": "provides",
+        "vehicle-control script": "consumes"
+      }
+    },
+    {
+      "element": "field:mavros_msgs/SetMode.custom_mode",
+      "sides": {
+        "vehicle-control script": "provides",
+        "mavros": "consumes"
+      }
+    },
+    {
+      "element": "field:mavros_msgs/SetMode.base_mode",
+      "sides": {
+        "vehicle-control script": "provides",
+        "mavros": "consumes"
+      }
+    },
+    {
+      "element": "field:mavros_msgs/SetMode.success",
+      "sides": {
+        "mavros": "provides",
+        "vehicle-control script": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "service:/mavros/set_mode",
+        "field:mavros_msgs/SetMode.success"
+      ],
+      "quote": "I found that the set_mode service [always returns true](https://github.com/mavlink/mavros/blob/cafb05e79697fc8f1cb889ffac9e5b9d68183460/mavros/src/plugins/sys_status.cpp#L951) whether or not the state transtion was accepted. \n\nIt might fail if the state is invalid but doesn't fail otherwise.",
+      "url": "https://github.com/mavlink/mavros/issues/625"
+    },
+    {
+      "class": "other",
+      "implicated_elements": [
+        "field:mavros_msgs/SetMode.success"
+      ],
+      "quote": "Yes, for some reasons `success` only show mode parsing status ([it may be one from list](https://github.com/mavlink/mavros/blob/cafb05e79697fc8f1cb889ffac9e5b9d68183460/mavros/src/lib/uas_stringify.cpp#L32), or numeric).\nUnfortunately there are no reliable method to wait AP response.",
+      "url": "https://github.com/mavlink/mavros/issues/625#issuecomment-259057790"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from any tooling: the service call succeeds and returns a value; the reporter discovered the mismatch while \"debugging a script for controlling a vehicle and was having trouble with sequencing\" (https://github.com/mavlink/mavros/issues/625).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Provider side: rename the response field so that its name states its actual semantics, `bool success` -> `bool mode_sent\t\t# Mode known/parsed correctly and SET_MODE are sent` in mavros_msgs/srv/SetMode.srv, with `res.success` -> `res.mode_sent` in sys_status.cpp and `ret.success` -> `ret.mode_sent` in mavros's own scripts mavsys and mavsetp (commit 599c588). Consumer side (recommended by the maintainer, not shown): subscribe to `~state` and wait for the mode to change after calling `~set_mode`.",
+    "status": "recommended",
+    "evidence": "The fix commit closes the issue but the reporter's composition is never shown working; the service still cannot report whether the FCU accepted the mode (vooon: \"Unfortunately there are no reliable method to wait AP response.\" and \"So you should implement mode monitoring in your node: a. Subscribe to `~state` and check mode ... b. Call `~set_mode` and wait mode change.\", https://github.com/mavlink/mavros/issues/625#issuecomment-259057790; vooon 2017-04-14: \"Perhaps better to rename that flag to something like `parsing_ok`.\", https://github.com/mavlink/mavros/issues/625#issuecomment-294146112). The reporter's reply to the workaround: \"Well the suggestions are ways you can work around it and use other mechanisms. They're not a solution for the underlying problem.\" (https://github.com/mavlink/mavros/issues/625#issuecomment-291645924)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Service name: advertised as `set_mode` on the plugin's private NodeHandle `nh(\"~\")`, i.e. `~set_mode`; written here as `service:/mavros/set_mode` for the conventional `mavros` node namespace (the issue itself says only \"the set_mode service\"). Class `other` because the definition, type, and name matched on both sides; the mismatch is in the meaning of the value carried by `SetMode.Response.success` (provider: parse-and-send status; consumer: mode-change outcome). The resolution renames a field of a released service definition, so any consumer built against mavros <= 0.18.x that reads `.success` (like the pre-fix mavsys/mavsetp scripts) forms a separate UPGRADE composition with element_removed_or_renamed/definition_mismatch against mavros >= 0.19.0; that composition is not this case. The mavros-owned scripts mavros/scripts/mavsys and mavros/scripts/mavsetp are public consumers of the same service that the fix updated, but the reporter's failing composition was their own script, so the packet is specified against that script. Mavros's onward SET_MODE MAVLink message to the FCU is a third composition (mavros -> FCU) whose acceptance is what the reporter wanted reflected; it is not a failed interaction here."
+}

@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-robust_9c8abeb",
+  "kind": "A1",
+  "case_id": "robust_9c8abeb",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Building kobuki_gazebo_plugins fails with boost 1.54",
+    "url": "https://github.com/yujinrobot-release/kobuki_desktop-release/issues/1",
+    "reason": "An independently released library removes an API still used by the plugin. Updating the consumer call sites changes its referenced API, so build-time detection does not make this a build-system-only exclusion. UPGRADE and E1-E4 are supported."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  cliff_sensor_left_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n+  cliff_sensor_left_ = boost::dynamic_pointer_cast<sensors::RaySensor>(",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/commit/9c8abeb81acb2d18a086ac18cd88a8cf6dd9e200",
+      "reason": "The complete diff makes the same removed-symbol replacement at all five sensor casts. The multiple compiler errors are consequences of the same removed API, not independent failed conditions."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": " error: ‘shared_dynamic_cast’ is not a member of ‘boost’",
+    "url": "https://github.com/yujinrobot-release/kobuki_desktop-release/issues/1"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "8 warnings and 10 errors generated.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/27"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Running the `sed` script in the above linked issue solved the problem for me.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/27#issuecomment-40991882",
+    "reason": "That observed success is for the reporter using Boost 1.55.0 and a manually patched hydro checkout, not the specified Boost 1.54.0/fix-commit pair. The specified resolution remains recommended."
+  },
+  "notes": "Read issues #25 and #27, release issue #1, PR #26 and their comments, and the fix diff. The #27 diagnostic is supporting evidence from a different Boost version; the release issue directly supports the specified 1.54 failure. No missing condition is established by secondary parser errors or unrelated release PR #28."
+}

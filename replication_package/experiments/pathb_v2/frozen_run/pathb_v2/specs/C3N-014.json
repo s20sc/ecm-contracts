@@ -1,0 +1,46 @@
+{
+  "case_id": "C3N-014",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/376",
+    "https://github.com/ros-controls/ros2_controllers/pull/377"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #376 gives reproduction steps (clone ros2_controllers and realtime_tools, colcon build) and the compiler error \"fatal error: realtime_tools/realtime_publisher.h: No such file or directory\"; a second user hit it (\"I've just stumbled upon this bug\"); PR #377 was merged into foxy (0d22408e, 2022-07-06) and a maintainer closed the issue: \"Fixed with #377\"."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": ["joint_state_broadcaster", "joint_state_controller"],
+      "interface_kind": null,
+      "evidence": "joint_state_controller includes joint_state_broadcaster.hpp, which includes \"realtime_tools/realtime_publisher.h\", but joint_state_broadcaster did not export its realtime_tools dependency, so the include path was missing when building joint_state_controller. The resolving change is a single line in joint_state_broadcaster/CMakeLists.txt adding realtime_tools to ament_export_dependencies(...); no declared or referenced interface (header, API, message) changed. Build-system/dependency-export change only."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated; ineligible at E2 step 4."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed build failure of joint_state_controller with the missing-header compiler error."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 4 (build): missing ament_export_dependencies entry for realtime_tools in joint_state_broadcaster; the fix is a CMake export-dependency line with no interface change.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Foxy only; per a commenter, \"There are no build problems for galactic due to `joint_state_controller` being removed from galactic onward.\""
+}

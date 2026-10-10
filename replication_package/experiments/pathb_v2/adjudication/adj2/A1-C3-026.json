@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3-026",
+ "kind": "A1",
+ "case_id": "C3-026",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Using `pilz_industrial_motion_planner` to generate a motionsequence with a blend radius generates (multiple) points with the same value for `RobotTrajectory.joint_trajectory.points[].time_from_start`.",
+  "url": "https://github.com/moveit/moveit2/issues/2741"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "Using `pilz_industrial_motion_planner` to generate a motionsequence with a blend radius generates (multiple) points with the same value for `RobotTrajectory.joint_trajectory.points[].time_from_start`. Looks like it generates two pairs of wrong points per point with a blend.",
+   "url": "https://github.com/moveit/moveit2/issues/2741"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "[ros2_control_node-5] [ERROR] [1710412387.951283595] [panda_arm_controller]: Time between points 122 and 123 is not strictly increasing, it is 12.200000 and 12.200000 respectively\n...\n[move_group-4] [ERROR] ... Goal was rejected by server",
+  "url": "https://github.com/moveit/moveit2/issues/2741"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "I was unable to test https://github.com/moveit/moveit2_tutorials/pull/917 successfully on Rolling/main because there was an issue with sending duplicate time points to joint trajectory controllers with the Pilz move group sequence capability.\n\nThis PR fixes that, but I am not entirely sure this is the most efficient fix, as it would be preferable to package the trajectory correctly in the first place. But... this works."
+ },
+ "notes": "Independently verified this session via gh api. Issue 2741 body (TheSpeedM, 2024-03-14) verified: title, full reproducer (panda demo.launch.py + MoveGroupSequence Python client), 'ROS Distro: Iron', 'Build from source following [Getting Started] ..., must be v2.9.0 then.', and the console log lines verbatim: '[panda_arm_controller]: Time between points 122 and 123 is not strictly increasing, it is 12.200000 and 12.200000 respectively', '[move_group-4] [WARN] ... Goal request rejected', '[move_group-4] [ERROR] ... Goal was rejected by server', 'Completed trajectory execution with status ABORTED ...'; the E3 quote 'Generates the points and sends them to executor, but that throws an error.' and commenter quote 'the robot moves in an abrupt and jittery way when transitioning' (id 2006553397) also verified. PR 2943 'Deduplicate joint trajectory points in Pilz Move Group Sequence capability' verified: body contains 'Closes https://github.com/moveit/moveit2/issues/2741' and the quoted workaround testimony; merged 2024-08-02 as 955f308f166b07b9c1a4fbf34bab922a9968ee0b; its diff contains the code comment 'This is necessary since some controllers do not allow times that are not monotonically increasing.' as the spec's resolution summary states. Issue 2945 body verified verbatim: 'In https://github.com/moveit/moveit2/pull/2943, I submitted a band-aid fix for the Pilz motion sequence action server to de-duplicate trajectory time points due to requirements on the `ros2_controllers` Joint Trajectory Controller.' Backport merges verified: PR 2961 'Fix Pilz blending times... the right way' merged 2024-08-11 as 4fad0d0de6b2b5b17ecdca21923203d2b902369c, PR 3001 (iron) merged 2024-10-29 as b98ca87365d93a933acd1cb5a3a2fbfd330b6214, PR 3000 (humble) merged 2024-09-15 as ccf7e5c461e3be0b9c805ce593b18cd11871c435. ros2_controllers joint_trajectory_controller.cpp at 32757e1c8ca5934118d2fd3e0609ab48a3036984 read directly: lines 1417-1421 contain the RCLCPP_ERROR 'Time between points %zu and %zu is not strictly increasing, it is %f and %f respectively', the exact check that produced the logged error. Eligibility stop 6 (duplicate time_from_start crossing the action-goal boundary between separately released packages), class 'other' (value constraint on a field; no named class fits) with time_from_start + the action implicated, loud_documented/run (runtime-enforced goal rejection by the controller's validation), and recommended (fix shown working only in the author's Rolling/main composition, never in the reporter's Iron composition) all verified correct."
+}

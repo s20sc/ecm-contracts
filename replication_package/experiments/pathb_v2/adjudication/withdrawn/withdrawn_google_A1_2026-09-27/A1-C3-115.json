@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-C3-115",
+  "kind": "A1",
+  "case_id": "C3-115",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The `bt_navigator` gets a `Failed to get result for compute_path_to_pose in node halt!` or a `Failed to get result for follow_path in node halt!` error, and the `controller_server` keeps on trying to follow the last received path.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4659"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[bt_navigator-12] [WARN]: Timed out while waiting for action server to acknowledge goal request for follow_path",
+      "url": "https://github.com/ros-navigation/navigation2/issues/4659"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[bt_navigator-12] [ERROR]: Failed to get result for follow_path in node halt!",
+      "url": "https://github.com/ros-navigation/navigation2/issues/4659"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "the `controller_server` keeps on trying to follow the last received path.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4659"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Increasing `default_server_timeout` from 30 to even ~50ms solves this issue."
+  },
+  "notes": "Agree with all fields. BtActionNode timing out when waiting for action server goal ACK or cancel result led to desynchronization where controller_server continued executing un-halted path."
+}

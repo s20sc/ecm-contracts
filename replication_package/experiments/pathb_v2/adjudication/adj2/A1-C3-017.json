@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3-017",
+ "kind": "A1",
+ "case_id": "C3-017",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "`ros2 topic echo /statistics` fails with the following error:\n\n```\nUnable to convert call argument to Python object (compile in debug mode for details)\n```",
+  "url": "https://github.com/ros2/ros2/issues/1341"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "statistics include `NaN` data in the message, when it is being converted with `rosidl_python`, it detects the following.\n\n```bash\nUnable to convert call argument to Python object (compile in debug mode for details)\n```",
+   "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1304061993"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "At this point, `ros2 topic list` shows all the topics correctly, and echoing `/topic_statistics_chatter` is working, but echoing `/statistics` does not work.",
+  "url": "https://github.com/ros2/ros2/issues/1341"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "using https://github.com/ros2/ros2/blob/humble/ros2.repos (https://github.com/ros2/ros2/commit/00f3ba9f73916a5eab322710edaaf197f0f10e31) + https://github.com/ros2/rosidl_python/tree/clalancette/humble-backport-nan-fixes, it works."
+ },
+ "notes": "Independently verified this session via gh api. Issue 1341 body (EduPonz, 2022-11-04) verified: Dockerfile clones ros2/demos default branch against ros:humble and builds topic_statistics_demo; expected/actual sections with the conversion error verbatim; the reporter's later confirmation 'I just confirmed that the backports work when building humble from sources with @clalancette's PR.' (id 1306798327). clalancette confirmation verified verbatim: 'You are correct, it should work. And I confirmed it here; I'm seeing the same problem on Humble.' and 'The good news is that this seems to work just fine on Rolling' (id 1303518557); fujitatomoya's diagnosis quote verified verbatim (id 1304061993) including the link to rclpy subscription.cpp#L135-L138; clalancette's regeneration point verified: 'the problem is in the code that is generated for the individual message files, so you basically need to rebuild everything from source.' (id 1306049145). Definitions and code read directly: statistics_msgs/msg/StatisticDataPoint.msg at rcl_interfaces humble contains '# A value of nan represents no data is available.'; rosidl_python _msg.py.em at tag 0.14.2 contains the float/double bounds checks 'all(val >= -@(bound) and val <= @(bound) for val in value))' (and the scalar form), which NaN fails -- confirming the value-domain mechanism. PR metadata verified: #167 'Allow NaN values to pass floating point bounds check.' merged rolling 2022-08-22 (52e099ef), #188 'Humble: Backport NaN fixes' merged 2022-11-08 as c881598fdeb3a8eb9c92cd9ac0d1d12d44ef40dc. Eligibility stop 6 (NaN value crossing topic boundary triggers only with such a peer), class 'other' (value-domain rejection fits no named class), silent_documented/run, and recommended (both working confirmations used the demos humble branch from ros2.repos, not the specified rolling clone 77b75898, i.e. a different peer revision per the S1 rule) all verified correct."
+}

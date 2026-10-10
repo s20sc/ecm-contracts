@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-03",
+  "kind": "A1",
+  "case_id": "CAL-03",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "On Ubuntu 24.04, maximum speed is limited to ~0.25 m/s.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command",
+      "url": "https://github.com/ros-navigation/navigation2/pull/6336"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "On Ubuntu 24.04, maximum speed is limited to ~0.25 m/s.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Tested: Ubuntu 24.04, MuJoCo sim. Our measurement on a simulated Ridgeback mecanum base, vx_max: 0.5: commanded speed 0.165 to 0.466 m/s; ground truth 0.138 to 0.452",
+    "url": "https://github.com/ros-navigation/navigation2/pull/6336"
+  },
+  "notes": "Eligibility agreed (stop_step 6, PAIR, topic /odometry/filtered). Issue #5386 body carries the full YAML, the version string 'ros-jazzy-navigation2 1.3.7-1noble.20250624.020544', and 'On Ubuntu 24.04, maximum speed is limited to ~0.25 m/s.'; PR #6336 body contains the verbatim 'Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command'. Failed-condition class 'other' (lagging-odometry timing) is a fair fit with no dedicated class; agreed. LOUDNESS ERROR: the spec records loudness 'loud_documented' but its own evidence says 'no diagnostic is reported, the reporter found it by observing /cmd_vel', and the issue body shows no build/connect/activate diagnostic. loud_documented requires a diagnostic from existing tooling at build/connect/activate; none exists. Correct value is silent_documented, detection_stage run. Resolution 'recommended' (backport tested against a different peer, not the reporter's composition) agreed."
+}

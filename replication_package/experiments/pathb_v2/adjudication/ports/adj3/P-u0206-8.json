@@ -1,0 +1,7 @@
+{"item_id": "P-u0206-8", "kind": "P", "task_id": "u0206", "element": "api:/sys/class/power_supply/BAT0/voltage_now", "side": "consumes",
+ "values": [
+  {"field": "frame", "recorded": "none", "verdict": "verified", "source_excerpt": "rv.voltage  = _read_number(_battery_acpi_path + '/voltage_now')", "qos_basis": null},
+  {"field": "units", "recorded": "V", "verdict": "verified", "source_excerpt": "float32 voltage          # Voltage in Volts", "qos_basis": null},
+  {"field": "rate_hz", "recorded": 0.2, "verdict": "verified", "source_excerpt": "self._batt_state_rate = 1 / 5.0", "qos_basis": "literal"}
+ ],
+ "notes": "frame 'none' verified: laptop_battery.py:170 reads a scalar voltage with no spatial content. units 'V' verified: LaptopChargeStatus.msg:6 declares 'float32 voltage # Voltage in Volts' and the value is read with no scaling. rate_hz 0.2 verified: line 220 sets self._batt_state_rate = 1 / 5.0 (=0.2 Hz) and line 241 uses rospy.Rate(self._batt_state_rate); set literally in code, so qos_basis 'literal'."}

@@ -1,0 +1,18 @@
+{"item_id": "A1-C3-063", "kind": "A1", "case_id": "C3-063",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+   "quote": "image_geometry/cameramodels.py uses deprecated `numpy.matrix` subclass causing runtime `PendingDeprecationWarning`.",
+   "url": "https://github.com/ros-perception/vision_opencv/issues/524"},
+ "failed_conditions": [
+   {"index": 0, "class_verdict": "agree", "proposed_class": null,
+    "elements_verdict": "agree", "proposed_elements": [],
+    "quote": "image_geometry/cameramodels.py uses deprecated `numpy.matrix` subclass causing runtime `PendingDeprecationWarning`.",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/524"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+   "quote": "image_geometry/test/directed.py: 425 warnings\n\n  Warning: the matrix subclass is not the recommended way to represent matrices or deal with linear algebra (see https://docs.scipy.org/doc/numpy/user/numpy-for-matlab-users.html). Please adjust your code to use regular ndarray.",
+   "url": "https://github.com/ros-perception/vision_opencv/pull/526"},
+ "resolution": {"verdict": "agree", "proposed": null,
+   "quote": "The original issue has been fixed with https://github.com/ros-perception/vision_opencv/pull/527.",
+   "url": "https://github.com/ros-perception/image_pipeline/issues/572"},
+ "notes": "Verified this session: issue #524 body (call sites at 8b42d66f4946f4204387b30aabc8c2921e5d9f47, 'This will cause the warning during initialization every time the public API members below are called'); PR #526 test log shows 'platform linux -- Python 3.10.12' and '2 passed, 425 warnings in 0.45s' plus the directed.py AttributeError (\"AttributeError: 'CameraInfo' object has no attribute 'D'\") that the spec's notes correctly place in a different composition; maintainer ijnek 'Everything in general looks good, strategies for preventing API breakage are good too.'; PR #527 'Remove deprecated numpy.matrix (re: issue 524)' merged 2024-04-18T22:04:57Z as 25b733e27ab11e6e92fd217152d77a86ac91c3c1; tag 4.1.0 = f5b738d9694f0cee5904440d03912fc249943f8a and compare 25b733e2...4.1.0 ahead/behind_by 0 (tag contains the fix); numpy v1.15.0 matrixlib/defmatrix.py __new__ contains warnings.warn('the matrix subclass is not the recommended way to ...Please adjust your code to use regular ndarray.', PendingDeprecationWarning, stacklevel=2) while v1.14.6 contains no warnings.warn at all — the provider-revision dependence behind the UPGRADE operation is confirmed. Loudness loud_documented/run: the diagnostic is numpy's own deprecation warning (provider tooling), unlike a consumer's own check; the spec's contrast with own-code checks is consistent. Resolution recommended is right: the fix-verification run's numpy revision is not stated ('the updated image_geometry 4.1.0  package hasn't been migrated to packages.ros.og as of writing')."}

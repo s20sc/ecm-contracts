@@ -1,0 +1,64 @@
+{
+  "item_id": "A1-C3-115",
+  "kind": "A1",
+  "case_id": "C3-115",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "In some cases, the `follow_path` action keeps on running after having canceled a `navigate_to_pose` goal.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4659",
+    "reason": "E1/E4: versions and goal-cancellation logs document the continued controller action. E2: bt_navigator and controller_server are separate nodes communicating through follow_path, even though packaged in one repository. The failed action acknowledgement/cancellation interaction crosses their boundary. E3: PAIR. Stop at 6."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[bt_navigator-12] [WARN]: Timed out while waiting for action server to acknowledge goal request for follow_path",
+      "url": "https://github.com/ros-navigation/navigation2/issues/4659",
+      "reason": "Agree other and action:follow_path. This is action goal acknowledgement timeout, not DDS deadline QoS or a periodic publication-rate contract. The causal detail about an unset goal handle is a commenter's code-based explanation, not independently measured network latency."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[bt_navigator-12] [ERROR]: Failed to get result for follow_path in node halt!",
+      "url": "https://github.com/ros-navigation/navigation2/issues/4659",
+      "reason": "Agree other and action:follow_path. The reporter explicitly describes this separate earlier cancellation/result-wait failure. It must not be replaced by the later compute_path_to_pose failure from a different server pair."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[bt_navigator-12] [ERROR]: Failed to get result for follow_path in node halt!",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4659",
+    "reason": "Agree silent_documented under the supplied rubric: there are conspicuous runtime warnings/errors, but no demonstrated build/connect/activation compatibility diagnostic. The already-running action continues after client cancellation. Silent here does not mean that the logs contain no diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[bt_navigator-12] [ERROR]: Failed to get result for follow_path in node halt!",
+    "url": "https://github.com/ros-navigation/navigation2/issues/4659",
+    "reason": "The documented failure is detected at run, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-      if (callback_group_executor_.spin_until_future_complete(future_result, server_timeout_) !=\n+      if (callback_group_executor_.spin_until_future_complete(future_result, cancel_timeout_) !=",
+    "url": "https://github.com/ros-navigation/navigation2/pull/5895/files",
+    "reason": "Agree recommended. The diff introduces an independent cancellation-result timeout; it does not modify the goal-acknowledgement path. The original Iron 1.2.9 reporter does not verify this fixed composition. Another commenter's successful timeout increase concerns a coverage navigator on Jazzy, not the specified original pair.",
+    "additional_evidence": [
+      {
+        "quote": "Increasing `default_server_timeout` from 30 to even ~50ms solves this issue.",
+        "url": "https://github.com/ros-navigation/navigation2/issues/4659#issuecomment-2607122040"
+      }
+    ]
+  },
+  "notes": "Read the report, comments and the relevant #5895 diff. No missed condition established: planner cancellation is a different pair; control-loop rate warnings do not establish a bt_navigator/controller_server rate contract; hypothetical competing cmd_vel publishers are not an observed recovery conflict. The proposed resolution is partial with respect to the two listed conditions."
+}

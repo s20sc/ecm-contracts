@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-C3-099-resolved-M1-e51e049cd3",
+  "kind": "A2",
+  "case_id": "C3-099",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[field:rmw_dds_common/Gid.data]",
+      "verdict": "unverifiable",
+      "source_excerpt": "Unverifiable at the item's cited location: no location is supplied for this triggering value. Independently opened context, not a repaired provenance chain:\nsnapshot:s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1\nchar[24] data\n\nsnapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1\nchar[16] data"
+    },
+    {
+      "path": "ver_delta.consumer_reads[field:rmw_dds_common/Gid.data]",
+      "verdict": "unverifiable",
+      "source_excerpt": "Unverifiable at the item's cited location: no location is supplied for this triggering value. Independently opened context, not a repaired provenance chain:\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171\n          if (std::memcmp(\n              reinterpret_cast<char *>(common_context->gid.data),\n              reinterpret_cast<char *>(&msg.gid.data),\n              RMW_GID_STORAGE_SIZE) == 0)"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[field:rmw_dds_common/Gid.data]",
+      "verdict": "unverifiable",
+      "built_excerpt": "No built-revision location is cited for this item. Independent contextual opening only:\nsnapshot:s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1\nchar[24] data",
+      "running_excerpt": "No running-revision location is cited for this item. Independent contextual opening only:\nsnapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1\nchar[16] data"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Agree on the actual discovery-message dependency represented by this PAIR projection of the specified UPGRADE. The field is nested inside ParticipantEntitiesInfo and is read by the receiver:\nsnapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/ParticipantEntitiesInfo.msg:1\nGid gid\nNodeEntitiesInfo[] node_entities_info_seq\n\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:119\n    rmw_fastrtps_cpp::create_subscription(\n      participant_info.get(),\n      rosidl_typesupport_cpp::get_message_type_support_handle<ParticipantEntitiesInfo>(),\n      \"ros_discovery_info\",\n      &qos,\n\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:156\n      rmw_dds_common::msg::ParticipantEntitiesInfo msg;\n      bool taken = true;\n\n      while (taken) {\n        if (RMW_RET_OK != rmw_fastrtps_shared_cpp::__rmw_take(\n            context->implementation_identifier,\n            common_context->sub,\n            static_cast<void *>(&msg),\n            &taken,\n            nullptr))\n\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171\n          if (std::memcmp(\n              reinterpret_cast<char *>(common_context->gid.data),\n              reinterpret_cast<char *>(&msg.gid.data),\n              RMW_GID_STORAGE_SIZE) == 0)\nThe resolved specification intentionally retains the mismatched definitions while describing hardening elsewhere:\nsnapshot:specs/C3-099.json:120\n    \"summary\": \"Consumer-side hardening, not removal of the mismatch: the generated CDR deserializers check a sequence length read from the wire against the remaining buffer before resizing and fail the sample instead (rosidl_typesupport_fastrtps templates, rolling 7283329f7c3cb654e7b843ab127ab2eda680662a, humble backport f7e1095e7fd5f9d69c127e7c179c680d5ca70612 released in 2.2.3, which requires rebuilding rmw_dds_common's humble typesupport); counterpart for rmw_fastrtps_dynamic_cpp in rmw_fastrtps (rolling 09e5a5f1b9504431bbc8970bb098438041041dbe, humble 197c1852f1c780728b3add675bf30b316e02458d). The humble consumer still receives jazzy/rolling ParticipantEntitiesInfo samples with the 16-byte Gid layout and now discards them with a printed error. Maintainers also proposed (not implemented in the sources) refusing peers with/without type hashes, and suggested ROS_DOMAIN_ID separation or ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST as workarounds.\",\nThis edge agreement does not verify the missing field_break operands or establish that the hardening was built."
+  },
+  "notes": "Both evidence.provenance entries for this item are null, and its supplied PAIR encoding has no ver_delta object. Therefore the two triggering values and their cited-revision substance comparison remain unverifiable under the required location-based rule; no provenance has been borrowed from another item to mark them verified. Independent openings do show char[24] versus char[16], which would be substantive if properly linked, and show the consumer read. Those excerpts are explicitly context only. The missing provenance is not evidence of transcription-only equivalence or evidence that the values are false. The task set does not verify the separate deserializer-hardening implementation."
+}

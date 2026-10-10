@@ -1,0 +1,123 @@
+{
+ "task_id": "u0427",
+ "package": "moveit_simple_controller_manager",
+ "manifest_version": "2.5.3",
+ "ports": [
+  {
+   "element": "param:moveit_simple_controller_manager.controller_names",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "param:moveit_simple_controller_manager.rotate_joint_controller.action_ns",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "param:moveit_simple_controller_manager.rotate_joint_controller.default",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "param:moveit_simple_controller_manager.rotate_joint_controller.joints",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  },
+  {
+   "element": "param:moveit_simple_controller_manager.rotate_joint_controller.type",
+   "side": "consumes",
+   "msg_type": null,
+   "frame": "none",
+   "units": null,
+   "qos": {
+    "reliability": null,
+    "durability": null,
+    "deadline_ms": null
+   },
+   "rate_hz": null,
+   "min_rate_hz": null,
+   "definition_id": null
+  }
+ ],
+ "exclusive": [],
+ "declares": {},
+ "not_declared": [],
+ "references": [
+  "param:moveit_simple_controller_manager.controller_names"
+ ],
+ "perm_requires": {
+  "state": "absent",
+  "values": []
+ },
+ "perm_grants": {
+  "state": "absent",
+  "values": []
+ },
+ "recovery": {
+  "state": "absent",
+  "value": null
+ },
+ "provenance": {
+  "manifest_version": "snapshot:moveit_plugins/moveit_simple_controller_manager/package.xml:5",
+  "ports[0].side": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:103",
+  "ports[0].frame": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:109",
+  "ports[1].side": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:117",
+  "ports[1].frame": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:115",
+  "ports[2].side": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:197",
+  "ports[2].frame": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:174",
+  "ports[3].side": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:132",
+  "ports[3].frame": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:131",
+  "ports[4].side": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:125",
+  "ports[4].frame": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:124",
+  "references[param:moveit_simple_controller_manager.controller_names]": "snapshot:moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp:103",
+  "perm_requires.state": "searched all 9 files under snapshot:moveit_plugins/moveit_simple_controller_manager (sources, headers, package.xml, CMakeLists.txt, ConfigExtras.cmake, plugin description xml) for permission/grant declarations; none; package ships no configuration files",
+  "perm_grants.state": "searched all 9 files under snapshot:moveit_plugins/moveit_simple_controller_manager for permission/grant declarations; none",
+  "recovery.state": "searched all 9 files under snapshot:moveit_plugins/moveit_simple_controller_manager for recovery/retry/fallback declarations; none (cancelExecution and GripperControllerHandle allow_failure are not recovery declarations)"
+ },
+ "blinding_guess": {
+  "defective": "no",
+  "why": "The code reads exactly the listed parameter layout: moveit_simple_controller_manager.controller_names as a string array, and moveit_simple_controller_manager.<controller_name>.action_ns/type/joints/default with types string/string/string array/bool; nothing in the package contradicts the listed element names or their roles."
+ },
+ "confidence": "high",
+ "notes": "The snapshot is the full moveit2 repository; the package is at moveit_plugins/moveit_simple_controller_manager (pluginlib class moveit_simple_controller_manager/MoveItSimpleControllerManager, base moveit_controller_manager::MoveItControllerManager). All five packet elements are ROS 2 parameters read (never declared: no declare_parameter call in the package) from the host rclcpp::Node passed to initialize(); whether get_parameter succeeds for undeclared names depends on the host node's options, which are outside this package. Parameter names are built as PARAM_BASE_NAME + '.' + ... with PARAM_BASE_NAME = \"moveit_simple_controller_manager\" (cpp:86, makeParameterName cpp:76-79). controller_names is named statically (has_parameter cpp:97, get_parameter cpp:103) and must be PARAMETER_STRING_ARRAY (cpp:104), so it is in references. The four rotate_joint_controller elements are read as moveit_simple_controller_manager.<controller_name>.<key> where <controller_name> is each entry of controller_names supplied at run time; the string rotate_joint_controller appears nowhere in the snapshot, so these four are in neither references nor declares. Types as read: action_ns std::string, required (controller skipped if missing, cpp:117-122); type std::string, required, accepted values \"GripperCommand\" (cpp:140) and \"FollowJointTrajectory\" (cpp:179), otherwise error and skip; joints std::vector<std::string>, required and non-empty (cpp:132-137); default bool via get_parameter_or with fallback false into ControllerState::default_ (cpp:197). action_ns forms the action client name controller_name + \"/\" + action_ns, or controller_name if empty (action_based_controller_handle.h:180-186, create_client at :86), client type control_msgs/action/FollowJointTrajectory or control_msgs/action/GripperCommand; these actions are not packet elements. Gripper-only parameters max_effort is per controller (cpp:143) but parallel, command_joint and allow_failure are read at moveit_simple_controller_manager.<key> without the controller segment (cpp:152, 166, 173); not packet elements. msg_type, units, qos, rate and definition_id are null for all ports because parameters are not topics and have no message definition; frame is none because the values are names, strings and a bool with no spatial meaning. declares and not_declared are empty because this package provides none of the packet elements. exclusive is empty: switchControllers returns false and no hardware or device resource is claimed."
+}

@@ -1,0 +1,111 @@
+{
+  "case_id": "robust_fa64ec6",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/commit/fa64ec6585745c60fa02cf3be13b6d78bf449d8d",
+    "https://github.com/ros-industrial/universal_robot/pull/251",
+    "https://github.com/ros-industrial/universal_robot/commit/1c07a163c5b649fb94b5c814945a01e3c506b647",
+    "https://github.com/ros/xacro/blob/1.10.7/src/xacro/__init__.py",
+    "https://github.com/ros/xacro/blob/1.10.7/xacro.py",
+    "https://github.com/ros/xacro/blob/1.9.5/src/xacro/__init__.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #251 (davetcoleman) \"Fix xacro warnings in Jade\" (commit 1c07a16 \"Fix xacro warnings in Jade\") updates the xacro files and launch invocations; maintainer gavanderhoorn approved and merged: \"All changes are compatible with Indigo as well, so merging into `indigo-devel`.\" The warnings are defined in xacro's Jade sources (1.10.7). The PR body is empty; no log is quoted."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["xacro", "ur_description"],
+      "interface_kind": "library API",
+      "evidence": "xacro (the macro processor, separately released) deprecated in its Jade line the non-prefixed xacro tags (\"deprecated: xacro tags should be prepended with 'xacro' xml namespace.\"), the xacro.py entry point (\"xacro.py is deprecated; please use xacro instead\") and redefinition of its global math symbols such as pi (\"redefining global property: %s\"). ur_description's .urdf.xacro files use <property>, <insert_block> and <property name=\"pi\" .../>, and its upload launch files call $(find xacro)/xacro.py. The consumer must follow the provider's changed input language and entry point; the change is to the provider's declared interface, not deployment-only name binding or build configuration."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: ur_description on indigo-devel was written against Indigo xacro (1.9.x, whose default processor issues none of these warnings) and processed with Jade xacro (1.10.x); PR title \"Fix xacro warnings in Jade\"."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "PR title/commit message \"Fix xacro warnings in Jade\"; the resolving diff replaces <property>/<insert_block> with <xacro:property>/<xacro:insert_block>, removes <property name=\"pi\" value=\"3.14159265\" />, and replaces xacro.py with xacro."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "xacro",
+      "role": "provider",
+      "repo": "https://github.com/ros/xacro",
+      "broken_rev": "1.10.7",
+      "resolved_rev": "1.10.7",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distro (Jade). xacro jade-devel head on the PR date (2016-06-29) was the 1.10.7 tag commit e4e0da22 (2016-06-22). Lower bounds: the xacro.py deprecation warning appears from 1.10.2 (33ffc886), the non-prefixed-tag deprecation from 1.10.3 (d5345448). The fix does not change xacro.",
+      "excerpt": false,
+      "ros_distro": "jade"
+    },
+    {
+      "name": "ur_description",
+      "role": "consumer",
+      "repo": "https://github.com/ros-industrial/universal_robot",
+      "broken_rev": "f8d175b09ea955ebe83aecbe19105c28f0225524",
+      "resolved_rev": "fa64ec6585745c60fa02cf3be13b6d78bf449d8d",
+      "pinned": true,
+      "revision_basis": "Broken: f8d175b, the indigo-devel first parent of merge fa64ec6 (PR #251), whose urdf/*.xacro still use non-prefixed <property>/<insert_block> and whose launch/ur*_upload.launch call xacro.py. Resolved: merge fa64ec6 (fix commit 1c07a16, authored 2016-06-29, merged 2016-12-29). The PR's own base was older (commit authored 2016-06-29); the merge parent is used because it is the tree the merged change applies to.",
+      "excerpt": false,
+      "ros_distro": "jade"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "1.9.5",
+    "resolved": "1.10.7",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:<property>", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:<insert_block>", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:<xacro:property>", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:<xacro:insert_block>", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:<xacro:macro>", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:<xacro:include>", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:pi", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:xacro.py", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:xacro", "sides": {"xacro": "provides", "ur_description": "consumes"}},
+    {"element": "api:xmlns:xacro", "sides": {"xacro": "provides", "ur_description": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:<property>", "api:<insert_block>"],
+      "quote": "warning(\"deprecated: xacro tags should be prepended with 'xacro' xml namespace.\")",
+      "url": "https://github.com/ros/xacro/blob/1.10.7/src/xacro/__init__.py"
+    },
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:xacro.py"],
+      "quote": "warning('xacro.py is deprecated; please use xacro instead')",
+      "url": "https://github.com/ros/xacro/blob/1.10.7/xacro.py"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["api:pi"],
+      "quote": "        if key in global_symbols:\n            warning(\"redefining global property: %s\" % key)",
+      "url": "https://github.com/ros/xacro/blob/1.10.7/src/xacro/__init__.py"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The provider's own deprecation diagnostics fire while xacro processes the model (PR/commit title \"Fix xacro warnings in Jade\"); xacro 1.10.7 prints warning(\"deprecated: xacro tags should be prepended with 'xacro' xml namespace.\") followed by a sed script to fix the files, and xacro.py prints warning('xacro.py is deprecated; please use xacro instead'). The warning text itself is not quoted in the PR.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Prefix all xacro tags in ur_description (<xacro:property>, <xacro:insert_block>), drop the local <property name=\"pi\">, call $(find xacro)/xacro instead of xacro.py in the upload launch files, and change xmlns:xacro to http://ros.org/wiki/xacro.",
+    "status": "recommended",
+    "evidence": "PR #251 merged into indigo-devel 2016-12-29 (merge fa64ec6) after maintainer approval; no run with identified xacro revision is shown."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "The same PR also changes ur3/ur5/ur10_moveit_config launch/planning_context.launch from xacro.py to xacro (further compositions with the same provider). The xmlns:xacro URI change (http://www.ros.org/wiki/xacro -> http://ros.org/wiki/xacro) is not required by xacro 1.10.7, which matches the xacro: prefix and whose own error hint still names xmlns:xacro=\"http://www.ros.org/wiki/xacro\"; it is kept in the inventory but not as a failed condition. xacro 1.10.7 also warns \"xacro: Traditional processing is deprecated. Switch to --inorder processing!\" unless --inorder is given; the PR does not address it. Indigo xacro 1.9.5's default processor (src/xacro) warns only about non-prefixed <include>; the Jade behaviour lives there in src/xacro_jade, used with --inorder. consumer_built_against is inferred from the consumer's non-prefixed tags and xacro.py calls matching Indigo xacro 1.9.5; the resolved files match Jade 1.10.7. Element naming: xacro language tags and entry points are written as api:<tag> / api:<script>; api:pi is xacro's global math symbol. The pi-redefinition condition is code-level (the fix removes <property name=\"pi\" value=\"3.14159265\" />; xacro 1.10.7 puts math.__dict__ in global_symbols); the PR does not quote which warnings were seen."
+}

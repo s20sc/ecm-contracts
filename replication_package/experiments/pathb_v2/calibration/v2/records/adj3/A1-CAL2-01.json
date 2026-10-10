@@ -1,0 +1,20 @@
+{
+ "item_id": "A1-CAL2-01",
+ "kind": "A1",
+ "case_id": "CAL2-01",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+  "quote": "Error arises because kobuki.urdf.xacro just defines a component tag `<kobuki/>` that can be used by other xacros (e.g. turtlebot). I've added a kobuki standalone xacro there now.",
+  "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515"},
+ "failed_conditions": [
+  {"index": 0, "class_verdict": "disagree", "proposed_class": "other", "elements_verdict": "agree", "proposed_elements": [],
+   "quote": "Error arises because kobuki.urdf.xacro just defines a component tag `<kobuki/>` that can be used by other xacros (e.g. turtlebot). I've added a kobuki standalone xacro there now.",
+   "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710515"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+  "quote": "[ERROR] [1356608164.609420111]: No link elements found in urdf file\n[ERROR] [1356608164.609850822]: Could not generate robot model\n[ERROR] [1356608164.610010689]: Failed to extract kdl tree from xml robot description\n[robot_state_publisher-1] process has died [pid 5377, exit code 255, ...]",
+  "url": "https://github.com/yujinrobot/kobuki/issues/207#issuecomment-11710175"},
+ "resolution": {"verdict": "agree", "proposed": null,
+  "quote": "I've added a kobuki standalone xacro there now."},
+ "notes": "Eligibility is a judgement call but defensible: robot_state_publisher (consumer) reads the robot_description parameter; kobuki.urdf.xacro is a macro library that, expanded standalone, yields no <link> elements, so the value crossing the boundary is structurally empty. I disagree with the class field: the spec's own notes say 'Classification other is used', yet the failed_conditions JSON carries 'representation_convention', which the S1 taxonomy reserves for component/byte order, handedness, or encoding. An empty provider value is neither of these; 'other' is correct and matches the spec's own notes. The spec thus contradicts itself. Loudness (loud_documented, activate) and resolution (recommended, fix adds a new standalone xacro + launcher without a shown working composition) are consistent with the sources I read."
+}

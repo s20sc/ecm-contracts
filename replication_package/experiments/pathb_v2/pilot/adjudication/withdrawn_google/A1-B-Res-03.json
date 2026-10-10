@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-B-Res-03",
+  "kind": "A1",
+  "case_id": "B-Res-03",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Calling the service **/controller_manager/switch_controller** return always true even if it could not switch the controllers.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1179"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Calling the service **/controller_manager/switch_controller** return always true even if it could not switch the controllers.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1179"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists      \r\n[controller_manager]: Empty activate and deactivate list, not requesting switch",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Please try with the `strictness` set to `STRICT` when sending the service request. I think it should respond with false.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1911700097"
+  },
+  "notes": "Service switch_controller returns ok=True on non-existent controller switch under default strictness, while controller_manager logs error/warning at activation stage."
+}

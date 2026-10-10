@@ -1,0 +1,31 @@
+{
+  "task_id": "u0096",
+  "package": "motoman_config",
+  "status": "evidence_inadequate",
+  "searched": [
+    "find snapshot -iname '*motoman_config*': 0 files or directories",
+    "every package.xml in the snapshot (11 files): names are motoman, motoman_driver, motoman_msgs, motoman_mh5_support, motoman_sia5d_support, motoman_sia10d_support, motoman_sia10f_support, motoman_sia20d_support, motoman_sia20d_moveit_config, motoman_sda10f_support, motoman_sda10f_moveit_config; none is motoman_config",
+    "every CMakeLists.txt project(...) in the snapshot: none is motoman_config",
+    "no manifest.xml or stack.xml in the snapshot",
+    "find snapshot -path '*meshes/sia5/*' and -type d -name sia5: 0 results; the only sia5 meshes are under snapshot/motoman_sia5d_support/meshes/sia5d/{visual,collision}/ (base, link_s, link_l, link_e, link_u, link_r, link_b, link_t .dae)",
+    "grep -rn motoman_config snapshot: only references from other packages (motoman_sia5d_support/urdf/sia5d.urdf, motoman_sia5d_support/urdf/sia5d_macro.xacro mesh filenames; commented-out rosparam lines in five motoman_driver launch files)"
+  ],
+  "manifest_version": null,
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "status": "snapshot contains no package named motoman_config (no package.xml <name>motoman_config</name>, no CMakeLists project(motoman_config), no directory or file matching *motoman_config*); the string occurs only as a reference in snapshot:motoman_sia5d_support/urdf/sia5d_macro.xacro:13 (<mesh filename=\"package://motoman_config/meshes/sia5/visual/base.dae\" />) and snapshot:motoman_sia5d_support/urdf/sia5d.urdf:12, and in commented-out lines such as snapshot:motoman_driver/launch/robot_state_fs100.launch:12 (<!--rosparam command=\"load\" file=\"$(find motoman_config)/?\" /-->)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "motoman_config is not present in this snapshot, so none of the ten mesh resources exists under package://motoman_config/meshes/sia5/. In the same snapshot motoman_sia5d_support still points its URDF/xacro meshes at package://motoman_config/meshes/sia5/..., while the matching meshes sit in motoman_sia5d_support/meshes/sia5d/, and motoman_sia5d_support/package.xml does not depend on motoman_config. That looks like dangling consumer references, but whether this counts as a defect of motoman_config itself cannot be judged from a snapshot that does not contain the package."
+  },
+  "confidence": "high",
+  "notes": "The package named in the packet is absent from the snapshot, so no ports, declarations, or manifest version can be recorded. Because the package itself is missing (rather than present without these files), the ten provided resources were not placed in not_declared; the rules route a missing package to evidence_inadequate. Observed in passing: the snapshot is the ros-industrial motoman repository (metapackage motoman 0.3.3). Its sia5d meshes are at motoman_sia5d_support/meshes/sia5d/visual/{base,link_s,link_l,link_e,link_u,link_r,link_b,link_t}.dae and .../collision/ (same eight names). Paths differ from the packet elements in both package (motoman_sia5d_support vs motoman_config) and directory (sia5d vs sia5). Permissions and recovery are unknown because the package's code and configuration could not be inspected."
+}

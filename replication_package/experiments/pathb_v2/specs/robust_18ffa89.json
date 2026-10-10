@@ -1,0 +1,49 @@
+{
+  "case_id": "robust_18ffa89",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/commit/18ffa89f797266ea519c2047dcb9416f0f79796b",
+    "https://github.com/ros-industrial/universal_robot/pull/7"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "No issue exists; the public commit 18ffa89 by maintainer Mathias Lüdtke (\"fixed copy&paste error (?)\", part of PR #7 \"Gazebo fixes\", merged 2013-06-07) documents one concrete defect in ur_description/urdf/ur10.gazebo.xacro: the last `<gazebo>` block referenced `${prefix}wrist_1_link` a second time instead of `${prefix}wrist_3_link`. Weak: the commit message carries a question mark and there is no reproducer or log."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "ur_description (ur10.gazebo.xacro / UR10 robot description)",
+        "Gazebo simulator"
+      ],
+      "interface_kind": "definition (URDF <gazebo reference=...> extensions consumed by Gazebo)",
+      "evidence": "At the parent abe78437 the macro ur10_arm_gazebo contains two identical blocks `<gazebo reference=\"${prefix}wrist_1_link\">` with `<material value=\"Gazebo/Grey\" />` and none for wrist_3_link; the fix changes the second to `<gazebo reference=\"${prefix}wrist_3_link\">`. Both link names exist in the same package's own robot description, and the consumer (Gazebo) interprets the references correctly; the description simply attaches the extension to the wrong one of its own links. The defect is a copy-and-paste error inside one unit and would produce the same result with any correct simulator. Stop at step 2: internal."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the robot description (URDF with gazebo extensions) is loaded by Gazebo for simulation."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement only: commit message \"fixed copy&paste error (?)\" with the one-line diff `-\t\t<gazebo reference=\"${prefix}wrist_1_link\">` / `+\t\t<gazebo reference=\"${prefix}wrist_3_link\">`. No observed effect is reported (would be outcome `undocumented`)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: wrong link reference (wrist_1_link instead of wrist_3_link) inside ur_description's own ur10.gazebo.xacro; both sides agree on the link names and the defect would occur with any correct simulator.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-133",
+  "kind": "A1",
+  "case_id": "C3-133",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: runnable JSON-to-Joy reproducer and generated-message assertion. E2: the client may encode an integral float as JSON 0, while rosbridge conversion leaves an integer list for the ROS float array. The representation crossing the client/converter boundary matters; the correction changes conversion code, not deployment names or build dependencies. E3: PAIR is supported by the reported client publish example and direct conversion reproducer. E4: message population is refused.",
+    "quote": "When trying to populate a ROS message that includes a float32[] field, if the JSON data for that field is a list of integer values, the conversion raises an error instead of converting the integer values to floats.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "When trying to populate a ROS message that includes a float32[] field, if the JSON data for that field is a list of integer values, the conversion raises an error instead of converting the integer values to floats.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764",
+      "reason": "The nominal ROS field remains float32[]. The mismatch is JSON numeric representation versus strict Python float validation, not two differently declared message types. Only Joy.axes is evidenced as failing; header and buttons are present but not implicated."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "AssertionError: The 'axes' field must be a set or sequence and each value of type 'float' and each float in [-340282299999999994960115009090224128000.000000, 340282299999999994960115009090224128000.000000]",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764",
+    "reason": "The generated message validator explicitly refuses the incoming value. Apply the rule marking runtime-enforced refusals loud_documented; this is not claimed to be a connection-time type diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "message_conversion.populate_instance(msg_json, msg_inst)",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/764",
+    "reason": "The error occurs while executing message conversion in the reproducer, so run is appropriate."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Fixes #764 by using ndarray/array assignment operations that accept ints as well as floats, rather than directly assigning the incoming list value, which failed at the msg/idl generated python code's validation step.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/pull/777",
+    "reason": "The fix and regression tests are documented, but tests use rosbridge_test_msgs arrays directly from Python. They do not demonstrate the reporter client / selected rosbridge revision pair working; recommended is supported."
+  },
+  "notes": "The fully shown reproducer is local Python conversion, not a captured browser-to-bridge exchange. The source nevertheless explicitly relates the failure to the shown ROSLIB publish example, supporting this composition without proving a particular client revision. Do not infer additional failures for scalar fields or other message types from the broader fix. No missed condition found."
+}

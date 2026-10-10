@@ -1,0 +1,39 @@
+{
+  "task_id": "u0076",
+  "package": "robot_state_publisher",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "param:robot_description",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": ["param:robot_description"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "references[param:robot_description]": "snapshot:robot_state_publisher/src/joint_state_listener.cpp:127",
+    "ports[0].side": "snapshot:robot_state_publisher/src/joint_state_listener.cpp:127 (kdl_parser::treeFromParam(\"robot_description\", tree)) -> snapshot:kdl_parser/src/kdl_parser.cpp:142 (robot_model.initParam(param)) -> snapshot:urdf/src/model.cpp:85 (nh.searchParam(param, full_param)) and snapshot:urdf/src/model.cpp:91 (nh.getParam(full_param, xml_string), xml_string declared std::string at snapshot:urdf/src/model.cpp:81)",
+    "perm_requires.state": "searched snapshot:robot_state_publisher/ (manifest.xml, CMakeLists.txt, src/, include/, test/*.launch) for permission/access declarations; none found",
+    "perm_grants.state": "searched snapshot:robot_state_publisher/ (manifest.xml, CMakeLists.txt, src/, include/, test/*.launch) for permission/access declarations; none found",
+    "recovery.state": "snapshot:robot_state_publisher/src/joint_state_listener.cpp:127-130: on failure to read/parse robot_description the node logs ROS_ERROR and returns -1; no retry, fallback, or recovery behaviour declared",
+    "manifest_version": "snapshot:robot_state_publisher/manifest.xml and snapshot:stack.xml carry no version element (rosbuild manifest)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The node reads the parameter literally named robot_description (resolved via searchParam up the namespace) and its own test launch files set a parameter of exactly that name; nothing in the code suggests a name or type mismatch for this element."
+  },
+  "confidence": "high",
+  "notes": "ROS1 (fuerte) rosbuild package inside the robot_model stack snapshot; manifest.xml and stack.xml have no version, so manifest_version is null. The only packet element, param:robot_description, is consumed, not provided, so declares and not_declared are empty. The name is hard-coded as the string \"robot_description\" at joint_state_listener.cpp:127 and passed to kdl_parser::treeFromParam, which calls urdf::Model::initParam; that uses NodeHandle::searchParam (so the effective key is the nearest robot_description found walking up from the node's namespace) and then getParam into a std::string holding URDF XML. msg_type and definition_id are null because a parameter has no message definition. frame is null: the parameter carries a whole URDF kinematic tree (frames are the link names inside it), not data expressed in a single frame. units null: the code states none. QoS null (ROS 1). Test launch files set it via <param name=\"robot_description\" textfile=.../> (test_publisher.launch:5, test_one_link.launch:3, test_two_links_fixed_joint.launch:3, test_two_links_moving_joint.launch:3). Other interfaces seen but not in the packet: subscribes topic joint_states (sensor_msgs/JointState, queue 1, joint_state_listener.cpp:63), private param ~publish_frequency (double, default 50.0, joint_state_listener.cpp:58), publishes tf via tf::TransformBroadcaster (robot_state_publisher.cpp:95,114); these are not recorded as ports or references since they are not packet elements. No exclusive resources claimed."
+}

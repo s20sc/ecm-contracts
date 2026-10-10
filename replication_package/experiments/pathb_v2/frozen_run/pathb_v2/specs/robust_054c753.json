@@ -1,0 +1,92 @@
+{
+  "case_id": "robust_054c753",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/272",
+    "https://github.com/yujinrobot/kobuki/pull/278",
+    "https://github.com/yujinrobot/kobuki/commit/054c753b40b56b20c39051e14bdab71bc50e1ae8",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/ba100858672f90cc249ac18513541905a7c7a104/kobuki_driver/src/driver/kobuki.cpp",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/ba100858672f90cc249ac18513541905a7c7a104/kobuki_driver/package.xml",
+    "https://raw.githubusercontent.com/yujinrobot/kobuki/0.3.9/kobuki_driver/src/driver/kobuki.cpp",
+    "https://raw.githubusercontent.com/stonier/ecl_core/0.60.5/ecl_devices/include/ecl/devices/serial_pos.hpp",
+    "https://raw.githubusercontent.com/stonier/ecl_core/0.60.5/ecl_devices/src/lib/serial_pos.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #272 (corot, 2013-06-19): \"ROS log gets somehow horribly mangled ... And prevents Ctrl+C to work. Strange thing is that it happens only sometimes.\" with a maintainer's log excerpt of the symptom (bit-pirate: \"I have a new version of mangled output - this time all is CAPTIAL LETTERS! :-)\" followed by an all-uppercase roslaunch log, \"Same result though - terminal get's unresponsive.\", https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21840623). Root cause and fix by maintainer jihoonl: \"The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93\" (https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240), PR #278 merged as 054c753 \"To resolve issue 272. babo terminal\"."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["ecl_devices", "kobuki_driver"],
+      "interface_kind": "library API",
+      "evidence": "Provider: ecl_devices (package in stonier/ecl_core; kobuki_driver/package.xml at ba100858 declares <build_depend>ecl_devices</build_depend> and <run_depend>ecl_devices</run_depend>), whose ecl::Serial class declares the call-order precondition in the open() documentation: \"If successful, it will configure the port with a blocking policy and a\\n     * timeout of 5s. Use the block() method after opening to alter the behaviour.\" (serial_pos.hpp at 0.60.5, lines 198-199); its default constructor \"Serial() : is_open(false), error_handler(NoError)\\n    {};\" leaves file_descriptor unset and block() ends with \"tcsetattr(file_descriptor, TCSAFLUSH, &options);\" (serial_pos.cpp at 0.60.5, line 320). Consumer: kobuki_driver (the C++ driver library, member \"ecl::Serial serial;\"), which at ba100858 calls \"serial.block(4000); // blocks by default, but just to be clear!\" at kobuki.cpp line 93 before \"serial.open(parameters.device_port, ...)\" at line 95. Step 2: the failure is a wrong call order crossing the library boundary (a documented precondition of the provider's API violated by the consumer), which the rubric counts as an interface failure even though the resolving edit is inside kobuki_driver; with a peer that guarded block() against an unopened device the same consumer code would not mangle the terminal, and with a consumer that opened first (as kobuki_driver 0.3.9 did) the same provider works. Steps 3-5 do not apply. Interface kind: library API (ecl::Serial method ordering)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: kobuki_driver's calls into ecl::Serial (block, open, read, write) are the interaction; the driver's own ordering of two calls is what failed. Not an UPGRADE: the provider did not change in the relevant respect (ecl_core 0.50.5, the groovy series, has the same default constructor \"Serial() : is_open(false), error_handler(NoError) {};\" and the same tcsetattr on file_descriptor), while the consumer changed between its 0.3.9 release (kobuki.cpp: serial.open at line 105, serial.block(4000) at line 110) and 0.4.0 on hydro-devel (block at 93, open at 95), as the maintainer states: \"In the version 0.3.9, which I confirmed that working fine,  the block() was called after open().\""
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: the mangled, all-uppercase roslaunch console and unresponsive terminal (\"Same result though - terminal get's unresponsive.\", https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21840623; issue body: \"And prevents Ctrl+C to work.\"), and the maintainer's statement of the mismatch: \"If block() is called without initializing serial, it uses default value for file_descriptor in serial_pos.cpp:line 320. Which I think causes the problem.\" (https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "ecl_devices",
+      "role": "provider",
+      "repo": "https://github.com/stonier/ecl_core",
+      "broken_rev": "0.60.5",
+      "resolved_rev": "0.60.5",
+      "pinned": true,
+      "revision_basis": "The report and fix are on the kobuki hydro-devel branch (\"hydro branch kobuki_driver/kobuki.cpp line 93\"); ecl_core's Hydro release series is 0.60.x (branch release/0.60-hydro). Tag 0.60.5 (2013-07-04) is the latest 0.60 release before the maintainer's diagnosis of 2013-08-01 (0.60.6 is 2014-01-29), and the line numbers the maintainer cites, serial_pos.hpp line 153 (\"(with overly large timeout of 5s) - use the block(timeout_ms) and unblock()\") and serial_pos.cpp line 320 (\"tcsetattr(file_descriptor, TCSAFLUSH, &options);\"), match this tag exactly (they are identical at 0.60.0 through 0.60.5, so the exact patch release in the reporter's install is bounded to that range). The resolution changes only kobuki_driver, so ecl_devices keeps its revision.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "kobuki_driver",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki",
+      "broken_rev": "ba100858672f90cc249ac18513541905a7c7a104",
+      "resolved_rev": "054c753b40b56b20c39051e14bdab71bc50e1ae8",
+      "pinned": true,
+      "revision_basis": "Broken: ba100858, first parent of the merge commit 054c753 (hydro-devel head at merge time), where kobuki_driver/src/driver/kobuki.cpp has serial.block(4000) at line 93 and serial.open(...) at line 95 as the maintainer cites (kobuki_driver/package.xml <version>0.4.0</version>). The reporter's original observation (2013-06-19) was on an earlier hydro-devel revision the source does not name; the 0.3.9 tag has the opposite order and is stated to work. Resolved: 054c753, the merge of PR #278, which moves serial.block(4000) after serial.open() in Kobuki::init and in the reconnect path of Kobuki::spin.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:ecl::Serial::Serial", "sides": {"ecl_devices": "provides", "kobuki_driver": "consumes"}},
+    {"element": "api:ecl::Serial::open", "sides": {"ecl_devices": "provides", "kobuki_driver": "consumes"}},
+    {"element": "api:ecl::Serial::block", "sides": {"ecl_devices": "provides", "kobuki_driver": "consumes"}},
+    {"element": "api:ecl::Serial::read", "sides": {"ecl_devices": "provides", "kobuki_driver": "consumes"}},
+    {"element": "api:ecl::Serial::write", "sides": {"ecl_devices": "provides", "kobuki_driver": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:ecl::Serial::block", "api:ecl::Serial::open"],
+      "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93\n\n```\n  serial.block(4000); // blocks by default, but just to be clear!\n  try {\n    serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);  // this will throw exceptions - NotFoundError, OpenError\n    is_connected = true;\n  }\n```\n\nIn the version 0.3.9, which I confirmed that working fine,  the block() was called after open().\n\nThe description of open() in ecl_core/ecl_device/serial_pos.hpp:line 153 tells that block() needs to be called after serial is opened.",
+      "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from any tooling: the misuse is visible only as its side effect on the terminal (\"I have a new version of mangled output - this time all is CAPTIAL LETTERS!\" ... \"Same result though - terminal get's unresponsive.\", https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21840623). The maintainer notes the provider gives no warning: \"Also, ecl serial.block() should warn user if file_descriptor is not initialized.\" (https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Consumer-side change in kobuki_driver/src/driver/kobuki.cpp (PR #278, merged as 054c753): delete the \"serial.block(4000);\" call that preceded the try block in Kobuki::init and insert \"serial.block(4000); // blocks by default, but just to be clear!\" after \"serial.open(...)\" / \"is_connected = true;\" inside the try, and likewise after the reconnecting serial.open() in Kobuki::spin. ecl_devices is unchanged.",
+    "status": "recommended",
+    "evidence": "Proposed by the maintainer with the diagnosis (\"Thus, the proposed patch is going to call serial.block() function after serial.open() in kobuki.cpp\", https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240) and merged the same day (https://github.com/yujinrobot/kobuki/pull/278); the issue was closed on 2013-08-20 without a comment showing the terminal problem gone, so the status is recommended. The maintainer's separate statement that 0.3.9 (open before block) \"working fine\" is the evidence for the order, observed with the older consumer release rather than with 054c753."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Failed-condition class: a call-order precondition of the provider's API (block() only after open(); the default constructor leaves file_descriptor uninitialised, so block() applies tcsetattr to an arbitrary descriptor, and the mangled console indicates it hit the terminal) has no dedicated class in the schema and is recorded as other. Detection stage is given as activate because the misuse executes in Kobuki::init during node start-up, before the driver's run loop; a reader who reserves activate for lifecycle transitions may prefer run. The reporter's remark that it \"happens only sometimes\" is consistent with an indeterminate descriptor value. The maintainer's suggested provider-side guard (a warning in ecl Serial::block when the descriptor is not initialised) was not part of this fix. The mangled log shown in the issue was produced by the maintainer's TurtleBot bring-up (mobile_base nodelet, cmd_vel_mux, robot_pose_ekf), i.e. kobuki_node hosting kobuki_driver; those hosts are not units of this composition."
+}

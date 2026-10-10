@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-037",
+  "kind": "A1",
+  "case_id": "C3-037",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "In short, the generated code for the message is wrongly considered plain.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/715#issuecomment-1743039453"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The root cause is mismatch between CDR representation and in-memory representation due to different alignment of fields.",
+      "url": "https://github.com/ros2/rosidl_typesupport_fastrtps/pull/108#issuecomment-1745396762"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Received: 'inner:\n  float_field: 1.23457\n  bool_field: true\nbool_field_1: false\nbool_field_2: false\nbool_field_3: false\n'",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/715"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "@MiguelCompany This seems to fix the problem for me using `rmw_fastrtps_cpp`, thanks for that.",
+    "url": "https://github.com/ros2/rmw_fastrtps/issues/715#issuecomment-1743152948"
+  },
+  "notes": "独立核验：(1) issue #715 正文逐字确认（Outer.msg/Inner.msg 定义、发布 true/接收 false 的输出、\"Received message have wrong values for boolean fields.\"、版本清单 ros-iron-rmw-fastrtps-cpp 7.1.1-2jammy.20230908.165835 与 ros-iron-rosidl-typesupport-fastrtps-cpp 3.0.1-1jammy.20230908.162358、CycloneDDS 不受影响）。(2) clalancette \"I'm also able to observe this behavior, when the publisher and subscriber are in the same process.\" 与 MiguelCompany \"This is reproduced when the sample is accessed via `rmw_take_loaned_message`.\" 均确认。(3) PR #108 \"Account for alignment on `is_plain` calculations\" 合并于 2023-10-04；其 diff 确认修复逻辑 \"is_plain = (offsetof(DataType, @(last_member_name_)) + last_member_size) == ret_val;\"；引文 \"The root cause is mismatch between CDR representation and in-memory representation due to different alignment of fields.\" 与 \"So what we are doing with this (and related) PR is disallowing the loans (marking the type as not plain) on those types where there is a representation mismatch.\" 均出自 MiguelCompany 在 PR #108 的评论，逐字确认。(4) 代码三点确认：3.0.1 模板第 500 行 \"is_plain ? ROSIDL_TYPESUPPORT_FASTRTPS_PLAIN_TYPE :\"；7.1.1 type_support_common.cpp 第 41 行 \"is_plain_ = bounds_info == ROSIDL_TYPESUPPORT_FASTRTPS_PLAIN_TYPE;\"；rmw_take.cpp 第 565 行 \"subscription->can_loan_messages = info->type_support_->is_plain();\"。(5) iron 回移 PR #109 经 mergify 确认；fujitatomoya 在回移完成后关单。representation_convention 分类成立（跨界的是 plain 标志与借样字节布局的表示约定）；clalancette 的验证未标明两单元修订，recommended 成立。报告者 workaround（\"putting the boolean field in front of the float field in Inner.msg\"）与 rmw_fastrtps_dynamic_cpp 失败（另一组合，PR #716）已在规格 notes 记录，非遗漏条件。"
+}

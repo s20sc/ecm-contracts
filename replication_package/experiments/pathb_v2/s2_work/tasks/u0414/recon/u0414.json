@@ -1,0 +1,67 @@
+{
+  "task_id": "u0414",
+  "package": "reporter_all_command_interfaces_controller",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::command_interface_configuration",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "resource:LF_HAA/position",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:controller_interface::interface_configuration_type::ALL"
+  ],
+  "perm_requires": {
+    "state": "unknown",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "unknown",
+    "values": []
+  },
+  "recovery": {
+    "state": "unknown",
+    "value": null
+  },
+  "provenance": {
+    "ports[0]": "artifact.txt:1: Create a controller with `controller_interface::interface_configuration_type::ALL` as type of the command interface configuration (and empty names)",
+    "ports[0].frame": "artifact.txt:1: Create a controller with `controller_interface::interface_configuration_type::ALL` as type of the command interface configuration (and empty names) (the element is a C++ method whose result is an interface-configuration type plus a list of names; no spatial data)",
+    "ports[1]": "artifact.txt:2: a controller that uses `controller_interface::interface_configuration_type::ALL` as command interface configuration type (ALL claims every command interface the system exposes; LF_HAA/position is not named in the artifact)",
+    "references[api:controller_interface::interface_configuration_type::ALL]": "artifact.txt:1: Create a controller with `controller_interface::interface_configuration_type::ALL` as type of the command interface configuration (and empty names)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The excerpt reads as a reproduction recipe: a controller whose command interface configuration is ALL with empty names. That is a deliberate configuration, and nothing in the two lines says the controller itself misdeclares any listed element; any fault may lie in the framework that handles an ALL claim rather than in this package."
+  },
+  "confidence": "low",
+  "notes": "Excerpt-based task: the only source is artifact.txt (2 lines of prose quoting a report). Both lines end with an issue-tracker link, which was not followed (issue trackers are not an allowed source). No snapshot, no package.xml (manifest_version null), no C++ source or declaration lines. What the artifact establishes: the controller implements the command interface configuration and returns type controller_interface::interface_configuration_type::ALL with empty names (port 0). declares is empty because no verbatim declaration line for command_interface_configuration exists in the artifact and the api template requires one. not_declared is empty because the artifact is not a complete definition body, so absence cannot be asserted. Undetermined either way (in neither list, no port): api:controller_interface::ControllerInterfaceBase::assign_interfaces, ::release_interfaces, ::state_interface_configuration are not mentioned; api:controller_interface::InterfaceConfiguration is implied only indirectly (a configuration with a type and names) but the symbol is not named. resource:LF_HAA/position (port 1): under an ALL command interface configuration the controller claims every command interface exported at run time, so this resource would be claimed if the hardware exports it; the name is supplied at run time and is not named in the artifact, hence not in references; msg_type/frame/units null (hardware command interface, not a ROS message; nothing stated). exclusive is empty because the artifact names no resource tokens; the claim is expressed only as the configuration type ALL (all command interfaces), not as named interfaces. QoS/rates null: the elements are C++ API and a hardware interface, not ROS topics. definition_id null: no .msg/.srv/.action/.idl definition involved. Permissions and recovery unknown: the code and configuration are not available to check."
+}

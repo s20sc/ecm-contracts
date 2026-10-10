@@ -1,0 +1,21 @@
+{
+  "item_id": "A1-robust_9ffffca", "kind": "A1", "case_id": "robust_9ffffca",
+  "eligibility": {"verdict": "agree", "stop_step": 3, "reason_code": "deployment_wiring",
+    "reason": "E1 is concrete: launching the smoother within a robot namespace binds the wrong topics. The complete fix changes only the launch nodelet-manager name and three remap targets from absolute to relative. E2 stops at deployment_wiring; no unit declaration or referenced port changes. A would-be PAIR and observed no-working-topics effect do not override that exclusion.",
+    "quote": "Changed topic remapping and nodelet manager to avoid absolute paths. In this way the velocity smoother will work even inside a namespace created with the tag <group ns=\"\">.",
+    "url": "https://github.com/turtlebot/turtlebot/commit/9ffffcaeca7dd5a1fbb327c7289b8a11f84da39f"},
+  "failed_conditions": [], "missed_conditions": [],
+  "loudness": {"verdict": "agree", "proposed": null,
+    "quote": "If I use the smoother inside a group namespace <group ns=\"robot1\">, it will not work and use the wrong topics.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/234",
+    "reason": "Agree with leaving this field null for an excluded case; this is not an endorsement of a silent or loud label."},
+  "detection_stage": {"verdict": "agree", "proposed": null,
+    "quote": "My suggestion is to avoid using absolute topic names in the <remap> tags and for the nodelet manager.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/234",
+    "reason": "Not applicable after E2 exclusion; agree with null."},
+  "resolution": {"verdict": "agree", "proposed": null,
+    "quote": "@tfoote, I tested it, It is good to merge.",
+    "url": "https://github.com/turtlebot/turtlebot/pull/235#issuecomment-268080231",
+    "reason": "The source reports a tested fix, but S1 requires resolution fields to remain null for ineligible cases; agree with that representation."},
+  "notes": "Read the issue and all conversation comments, the entire one-file fix diff, and PR 235 conversation comments. The sibling follower/navigation launch files are mentioned in the issue but not changed by this commit. Empty condition lists here mean not applicable under the exclusion, not that the user's reported failure did not occur."
+}

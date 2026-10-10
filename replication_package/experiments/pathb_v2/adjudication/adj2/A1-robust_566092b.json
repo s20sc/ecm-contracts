@@ -1,0 +1,45 @@
+{
+  "item_id": "A1-robust_566092b",
+  "kind": "A1",
+  "case_id": "robust_566092b",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Traceback (most recent call last):\n  File \"./tf_breaker.py\", line 19, in <module>\n    timeout=rospy.Duration(1))\n  File \"/opt/ros/indigo/lib/python2.7/dist-packages/tf2_ros/buffer_client.py\", line 66, in lookup_transform\n    return self.__process_goal(goal)\n  File \"/opt/ros/indigo/lib/python2.7/dist-packages/tf2_ros/buffer_client.py\", line 123, in __process_goal\n    return self.__process_result(self.client.get_result())\n  File \"/opt/ros/indigo/lib/python2.7/dist-packages/tf2_ros/buffer_client.py\", line 127, in __process_result\n    raise tf2.TransformException(\"The BufferServer returned None for result or result.error!  Something is likely wrong with the server.\")",
+    "url": "https://github.com/ros/geometry2/issues/178"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The issue is with the action client, not with BufferClient (state is available before result).",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-431801344"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Cranking the rate up to 100000 I was also able to get a double answer: \n\n```\n$ python test.py \n[ERROR] [WallTime: 1464801977.428899] Received comm state ACTIVE when in simple state DONE with SimpleActionClient in NS /tf2_buffer_server\n[ERROR] [WallTime: 1464801978.438880] SimpleActionClient received DONE twice",
+      "url": "https://github.com/ros/geometry2/issues/178#issuecomment-223066155"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "raise tf2.TransformException(\"The BufferServer returned None for result or result.error!  Something is likely wrong with the server.\")",
+    "url": "https://github.com/ros/geometry2/issues/178"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "From this short test I believe that the problem was partially mitigated. In fact, no more tf errors are thrown, however there is still something wrong with the tf state machine. Thank you for the patch @jorgenfb !"
+  },
+  "notes": "Independently verified. (1) E1: issue body (g-gemignani, 2016-06-01, 'High check_frequency values for BufferClient break tf2') carries the traceback verbatim plus reproducer 'bc = tf2_ros.BufferClient(\"/tf2_buffer_server\", check_frequency=1000)'; tfoote's confirmation read in comment 223066155: 'I can confirm that I saw this error once but cannot reproduce it again.' (2) E2: jorgenfb's analysis (comment 431801344, quoted above) and the actionlib issue #116 read directly: title 'Race condition: Goal state is SUCCEEDED before result is available.', body 'SimpleActionClient seems to have a race condition. Calling `get_state()` can give the SUCCEEDED state before a result is available.' — the ordering assumption crosses the library-API boundary; a consumer using wait_for_result() does not fail, so not internal. BufferServer exonerated as third unit ('Note for others reproducing you also need to run a buffer_server.', tfoote) — agreed. (3) Fix read directly: commit 566092b4 (parent 47b9dc71, merge of PR #333 'Add checks to buffer_client.py to make sure the result is available', merged 2018-10-11) changes '-           state == GoalStatus.SUCCEEDED or state == GoalStatus.LOST:' to '+           state == GoalStatus.LOST:' and adds '+        if state == GoalStatus.SUCCEEDED and self.client.get_result():' / '+            return True' — matches the spec's resolution quote exactly. (4) Both conditions class 'other' is the best available fit (ordering of two values across the API; provider-internal double-DONE state-machine errors documented in this composition). (5) Loudness silent_documented/run: consumer's own exception; the [ERROR] comm-state lines are runtime logerr, not build/connect/activate diagnostics. (6) Resolution observed: reporter's re-test (comment 431658241, 2018-10-21) quoted above shows the None-result failures gone with the patch ('no more tf errors are thrown'); spec's caveat that the re-test's actionlib revision is not stated is accurate and does not change the verdict for this composition's failed condition."
+}

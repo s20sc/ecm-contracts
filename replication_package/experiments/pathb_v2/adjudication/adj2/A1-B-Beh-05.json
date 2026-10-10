@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Beh-05",
+  "kind": "A1",
+  "case_id": "B-Beh-05",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "pose.header.stamp = rclcpp::Clock().now();",
+    "url": "https://github.com/ros-navigation/navigation2/blob/3bb9a95719539fcdfedf520c63339bc3157f80b4/nav2_rviz_plugins/src/nav2_panel.cpp"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[planner_server-2] [ERROR] [1691424774.006121032] [transformPoseInTargetFrame]: Extrapolation Error looking up target frame: Lookup would require extrapolation into the future.  Requested time 1691424773.212782 but the latest data is at time 3617.600000, when looking up transform from frame [map] to frame [odom]",
+      "url": "https://github.com/ros-navigation/navigation2/issues/3746"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The launch file seems ok because the last output I am getting is\n[lifecycle_manager-5] [INFO] [1691409212.195861492] [lifecycle_manager_navigation]: Creating bond timer...",
+    "url": "https://github.com/ros-navigation/navigation2/issues/3746"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "-  pose.header.stamp = rclcpp::Clock().now();\n+  // pose.header.stamp = client_node_->now();  // client node doesn't respect sim time yet",
+    "url": "https://github.com/ros-navigation/navigation2/commit/3a258a6e2da9250c9a398debcfde17a77d307647"
+  },
+  "notes": "独立核验通过（gh api 读取 issue 3746 正文与全部评论、#3586 全部评论、PR3595 提交 diff、rosdistro 9f73649c68、nav2_panel.cpp@3bb9a957 onNewGoal 盖戳行、navigate_to_pose.cpp@3bb9a957 L217 直通存储行 blackboard->set<geometry_msgs::msg::PoseStamped>(goal_blackboard_id_, goal->pose);）。正文日志行与 spec 引文逐字一致；'when I do Nav2Goal it throws the above provided error and robot do not move.' 在报告者评论中逐字找到（非正文，无碍）。维护者 SteveMacenski 关闭评论逐字核到：'As such with a user setup error, closing.'；Combinatrix 的 sim_time 解决评论与 Anfil033RC 的 'worked for me'（无版本信息）亦核到，支持 recommended 而非 observed。#3586 中 'We're just making a clock willy-nilly which is going to default to system time.' 与 'https://github.com/ros-planning/navigation2/pull/3595 resolves!' 逐字核到（SteveMacenski 参与；'if you track back where `pose` is populated...' 一条的作者未逐条钉死，不影响裁决）。rosdistro 9f73649c68 信息为 'navigation2: 1.1.9-1 in humble/distribution.yaml [bloom] (#38162)'（2023-08-07），与 spec 的版本推断叙述相符。class=representation_convention（时间基准作为跨越边界的取值解释约定）与牵连元素 field:std_msgs/Header.stamp + msg:geometry_msgs/PoseStamped 认可；silent_documented/run 认可（构建/连接/激活无诊断，仅有运行期 TF 外推错误与 aborted 动作）。"
+}

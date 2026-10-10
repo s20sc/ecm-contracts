@@ -1,0 +1,45 @@
+[[rosbridge_server@1a2c386455067b00a9e67fb70cc711add38c3582]]
+# rosbridge_library/src/rosbridge_library/internal/subscribers.py, lines 107-108
+# https://github.com/RobotWebTools/rosbridge_suite/blob/1a2c386455067b00a9e67fb70cc711add38c3582/rosbridge_library/src/rosbridge_library/internal/subscribers.py#L107-L108
+        # TODO(@jubeira): add support for other QoS.
+        self.subscriber = node_handle.create_subscription(msg_class, topic, self.callback, 10)
+# rosbridge_server/package.xml, line 4
+  <version>1.0.2</version>
+"It looks like `rosbridge_server` uses the default reliability QoS policy (which in my case ends up being **Reliable**) and only specifies the depth." -- https://github.com/RobotWebTools/rosbridge_suite/issues/551
+"Rosbridge Version (`roscat rosbridge_server package.xml | grep '<version>'`): 1.0.2 (more specifically 1a2c386)" -- https://github.com/RobotWebTools/rosbridge_suite/issues/551
+"ROS Version (`echo $ROS_DISTRO`): foxy" -- https://github.com/RobotWebTools/rosbridge_suite/issues/551
+
+[[rosbridge_server@adfa4d6335462e321d774400a6ffbf285cb28531]]
+# rosbridge_library/src/rosbridge_library/internal/subscribers.py, as changed by PR #690
+# https://github.com/RobotWebTools/rosbridge_suite/pull/690/files
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+        qos = QoSProfile(
+            depth=10,
+            durability=DurabilityPolicy.VOLATILE,
+            reliability=ReliabilityPolicy.RELIABLE,
+        )
+        infos = node_handle.get_publishers_info_by_topic(topic)
+
+        # Certain combinations of publisher and subscriber QoS parameters are
+        # incompatible. Here we make a "best effort" attempt to match existing
+        # publishers for the requested topic. This is not perfect because more
+        # publishers may come online after our subscriber is set up, but we try
+        # to provide sane defaults. For more information, see:
+        # - https://docs.ros.org/en/rolling/Concepts/About-Quality-of-Service-Settings.html
+        # - https://github.com/RobotWebTools/rosbridge_suite/issues/551
+        if any(pub.qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL for pub in infos):
+            qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
+        if any(pub.qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT for pub in infos):
+            qos.reliability = ReliabilityPolicy.BEST_EFFORT
+
+        self.subscriber = node_handle.create_subscription(
+            msg_class, topic, self.callback, qos, raw=raw
+        )
+# rosbridge_server/package.xml, line 4
+  <version>1.1.0</version>
+"Subscriber QoS is automatically chosen based on available publishers to achieve compatible QoS settings in more cases." -- https://github.com/RobotWebTools/rosbridge_suite/pull/690
+
+[[reporter_best_effort_publisher@as-reported-2021-01]]
+"Run a ROS2 node that publishes data to a topic using **Best Effort** reliability." -- https://github.com/RobotWebTools/rosbridge_suite/issues/551
+"ROS Version (`echo $ROS_DISTRO`): foxy" -- https://github.com/RobotWebTools/rosbridge_suite/issues/551
+"OS Version (`grep DISTRIB_CODENAME /etc/lsb-release`): focal" -- https://github.com/RobotWebTools/rosbridge_suite/issues/551

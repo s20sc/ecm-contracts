@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-080",
+  "kind": "A1",
+  "case_id": "C3-080",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "With mavros version >= 0.33 I was actually still sending mavlink v2.0 messages even after successfully setting the fcu_version=v1.0.",
+    "url": "https://github.com/mavlink/mavros/issues/1787"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "With mavros version >= 0.33 I was actually still sending mavlink v2.0 messages even after successfully setting the fcu_version=v1.0.",
+      "url": "https://github.com/mavlink/mavros/issues/1787"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I also looked at the messages with [this](https://mavlink.io/en/guide/wireshark.html) wireshark plugin to double check.",
+    "url": "https://github.com/mavlink/mavros/issues/1787"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "LGTM, Thanks!",
+    "url": "https://github.com/mavlink/mavros/pull/1794"
+  },
+  "notes": "Verified against mavros issue #1787 and PR #1794. libmavconn stored protocol version flags in m_mavlink_status but framed outgoing packets using m_parse_status, causing v2 framing to be sent despite v1 configuration."
+}

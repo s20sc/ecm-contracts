@@ -1,0 +1,101 @@
+{
+  "task_id": "u0160",
+  "package": "tf2_tools",
+  "manifest_version": "0.5.12",
+  "ports": [
+    {
+      "element": "api:tf2_ros.Buffer",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2_ros.TransformListener",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:tf2_msgs/FrameGraph.frame_yaml",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/FrameGraph",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b"}
+    },
+    {
+      "element": "msg:tf2_msgs/FrameGraph",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/FrameGraph",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b"}
+    },
+    {
+      "element": "service:~tf2_frames",
+      "side": "consumes",
+      "msg_type": "tf2_msgs/FrameGraph",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "807bcdb0e2a30a221b2150a165d300d6ff7fc0d8e22f2575a76e1b4a2e460c4b"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:tf2_ros.Buffer",
+    "api:tf2_ros.TransformListener",
+    "service:~tf2_frames",
+    "msg:tf2_msgs/FrameGraph",
+    "field:tf2_msgs/FrameGraph.frame_yaml"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:tf2_tools/package.xml:3",
+    "ports[2].msg_type": "snapshot:tf2_tools/scripts/view_frames.py:36",
+    "ports[2].frame": "snapshot:tf2_msgs/srv/FrameGraph.srv:2",
+    "ports[2].definition_id": "python3 definition_hash.py sha256 snapshot/tf2_msgs/srv/FrameGraph.srv",
+    "ports[3].msg_type": "snapshot:tf2_tools/scripts/view_frames.py:36",
+    "ports[3].frame": "snapshot:tf2_msgs/srv/FrameGraph.srv:2",
+    "ports[3].definition_id": "python3 definition_hash.py sha256 snapshot/tf2_msgs/srv/FrameGraph.srv",
+    "ports[4].msg_type": "snapshot:tf2_tools/scripts/view_frames.py:51",
+    "ports[4].frame": "snapshot:tf2_msgs/srv/FrameGraph.srv:2",
+    "ports[4].definition_id": "python3 definition_hash.py sha256 snapshot/tf2_msgs/srv/FrameGraph.srv",
+    "references[api:tf2_ros.Buffer]": "snapshot:tf2_tools/scripts/view_frames.py:45",
+    "references[api:tf2_ros.TransformListener]": "snapshot:tf2_tools/scripts/view_frames.py:46",
+    "references[service:~tf2_frames]": "snapshot:tf2_tools/scripts/view_frames.py:51",
+    "references[msg:tf2_msgs/FrameGraph]": "snapshot:tf2_tools/scripts/view_frames.py:36",
+    "references[field:tf2_msgs/FrameGraph.frame_yaml]": "snapshot:tf2_tools/scripts/view_frames.py:52",
+    "perm_requires": "searched all four files under snapshot/tf2_tools (package.xml, CMakeLists.txt, mainpage.dox, scripts/view_frames.py); no permission or capability declaration",
+    "perm_grants": "searched all four files under snapshot/tf2_tools (package.xml, CMakeLists.txt, mainpage.dox, scripts/view_frames.py); no permission or capability grant",
+    "recovery": "searched snapshot/tf2_tools/scripts/view_frames.py (the package's only code file) for try/except, retry, fallback or recovery handling; none present. The script blocks on rospy.wait_for_service('~tf2_frames') (line 50) with no timeout and has no error path"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Within tf2_tools the consumption of FrameGraph is consistent with the snapshot's own tf2_msgs at this revision (imported as tf2_msgs.srv.FrameGraph, a .srv whose response field is string frame_yaml, read as srv().frame_yaml). The script depends on something in its own process (it builds a tf2_ros.Buffer) serving the private service ~tf2_frames; I did not check whether tf2_ros at this revision provides it, so I cannot say whether that call resolves."
+  },
+  "confidence": "high",
+  "notes": "tf2_tools at this revision is a single script, scripts/view_frames.py (installed via CMakeLists.txt:14), node name 'view_frames' (line 40). All five packet elements are consumed, so declares and not_declared are empty by definition. ROS 1 (indigo): all QoS fields are null. Two api ports (tf2_ros.Buffer constructed at line 45 with no arguments; tf2_ros.TransformListener(buffer) at line 46) carry no message type in this package's code; the TF topics the listener subscribes to live inside tf2_ros and are not named in tf2_tools, and the script never calls lookup_transform or names any frame, so frame is null for those ports. The element msg:tf2_msgs/FrameGraph is a service type at this revision, not a message: snapshot/tf2_msgs has srv/FrameGraph.srv (request empty, response 'string frame_yaml') registered by add_service_files (tf2_msgs/CMakeLists.txt:8), and there is no msg/FrameGraph.msg; the code imports it with 'from tf2_msgs.srv import FrameGraph' (line 36). The field frame_yaml is in the response part. definition_id: 'definition_hash.py ros1 tf2_msgs/FrameGraph snapshot' fails (FileNotFoundError, it only reads msg/<Type>.msg), so the recorded id is the tool's sha256 mode on the .srv file (kind srv); no ROS 1 srv md5sum was computed. frame 'none' for the FrameGraph ports: the response is a YAML string describing the TF tree (keys parent, broadcaster, rate, buffer_length, most_recent_transform, oldest_transform, read at lines 63-70) with no header or geometric data. Units of 'rate' and the transform times in the YAML are not stated in the definition or code (null). The service name is written verbatim as '~tf2_frames' (lines 50 and 51); it resolves in the private namespace of the calling node, i.e. under /view_frames. yaml.load is called without a Loader (line 52). Other imports not in the packet: roslib (load_manifest, line 31), rospy, tf2_py (imported as tf2 at line 33, unused), yaml, subprocess; the script shells out to 'dot -Tpdf frames.gv -o frames.pdf' (line 55) and writes frames.gv in the working directory. No parameters, topics, publishers or subscribers are declared directly in tf2_tools code."
+}

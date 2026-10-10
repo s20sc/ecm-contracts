@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL2-04",
+ "kind": "A1",
+ "case_id": "CAL2-04",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "The method is called only in `inactive` or `active` state, i.e., `on_configure` has to be called first.  (documented precondition in controller_interface_base.hpp, read at 0863acd6 lines 79-80 and 95-96 for both command and state interface configuration; the host violates it: controller_manager.cpp at b9cdcfe0 lines 2276-2277, inside controller_sorting: 'const std::vector<std::string> cmd_itfs = ctrl_a.c->command_interface_configuration().names;' / 'const std::vector<std::string> state_itfs = ctrl_a.c->state_interface_configuration().names;')",
+  "url": "https://github.com/ros-controls/ros2_control/blob/0863acd6905af0eba4db1074f11edd60215758d5/controller_interface/include/controller_interface/controller_interface_base.hpp"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "However that can lead to situations where when the FTS broadcaster is loaded but not yet configured and another controller is configured the controller sorting in configuring the other controller will also check the FTS broadcasterf for sorting. For this it will try to fetch all state and command interfaces which will use the [`force_torque_sensor_` object](...) which unfortunately is a nullpointer before the FTS broadcaster has been configured.",
+   "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "3. configure the JS broadcaster\n4. controller_manager will die  ... First of all I would expect things not to crash.  (no diagnostic from existing tooling is shown before the death; reproducer and expectation read verbatim in the issue body)",
+  "url": "https://github.com/ros-controls/ros2_control/issues/1164"
+ },
+ "resolution": {
+  "verdict": "disagree",
+  "proposed": "recommended",
+  "quote": "Thank you for reporting the issue. I've addressed the above bug in the linked PR. I've tested it on my end and it works. Please test us and let us know.  (saikishor, comment 1808709963; PR 1165 'Fix the controller sorting bug when the interfaces are not configured (fixes #1164)' verified merged 2023-11-14, merge commit 75e7efd1)"
+ },
+ "notes": "Sources opened this session: issue 1164 body (reproducer and the failed-condition quote verbatim, including the 'broadcasterf' typo), maintainer comment 1808709963, the precondition text in controller_interface_base.hpp at 0863acd6 (both occurrences), controller_manager.cpp at b9cdcfe0 showing controller_sorting calling both configuration methods on every loaded controller, and force_torque_sensor_broadcaster.cpp at 232154da showing on_configure creating force_torque_sensor_ and state_interface_configuration() dereferencing it while command_interface_configuration() returns NONE. Eligibility agree: plugin and host framework are separate units (E2 step 1); the host's call order crosses the boundary violating the documented precondition; class 'other' fits (lifecycle call-order precondition, no listed class covers it); PAIR correct. Loudness agree: the process dies with no tooling diagnostic; 'activate' (crash during a controller configure transition) is defensible. RESOLUTION DISAGREEMENT: the spec's resolution says 'No resolving change is documented ... status: none' and 'the thread ends without a fix', which contradicts the spec's own E1 evidence (the maintainer's comment), its own revision_basis ('Resolved: the humble backport ee1e2e18 ... released in 2.35.0'), and the packet's source_refs — PR 1165 was merged as 75e7efd1 (master) with humble backport ee1e2e18 and iron backport b30f27d3. The correct status is 'recommended': the fix is merged and the maintainer reports testing it, but no source shows the resolved composition working with both units identified by revision."
+}

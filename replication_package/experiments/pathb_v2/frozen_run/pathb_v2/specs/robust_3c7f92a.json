@@ -1,0 +1,98 @@
+{
+  "case_id": "robust_3c7f92a",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_desktop/issues/9",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/3c7f92a2c6a51b4896e669d0da34b4de90a71914",
+    "https://github.com/ros-visualization/rqt_common_plugins/commit/f33257862cbbb10e87577304172ad53171d1ea30",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/28e25c4bd5ee18ff263ecf885094038e0f872e58",
+    "https://github.com/yujinrobot/kobuki_desktop/issues/9#issuecomment-23005775"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Error log in the issue body: \"Traceback (most recent call last):\\n  File \\\"/opt/ros/groovy/lib/python2.7/dist-packages/rqt_plot/plot_widget.py\\\", line 168, in update_plot\\n    self.data_plot.redraw()\\n  File \\\"/opt/turtlebot/kobuki_desktop/kobuki_qtestsuite/plugins/../src/kobuki_qtestsuite/full_size_data_plot.py\\\", line 54, in redraw\\n    data_x, data_y, plot = curve\\nValueError: too many values to unpack\", filed by maintainer bit-pirate as 'Fix some bugs in plotting due to changes in rqt'; fix commit 3c7f92a2 'bugfix new matdataplot api with resizing the plot, refs #9.'"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rqt_plot", "kobuki_qtestsuite"],
+      "interface_kind": "library API",
+      "evidence": "Step 1: rqt_plot is a separately released package (rqt_common_plugins, installed from /opt/ros/groovy); kobuki_qtestsuite is an rqt plugin package (kobuki_desktop) whose FullSizeDataPlot subclasses rqt_plot.mat_data_plot.MatDataPlot, overrides redraw(), and reads the inherited _curves records; the plugin and its host library are separate units. Step 2: the failure is a value-layout mismatch crossing the boundary: the provider's _curves records changed from 3-tuples (data_x, data_y, plot) to 4-element records ([], [], line, [None, None]) in rqt_common_plugins f3325786, and the consumer's override unpacks three. Steps 3-5: not a name binding, build, or firmware matter. Interface kind: library API (Python class attribute accessed through subclassing)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the consumer's redraw() (written 2012-11-14, kobuki_desktop 28e25c4) unpacks the 3-tuple record declared by MatDataPlot.add_curve before f3325786 (2012-12-24); the provider installed at report time (groovy release, any of 0.2.7 and later) stores 4-element records. PAIR is the underlying interaction (PlotWidget.update_plot calls the plugin's redraw, which reads the provider's records); the failure appeared only with the provider at the newer revision."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: the traceback ending in \"ValueError: too many values to unpack\" raised inside the plugin's redraw during the plot timer callback."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rqt_plot",
+      "role": "provider",
+      "repo": "https://github.com/ros-visualization/rqt_common_plugins",
+      "broken_rev": "2558f3aefc438bc3bcb6c2662f860b53c5b8de46",
+      "resolved_rev": "2558f3aefc438bc3bcb6c2662f860b53c5b8de46",
+      "pinned": true,
+      "revision_basis": "The traceback shows rqt_plot installed under /opt/ros/groovy with plot_widget.py line 168 = 'self.data_plot.redraw()' but no version. That line is identical at releases 0.2.8 through 0.3.0, and the 4-element _curves record ([], [], line, [None, None]) is present from f3325786 (2012-12-24) on, first released in 0.2.7 (2012-12-24), so every groovy release from 0.2.7 to 0.2.17 declares the same interface. 2558f3ae is tag 0.2.12 (2013-03-11), the newest release on the 2013-03-12 report date; which of 0.2.7-0.2.17 the reporter's debian package corresponded to is not determinable. The resolution does not change this unit (the fix landed on kobuki_desktop's hydro line, where 0.3.0 of 2013-08-28 carries the identical record layout), so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "groovy"
+    },
+    {
+      "name": "kobuki_qtestsuite",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "27e85fc224fc6198b55c5af0d066c7901af8ec0b",
+      "resolved_rev": "3c7f92a2c6a51b4896e669d0da34b4de90a71914",
+      "pinned": true,
+      "revision_basis": "27e85fc2 is tag 0.2.0 (2013-08-09) and the parent of the fix. The reporter ran a source checkout on 2013-03-12 (traceback path /opt/turtlebot/kobuki_desktop/...); the repository head then was e215bcc9 (2013-03-08), whose full_size_data_plot.py is byte-identical in the relevant function (line 54: 'data_x, data_y, plot = curve' at both revisions; the file was unchanged from 28e25c4 of 2012-11-14 until the fix). 3c7f92a2 (2013-08-21, hydro-devel) is the fix, contained in tag 0.3.0 and later.",
+      "excerpt": false,
+      "ros_distro": "groovy"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "b86ac6c8414262d847b8832a474fd6d9b4f4b418",
+    "resolved": "2558f3aefc438bc3bcb6c2662f860b53c5b8de46",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:rqt_plot.plot_widget.PlotWidget", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.switch_data_plot_widget", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.add_topic", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.remove_topic", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.enable_timer", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.plot_widget.PlotWidget.topic_edit", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.mat_data_plot.MatDataPlot", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.mat_data_plot.MatDataPlot._curves", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.mat_data_plot.MatDataPlot._canvas", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}},
+    {"element": "api:rqt_plot.mat_data_plot.MatDataPlot.redraw", "sides": {"rqt_plot": "provides", "kobuki_qtestsuite": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": ["api:rqt_plot.mat_data_plot.MatDataPlot._curves", "api:rqt_plot.mat_data_plot.MatDataPlot.redraw"],
+      "quote": "-        self._curves[curve_id] = (data_x, data_y, plot)\n+        self._curves[curve_id] = ([], [], line, [None, None])",
+      "url": "https://github.com/ros-visualization/rqt_common_plugins/commit/f33257862cbbb10e87577304172ad53171d1ea30"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The only diagnostic is the Python exception raised while the plugin was already loaded and plotting: \"File \\\"/opt/turtlebot/kobuki_desktop/kobuki_qtestsuite/plugins/../src/kobuki_qtestsuite/full_size_data_plot.py\\\", line 54, in redraw\\n    data_x, data_y, plot = curve\\nValueError: too many values to unpack\" (https://github.com/yujinrobot/kobuki_desktop/issues/9). No build, import, connection, or activation check reported the mismatch; the plugin imported and loaded, and the error surfaced in PlotWidget.update_plot's timer callback at run time.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "kobuki_qtestsuite's FullSizeDataPlot.redraw() unpacks the provider's 4-element record ('data_x, data_y, plot, min_max_y = curve') and takes the y range from its fourth element (kobuki_desktop 3c7f92a2, hunk in full_size_data_plot.py).",
+    "status": "recommended",
+    "evidence": "Fix commit 'bugfix new matdataplot api with resizing the plot, refs #9.' (https://github.com/yujinrobot/kobuki_desktop/commit/3c7f92a2c6a51b4896e669d0da34b4de90a71914); the issue was then closed after wiki updates (\"The battery tutorial also updated.\", https://github.com/yujinrobot/kobuki_desktop/issues/9#issuecomment-23005775). The source does not state that the plot renders after the change."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "consumer_built_against (inferred): the consumer's 3-tuple unpack matches MatDataPlot.add_curve's 'self._curves[curve_id] = (data_x, data_y, plot)' as declared up to b86ac6c8 (2012-12-23, the parent of f3325786; last release with that layout is 0.2.6 of 2012-12-23); the consumer file was written on 2012-11-14. The resolved consumer unpacks four elements, matching f3325786 and every later revision, so resolved built-against is the provider's broken revision. _curves is a name-mangled-free but underscore-prefixed attribute of the provider, reached by subclassing; rqt_plot never declared it public. The fix commit also bundles unrelated changes (a standalone kobuki_qtestsuite script and setup.py entries, a core-sensor topic combo box in configuration_dock_widget.py and the .ui file, a cmd_vel topic slot in battery_profile_frame.py); the minimal resolving change is the two-hunk edit of full_size_data_plot.py. Other provider members the consumer uses (PlotWidget._start_time, PlotWidget.data_plot, MatDataPlot._update_legend) are omitted from the 10-element inventory. The same consumer later broke again against rqt_plot 0.3.7 (kobuki_desktop issue #33, a separate case)."
+}

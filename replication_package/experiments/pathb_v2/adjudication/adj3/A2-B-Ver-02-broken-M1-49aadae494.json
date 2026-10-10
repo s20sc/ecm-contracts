@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-B-Ver-02-broken-M1-49aadae494",
+  "kind": "A2",
+  "case_id": "B-Ver-02",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[msg:franka_msgs/FrankaState]",
+      "verdict": "verified",
+      "source_excerpt": "built: s2_work/tasks/u0241/snapshot/franka_msgs/msg/FrankaState.msg:1-35 (0.6.0) ends 'float64 time / franka_msgs/Errors current_errors / franka_msgs/Errors last_motion_errors' (no robot_mode). running: s2_work/tasks/u0242/snapshot/franka_msgs/msg/FrankaState.msg:34-41 'uint8 ROBOT_MODE_OTHER=0 ... uint8 ROBOT_MODE_AUTOMATIC_ERROR_RECOVERY=6 / uint8 robot_mode' inserted before current_errors."
+    },
+    {
+      "path": "ver_delta.consumer_reads[msg:franka_msgs/FrankaState]",
+      "verdict": "verified",
+      "source_excerpt": "s2_work/tasks/u0239/artifact.txt:1 'franka_msgs::FrankaState contact;'"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[msg:franka_msgs/FrankaState]",
+      "verdict": "substantive",
+      "built_excerpt": "s2_work/tasks/u0241/snapshot/franka_msgs/msg/FrankaState.msg (0.6.0): 'float64 time\\nfranka_msgs/Errors current_errors\\nfranka_msgs/Errors last_motion_errors' (no robot_mode field)",
+      "running_excerpt": "s2_work/tasks/u0242/snapshot/franka_msgs/msg/FrankaState.msg:34-41: 'uint8 ROBOT_MODE_OTHER=0\\nuint8 ROBOT_MODE_IDLE=1\\nuint8 ROBOT_MODE_MOVE=2\\nuint8 ROBOT_MODE_GUIDING=3\\nuint8 ROBOT_MODE_REFLEX=4\\nuint8 ROBOT_MODE_USER_STOPPED=5\\nuint8 ROBOT_MODE_AUTOMATIC_ERROR_RECOVERY=6\\nuint8 robot_mode'"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Spec operation is UPGRADE (specs/B-Ver-02.json); the assembled composition (assembled/B-Ver-02.json) encodes UPGRADE. The two ports are connected: producer franka_ros outputs msg:franka_msgs/FrankaState (pair_view edge out_role==in_role==msg:franka_msgs/FrankaState) and consumer MoveRobot reads it (consumer_reads lists msg:franka_msgs/FrankaState)."
+  },
+  "notes": "Provenance is non-null; verified against task snapshots. The change (uint8 robot_mode field added) alters the message definition, which is the substantive ROS1 md5sum mismatch documented in the spec. consumer_reads value 'franka_msgs::FrankaState contact;' is verbatim line 1 of the consumer artifact."
+}

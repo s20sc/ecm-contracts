@@ -1,0 +1,52 @@
+{
+  "case_id": "C3-134",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-drivers/usb_cam/issues/262",
+    "https://github.com/flynneva/usb_cam/commit/da715c98aa569d5d260f3dba8e55e8046b7ac3b9",
+    "https://github.com/ros-drivers/usb_cam/pull/264",
+    "https://github.com/ros-drivers/usb_cam/pull/268",
+    "https://github.com/ros-drivers/usb_cam/pull/279",
+    "https://github.com/ros-drivers/usb_cam/commit/bd6bb91c7279819ad4136001b5e5a138dffa5452"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reporter gives the OOM kill log (\"Out of memory: Killed process 267615 (usb_cam_node_ex) total-vm:31232704kB, anon-rss:27694492kB ...\"), setup (Humble binary, usb_cam 0.6.0, Logitech C920, pixel_format \"mjpeg2rgb\") and later a valgrind report; maintainer flynneva confirms and reproduces (\"I was able to track down _most_ of the issues in the `mjpeg2rgb` conversion I think. Now that I can reproduce locally though...\") (https://github.com/ros-drivers/usb_cam/issues/262)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "usb_cam (usb_cam_node_exe)"
+      ],
+      "interface_kind": null,
+      "evidence": "The failure is memory growth inside the usb_cam process until the OOM killer ends it (\"usb_cam node allocates memory over time without freeing it until the systems hangs and the oom kills it.\"). The maintainer localises it to usb_cam's own MJPEG conversion code: \"I've narrowed the major leakages down to the `av_packet_from_data` call. We'll need to come up with an alternative way of initializing the ffmpeg AVPacket, or figuring out what is leaking there.\" and the final fix (commit bd6bb91c \"Allocate unique avpacket for each frame\", via PR #279) replaces `av_packet_from_data(m_avpacket, ...)` with a per-frame `av_packet_alloc()` / `av_new_packet(avpacket, bytes_used)` / `memcpy` / `av_packet_free(&avpacket)` in include/usb_cam/formats/mjpeg.hpp. The earlier fixes (PR #264, PR #268, commit da715c98) likewise only change usb_cam's own allocation and cleanup code. The FFmpeg libraries it links are used according to their documented behaviour once usb_cam's calls are corrected; any correct FFmpeg (and any correct subscriber) would see the same leak. This is a leak inside one process: ineligible `internal`. Classification confidence: high. Context: Possible alternative reading considered and rejected: the leak involves a call into FFmpeg's libavcodec (reporter: \"So if I understand the docs correctly ... One should only pass a data pointer which has been allocated with av_malloc. Which isn't the case here if I am right.\"), i.e. usb_cam violated a documented precondition of a library API. The instructions list a leak inside one process as internal, and the failure would occur with any correct FFmpeg, so the case is not treated as a usb_cam/libavcodec interface mismatch. The reporter also observed that the leak needed a subscriber: \"I had to subscribe to the raw topic (didnt try the other ones) for this to happen.\" Fix history: PR #264 (merged 2023-07-21, e030e2d4824d2abf9c14fab644b81dd0d6e18447, \"Addresses / fixes multiple memory leak issues as reported in #262\"; reporter: \"It still eats memory rather rapidly\"), PR #268 (merged 2023-08-13, d696690f05c0cce5327d404528fa073341969169; reporter: \"It looks in general way better but still starts consuming memory\"), commit da715c98 on flynneva's fork (\"Fix some minor memorly leaks for mjpeg\"), and bd6bb91c in PR #279 (merged 2023-08-31, ec67cb28722532ef327cd47f9cedfa7b762e5664). The reporter confirmed: \"Just tested the latest ros-iron release and it seems to fix the issue!\"."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stops at step 2."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stops at step 2."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): a memory leak inside the usb_cam process caused by usb_cam's own AVPacket handling in its MJPEG-to-RGB conversion; fixed entirely in usb_cam and independent of any peer.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": null
+}

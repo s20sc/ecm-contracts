@@ -1,0 +1,42 @@
+#include <cstdlib>
+#include <iostream>
+
+const char* str_or_null(const char* str)
+{
+  return str != nullptr ? str : "<nullptr>";
+}
+
+int main(int argc, char ** argv)
+{
+  (void) argc;
+  (void) argv;
+
+  auto* my_env_var = std::getenv("my_env_var");
+
+  std::cerr << "my_env_var = '" << str_or_null(my_env_var) << "'" << std::endl;
+  return 0;
+}
+
+<launch>
+  <set_env name="my_env_var" value="1"/>
+  <group>
+    <set_env name="my_env_var" value="2"/>
+    <include file="$(find-pkg-share env_bug)/launch/inner.launch.ros2.xml"/>
+    <set_env name="my_env_var" value="3"/>
+  </group>
+  <group>
+    <set_env name="my_env_var" value="4"/>
+  </group>
+</launch>
+
+<launch>
+  <set_env name="my_env_var" value="5"/>
+  <node pkg="env_bug" exec="env_bug_node">
+    <!--<env name="my_env_var" value="6"/>-->
+  </node>
+</launch>
+
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME})
+
+my_env_var=7 ros2 launch env_bug outer.launch.ros2.xml

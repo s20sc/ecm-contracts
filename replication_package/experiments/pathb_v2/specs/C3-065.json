@@ -1,0 +1,87 @@
+{
+  "case_id": "C3-065",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/2054",
+    "https://github.com/mavlink/mavros/pull/2226",
+    "https://github.com/mavlink/mavros/commit/46cc78fb77c8f40687d04fff99839170b57130d0",
+    "https://github.com/mavlink/mavros/blob/09df29645e34b46c781e27dffe1fe613f81f50e0/mavros/src/plugins/global_position.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue #2054 names the exact code line (global_position.cpp L343, `Eigen::Vector3d(gpos.vy, gpos.vx, gpos.vz) / 1E2`) and attaches a plot of /mavros/global_position/local/pose/pose/position/z rising while /mavros/global_position/local/twist/twist/linear/z goes negative; merged PR #2226 confirms: \"FIX: #2054: instead of converting into `ENU`, the code was converting into `END` frame.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["mavros", "global_position_local_consumer"],
+      "interface_kind": "topic",
+      "evidence": "The mavros global_position plugin publishes nav_msgs/Odometry on `~/local` (/mavros/global_position/local) whose twist z component is in a down-positive (END) axis convention while the message is declared and consumed as ENU (ROS convention). The wrong frame crosses the mavros -> subscriber boundary, so this is an interface failure even though the resolving edit is inside mavros. Not deployment wiring, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: mavros's published output (topic /mavros/global_position/local) feeds the reporter's subscriber (the plotted topic fields in the issue's image)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Issue: \"the `z` coordinate is not consistent with the transformation, in fact, it remains positive toward down.\" plus the attached plot of the topic fields."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "09df29645e34b46c781e27dffe1fe613f81f50e0",
+      "resolved_rev": "46cc78fb77c8f40687d04fff99839170b57130d0",
+      "pinned": true,
+      "revision_basis": "The reporter names no release; the issue (2025-08-25) links https://github.com/mavlink/mavros/blob/ros2/mavros/src/plugins/global_position.cpp#L343, so the broken revision is the ros2 branch head on the report date, 09df2964 (committed 2025-08-23), where line 343 reads `Eigen::Vector3d(gpos.vy, gpos.vx, gpos.vz) / 1E2,`. The defective line is unchanged up to dd0ddb188ecf0fbed1e0ce812661fd3f2c7b5376, the parent of the fix. Resolved revision is 46cc78fb, the single-parent commit on ros2 created when PR #2226 was merged (2026-06-27); it replaces the line with `ftf::transform_frame_ned_enu(Eigen::Vector3d(gpos.vx, gpos.vy, gpos.vz)) / 1E2`.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "global_position_local_consumer",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2025-08",
+      "resolved_rev": "as-reported-2025-08",
+      "pinned": false,
+      "revision_basis": "The subscriber is the reporter's own consumer/plotting setup; the issue text names no package, repository, or revision (the attached image shows a plot of the topic fields only). The string is a descriptive label for the excerpt section, not a git revision. The resolution does not change this unit.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "topic:/mavros/global_position/local", "sides": {"mavros": "provides", "global_position_local_consumer": "consumes"}},
+    {"element": "msg:nav_msgs/Odometry", "sides": {"mavros": "provides", "global_position_local_consumer": "consumes"}},
+    {"element": "field:nav_msgs/Odometry.twist", "sides": {"mavros": "provides", "global_position_local_consumer": "consumes"}},
+    {"element": "field:nav_msgs/Odometry.pose", "sides": {"mavros": "provides", "global_position_local_consumer": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "frame_mismatch",
+      "implicated_elements": ["topic:/mavros/global_position/local", "field:nav_msgs/Odometry.twist"],
+      "quote": "`GLOBAL_POSITION_INT` MAVlink [message](https://mavlink.io/en/messages/common.html#GLOBAL_POSITION_INT) expresses velocity in NED frame therefore a NED->ENU conversion is needed to comply with ROS 2 standard.\n\nFIX: #2054: instead of converting into `ENU`, the code was converting into `END` frame.",
+      "url": "https://github.com/mavlink/mavros/pull/2226"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "Wrong data observed with no diagnostic: \"When filling mavros topic `global_position/local` and converting the linear velocity frame from `NED` to `ENU` the `z` coordinate is not consistent with the transformation, in fact, it remains positive toward down.\" and \"You can see it also from this plot\" (https://github.com/mavlink/mavros/issues/2054). No warning or error is reported.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "In the global_position plugin, build the odometry linear velocity with ftf::transform_frame_ned_enu(Eigen::Vector3d(gpos.vx, gpos.vy, gpos.vz)) / 1E2 instead of Eigen::Vector3d(gpos.vy, gpos.vx, gpos.vz) / 1E2, so that z is negated as well as x/y swapped (PR #2226, merged as 46cc78fb).",
+    "status": "recommended",
+    "evidence": "PR #2226 was merged into ros2 on 2026-06-27 and the issue was closed; no comment or test in the issue or PR shows the resolved composition running with a subscriber."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "The `field:` form cannot express the nested path; the implicated member is twist.twist.linear.z of nav_msgs/Odometry, recorded as field:nav_msgs/Odometry.twist. field:nav_msgs/Odometry.pose is listed because the reporter's plot also consumes pose.pose.position.z (from the image legend), which is ENU up and therefore disagrees with the velocity sign. The error is also a handedness error (END is left-handed), so representation_convention would also fit; frame_mismatch follows the merged PR's wording (\"converting into `END` frame\"). A second boundary is upstream: the autopilot firmware (not named in the source; PX4 or ArduPilot) sends MAVLink GLOBAL_POSITION_INT with vx/vy/vz in NED, which mavros converts; that boundary carries a correct value and mavros's conversion is where the defect sits, so the failed composition recorded here is mavros -> topic subscriber, where the wrong frame is observed. The subscriber is unnamed; its artifact section is empty because the source quotes no code or configuration of it. The mavros broken revision is inferred from the ros2 blob link and report date, not stated by the reporter."
+}

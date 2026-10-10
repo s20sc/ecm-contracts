@@ -1,0 +1,25 @@
+{
+  "task_id": "u0410",
+  "package": "rclcpp",
+  "manifest_version": "28.2.0",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "perm_requires": "grep -rniE 'enclave|permission|security' over rclcpp/src and rclcpp/include: only Apache license header text ('governing permissions'); no permission/enclave declaration; no policy or permissions XML files in the snapshot (only package.xml files and test parameter YAMLs)",
+    "perm_grants": "same search as perm_requires; nothing granted",
+    "recovery": "grep -rniE 'recover' over rclcpp/src and rclcpp/include: 0 hits"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "rclcpp at this revision calls none of the ten rmw_* elements directly; it goes through the rcl equivalents (rcl_node_init, rcl_publisher_init, rcl_publish, rcl_wait, ...), so an rmw-level mismatch in these elements would surface in rcl, not in this package's code."
+  },
+  "confidence": "high",
+  "notes": "All ten packet elements are consumed-side api symbols (rmw_create_node, rmw_create_publisher, rmw_create_service, rmw_create_subscription, rmw_destroy_node, rmw_destroy_publisher, rmw_destroy_service, rmw_destroy_subscription, rmw_publish, rmw_wait). Search: grep -rnw '<symbol>' over the whole snapshot (rclcpp, rclcpp_action, rclcpp_lifecycle, rclcpp_components; 507 files, all materialised, 0 empty, 0 .icloud placeholders, 451 C/C++ source/header files). Result: 0 code occurrences for all ten. The only textual hit is rmw_publish inside a TODO comment at snapshot:rclcpp/include/rclcpp/publisher.hpp:413 ('`rmw_publish_loaned_message` explicitly the same way as `rmw_publish`'); it is a comment, not a call or declaration, so it is not recorded in references. Because the package neither calls nor names these symbols in code, no ports entries are created and references is empty; declares/not_declared are empty because no packet element is provided by this package. Instead of rmw, the code calls the rcl layer: rcl_node_init (rclcpp/src/rclcpp/node_interfaces/node_base.cpp:62), rcl_node_fini (node_base.cpp:138), rcl_publisher_init (rclcpp/src/rclcpp/publisher_base.cpp:73), rcl_publisher_fini (publisher_base.cpp:59), rcl_service_init (rclcpp/include/rclcpp/service.hpp:335), rcl_service_fini (service.hpp:324; also node_interfaces/node_type_descriptions.cpp:92), rcl_subscription_init (rclcpp/src/rclcpp/subscription_base.cpp:73), rcl_subscription_fini (subscription_base.cpp:59), rcl_publish (rclcpp/include/rclcpp/publisher.hpp:450), rcl_wait (rclcpp/include/rclcpp/wait_set_policies/sequential_synchronization.hpp:280). rclcpp does depend on rmw (rclcpp/package.xml:44 <depend>rmw</depend>; rclcpp/CMakeLists.txt:17 find_package(rmw REQUIRED)), but its direct rmw calls are limited to serialization (rmw_serialize, rmw_deserialize, rmw_serialized_message_*), name validation (rmw_validate_*), error handling (rmw_get_error_string, rmw_reset_error), GIDs (rmw_get_gid_for_publisher, rmw_get_gid_for_client, rmw_compare_gids_equal), QoS helpers (rmw_qos_profile_check_compatible, rmw_qos_*_to_str) and rmw_get_implementation_identifier; none of these are packet elements. No QoS, frame, units, rate or definition_id applies because there are no ports. No exclusive resource claims found."
+}

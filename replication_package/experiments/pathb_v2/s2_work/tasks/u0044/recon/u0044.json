@@ -1,0 +1,73 @@
+{
+  "task_id": "u0044",
+  "package": "cob_sound",
+  "manifest_version": "0.6.7",
+  "ports": [
+    {
+      "element": "param:/sound_controller/cepstral_settings",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/sound_controller/cepstral_voice",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:/sound_controller/mode",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "param:~cepstral_settings",
+    "param:~cepstral_voice",
+    "param:~mode"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:cob_sound/package.xml:3",
+    "ports[0].side": "snapshot:cob_sound/ros/src/sound.cpp:215",
+    "ports[0].frame": "snapshot:cob_sound/ros/src/sound.cpp:215 | nh_.param<std::string>(\"~cepstral_settings\",cepstral_conf,\"\\\"speech/rate=170\\\"\"); (string passed to the swift command line at line 218; no spatial meaning)",
+    "ports[1].side": "snapshot:cob_sound/ros/src/sound.cpp:214",
+    "ports[1].frame": "snapshot:cob_sound/ros/src/sound.cpp:214 | nh_.param<std::string>(\"~cepstral_voice\",cepstral_voice,\"David\"); (voice name string used at line 218; no spatial meaning)",
+    "ports[2].side": "snapshot:cob_sound/ros/src/sound.cpp:213",
+    "ports[2].frame": "snapshot:cob_sound/ros/src/sound.cpp:213 | nh_.param<std::string>(\"~mode\",mode,\"festival\"); (TTS backend selector compared at line 216; no spatial meaning)",
+    "references[param:~cepstral_settings]": "snapshot:cob_sound/ros/src/sound.cpp:215",
+    "references[param:~cepstral_voice]": "snapshot:cob_sound/ros/src/sound.cpp:214",
+    "references[param:~mode]": "snapshot:cob_sound/ros/src/sound.cpp:213",
+    "perm_requires": "searched snapshot/cob_sound (package.xml, CMakeLists.txt, ros/src/sound.cpp, ros/src/test_client.py, action/Say.action, action/Play.action, fix_swift_for_precise.sh); no permission declaration; the snapshot has no launch or config file for cob_sound",
+    "perm_grants": "same search as perm_requires; nothing granted",
+    "recovery": "same search as perm_requires; on failure say()/play() only publish a level-2 DiagnosticStatus and return false (snapshot:cob_sound/ros/src/sound.cpp:224-239, 267-282); no recovery or retry policy declared",
+    "exclusive": "same search as perm_requires; audio is played through system(\"aoss swift ...\" / \"... | aplay -q\") and libvlc (snapshot:cob_sound/ros/src/sound.cpp:218, 222, 59-60); no exclusive device claim in code or configuration"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "All three parameters are read through a default-constructed (public) ros::NodeHandle nh_ (sound.cpp:17) using '~'-prefixed names (sound.cpp:213-215); roscpp's NodeHandle methods reject '~' names with InvalidNameException, so these reads fail at run time inside say() and the /sound_controller/* values would never be consumed. From API knowledge, not verified inside the workspace."
+  },
+  "confidence": "medium",
+  "notes": "cob_sound is a ROS 1 (catkin, package format 2) package; the single node is ros/src/sound.cpp (executable 'sound', CMakeLists.txt:24), initialised with default node name \"cob_sound\" (sound.cpp:360). All three packet elements are consumed parameters, so declares and not_declared are empty by definition. The code names them only as private names '~mode', '~cepstral_voice', '~cepstral_settings' (recorded verbatim in references); the namespace part is supplied at run time by the node name. With the ros::init default they would resolve under /cob_sound/, and they match the packet's /sound_controller/ names only if a launch file renames the node to sound_controller; no launch or config file for cob_sound exists in the snapshot, so that mapping is not visible here. Parameter types and defaults as written: mode std::string default \"festival\" (selects 'cepstral' vs text2wave/aplay), cepstral_voice std::string default \"David\", cepstral_settings std::string default \"\\\"speech/rate=170\\\"\". They are read on every say() call (not at startup), via nh_.param on nh_ declared as 'ros::NodeHandle nh_;' (sound.cpp:17). Parameters carry no message type, QoS (ROS 1), rate, or definition hash, so those fields are null. Units: speech/rate=170 has no unit stated in code, so units are null. Unrelated to the packet elements: test_client.py:13 sets goal.text.data while Say.action:2 declares 'string text'."
+}

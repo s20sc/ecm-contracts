@@ -1,0 +1,130 @@
+{
+ "case_id": "C3-046",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros-perception/vision_opencv/issues/262",
+  "https://github.com/ros-perception/vision_opencv/pull/448",
+  "https://github.com/ros-perception/vision_opencv/pull/517",
+  "https://github.com/autowarefoundation/autoware_universe/pull/11873",
+  "https://github.com/autowarefoundation/autoware_universe/issues/11418",
+  "https://github.com/ros/rosdistro/blob/ec4bcc08fe7832da4a316859d3eac57ca7884b6e/jazzy/distribution.yaml",
+  "https://github.com/ros/rosdistro/blob/0db70f7aee38d5d003425c6cc1d464f95743d752/humble/distribution.yaml"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue #262 asks for the header rename (\"the suffix of header files should be changed from *.h to *.hpp\"), and a commenter anticipates the downstream break: \"renaming the header files will create a problem on other packages that depends on this package.\" (https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-629760429). The vision_opencv maintainer confirms the removal: \"All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!\" (https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581), done in PR #517 / commit 5d6148ab \"remove header files that were deprecated in I-turtle\". The Autoware maintainer's fix PR #11873 \"fix: add cv_bridge.hpp support\", filed under the Jazzy-support tracking issue, replaces the consumer's include: \"-#include <cv_bridge/cv_bridge.h>\" / \"+#include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer\" (https://github.com/autowarefoundation/autoware_universe/pull/11873/files). This is a maintainer-confirmed consumer/provider mismatch; there is no reproducer or error log."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "cv_bridge",
+    "autoware_traffic_light_visualization"
+   ],
+   "interface_kind": "library API (C++ header include path)",
+   "evidence": "Provider cv_bridge removed the header cv_bridge/cv_bridge.h (commit 5d6148ab834e380ee0aea1a15d193b860dba8acf: \"cv_bridge/include/cv_bridge/cv_bridge.h removed\"; tag 4.0.0 and later contain only cv_bridge.hpp). The consumer autoware_traffic_light_visualization at e274c98f still includes the removed header in src/traffic_light_roi_visualizer/shape_draw.hpp: \"#include <cv_bridge/cv_bridge.h>\". The resolving edit changes the consumer's reference to the provider's declared header, i.e. follows a provider interface change; it is not a deployment name binding or a build-system-only change."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "UPGRADE: the consumer references cv_bridge.h as it existed up to the Humble release of cv_bridge (3.2.1, which ships only cv_bridge.h), while the Jazzy provider (4.1.0) no longer has it. The fix's own comments mark the two sides: \"#include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer\" / \"#include <cv_bridge/cv_bridge.h>  // for ROS 2 Humble or older\" (https://github.com/autowarefoundation/autoware_universe/pull/11873/files)."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Code-level statements of the mismatch by maintainers: the provider-side removal statement (\"have removed for J-turtle onwards!\", https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581) and the consumer-side fix commit f50b5c3991d3e6d4591d97fd60c51df4deed116a \"fix: add cv_bridge.hpp support (#11873)\". No compile error for this package is shown in the sources (the Jazzy build status in https://github.com/autowarefoundation/autoware_universe/issues/11418#issuecomment-3757294247 is an unattributed pie chart), so the effect is undocumented."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "cv_bridge",
+   "role": "provider",
+   "repo": "https://github.com/ros-perception/vision_opencv",
+   "broken_rev": "4.1.0",
+   "resolved_rev": "4.1.0",
+   "pinned": true,
+   "revision_basis": "The consumer fix was tested \"Compiles locally with jazzy\" (PR #11873, 2026-01-15). The ROS 2 Jazzy distribution file on that date (rosdistro ec4bcc08, jazzy/distribution.yaml) pins vision_opencv release \"version: 4.1.0-1\", i.e. upstream tag 4.1.0 (f5b738d9694f0cee5904440d03912fc249943f8a), whose cv_bridge/include/cv_bridge contains cv_bridge.hpp, cv_mat_sensor_msgs_image_type_adapter.hpp, rgb_colors.hpp, visibility_control.h and no cv_bridge.h. The resolution does not change cv_bridge.",
+   "excerpt": false,
+   "ros_distro": "jazzy"
+  },
+  {
+   "name": "autoware_traffic_light_visualization",
+   "role": "consumer",
+   "repo": "https://github.com/autowarefoundation/autoware_universe",
+   "broken_rev": "e274c98fccca80158f1cb5e7d198effbe5d0039b",
+   "resolved_rev": "f50b5c3991d3e6d4591d97fd60c51df4deed116a",
+   "pinned": true,
+   "revision_basis": "Broken: parent of the squash-merge of PR #11873 on main (e274c98f), where perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/shape_draw.hpp still has \"#include <cv_bridge/cv_bridge.h>\". Resolved: the merge commit f50b5c39 (2026-01-16). The package is one of four consumers edited by the same PR; it was chosen because it has no TensorRT/CUDA build dependency.",
+   "excerpt": false,
+   "ros_distro": "jazzy"
+  }
+ ],
+ "operation": "UPGRADE",
+ "consumer_built_against": {
+  "broken": "3.2.1",
+  "resolved": "4.1.0",
+  "basis": "inferred"
+ },
+ "inventory": [
+  {
+   "element": "api:cv_bridge/cv_bridge.h",
+   "sides": {
+    "cv_bridge": "provides",
+    "autoware_traffic_light_visualization": "consumes"
+   }
+  },
+  {
+   "element": "api:cv_bridge/cv_bridge.hpp",
+   "sides": {
+    "cv_bridge": "provides",
+    "autoware_traffic_light_visualization": "consumes"
+   }
+  },
+  {
+   "element": "api:cv_bridge::CvImagePtr",
+   "sides": {
+    "cv_bridge": "provides",
+    "autoware_traffic_light_visualization": "consumes"
+   }
+  },
+  {
+   "element": "api:cv_bridge::toCvCopy",
+   "sides": {
+    "cv_bridge": "provides",
+    "autoware_traffic_light_visualization": "consumes"
+   }
+  },
+  {
+   "element": "api:cv_bridge::Exception",
+   "sides": {
+    "cv_bridge": "provides",
+    "autoware_traffic_light_visualization": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "element_removed_or_renamed",
+   "implicated_elements": [
+    "api:cv_bridge/cv_bridge.h"
+   ],
+   "quote": "All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!",
+   "url": "https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581"
+  }
+ ],
+ "outcome_class": "undocumented",
+ "loudness": "unknown",
+ "loudness_evidence": "No compiler output for this package is shown in any source. The Jazzy-support thread reports build status only as charts (e.g. \"Current packages build status for autoware_universe:\" followed by an image, https://github.com/autowarefoundation/autoware_universe/issues/11418#issuecomment-3757294247) and later \"Once these final PRs are merged, everything compiles!\" (https://github.com/autowarefoundation/autoware_universe/issues/11418#issuecomment-3787249827), neither attributed to this header.",
+ "detection_stage": "unknown",
+ "resolution": {
+  "summary": "Consumer includes the provider's .hpp header when present and falls back to .h otherwise: \"+#if __has_include(<cv_bridge/cv_bridge.hpp>)\" / \"+#include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer\" / \"+#else\" / \"+#include <cv_bridge/cv_bridge.h>  // for ROS 2 Humble or older\" / \"+#endif\" in perception/autoware_traffic_light_visualization/src/traffic_light_roi_visualizer/shape_draw.hpp (https://github.com/autowarefoundation/autoware_universe/pull/11873/files). cv_bridge unchanged.",
+  "status": "observed",
+  "evidence": "PR #11873 body: \"## How was this PR tested?\" / \"Compiles locally with jazzy.\" (https://github.com/autowarefoundation/autoware_universe/pull/11873); consumer at PR head 59bd3d1242446ec4068d0b3bff6ab35a61ee13cc (merged as f50b5c39). The provider is identified by distro only; Jazzy carried a single vision_opencv release (4.1.0-1) on that date, so the provider revision is 4.1.0 by the rosdistro record rather than by the PR's own words."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "Issue #262 itself reports no failure; it asks for the ROS 2 migration-guide header naming. Its fix (vision_opencv PR #448, merge fa5213bb1cb2ab63fa7648a3e1b7c480f622b54c, 2022-09-10) added .hpp headers and turned the .h headers into deprecation shims (\"+#warning This header is obsolete, please include cv_bridge/rgb_colors.hpp instead\"); in the Iron release (3.3.0 and the iron branch) the same consumer include would therefore have compiled with a deprecation warning (a warning_only composition, not observed in the sources). The removal came later in PR #517 / 5d6148ab (2023-10-12), first released in 4.0.0. Other consumers fixed by the same Autoware PR (not specified here): autoware_tensorrt_vad (lib/synchronization_strategy.cpp, src/vad_node.cpp, src/vad_node.hpp), autoware_tensorrt_bevdet (bevdet_node.hpp), autoware_tensorrt_bevformer (bevformer_node.hpp). In the chosen consumer, node.hpp already carried the __has_include guard at the broken revision, so shape_draw.hpp was the only remaining .h include. The same removal also dropped cv_bridge/rgb_colors.h and image_geometry's pinhole_camera_model.h / stereo_camera_model.h (not used by this consumer). Canonical-form note: the header include paths cv_bridge/cv_bridge.h and cv_bridge/cv_bridge.hpp are recorded with the api: form because no canonical form exists for a C++ header; the removed element is the header, while the C++ symbols it declared (CvImagePtr, toCvCopy, Exception) remain available under cv_bridge.hpp. consumer_built_against basis: broken is inferred (the consumer's include of cv_bridge/cv_bridge.h matches the Humble release 3.2.1 from humble/distribution.yaml on 2026-01-15, \"version: 3.2.1-1\", and the fix labels the .h include \"for ROS 2 Humble or older\"); resolved 4.1.0 follows from \"Compiles locally with jazzy\" and the Jazzy distribution pin."
+}

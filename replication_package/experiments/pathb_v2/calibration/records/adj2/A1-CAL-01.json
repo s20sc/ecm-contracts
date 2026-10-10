@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-CAL-01",
+  "kind": "A1",
+  "case_id": "CAL-01",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "after #74 I get this error\n/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'\n\nto reproduce: create a workspace with the ros/velodyne repo and the ros/geometry_experimental repo, both of them checked out to the latest version.\n\nI bisected on ros/geometry_experimental and I confirmed #74 is the culprit",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+      "url": "https://github.com/ros/geometry2/pull/74/files"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+      "url": "https://github.com/ros/geometry2/issues/84"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I patched fix_84 for _allFramesAsDOT as well. \n...\nyep that fixes it!",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "notes": "Independent walk agrees with the specification. E1: issue #84 (fetched via gh api, body by bricerebsamen 2015-03-11T19:11:39Z) gives the error log and bisect; maintainer tfoote engaged. E2 step 1: two separately released packages - tf (binary /opt/ros/indigo/lib/libtf.so from ros/geometry; consumer confirmed by the reporter's comment \"no I created a dedicated workspace in my home dir that contains only those 2 repos. So tf is pulled from `/opt/ros/indigo`\") and tf2 (source overlay from ros/geometry_experimental). Step 2 does not stop it: the failing item is the exported symbol the consumer references across the library boundary; PR #74 (fetched) changed the declaration \"-  std::string _allFramesAsDot() const;\" -> \"+  std::string _allFramesAsDot(double current_time = 0) const;\" in tf2/include/tf2/buffer_core.h, and at 1.11.4 tf/src/tf.cpp line 441 still reads \"return tf2_buffer_._allFramesAsDot();\" (verified via raw.githubusercontent.com), so the wrong reference crosses the boundary, not a defect inside one unit. Steps 3/4: fix commit 04810475 (fetched, merge of PR #86 'Use overloading instead of default arguments') adds source-level overloads (\"std::string _allFramesAsDot(double current_time) const;\" plus \"std::string _allFramesAsDot() const;\"), an interface change, not name rebinding or build-only. Stop 6, library API. E3 UPGRADE fits: the binary consumer still references the element as declared at the earlier provider revision. Failed conditions: condition 0 (element_retyped) matches the fetched PR #74 diff exactly (declaration changed, element still present); condition 1 (element_removed_or_renamed) matches the ABI view - the zero-argument mangled symbol the consumer references is no longer exported (tfoote's nm output in the issue shows \"U _ZNK3tf210BufferCore15allFramesAsYAMLEv\" undefined for the analogous allFramesAsYAML). Two classes on one change from two levels is coherent and the spec's notes say so. Loudness: linker diagnostic at build from existing tooling = loud_documented/build, agree. Resolution observed: reporter confirmed \"yep that fixes it!\" (2025-03-12T01:23:13Z fetched, actual 2015-03-12) on fix_84 (de715513, second parent of merge 04810475, verified via commit API) with the unchanged indigo binary consumer. Minor: the robust-rosin bug file and CHANGELOG claims were not re-fetched; they back revision bookkeeping, not the verdicts above."
+}

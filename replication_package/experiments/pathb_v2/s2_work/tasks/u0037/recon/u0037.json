@@ -1,0 +1,105 @@
+{
+  "task_id": "u0037",
+  "package": "kobuki_driver",
+  "manifest_version": "0.4.0",
+  "ports": [
+    {
+      "element": "api:ecl::Serial::Serial",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::block",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::open",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::read",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:ecl::Serial::write",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:ecl::Serial::Serial",
+    "api:ecl::Serial::block",
+    "api:ecl::Serial::open",
+    "api:ecl::Serial::read",
+    "api:ecl::Serial::write"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "spin() loop: if !serial.open(), retry serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); on NotFoundError/OpenError emit info, ecl::Sleep(5)(), set is_connected=false, is_alive=false, continue; other errors rethrown; read timeout (n == 0 and > 0.1 s since last signal) sets is_alive=false"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_driver/package.xml:3",
+    "ports[0].side": "snapshot:kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | ecl::Serial serial;",
+    "ports[0].frame": "snapshot:kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | member device object default-constructed (not in Kobuki::Kobuki() initialiser list, snapshot:kobuki_driver/src/driver/kobuki.cpp:50-56); no spatial data",
+    "ports[1].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:96 | serial.block(4000); // blocks by default, but just to be clear!",
+    "ports[1].frame": "snapshot:kobuki_driver/src/driver/kobuki.cpp:96 | argument is a blocking timeout value, no spatial data",
+    "ports[2].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:94 | serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);  // this will throw exceptions - NotFoundError, OpenError",
+    "ports[2].frame": "snapshot:kobuki_driver/src/driver/kobuki.cpp:94 | arguments are a device port name and serial line settings, no spatial data",
+    "ports[3].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:186 | int n = serial.read((char*)buf, packet_finder.numberOfDataToRead());",
+    "ports[3].frame": "snapshot:kobuki_driver/src/driver/kobuki.cpp:144,186 | raw byte buffer unsigned char buf[256], no spatial data",
+    "ports[4].side": "snapshot:kobuki_driver/src/driver/kobuki.cpp:488 | serial.write((const char*)&command_buffer[0], command_buffer.size());",
+    "ports[4].frame": "snapshot:kobuki_driver/src/driver/kobuki.cpp:475-488 | serialised command byte buffer with checksum, no spatial data",
+    "references[api:ecl::Serial::Serial]": "snapshot:kobuki_driver/include/kobuki_driver/kobuki.hpp:188 | ecl::Serial serial; (implicit default construction; Kobuki::Kobuki() at snapshot:kobuki_driver/src/driver/kobuki.cpp:50-56 does not initialise serial)",
+    "references[api:ecl::Serial::block]": "snapshot:kobuki_driver/src/driver/kobuki.cpp:96 | serial.block(4000); also snapshot:kobuki_driver/src/driver/kobuki.cpp:161",
+    "references[api:ecl::Serial::open]": "snapshot:kobuki_driver/src/driver/kobuki.cpp:94 | serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity); also snapshot:kobuki_driver/src/driver/kobuki.cpp:158 (same five-argument form) and snapshot:kobuki_driver/src/driver/kobuki.cpp:155 | if ( !serial.open() ) {",
+    "references[api:ecl::Serial::read]": "snapshot:kobuki_driver/src/driver/kobuki.cpp:186 | int n = serial.read((char*)buf, packet_finder.numberOfDataToRead());",
+    "references[api:ecl::Serial::write]": "snapshot:kobuki_driver/src/driver/kobuki.cpp:488 | serial.write((const char*)&command_buffer[0], command_buffer.size());",
+    "perm_requires": "searched all files under snapshot/kobuki_driver (package.xml, CMakeLists.txt, src/, include/, doxygen/) for permission, dialout, chmod, udev, lock, exclusive; no permission requirement declared in code or configuration (only a doxygen TODO page title mentioning Udev, snapshot:kobuki_driver/doxygen/korean/ko_ftdi.dox:3)",
+    "perm_grants": "same search as perm_requires; package is a plain C++ library (catkin_package LIBRARIES kobuki, snapshot:kobuki_driver/CMakeLists.txt:5-9) with no launch, yaml, or permission configuration",
+    "recovery.value": "snapshot:kobuki_driver/src/driver/kobuki.cpp:155-180 (reconnect loop) and snapshot:kobuki_driver/src/driver/kobuki.cpp:186-196 (read timeout sets is_alive=false)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All five ecl::Serial calls are internally consistent and follow one calling pattern (default-constructed member, five-argument open, no-argument open() used as an is-open query, block(4000), read into a char buffer with the int return kept, write with the return ignored). Whether any of these matches the ecl_devices API shipped for hydro cannot be judged from the snapshot alone; the no-argument serial.open() query overload is the call most exposed to an upstream rename, but I have no evidence either way."
+  },
+  "confidence": "high",
+  "notes": "All packet elements are consumed C++ API symbols of ecl::Serial (ecl_devices, a build_depend/run_depend in snapshot:kobuki_driver/package.xml:18-30); the package provides none of them, so declares and not_declared are empty. All uses are in snapshot:kobuki_driver/src/driver/kobuki.cpp and snapshot:kobuki_driver/include/kobuki_driver/kobuki.hpp; no other file in snapshot/kobuki_driver names ecl::Serial or calls serial.*. ecl::Serial::open is referenced in two forms: the five-argument open(port, baud, data bits, stop bits, parity) at lines 94 and 158, and a no-argument open() used as a boolean connection check at line 155. ecl::Serial::Serial is referenced only implicitly, via default construction of the member 'ecl::Serial serial;'. The device port is parameters.device_port, default \"/dev/kobuki\" (snapshot:kobuki_driver/include/kobuki_driver/parameters.hpp:40). The block(4000) argument has no units stated in the snapshot, so units are null. Serial settings are ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity; no rate is set. QoS is null because this is ROS 1 and these are not ROS topics. definition_id is null because C++ API symbols have no .msg/.srv/.action/.idl definition. exclusive is empty: the code opens the serial device through ecl::Serial::open, but the snapshot has no exclusive-lock flag, flock, or configuration claiming the device exclusively; whether ecl_devices opens it exclusively is defined outside the snapshot and was not examined. Other packages in the snapshot (kobuki_node, kobuki_ftdi, etc.) are outside this task's package and were not described."
+}

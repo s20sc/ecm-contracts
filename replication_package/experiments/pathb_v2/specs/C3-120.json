@@ -1,0 +1,89 @@
+{
+  "case_id": "C3-120",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/769",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/991",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1023",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1033",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/1.2.0/rosbridge_library/src/rosbridge_library/internal/subscribers.py",
+    "https://github.com/mavlink/mavros/blob/2.1.1/mavros/src/plugins/global_position.cpp",
+    "https://github.com/BCLab-UNM/dragonfly-controller/pull/20",
+    "https://github.com/josuah/pico-ice-ros2/commit/23935095db5937dc4f4249c4936fa982c3364196"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Step-by-step reproduction (start rosbridge_websocket, subscribe to /mavros/global_position/global before mavros publishes, then start the stream), the resulting runtime warning, and `ros2 topic info --verbose` output showing the rosbridge_websocket subscription with \"Reliability: RELIABLE\" against the mavros publisher's \"Reliability: BEST_EFFORT\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/769 . Maintainer closing statement: \"Should be fixed now by #991, #1023 and #1033\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/769#issuecomment-2896918866"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rosbridge_suite (rosbridge_websocket / rosbridge_library)", "mavros"],
+      "interface_kind": "topic",
+      "evidence": "rosbridge_websocket and mavros are separate processes that interact only through ROS 2 topics. The QoS reliability of the topic endpoints differs across the boundary: rosbridge 1.2.0 creates its subscription as \"reliability=ReliabilityPolicy.RELIABLE,\" unless a BEST_EFFORT publisher already exists when it subscribes (https://github.com/RobotWebTools/rosbridge_suite/blob/1.2.0/rosbridge_library/src/rosbridge_library/internal/subscribers.py), while mavros publishes these topics with \"auto sensor_qos = rclcpp::SensorDataQoS();\" (https://github.com/mavlink/mavros/blob/2.1.1/mavros/src/plugins/global_position.cpp), shown as \"Reliability: BEST_EFFORT\" in the reporter's topic info. Reporter: \"Where we assume the default reliability policy is `RELIABLE`\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/769#issuecomment-1233642043 . The resolving change alters rosbridge's QoS selection code; it is not a name binding or build change."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: mavros's output topics feed rosbridge's subscription. The failure needs the subscription to be created before the publisher appears: \"When I start rosbridge and subscribe to a topic before the topic is available I receive the following error\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY\" and \"subsequent attempts to connect via rosbridge to the given topic don't return anything.\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rosbridge_suite",
+      "role": "consumer",
+      "repo": "https://github.com/RobotWebTools/rosbridge_suite",
+      "broken_rev": "1.2.0",
+      "resolved_rev": "ceb3f7da0b030b2b04bf86fe9b644f6ca77856eb",
+      "pinned": true,
+      "revision_basis": "Reporter states \"Library Version: 1.2.0-1focal.20220520.222649\" and \"ROS Version: galactic\"; the galactic distribution file on the report date lists rosbridge_suite 1.2.0-1, and upstream tag 1.2.0 resolves to eddd2d89238686fa15310e491eb6ba205d12663c. Resolved revision is the merge of PR #991 into the ros2 branch (2025-02-26), which makes BEST_EFFORT the default when no publisher is known; there is no galactic fix (Galactic is EOL). Later related commits: PR #1023 on ros2 (fbb0769ef0d291338ca3c2836f605f298acd1d3e, durability selection, for issue #1022) and the humble backport of both, PR #1033 (c92e81d839d168ccb583b9402569e080787942c2).",
+      "excerpt": false,
+      "ros_distro": "galactic"
+    },
+    {
+      "name": "mavros",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "2.1.1",
+      "resolved_rev": "2.1.1",
+      "pinned": true,
+      "revision_basis": "The reporter does not state the mavros version. The galactic distribution file on the report date (ros/rosdistro 572ad69559e987e7d30a31b0893ff005198cde06) lists mavros release 2.1.1-1, consistent with the reporter's binary Docker setup; upstream tag 2.1.1 resolves to bb73491b6b31450005b1f9f9c58bde564e5daff3. At this tag global_position and local_position publish with rclcpp::SensorDataQoS(). The resolution does not change mavros, so it keeps this revision.",
+      "excerpt": false,
+      "ros_distro": "galactic"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "topic:/mavros/global_position/global", "sides": {"mavros": "provides", "rosbridge_suite": "consumes"}},
+    {"element": "topic:/mavros/local_position/pose", "sides": {"mavros": "provides", "rosbridge_suite": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "qos_reliability",
+      "implicated_elements": ["topic:/mavros/global_position/global", "topic:/mavros/local_position/pose"],
+      "quote": "[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "ROS 2 incompatible-QoS event reported when the publisher is discovered: \"New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/769",
+  "detection_stage": "connect",
+  "resolution": {
+    "summary": "rosbridge_library's Subscriber defaults its QoS reliability to BEST_EFFORT when no publisher QoS is known (RELIABLE only when publishers are TRANSIENT_LOCAL), so a later BEST_EFFORT publisher is compatible (PR #991; refined by #1023; backported to humble in #1033). mavros is unchanged.",
+    "status": "recommended",
+    "evidence": "Maintainer: \"Should be fixed now by #991, #1023 and #1033\" -- https://github.com/RobotWebTools/rosbridge_suite/issues/769#issuecomment-2896918866 ; no one in the thread reports the fixed rosbridge working with mavros. Diff of #991: \"-            reliability=ReliabilityPolicy.RELIABLE,\" / \"+            reliability=ReliabilityPolicy.BEST_EFFORT,\" -- https://github.com/RobotWebTools/rosbridge_suite/pull/991/files"
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "The reproduction subscribes to /mavros/global_position/global (topic info shows the RELIABLE rosbridge subscription vs. the BEST_EFFORT mavros publisher on that topic), while the quoted warning names /mavros/local_position/pose; both are mavros topics published with SensorDataQoS, so both are listed. The rosbridge 1.2.0 selection logic (\"infos = node_handle.get_publishers_info_by_topic(topic)\" then \"if any(pub.qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT for pub in infos):\") only adapts to publishers present at subscription time, which is why the order matters; the reporter traces the RELIABLE default to rosbridge PR #690. Two of the packet's fix references are consumer-side workarounds in third-party projects, not fixes to either unit: BCLab-UNM/dragonfly-controller PR #20 (\"Proactively create mavros publishers to fix rosbridge default\", creates BEST_EFFORT publishers on the mavros topic names so rosbridge sees them first) and josuah/pico-ice-ros2 commit 23935095 (\"Work around a QoS bug upstream in ROS2\"). No other composition is documented in the thread; later commenters report the same symptom without details."
+}

@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-139",
+  "kind": "A1",
+  "case_id": "C3-139",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "`tf2::CompactFrameID` is an alias for `uint32_t`. In `createTransformStorage()`, `frame_id_` is initialized with `0`.",
+    "url": "https://github.com/ros2/geometry2/issues/771#issuecomment-2799844824"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "n/a",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "n/a",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Issue #771 body (gtest reproducer with 'Value of: t1 == t2 / Actual: true / Expected: false'), andschi's comment 2799844824, fujitatomoya's comments 2776572539 ('this looks like a bug/problem') and 2831343452 ('coming back to look at the original issue report, it does not really make sense'), kscottz's comment 2813672697 ('this issue came in from some sort of automated tool so it is probably overly pedantic'), and the fix commit bbc69c7 (transform_storage.hpp: 'CompactFrameID frame_id_{UINT32_MAX};' / 'child_frame_id_{UINT32_MAX};') all verified verbatim. The ineligibility decision is correct: only one deployable unit (tf2::TransformStorage) is involved, exercised by an in-process gtest in the same package; no value crosses a boundary between two units. reason_code 'internal' is the closest fit (the spec's notes transparently explain there is no dedicated code for a single-unit report). failed_conditions/loudness/resolution are correctly absent (null in the spec)."
+}

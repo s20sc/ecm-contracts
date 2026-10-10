@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-B-Beh-05",
+  "kind": "A1",
+  "case_id": "B-Beh-05",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "[planner_server-2] [ERROR] [1691424774.006121032] [transformPoseInTargetFrame]: Extrapolation Error looking up target frame: Lookup would require extrapolation into the future.  Requested time 1691424773.212782 but the latest data is at time 3617.600000, when looking up transform from frame [map] to frame [odom]",
+    "url": "https://github.com/ros-navigation/navigation2/issues/3746"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[planner_server-2] [ERROR] [1691424774.006121032] [transformPoseInTargetFrame]: Extrapolation Error looking up target frame: Lookup would require extrapolation into the future.  Requested time 1691424773.212782 but the latest data is at time 3617.600000, when looking up transform from frame [map] to frame [odom]",
+      "url": "https://github.com/ros-navigation/navigation2/issues/3746"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The launch file seems ok because the last output I am getting is [lifecycle_manager-5] [INFO] [1691409212.195861492] [lifecycle_manager_navigation]: Creating bond timer...",
+    "url": "https://github.com/ros-navigation/navigation2/issues/3746"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "if you track back where `pose` is populated you find `pose.header.stamp = rclcpp::Clock().now();` ... We're just making a clock willy-nilly which is going to default to system time."
+  },
+  "notes": "Time base mismatch between system time stamp from rviz panel and sim time in planner server causes TF extrapolation failure at runtime."
+}

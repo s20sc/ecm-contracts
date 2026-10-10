@@ -1,0 +1,38 @@
+{
+  "task_id": "u0065",
+  "package": "mirzashah_polling_program",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "api:kobuki::Kobuki::updateOdometry",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:kobuki::Kobuki::updateOdometry"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].element": "I have a loop in a single-threaded program that polls the sensors via the get*() calls, then calls updateOdometry to get updated odometry, and then repeats that indefinitely.",
+    "ports[0].side": "then calls updateOdometry to get updated odometry",
+    "references[api:kobuki::Kobuki::updateOdometry]": "then calls updateOdometry to get updated odometry, and then repeats that indefinitely."
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The artifact only describes a usage pattern (single-threaded free-running loop polling get*() getters and calling updateOdometry, without the ecl sigslots the driver's example uses). It does not show code, results, or a symptom, so it cannot be judged whether this pattern breaks any contract of the listed Kobuki API elements; if the driver expects getters/updateOdometry to be called once per new-data event, polling would be a misuse, but the excerpt does not establish that."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task: the only source is artifact.txt, a single quoted prose sentence (line 1) describing the consumer's program, not its source code. The URL appended to the quote was not followed (issue trackers are disallowed). The package takes only the consumes side, so declares and not_declared are empty by definition. updateOdometry is named explicitly; it is mapped to the packet element api:kobuki::Kobuki::updateOdometry because the sentence addresses the driver authors ('you guys use in your example') and the packet gives that qualified symbol, but the artifact itself writes the bare name without the kobuki::Kobuki:: qualifier. The phrase 'polls the sensors via the get*() calls' is a wildcard: it is consistent with the eight packet getter elements (getAngularVelocity, getCliffData, getCoreSensorData, getCurrentData, getDockIRData, getGpInputData, getHeading, getInertiaData) but names none of them, so which getters are called cannot be determined; they are given no port and no reference entry. api:kobuki::Kobuki::init is not mentioned; the excerpt is not a complete description of the program, so whether it is called cannot be determined either way. No msg_type/frame/units/QoS/rate/definition hash apply or can be determined for a C++ API call described in prose (ros_generation 'other', no .msg/.srv/.action definition); the loop 'repeats that indefinitely' with no stated rate, so rate_hz is null. exclusive is empty because the artifact names no exclusively claimed resource; permissions and recovery are 'unknown' because no code or configuration is available to check. The artifact also states the program does not use ecl sigslots, which is not a packet element."
+}

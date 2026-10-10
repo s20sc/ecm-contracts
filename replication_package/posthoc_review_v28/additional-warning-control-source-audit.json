@@ -1,0 +1,104 @@
+{
+  "status": "Coordinator post-hoc source-only checks; no historical A2 records created; independent coverage refutation pending",
+  "scope": "Four additional nonmatching warning-only finding instances omitted by historical packet generation",
+  "sources": "source-extracts/receipt.json; files hash-checked against supplied immutable snapshot index",
+  "cases": [
+    {
+      "case": "C3-135",
+      "raw_replayed_findings": [
+        {
+          "rule": "field_break",
+          "dimension": "Ver",
+          "token": "api:importlib.metadata.EntryPoint.name",
+          "detail": "changed field 'api:importlib.metadata.EntryPoint.name' is read by a consumer"
+        },
+        {
+          "rule": "field_break",
+          "dimension": "Ver",
+          "token": "api:importlib.metadata.SelectableGroups.get",
+          "detail": "changed field 'api:importlib.metadata.SelectableGroups.get' is read by a consumer"
+        },
+        {
+          "rule": "field_break",
+          "dimension": "Ver",
+          "token": "api:importlib.metadata.entry_points",
+          "detail": "changed field 'api:importlib.metadata.entry_points' is read by a consumer"
+        }
+      ],
+      "original_state_unchanged": "right_reason",
+      "source_checks": [
+        {
+          "token": "api:importlib.metadata.EntryPoint.name",
+          "old": "u0395:Lib/importlib/metadata.py:41-42",
+          "new": "u0394:Lib/importlib/metadata/__init__.py:124-125",
+          "consumer": "u0396:rosidl_cli/rosidl_cli/entry_points.py:40",
+          "assessment": "Full two-line class headers are identical; reconstruction omitted class EntryPoint( on old side. Literal delta does not demonstrate a name-field interface change."
+        }
+      ]
+    },
+    {
+      "case": "robust_fa64ec6",
+      "raw_replayed_findings": [
+        {
+          "rule": "field_break",
+          "dimension": "Ver",
+          "token": "api:<insert_block>",
+          "detail": "changed field 'api:<insert_block>' is read by a consumer"
+        },
+        {
+          "rule": "field_break",
+          "dimension": "Ver",
+          "token": "api:<property>",
+          "detail": "changed field 'api:<property>' is read by a consumer"
+        },
+        {
+          "rule": "field_break",
+          "dimension": "Ver",
+          "token": "api:<xacro:include>",
+          "detail": "changed field 'api:<xacro:include>' is read by a consumer"
+        },
+        {
+          "rule": "field_break",
+          "dimension": "Ver",
+          "token": "api:<xacro:macro>",
+          "detail": "changed field 'api:<xacro:macro>' is read by a consumer"
+        },
+        {
+          "rule": "field_break",
+          "dimension": "Ver",
+          "token": "api:xmlns:xacro",
+          "detail": "changed field 'api:xmlns:xacro' is read by a consumer"
+        }
+      ],
+      "original_state_unchanged": "unverified",
+      "source_checks": [
+        {
+          "token": "api:<xacro:include>",
+          "old": "u0225:src/xacro/__init__.py:218-240",
+          "new": "u0224:src/xacro/__init__.py:341-360",
+          "consumer": "u0222:ur_description/urdf/ur5.urdf.xacro:4-5",
+          "assessment": "Old condition enters include handling for either spelling; new guard returns False for other spellings and accepts xacro:include. Both recorded paths recognize this token. Quoted branch strings differ; no incompatibility follows from those strings alone."
+        },
+        {
+          "token": "api:<xacro:macro>",
+          "old": "u0225:src/xacro/__init__.py:295-313",
+          "new": "u0224:src/xacro/__init__.py:488-517",
+          "consumer": "u0222:ur_description/urdf/ur5.urdf.xacro:70",
+          "assessment": "Old branch and new assertion both name macro and xacro:macro. Surrounding macro implementation also changed, so this source-only comparison does not establish global semantic equivalence; the declaration-line delta alone is insufficient to infer consumer failure."
+        },
+        {
+          "token": "api:xmlns:xacro",
+          "old": "u0225:src/xacro/__init__.py:675-683",
+          "new": "u0224:src/xacro/__init__.py:1025-1035",
+          "consumer": "u0222:ur_description/urdf/ur5.urdf.xacro:2",
+          "assessment": "Both quoted lines are XML parse-error diagnostics printing the same namespace URI. Their differing write/print syntax does not declare an incompatible namespace interface."
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No complete behavioral equivalence or runtime validation claimed.",
+    "No finding-level provenance or case state overwritten.",
+    "Actual warning-only false alarms retained for all three affected cases."
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "task_id": "u0423",
+  "package": "controller_manager",
+  "manifest_version": "2.37.0",
+  "ports": [
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::get_node",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::init",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "param:use_sim_time",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:use_sim_time": "param use_sim_time: bool"
+  },
+  "not_declared": [],
+  "references": [
+    "api:controller_interface::ControllerInterfaceBase::get_node",
+    "api:controller_interface::ControllerInterfaceBase::init"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:controller_manager/package.xml:5",
+    "ports[0].side": "snapshot:controller_manager/src/controller_manager.cpp:1274 (executor_->add_node(controller.c->get_node()->get_node_base_interface());); also lines 655, 656, 716, 1337, 1507, 1513, 1613; controller.c is controller_interface::ControllerInterfaceBaseSharedPtr (snapshot:controller_manager/include/controller_manager/controller_spec.hpp:39)",
+    "ports[0].frame": "snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:147 (std::shared_ptr<rclcpp_lifecycle::LifecycleNode> get_node();) returns a node handle; no spatial data",
+    "ports[1].side": "snapshot:controller_manager/src/controller_manager.cpp:1265 (controller.c->init(controller.info.name, get_namespace(), controller_node_options) ==)",
+    "ports[1].frame": "snapshot:controller_interface/include/controller_interface/controller_interface_base.hpp:116-121 (virtual return_type init(const std::string & controller_name, const std::string & namespace_ = \"\", const rclcpp::NodeOptions & node_options = ...);) takes name/namespace/node options; no spatial data",
+    "ports[2].side": "snapshot:controller_manager/src/controller_manager.cpp:2516-2525 (// ensure controller's `use_sim_time` parameter matches controller_manager's; this->get_parameter(\"use_sim_time\"); node_options_arguments.push_back(\"use_sim_time:=true\");)",
+    "ports[2].frame": "snapshot:controller_manager/src/controller_manager.cpp:2518 (if (use_sim_time.as_bool())) boolean flag; no spatial data",
+    "declares[param:use_sim_time]": "snapshot:controller_manager/src/controller_manager.cpp:2517 (const rclcpp::Parameter use_sim_time = this->get_parameter(\"use_sim_time\");), :2518 (if (use_sim_time.as_bool())), :2524-2525 (node_options_arguments.push_back(\"-p\"); node_options_arguments.push_back(\"use_sim_time:=true\");) in ControllerManager::determine_controller_node_options (snapshot:controller_manager/src/controller_manager.cpp:2494); header doc snapshot:controller_manager/include/controller_manager/controller_manager.hpp:382-388",
+    "references[api:controller_interface::ControllerInterfaceBase::get_node]": "snapshot:controller_manager/src/controller_manager.cpp:1274 (controller.c->get_node()->get_node_base_interface())",
+    "references[api:controller_interface::ControllerInterfaceBase::init]": "snapshot:controller_manager/src/controller_manager.cpp:1265 (controller.c->init(controller.info.name, get_namespace(), controller_node_options))",
+    "perm_requires.state": "searched snapshot/controller_manager (src, include, controller_manager/*.py, doc, test, package.xml) case-insensitively for permission|security|enclave|sros: only Apache license boilerplate and doc/userdoc.rst:18-19 (OS realtime group for thread priority), no interface permission declarations",
+    "perm_grants.state": "same search as perm_requires; no permission grants declared",
+    "recovery.state": "searched snapshot/controller_manager case-insensitively for recover|fallback: 0 hits; ControllerManager::read/write (snapshot:controller_manager/src/controller_manager.cpp:1981-1984, 2038-2041) only forward to resource_manager_ with no error-handling or recovery path"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "The consumer calls init(name, namespace, node_options) and get_node() with signatures that match the controller_interface declarations in the same snapshot, and the package reads its own use_sim_time as bool and forwards it to each controller node as -p use_sim_time:=true; nothing inconsistent is visible."
+  },
+  "confidence": "medium",
+  "notes": "Snapshot is the whole ros2_control repository; the unit is snapshot/controller_manager (package.xml version 2.37.0). param:use_sim_time: controller_manager never calls declare_parameter(\"use_sim_time\"); the parameter on the controller_manager node itself is declared implicitly by rclcpp (not in the snapshot). What this package's code does with it is read it (get_parameter(\"use_sim_time\").as_bool()) and, when true, set it on every controller LifecycleNode it creates by appending --ros-args -p use_sim_time:=true to the controller NodeOptions arguments (determine_controller_node_options, used at controller_manager.cpp:1263 before init). It is recorded in declares as a bool parameter on that basis; a reader who counts only explicit declare_parameter calls would not list it. When use_sim_time is false nothing is forwarded. QoS: all three elements are an in-process C++ API or a node parameter, not a DDS topic/service endpoint, so no QoS API applies and all QoS fields are null; rate and units likewise not applicable. definition_id null: no .msg/.srv/.action/.idl definition is involved. exclusive is empty: command interfaces are claimed exclusively via resource_manager_->claim_command_interface(command_interface) (controller_manager.cpp:1444-1455) but the interface names come from each controller's command_interface_configuration at run time, so there is no static token to record. frame 'none' is used because none of the three elements carries spatial data."
+}

@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_b166c93",
+  "kind": "A1",
+  "case_id": "robust_b166c93",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The following commit fixed an issue with isnan for kinetic: https://github.com/yujinrobot/kobuki_core/commit/2d943e14e99d6d645729b97c5f6dcb10d415f8ff\nCould we have that fix backported to indigo as well?",
+    "url": "https://github.com/yujinrobot/kobuki_core/issues/22"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null,
+    "url": null
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": null
+  },
+  "notes": "Issue #22 (\"Backport isnan fix to indigo\") is a backport request plus maintainer confirmation (stonier: \"Cherried in b166c939. Coming soon to indigo in v0.6.4.\"). I read the issue, the comment, and commit b166c93 (\"[kobuki_driver] isnan -> std::isnan\"), whose diff swaps `#include <stdexcept>` for `#include <cmath>` and changes `if (isnan(heading_offset) == true)` to `if (std::isnan(heading_offset) == true)` in Kobuki::spin(). The spec's E2 passes to step 6 (interface kind library API, api:isnan vs api:std::isnan), which I agree is the right stop point for E2: the referenced API symbol is a boundary-crossing name. But the case is ineligible because E3 and E4 fail: the source states no operation (which compiler/standard-library revision fails, on which platform, or what happens) and no effect (no failure, warning, or code-level statement of the mismatch — the commit and CHANGELOG name only the replacement \"isnan -> std::isnan\"). I agree with the overall ineligible decision and with stop_step=6 / reason_code=null at E2; the ineligibility arises at E3/E4, which the reason_code field does not capture. Loudness/resolution correctly null."
+}

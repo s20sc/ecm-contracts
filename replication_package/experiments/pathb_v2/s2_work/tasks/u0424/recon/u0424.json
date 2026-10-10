@@ -1,0 +1,75 @@
+{
+  "task_id": "u0424",
+  "package": "joint_trajectory_controller",
+  "manifest_version": "2.31.0",
+  "ports": [
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::get_node",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:controller_interface::ControllerInterfaceBase::init",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [
+    "joint_name + \"/\" + interface_type"
+  ],
+  "declares": {},
+  "not_declared": [
+    "api:controller_interface::ControllerInterfaceBase::get_node",
+    "api:controller_interface::ControllerInterfaceBase::init"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "on_error() calls reset() (drops the joint_trajectory subscriber, resets PIDs, clears the active trajectory) and returns SUCCESS; on command timeout, state tolerance violation, or goal_time_tolerance exceeded, update() replaces the trajectory with set_hold_position()"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:joint_trajectory_controller/package.xml:4 | <version>2.31.0</version>",
+    "ports[0].frame": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:52 | param_listener_ = std::make_shared<ParamListener>(get_node()); (accessor returning the controller's lifecycle node; no spatial data)",
+    "ports[1].frame": "snapshot:joint_trajectory_controller/test/test_trajectory_controller_utils.hpp:213 | return traj_controller_->init(controller_name_, \"\", node_options); (initialisation entry point; no spatial data)",
+    "exclusive[joint_name + \"/\" + interface_type]": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:95 | conf.names.push_back(joint_name + \"/\" + interface_type); inside command_interface_configuration() with conf.type = INDIVIDUAL (src:76-98); joint_name iterates command_joint_names_ (command_joints, falling back to joints, src:683-689), interface_type iterates params_.command_interfaces (src/joint_trajectory_controller_parameters.yaml:19-28, description \"Names of command interfaces to claim\", subset_of position/velocity/acceleration/effort)",
+    "not_declared[api:controller_interface::ControllerInterfaceBase::get_node]": "Searched every file of the whole snapshot for 'ControllerInterfaceBase' (0 hits) and joint_trajectory_controller/ for a get_node declaration or override: none; only call sites (e.g. snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:52, :68, :827, :843, :865, :918-920, :931-932; test/test_trajectory_controller_utils.hpp:196, :220). The class inherits the symbol: snapshot:joint_trajectory_controller/include/joint_trajectory_controller/joint_trajectory_controller.hpp:54 | class JointTrajectoryController : public controller_interface::ControllerInterface; its declaration is in controller_interface, outside the snapshot",
+    "not_declared[api:controller_interface::ControllerInterfaceBase::init]": "Searched every file of the whole snapshot for 'ControllerInterfaceBase' (0 hits) and joint_trajectory_controller/ for an init(...) declaration or override: the class body (snapshot:joint_trajectory_controller/include/joint_trajectory_controller/joint_trajectory_controller.hpp:54-290) declares on_init() override (:77) but no init(...); the only occurrence is a call in snapshot:joint_trajectory_controller/test/test_trajectory_controller_utils.hpp:213 | return traj_controller_->init(controller_name_, \"\", node_options);. Inherited via controller_interface::ControllerInterface (hpp:54; joint_trajectory_plugin.xml:2 base_class_type=\"controller_interface::ControllerInterface\"); declaration is in controller_interface, outside the snapshot",
+    "perm_requires": "Searched joint_trajectory_controller/ (package.xml, joint_trajectory_plugin.xml, src/joint_trajectory_controller_parameters.yaml, src, include, test, doc) for permission|sros|security|keystore|enclave|policy: only Apache license boilerplate and doc/userdoc.rst:110 'Preemption policy'; no permission requirement declared",
+    "perm_grants": "Same search as perm_requires; no permission grant declared",
+    "recovery": "snapshot:joint_trajectory_controller/src/joint_trajectory_controller.cpp:1091-1098 | on_error(): if (!reset()) { return CallbackReturn::ERROR; } return CallbackReturn::SUCCESS; reset() at :1100-1117; hold-position fallbacks at :243-246 (\"Aborted due to command timeout\"), :355-358 (state tolerance violation), :389-393 (goal_time_tolerance exceeded), :400-403, :408-411"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Both provided api elements are inherited from controller_interface and declared outside this snapshot; the package only calls get_node() and its test calls init(controller_name_, \"\", node_options), and nothing here names use_sim_time, so whether these uses match the controller_interface declarations they are paired with cannot be told from this package alone."
+  },
+  "confidence": "medium",
+  "notes": "The two api packet elements are symbols of controller_interface::ControllerInterfaceBase. joint_trajectory_controller does not declare them; it inherits them through controller_interface::ControllerInterface (hpp:54) and is exported as a plugin of that base class (joint_trajectory_plugin.xml:2), so it offers them only by inheritance. It calls get_node() throughout src/joint_trajectory_controller.cpp, and init(...) is called only from the test fixture (test_trajectory_controller_utils.hpp:213, three arguments: controller_name_, \"\", node_options); init is not called or overridden in src/. Because the packet marks both as provides, they are recorded in not_declared and not in references. Ports for them have msg_type, units, QoS, rates and definition_id null: they are C++ member functions, not communication endpoints, so no message type, definition file or QoS default applies. param:use_sim_time (consumes): not named anywhere in joint_trajectory_controller (the only 'use_sim_time' hit in the snapshot is tricycle_controller/test/config/test_tricycle_controller.yaml:10, another package). The controller reads time only through get_node()->now() / get_node()->get_clock() (src:904, :985, :1136, :1143, :1166, :1173, :1452, :1675) and passes get_node()->get_node_clock_interface() to the action server (src:918); any effect of use_sim_time would come through the node clock set up outside this package. Hence no port and no references entry for it. Other interfaces of the package that are not packet elements (topic ~/joint_trajectory, topics ~/state and ~/controller_state, action <node>/follow_joint_trajectory, service <node>/query_state) are not recorded."
+}

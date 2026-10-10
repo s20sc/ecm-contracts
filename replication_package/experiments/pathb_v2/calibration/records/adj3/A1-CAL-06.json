@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-06",
+  "kind": "A1",
+  "case_id": "CAL-06",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "`ros2 param dump` needs to handle empty list as exception if happens instead of proceeding zipping results. if empty result returns from parameter service, it will handle `# Parameter not set` like character array, that leads to this weird printing.",
+      "url": "https://github.com/ros2/ros2/issues/1517#issuecomment-1933083033"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "`ros2 param dump` reports that `param_1` is set to `#` and `param_2` is set to ` `",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "if no fix is going to be merged for Iron though, I think this ticket is still \"Open\".",
+    "url": "https://github.com/ros2/ros2/issues/1517"
+  },
+  "notes": "Eligibility agreed (stop_step 6, PAIR, service). Issue #1517 body carries the exact version 'ros-iron-rclpy apt package version 4.1.4-1jammy.20231205.160931', the reproducer node, and the wrong output. fujitatomoya's comment (1933083033) reproduces on rolling and gives the quoted diagnosis. Class representation_convention (empty values array vs per-name PARAMETER_NOT_SET entries) agreed; implicated elements (get_parameters service, GetParameters.values field, param_2) consistent with the inventory. Loudness silent/run agreed (the dump prints wrong values with no diagnostic). Resolution 'none' agreed: both PRs merged on rolling but no fixed-composition output is shown, and the rclpy fix was never backported to iron (reporter: 'this ticket is still \"Open\"')."
+}

@@ -1,0 +1,49 @@
+{
+  "case_id": "robust_f8d175b",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/universal_robot/issues/274",
+    "https://github.com/ros-industrial/universal_robot/pull/275",
+    "https://github.com/ros-industrial/universal_robot/commit/f8d175b09ea955ebe83aecbe19105c28f0225524",
+    "https://github.com/ros-industrial/universal_robot/commit/8f7f2418edc1d507853c1c766b6a79123393007b",
+    "https://github.com/moveit/moveit/pull/247"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #274 (tfoote, ROS build farm) quotes the build log: \"ur_moveit_plugin.h:97:74: fatal error: moveit/kdl_kinematics_plugin/chainiksolver_pos_nr_jl_mimic.hpp: No such file or directory\" from build.ros.org job Ibin_uS64__ur_kinematics__ubuntu_saucy_amd64__binary/41 (ros-indigo-ur-kinematics-1.1.6)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": ["moveit_kinematics", "ur_kinematics"],
+      "interface_kind": null,
+      "evidence": "MoveIt PR #247 moved the KDL plugin headers from moveit_ros_planning into the new moveit_kinematics package without changing them (\"I have changed no code for any of the plugins, simply moved them to a new location within the moveit repo.\"); the include path moveit/kdl_kinematics_plugin/chainiksolver_pos_nr_jl_mimic.hpp stays the same. The resolving change (PR #275, commit 8f7f241) only adds moveit_kinematics to find_package/catkin_package CATKIN_DEPENDS in CMakeLists.txt and to build_depend/run_depend in package.xml; no declared or referenced interface element of either unit changes."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated as a composition: E2 stopped at step 4 (build). The failure arose when building ur_kinematics 1.1.6 against an Indigo MoveIt in which the headers had moved packages."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Build farm failure quoted in issue #274 (\"fatal error: ... No such file or directory\")."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Fix PR #275 (130s) on indigo-devel, merged as f8d175b (2016-12-29); contributor verified with a prerelease test (\"Prerelease test against Indigo-Trusty succeeded.\"). Travis failed at the time because \"moveit_kinematics is not yet available on buildfarm's public repo\"."
+}

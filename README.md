@@ -1,162 +1,138 @@
-# ECM Contracts
+# ECM Contracts: research code and data
 
-A contract-based interface model for **embodied capability modules**, together with
-the empirical harness used to evaluate it.
+This repository accompanies the retrospective feasibility study of declaration-level interface contracts for embodied agents. Start with the code and data directories below, the recorded annotation method in [METHODS.md](METHODS.md), and the source browser in [sources/README.md](sources/README.md).
 
-An embodied robot is increasingly assembled from independently developed
-capability modules (perception, planning, control, skills) that are installed,
-upgraded, and composed at runtime. Whether two such modules can be safely wired
-together, or whether an upgrade silently breaks a downstream consumer, is decided
-by properties that a plain message-type (schema) check cannot see. **ECM Contracts**
-describes each module interface along six dimensions and checks composition and
-upgrade safety against them:
+Model-written specifications and model adjudications are research inputs, not independent human ground truth. The held-out comparison does not establish superiority. The separately labelled eligibility-exclusion sensitivity does not resolve the underlying disputed eligibility judgment.
 
-| Dim | Name       | What it captures |
-|-----|------------|------------------|
-| Sig | Signature  | message type, coordinate frame, physical units |
-| Beh | Behavioral | QoS (reliability / durability / deadline), publish rate, pre/postconditions |
-| Res | Resource   | exclusive resource ownership (e.g. a single writer to `/cmd_vel`) |
-| Perm| Permission | required vs granted permission boundaries and limits |
-| Rec | Recovery   | recovery-strategy compatibility |
-| Ver | Version    | documented named-entity changes (a renamed/removed/relocated topic, service, parameter, message field, class, or API symbol that a consumer still reads) |
+This edition separates reader instructions from retained scientific provenance. [PUBLIC_EDITION.md](PUBLIC_EDITION.md) explains the representation changes and validation boundaries. A current file digest is not evidence that a changed publication representation was present at the original freeze date.
 
-The checker is *frozen* (its hash is pinned in `checker/FROZEN.md`) before any
-contract is reconstructed and before any per-case scoring, so it cannot be fitted
-to the evaluation cases.
+## Contents
 
-## Layout
+- `replication_package/`: the publication representation of the scientific package,
+  its current `PACKAGE_MANIFEST.json`, deterministic reproduction code, and recorded data.
+- `snapshots.zip`: the separately distributed content-addressed source asset,
+  placed under `replication_package/` or supplied with `--snapshot-archive`.
+  Its SHA256 and size are recorded in `ARTIFACTS.json`; it is not duplicated in
+  the Git tree.
+- `successor-evidence/`: later source checks, narrowed interpretation,
+  compatible-change replays, and preserved per-observation results.
+- `execution-records/`: recorded attempts and inputs, including preparation and
+  harness failures. Machine-specific paths are represented by documented aliases;
+  these records are not portable instructions or promises of a supported old environment.
+- `historical-project/`: specifically retained analysis inputs that differ
+  from the V32 package. Do not silently substitute one implementation for another.
+- `upstream-evidence/` and `third-party-notices/`: selected upstream sources,
+  original notices, source URLs, and retrieved license text.
+- `delivery-runtime/` and `delivery-input-tools/`: delivery-only entry points
+  for the V38 boundary, V39 contrast, and V41 adaptive-client workflows.
+- `delivery-compatible/`, `delivery-late/`, and `delivery-ledger/`: configured
+  retained-source comparison, historical/current late replay, and mechanism
+  ledger regeneration. Their own READMEs specify inputs and output boundaries.
+- `delivery-validation/`: new same-host validation records for those entry
+  points. They do not replace the historical observations.
 
-```
-ecm-contracts/
-├── reproduce.py          One-command reproduction harness
-├── checker/              The frozen 6-dimension contract checker
-│   ├── contract_checker.py   checks + four methods (ECM-full + 3 honest baselines)
-│   ├── canonical.py          canonicalizes free-text frames/units into comparable tokens
-│   ├── selftest.py           per-dimension self-test (asserts each baseline contrast)
-│   └── FROZEN.md             the pinned hash + freeze discipline
-├── scoring/              Evaluation drivers
-│   ├── canonical_scores.py   single scoring pass -> recall / per-dim / stats tables
-│   ├── stats.py              Wilson 95% CIs + exact McNemar tests
-│   ├── score_corpus.py       score the ROS2 corpus (incl. negative controls)
-│   ├── build_cases.py / build_library.py / extract_robust.py   provenance tooling
-│   └── gen_ledger.py         per-case provenance ledger
-├── data/                 Corpus + results (JSON)
-│   ├── robust_cases.json     integration-relevant cases mined from ROBUST
-│   ├── scoreable_cases.json  the interface-property-scoreable subset (32 scored)
-│   ├── cases.json            the screened ROS2 corpus (16 scored after exclusions)
-│   ├── contract_library.json reconstructed module contracts
-│   ├── kappa_sample.json / kappa_blind.json / rater2.json / kappa_result.json
-│   └── canonical_numbers.json  regenerated headline numbers
-├── reconstruction/       Independent re-derivation of the scored wins (see below)
-│   ├── interface_provenance.json            per-field public-source provenance
-│   ├── independent_reconstruction_core.json validated-core re-derivation
-│   ├── win_reconstruction_agreement.json    all-wins agreement summary
-│   ├── win_reconstruction_detailed.json     per-win re-derived fields + sources
-│   └── targeted_replication.json            targeted replication (admitted + excluded)
-├── runtime/              Live ROS2 runtime confirmations
-│   ├── demo_qos.py           QoS reliability mismatch (BEST_EFFORT pub -> RELIABLE sub)
-│   ├── demo_res.py           resource conflict (two writers to /cmd_vel)
-│   ├── run_res_conflict.sh   resource conflict via the ros2_control resource manager
-│   ├── res_robot.urdf / res_controllers.yaml   minimal ros2_control system for it
-│   ├── frame_mismatch.py     signature/frame mismatch through the real tf2 stack
-│   ├── cm.log                a recorded controller-manager rejection
-│   └── box_setup/README.md   how the runtime host was built (Ubuntu 22.04 + ROS2 Humble)
-└── tables/               LaTeX tables emitted by the scoring pass
+A numerical reproduction validates the recorded computations, not the correctness of every source interpretation or model label.
+
+## Primary deterministic reproduction
+
+See `replication_package/README.md` for the supported interpreter, filesystem,
+space, read-only-input, and historical-code boundaries. It documents a full
+numerical replay that requires several GB of writable output space:
+
+```sh
+python3 replication_package/reproduce.py --out /a/new/output/directory \
+  --snapshot-archive /path/to/existing/snapshots.zip
 ```
 
-## Requirements
+The snapshot asset is separately hash-bound. No model generation, ROS/GPU run,
+or historical annotation is recreated by this command. Historical test copies
+are preserved as evidence; recursively running every archived `test_*.py` is
+not the supported verification procedure. Later source-based supplements are
+separate from this base command; do not infer their validation from its exit code.
 
-- **Checker + scoring + `reproduce.py`:** Python 3.8+, standard library only.
-  No third-party packages, no network. The derived `data/*.json` are included, so the
-  headline numbers reproduce without the upstream datasets.
-- **`runtime/` confirmations:** ROS2 Humble. The QoS and `/cmd_vel` demos use `rclpy`
-  (plus Gazebo + `turtlebot3_gazebo` for `/cmd_vel`); the `ros2_control` resource
-  conflict uses the `ros2_control` resource manager over a mock hardware interface
-  (no Gazebo); the frame mismatch uses `tf2`. See `runtime/box_setup/README.md`.
+## Three-provider/client delivery replay
 
-## How to reproduce
+Follow `delivery-input-tools/README.md` to restore the 51 selected retained
+files (181,251 bytes) for the three delivery workflows, not the entire snapshot
+corpus. For the wider source-evidence checks, pass `SUPPLEMENT_RETAINED_INPUTS.json`
+to the same restore tool: it selects 176 retained files, including the patched
+u0397 client used by V36. Configure
+`delivery-runtime/README.md` with the scientific package, restored task tree,
+and CPython 3.12 intake at
+`execution-records/p5-v39-consumer-contrast-001/`. Run contrast before adaptive;
+the adaptive experiment binds to the newly completed contrast and its actual
+metadata inventory. Use fresh output directories and retain interrupted attempts.
 
-```bash
-python3 reproduce.py
-```
+Before publication normalization, the archived delivery entry points were validated on the same macOS/Python 3.11.2 host:
+six contrast observations, three adaptive observations, and four boundary
+observations. The current export requires its own new integrity and execution receipts. This is not a second-machine reproduction claim. The recognized
+3.12 consumer failure is an observed failure, not a successful client workflow.
+Installed-package and entry-point counts are host dependent; do not require a
+new machine to reproduce the original host counts by construction.
 
-This runs the frozen-checker self-test, regenerates every reported number with a
-single scoring pass, runs the statistical inference, and prints the headline
-results. It is offline and uses only the standard library. LaTeX tables are written
-to `./tables/`.
+## Source comparison and analysis supplements
 
-## What the numbers mean
+`delivery-compatible/README.md` documents the V36 source comparison using the
+same restored task tree. Four provider/client combinations returned 63 nonempty
+mapping entries each on the validation host; all six full-map comparisons were
+equal. These counts are observations, not values imposed by the entry point.
+The final guard also rejects native extensions and bytecode that could shadow
+the retained Python source. Earlier validation attempts are preserved separately.
 
-On real, documented integration bugs the six-dimension contract checker predicts
-**10/32 (31%)** on the ROBUST substrate and **10/16 (62%)** on the screened ROS2
-corpus, versus at most **19%** for the strongest schema+QoS and semver baselines
-(plain message-type matching plus full DDS QoS compatibility, i.e. everything ROS2
-gives for free). The advantage is statistically significant by an exact McNemar test
-(**p = 0.0078** on ROBUST, **p = 0.016** on ROS2; both discordant counts are
-one-sided, b=8/c=0 and b=7/c=0). On matched good-composition negative controls (each
-bug neutralized to a compatible twin) the checker raises **0/16 false positives**, so
-the recall gain is not bought with over-rejection. As a stronger control that blanks no
-field, for six bugs with a documented fixing commit we reconstruct the **real post-fix**
-interface (`reconstruction/real_postfix_controls.json`): the checker accepts five and
-flags one (`on_init`), a name-granularity false positive of the version rule that we
-report rather than tune away.
+`delivery-late/README.md` documents two fresh-process runs over 50 explicitly
+sealed public inputs. Historical and current modes each reproduce their own
+seven-case reference JSON exactly; they use different, separately bound module
+versions. This entry uses the retained source slices already in the public tree
+and does not require restoring the snapshot archive. Source identities and the
+distinction between executed and merely loaded modules are retained in receipts.
 
-The predictive value is concentrated where the conflict is interface-self-evident:
-the **resource** dimension (the cleanest win that every baseline misses) and the
-**version** dimension restricted to documented named-entity changes. The behavioral
-QoS sub-check is co-detected by the schema+QoS baseline and is reported as such; the
-permission and recovery dimensions are forward-looking and are not counted toward the
-measured margin. Gold dimensions are assigned by mapping each bug's third-party
-fault-code taxonomy through a fixed crosswalk, independently of whether the checker
-flags the case; a blind second rater labelled the 32 ROBUST cases for **Cohen's
-kappa = 0.57** (moderate).
+`delivery-ledger/README.md` documents regeneration from 702 pinned inputs
+(651 package files and 51 restored source files). Its comparison retains and
+reports path aliases and generation-time differences separately from scientific
+or structural differences. The manual source-pointer and semantic assessments
+remain recorded evidence, not newly automated experiments.
 
-## Independent reconstruction of the scored wins
+Every entry requires new output outside its input roots and keeps failure or
+interruption evidence. These are same-host delivery validations of existing
+analyses. They do not create new scientific samples, historical causal evidence,
+independent annotations, or a second-machine validation.
 
-Because the contract fields were reconstructed by the authors, the central threat is
-that a scored win could encode the documented answer rather than predict it. To test
-this, every case the checker scores as a win was **independently re-derived from the
-public artifacts** (message/service/action definitions, controller configs, version
-diffs, API headers, QoS profiles) by an agent blind to both the failure record and
-the authors' encoding; the frozen checker was then re-run on the re-derived fields.
-All **20 retained wins** were corroborated, each citing a concrete public source
-(`reconstruction/win_reconstruction_detailed.json`). The process also produced
-**three adverse corrections** that *lowered* the reported numbers:
+## Supplementary evidence completion and eligibility sensitivity
 
-- a dual-arm `ros2_control` case re-derived as two arms claiming *disjoint* per-joint
-  interfaces (an unscoped implementation bug, not an interface resource conflict) and
-  is now counted as a miss;
-- a Nav2 frame case re-derived with matching default frames and was demoted from the
-  replication set;
-- the one ROS2 signature win re-derived as a constructed archetype of a frame-mismatch
-  class rather than a specific documented instance and was excluded.
+[`successor-evidence/V56-evidence-completion/`](successor-evidence/V56-evidence-completion/README.md)
+adds source assessments for seven omitted control findings, seven boundary
+candidate dispositions, and one common eligibility treatment for the two Nav2
+records. Review coverage is 44/44; three supplementary semantic judgments remain
+indeterminate. All actual rejections remain counted.
 
-The independent reconstruction here is agent-based; a full second-team human
-reconstruction of the entire corpus remains the strongest open validation.
+The shared incident's interface eligibility is unconfirmed. The supplementary
+reading excludes C3-057 without replacement; 14/93 becomes 14/92, and H1's sample
+changes from 40 to 39 while b=2, c=0, and p=0.5 remain unchanged. It does not
+resolve the cause or replace the historical primary analysis. The earlier
+`successor-evidence/eligibility-sensitivity/` record quantifies that exclusion
+before the joint assessment and is retained as historical evidence.
 
-## Runtime confirmations
+The new entry point runs offline without the full snapshot archive. Its current
+result is [EVIDENCE_COMPLETION_RESULTS.json](EVIDENCE_COMPLETION_RESULTS.json),
+and [EVIDENCE_COMPLETION_VALIDATION.json](EVIDENCE_COMPLETION_VALIDATION.json)
+records exact equality of the scientific result fields against the original
+analysis. Input-receipt differences reflect portable paths, publication bytes,
+and the additional evidence inventory, not altered scientific outcomes.
 
-Three predicted failures are confirmed live in ROS2:
+## Reading the evidence
 
-- **QoS incompatibility** (Beh): a `BEST_EFFORT` publisher feeding a `RELIABLE`
-  subscriber delivers **0/80** messages over five runs, while the matched
-  `RELIABLE -> RELIABLE` pair delivers **79/80**.
-- **Resource conflict** (Res): two `ForwardCommandController`s both claiming the
-  `joint1/position` command interface make the `ros2_control` resource manager reject
-  the second with `Command interface 'joint1/position' is already claimed`
-  (`runtime/cm.log`); the `/cmd_vel` multi-writer demo shows the same conflict on a
-  TurtleBot3 (forward progress collapses from 0.37-0.77 m to 0.02-0.08 m).
-- **Signature/frame mismatch** (Sig): a point declared in `base_link` but consumed as
-  `camera`, transformed through the real `tf2` stack, lands **1.30 m** from where a
-  frame-ignoring consumer would act.
+Current claims are scoped by the manuscript and
+`replication_package/CURRENT_INTERPRETATION.md`. Later evidence retains both
+unresolved findings and superseded conditions. Full trigger semantics are not
+established merely by resolving a filename or line-range alias. An independent
+human-labelled reference has not been added. Supplement directories may contain
+archived scripts whose original private execution environment is not supported
+by the new delivery entry points; their recorded results remain distinct from
+newly rerunnable components. `historical-project/` keeps the separate historical module versions. Publication
+normalization must not replace one scientific implementation with a different
+same-named implementation; the derivation inventory records representation changes.
 
-## Citation
-
-```bibtex
-@misc{ecmcontracts,
-  title  = {ECM Contracts: Contract-Aware, Versioned, and Governable Capability Interfaces for Embodied Agents},
-  year   = {2026},
-  note   = {Reproducibility artifact},
-  url    = {https://github.com/s20sc/ecm-contracts}
-}
-```
+`PUBLIC_FILES.json` binds the distributed file inventory.
+`THIRD_PARTY_SOURCES.md` records attribution boundaries. Root `LICENSE` retains
+the existing repository's license for author-owned material; it does not
+relicense the third-party source snapshots or files with their own notices.

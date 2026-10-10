@@ -1,0 +1,105 @@
+{
+  "case_id": "C3-101",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/710",
+    "https://github.com/ros2/geometry2/pull/711",
+    "https://github.com/ros2/geometry2/pull/712",
+    "https://github.com/ros2/geometry2/commit/efc784597ccbd8d246794e72b20358deab4ab114",
+    "https://github.com/ros2/geometry2/commit/646342c6164e837d69460e3d28e7a025396544f6"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproduction steps (rqt with use_sim_time, tf tree view, restart `ros2 bag play --clock`) and a full traceback ending in \"TypeError: Buffer.time_jump_callback() takes 1 positional argument but 2 were given\"; maintainer sloretz diagnoses it and clalancette/ahcorde merge the fix. https://github.com/ros2/geometry2/issues/710"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "tf2_ros_py",
+        "rclpy"
+      ],
+      "interface_kind": "library API (jump-callback registration and invocation signature)",
+      "evidence": "tf2_ros_py's Buffer registers `self.jump_handle = self.clock.create_jump_callback(threshold, post_callback=self.time_jump_callback)`; rclpy invokes the post callback as `original_callback(TimeJump(clock_change, duration))`, per its declared contract \":param post_callback: Callback to be called after new time is set. The callback\" / \"must accept a single argument that is a ``TimeJump``.\" (rclpy 7.1.2 clock.py). tf2_ros_py's method was declared `def time_jump_callback(time_jump: TimeJump):`, so the bound method accepts no argument. The failure is the arity of a callable crossing the library boundary (sloretz: \"`Buffer.time_jump_callback()` takes 1 positional argument (a Buffer instance) but 2 were given (a Buffer instance and a `TimeJump` instance).\"); the resolving edit is inside tf2_ros_py. Not deployment wiring or build."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: rclpy's clock (driven by /clock under use_sim_time) calls tf2_ros_py's registered post callback with a TimeJump when a backward jump occurs (bag replay restarted)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed crash: \"TypeError: Buffer.time_jump_callback() takes 1 positional argument but 2 were given\" followed by \"[1]    295333 IOT instruction (core dumped)  rqt --ros-args -p use_sim_time:=True\" https://github.com/ros2/geometry2/issues/710"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclpy",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rclpy",
+      "broken_rev": "7.1.2",
+      "resolved_rev": "7.1.2",
+      "pinned": true,
+      "revision_basis": "The reporter states \"rclpy 7.1.2 in ros 2 jazzy\" (debian packages); tag 7.1.2 = f4010472ef5dbf6d85016383d27824465dce1901. The resolution does not change rclpy; the reporter's confirmation of the fix ten days later is taken to use the same rclpy install (not restated).",
+      "excerpt": false,
+      "ros_distro": "jazzy"
+    },
+    {
+      "name": "tf2_ros_py",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/geometry2",
+      "broken_rev": "0.36.4",
+      "resolved_rev": "646342c6164e837d69460e3d28e7a025396544f6",
+      "pinned": true,
+      "revision_basis": "Broken: jazzy debian packages on 2024-09-23; the latest geometry2 jazzy release tag before that date is 0.36.4 (da10f77d98ab97d2dfdfa9bfc4c98042a8ad7c3d, 2024-05-29), which is also the revision of buffer.py that sloretz links (\"https://github.com/ros2/geometry2/blob/da10f77d98ab97d2dfdfa9bfc4c98042a8ad7c3d/tf2_ros_py/tf2_ros/buffer.py#L107-L109\"). Exact binary version inferred. Resolved: jazzy backport commit 646342c6164e837d69460e3d28e7a025396544f6 (PR #712), whose single parent is 0.36.4 and whose only change is the one-line signature fix; the reporter tested the identical diff from PR #711 (rolling merge efc784597ccbd8d246794e72b20358deab4ab114, head 5b337f94b10b08e1e78d618c70a16b552f2d93e0) on jazzy.",
+      "excerpt": false,
+      "ros_distro": "jazzy"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "api:rclpy.clock.Clock.create_jump_callback", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}},
+    {"element": "api:rclpy.clock.JumpThreshold", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}},
+    {"element": "api:rclpy.clock.TimeJump", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}},
+    {"element": "api:tf2_ros.buffer.Buffer.time_jump_callback", "sides": {"tf2_ros_py": "provides", "rclpy": "consumes"}},
+    {"element": "api:rclpy.node.Node.get_clock", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}},
+    {"element": "api:rclpy.clock.Clock", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}},
+    {"element": "api:rclpy.node.Node.create_service", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}},
+    {"element": "api:rclpy.duration.Duration", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}},
+    {"element": "api:rclpy.time.Time", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}},
+    {"element": "api:rclpy.logging.get_logger", "sides": {"rclpy": "provides", "tf2_ros_py": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:rclpy.clock.Clock.create_jump_callback",
+        "api:rclpy.clock.TimeJump",
+        "api:tf2_ros.buffer.Buffer.time_jump_callback"
+      ],
+      "quote": "The type annotation `def time_jump_callback(time_jump: TimeJump):` is incorrect. The first argument of a method is always bound to an instance of the class, and by convention this argument is usually called `self`. If I fix the argument name and the type annotation then the reason for the error becomes clear: `def time_jump_callback(self: \"Buffer\"):`. `Buffer.time_jump_callback()` takes 1 positional argument (a Buffer instance) but 2 were given (a Buffer instance and a `TimeJump` instance).",
+      "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392115230"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No build/import/activation diagnostic: the mismatched callable is accepted at registration and the error surfaces only when rclpy invokes it on a time jump, as a run-time Python exception that crashes rqt: \"TypeError: Buffer.time_jump_callback() takes 1 positional argument but 2 were given\". The reporter notes: \"interestingly python only crashes once the method is actually called, not when it is referenced as `buffer.time_jump_callback`\" and that a static checker (pyright) would flag it, but none ran. https://github.com/ros2/geometry2/issues/710",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "tf2_ros_py: declare the jump callback as a method taking the TimeJump argument, `def time_jump_callback(self, time_jump: TimeJump):` (rolling efc784597ccbd8d246794e72b20358deab4ab114, jazzy 646342c6164e837d69460e3d28e7a025396544f6). rclpy unchanged.",
+    "status": "observed",
+    "evidence": "Reporter after applying PR #711 on jazzy: \"this fixes the problem all the way to rqt-tf-tree in jazzy! now i get\" / \"[WARN] [1727982819.603705139] [tf2_buffer]: Detected jump back in time. Clearing tf buffer.\" / \"when without the fix rqt would crash, as expected.\" https://github.com/ros2/geometry2/pull/711 . Resolved composition: rclpy 7.1.2 with tf2_ros_py at 0.36.4 plus the one-line fix, which is exactly commit 646342c6164e837d69460e3d28e7a025396544f6."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class `other`: the mismatch is the arity of a callback passed across a library API (rclpy declares `post_callback: Optional[Callable[[TimeJump], None]]`; tf2_ros_py passes a bound method that takes no argument); none of the ROS-interface classes names a callable-signature mismatch, and no element was renamed or retyped between revisions. The body `self.clear()` would also have failed (no `self` in scope) had the arity matched. The crash appeared in the rqt tf tree plugin (rqt_tf_tree), which only hosts the tf2_ros Buffer; the failing call is rclpy -> tf2_ros_py, as the traceback shows (\"File \\\"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/clock.py\\\", line 242, in callback_shim\"). The issue was first filed against rclpy and moved to geometry2 by clalancette after sloretz's diagnosis (\"This is a bug in `tf2_ros_py`.\"). Loudness recorded as silent_documented because the only diagnostic is a run-time exception at invocation, not a build/connect/activate diagnostic."
+}

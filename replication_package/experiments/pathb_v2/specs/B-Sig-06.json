@@ -1,0 +1,45 @@
+{
+  "case_id": "B-Sig-06",
+  "corpus": "C2",
+  "source_refs": [
+    "https://arxiv.org/html/2407.19292v1"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The pointer is the ISSTA 2024 taxonomy paper 'Understanding Misconfigurations in ROS: An Empirical Study and Current Approaches' (Canelas, Schmerl, Fonseca, Timperley), not an issue, PR, commit or Q&A thread, and the case record carries no title or description that singles out one defect in it. The paper's message-level material is illustrative and unsourced, e.g. \"the initialpose topic, representing the initial position and orientation of the robot in the map, accepts geometry_msgs/Pose messages\", \"the publisher sends color images while the subscriber expects grayscale images\", \"a publisher describes rotational velocity using radians per second, but the subscriber expects the same quantity in degrees per second\"; none of these comes with a reproducer, an error log, or a maintainer's confirmation. The same pointer is shared by B-Sig-03 and B-Sig-07, so no example can be assigned to this case without guessing."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated: no single defect identified (E1)."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: no single defect identified (E1)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated: no single defect identified (E1)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1: the source is a taxonomy paper and the case pointer does not identify one concrete, documented defect (no reproducer, log, or maintainer confirmation attached to a specific example)",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "Concrete, sourced examples in the paper, for re-issuing this case with a specific pointer: Fig. 2, question 231458 (incorrect parameter value); Fig. 4, a Name Mismatch where the subscriber uses imu_data instead of imu/data (question number not given in the text; would stop at E2 step 3, deployment_wiring); Listing 1, a missing ~tf_prefix parameter for robot_state_publisher in a multi-robot launch file (question number not given; name/parameter binding); Fig. 5, question 9108, stereo_view dropping messages because stereo_image_proc produces disparity images slower than the left/right images arrive (queue/rate between two nodes; the only one of these that is plausibly an eligible interface case); footnoted questions 59087, 227092, 248656 (introduction) and 30235, 10975, 195186 (discussion). The paper's full dataset of 228 labelled questions is at https://zenodo.org/doi/10.5281/zenodo.12642380. Three packet cases (B-Sig-03, B-Sig-06, B-Sig-07) carry this identical pointer; whichever three examples were intended, the three illustrative message/semantic-type sentences quoted under E1 would each fail E1 in the same way."
+}

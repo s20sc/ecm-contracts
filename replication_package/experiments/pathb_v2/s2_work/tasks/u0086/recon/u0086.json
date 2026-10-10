@@ -1,0 +1,65 @@
+{
+  "task_id": "u0086",
+  "package": "vehicle-control script",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "field:mavros_msgs/SetMode.success",
+      "side": "consumes",
+      "msg_type": "mavros_msgs/SetMode",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:mavros_msgs/SetMode",
+      "side": "consumes",
+      "msg_type": "mavros_msgs/SetMode",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "service:/mavros/set_mode",
+      "side": "consumes",
+      "msg_type": "mavros_msgs/SetMode",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": ["msg:mavros_msgs/SetMode"],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].msg_type": "parent type from the packet element name field:mavros_msgs/SetMode.success; artifact:artifact.txt:1: \"the SetMode service\"",
+    "ports[0].frame": "artifact:artifact.txt:1: \"I expect the service to return true if the SetMode service succeeded, else false.\" (a boolean status value; no spatial meaning)",
+    "ports[1].msg_type": "artifact:artifact.txt:1: \"the SetMode service\" (type written unqualified as SetMode; package qualifier taken from the packet's only SetMode type, msg:mavros_msgs/SetMode)",
+    "ports[1].frame": "artifact:artifact.txt:1: \"I expect the service to return true if the SetMode service succeeded, else false.\" (mode-setting call with a boolean result; no spatial meaning)",
+    "ports[2].msg_type": "artifact:artifact.txt:1: \"I expect the service to return true if the SetMode service succeeded\" (the called service is of type SetMode, unqualified; qualifier from packet element msg:mavros_msgs/SetMode)",
+    "ports[2].frame": "artifact:artifact.txt:1: \"I expect the service to return true if the SetMode service succeeded, else false.\" (mode-setting call with a boolean result; no spatial meaning)",
+    "references[msg:mavros_msgs/SetMode]": "artifact:artifact.txt:1: \"the SetMode service\"",
+    "perm_requires.state": "artifact:artifact.txt is a single quoted sentence plus a URL; it contains no code or configuration in which permissions could be checked",
+    "perm_grants.state": "artifact:artifact.txt is a single quoted sentence plus a URL; it contains no code or configuration in which permissions could be checked",
+    "recovery.state": "artifact:artifact.txt is a single quoted sentence plus a URL; it contains no code or configuration in which a recovery declaration could be checked"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The excerpt records the script's assumption that the SetMode service's boolean response is true only when the mode change succeeded. Stating that expectation in an issue thread suggests the provider's boolean meant something weaker (for example, that the request was sent), so the script's reliance on field:mavros_msgs/SetMode.success looks like a semantic mismatch."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task. artifact.txt is one line: a quoted consumer-side expectation followed by an issue-tracker URL. I did not follow the URL (issue trackers are not allowed). I fetched no dependency definition files because excerpt tasks allow only the artifact, so every definition_id is null. The artifact names the service type only as \"SetMode\". I qualified it as mavros_msgs/SetMode by matching it to the packet's only SetMode type. The service name /mavros/set_mode does not appear in the artifact, so service:/mavros/set_mode has a port (the script calls a SetMode service) but is not in references: its name cannot be determined from the artifact, and nothing says it is supplied at run time. The response field name `success` does not appear either. The artifact says only that the script reads a boolean return, with the expected meaning \"true if the SetMode service succeeded, else false\" (the mode change took effect, not merely that the request was accepted or sent). That is why field:mavros_msgs/SetMode.success has a consumes port but is not in references. The provided elements field:mavros_msgs/SetMode.base_mode and field:mavros_msgs/SetMode.custom_mode are not mentioned. The artifact is not a complete definition body, so they cannot be determined either way and are in neither declares nor not_declared. They also get no port, because the artifact gives no evidence of which request fields the script sets or how. QoS is null (ROS 1). No rates are stated. There is no manifest, so manifest_version is null. exclusive is empty because the excerpt has no code or configuration to check, not because the script was shown to claim nothing. Units are null because none are stated."
+}

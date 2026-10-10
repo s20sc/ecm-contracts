@@ -1,0 +1,90 @@
+{
+  "task_id": "u0298",
+  "package": "image_transport",
+  "manifest_version": "6.3.0",
+  "ports": [
+    {
+      "element": "api:rmw_create_publisher",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_create_subscription",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_get_publishers_info_by_topic",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rmw_get_subscriptions_info_by_topic",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:/camera/image",
+      "side": "consumes",
+      "msg_type": "sensor_msgs/msg/Image",
+      "frame": "per_message",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "msg", "value": "267cbd7aaf66b2a1493535ac6bb9e37f14244b8e8f9772b92e2f682faf72ba85"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": ["topic:/camera/image"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:image_transport/package.xml:3",
+    "ports[0]": "snapshot:image_transport/include/image_transport/simple_publisher_plugin.hpp:139 `simple_impl_->pub_ = node->create_publisher<M>(transport_topic, custom_qos, options);` (also snapshot:image_transport/src/camera_publisher.cpp:100); the rmw function is reached only through rclcpp, it is not named in the snapshot",
+    "ports[1]": "snapshot:image_transport/include/image_transport/simple_subscriber_plugin.hpp:134 `impl_->sub_ = node->create_subscription<M>(`; the rmw function is reached only through rclcpp, it is not named in the snapshot",
+    "ports[2]": "snapshot:image_transport/test/test_qos_override.cpp:68 `auto endpoint_info_vec = pub_node_->get_publishers_info_by_topic(\"camera/image\");` (also lines 75, 94, 101); rclcpp::Node method, the rmw function is not named in the snapshot",
+    "ports[3]": "snapshot:image_transport/test/test_qos_override.cpp:114 `auto endpoint_info_vec = sub_node_->get_subscriptions_info_by_topic(\"camera/image\");` (also lines 122, 143, 151); rclcpp::Node method, the rmw function is not named in the snapshot",
+    "ports[4]": "snapshot:image_transport/test/test_qos_override.cpp:112-113 `image_transport::create_subscription(sub_node_.get(), \"camera/image\", fcn, \"raw\", rclcpp::SystemDefaultsQoS());` node created at line 50 with default namespace",
+    "ports[4].msg_type": "snapshot:image_transport/test/test_qos_override.cpp:109 `std::function<void(const sensor_msgs::msg::Image::ConstSharedPtr & msg)> fcn`; snapshot:image_transport/include/image_transport/raw_subscriber.hpp:49 `class RawSubscriber : public SimpleSubscriberPlugin<sensor_msgs::msg::Image>` with getTopicToSubscribe returning base_topic (lines 67-70)",
+    "ports[4].frame": "snapshot:image_transport/include/image_transport/raw_subscriber.hpp:64 `user_cb(message);` passes each Image unchanged; no frame is hard-coded anywhere in image_transport, the frame is the per-message header.frame_id (sensor_msgs/msg/Image.msg line 4-5 at ros2/common_interfaces rolling)",
+    "ports[4].definition_id": "python3 definition_hash.py sha256 <Image.msg> on https://raw.githubusercontent.com/ros2/common_interfaces/rolling/sensor_msgs/msg/Image.msg (fetched 2026-09-27)",
+    "references[topic:/camera/image]": "snapshot:image_transport/test/test_qos_override.cpp:113 `sub_node_.get(), \"camera/image\", fcn, \"raw\", rclcpp::SystemDefaultsQoS());` and line 55 `\"qos_overrides./camera/image.subscription.reliability\", \"best_effort\"),`",
+    "perm_requires": "searched all of snapshot/image_transport (CMakeLists.txt, package.xml, default_plugins.xml, src/, include/, test/) for permission, security, enclave or policy declarations; none found",
+    "perm_grants": "same search as perm_requires; none found",
+    "recovery": "searched snapshot/image_transport src/ and include/ for declared recovery or fallback behaviour; only exceptions (publisher.cpp:153 `throw Exception(`, subscriber.cpp:98 `throw TransportLoadException(`) and a logged skip of plugins that fail to load (publisher.cpp:145-149); no recovery declaration"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "test_qos_override.cpp creates publishers and subscriptions on /camera/image with rclcpp::SystemDefaultsQoS() and asserts, through get_publishers_info_by_topic / get_subscriptions_info_by_topic, that the rmw reports Reliable for the publisher (lines 69, 95) and BestEffort for the subscription (lines 115-116, 123-125, 144-145); that is DDS default-resolution behaviour, which an rmw implementation is not obliged to follow, so the expectations look implementation-specific"
+  },
+  "confidence": "medium",
+  "notes": "All five packet elements are consumed. The four rmw_* functions are never named in the snapshot: image_transport reaches them only through rclcpp (Node::create_publisher, Node::create_subscription, Node::get_publishers_info_by_topic, Node::get_subscriptions_info_by_topic), so they are recorded as ports (indirect calls) but not in references; msg_type, frame, QoS and definition_id do not apply to these API ports and are null. The rmw symbols the snapshot does name are rmw_qos_profile_t and rmw_qos_profile_default (defaults of the deprecated overloads, e.g. image_transport.hpp:57), which are not packet elements. topic:/camera/image appears only in test code (test_qos_override.cpp, test_subscriber.cpp, test_publisher.cpp, test_message_passing.cpp) as the relative name \"camera/image\" on nodes in the default namespace, and literally as /camera/image in the qos_overrides parameter keys (test_qos_override.cpp:48, 55); the library itself takes the base topic at run time. QoS for the /camera/image port is null: most consuming sites pass rclcpp::SystemDefaultsQoS() (test_qos_override.cpp:113, 120, 142, 149; test_subscriber.cpp:53-54, 64-65; test_message_passing.cpp:83-84), whose reliability and durability are the SYSTEM_DEFAULT policies resolved by the rmw implementation, i.e. by configuration outside the snapshot; test_subscriber.cpp:181 and 184 instead pass rclcpp::SensorDataQoS(); ImageTransport::subscribe(base_topic, queue_size, ...) uses SystemDefaultsQoS with keep_last(queue_size) (image_transport.cpp:248-249). On the override nodes the parameter qos_overrides./camera/image.subscription.reliability=best_effort (line 55) and ...publisher.reliability=best_effort (line 48) take effect only when QosOverridingOptions including Reliability are passed (lines 84-90, 133-139). No rate is set. definition_id uses the rolling branch of ros2/common_interfaces as the rolling release ref; the sha256_normalised value is a proxy for the ROS 2 type hash."
+}

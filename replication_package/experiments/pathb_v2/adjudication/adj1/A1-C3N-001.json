@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3N-001",
+  "kind": "A1",
+  "case_id": "C3N-001",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "reason": "The primary issue identifies controller acceleration settings newly effective in Jazzy, not an odometry format, frame, unit or timing violation by a named peer. A controller compared across distributions with its own unchanged parameter file is not by itself two separately deployed units in an UPGRADE. Under the specification's candidate odometry/controller composition, E2 stops at internal. The later open-loop enhancement concerns another tested robot and does not prove the original issue had a different inter-unit cause.",
+    "quote": "and it is effective in JAZZY. It seems that the small acceleration value causes the vehicle to slow down.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386#issuecomment-3125122390"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I had to increase ax_max to 15.0 in order to make my robot move as fast as I wanted, which I feel doesn’t make much sense.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386#issuecomment-3280178269",
+    "reason": "Not applicable after exclusion. The report is about achieved motion, not a documented interface diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "It seems that the small acceleration value causes the vehicle to slow down.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/5386#issuecomment-3125122390",
+    "reason": "The source describes runtime behavior; the excluded-case field remains null."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "We saw the same symptom class as #5386 and #5694 (that one reported 0.17 m/s and we similarly measured 0.173)",
+    "url": "https://github.com/ros-navigation/navigation2/pull/6336",
+    "reason": "Null means excluded, not unimplemented. The later Ridgeback simulation is explicitly the same symptom class, not the original composition with both units pinned."
+  },
+  "notes": "Read the original report excerpt and all returned issue comments, PRs 5617 and 6336, and 6336's optimizer.cpp diff. The diff adds opt-in open_loop and changes the seed from robot_speed to last_command_vel_ only when enabled. The specification's E1 says the backport merged in 2025, but the opened API https://api.github.com/repos/ros-navigation/navigation2/pulls/6336 reports merged_at as '2026-08-11T18:35:27Z', agreeing with its notes rather than its E1 date. That metadata correction does not change eligibility. No listed conditions."
+}

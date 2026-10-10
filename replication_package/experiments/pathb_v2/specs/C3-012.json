@@ -1,0 +1,51 @@
+{
+  "case_id": "C3-012",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-perception/vision_opencv/issues/449",
+    "https://github.com/ros-perception/vision_opencv/pull/478",
+    "https://github.com/ros-perception/vision_opencv/issues/457",
+    "https://github.com/boostorg/python/issues/359"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Compiler output is quoted in the issue: \"/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. ...’\" and \"/usr/include/boost/detail/iterator.hpp:13:1: note: ‘#pragma message: This header is deprecated. Use <iterator> instead.’\" when building cv_bridge/src/module.cpp on Ubuntu Jammy (https://github.com/ros-perception/vision_opencv/issues/449)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "cv_bridge",
+        "Boost (Boost.Python 1.74 system headers)"
+      ],
+      "interface_kind": null,
+      "evidence": "The deprecated elements are used inside Boost itself, not by cv_bridge: the include chain runs from cv_bridge's `#include <boost/python.hpp>` through Boost.Python headers to boost/bind.hpp and boost/detail/iterator.hpp (issue 449). The maintainer states \"This issue originates further up in boostorg/python\" (https://github.com/ros-perception/vision_opencv/issues/449#issuecomment-1200502772), and the upstream report says \"Some of the Boost.Python headers still use the deprecated Bind placeholders in the global namespace\" (https://github.com/boostorg/python/issues/359); the maintainer adds that \"these warnings arise in any packages that use the system libraries\" (boostorg/python#359 comment). The warning therefore occurs for any consumer that includes boost/python.hpp from Boost 1.74, independent of any assumption between cv_bridge and Boost; Boost.Python and Boost.Bind are shipped in the same Boost release, so the deprecated use is internal to that one unit."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No cross-unit operation fails; the compile-time warnings come from Boost's own headers."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Compiler warnings shown in issue 449 and confirmed gone after the change: \"I checked the following warnings disappear after this patch is applied.\" (wep21, https://github.com/ros-perception/vision_opencv/pull/478)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal: deprecation pragma messages raised by Boost.Python 1.74 headers including deprecated Boost headers (boost/bind.hpp global placeholders, boost/detail/iterator.hpp); they appear for any consumer of boost/python.hpp and originate inside Boost (fixed upstream in Boost 1.75/1.77). The cv_bridge change (PR 478) only defines BOOST_BIND_GLOBAL_PLACEHOLDERS / BOOST_ALLOW_DEPRECATED_HEADERS for the affected Boost versions to silence them, which is also a build-level change with no interface change (step 4).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Fix: PR 478 merged into vision_opencv rolling as 2df63996f37ed8fbb82740de29c06e9e8ceea4ef (backported to humble as PR 492), adding to cv_bridge/src/module.hpp `#if (BOOST_VERSION / 100 >= 1073 && BOOST_VERSION / 100 <= 1076)  // Boost 1.73 - 1.76` / `#define BOOST_BIND_GLOBAL_PLACEHOLDERS` and `#if (BOOST_VERSION / 100 == 1074)  // Boost 1.74` / `#define BOOST_ALLOW_DEPRECATED_HEADERS`. The maintainer's version analysis: the Bind placeholder deprecation \"was added in 1.73 and was fixed in 1.77 by https://github.com/boostorg/python/pull/315\" and the iterator header deprecation \"was added in 1.74 and was fixed in 1.75 by https://github.com/boostorg/python/pull/308\" (https://github.com/ros-perception/vision_opencv/issues/449#issuecomment-1243072420). A possible reading as an UPGRADE between Boost.Python (consumer) and Boost.Bind (provider) was rejected because both ship in the same Boost release and are not separately released or built; that composition is also not the one the reporter reports (cv_bridge build)."
+}

@@ -1,0 +1,123 @@
+{
+  "case_id": "C3-035",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/2414",
+    "https://github.com/ros2/rclcpp/pull/2415",
+    "https://github.com/ros2/rclcpp/commit/091f29fcd38461046520e3f5cabd396777df88f6",
+    "https://github.com/ros2/rclcpp/blob/16.0.7/rclcpp_components/src/node_main.cpp.in",
+    "https://github.com/ros2/rclcpp/blob/16.0.7/rclcpp_components/include/rclcpp_components/register_node_macro.hpp",
+    "https://github.com/ros2/rclcpp/blob/humble/rclcpp_components/src/node_main.cpp.in"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue gives reproduction steps (\"3. In the install workspace, replace the new shared library with the old .so\r\n4. Run the generated rclcpp_components main executable.\") and the observed behaviour; a maintainer accepts the check in PR #2415: \"If that was the case, then we should definitely fail, since we failed to do what the user asked us to do.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "rclcpp_components (generated component node main)",
+        "user_component_library"
+      ],
+      "interface_kind": "library API (class_loader plugin class exported by the component library and looked up by name by the host executable)",
+      "evidence": "The executable generated from rclcpp_components' node_main.cpp.in is a host that loads the component shared library as a plugin (plugin and host are separate units). At 16.0.7 it looks the plugin class up by name: \"std::string class_name = \"rclcpp_components::NodeFactoryTemplate<@component@>\";\" ... \"auto classes = loader->getAvailableClasses<rclcpp_components::NodeFactory>();\" ... \"if (name.compare(class_name) == 0) {\". The failure depends on the name the library exports, which crosses the boundary; with a library that registers the class there is no failure, so it is not internal. The resolving change (PR #2415) is C++ in the host template, not wiring, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the library's registered classes feed the host's class lookup at load. The source describes version skew in the reverse direction of UPGRADE: the host was generated against the new library version that registers the class, and an older build of the library without the class is the one loaded (\"it did for me because of cached .so binaries that didn't have the class inside\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"Executor starts running but with no node inside, and just hangs on waiting for work forever.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclcpp_components (generated component node main)",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rclcpp",
+      "broken_rev": "16.0.7",
+      "resolved_rev": "091f29fcd38461046520e3f5cabd396777df88f6",
+      "pinned": true,
+      "revision_basis": "The reporter states \"Version or commit hash:\r\n  - 16.0.7-1jammy.20231205.162058\" (Humble binaries), i.e. upstream tag 16.0.7 (47712ecf). The fix PR #2415 was merged only into rolling (merge commit 091f29fc, 2024-02-13); the first tag containing it is 28.0.0 (27.0.0 is behind it). No Humble backport was found: the humble branch's node_main.cpp.in still loops over getAvailableClasses without a not-found check, so the resolved revision is the rolling merge commit, not a Humble release.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "user_component_library",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "as-reported-2024-01",
+      "resolved_rev": "as-reported-2024-01",
+      "pinned": false,
+      "revision_basis": "The reporter's own component shared library, described only in prose (an older .so without the component class, left over from a previous build); no code or repository is public. The resolution does not change it.",
+      "excerpt": true,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "api:rclcpp_components::NodeFactoryTemplate<@component@>",
+      "sides": {
+        "rclcpp_components (generated component node main)": "consumes",
+        "user_component_library": "provides"
+      }
+    },
+    {
+      "element": "api:rclcpp_components::NodeFactory::create_node_instance",
+      "sides": {
+        "rclcpp_components (generated component node main)": "consumes",
+        "user_component_library": "provides"
+      }
+    },
+    {
+      "element": "api:rclcpp_components::NodeInstanceWrapper::get_node_base_interface",
+      "sides": {
+        "rclcpp_components (generated component node main)": "consumes",
+        "user_component_library": "provides"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": [
+        "api:rclcpp_components::NodeFactoryTemplate<@component@>"
+      ],
+      "quote": "Theoretically this state _shouldn't_ happen, but it did for me because of cached .so binaries that didn't have the class inside.",
+      "url": "https://github.com/ros2/rclcpp/issues/2414"
+    },
+    {
+      "class": "other",
+      "implicated_elements": [
+        "api:rclcpp_components::NodeFactoryTemplate<@component@>"
+      ],
+      "quote": "Executor starts running but with no node inside, and just hangs on waiting for work forever.",
+      "url": "https://github.com/ros2/rclcpp/issues/2414"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic: the host logs nothing when the class is missing and spins an empty executor (\"Executor starts running but with no node inside, and just hangs on waiting for work forever.\"). Expected behaviour per the reporter: \"Node to throw exception and crash.\"",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "The generated node main checks for the class before instantiating and fails loudly if it is absent: \"if (std::find(\" ... \"class_name) == classes.end()) {\" ... \"\"Class %s not found in library %s\",\" ... \"return 1;\" (PR #2415, rolling). This turns the silent hang into a refusal; the composition itself still needs a library build that registers the class.",
+    "status": "recommended",
+    "evidence": "Merged into rolling on 2024-02-13 and the issue closed. In the PR discussion the author shows a failing load with a test executable, not the reporter's library: \"[ERROR] [1707491029.558037381] [test_component_does_not_exist_executable]: Failed to load library Could not create instance of type rclcpp_components::NodeFactoryTemplate<test_rclcpp_components::DoesNotExist>\". The reporter's Humble composition has no released fix."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Operation: the skew is a provider older than the consumer was built against (host generated for a class that the loaded, older library does not register), which is the reverse of the UPGRADE definition, so PAIR is recorded. Class: element_removed_or_renamed is used for a class absent from the deployed provider revision (it was not removed; that build predates it). The second condition (class other) is the host's own missing check, an internal defect within this composition, which is what the reporter asked to fix. Alternative reading considered: ineligible `build`, because the stale library came from the install tree (\"I think that I encountered this situation originally due to cached files in an install directory, which colcon didn't overwrite for some reason, even though I used packages-up-to.\"); not chosen because the resolving change is host code and the mismatch is a class name crossing the host/plugin boundary. The plugin registers classes through \"#define RCLCPP_COMPONENTS_REGISTER_NODE(NodeClass) \\\" / \"rclcpp_components::NodeFactoryTemplate<NodeClass>, \\\" (register_node_macro.hpp@16.0.7). Maintainer view: \"it is not something a user can really run into if they are using our tools\". Inventory canonical form: api:<symbol>; the component class name is not given in the source, so the element uses the template placeholder @component@ as it appears verbatim in node_main.cpp.in. The PR also removed the node_wrappers vector (\"I removed the vector of node wrappers (since there was always just one)\"), unrelated to the defect. Artifact file: the component library has neither code nor an interface statement in the source, so its section [[user_component_library@as-reported-2024-01]] is empty."
+}

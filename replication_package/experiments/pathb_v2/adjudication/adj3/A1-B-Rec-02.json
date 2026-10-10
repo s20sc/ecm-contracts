@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-B-Rec-02",
+  "kind": "A1",
+  "case_id": "B-Rec-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "PR #1251 seems to break this.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/1307"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:BT::SequenceNode"],
+      "quote": "The `sequence` node in the V3 behavior tree library works differently than in V2. There seems to be no way to have two subtrees running simultaneously in V3 unless you use the `parallel` node.",
+      "url": "https://github.com/ros-navigation/navigation2/pull/1336"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[controller_server-4] [ERROR] [controller_server]: Failed to make progress",
+    "url": "https://github.com/ros-navigation/navigation2/issues/1307"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This is an alternate implementation of #1336 that the team mostly prefers."
+  },
+  "notes": "All four dimensions verified against primary sources. E2: the V2/V3 SequenceNode semantic change is confirmed verbatim — BehaviorTree.CPP 2.5.2 sequence_node.h: \"If any child returns RUNNING, previous children will be ticked again.\" vs 3.0.9: \"If any child returns RUNNING, previous children will NOT be ticked again.\" (both read via raw.githubusercontent.com). The failed-condition quote matches PR #1336 body exactly, and the implicated element api:BT::SequenceNode is the boundary element whose tick semantics changed; element_retyped (declaration changed, element still present) fits. Loudness silent_documented/run is correct: the only ERROR in the reporter's log is the downstream controller progress-checker message, not a BT-library diagnostic; the reporter found the defect by instrumentation (\"I put print statements inside PlannerServer::computePathToPose(). It was not ticking at 1Hz.\"). Resolution recommended is correct: PR #1371 merged (merge commit 4ece520b, \"fixes #1301, fixes #1307\") but no source shows the reporter's obstacle scenario working against the fix."
+}

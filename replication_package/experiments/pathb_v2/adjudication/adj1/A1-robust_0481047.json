@@ -1,0 +1,64 @@
+{
+  "item_id": "A1-robust_0481047",
+  "kind": "A1",
+  "case_id": "robust_0481047",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: reproducer and linker error. E2 stops at 6: tf is a previously built consumer of a changed tf2 API/ABI; restoring the symbol is an interface repair, not a build-system-only change. E3: UPGRADE.",
+    "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "Adding a defaulted double parameter changes the existing declaration: element_retyped; the specified API is correct.",
+      "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+      "url": "https://github.com/ros/geometry2/pull/74.diff"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "reason": "The compiled consumer still requires the zero-argument symbol, which is no longer exported: element_removed_or_renamed at the ABI level. This is the same API change viewed from the binary consumer, not an unrelated failure.",
+      "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+      "url": "https://github.com/ros/geometry2/issues/84"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The linker directly diagnoses the missing symbol: loud_documented.",
+    "quote": "undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "An executable link fails during build.",
+    "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+    "url": "https://github.com/ros/geometry2/issues/84"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "reason": "A successful fix_84 test is explicitly reported, but the consumer is identified only as the installed Indigo libtf.so, not its tf release/revision. The specification infers 1.11.4 rather than verifying the tester used it. Under S1 requiring both resolved units identified by revision, recommended for the pinned composition.",
+    "quote": "yep that fixes it!",
+    "url": "https://github.com/ros/geometry2/issues/84#issuecomment-78407496",
+    "supporting_evidence": [
+      {
+        "quote": "the source shows the resolved composition working, with both of its units identified by revision",
+        "url": "snapshot:prompts/S1_specify.md:34"
+      }
+    ]
+  },
+  "notes": "The allFramesAsYAML link failure belongs to tf2_ros/tf2, not the selected tf/tf2 pair, and is not a missed condition. The successful DOT retest is genuine; disagreement is only about the revision-specific observed label."
+}

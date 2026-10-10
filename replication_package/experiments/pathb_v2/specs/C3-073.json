@@ -1,0 +1,48 @@
+{
+  "case_id": "C3-073",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/194",
+    "https://github.com/ros2/geometry2/pull/161",
+    "https://github.com/ros2/geometry2/pull/214",
+    "https://github.com/ros2/geometry2/pull/664"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "Issue #194 is a feature request by a maintainer, labelled 'enhancement' and 'help wanted', with section heading '## Feature': \"It would be convenient if there was an API that returned transform information in a callback.\" (https://github.com/ros2/geometry2/issues/194). It documents no concrete defect with a reproducer or error log. The resolving PR #664 changes the value placed in the future returned by wait_for_transform_async from True to the looked-up transform (\"-            fut.set_result(True)\" / \"+            fut.set_result(self.lookup_transform(target_frame, source_frame, time))\", https://github.com/ros2/geometry2/pull/664/files), and the reviewer treats it as a deliberate API change needing a release note: \"I have a mild concern that this will cause some downstream code to break ... can you please also open a PR to http://docs.ros.org/en/rolling/Releases/Release-Jazzy-Jalisco.html to add a note saying that we changed this?\" (https://github.com/ros2/geometry2/pull/664). PR #161 adds Python examples and PR #214 removes 'virtual' keywords (\"Noticed this working on #194.\"); neither fixes a defect."
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": [],
+      "interface_kind": null,
+      "evidence": "Not evaluated: the case exits at E1 (no defect). The only defect mentioned in the issue, done callbacks not being called on a future not associated with an executor, is referenced as a separate, already tracked rclpy issue: \"the returned future is not associated with an executor so done callbacks are never called (ros2/rclpy#460)\" (https://github.com/ros2/geometry2/issues/194); it is not the subject of this issue or of the resolving PR."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E1)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E1)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E1 not met: enhancement request (new callback/transform-returning Python API), no concrete defect documented",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Exit step: E1. The reporter (sloretz, maintainer) filed the issue as a feature. The referenced rclpy defect (ros2/rclpy#460, done callbacks never called on an executor-less future) was a separate issue closed before the resolving work (allenh1, 2020-01-12: \"since the issue you mentioned is closed now\"). PR #664 (merged 2024-04-04, merge commit 0ea2ad3ee99d2e3ffcb1f04286d22edfeffb2e1c on rolling) closed #194."
+}

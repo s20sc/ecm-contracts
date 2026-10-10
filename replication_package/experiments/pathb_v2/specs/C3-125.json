@@ -1,0 +1,81 @@
+{
+  "case_id": "C3-125",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/613",
+    "https://github.com/ros2/rmw_fastrtps/pull/619",
+    "https://github.com/gezp/ros2_test_subscriber/tree/01cca8e45fca0b984e11193a228d9c5f4831e823",
+    "https://github.com/ros2/rmw_fastrtps/issues/606#issuecomment-1125824269",
+    "https://github.com/ros2/rclcpp/issues/1611#issuecomment-828054824",
+    "https://github.com/ros2/rmw/blob/f9f4ef46f8dd3ef938526a1140a3c57c155a259f/rmw/include/rmw/rmw.h#L2400-L2401",
+    "https://github.com/ros2/rmw_fastrtps/blob/f3eed5213604e3b53b76ea20c0c0e4e364c17f5a/rmw_fastrtps_shared_cpp/src/types/guard_condition.hpp",
+    "https://github.com/ros2/rclcpp/blob/491475f2324bb9dfcc943f4b9f3d4528d6e81716/rclcpp/src/rclcpp/executor.cpp",
+    "https://github.com/ros2/rclcpp/pull/1640",
+    "https://github.com/ros2/message_filters/pull/76"
+  ],
+  "eligibility": {
+    "E1": {"pass": true, "evidence": "Minimal reproducer repository (gezp/ros2_test_subscriber, `ros2 launch ros2_test_subscriber test_subscriber.launch.py use_dedicated_thread:=True`) with actual output showing no \"recv data\" lines; a maintainer reproduces it and posts a gdb analysis (\"it seems that created subscription is not added to `rmw_wait` to be executed for Fast-DDS case. So subscription will never be executed by executer.\") and later confirms the fix."},
+    "E2": {"pass": true, "stop_step": 6, "reason_code": null, "units_identified": ["rclcpp", "rmw_fastrtps"], "interface_kind": "library API (RMW API: guard condition waited on by two wait sets)", "evidence": "rclcpp's Executor adds the node's notify guard condition to each executor that holds a callback group of the node (executor.cpp: \"const auto & gc = node_ptr->get_notify_guard_condition();\" ... \"memory_strategy_->add_guard_condition(gc);\"), so the reproducer's two executors (node executor and dedicated callback-group executor) wait on the same guard condition concurrently; subscription creation triggers it (node_topics.cpp: \"auto & node_gc = node_base_->get_notify_guard_condition();\" / \"node_gc.trigger();\"). rmw_fastrtps's guard condition keeps a single attached wait-set condition variable (guard_condition.hpp: \"conditionMutex_ = conditionMutex;\" / \"conditionVariable_ = conditionVariable;\" in attachCondition), so only one waiting wait set is notified. The RMW API documents: \"It is not safe to wait for the same entity using different wait sets in two or more threads concurrently.\" The failure depends on this cross-unit usage constraint and disappears with rmw_cyclonedds_cpp, so it is an interface failure; the resolution changes rmw_fastrtps code, not wiring or build."},
+    "E3": {"pass": true, "evidence": "PAIR: rclcpp drives rmw_fastrtps's wait-set and guard-condition API (the executor wait sets and the trigger on subscription creation are inputs to rmw_fastrtps); the lost wake-up is observed while the reproducer runs."},
+    "E4": {"pass": true, "evidence": "Observed: \"subscriber keeps not working\"; the README's output under Ubuntu 22.04 Rolling binaries shows activate/deactivate cycles with no \"recv data\" lines."}
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclcpp",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rclcpp",
+      "broken_rev": "16.2.0",
+      "resolved_rev": "16.2.0",
+      "pinned": true,
+      "revision_basis": "The reporter uses \"Rolling binaries\" on Ubuntu 22.04 (issue opened 2022-06-16). ros/rosdistro rolling/distribution.yaml at the last change before that date (733cd618) lists rclcpp release 16.2.0-1; the next rclcpp release, 17.0.0, is dated 2022-09-13, so the rolling binaries in June 2022 carried 16.2.0 (tag 16.2.0 = 491475f2, 2022-05-03). The maintainer's gdb session was on a source build of rolling (paths /root/ros2_ws/colcon_ws/src/ros2/...), revision not stated. The packet's resolution does not change rclcpp, so the resolved revision equals the broken one.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "rmw_fastrtps",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rmw_fastrtps",
+      "broken_rev": "6.3.0",
+      "resolved_rev": "1dcfe806874956158e1d93a77034c740e8790e19",
+      "pinned": true,
+      "revision_basis": "Rolling binaries on 2022-06-16: rosdistro rolling lists rmw_fastrtps release 6.3.0-1; tag 6.3.0 (f3eed521, 2022-05-03) is the only release between 2022-05-03 and 6.4.0 (2022-09-13). Default RMW on Humble/Rolling Ubuntu 22.04 is Fast DDS (maintainer: \"default RMW implementation is changed cyclonedds(Galactic/Rolling Ubuntu20.04) to Fast-DDS(Humble/Rolling Ubuntu22.04)\"). Resolved: PR #619 merge commit 1dcfe806 on the rolling branch (2022-08-24), 10 commits ahead of 6.3.0; first contained in release 6.4.0.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:rmw_create_guard_condition", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_trigger_guard_condition", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_create_wait_set", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_wait", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_create_subscription", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_destroy_subscription", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "api:rmw_take_with_info", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}},
+    {"element": "resource:node_notify_guard_condition", "sides": {"rmw_fastrtps": "provides", "rclcpp": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "exclusive_resource_conflict",
+      "implicated_elements": ["resource:node_notify_guard_condition", "api:rmw_wait", "api:rmw_trigger_guard_condition"],
+      "quote": "[Conclusion](https://github.com/ros2/rmw_fastrtps/issues/606#issuecomment-1125824269) was that if a node is assigned to multiple executors running asynchronously, it is unable to notify all of them about creating/destroying subscriptions etc..",
+      "url": "https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1191507077"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic is produced; the only symptom is missing callbacks: \"subscriber keeps not working\" and the output lists \"[task_server]: activate\" / \"[task_client]: client success\" cycles without any \"recv data\" line (https://github.com/gezp/ros2_test_subscriber). The cause was found only with gdb: \"it seems that created subscription is not added to `rmw_wait` to be executed for Fast-DDS case.\"",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "rmw_fastrtps replaces its listener-based wait-set emulation (single attached condition variable per guard condition/entity) with native Fast DDS WaitSets and conditions, so an entity can be waited on by several wait sets (PR #619 \"Use Fast-DDS Waitsets instead of listeners\").",
+    "status": "recommended",
+    "evidence": "Merged 2022-08-24 (1dcfe806); PR description: \"The main motivation is to fix bugs related to the current \"waitset\" mechanism implemented on top of Fast-DDS listeners, like #613.\" Maintainer: \"I confirmed that this problem has been addressed by https://github.com/ros2/rmw_fastrtps/pull/619. please feel free to reopen if you still have this issue in rolling.\" (https://github.com/ros2/rmw_fastrtps/issues/613#issuecomment-1226795803). The confirmation does not name the rclcpp or rmw_fastrtps revisions tested (presumably a rolling source build of late August 2022, whose rclcpp differs from 16.2.0), so it is not an observation of the composition specified here. Earlier, the Fast DDS team: \"We are currently working on a solution for this (#619) which fixes this issue for us locally.\""
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Maintainers disagree on which side violates the contract: the Fast DDS maintainer and wjwwood (rclcpp#1611) point to the RMW API rule \"It is not safe to wait for the same entity using different wait sets in two or more threads concurrently.\", i.e. rclcpp is at fault; the resolution nevertheless changed rmw_fastrtps to tolerate the usage. An rclcpp-side fix (rclcpp#1640, one guard condition per callback group, merged to rolling 2022-10-26 as d1191579) was also proposed in the thread (\"I'm quite convinced it will work\") but not shown working in this composition. The calls pass from rclcpp through rcl and rmw_implementation unchanged; I name rclcpp as the consumer because it builds the two wait sets and triggers the guard condition. The resource token resource:node_notify_guard_condition is my name for the node's notify guard condition (rclcpp NodeBase::get_notify_guard_condition), since no canonical name exists. The operation is recorded as PAIR; the contention is between two executor threads inside the rclcpp process (a CONCURRENT-like use of one entity), not between two separately active peer units. The reporter notes \"it works well under ubuntu20.04 ROS Galactic\": that environment used rmw_cyclonedds_cpp as default RMW, i.e. a different provider, not an upgrade of rmw_fastrtps; with RMW_IMPLEMENTATION=rmw_cyclonedds_cpp the problem also disappears on 22.04. The Fast DDS library (fastrtps 2.6.0 in rolling at the time) is a third unit underneath rmw_fastrtps; PR #619 relies on Fast DDS WaitSets (available \"Since version 2.4.0\"). The packet's fix_ref ros2/message_filters#76 (\"Adding fix to subscribe() call with raw node pointer and subscriber options\", for message_filters#75) is unrelated to this issue. Related: navigation2#2489/#3018 are the downstream code that first hit the problem."
+}

@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-C3-101",
+  "kind": "A1",
+  "case_id": "C3-101",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "TypeError: Buffer.time_jump_callback() takes 1 positional argument but 2 were given",
+    "url": "https://github.com/ros2/geometry2/issues/710",
+    "reason": "E1/E4: restart of a clock-publishing bag reproduces the traceback, and the maintainer identifies the callback-signature error. E2: tf2_ros_py registers a bound callback for rclpy; the TimeJump argument crosses their library API boundary. This is not merely private arithmetic inside tf2. E3: PAIR. Stop at 6."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "`Buffer.time_jump_callback()` takes 1 positional argument (a Buffer instance) but 2 were given (a Buffer instance and a `TimeJump` instance).",
+      "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392115230",
+      "reason": "Agree other and all three implicated APIs: create_jump_callback registration, the TimeJump passed by rclpy, and the incorrectly declared Buffer callback. No provider revision-driven retyping or nominal message type mismatch is reported."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "interestingly python only crashes once the method is actually called, not when it is referenced as `buffer.time_jump_callback` (last line in my example).",
+    "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392209396",
+    "reason": "Agree silent_documented as defined by S1: the callback is accepted at registration and fails on runtime invocation. The traceback is a runtime diagnostic, not a build/connect/activate compatibility check. The later pyright experiment is not an observed pre-run check of the original composition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "interestingly python only crashes once the method is actually called, not when it is referenced as `buffer.time_jump_callback` (last line in my example).",
+    "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392209396",
+    "reason": "The documented failure is detected at run, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "this fixes the problem all the way to rqt-tf-tree in jazzy! now i get",
+    "url": "https://github.com/ros2/geometry2/pull/711#issuecomment-2392148258",
+    "reason": "Agree observed. Unlike the Humble Rate report, this reporter explicitly names rclpy 7.1.2. The same reporter tests the one-line callback fix on Jazzy and reports buffer clearing instead of a crash. #711/#712 show the precise change; the unchanged rclpy revision is inherited from the original report. The observation establishes the patch-equivalent composition, not that the reporter literally checked out the later backport commit.",
+    "additional_evidence": [
+      {
+        "quote": "rclpy 7.1.2 in ros 2 jazzy",
+        "url": "https://github.com/ros2/geometry2/issues/710"
+      },
+      {
+        "quote": "[WARN] [1727982819.603705139] [tf2_buffer]: Detected jump back in time. Clearing tf buffer.",
+        "url": "https://github.com/ros2/geometry2/pull/711#issuecomment-2392148258"
+      },
+      {
+        "quote": "+    def time_jump_callback(self, time_jump: TimeJump):",
+        "url": "https://github.com/ros2/geometry2/pull/711/files"
+      }
+    ]
+  },
+  "notes": "Read the report and all comments, #711/#712 and the one-line fix diff. Revision equivalence of the applied patch is distinguished from an explicitly reported checkout SHA. No additional failed condition is established."
+}

@@ -1,0 +1,50 @@
+{
+  "item_id": "A1-robust_35682ec",
+  "kind": "A1",
+  "case_id": "robust_35682ec",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: observed no-motion report and maintainer remap fix. E2 stops at 6, not 3: the separate provider had renamed its declared output from mux_cmd_vel to output, leaving the consumer package launch reference stale. E3: inferred UPGRADE, not merely a deployment remap of unchanged names.",
+    "quote": "-  mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"mux_cmd_vel\", 10);",
+    "url": "https://github.com/yujinrobot/yujin_ocs/commit/2c10cf98313b14463b40e6c2ad31de8389dd760f.patch"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "disagree",
+      "proposed_elements": [
+        "topic:cmd_vel_mux/mux_cmd_vel"
+      ],
+      "reason": "The rename class is correct, but the failed consumer reference is cmd_vel_mux/mux_cmd_vel. cmd_vel_mux/output is the replacement still provided by the new revision, not the removed name. S1 asks for interface names as the consumer uses them; correct the inventory and implicated element accordingly.",
+      "quote": "-    <remap from=\"cmd_vel_mux/mux_cmd_vel\" to=\"mobile_base/commands/velocity\"/>\n+    <remap from=\"cmd_vel_mux/output\" to=\"mobile_base/commands/velocity\"/>",
+      "url": "https://github.com/yujinrobot/kobuki/commit/35682ec3c3e7177373c66c48228ad58b2eb34aae.patch"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The source reports no motion rather than a connection or activation diagnostic for the stale remap: silent_documented.",
+    "quote": "Doesn't move at all. Probably something with remappings and/or cmd_vel_mux",
+    "url": "https://github.com/yujinrobot/kobuki/issues/235"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The missing motion is detected when attempting operation: run.",
+    "quote": "Doesn't move at all. Probably something with remappings and/or cmd_vel_mux",
+    "url": "https://github.com/yujinrobot/kobuki/issues/235"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "reason": "The patch corrects the routing, but does not demonstrate the corrected revision pair driving. The later comment attributes residual keyop behavior to motor disabling, rather than showing a successful remap test; recommended.",
+    "quote": "Subject: [PATCH] Issue #235: remap fixed but keyop still fails when commanding\n after auto-docking",
+    "url": "https://github.com/yujinrobot/kobuki/commit/35682ec3c3e7177373c66c48228ad58b2eb34aae.patch"
+  },
+  "notes": "The consumer is the package that owns the launch reference; the actual velocity sink is kobuki_node. The correction is a consumer-reference/inventory naming issue, not denial of the documented provider rename. Disabled motors after successful docking are a distinct behavior and are not added as a condition of this mux-output composition."
+}

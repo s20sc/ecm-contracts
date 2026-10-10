@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-C3N-024-broken-M1-77b103d422",
+ "kind": "A2",
+ "case_id": "C3N-024",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:rclcpp::Duration::Duration(rcl_duration_value_t)]",
+   "verdict": "verified",
+   "source_excerpt": "built u0434 (rclcpp 15.4.0) snapshot/rclcpp/include/rclcpp/duration.hpp:42-46: \"  [[deprecated(\" / \"    \\\"Use Duration::from_nanoseconds instead or std::chrono_literals. For example:\\\"\" ... \"  explicit Duration(rcl_duration_value_t nanoseconds);\" with definition at snapshot/rclcpp/src/rclcpp/duration.cpp:40 \"Duration::Duration(rcl_duration_value_t nanoseconds)\". running u0435 (rclcpp 16.0.0): duration.hpp:39 \"  Duration(int32_t seconds, uint32_t nanoseconds);\", :42 \"  explicit Duration(std::chrono::nanoseconds nanoseconds);\", template ctor at :46-50, :53 builtin_interfaces ctor, :59 \"  explicit Duration(const rcl_duration_t & duration);\", :61 copy ctor; duration.cpp defines constructors only at :34, :40, :45, :47, :55; `grep -rn 'Duration(rcl_duration_value_t\\|Duration::Duration' snapshot/rclcpp/` finds no rcl_duration_value_t constructor, and rcl_duration_value_t appears in duration.hpp only at :111 (doc), :113 (nanoseconds() return) and :131 (from_nanoseconds parameter)."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:rclcpp::Duration::Duration(rcl_duration_value_t)]",
+   "verdict": "verified",
+   "source_excerpt": "u0433/snapshot/moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141: \"  virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0;\" — single integer argument; among the built constructors only Duration(rcl_duration_value_t) accepts one integer argument (the two-argument ctor at :39 needs two, and int is not a std::chrono::duration for the template at :46-50)."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:rclcpp::Duration::Duration(rcl_duration_value_t)]",
+   "verdict": "substantive",
+   "built_excerpt": "u0434 duration.hpp:46 \"  explicit Duration(rcl_duration_value_t nanoseconds);\" (within the [[deprecated]] attribute starting at :42; defined at duration.cpp:40 \"Duration::Duration(rcl_duration_value_t nanoseconds) { rcl_duration_.nanoseconds = nanoseconds; }\").",
+   "running_excerpt": "u0435 duration.hpp:42 is now \"  explicit Duration(std::chrono::nanoseconds nanoseconds);\" — the rcl_duration_value_t constructor is absent from the header and from duration.cpp (constructors at :34/:40/:45/:47/:55 only). Element presence change: the constructor a consumer's Duration(-1) depends on no longer exists."
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The UPGRADE encoding matches the spec's operation: provider rclcpp upgraded from built 15.4.0 (u0434) to running 16.0.0 (u0435), consumer moveit_core at 438f6d2 (u0433) built against 15.4.0. Both ports are real and connected: the provider port is the Duration constructor set declared in rclcpp/include/rclcpp/duration.hpp (defined in src/rclcpp/duration.cpp), and the consumer port is the default-argument construction at controller_manager.h:141 \"rclcpp::Duration(-1)\" — exactly the call that can only resolve through the removed constructor, matching the spec's failed_condition quote (compile error 'no matching conversion for functional-style cast from int to rclcpp::Duration' at controller_manager.h:141)."
+ },
+ "notes": "Every enumerated claim in the provenance reproduced exactly (built declaration spanning 42-46 with the deprecation attribute, definition at duration.cpp:40; running header constructor inventory at 39/42/46-50/53/59/61, src constructors at 34/40/45/47/55, rcl_duration_value_t occurrences at 111/113/131 only; consumer read at controller_manager.h:141). Substance is an element-presence change (constructor removed in 16.0.0, per rclcpp PR #1913 quoted in the spec) — substantive. Note the built constructor was already [[deprecated]] but still present and callable."
+}

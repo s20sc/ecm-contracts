@@ -1,0 +1,123 @@
+{
+  "case_id": "robust_928306b",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/turtlebot/turtlebot/issues/102",
+    "https://github.com/turtlebot/turtlebot/pull/104",
+    "https://github.com/turtlebot/turtlebot/commit/0c0f53217bbd838d89f6be5584ae1b9f45106875",
+    "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #102 (corot, 2013-10-04): \"battery info is on /sys/class/power_supply/BAT0, and not on default /proc/acpi/battery/BAT0\" and \"charging symbol doesn't appear in the dashboard\". rk4an gives the reproducing environment (clean Ubuntu 12.04.3, kernel 3.8.0-31-generic) and the missing files; maintainer corot confirms and lists the processing defects (comment 27193014) and fixes them in 928306b."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "laptop_battery (linux_hardware)",
+        "linux-kernel"
+      ],
+      "interface_kind": "wire protocol field (kernel ACPI battery attribute files under /proc/acpi/battery and /sys/class/power_supply)",
+      "evidence": "linux_hardware/scripts/laptop_battery.py (ROS node, turtlebot repo) reads battery data from files provided by the Linux kernel's ACPI battery driver. The provider-side file names, value scale and status string format cross the boundary. The minimal resolving change is not only a device-path rebinding: besides moving the default path from /proc/acpi/battery/BAT0 to /sys/class/power_supply/BAT0 (param default and launch args), the consumer's code had to follow different attribute names (0c0f532: `charge_full`, `charge_full_design`, `current_now`, `charge_now` fallbacks), rescale values (928306b: `/10e5`) and strip the status string (`.lower().rstrip()`). Not deployment_wiring, not build, not firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: rk4an (issue #102 comment 26799473): \"We just made a clean install of **Ubuntu 12.04.3 LTS** and the default kernel are **3.8.0-31-generic** instead of previous **3.2.0-53-generic-pae** (default netbook ASUS 1025C)\"; the consumer's default path targets the older layout (fix comment in minimal.launch: \"/proc/acpi/battery/BAT0 in 2.6 or earlier kernels\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"charging symbol doesn't appear in the dashboard\" (issue body); rk4an: \"But  the new **laptop_hardware.py** file doesn't work because some files was renamed\"; corot: \"Current doesn't get possitive when charging, so the charging symbol never appears\" and \"_Design Capacity_ is lower than _Capacity_; I suppose this is wrong\"."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "laptop_battery (linux_hardware)",
+      "role": "consumer",
+      "repo": "https://github.com/turtlebot/turtlebot",
+      "broken_rev": "2.2.2",
+      "resolved_rev": "928306ba94acbfcc4e0ee61c7c8e432561b0824f",
+      "pinned": true,
+      "revision_basis": "Neither reporter names a turtlebot revision. linux_hardware/scripts/laptop_battery.py was last changed before the fix in bdf3080 (2013-03-18) and is identical in releases 2.1.0 through 2.2.2; tag 2.2.2 (d73d15c, 2013-10-14) is the release current at rk4an's report (2013-10-22) and the first parent of the fix merge 0c0f532 (2.2.1, current at corot's report of 2013-10-04, differs in linux_hardware only in CHANGELOG.rst and package.xml). Resolved: 928306b, which contains both fix commits (0c0f532 merge of PR #104, then 928306b); first released as 2.2.3 per maintainer stonier on PR #104.",
+      "excerpt": false,
+      "ros_distro": "hydro"
+    },
+    {
+      "name": "linux-kernel",
+      "role": "provider",
+      "repo": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/precise",
+      "broken_rev": "Ubuntu-lts-3.8.0-31.46",
+      "resolved_rev": "Ubuntu-lts-3.8.0-31.46",
+      "pinned": true,
+      "revision_basis": "rk4an reports the running kernel as \"3.8.0-31-generic\" (Ubuntu 12.04.3 LTS). In the Ubuntu precise kernel repository the only tag for ABI 3.8.0-31 is Ubuntu-lts-3.8.0-31.46 (git ls-remote --tags). The unit is described from the source's statements (excerpt), because which attribute files the ACPI battery driver exposes depends on the battery hardware and the kernel configuration, not only on the source tree. The resolution does not change this unit.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "as-reported-3.2.0-53-generic-pae",
+    "resolved": "Ubuntu-lts-3.8.0-31.46",
+    "basis": "documented"
+  },
+  "inventory": [
+    {"element": "api:/proc/acpi/battery/BAT0/info", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}},
+    {"element": "api:/proc/acpi/battery/BAT0/state", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}},
+    {"element": "api:/sys/class/power_supply/BAT0/energy_full", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}},
+    {"element": "api:/sys/class/power_supply/BAT0/energy_full_design", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}},
+    {"element": "api:/sys/class/power_supply/BAT0/status", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}},
+    {"element": "api:/sys/class/power_supply/BAT0/power_now", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}},
+    {"element": "api:/sys/class/power_supply/BAT0/energy_now", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}},
+    {"element": "api:/sys/class/power_supply/BAT0/voltage_now", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}},
+    {"element": "api:/sys/class/power_supply/BAT0/present", "sides": {"linux-kernel": "provides", "laptop_battery (linux_hardware)": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:/proc/acpi/battery/BAT0/info", "api:/proc/acpi/battery/BAT0/state"],
+      "quote": "So file are moved from _/proc/acpi/battery/BAT0_ to _/sys/class/power_supply/BAT0_",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+    },
+    {
+      "class": "element_removed_or_renamed",
+      "implicated_elements": ["api:/sys/class/power_supply/BAT0/energy_now", "api:/sys/class/power_supply/BAT0/energy_full_design", "api:/sys/class/power_supply/BAT0/power_now", "api:/sys/class/power_supply/BAT0/energy_full"],
+      "quote": "But  the new **laptop_hardware.py** file doesn't work because some files was renamed:\n- no **energy_now** file but a **charge_now**\n- no **energy_full_design** file but a **charge_full_design**\n- no **power_now** file",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-26799473"
+    },
+    {
+      "class": "unit_mismatch",
+      "implicated_elements": ["api:/sys/class/power_supply/BAT0/energy_now", "api:/sys/class/power_supply/BAT0/power_now", "api:/sys/class/power_supply/BAT0/voltage_now", "api:/sys/class/power_supply/BAT0/energy_full", "api:/sys/class/power_supply/BAT0/energy_full_design"],
+      "quote": "- The problem stated in the issue doesn't get affected neither; the problem is in the way we process the information on BAT0 files (I'll fix all this tomorrow)\n  - Values must be divided by 10e6",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+    },
+    {
+      "class": "representation_convention",
+      "implicated_elements": ["api:/sys/class/power_supply/BAT0/status"],
+      "quote": "-        state = _read_string(_battery_acpi_path+'/status', 'discharging').lower()\n+        # Charging state; make lowercase and remove trailing eol\n+        state = _read_string(_battery_acpi_path+'/status', 'discharging').lower().rstrip()",
+      "url": "https://github.com/turtlebot/turtlebot/commit/928306ba94acbfcc4e0ee61c7c8e432561b0824f"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["api:/sys/class/power_supply/BAT0/energy_full", "api:/sys/class/power_supply/BAT0/energy_full_design"],
+      "quote": "  - _Design Capacity_ is lower than _Capacity_; I suppose this is wrong",
+      "url": "https://github.com/turtlebot/turtlebot/issues/102#issuecomment-27193014"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "The source reports missing and wrong battery information (\"charging symbol doesn't appear in the dashboard\"; \"Current doesn't get possitive when charging, so the charging symbol never appears\"; \"_Design Capacity_ is lower than _Capacity_\") without any diagnostic from tooling. (The consumer's code at 2.2.2 would logwarn and shut down if the /proc path is missing, but no such message is shown in the source.)",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Consumer-side, two commits: 0c0f532 (merge of PR #104) falls back to charge_full / charge_full_design / current_now / charge_now when the energy_* / power_now files are absent; 928306b divides all sysfs values by 10e5, strips the trailing end-of-line from status, reads design capacity from *_full_design and last-full capacity from *_full, and changes the default path to /sys/class/power_supply/BAT0 (~acpi_path default in laptop_battery.py and the battery arg in minimal.launch / minimal_with_appmanager.launch). Kernel unchanged.",
+    "status": "recommended",
+    "evidence": "Merged by the maintainer (corot, commit message \"Issue #102: Battery info fixed for new laptops\"); tfoote on PR #104: \"+1 partial fix for #102\". rk4an on PR #104: \"Not tested on other version of Ubuntu sorry.\" No comment shows the resolved revision working with an identified kernel."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "consumer_built_against is documented as the previous kernel the reporter ran (\"3.2.0-53-generic-pae\"); ABI 3.2.0-53 has three package tags in the Ubuntu precise kernel repository (Ubuntu-3.2.0-53.79/.80/.81), so a descriptive label is used. The resolved label is the kernel named in PR #104's title (\"fix renamed files for battery info on Ubuntu 12.04.3 LTS - Kernel 3.8\"). Primary-source caveat: in mainline drivers/acpi/battery.c (v3.2 and v3.8 alike) the sysfs properties are charge_* / current_now when `battery->power_unit == ACPI_BATTERY_POWER_UNIT_MA` and energy_* / power_now otherwise, and /proc/acpi/battery exists only with CONFIG_ACPI_PROCFS_POWER (\"Deprecated power /proc/acpi directories\"); so the charge_* naming the reporter calls a rename depends on the battery hardware, while the move away from /proc follows the kernel build. The classification follows the reporter's observation on the upgraded system. corot's statement \"Values must be divided by 10e6\" is not tied to a stated kernel; the fix divides by 10e5 (=10^6). corot also reports the effect \"Current doesn't get possitive when charging, so the charging symbol never appears\", which follows from the status string with trailing EOL mapping to 0 (DISCHARGING in LaptopChargeStatus.msg) and the rate being negated. Other composition in the source, not a condition of this case: laptop_battery -> dashboard via topic laptop_charge (LaptopChargeStatus), where the missing charging symbol and the design-capacity < capacity display are observed; these are downstream effects of the values read from the kernel. Earlier related fix: https://github.com/turtlebot/turtlebot/pull/61 (commit \"Making laptop battery script work with the new /sys filesystem organization.\", present in the consumer's history as bdf3080), which added the /sys reader that assumed energy_* / power_now files. Inventory elements use the `api:` form for kernel attribute files (no canonical form for OS files exists in the schema)."
+}

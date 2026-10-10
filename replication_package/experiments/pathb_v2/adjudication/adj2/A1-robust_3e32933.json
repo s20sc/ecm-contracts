@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-robust_3e32933",
+  "kind": "A1",
+  "case_id": "robust_3e32933",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 3,
+    "reason_code": "deployment_wiring",
+    "quote": "On 3dsensor.launch, depthimage_to_laserscan looks for depth/image_raw topic, but if we are using depth_registration (the default behavior) it will not work because in this case depth image topic is depth_registered/image_raw.",
+    "url": "https://github.com/turtlebot/turtlebot/issues/103"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "depthimage_to_laserscan starves if depth_registration is true (issue title; the failure mode is silent starvation with no diagnostic anywhere in the source; loudness null in the spec conforms to the ineligible-case schema)",
+    "url": "https://github.com/turtlebot/turtlebot/issues/103"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "https://github.com/turtlebot/turtlebot/commit/3e32933c829e308600707a9f971334d13d1cbe19 should have resolved this issue. (jihoonl comment; recorded in the spec's E1 evidence; resolution status itself is null, conforming to the ineligible-case schema)"
+  },
+  "notes": "Independently verified: issue #103 (corot, 2013-10-16, 'depthimage_to_laserscan starves if depth_registration is true') body matches the spec quote verbatim (read via gh api); jihoonl's 2015-03-24 closing comment matches; robinJKU's comment linking ros-drivers/openni_launch#7 ('I think this is a more complicated issue: https://github.com/ros-drivers/openni_launch/issues/7') matches, supporting the spec's note that it is a separate composition not addressed by this fix. Commit 3e32933c829e308600707a9f971334d13d1cbe19 (2014-04-02, parent b26d199a18d350e72495c4d8935e5b1ccc64d75a, both confirmed via commits API; patch read in full) changes exactly one file, turtlebot_bringup/launch/3dsensor.launch: adds '+  <arg     if=\"$(arg depth_registration)\" name=\"depth\" value=\"depth_registered\" />' and '+  <arg unless=\"$(arg depth_registration)\" name=\"depth\" value=\"depth\" />' and changes the two remaps from '-      <remap from=\"image\" to=\"$(arg camera)/depth/image_raw\"/>' to '+      <remap from=\"image\" to=\"$(arg camera)/$(arg depth)/image_raw\"/>' (and the second remap from \"$(arg camera)/image\" likewise); the patch context shows the parent's '<arg name=\"depth_registration\"              default=\"true\"/>'. E2 walk independently: the wrong topic name crosses the boundary (consumer starves), so not internal at step 2; at step 3 the minimal resolving change only rebinds launch-file topic remaps — depthimage_to_laserscan still consumes 'image', the openni pipeline still publishes its depth_registered output under the same names, no unit's declared or referenced interface changed — deployment_wiring. The spec filling E3 (PAIR) and E4 (starvation = no data) beyond the E2 stop is harmless bookkeeping. Agree."
+}

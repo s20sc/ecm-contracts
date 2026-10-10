@@ -1,0 +1,90 @@
+{
+  "task_id": "u0288",
+  "package": "launch",
+  "manifest_version": "0.10.7",
+  "ports": [
+    {
+      "element": "api:group",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:include",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:set_env",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:group": "api group: @expose_action('group')",
+    "api:include": "api include: @expose_action('include')",
+    "api:set_env": "api set_env: @expose_action('set_env')"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:launch/package.xml:5",
+    "ports[0].frame": "snapshot:launch/launch/actions/group_action.py:34 (launch frontend action tag registered via expose_action; parses only if/unless, scoped and child actions, lines 64-71; no spatial data)",
+    "ports[1].frame": "snapshot:launch/launch/actions/include_launch_description.py:38 (launch frontend action tag; parses if/unless, file and arg name/value, lines 82-96; no spatial data)",
+    "ports[2].frame": "snapshot:launch/launch/actions/set_environment_variable.py:31 (launch frontend action tag; parses if/unless, name and value, lines 47-56; no spatial data)",
+    "declares[api:group]": "snapshot:launch/launch/actions/group_action.py:34",
+    "declares[api:include]": "snapshot:launch/launch/actions/include_launch_description.py:38",
+    "declares[api:set_env]": "snapshot:launch/launch/actions/set_environment_variable.py:31",
+    "perm_requires": "searched snapshot:launch/ (package.xml, launch/launch/**/*.py, share/launch/frontend/grammar.lark) for permission/access declarations; only license-header text matches",
+    "perm_grants": "same search as perm_requires; no permission grants declared",
+    "recovery": "searched snapshot:launch/launch/actions/group_action.py, include_launch_description.py, set_environment_variable.py and package.xml; no recovery/fallback behaviour declared for these elements"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All three tags are registered and parse consistently. One possible gap: set_env writes to the process-wide os.environ (set_environment_variable.py:70-71) while a scoped group only pushes/pops launch configurations (group_action.py:81-86), so an environment variable set inside a scoped <group> is not scoped to it; whether that is a defect or the intended behaviour at this revision cannot be told from the snapshot alone."
+  },
+  "confidence": "high",
+  "notes": "The snapshot is the whole ros2/launch repository (launch, launch_xml, launch_yaml, launch_testing, launch_testing_ament_cmake, test_launch_testing); only snapshot/launch (package 'launch', version 0.10.7) was described. The three packet elements are launch frontend (XML/YAML) action tag names, registered through the expose_action decorator (launch/launch/frontend/expose.py:115-121, stored in action_parse_methods keyed by name). The declaration line recorded for each is the expose_action decorator line; the decorated classes are GroupAction (group_action.py:35), IncludeLaunchDescription (include_launch_description.py:39) and SetEnvironmentVariable (set_environment_variable.py:32), all exported from launch.actions (actions/__init__.py:20,21,28). Each name is exposed exactly once in the package (grep of expose_action across the snapshot). Frontend attributes accepted at this revision: group -> if, unless, scoped (bool, optional) plus child actions; include -> if, unless, file (required), arg children each with name and value; set_env -> if, unless, name, value. msg_type, units, QoS, rates and definition_id are null because these elements are Python launch-API/frontend entities, not ROS communication endpoints: there is no .msg/.srv/.action/.idl definition and no QoS concept in this API (the package does not depend on rclpy). No packet element is consumed, so references is empty. ExecuteProcess (a different element, execute_process.py:109-110) offers an opt-in respawn/respawn_delay parameter (default False); it was not counted as a recovery declaration for the listed elements. No exclusive resources are claimed."
+}

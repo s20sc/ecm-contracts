@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-02",
+  "kind": "A1",
+  "case_id": "CAL-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+    "url": "https://github.com/ros2/ros2/issues/1080"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "disagree",
+      "proposed_elements": ["api:rmw_wait"],
+      "quote": "When you call `rcl_wait()`, the timeout passed to `rmw_wait()` is calculated [like]... `min(rcl_wait_timeout, minimal_timeout_to_next_timer_trigger)` but the timer might be using a different clock that the one `rmw_wait()` uses ....",
+      "url": "https://github.com/ros2/ros2/issues/1080#issuecomment-763000000"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Timer callback execution waits 5 seconds when the system timer is adjusted to backward.",
+    "url": "https://github.com/ros2/ros2/issues/1080"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Elapsed time should be measured using a monotonic clock, though rmw implementations could use a different one.",
+    "url": "https://github.com/ros2/rmw/pull/316/files"
+  },
+  "notes": "Eligibility (stop_step 6, PAIR, library API) agreed: rcl computes the rmw_wait timeout from steady timers and passes a duration to rmw_wait; rmw_fastrtps_shared_cpp measures it via conditionVariable->wait_for (system clock on the broken toolchain). Verified rmw_wait.cpp L183: 'timeout = !conditionVariable->wait_for(lock, n, predicate);' and rmw PR #316 changing rmw.h remark from 'Elapsed time is measured against the system clock.' to a monotonic-clock statement. Class 'other' (clock-domain mismatch) is the least-bad fit and the spec's own notes admit no class names it; agreed. One error: the implicated element is listed as api:rmw_create_wait_set, but the quote is entirely about the timeout argument of rmw_wait, not the wait-set creation. The implicated element should be api:rmw_wait (which the inventory already contains as provider=rmw_fastrtps, consumer=rcl). Loudness silent/run and resolution 'recommended' (fix confirmed by reporter but without pinned revisions of both units) agreed."
+}

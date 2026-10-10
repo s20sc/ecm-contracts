@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-C3-135-broken-M1-3c1bbfab0c",
+ "kind": "A2",
+ "case_id": "C3-135",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:importlib.metadata.entry_points]",
+   "verdict": "verified",
+   "source_excerpt": "built u0395 (cpython v3.9.0) snapshot/Lib/importlib/metadata.py:554: \"def entry_points():\" — listed in __all__ ('entry_points' visible at line 29) and its body (lines 559-567) ends \"    return {\" / \"        group: tuple(eps)\" / \"        for group, eps in grouped\" — a plain dict. running u0394 (cpython v3.10.0) snapshot/Lib/importlib/metadata/__init__.py:949: \"def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:\" with body ending \"    return SelectableGroups.load(eps).select(**params)\"."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:importlib.metadata.entry_points]",
+   "verdict": "verified",
+   "source_excerpt": "u0396/snapshot/rosidl_cli/rosidl_cli/entry_points.py:39: \"    for entry_point in importlib_metadata.entry_points().get(group_name, []):\" (module bound at :18 \"    import importlib.metadata as importlib_metadata\", fallback \"    import importlib_metadata\" at :20)."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:importlib.metadata.entry_points]",
+   "verdict": "substantive",
+   "built_excerpt": "u0395 snapshot/Lib/importlib/metadata.py:554-567: \"def entry_points():\" ... \"    return {\" / \"        group: tuple(eps)\" — return type is a plain built-in dict.",
+   "running_excerpt": "u0394 snapshot/Lib/importlib/metadata/__init__.py:949: \"def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:\" ... \"    return SelectableGroups.load(eps).select(**params)\" — the signature gains **params and the return type changes from dict to SelectableGroups (EntryPoints when selection parameters are passed)."
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "Same UPGRADE composition and connection as the SelectableGroups.get item: provider cpython v3.9.0 (u0395, built-against) -> v3.10.0 (u0394, running), consumer rosidl_cli 62fc0bd (u0396) calling the provider's entry_points() at entry_points.py:39 with the binding at :18. The consumer's call `importlib_metadata.entry_points().get(group_name, [])` invokes the changed function and then a dict method on its result, so the changed element is exactly what the consumer reads."
+ },
+ "notes": "Both trigger values verified at the cited locations. Substance: the return type of entry_points() changes (dict -> Union[EntryPoints, SelectableGroups]) and the signature gains **params — a return-type change, which the rubric lists as substantive, not transcription-only. This matches the spec's E2 evidence (\"in CPython v3.9.0 it returns a plain dict ... while in v3.10.0 \\\"def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:\\\" returns SelectableGroups\"). Functional note: the consumer's .get(group_name, []) still resolves at running via dict inheritance (with a deprecation warning), so 'changed' here means declaration change with preserved-but-deprecated behavior."
+}

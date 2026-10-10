@@ -1,0 +1,47 @@
+{
+  "case_id": "robust_b213df3",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/300",
+    "https://github.com/yujinrobot/kobuki/commit/b213df3324cd933ddfc1bbd7ef8dce50cc233d51",
+    "https://github.com/yujinrobot/kobuki/blob/0.5.3/kobuki_node/param/base.yaml"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #300 (yhju, 2013-08-30) gives a reproducer and its output: after `roslaunch kobuki_node minimal.launch`, `rosparam list` shows `/mobile_base/(see use_imu_heading description) (bool, default` among the parameters, and names the cause: kobuki_node/param/base.yaml line 25 (\"Caused by https://github.com/yujinrobot/kobuki/blob/hydro-devel/kobuki_node/param/base.yaml#L25\"). Commit b213df3 (\"Issue #300: missing comment token\") prefixes that line with `#`."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["kobuki_node (with its own param/base.yaml loaded by its own launch file)"],
+      "interface_kind": null,
+      "evidence": "The stray key comes from kobuki_node's own parameter file, loaded by kobuki_node's own launch file; a node and its launch/parameter files are one unit. The line `(see use_imu_heading description) (bool, default: true)` is valid YAML (a key with a colon), so roslaunch/rosparam and the parameter server behaved correctly, and kobuki_node never reads a parameter of that name; no peer's interaction with kobuki_node failed and no value crossed a boundary wrongly. The only effect is a cosmetic parameter `/mobile_base/(see use_imu_heading description) (bool, default` on the parameter server. Would occur identically with any correct peer, so internal."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not reached: no interaction between two units failed."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "Not reached: the documented effect (an oddly named parameter in `rosparam list`) is not an effect on an interaction; the issue reports no crash, warning, or misbehaviour."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): a missing `#` in kobuki_node's own base.yaml turned a comment line into a harmless extra parameter; no second unit is involved and nothing failed.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Diff of b213df3 on kobuki_node/param/base.yaml: `-(see use_imu_heading description) (bool, default: true)` -> `+# (see use_imu_heading description) (bool, default: true)` (plus removal of a leading blank line). The parent 40de4fb is tag 0.5.3 (hydro line, 2013-08-30); the fix is in 0.5.4 (2013-09-11). The parameter's real definition `publish_tf: true` on the next line was unaffected, which is why nothing misbehaved."
+}

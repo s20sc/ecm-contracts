@@ -1,0 +1,100 @@
+{
+  "case_id": "C3-100",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_cyclonedds/issues/111",
+    "https://github.com/ros2/rmw_cyclonedds/pull/114",
+    "https://github.com/ros2/rmw_cyclonedds/issues/72",
+    "https://github.com/ros2/rmw_cyclonedds/pull/96",
+    "https://github.com/eclipse-cyclonedds/cyclonedds/pull/382"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Reproducer with rviz2 on Eloquent binaries and RMW_IMPLEMENTATION=rmw_cyclonedds_cpp (add a Pose display and a Marker display, set both topics to `/test`), console output with the RCLError, stated rmw_cyclonedds version 0.4.4-1bionic.20200121.221538; maintainer eboasson responds that it is a duplicate of #72 and names the fix. https://github.com/ros2/rmw_cyclonedds/issues/111"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "rviz2",
+        "rmw_cyclonedds"
+      ],
+      "interface_kind": "library API (rmw subscription creation for a topic name already used with another message type)",
+      "evidence": "rviz2 (application; its Pose and Marker displays create subscriptions through rclcpp/rcl) and rmw_cyclonedds (the RMW implementation loaded via RMW_IMPLEMENTATION) are separately released packages. The failure depends on what the RMW accepts for the application's request: \"This issue happens when a single node subscribes to a topic multiple times and each subscriber has a different message type.\" and \"Note that FastRTPS behaves correctly.\" rmw_cyclonedds 0.4.4 creates a DDS topic per subscription on the node's participant and returns the error text \"failed to create topic\" when `dds_create_topic_arbitrary` fails (rmw_cyclonedds_cpp/src/rmw_node.cpp at 0.4.4). Not internal (it works with another RMW peer), not deployment wiring, not build."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: rviz2's subscription requests (topic `/test`, two message types) feed rmw_cyclonedds, which refuses the second. The two rviz2 subscriptions are CONCURRENT within the node, but both belong to the one rviz2 unit."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"The program crashes as soon as the second `create_subscription` call is made.\" with console output \"terminate called after throwing an instance of 'rclcpp::exceptions::RCLError'\" https://github.com/ros2/rmw_cyclonedds/issues/111"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rmw_cyclonedds",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rmw_cyclonedds",
+      "broken_rev": "0.4.4",
+      "resolved_rev": "0.5.1",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter states \"0.4.4-1bionic.20200121.221538\" (Eloquent binary of ros-eloquent-rmw-cyclonedds-cpp); tag 0.4.4 = ce3466447209bcfd5a7713d1ac53c6f7bef18bbe. Resolved: the maintainer's claimed fix is PR #114 (\"Update eloquent branch to current master\", merged 2020-03-12), whose last commit 137678e99e63a4181ca683592cbeb70b48b5564b is tag 0.5.1 (\"Updated version to match cyclonedds package\"); the reporter's comment names \"version `0.5.1`\" in package.xml. GitHub reports merge_commit_sha 93cccb0cd711b2e26302bad9db7fcd317305adb6 for PR #114, a separate single-parent commit with the same message; the tag is used here. The fix also requires a Cyclone DDS build containing eclipse-cyclonedds/cyclonedds PR #382 (b84eee5abbd4e935d3e47186e07ed93e4730b5f1), which is not a unit of this composition.",
+      "excerpt": false,
+      "ros_distro": "eloquent"
+    },
+    {
+      "name": "rviz2",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rviz",
+      "broken_rev": "7.0.4",
+      "resolved_rev": "7.0.4",
+      "pinned": true,
+      "revision_basis": "The reporter states only \"ROS Eloquent, from binaries\" (report dated 2020-03-09). The latest rviz release tag on the eloquent branch before that date is 7.0.4 (1ea2195c65007f1004ad276b8f8e2fac0faee876, 2020-01-17); the eloquent branch head then was a396a037e4ecaf6d611a07110c2e107eddc53d88 (camera-info fix only). Exact binary version not stated; inferred. At 7.0.4 the Pose display is `rviz_common::MessageFilterDisplay<geometry_msgs::msg::PoseStamped>` and the Marker display is `rviz_common::MessageFilterDisplay<visualization_msgs::msg::Marker>`. The resolution does not change rviz2.",
+      "excerpt": false,
+      "ros_distro": "eloquent"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {"element": "api:rmw_create_subscription", "sides": {"rmw_cyclonedds": "provides", "rviz2": "consumes"}},
+    {"element": "topic:/test", "sides": {"rmw_cyclonedds": "provides", "rviz2": "consumes"}},
+    {"element": "msg:geometry_msgs/PoseStamped", "sides": {"rmw_cyclonedds": "provides", "rviz2": "consumes"}},
+    {"element": "msg:visualization_msgs/Marker", "sides": {"rmw_cyclonedds": "provides", "rviz2": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "nominal_type_mismatch",
+      "implicated_elements": [
+        "api:rmw_create_subscription",
+        "topic:/test",
+        "msg:geometry_msgs/PoseStamped",
+        "msg:visualization_msgs/Marker"
+      ],
+      "quote": "This issue happens when a single node subscribes to a topic multiple times and each subscriber has a different message type.",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/111"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The runtime refuses the second subscription at creation with an rcl error, which rviz2 does not catch: \"terminate called after throwing an instance of 'rclcpp::exceptions::RCLError'\" / \"what():  could not create subscription: failed to create topic, at /tmp/binarydeb/ros-eloquent-rmw-cyclonedds-cpp-0.4.4/src/rmw_node.cpp:1446, at /tmp/binarydeb/ros-eloquent-rcl-0.8.4/src/rcl/subscription.c:168\" https://github.com/ros2/rmw_cyclonedds/issues/111",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Per the maintainer: update rmw_cyclonedds for Eloquent to current master (PR #114, released as 0.5.1), which includes PR #96 (custom-topic interface extension: sertopic equality/hash and serdata from_ser_iov) as the companion of Cyclone DDS PR #382 (\"Allow a topic to have multiple definitions at once\"), and rebuild with that Cyclone DDS. No change on the rviz2 side.",
+    "status": "recommended",
+    "evidence": "eboasson: \"From the description, this is a duplicate of #72, which got fixed for Foxy (https://github.com/eclipse-cyclonedds/cyclonedds/pull/382 and #96).\" and later \"@pjreed this problem should have disappeared about two weeks ago with #114 getting merged (certainly for a build from source, I don't know if the binary packages have been updated yet). I'd appreciate it if you could confirm this before closing the issue.\" The reporter could only test an older binary (\"the latest version of `ros-dashing-rmw-cyclonedds-cpp` in the apt repository is `0.4.2-1bionic.20200318.032607`, which looks like it was built a week ago but is not the latest version; I tested that and it still crashes.\"), and eboasson: \"yes, that fix version hasn't made it to the official dashing & eloquent versions yet.\" Closed 2023-06-13 by clalancette: \"Given the age of this, and that we think there was a fix, I'm going to go ahead and close it out.\" The resolved composition is never shown working."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class: the refusal is a per-participant constraint that one topic name carries one type; classified nominal_type_mismatch because two nominal types are requested on one topic name and, in Cyclone DDS, the check that rejects a second topic entity is a type-name comparison; it could also be read as exclusive_resource_conflict (the DDS topic name within a participant bound to its first type). My observation, not stated in the sources: in Cyclone DDS at the PR #382 merge commit b84eee5abbd4e935d3e47186e07ed93e4730b5f1, src/core/ddsc/src/dds_topic.c still documents `DDS_RETCODE_PRECONDITION_NOT_MET` for \"a ktopic exists with a different type name\", and PR #382 describes the goal as \"multiple topic entities in a single participant with topic name, but all (or some) with different underlying definitions\" (motivated by C vs C++ mappings of the same type, issue #72); whether the claimed fix covers two different type names on one topic is therefore not established by the sources, which is another reason the resolution is only `recommended`. Alternative composition: rmw_cyclonedds and Cyclone DDS (the refusal originates in Cyclone's topic creation; the fix spans both); the reporter's composition is the application against the Cyclone RMW, compared with FastRTPS. The reporter also reproduced with an own program and states \"This bug also exists with the binary version in ROS Dashing.\" Marker display also subscribes to a MarkerArray topic (`array_sub_`), not involved here."
+}

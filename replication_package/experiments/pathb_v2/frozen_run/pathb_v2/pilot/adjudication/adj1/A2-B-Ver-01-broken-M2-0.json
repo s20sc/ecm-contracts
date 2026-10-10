@@ -1,0 +1,31 @@
+{
+  "item_id": "A2-B-Ver-01-broken-M2-0",
+  "kind": "A2",
+  "case_id": "B-Ver-01",
+  "composition": "broken",
+  "method_label": "M2",
+  "rule": "di_definition_mismatch",
+  "values": [
+    {
+      "path": "producer.outputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16]",
+      "url": "https://api.stackexchange.com/2.3/questions/72068?site=robotics&filter=withbody",
+      "reason": "Independently recomputed cb87164d6e531601e0b13c83388dee16 from the complete running definition at snapshot:s2_work/tasks/u0022/artifact.txt:1."
+    },
+    {
+      "path": "consumer.inputs[0].definition_id",
+      "verdict": "verified",
+      "source_excerpt": "Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614]",
+      "url": "https://api.stackexchange.com/2.3/questions/72068?site=robotics&filter=withbody",
+      "reason": "Independently recomputed 20a63a1c6bab175e3bbe310358cd3614 from snapshot:s2_work/tasks/u0021/artifact.txt:1 using nested definitions at lines 9-14. The report links this hash to the actual consumer, not just an arbitrary old provider."
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The source identifies the actual /control_panel subscriber, /imu topic and running publisher in a rejected handshake. The older consumer definition versus running provider definition represents the specified UPGRADE. The PAIR is explicitly a pair_view of that upgrade: consumer expectation is the built-against definition, not an invented second publisher. Connection means an attempted subscription; the source explicitly says delivery was rejected.",
+    "url": "https://api.stackexchange.com/2.3/questions/72068?site=robotics&filter=withbody",
+    "quote": "Client [/control_panel] wants topic [/imu] to have datatype/md5sum [os5000_imu/imu_data/20a63a1c6bab175e3bbe310358cd3614], but our version has [os5000_imu/imu_data/cb87164d6e531601e0b13c83388dee16] Dropping connection."
+  },
+  "notes": "No absent permission-grant state is supplied for adjudication. Hash provenance says \"same tool run\" without a log location; the values are nevertheless independently verified against original diagnostic text and recomputation from provided definition artifacts. Message identity/handshake evidence does not prove individual application field reads. The also_covers entries are grouped evidence references, not additional top-level packet items; no separate verdict files were created for them."
+}

@@ -1,0 +1,47 @@
+{
+  "task_id": "u0174",
+  "package": "publisher_node",
+  "status": "evidence_inadequate",
+  "searched": "Excerpt-based task: the only permitted source is artifact.txt, which is one line (91 bytes): a quoted sentence plus a URL. Searched it for the element names ('/topic', 'topic', 'std_msgs', 'String'), for any message type, frame, rate, durability, deadline or parameter, and for QoS wording ('best', 'reliab', 'publisher'). Neither packet element name appears. The only interface fact present is that the publisher's reliability was set to best effort. The URL was not followed (Q&A sites are not an allowed source).",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "topic:/topic",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": "best_effort", "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "msg:std_msgs/String",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].qos.reliability": "\"On the publisher I switched on \"best offert\".\" (artifact.txt:1)"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The excerpt shows only that the publisher was switched to best-effort reliability. That breaks delivery only if the peer subscriber requests reliable (the ROS 2 default), and the peer is not in view; the excerpt does not say whether best effort was the cause of a problem or an attempted fix."
+  },
+  "confidence": "low",
+  "notes": "The artifact is a single user sentence, not code or a definition body. (1) ports[0].qos.reliability: the excerpt says 'best offert' (verbatim typo), read as the best_effort reliability policy. The excerpt names no topic; the value is attached to topic:/topic only because the packet lists that as the sole provided topic element and the excerpt speaks of 'the publisher' in the singular. This attribution is an inference and is the main reason for low confidence. (2) Durability and deadline: not stated. The API default was not recorded because there is no code to confirm the code sets none. (3) msg_type for both ports is null: the excerpt names no message type. The packet element msg:std_msgs/String is not evidenced by the artifact, and its definition could not be fetched because only the artifact is allowed for excerpt-based tasks, so definition_id is null. (4) declares is empty: the excerpt states neither the topic's type nor the message definition. not_declared is empty: the excerpt is not a complete definition or source body, so absence cannot be concluded for either element. (5) exclusive is empty, and permissions/recovery are unknown, because no code or configuration is available to check. The empty exclusive list means not determinable, not verified absent. (6) frame, units, rate_hz, min_rate_hz and manifest_version cannot be determined from the excerpt."
+}

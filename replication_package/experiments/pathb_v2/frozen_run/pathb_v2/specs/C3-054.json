@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-054",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rmw_fastrtps/issues/863",
+    "https://github.com/ros2/ros2_documentation/pull/6107",
+    "https://github.com/ros2/ros2_documentation/pull/6108"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #863 gives reproduction steps (\"fastdds discovery -i 1 -l 127.0.0.1 -p 11888\", then \"ROS_DISCOVERY_SERVER=\\\"127.0.0.1:11888\\\" ros2 run demo_nodes_cpp talker\" / \"... listener\") and the observed result \"The listener can not receive messages from the talker.\" A maintainer diagnosed it: \"service id for discovery server is mapped to the semi-colon based index offset in `ROS_DISCOVERY_SERVER`.\" https://github.com/ros2/rmw_fastrtps/issues/863"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 3,
+      "reason_code": "deployment_wiring",
+      "units_identified": ["Fast DDS discovery server (fastdds discovery, server id 1)", "demo_nodes_cpp talker/listener using rmw_fastrtps_cpp as discovery-server clients"],
+      "interface_kind": null,
+      "evidence": "The resolving change only binds the server address at deployment through the ROS_DISCOVERY_SERVER environment variable; no unit's interface changed. Maintainer: \"can you try if `ROS_DISCOVERY_SERVER=\\\";127.0.0.1:11888\\\"` works?\"; reporter: \"Yes. It can work. So the format of ROS_DISCOVERY_SERVER depend on service ID. ... It is not an issue.\" The only code change is documentation (ros2_documentation #6107/#6108): \"For ``--server-id 1``: ``ROS_DISCOVERY_SERVER=\\\";127.0.0.1:11888\\\"``\" and \"If the server ID doesn't match the position in the environment variable, clients will not be able to connect to the server.\""
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the talker and listener each connect as clients to the discovery server; the failure is at discovery, so the listener never matches the talker."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"The listener can not receive messages from the talker.\" and \"Once service ID is changed to 0, listener can receive messages.\""
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "deployment_wiring: clients must list a discovery server with --server-id N at position N of the semicolon-separated ROS_DISCOVERY_SERVER variable; the fix is the environment-variable value (and documentation), with no interface change in any unit.",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Reported on humble and jazzy with rmw_fastrtps_cpp 6.2.9 (humble); reporter: \"The same testing steps did not have any issues in the Kilted version.\" Maintainer: \"I think somewhere during developing kilted version fast-dds addresses this constrain\" (not verified here). A second documentation defect was raised in the same thread: \"The `fastdds discovery` command does not have the \\\"--ip-address\\\" argument. But document also used it. It should be `--udp-address` or `--tcp-address`.\" (a CLI usage mismatch between the tutorial and the fastdds tool), also fixed by #6107/#6108 (merged 2025-12-19 into jazzy and humble). The issue was closed by the reporter as not an issue."
+}

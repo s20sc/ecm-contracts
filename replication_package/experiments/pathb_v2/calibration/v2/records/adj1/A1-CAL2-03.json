@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-CAL2-03",
+  "kind": "A1",
+  "case_id": "CAL2-03",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 6,
+    "reason_code": null,
+    "proposed_eligible": true,
+    "proposed_operation": "PAIR",
+    "proposed_units": ["moveit_ros_visualization", "rviz_rendering"],
+    "quote": "-    manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST);\n+    manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST, \"rviz_rendering\");",
+    "url": "https://github.com/moveit/moveit2/commit/fa983f73c3a4b74f6c20a538b1a04821a2c1ee25.diff",
+    "reason": "E1/E4: the reproduced material-lookup error and the corrective diff establish a concrete mismatch. E2: MoveIt's MeshShape derives from the separately provided rviz_rendering Shape and consumes its material name; the latter creates the material in rviz_rendering, while the former looks it up in General through Ogre. The consumer's group assumption crosses this library/plugin boundary. This is not an internal arithmetic or self-contained rendering defect, nor merely deployment wiring. E3: PAIR.",
+    "supporting_evidence": [
+      {
+        "quote": "  : Shape(Shape::Mesh, scene_manager, parent_node), started_(false)",
+        "url": "https://raw.githubusercontent.com/moveit/moveit2/517c34f/moveit_ros/visualization/rviz_plugin_render_tools/src/mesh_shape.cpp"
+      },
+      {
+        "quote": "  material_ = MaterialManager::createMaterialWithLighting(material_name_);",
+        "url": "https://raw.githubusercontent.com/ros2/rviz/8.2.6/rviz_rendering/src/rviz_rendering/objects/shape.cpp"
+      },
+      {
+        "quote": "  Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create(name, \"rviz_rendering\");",
+        "url": "https://raw.githubusercontent.com/ros2/rviz/8.2.6/rviz_rendering/src/rviz_rendering/material_manager.cpp"
+      }
+    ]
+  },
+  "failed_conditions": [],
+  "missed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["resource:rviz_rendering", "resource:General"],
+      "quote": "Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?",
+      "url": "https://github.com/moveit/moveit2/issues/1164",
+      "reason": "Material resource-group disagreement: a library-created material is sought in the wrong group. There is no evidence here of exclusive ownership, a message definition mismatch, or a value-encoding convention. The proposed resource entries denote group lookup, not exclusive claims. Both changed lookup calls are manifestations of this single condition."
+    }
+  ],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "I want to add mesh file (e.g. *.stl, *.obj, *.dae) to planning scene as collision object, but rviz2 print a lot of error messages about materials.",
+    "url": "https://github.com/moveit/moveit2/issues/1164",
+    "reason": "Using S1's restricted meaning of loudness, the source shows errors during mesh rendering, not a build, connection, or activation diagnostic. silent_documented does not mean no runtime error was printed."
+  },
+  "detection_stage": {
+    "verdict": "disagree",
+    "proposed": "run",
+    "quote": "Fixes a bug causing RViz to print a ton of error messages about material not existing in the General resource group when adding a mesh to the planning scene",
+    "url": "https://github.com/moveit/moveit2/pull/672",
+    "reason": "Material lookup fails when the running visualization adds a mesh."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "So I changed the code at branch `foxy` manually. It works! Thank you very much!",
+    "url": "https://github.com/moveit/moveit2/issues/1164#issuecomment-1088609471",
+    "reason": "There is a fix and a reporter success statement, but neither both tested unit revisions nor the reporter's exact manually patched revision is established. Therefore this meets recommended, not the stricter observed status. The specification leaves resolution null because it incorrectly excludes the case."
+  },
+  "notes": "The valid incoming CollisionObject does not settle eligibility: the failed boundary is the visualization plugin's consumption of rviz_rendering's material resource. Ogre participates in lookup; the selected pair is MoveIt's rendering extension and the RViz rendering library. Resource-group names above are proposed inventory entries because the excluded specification supplies no inventory."
+}

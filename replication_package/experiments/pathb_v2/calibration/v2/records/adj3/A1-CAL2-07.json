@@ -1,0 +1,20 @@
+{
+ "item_id": "A1-CAL2-07",
+ "kind": "A1",
+ "case_id": "CAL2-07",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+  "quote": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"},
+ "failed_conditions": [
+  {"index": 0, "class_verdict": "agree", "proposed_class": null, "elements_verdict": "agree", "proposed_elements": [],
+   "quote": "There is a heavy mismatch here between the message/C++ types and Python types. `string` is 8-bit data which does not have encoding, neither does `std::string`. Message strings *ought* to be UTF-8, but this is not enforced. But Python strings always enforce an encoding. So it is perfectly possible to publish data from C++, which gets mangled when received in Python.",
+   "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1210405369"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "disagree", "proposed": "silent_documented",
+  "quote": "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"},
+ "resolution": {"verdict": "agree", "proposed": null,
+  "quote": "With https://github.com/ros2/rosidl_python/pull/176 merged, I believe this issue is resolved for Rolling."},
+ "notes": "Eligibility, class representation_convention (encoding of the string value crossing the boundary), and resolution recommended all agree with the sources I read. The loudness is WRONG: the spec claims loud_documented with detection_stage 'connect' and evidence 'the consumer logs an incompatibility error naming the element before any data is exchanged'. No such connection-time diagnostic exists. Both sides agree on std_msgs/String (the ROS 2 type hash matches, so the connection succeeds), and the failure is a runtime UnicodeDecodeError raised during message deserialization in the spin/take path (rclpy_take -> PyUnicode_DecodeUTF8 with 'strict'). That is a runtime crash, not a build/connect/activate tooling diagnostic; the correct classification is silent_documented with detection_stage 'run'. The strict-vs-replace decode fix (rosidl_python #176/#181) confirms the diagnostic is at data decode time, not connection time."
+}

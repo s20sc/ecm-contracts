@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-034",
+  "kind": "A1",
+  "case_id": "C3-034",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the issue provides executable and XML reproducer files and a changed environment value. E2: the separately released launch framework interprets env_bug's launch description; an environment-scoping semantic change crosses that boundary. The node and its launch files remain one consumer unit. E3: the report contrasts working earlier Foxy packages with the upgraded failing packages, supporting UPGRADE.",
+    "quote": "It now \"leaks\" - `set_env` now affects places that are sequentially before the tag, including overriding those that are set deeper.",
+    "url": "https://github.com/ros2/ros2/issues/1244"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It makes more sense to me to have the environment be scoped to the group tag",
+      "url": "https://github.com/ros2/ros2/issues/1244",
+      "reason": "set_env mutation and group scoping are implicated. The documented change is environment lifetime/evaluation semantics, fitting other rather than a removed element, name remap, or type mismatch. PR #630 adds PushEnvironment and PopEnvironment around the group's actions."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[env_bug_node-1] my_env_var = '4'",
+    "url": "https://github.com/ros2/ros2/issues/1244",
+    "reason": "The observed evidence is an incorrect application value rather than a framework compatibility diagnostic: silent_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "my_env_var=7 ros2 launch env_bug outer.launch.ros2.xml",
+    "url": "https://github.com/ros2/ros2/issues/1244",
+    "reason": "The mismatch is observed in the launched node's output: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The change for Foxy has been merged and will be in the upcoming patch release.",
+    "url": "https://github.com/ros2/ros2/issues/1244#issuecomment-1256555487",
+    "reason": "The maintainer confirms a merged scoping change, not a run of this reproducer with both resolved unit revisions. Recommended is supported."
+  },
+  "notes": "The maintainer explains that an older XML parsing bug previously froze environment values and that the change made XML behave like Python. Do not equate the new scoping semantics with demonstrated restoration of the exact old value '2'. The general remarks about removed required/doc attributes are not reproduced in the selected env_bug files, so they are not added as conditions of that concrete composition."
+}

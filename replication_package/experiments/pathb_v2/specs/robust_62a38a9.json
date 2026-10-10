@@ -1,0 +1,47 @@
+{
+  "case_id": "robust_62a38a9",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki/issues/23",
+    "https://github.com/yujinrobot/kobuki/issues/63",
+    "https://github.com/yujinrobot/kobuki/commit/62a38a99cdfaf511cff1dd9e03b7bb88516f9033"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #23 'Terminate cleanly' (maintainer stonier, 2012-04-05): \"It is not closing threads and classes properly (segfaulting, throwing exceptions  on every ctrl-c)\". It was closed (\"I think I accidentally fixed this. Reopen if necessary.\"), then the maintainer posted an error log on 2012-04-14: \"terminate called after throwing an instance of 'ecl::StandardException'\\n  what():  \\nLocation : /opt/yujin/unstable/stacks/ecl/ecl_core/ecl_devices/include/ecl/devices/serial_pos.hpp:407 \\nFlag     : Attempted to work on an invalid object.\\nDetail   : The device is not a valid device for writing.\\n\\n[rosout-1] killing on exit\" and closed it with \"#63 fixes this.\" Issue #63 'Fix kobuki threading' (\"It is sloppy.\\n\\nI suspect it is why it is crashing too.\") was closed 'Done.' by commit 62a38a9 'kobuki_driver : threading model cleaned up.'"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["kobuki_driver", "kobuki_node"],
+      "interface_kind": null,
+      "evidence": "Step 1: the closest candidate units are kobuki_driver (the C++ driver library, package in yujinrobot/kobuki) and kobuki_node (the ROS node wrapping it; its destructor at the parent revision 2c87d99 calls `kobuki.close();`). Step 2: the crash is a defect of the driver's own thread lifecycle and would occur with any correct caller of its shutdown API. At 2c87d99, `Kobuki` derives from `ecl::Threadable`; `init()` sets `is_running = true; start();`, the worker `runnable()` loops `while (is_running)` reading and writing the serial device, and `Kobuki::close()` only does `disable(); sig_debug.emit(\"Device: kobuki driver terminated.\"); return;` without clearing is_running or joining the thread, while the destructor closes the serial port. The worker therefore outlives the object and writes to a closed device, which ecl's serial device correctly refuses (\"The device is not a valid device for writing.\"), or segfaults. The fix (62a38a9) is entirely a rework inside the driver: drop ecl::Threadable, own an `ecl::Thread thread`, add `bool shutdown_requested`, and a destructor `Kobuki::~Kobuki() { disable(); shutdown_requested = true; thread.join(); ... }` with the loop now `while (!shutdown_requested)`; `close()` is removed and `runnable()` renamed `spin()`. The kobuki_node edits in the same commit only follow the driver's renamed slots/signals (consolidated into sig_stream_data) and are part of the refactoring, not a documented failed interaction. Nothing crossing the driver/node boundary (no value, name, frame, unit or timing) is wrong; the failure does not depend on any assumption between the two units, so the case stops at step 2 as internal."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not applicable: no composition operation failed; the crash occurs inside kobuki_driver's own shutdown sequence regardless of the peer."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The effect was observed (exceptions and segmentation faults on Ctrl-C; the ecl::StandardException log above), but it is the effect of an internal defect, not of an interaction."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "#63 is an issue, not a pull request (the GitHub pulls endpoint returns 404 for it); the packet's fix commit 62a38a9 (2012-04-14, parent 2c87d99) is the change that closed it. Both packages live in the same repository and were released together (first tag 0.1.0, 2012-04-20, contains the fix). The exception originates in ecl_devices (ecl::Serial), a third library, but it is a correct refusal of a write on a closed device caused by the driver's use-after-close, not an interface defect between kobuki_driver and ecl. The dataset's title 'Unclean termination leads to exceptions and segmentation faults' matches the primary source."
+}

@@ -1,0 +1,46 @@
+{
+  "item_id": "A1-CAL-04",
+  "kind": "A1",
+  "case_id": "CAL-04",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "If you're running two prosilica_camera instances, probably they are not synchronized - that is, left and right image time stamps don't match up exactly. All the image_pipeline nodes assume exact synchronization for stereo (the ideal case) by default. Since you're getting disparity images from stereo_image_proc, you must have started it with ~approximate_sync set to True. You need to do the same with stereo_view, as the warning message recommends.",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "rate_shortfall",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "A second potential problem is that stereo_image_proc is not running at frame rate. You can see that stereo_view is getting less than one disparity image for every five image pairs. I guess the Prosilica images are too high resolution (or your computer not beefy enough :) for stereo_image_proc to keep up. stereo_view keeps a queue of size 5 (by default) on each input topic, which means the left/right image messages may drop off the queues by the time their matching disparity image arrives. The solution is to increase ~queue_size.",
+      "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "If you're running two prosilica_camera instances, probably they are not synchronized - that is, left and right image time stamps don't match up exactly. All the image_pipeline nodes assume exact synchronization for stereo (the ideal case) by default.",
+      "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "there is just three gray windows (no image) and a [WARN] message as below ... [ WARN] [1297946062.739511145]: [stereo_view] Low number of synchronized left/right/disparity triplets received. ... Synchronized triplets: 0",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "rosrun image_view stereo_view stereo:=/stereo image:=image_rect _approximate_sync:=True _queue_size:=10",
+    "url": "https://robotics.stackexchange.com/questions/29632/sync-problem-in-stereo-image"
+  },
+  "notes": "Sources opened: Stack Exchange API question 29632 (body + accepted answer by Patrick Mihelich, score 4, ACCEPTED on the original site), stereo_view.cpp at image_pipeline-1.4.0 via raw.githubusercontent (line 416 \"local_nh.param(\"queue_size\", queue_size_, 5);\", line 418 approximate_sync param, lines 538-544 the warning text with the _approximate_sync:=True and queue_size hints), and the arXiv HTML via curl (Figure 5 text and \"To fix this misconfiguration, the developer can increase the queue size to avoid overwriting or throttle the publishing rate of the cameras to account for time taken to produce the disparity image.\"). Eligibility: agree, stop 6. E1: error log (\"Synchronized triplets: 0\", \"Disparity images received: 18 (topic '/stereo/disparity')\") plus accepted maintainer answer. E2: two nodes interacting only through topics; the failed interactions (stamp equality assumption, disparity rate vs queue depth) cross the boundary, so step 2 does not stop it; step 3 as written covers only name bindings (remaps, namespaces, topic/parameter names, device paths) and the resolving change sets parameter VALUES (_approximate_sync:=True, _queue_size:=10), not names - verified against the warning text and stereo_view.cpp defaults - so it does not apply; no build or firmware change. Stop 6, topic. E3 PAIR (\"rosrun image_view stereo_view stereo:=/stereo image:=image_rect\"), E4 observed (gray windows, 0 triplets). Failed condition 0 class DISAGREED: nothing was removed or renamed - the mechanism is the disparity stream arriving at under one fifth of the image-pair rate so matching images drop from size-5 queues (\"stereo_image_proc is not running at frame rate ... less than one disparity image for every five image pairs\"); the paper itself calls it \"an instance of Frequency misconfiguration between publishers and subscribers\"; rate_shortfall is the schema's class for a delivered rate falling short of what the consumer needs; elements (all three topics' queues) agreed. Condition 1 class 'other' agreed: an exact-time stamp-equality convention with no dedicated class; elements agreed. Loudness silent_documented/run agreed: the only diagnostic is stereo_view's own periodic run-time warning, not a build/connect/activation diagnostic from tooling. Resolution recommended agreed: accepted answer proposes the command; no follow-up shows the composition working; the paper states the fix without showing a run."
+}

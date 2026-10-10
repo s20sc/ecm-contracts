@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Beh-03",
+  "kind": "A1",
+  "case_id": "B-Beh-03",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "On the publisher I switched on \"best offert\". The subscriber was set to \"reliable\". Now this should be incompatible and I can observe that no messages are received in the subscriber.",
+    "url": "https://web.archive.org/web/20260420214846/https://answers.ros.org/question/371257/"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "On the publisher I switched on \"best offert\". The subscriber was set to \"reliable\". Now this should be incompatible and I can observe that no messages are received in the subscriber.",
+      "url": "https://web.archive.org/web/20260420214846/https://answers.ros.org/question/371257/"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Checking https://github.com/ros2/rclcpp/blob/234b5e423b1e0f094c22be66214070312825017d/rclcpp/src/rclcpp/subscription_base.cpp#L248 tells me that there should be some warning but yet there isnt.",
+    "url": "https://web.archive.org/web/20260420214846/https://answers.ros.org/question/371257/"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Does anyone know if I am doings something wrong here? Or is this just not available with the default middleware?",
+    "url": "https://web.archive.org/web/20260420214846/https://answers.ros.org/question/371257/"
+  },
+  "notes": "独立核验通过。来源经 Wayback 读取两份：2026 静态档案页与 2024-03-04 Askbot 快照。E1/E4 引文逐字一致；静态档案页 Comments 与 Answers 两节均为空（两个 section 标题后无任何条目），Askbot 快照亦无任何回答（'Seen: 524 times'，仅 add a comment 按钮），resolution=none 成立。loudness=silent_documented 正确：来源显示不兼容 QoS 事件在本设置中未产生任何诊断（问题前提即『应该有警告却没有』）；我另在 rclcpp 234b5e4 的 subscription_base.cpp（SubscriptionBase::default_incompatible_qos_callback，约 L241-252）读到默认回调确实会打印 'New publisher discovered on this topic, offering incompatible QoS. No messages will be sent to it.'，与 spec 的 loudness_evidence 相符。第二组合的启动异常日志（'rclcpp::UnsupportedEventTypeException' ... 'ros-foxy-rmw-fastrtps-shared-cpp-1.2.4/src/rmw_event.cpp:59'）在两份存档中逐字核对一致，spec 将其正确排除到 notes。类 qos_reliability 与元素 topic:/topic 均无异议；msg:std_msgs/String 未被牵连正确（类型一致，仅可靠性行为不同）。"
+}

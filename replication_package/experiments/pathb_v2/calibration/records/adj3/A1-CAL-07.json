@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-CAL-07",
+  "kind": "A1",
+  "case_id": "CAL-07",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Expected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u\n    Which is: 1",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "And then we are immediately calling `publisher->get_publishers_info_by_topic()`, which doesn't wait around at all; it just returns what it has right now.  So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+      "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "publishers_info.size()\n    Which is: 0\n  1u\n    Which is: 1",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I think the fix here is to have the test attempt to `get_publishers_info_by_topic` a few times before giving up.",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"
+  },
+  "notes": "Eligibility agreed (stop_step 6, PAIR, library API). Issue #440 body carries the CI stacktrace (publishers_info.size() 'Which is: 0' vs '1u') and the graph-cache analysis. clalancette's comment 1490563629 gives the quoted diagnosis (newly created publisher not yet discovered; get_publishers_info_by_topic returns immediately). Class 'other' (async-discovery consistency/timing) agreed; implicated api:rmw_get_publishers_info_by_topic correct. Loudness silent/run agreed (the empty list is caught only by the test's own assertion, no middleware diagnostic). Resolution 'recommended' agreed (PR #513 adds a 5 s retry; CI badges alone do not identify both units' revisions in a working run)."
+}

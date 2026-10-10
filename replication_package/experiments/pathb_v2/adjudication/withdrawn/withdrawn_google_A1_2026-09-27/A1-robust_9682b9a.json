@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_9682b9a",
+  "kind": "A1",
+  "case_id": "robust_9682b9a",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "This problem is due to the combination of new qt_gui_core packages with \"old\" rqt packages.\nI committed changes to both repos, but only the qt_gui_core was tagged and released, the latest tag on the rqt repo is 3 month old...",
+    "url": "https://github.com/ros-visualization/qt_gui_core/issues/16"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "plugins_menu.py made a change:\n\n```\n-        base_path = plugin_descriptor.attributes().get('plugin_path')\n+        base_path = plugin_descriptor.attributes().get('package_path')\n```\n\nBut python plugin descriptors are not setting their package path.",
+      "url": "https://github.com/ros-visualization/qt_gui_core/issues/16"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "raise UserWarning('icon \"%s\" not found' % str(path))\nUserWarning: icon \"../src/kobuki_qtestsuite/resources/images/kobuki_icon.png\" not found",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/10"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Just dropped down the latest source for qt_gui_core and rqt and recompiled kobuki_qtestsuite against them with relative icons.\n\nAll seems ok :+1:!"
+  },
+  "notes": "Agree with specification. Descriptor key rename across separately updated packages."
+}

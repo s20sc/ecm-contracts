@@ -1,0 +1,4552 @@
+[
+  {
+    "case_id": "robust_0000000",
+    "system": "care-o-bot",
+    "title": "Individual ROS-packages of Metapackage are outdated on local system",
+    "description": "The motor for the tray of CoB-3 is not moving. The reason for the error is that certain ROS packages are outdated on the local system. This happened since updating the metapackage does not update the individual packages. Metapackages are specialized Packages in ROS (and catkin). They do not install files (other than their package.xml manifest) and they do not contain any files usually found in packages. A metapackage simply references one or more related packages which are loosely grouped together. In this example the metapackage used is \"ros_control\" and the outdated packages are \"controller_",
+    "issue_url": "https://github.com/ipa320/cob_robots/issues/656",
+    "fix_commits": [],
+    "package": "ros_control",
+    "subsystem": "motion",
+    "fault_codes": [
+      "EVOLUTION:PACKAGE"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_1518978",
+    "system": "care-o-bot",
+    "title": "Hardcoded namespace because name is defined global",
+    "description": "Parameter-names are hardcoded. In the example a parameter is named \"/sound_controller/mode\".  There are four types of Graph Resource Names in ROS: base, relative, global, and private. Names that start with a \"/\" are global -- they are considered fully resolved. Global names should be avoided as much as possible as they limit code portability. An error might occure due to the following scenario: The node, which was the global namespace is used within a group tag in a roslaunch file. The group-name is written before every path-name, but not if the path-name is defined globally. This could cause ",
+    "issue_url": "https://github.com/ipa320/cob_driver/issues/272",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ipa320/cob_driver",
+        "hash": "151897840540e8dd662cf6c8c77e5613c84e3424",
+        "stats": {
+          "total": {
+            "insertions": 3,
+            "deletions": 3,
+            "lines": 6,
+            "files": 1
+          },
+          "files": {
+            "cob_sound/ros/src/sound.cpp": {
+              "insertions": 3,
+              "deletions": 3,
+              "lines": 6
+            }
+          }
+        }
+      }
+    ],
+    "package": "cob_drivers",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:BAD-SMELL",
+      "CONFIG:NAMESPACE"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_b826eae",
+    "system": "care-o-bot",
+    "title": "Xacro broken because of missing argument",
+    "description": "A xacro can reference to other xacros with the ability to pass arguments. In the example a child-xacro was changed by adding an additional argument. However, the parent-xacro (includes the edited child-xacro) was not updated. Therefore it misses the newly introduced argument. The consequence is that the xacro is broken and one can not generate an Urdf out of it anymore.  In the example the child-xacro is named \"schunk_pg70\", the parent \"cob3-9\" and the new argument is \"has_podest\".  The reason for this issue is that there are several parent-xacro using the child-xacro and one needs to update a",
+    "issue_url": "https://github.com/ipa320/cob_robots/issues/552",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ipa320/cob_robots",
+        "hash": "b826eaeae5c8dc548ac2c97002725c7a8131137e",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "cob_hardware_config/cob3-9/urdf/cob3-9.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "cob_robots",
+    "subsystem": "robot description",
+    "fault_codes": [
+      "CONFIG:ARGS",
+      "EVOLUTION:PACKAGE",
+      "BDO:ORCHESTRATION",
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Ver",
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_332f09f",
+    "system": "confidential",
+    "title": "New features unavailable in older systems",
+    "description": "When adding the possibility to use features that have been added in new versions of Robot Web Services (RWS), then it will not be possible to use them with older systems. Currently, if using an older system version, then this will be attempted and reported as a failed communication. It might be prudent to check the current system's version and then report if a specific function is unavailable.\n",
+    "issue_url": null,
+    "fix_commits": "confidential",
+    "package": null,
+    "subsystem": "driver",
+    "fault_codes": [
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_7b11629",
+    "system": "confidential",
+    "title": "Incorrect parsing of multiple RWS content",
+    "description": "When using Robot Web Services (RWS) to extract resources from the different RWS services, then some of the resources might contain several interesting items. E.g. if asking for all mechanical units in the current robot system there might be more than one. The current parsing solution works best when extracting a single item, if there are multiple items then it is cumbersome. This can be solved by adding a proper XML and/or JSON parser.\n",
+    "issue_url": null,
+    "fix_commits": "confidential",
+    "package": null,
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:MISSING-FEATURE",
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_96e2c6c",
+    "system": "confidential",
+    "title": "Incorrect joint position order used in trajectory generation",
+    "description": "Joint space trajectory generation uses the given initial and target joint positions in an incorrect order. The algorithm's input consists in, amongst other parameters, two instances of `sensor_msgs::JointState` class. This class contains an array of strings containing the joint names and another array containing the joint positions. The algorithm, which is internally used by a robot controller node, assumes that the initial and target joint states are provided in the same order, and only checks that both inputs contain the full set of joints for the given _group_. This is true in general, but ",
+    "issue_url": null,
+    "fix_commits": "confidential",
+    "package": "core_manipulator_controller",
+    "subsystem": "controller",
+    "fault_codes": [
+      "PROGRAMMING:COPYPASTA",
+      "CONFIG:PARAM"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_001fca6",
+    "system": "core component",
+    "title": "An exception thrown by delay function, when Time object not initialized",
+    "description": "The tf2_ros is a C++ package that is using the ros::Time object to sleep (a C++ object).  This object might not be initialized if running inside rospy (so from python API to ros).  In such case an exception is thrown and sleeping fails.\nThe fix of the bug catches the exception and uses the wall clock time API to delay instead.\nThe problem and the fix are ROS-specific.  However the issue of using uninitialized APIs due to configuration issues is a fairly general one.\nThe PR is rather uninformative.  The best explanation can be found in the first link in the 'links' section.\n",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "001fca6f33c108c83da4416db3bf43dfeffbe7dd",
+        "stats": {
+          "total": {
+            "insertions": 19,
+            "deletions": 2,
+            "lines": 21,
+            "files": 1
+          },
+          "files": {
+            "tf2_ros/src/buffer.cpp": {
+              "insertions": 19,
+              "deletions": 2,
+              "lines": 21
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_ros"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "PROGRAMMING:BROKEN-CONTRACT",
+      "PROGRAMMING:UNINITIALISED",
+      "PROGRAMMING:RESOURCES"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_0481047",
+    "system": "core component",
+    "title": "Linking error due to a backwards incompatible API change",
+    "description": "Function allFramesAsDot has been extended to take an additional parameter, current time.  This value is used to produce messages informing about a delay of the transform.   The new parameter is made optional, by providing a default value (zero). This was decided as a safe way, given the legacy usages that do not know about the missing parameter.  It turned out that in practice, this is not a safe way to evolve, because the compiled code would now expect the linker to provide a parameterized version of the function (default parameters are expanded by the compiler)---this is a problem if the leg",
+    "issue_url": "https://github.com/ros/geometry2/issues/84",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "04810475f249e3f067701288388b82ff0dd686ba",
+        "stats": {
+          "total": {
+            "insertions": 17,
+            "deletions": 3,
+            "lines": 20,
+            "files": 2
+          },
+          "files": {
+            "tf2/include/tf2/buffer_core.h": {
+              "insertions": 7,
+              "deletions": 2,
+              "lines": 9
+            },
+            "tf2/src/buffer_core.cpp": {
+              "insertions": 10,
+              "deletions": 1,
+              "lines": 11
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_0af76d5",
+    "system": "core component",
+    "title": "A race condition in message filter of TF2",
+    "description": "Message filters in ROS are a tool that allows registering subscribers that work with multiple msgs, or trigger callbacks if an arriving message satisfies a predicate. TF provides message filters that are specifically tailored---they register callbacks that can trigger whenever the incoming message can be transformed (using tf.transform(..)) into a set of coordinate frames. For instance one can trigger a callback on messages of a certain type (a point cloud or an object with a spatial property) that can be transformed to selected frames. The problem is that the checking by tf msg filters whethe",
+    "issue_url": "https://github.com/ros/geometry2/issues/35",
+    "fix_commits": null,
+    "package": [
+      "ros/geometry2/tf2_ros"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_15b2e3c",
+    "system": "core component",
+    "title": "Race conditions in startup code of TF2 Buffer Server node",
+    "description": "A buffer server node is being started with an autostart parameter (which has a default value of true).  Unfortunately, this supposedly causes race conditions in initialization code of the node. A warning is produced that this may happen, but it's unclear why the warning is still printed, as it's not a problem for this particular node.  The developers note that this is a minor problem, as the race condition should not have any serious effect on this module. The fix removes the autostart (sets the default value to false), and starts the server manually.\n",
+    "issue_url": "https://github.com/ros/geometry2/issues/9",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "15b2e3c52152ee4fc19c55ec76f049e990c05809",
+        "stats": {
+          "total": {
+            "insertions": 3,
+            "deletions": 2,
+            "lines": 5,
+            "files": 2
+          },
+          "files": {
+            "tf2_ros/include/tf2_ros/buffer_server.h": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "tf2_ros/src/buffer_server_main.cpp": {
+              "insertions": 2,
+              "deletions": 1,
+              "lines": 3
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_ros"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_566092b",
+    "system": "core component",
+    "title": "High check_frequency values for BufferClient break tf2",
+    "description": "The use of high frequency to check for incoming results in a buffer client appears to trigger a race condition inside that client. The issue is complex and persisted in ROS for several years. Upon further inspection, the real problem appears not to be in TF2 itself (so not in BufferClient), but in a dependency of TF2: actionlib. The race condition is there, not in BufferClient itself. BufferClient is improved by no longer using polling to check for results of transform lookups, but event-based notification of completion. This is a ROS-specific design issue, but the problem of race conditions i",
+    "issue_url": "https://github.com/ros/geometry2/issues/178",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "566092b42e3c42b4745294124762f8d7e5176716",
+        "stats": {
+          "total": {
+            "insertions": 10,
+            "deletions": 1,
+            "lines": 11,
+            "files": 1
+          },
+          "files": {
+            "tf2_ros/src/tf2_ros/buffer_client.py": {
+              "insertions": 10,
+              "deletions": 1,
+              "lines": 11
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_ros"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_5ad7341",
+    "system": "core component",
+    "title": "An unprotected field in otherwise thread-safe code",
+    "description": "The field lct_cache_ of BufferCore is not thread protected, so race conditions can be exposed by two clients using it from different threads.\nThe bug is fixed by removing the field from the object properties, and making it a local (stack allocated) variable in the function BufferCore::getLatestCommonTime, which was the only function using it, and it reset the cache on startup anyways.\nThe problem was discussed in issue \\#92 (see links below), apparently as a side aspect.  It might have been unrelated to the double free problem discussed therein.  That bug was not fixed in a clear manner -- it ",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "5ad734114253f6e8da71f47bdf4033e908349b53",
+        "stats": {
+          "total": {
+            "insertions": 6,
+            "deletions": 8,
+            "lines": 14,
+            "files": 2
+          },
+          "files": {
+            "tf2/include/tf2/buffer_core.h": {
+              "insertions": 0,
+              "deletions": 2,
+              "lines": 2
+            },
+            "tf2/src/buffer_core.cpp": {
+              "insertions": 6,
+              "deletions": 6,
+              "lines": 12
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_6c13c78",
+    "system": "core component",
+    "title": "Working title",
+    "description": "Most likely a NULL pointer dereference bug.  Precise place hard to establish before we reproduce it. Andrzej has a candidate location, but does not bother to describe before we can reproduce it.\n",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "6c13c78a9fd4a9220867f8433243deb00a8d7eb6",
+        "stats": {
+          "total": {
+            "insertions": 52,
+            "deletions": 48,
+            "lines": 100,
+            "files": 1
+          },
+          "files": {
+            "tf2/src/buffer_core.cpp": {
+              "insertions": 52,
+              "deletions": 48,
+              "lines": 100
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_7284788",
+    "system": "core component",
+    "title": "A loop stop condition works well with C++ but not with Python access",
+    "description": "A loop in tf2_ros/src/buffer.cpp depends on ros::ok evaluation to check whether the system has not stopped.  This works fine if the C++ version of tf is accessed.  However, if the canTransform function is called from the python API (pytf)  ros::ok may be not initialized. This immediately terminates the loop and as a result the waitForTransform function never waits for the transform being available but terminates with a generic uninformative exception. The bug seems to have been fixed, by ignoring the check for pytf (sic!). The issue is primarily seen from the tf (not tf2) access, exposed there",
+    "issue_url": "https://github.com/ros/geometry2/issues/102",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "7284788fc1646c6c6afb42bd0e50969387b4cf34",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 2,
+            "lines": 4,
+            "files": 1
+          },
+          "files": {
+            "tf2_ros/src/buffer.cpp": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_ros"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "PROGRAMMING:BROKEN-CONTRACT",
+      "PROGRAMMING:UNINITIALISED",
+      "PROGRAMMING:RESOURCES"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_932c6ca",
+    "system": "core component",
+    "title": "Use of retired class field",
+    "description": "tf2_ros uses the \"__connection_header\" field in ROS messages to get connection information.  This field has been phased out by the roscpp project, and for some time tf2_ros was not updated. References to a non-existing field in C++ cause a build failure (reported by type and name analysis). This is a rather typical example of co-evolving projects getting out of sync. The pull request merged in this description has not been directly merged but it appears that the commit has been merged.\n",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "932c6cafd2b7959133fb32303e8c27cca3ff9e33",
+        "stats": {
+          "total": {
+            "insertions": 10,
+            "deletions": 23,
+            "lines": 33,
+            "files": 2
+          },
+          "files": {
+            "tf2_ros/include/tf2_ros/transform_listener.h": {
+              "insertions": 3,
+              "deletions": 3,
+              "lines": 6
+            },
+            "tf2_ros/src/transform_listener.cpp": {
+              "insertions": 7,
+              "deletions": 20,
+              "lines": 27
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_ros"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "BDO:BUILD",
+      "EVOLUTION:PACKAGE"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_a2f8eea",
+    "system": "core component",
+    "title": "Missing functionality in the python API for tf2",
+    "description": "ROS has two main APIs, one in C++ and one in python, delivered by roscpp and rospy respectively.  The roscpp and rospy are expected to have feature parity in ROS 1, but since they are not sharing any code (or very little), the aspects of implementation need to be repeated in both langugages.  A static transform is a transform that does not change.  TF2 allocates their own topic to static transforms, to avoid needless publishing them at high frequency. They are published once and the topic is latched, so late joiners also get the messages.  Then it treats them like regular TF frames internally ",
+    "issue_url": "https://github.com/ros/geometry2/issues/46",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "a2f8eea04f95c9abb0e4d7557d796e84fb13a32a",
+        "stats": {
+          "total": {
+            "insertions": 39,
+            "deletions": 0,
+            "lines": 39,
+            "files": 2
+          },
+          "files": {
+            "tf2_py/src/tf2_py.cpp": {
+              "insertions": 33,
+              "deletions": 0,
+              "lines": 33
+            },
+            "tf2_ros/src/tf2_ros/transform_listener.py": {
+              "insertions": 6,
+              "deletions": 0,
+              "lines": 6
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_py"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_cec6208",
+    "system": "core component",
+    "title": "Incorrect cast of a tuple value to Boolean",
+    "description": "The python bindings in tf2_py that expose the function buffer.can_transform_core build a tuple for a return value (the value is a bool for the return value, and a possible an error message).  The function name suggests that this is a Boolean function. The programmer implementing method can_transform in the python class Buffer (that calls can_transform_core) used the return value of can_transform_core in a Boolean position.  In python this causes a silent cast to Boolean (and always yields False).\nThere is no direct crash or error involved.  The program continues to operate with wrong logics.\nT",
+    "issue_url": "https://github.com/ros/geometry2/pull/56",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "cec62083fa3e54cf210ce8b5ea87b4c0ed60f64b",
+        "stats": {
+          "total": {
+            "insertions": 6,
+            "deletions": 4,
+            "lines": 10,
+            "files": 1
+          },
+          "files": {
+            "tf2_ros/src/tf2_ros/buffer.py": {
+              "insertions": 6,
+              "deletions": 4,
+              "lines": 10
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_ros"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "PROGRAMMING:DATATYPE"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_e4466f0",
+    "system": "core component",
+    "title": "Failed conversion of number to string due to dynamic types",
+    "description": "The code generator producing a dot (graphviz) file visualizing frame graph assumed that the frame identifiers are strings.  But due to dynamic typing of Python sometimes a numeric id may arise, which makes the identifier a number at this point in code.  In such case, the concatenation of a string and a number fails with an exception. The fix inserts an explicit conversion to a string representation using the 'str()' method.\nThis is a general Python problem.\nThe pull request contains another commit detecting not-well-formed quaternions.  This has not been merged but handled in other issues.  He",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "e4466f0f482dcacf79b9ab9deaa70429e161e3a6",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "tf2_tools/scripts/view_frames.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_tools"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "PROGRAMMING:LOGIC",
+      "PROGRAMMING:DATATYPE",
+      "PROGRAMMING:VALIDATION"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_ede2646",
+    "system": "core component",
+    "title": "Inconsistent buffer size between Python and C++ implementation",
+    "description": "The TransformBroadcaster class is implemented both in the Python and the C++ interface for tf2.  The former initializes the buffer queue size to 1, while the latter initializes is to 100.  Consequently, the python version fails when two messages are to be sent immediately one after another, while the C++ version is more resilient to this problem.\nThe bug lies though not in the queue size (the developers agree that this should be made configurable in future), but in the fact that the behavior of the C++ and of the Python API is inconsistent.\nThe problem of API consistency is general for many li",
+    "issue_url": "https://github.com/ros/geometry2/issues/89",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/geometry2",
+        "hash": "ede2646d463c8ae1bbbf2460941df2b07d39824e",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "tf2_ros/src/tf2_ros/transform_broadcaster.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros/geometry2/tf2_ros"
+    ],
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "PROGRAMMING:RESOURCES",
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_03660af",
+    "system": "kobuki",
+    "title": "Potential Race Condition on Serial Writes",
+    "description": "The Kobuki driver communicates with the actual robot by sending commands over a serial cable. This interface was not protected against concurrent accesses, while being used in an environment that, more often that not, features multithreading.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/125",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "03660afb5917366cc6d57567e2f695450fd95feb",
+        "stats": {
+          "total": {
+            "insertions": 113,
+            "deletions": 74,
+            "lines": 187,
+            "files": 9
+          },
+          "files": {
+            "kobuki_bringup/resources/launch/readme.txt": {
+              "insertions": 9,
+              "deletions": 0,
+              "lines": 9
+            },
+            "kobuki_driver/include/kobuki_driver/command.hpp": {
+              "insertions": 16,
+              "deletions": 1,
+              "lines": 17
+            },
+            "kobuki_driver/include/kobuki_driver/kobuki.hpp": {
+              "insertions": 9,
+              "deletions": 7,
+              "lines": 16
+            },
+            "kobuki_driver/include/kobuki_driver/modules/diff_drive.hpp": {
+              "insertions": 12,
+              "deletions": 2,
+              "lines": 14
+            },
+            "kobuki_driver/src/driver/command.cpp": {
+              "insertions": 27,
+              "deletions": 0,
+              "lines": 27
+            },
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 16,
+              "deletions": 63,
+              "lines": 79
+            },
+            "kobuki_node/include/kobuki_node/kobuki_node.hpp": {
+              "insertions": 4,
+              "deletions": 0,
+              "lines": 4
+            },
+            "kobuki_node/src/node/kobuki_node.cpp": {
+              "insertions": 4,
+              "deletions": 1,
+              "lines": 5
+            },
+            "kobuki_node/src/node/slot_callbacks.cpp": {
+              "insertions": 16,
+              "deletions": 0,
+              "lines": 16
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_0416c81",
+    "system": "kobuki",
+    "title": "Robot Getting Stuck When Auto-docking",
+    "description": "Kobuki is a mobile robot base that is used mainly for version 2 of Turtlebot, but there are some other uses for it with heavier payloads. The movement speeds were hard-coded for the auto-docking algorithm, and worked well for regular Kobuki and Turtlebot, but were too slow for heavier robots, causing them to get stuck. To solve this issue, the minimum speed limits had to be configurable.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/262",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "0416c81e5d08466477c5806443a580a142d0d465",
+        "stats": {
+          "total": {
+            "insertions": 27,
+            "deletions": 1,
+            "lines": 28,
+            "files": 3
+          },
+          "files": {
+            "kobuki_auto_docking/include/kobuki_auto_docking/dock_drive.hpp": {
+              "insertions": 10,
+              "deletions": 0,
+              "lines": 10
+            },
+            "kobuki_auto_docking/src/auto_docking_ros.cpp": {
+              "insertions": 9,
+              "deletions": 0,
+              "lines": 9
+            },
+            "kobuki_auto_docking/src/dock_drive.cpp": {
+              "insertions": 8,
+              "deletions": 1,
+              "lines": 9
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_auto_docking",
+    "subsystem": "specific application component",
+    "fault_codes": [
+      "MODELS:ROBOT",
+      "PROGRAMMING:MISSING-FEATURE"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_054c753",
+    "system": "kobuki",
+    "title": "Terminal Becomes Unresponsive Due To Uninitialized Objects",
+    "description": "Sometimes, the logging functions of ROS would misbehave, for instance printing all text in capital letters. Additionally, the terminal would become unresponsive, ignoring Ctrl+C signals to shutdown the application. Kobuki uses a serial port to communicate between the robot itself and the computer running ROS. To handle the serial port communication, the `serial` API from the `ecl_devices` library package is used.  The developer's idea is to set the reading mode to blocking (synchronous).  However, the `block(timeout)` function is called before the `Serial` object is fully initialized (via the ",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/272",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "054c753b40b56b20c39051e14bdab71bc50e1ae8",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 1,
+            "lines": 3,
+            "files": 1
+          },
+          "files": {
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 2,
+              "deletions": 1,
+              "lines": 3
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_1c141a5",
+    "system": "kobuki",
+    "title": "Unexpected Movement Due to Wrong Calculation",
+    "description": "Kobuki moves using differential drive. Originally, the command velocities (linear and angular) were provided as `short`, and were converted to `short` after each step, even though the calculations yielded floating point numbers. This lead to calculation errors in some special cases, where the robot was supposed to move forward but ended up moving backwards instead.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/246",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "1c141a54fb2c0e2ec453b32f8026d1cd0ffb14d9",
+        "stats": {
+          "total": {
+            "insertions": 25,
+            "deletions": 15,
+            "lines": 40,
+            "files": 2
+          },
+          "files": {
+            "kobuki_driver/include/kobuki_driver/modules/diff_drive.hpp": {
+              "insertions": 6,
+              "deletions": 2,
+              "lines": 8
+            },
+            "kobuki_driver/src/driver/diff_drive.cpp": {
+              "insertions": 19,
+              "deletions": 13,
+              "lines": 32
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:DATATYPE",
+      "PROGRAMMING:CALCULATIONS"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_27e85fc",
+    "system": "kobuki",
+    "title": "Use of Deprecated Functions",
+    "description": "Kobuki's plugin for Gazebo was using some deprecated functions to parse models. These were replaced with recommended alternatives.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/13",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "27e85fc224fc6198b55c5af0d066c7901af8ec0b",
+        "stats": {
+          "total": {
+            "insertions": 14,
+            "deletions": 14,
+            "lines": 28,
+            "files": 1
+          },
+          "files": {
+            "kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp": {
+              "insertions": 14,
+              "deletions": 14,
+              "lines": 28
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_desktop/kobuki_gazebo_plugins",
+    "subsystem": "simulation plugin",
+    "fault_codes": [
+      "EVOLUTION:DEPRECATION"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_35682ec",
+    "system": "kobuki",
+    "title": "Wrong topic remapping makes robot ignore velocity commands",
+    "description": "ROS allows resource names to be remapped. Topics, in particular, are resources that can be remapped. When topic \"A\" is remapped to \"B\" and a node tries to publish/subscribe on \"A\", it will (automatically) publish/subscribe to \"B\" instead. Remappings are commonly defined in launch files. Launch files are special XML files used by the tool `roslaunch` to initialize several nodes, parameters and remappings at once. In this particular bug, a node (cmd_vel_mux) publishes velocity messages that are received by the driver node (mobile_base). A launch file defined a remapping from \"cmd_vel_mux/mux_cmd",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/235",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "35682ec3c3e7177373c66c48228ad58b2eb34aae",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_auto_docking",
+    "subsystem": "launch file",
+    "fault_codes": [
+      "CONFIG:REMAPPING",
+      "BDO:DEPENDENCY"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_3c4c399",
+    "system": "kobuki",
+    "title": "Possible Race Condition When Accessing Sensor Data",
+    "description": "Sensor data could potentially be accessed in multi-threaded contexts, but there were no synchronization mechanisms in place. It worked well for Kobuki due to chance: all read and write operations were in the same thread. But, due to the way it is built, it could have been an issue for other users.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/240",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "3c4c399a460b314152722de6b99804e138d68e88",
+        "stats": {
+          "total": {
+            "insertions": 53,
+            "deletions": 7,
+            "lines": 60,
+            "files": 3
+          },
+          "files": {
+            "kobuki_driver/include/kobuki_driver/kobuki.hpp": {
+              "insertions": 16,
+              "deletions": 2,
+              "lines": 18
+            },
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 28,
+              "deletions": 4,
+              "lines": 32
+            },
+            "kobuki_node/src/library/kobuki_ros.cpp": {
+              "insertions": 9,
+              "deletions": 1,
+              "lines": 10
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_3c7f92a",
+    "system": "kobuki",
+    "title": "Test Suite GUI Crashing Due to API Changes",
+    "description": "Kobuki's test suite uses GUI plugins for rqt in order to plot collected data. This plotting component crashed due to changes in rqt's interface.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/9",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "3c7f92a2c6a51b4896e669d0da34b4de90a71914",
+        "stats": {
+          "total": {
+            "insertions": 63,
+            "deletions": 12,
+            "lines": 75,
+            "files": 7
+          },
+          "files": {
+            "kobuki_qtestsuite/scripts/kobuki_qtestsuite": {
+              "insertions": 20,
+              "deletions": 1,
+              "lines": 21
+            },
+            "kobuki_qtestsuite/setup.py": {
+              "insertions": 6,
+              "deletions": 3,
+              "lines": 9
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/battery_profile_frame.py": {
+              "insertions": 13,
+              "deletions": 1,
+              "lines": 14
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/configuration_dock_widget.py": {
+              "insertions": 11,
+              "deletions": 0,
+              "lines": 11
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py": {
+              "insertions": 4,
+              "deletions": 4,
+              "lines": 8
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/testsuite_widget.py": {
+              "insertions": 7,
+              "deletions": 1,
+              "lines": 8
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/ui/configuration_dock.ui": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_desktop/kobuki_qtestsuite",
+    "subsystem": "test suite",
+    "fault_codes": [
+      "EVOLUTION:PACKAGE"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_4115400",
+    "system": "kobuki",
+    "title": "Multiple Simulated Robots Do Not Update Orientation",
+    "description": "When multiple Kobuki robots were spawned in the Gazebo simulator their translations would properly update their odometry, but rotations would not. The underlying issue was that every robot instance was using the same IMU sensor, instead of each having its own.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/38",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "4115400a5a9b88bf65bb97a5d44a9a2a695faa55",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "kobuki_gazebo_plugins/src/gazebo_ros_kobuki_loads.cpp": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_desktop/kobuki_gazebo_plugins",
+    "subsystem": "simulation plugin",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC",
+      "CONFIG:NAMESPACE"
+    ],
+    "gold_dimension": [
+      "Beh",
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_493e3f9",
+    "system": "kobuki",
+    "title": "Wrong Inertia and Center of Mass in Robot Description",
+    "description": "The URDF file for Kobuki's physical model assumed the center of mass to be in the center of the robot's cylinder body. This is wrong, since the battery was intentionally placed at the front of the robot to make it heavier at the front. The wrong placement of the robot's center of mass had the effect of having it constantly bouncing back and forth in the Gazebo simulator.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/271",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "493e3f9c9f65fbf0283571ca92b89a7203e5f287",
+        "stats": {
+          "total": {
+            "insertions": 10,
+            "deletions": 9,
+            "lines": 19,
+            "files": 1
+          },
+          "files": {
+            "kobuki_description/urdf/kobuki.urdf.xacro": {
+              "insertions": 10,
+              "deletions": 9,
+              "lines": 19
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_description",
+    "subsystem": "driver",
+    "fault_codes": [
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_4ea5ea7",
+    "system": "kobuki",
+    "title": "Robot Model Viewer Fails to Display Model",
+    "description": "Launching the robot model viewer would result in an error, stating that there was no robot model to display. The reason behind this was that the xacro file only defined the `kobuki` model, but did not instantiate it. In other words, it was not a standalone file.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/207",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "4ea5ea7ff535323baeada165764b5b8ceb7bfa87",
+        "stats": {
+          "total": {
+            "insertions": 204,
+            "deletions": 0,
+            "lines": 204,
+            "files": 4
+          },
+          "files": {
+            "kobuki_description/launch/view_model.launch": {
+              "insertions": 16,
+              "deletions": 0,
+              "lines": 16
+            },
+            "kobuki_description/rviz/model.rviz": {
+              "insertions": 169,
+              "deletions": 0,
+              "lines": 169
+            },
+            "kobuki_description/urdf/kobuki.urdf.xacro": {
+              "insertions": 7,
+              "deletions": 0,
+              "lines": 7
+            },
+            "kobuki_description/urdf/kobuki_standalone.urdf.xacro": {
+              "insertions": 12,
+              "deletions": 0,
+              "lines": 12
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_description",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:CONTROL-FLOW",
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_55e84a6",
+    "system": "kobuki",
+    "title": "API Change Causes Incompatibility",
+    "description": "Kobuki ships a graphical monitoring/diagnostics bench for their robots which makes use of a (graph) plotting widget. This widget is internal to rqt_plot, and is changed by the rqt_plot maintainers. Kobuki's test bench (note: these are not unit tests or code-level tests) breaks due to this change in one of its dependencies, causing runtime crashes when it tries to use the old version of rqt_plot's plotting widget.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/33",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "5ee65b061a4a919b2a32e80087f4cb3e51e924ed",
+        "stats": {
+          "total": {
+            "insertions": 10,
+            "deletions": 9,
+            "lines": 19,
+            "files": 6
+          },
+          "files": {
+            "kobuki_dashboard/src/kobuki_dashboard/led_widget.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "kobuki_dashboard/src/kobuki_dashboard/motor_widget.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/battery_profile_frame.py": {
+              "insertions": 2,
+              "deletions": 1,
+              "lines": 3
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/gyro_drift_frame.py": {
+              "insertions": 3,
+              "deletions": 3,
+              "lines": 6
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/testsuite_widget.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "6df4bd7e92aea5cf3696b20861fca0ed413ece6e",
+        "stats": {
+          "total": {
+            "insertions": 8,
+            "deletions": 3,
+            "lines": 11,
+            "files": 2
+          },
+          "files": {
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/battery_profile_frame.py": {
+              "insertions": 5,
+              "deletions": 1,
+              "lines": 6
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/gyro_drift_frame.py": {
+              "insertions": 3,
+              "deletions": 2,
+              "lines": 5
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "55e84a61e50d23be20f1d7abb4018a635370bff4",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 4,
+            "lines": 5,
+            "files": 1
+          },
+          "files": {
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/gyro_drift_frame.py": {
+              "insertions": 1,
+              "deletions": 4,
+              "lines": 5
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_desktop/kobuki_qtestsuite",
+    "subsystem": "test suite",
+    "fault_codes": [
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_5a44ead",
+    "system": "kobuki",
+    "title": "Program Finishing Too Soon",
+    "description": "One of the demo applications for Kobuki was supposed to initialize it and let it emit a beep sound, to signal that everything was working as intended. However, the robot would not emit any sound because the program was unintentionally terminating before it had time to read all the necessary data. Adding a `sleep` for some seconds fixed the issue.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/270",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "5a44eadd3b6ef0f2cb29f057b3e1cdb93205c954",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 0,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "kobuki_driver/src/test/initialisation.cpp": {
+              "insertions": 2,
+              "deletions": 0,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_5abe7d4",
+    "system": "kobuki",
+    "title": "ABI/API Incompatibility",
+    "description": "When the Gazebo simulator upgraded from version 1.9 to version 2.0 there were compatibility issues with Kobuki's plugin. For instance, some header files changed paths.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/22",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "5abe7d4ae9f8fb323d4acb6fe131d87a82efef31",
+        "stats": {
+          "total": {
+            "insertions": 7,
+            "deletions": 7,
+            "lines": 14,
+            "files": 2
+          },
+          "files": {
+            "kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h": {
+              "insertions": 6,
+              "deletions": 6,
+              "lines": 12
+            },
+            "kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_desktop/kobuki_gazebo_plugins",
+    "subsystem": "simulation plugin",
+    "fault_codes": [
+      "EVOLUTION:PATHS",
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_5ee65b0",
+    "system": "kobuki",
+    "title": "Missing Queue Sizes for Some Publishers",
+    "description": "When publishing or subscribing to a topic in ROS, the developer often declares a queue size to be associated with that publisher/subscriber.  The queues store messages temporarily, if the system is not fast enough to process every message before a new one arrives. In older versions of ROS, declaring the queue size was not mandatory when using the Python client libraries. As of ROS Indigo, this was kept optional for backward compatibility, but a warning is issued.  Not specifying the queue size is a problem because it changes the behaviour of the publisher, which might not be expected. When a q",
+    "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/32",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "5ee65b061a4a919b2a32e80087f4cb3e51e924ed",
+        "stats": {
+          "total": {
+            "insertions": 10,
+            "deletions": 9,
+            "lines": 19,
+            "files": 6
+          },
+          "files": {
+            "kobuki_dashboard/src/kobuki_dashboard/led_widget.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "kobuki_dashboard/src/kobuki_dashboard/motor_widget.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/battery_profile_frame.py": {
+              "insertions": 2,
+              "deletions": 1,
+              "lines": 3
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/full_size_data_plot.py": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/gyro_drift_frame.py": {
+              "insertions": 3,
+              "deletions": 3,
+              "lines": 6
+            },
+            "kobuki_qtestsuite/src/kobuki_qtestsuite/testsuite_widget.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_desktop/kobuki_dashboard",
+    "subsystem": "specific application component",
+    "fault_codes": [
+      "PROGRAMMING:BAD-SMELL",
+      "CONFIG:ARGS",
+      "EVOLUTION:DEPRECATION"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_62a38a9",
+    "system": "kobuki",
+    "title": "Unclean termination leads to exceptions and segmentation faults",
+    "description": "When an interrupt signal is issued (Ctrl+C), termination code should ensure a clean program exit. It was found that some threads outlived the termination code, and kept running normally. With the system in an unstable state (half terminated, half running), the program ended in a crash, by raising exceptions or segmentation faults. The reported issue was closed once, with the assignee stating that he had found a fix by accident (with no referenced commit). It was then reopened, because the bug still persisted and manifested less often. The fix involved a complete rework of the way threads and c",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/23",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "62a38a99cdfaf511cff1dd9e03b7bb88516f9033",
+        "stats": {
+          "total": {
+            "insertions": 62,
+            "deletions": 80,
+            "lines": 142,
+            "files": 5
+          },
+          "files": {
+            "kobuki_driver/include/kobuki_driver/kobuki.hpp": {
+              "insertions": 10,
+              "deletions": 21,
+              "lines": 31
+            },
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 13,
+              "deletions": 14,
+              "lines": 27
+            },
+            "kobuki_node/include/kobuki_node/kobuki_node.hpp": {
+              "insertions": 4,
+              "deletions": 5,
+              "lines": 9
+            },
+            "kobuki_node/src/node/kobuki_node.cpp": {
+              "insertions": 5,
+              "deletions": 19,
+              "lines": 24
+            },
+            "kobuki_node/src/node/slot_callbacks.cpp": {
+              "insertions": 30,
+              "deletions": 21,
+              "lines": 51
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_8a729db",
+    "system": "kobuki",
+    "title": "Outdated parameter file",
+    "description": "The Kobuki (Turtlebot) robot has a graphical tool (Kobuki Dashboard) that shows the status of the various components of the robot and allows access to basic functionalities (e.g. LEDs). This tool runs as a ROS node that subscribes to the diagnostics aggregator node (ros/diagnostics/diagnostic_aggregator/aggregator_node). The diagnostics aggregator consumes a series of parameters from the ROS parameter server, in order to know which diagnostics to aggregate, how to process them and how to output them. Said parameters are initialized from a parameter file in YAML syntax. One of the parameters, `",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/350",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "8a729db54ee9a8b43f4634ab8052ddaa24d517fd",
+        "stats": {
+          "total": {
+            "insertions": 4,
+            "deletions": 4,
+            "lines": 8,
+            "files": 1
+          },
+          "files": {
+            "kobuki_node/param/diagnostics.yaml": {
+              "insertions": 4,
+              "deletions": 4,
+              "lines": 8
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_node",
+    "subsystem": "generic component",
+    "fault_codes": [
+      "CONFIG:NAMESPACE",
+      "CONFIG:PARAM",
+      "EVOLUTION:PACKAGE"
+    ],
+    "gold_dimension": [
+      "Sig",
+      "Beh",
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_8c30446",
+    "system": "kobuki",
+    "title": "Referencing Wrong Parameter File",
+    "description": "A launch file was referencing a data file from another repository to initialize ROS parameters. Launch files are XML files that declare a sequence of nodes for the ROS platform to execute. Launch files can also declare ROS parameters to be loaded to the ROS parameter server (key-value pairs). In particular, the `rosparam` tag is a shortcut to load a series of parameters from an YAML file. Referencing data files from other repositories is arguably not recommended, because they may change or disappear unexpectedly, besides introducing additional dependencies. Additionally, the defective launch f",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/339",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "8c30446d18bad63da0f58a1f666c2e7e209d917d",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "kobuki_node/launch/robot_with_tf.launch": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_node",
+    "subsystem": "driver",
+    "fault_codes": [
+      "BDO:DEPENDENCY",
+      "PROGRAMMING:BAD-SMELL",
+      "CONFIG:PARAM"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_95b24e8",
+    "system": "kobuki",
+    "title": "Use of Platform-specific Functions",
+    "description": "Kobuki's driver was making use of the deprecated `usleep` function, along with other sleep functions from `ctime`. For cross-platform support, these have been replaced with the sleep functions from the platform-independent `ecl` library.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/22",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "95b24e8218ea593cf820478e0829adc92fff7457",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 3,
+            "lines": 5,
+            "files": 1
+          },
+          "files": {
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 2,
+              "deletions": 3,
+              "lines": 5
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "SYSTEMS:OS"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_9682b9a",
+    "system": "kobuki",
+    "title": "rqt_plot Failing When Kobuki Is Installed",
+    "description": "Starting the rqt_plot tool (a plotting GUI with plugins) resulted in a crash when Kobuki was also installed (for specific versions, and after a certain update to rqt_plot). The crash was due to the tool interpreting some resource paths relative to the XML file that defines the plugin, while its documentation stated that paths should be relative to the ROS package path.  Since most plugins had the XML file at the root of the package, this was not an issue. But Kobuki did not, and so the issue came up. In the end, the tool was changed to interpret all paths relative to the XML file, as was that ",
+    "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/10",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-visualization/rqt",
+        "hash": "9682b9af78eecd368004fe7596e341eb84abc719",
+        "stats": {
+          "total": {
+            "insertions": 8,
+            "deletions": 9,
+            "lines": 17,
+            "files": 2
+          },
+          "files": {
+            "rqt_gui/package.xml": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "rqt_gui/src/rqt_gui/ros_plugin_provider.py": {
+              "insertions": 7,
+              "deletions": 8,
+              "lines": 15
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/ros-visualization/qt_gui_core",
+        "hash": "ffae1f756dbf23194a2628922939d9633df947f6",
+        "stats": {
+          "total": {
+            "insertions": 29,
+            "deletions": 21,
+            "lines": 50,
+            "files": 3
+          },
+          "files": {
+            "qt_gui/src/qt_gui/help_provider.py": {
+              "insertions": 11,
+              "deletions": 3,
+              "lines": 14
+            },
+            "qt_gui/src/qt_gui/plugin_manager.py": {
+              "insertions": 1,
+              "deletions": 7,
+              "lines": 8
+            },
+            "qt_gui_cpp/include/qt_gui_cpp/ros_pluginlib_plugin_provider.h": {
+              "insertions": 17,
+              "deletions": 11,
+              "lines": 28
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-visualization/qt_gui_core/qt_gui | ros-visualization/qt_gui_core/qt_gui_cpp | ros-visualization/rqt/rqt_gui",
+    "subsystem": "ROS tool",
+    "fault_codes": [
+      "EVOLUTION:DOCS",
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_9c8abeb",
+    "system": "kobuki",
+    "title": "Use of Deprecated and Removed Features",
+    "description": "Kobuki's source code was using some features of the Boost libraries related to type casting that were marked as deprecated, and were later removed in a newer version of the libraries. This upgrade caused builds to fail. The fix was essentially a find and replace, since other (recommended) constructs existed to replace the deprecated ones.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki_desktop/issues/25 | https://github.com/yujinrobot/kobuki_desktop/issues/27",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "9c8abeb81acb2d18a086ac18cd88a8cf6dd9e200",
+        "stats": {
+          "total": {
+            "insertions": 5,
+            "deletions": 5,
+            "lines": 10,
+            "files": 1
+          },
+          "files": {
+            "kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp": {
+              "insertions": 5,
+              "deletions": 5,
+              "lines": 10
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_desktop/kobuki_gazebo_plugins",
+    "subsystem": "simulation plugins",
+    "fault_codes": [
+      "EVOLUTION:DEPRECATION",
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_a794de9",
+    "system": "kobuki",
+    "title": "Alignment Assertion When Running on 32-bit Platform",
+    "description": "Kobuki uses the Eigen library for linear algebra.  For performance reasons, Eigen data structures must obey certain byte-alignment rules and some macros need to be present in user code to make this happen. Adding the missing macros fixed most of the occurrences of the problem.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/257",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "a794de9b6567b69f6c4885a177d017685f518524",
+        "stats": {
+          "total": {
+            "insertions": 0,
+            "deletions": 6,
+            "lines": 6,
+            "files": 2
+          },
+          "files": {
+            "kobuki_auto_docking/include/kobuki_auto_docking/dock_drive.hpp": {
+              "insertions": 0,
+              "deletions": 1,
+              "lines": 1
+            },
+            "kobuki_auto_docking/src/dock_drive.cpp": {
+              "insertions": 0,
+              "deletions": 5,
+              "lines": 5
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "18b46dc557676adc00b9f17c09c3af5281b5ea88",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 0,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "kobuki_bumper2pc/include/kobuki_bumper2pc/kobuki_bumper2pc.hpp": {
+              "insertions": 2,
+              "deletions": 0,
+              "lines": 2
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "f62c63ff94ab65fb3218e647e3886636e250f189",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 0,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "kobuki_bumper2pc/include/kobuki_bumper2pc/kobuki_bumper2pc.hpp": {
+              "insertions": 2,
+              "deletions": 0,
+              "lines": 2
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "193ba75ee7b08b8bdb09b5815e486948913e3442",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 0,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "kobuki_auto_docking/include/kobuki_auto_docking/dock_drive.hpp": {
+              "insertions": 2,
+              "deletions": 0,
+              "lines": 2
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "936e46785de6ae1fc473ff670b07ab16016ab7ef",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 0,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "kobuki_auto_docking/include/kobuki_auto_docking/dock_drive.hpp": {
+              "insertions": 2,
+              "deletions": 0,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_bumper2pc",
+    "subsystem": "specific application component",
+    "fault_codes": [
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_b166c93",
+    "system": "kobuki",
+    "title": "Backporting a Bug Fix",
+    "description": "A commit fixed an issue where a macro was being used instead of the proper function call to determine whether a value is NaN. This commit was meant for the ROS Kinetic version of the Kobuki driver, but the issue was present in the ROS Indigo version as well.  A user requested that this fix was backported for the Indigo version.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki_core/issues/22",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_core",
+        "hash": "b166c93913e293c55a3faa7b298c5f52f6def964",
+        "stats": {
+          "total": {
+            "insertions": 7,
+            "deletions": 2,
+            "lines": 9,
+            "files": 2
+          },
+          "files": {
+            "kobuki_driver/CHANGELOG.rst": {
+              "insertions": 4,
+              "deletions": 0,
+              "lines": 4
+            },
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 3,
+              "deletions": 2,
+              "lines": 5
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_core/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:BAD-SMELL",
+      "EVOLUTION:DEPRECATION"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_b18f559",
+    "system": "kobuki",
+    "title": "Maintaining Constructs From Old Versions",
+    "description": "A change of protocol was not fully reflected in the code.  There were remnants of the initial version, resulting in two different topics publishing the same sensor information under different names.  Another issue was having multiple functions that were doing mostly the same thing, but named accordingly to each protocol version (e.g. `getData`, `getData2`, `getDefaultData`).\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/27",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "b18f55910cc032f967b436b26710c01ec435291d",
+        "stats": {
+          "total": {
+            "insertions": 9,
+            "deletions": 80,
+            "lines": 89,
+            "files": 4
+          },
+          "files": {
+            "kobuki_driver/include/kobuki_driver/kobuki.hpp": {
+              "insertions": 1,
+              "deletions": 3,
+              "lines": 4
+            },
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 4,
+              "deletions": 56,
+              "lines": 60
+            },
+            "kobuki_node/include/kobuki_node/kobuki_node.hpp": {
+              "insertions": 0,
+              "deletions": 1,
+              "lines": 1
+            },
+            "kobuki_node/src/nodelets/kobuki_node.cpp": {
+              "insertions": 4,
+              "deletions": 20,
+              "lines": 24
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_node",
+    "subsystem": "driver",
+    "fault_codes": [
+      "EVOLUTION:FIRMWARE"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_b213df3",
+    "system": "kobuki",
+    "title": "Missing Comment Token",
+    "description": "ROS parameters (key-value pairs) can be loaded from YAML files. One such file was missing a line comment token, causing part of the text to be interpreted as YAML data, and loaded as a ROS parameter. There was no crash or error report because the text happened to contain a colon, which made it valid YAML syntax for the parser. The end result was a strangely named parameter showing up during operation.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/300",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "b213df3324cd933ddfc1bbd7ef8dce50cc233d51",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 2,
+            "lines": 3,
+            "files": 1
+          },
+          "files": {
+            "kobuki_node/param/base.yaml": {
+              "insertions": 1,
+              "deletions": 2,
+              "lines": 3
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_node",
+    "subsystem": "driver",
+    "fault_codes": [
+      "CONFIG:PARAM"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_bb3c7ec",
+    "system": "kobuki",
+    "title": "Battery Charge Was Not Showing on Android Applications",
+    "description": "Turtlebot features some Android applications to control the robot (e.g. teleoperation, or make a map of the surroundings). These applications have a battery indicator to let the user know how much battery the robot has left. However, this indicator was displaying no information at all. The reason was that the application listens for the robot's diagnostics and looks for a specific name in the diagnostics fields, but the robot was emitting diagnostics with a prefix attached to the names.  Changing the diagnostics parameter file to indicate that the prefix should be removed fixes the issue.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/136",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "bb3c7ec8a7e656aa7e75753864351c27d571db47",
+        "stats": {
+          "total": {
+            "insertions": 12,
+            "deletions": 2,
+            "lines": 14,
+            "files": 2
+          },
+          "files": {
+            "kobuki_bringup/resources/yaml/diagnostics.yaml": {
+              "insertions": 4,
+              "deletions": 0,
+              "lines": 4
+            },
+            "kobuki_node/src/node/diagnostics.cpp": {
+              "insertions": 8,
+              "deletions": 2,
+              "lines": 10
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_node | yujinrobot/kobuki/kobuki_bringup",
+    "subsystem": "generic task component",
+    "fault_codes": [
+      "CONFIG:REMAPPING"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_c04eae5",
+    "system": "kobuki",
+    "title": "No Graceful Termination When Firmware is Outdated",
+    "description": "There were no checks on firmware version, and thus no graceful termination if the driver and firmware were incompatible.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/175",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "c04eae575167f579f9fce4e11f212e6d73b3deac",
+        "stats": {
+          "total": {
+            "insertions": 47,
+            "deletions": 5,
+            "lines": 52,
+            "files": 3
+          },
+          "files": {
+            "kobuki_driver/include/kobuki_driver/kobuki.hpp": {
+              "insertions": 2,
+              "deletions": 0,
+              "lines": 2
+            },
+            "kobuki_driver/include/kobuki_driver/packets/firmware.hpp": {
+              "insertions": 20,
+              "deletions": 0,
+              "lines": 20
+            },
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 25,
+              "deletions": 5,
+              "lines": 30
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "d92a96e5a05f69c626132db42490ac382298df93",
+        "stats": {
+          "total": {
+            "insertions": 5,
+            "deletions": 0,
+            "lines": 5,
+            "files": 1
+          },
+          "files": {
+            "kobuki_node/src/library/kobuki_ros.cpp": {
+              "insertions": 5,
+              "deletions": 0,
+              "lines": 5
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:LOGIC"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_dd40270",
+    "system": "kobuki",
+    "title": "Missing Queue Sizes for Some Publishers",
+    "description": "When publishing or subscribing to a topic in ROS, the developer often declares a queue size to be associated with that publisher/subscriber.  The queues store messages temporarily, if the system is not fast enough to process every message before a new one arrives. In older versions of ROS, declaring the queue size was not mandatory when using the Python client libraries. As of ROS Indigo, this was kept optional for backward compatibility, but a warning is issued.  Not specifying the queue size is a problem because it changes the behaviour of the publisher, which might not be expected. When a q",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/338",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "dd40270d17cdd3e1729437f0988c0acb6c622d5e",
+        "stats": {
+          "total": {
+            "insertions": 3,
+            "deletions": 3,
+            "lines": 6,
+            "files": 2
+          },
+          "files": {
+            "kobuki_node/scripts/getOdom2D.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "kobuki_node/scripts/getYaw.py": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_testsuite | yujinrobot/kobuki/kobuki_node",
+    "subsystem": "test suite",
+    "fault_codes": [
+      "EVOLUTION:PACKAGE",
+      "PROGRAMMING:BROKEN-CONTRACT",
+      "PROGRAMMING:RESOURCES"
+    ],
+    "gold_dimension": [
+      "Ver",
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_fbe70c7",
+    "system": "kobuki",
+    "title": "Keyboard Teleoperation Not Issuing Commands to Base",
+    "description": "The node for keyboard teleoperation for Kobuki was not issuing commands to the robot. As it turns out, it was an issue of wrong remappings and namespaces.  The teleop node was advertising a topic different than the one the base was subscribed to. A contributing factor for this issue may be the fact that the teleop node and the base node are launched in different launch files.\n",
+    "issue_url": "https://github.com/yujinrobot/kobuki/issues/25",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki",
+        "hash": "fbe70c7d5e6d3b85fea6296c23039958c428e6df",
+        "stats": {
+          "total": {
+            "insertions": 839,
+            "deletions": 191,
+            "lines": 1030,
+            "files": 32
+          },
+          "files": {
+            "kobuki_description/.cproject": {
+              "insertions": 43,
+              "deletions": 0,
+              "lines": 43
+            },
+            "kobuki_description/.project": {
+              "insertions": 79,
+              "deletions": 0,
+              "lines": 79
+            },
+            "kobuki_description/CMakeLists.txt": {
+              "insertions": 30,
+              "deletions": 0,
+              "lines": 30
+            },
+            "kobuki_description/Makefile": {
+              "insertions": 1,
+              "deletions": 0,
+              "lines": 1
+            },
+            "kobuki_description/ROS_NOBUILD": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_description/mainpage.dox": {
+              "insertions": 26,
+              "deletions": 0,
+              "lines": 26
+            },
+            "kobuki_description/manifest.xml": {
+              "insertions": 17,
+              "deletions": 0,
+              "lines": 17
+            },
+            "{kobuki_meta/resources => kobuki_description}/meshes/68-04546_Kinect_Sensor.3ds": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_description/robots/kobuki.urdf.xacro": {
+              "insertions": 267,
+              "deletions": 0,
+              "lines": 267
+            },
+            "kobuki_driver/include/kobuki_driver/kobuki.hpp": {
+              "insertions": 6,
+              "deletions": 3,
+              "lines": 9
+            },
+            "kobuki_driver/include/kobuki_driver/odometry.hpp": {
+              "insertions": 46,
+              "deletions": 0,
+              "lines": 46
+            },
+            "kobuki_driver/include/kobuki_driver/packet_finder.hpp": {
+              "insertions": 1,
+              "deletions": 5,
+              "lines": 6
+            },
+            "kobuki_driver/src/driver/default.cpp": {
+              "insertions": 3,
+              "deletions": 6,
+              "lines": 9
+            },
+            "kobuki_driver/src/driver/kobuki.cpp": {
+              "insertions": 103,
+              "deletions": 56,
+              "lines": 159
+            },
+            "kobuki_driver/src/driver/packet_finder.cpp": {
+              "insertions": 23,
+              "deletions": 33,
+              "lines": 56
+            },
+            "kobuki_meta/{resources => graveyard}/rviz/display_config.vcg": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_meta/{resources => graveyard}/rviz/kinect_laser.vcg": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_meta/{resources => graveyard}/rviz/kinect_laser_basic.vcg": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_meta/{resources => graveyard}/rviz/kinect_laser_map.vcg": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_meta/{resources => graveyard}/rviz/kinect_laser_map_temp.vcg": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_meta/{resources => graveyard}/urdf/kinect_laser_kobuki.xacro": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_meta/{resources => graveyard}/urdf/simple_kobuki.xacro": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_meta/{resources => graveyard}/urdf/simple_laser_kobuki.xacro": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "kobuki_meta/manifest.xml": {
+              "insertions": 13,
+              "deletions": 11,
+              "lines": 24
+            },
+            "kobuki_meta/resources/launch/components/base.launch": {
+              "insertions": 2,
+              "deletions": 1,
+              "lines": 3
+            },
+            "kobuki_meta/resources/launch/keyop.launch": {
+              "insertions": 9,
+              "deletions": 6,
+              "lines": 15
+            },
+            "kobuki_meta/resources/launch/minimal.launch": {
+              "insertions": 33,
+              "deletions": 0,
+              "lines": 33
+            },
+            "kobuki_meta/resources/launch/view/view_robot.launch": {
+              "insertions": 10,
+              "deletions": 0,
+              "lines": 10
+            },
+            "kobuki_meta/resources/rviz/kobuki.vcg": {
+              "insertions": 62,
+              "deletions": 0,
+              "lines": 62
+            },
+            "kobuki_node/include/kobuki_node/kobuki_node.hpp": {
+              "insertions": 7,
+              "deletions": 12,
+              "lines": 19
+            },
+            "kobuki_node/manifest.xml": {
+              "insertions": 1,
+              "deletions": 0,
+              "lines": 1
+            },
+            "kobuki_node/src/nodelets/kobuki_node.cpp": {
+              "insertions": 57,
+              "deletions": 58,
+              "lines": 115
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki/kobuki_meta",
+    "subsystem": "specific application component",
+    "fault_codes": [
+      "CONFIG:REMAPPING",
+      "EVOLUTION:PACKAGE"
+    ],
+    "gold_dimension": [
+      "Sig",
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_0e2ea0c",
+    "system": "mavros",
+    "title": "Inefficient checking for map emptiness using size() rather than empty()",
+    "description": "This commit performs two small performance/hygiene-related fixes to the code, discovered using the cppcheck static analyser.\nThe fix replaces code that checks a std::map is empty by ensuring its size is greater than zero with a call to \"std::map::empty()\".\nThe commit also contains a minor optimization: an argument of the \"send_any_path_command\" function has been optimized to now be passed as string by reference, rather than by value.\n",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "0e2ea0c43b373feb490b45710fb63f4e6cde78eb",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 2,
+            "lines": 4,
+            "files": 1
+          },
+          "files": {
+            "mavros/src/plugins/ftp.cpp": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "PROGRAMMING:BAD-SMELL",
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_1f01916",
+    "system": "mavros",
+    "title": "Missing tcpclient lock",
+    "description": "The \"MAVConnTCPServer::client_closed\" method is responsible for safely closing a given client's connection to the TCP server. In the buggy implementation of this method, the lock for the client (represented as a pointer to an MAVConnTCPClient instance) was not acquired before closing the connection, leading to a possible race condition that can result in deadlocking or a segmentation fault.\n",
+    "issue_url": "https://github.com/mavlink/mavros/issues/72",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "1f019166ccedf8ce5151944f5e33302afaf82679",
+        "stats": {
+          "total": {
+            "insertions": 11,
+            "deletions": 8,
+            "lines": 19,
+            "files": 2
+          },
+          "files": {
+            "include/mavros/mavconn_tcp.h": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "src/mavconn/mavconn_tcp.cpp": {
+              "insertions": 10,
+              "deletions": 7,
+              "lines": 17
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_248cb38",
+    "system": "mavros",
+    "title": "Missing ENU->NED frame conversion in send_attitude_target",
+    "description": "The \"send_attitude_target\" function in \"setpoint_attribute.cpp\" accepts a 3D affine transformation (along with a timestamp), and forwards an attitude target to MAVLink via the lower-level \"send_attitude_target\" in \"setpoint_attribute.cpp\". Amongst other parameters, the lower-level function accepts attitude as a size 4 array of floats, representing a quaternion. The (buggy) higher-level function converts the affine transformation to a quarternion in the ENU frame, but fails to convert the resulting quaternion to the NED frame expected by the lower-level frame.\n",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "248cb389b122fa94a68578a48e50d4f240df4629",
+        "stats": {
+          "total": {
+            "insertions": 8,
+            "deletions": 1,
+            "lines": 9,
+            "files": 1
+          },
+          "files": {
+            "mavros/src/plugins/setpoint_attitude.cpp": {
+              "insertions": 8,
+              "deletions": 1,
+              "lines": 9
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "MODELS:TRANSFORMATIONS"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_263650d",
+    "system": "mavros",
+    "title": "Incorrect topic name used to fetch GPS information",
+    "description": "Following changes to MAVROS, the name of the \"gps\" topic was renamed to \"global_position\". The buggy function, \"_find_gps_topic\", continues to use the older, incorrect name of the \"gps\" topic.\n",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "263650d6c1a9c9aebc6b8a0e3ea4627e59c58a77",
+        "stats": {
+          "total": {
+            "insertions": 4,
+            "deletions": 13,
+            "lines": 17,
+            "files": 2
+          },
+          "files": {
+            "mavros/scripts/mavcmd": {
+              "insertions": 2,
+              "deletions": 1,
+              "lines": 3
+            },
+            "mavros/scripts/mavwp": {
+              "insertions": 2,
+              "deletions": 12,
+              "lines": 14
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "EVOLUTION:PACKAGE",
+      "CONFIG:TOPIC"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_5353982",
+    "system": "mavros",
+    "title": "Introduced regression when converting ROS_ASSERT(false) to ROS_BREAK()",
+    "description": "The \"ROS_BREAK\" macro is used to abort program execution, and to output useful debugging information about the failing assertion, and the file in which it failed.  This macro should be used instead of \"ROS_ASSERT(false)\", as outlined in the ROS C++ guidelines.\nIn commit 136f387ffc3bd2ac6983a59c3eb2b63f3512e020, one of the developers incorrectly changes all of the instances of \"ROS_ASSERT(false)\" to \"ROS_BREAK(false)\". The \"ROS_BREAK\" macro does not accept an argument, and so \"ROS_BREAK()\" is the correct usage. This mistake is fixed a day after the commit that introduced the bug.\n",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "5353982ea0f32783fcf3e296b25ab3b253550201",
+        "stats": {
+          "total": {
+            "insertions": 5,
+            "deletions": 5,
+            "lines": 10,
+            "files": 1
+          },
+          "files": {
+            "mavros/src/lib/uas_frame_conversions.cpp": {
+              "insertions": 5,
+              "deletions": 5,
+              "lines": 10
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "BDO:BUILD",
+      "PROGRAMMING:COPYPASTA",
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_599c588",
+    "system": "mavros",
+    "title": "set_mode service always returns true, regardless of success",
+    "description": "The \"set_mode\" service provides the user (and the system itself) with the means of requesting a change of mode for the robot (e.g., manual to autonomous navigation). This service call accepts the desired mode as its sole argument, and should return a boolean flag, indicating whether the request was successful, in which case True is returned, or if the request failed, in which case False is returned. In practice, however, calls to this service always return True, even when the requested mode change was unsuccessful.\nCloser inspection of the code reveals that no checking is performed by the serv",
+    "issue_url": "https://github.com/mavlink/mavros/issues/625",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "599c5887ad2aadc124d7e1354f3a1597402118da",
+        "stats": {
+          "total": {
+            "insertions": 5,
+            "deletions": 5,
+            "lines": 10,
+            "files": 4
+          },
+          "files": {
+            "mavros/scripts/mavsetp": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "mavros/scripts/mavsys": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "mavros/src/plugins/sys_status.cpp": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "mavros_msgs/srv/SetMode.srv": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "PROGRAMMING:MISSING-FEATURE",
+      "PROGRAMMING:BROKEN-CONTRACT",
+      "PROGRAMMING:VALIDATION"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_753226d",
+    "system": "mavros",
+    "title": "Missing assignment during construction of JointState object",
+    "description": "The \"ServoStatePublisher\" class is used to publish the state of the robot's joints to the \"joint_states\" topic. The \"rc_out_cb\" method is used to describe these states (as sensor_msgs::JointState objects). Following the (implicit) construction of a JointState object (via \"boost::make_shared<sensor_msgs::JointState>();\"), \"rc_out_cb\" assigns appropriate values to each of the fields of this object. However, \"rc_out_cb\" fails to assign a timestamp value to the header of the JointState object. Therefore, any subscribers which rely on this timing information will behave incorrectly.\n",
+    "issue_url": "https://github.com/mavlink/mavros/issues/387",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "753226d93a735ba01744620b5654b8a038d1c89d",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 0,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "mavros_extras/src/servo_state_publisher.cpp": {
+              "insertions": 2,
+              "deletions": 0,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavlink/mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "PROGRAMMING:UNINITIALISED",
+      "CONCURRENCY:TIMING"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_84264f0",
+    "system": "mavros",
+    "title": "Incorrect use of namespacing in ROS parameter names",
+    "description": "All ROS parameter interactions within \"mavros_extras/src/plugins/visualization.cpp\" incorrectly prefix the name of parameters with a \"visualization\" namespace. This namespace is implicit, and so the fully qualified parameter that result are incorrect. e.g., \"visualization/fixed_frame_id\" becomes \"/visualization/visualization/fixed_frame_id\" when fully qualified.\n",
+    "issue_url": "https://github.com/mavlink/mavros/issues/207",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "84264f01aeea79b345fe9f397da8c4759b7846fb",
+        "stats": {
+          "total": {
+            "insertions": 98,
+            "deletions": 106,
+            "lines": 204,
+            "files": 1
+          },
+          "files": {
+            "mavros_extras/src/plugins/visualization.cpp": {
+              "insertions": 98,
+              "deletions": 106,
+              "lines": 204
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "PROGRAMMING:LOGIC"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_a67d81d",
+    "system": "mavros",
+    "title": "Missing type conversion in u8->hex conversion",
+    "description": "The \"array_to_hex_string\" helper function in \"sys_status.cpp\" accepts an array of uint8_t (along with an argument specifying its size), and returns a hexadecimal string describing the contents of the array. The faulty implementation of this function performs this conversion by passing the raw uint8_t to an ostringstream object; the ostringstream operates on the bits of uint8_t as if it were an int, producing an incorrect result. The fixed version of this function explicitly converts the uint8_t to an int before passing it to the ostringstream.\n",
+    "issue_url": "https://github.com/mavlink/mavros/issues/300",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "a67d81d05776a5431e9c0e77f51602ce7987fc7b",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "mavros/src/plugins/sys_status.cpp": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "PROGRAMMING:DATATYPE"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_b96bf67",
+    "system": "mavros",
+    "title": "Incorrect orientation (wrong frame) passed to set_attitude_target",
+    "description": "MAVROS operates on a frame of base_link->ENU, whereas MAVLink operates on aircraft->NED. Therefore, location and orientation must be transformed between these two frames when communicating between them.  The buggy function correctly performs the necessary frame conversions, but fails to pass the converted orientation in the \"set_attitude_target\" function call.\n",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "b96bf672a718b9f0c9694e4314283e385ba96231",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "mavros/src/plugins/setpoint_raw.cpp": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "MODELS:TRANSFORMATIONS"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_bdda1fa",
+    "system": "mavros",
+    "title": "Run-time missing attribute/method error",
+    "description": "Following a rosrun call to mavsetp (e.g., rosrun mavros mavsetp local -p 2 2 2 2), a missing attribute is encountered on line 40 of the \"mavsetp\" (Python) script. The attribute in question is \"guided_enable\", which no longer exists, following a refactoring of the code. The aforementioned refactoring (https://github.com/mavlink/mavros/issues/407) removed the \"cmd/guided_enabled\" service, responsible for enabling and disabling the robot's \"guided\" mode, and consequently removed the \"guided_enabled\" function responsible for handling the request; instead, these calls can be handled by the \"cmd/set",
+    "issue_url": "https://github.com/mavlink/mavros/issues/478",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "bdda1fab32a9d084cfe980fe4f364b5eb35173e0",
+        "stats": {
+          "total": {
+            "insertions": 12,
+            "deletions": 3,
+            "lines": 15,
+            "files": 2
+          },
+          "files": {
+            "mavros/scripts/mavsetp": {
+              "insertions": 11,
+              "deletions": 2,
+              "lines": 13
+            },
+            "mavros/src/mavros/command.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "EVOLUTION:PACKAGE"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_c0067f9",
+    "system": "mavros",
+    "title": "Erroneous import of Goto service",
+    "description": "\"mavros/src/mavros/mission.py\" attempts to import a class that no longer exists, \"WaypointGOTO\", from the \"mavros_msgs.srv\" module.\nThe service was marked for deprecation in mavlink/mavros#414, and removed in b3ef10ff.\n",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "c0067f9f27a5a6ef5354e06fea18279541934520",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "mavros/src/mavros/mission.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavlink/mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "BDO:DEPENDENCY",
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_de2cc36",
+    "system": "mavros",
+    "title": "New version of PX4 autopilot module changes network communication behaviour",
+    "description": "A newer version of the PX4 autopilot module now sends an acknowledgement signal upon receiving a command, unlike all previous versions. To ensure proper functioning, the \"send_command_long_and_wait\" function, responsible for issuing commands to the drone should be updated to expect acknowledgement from the drone (autopilot).\n",
+    "issue_url": "https://github.com/mavlink/mavros/issues/561",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "de2cc36b37689363f60876d9892f2630173b4f8c",
+        "stats": {
+          "total": {
+            "insertions": 3,
+            "deletions": 3,
+            "lines": 6,
+            "files": 1
+          },
+          "files": {
+            "mavros/src/plugins/command.cpp": {
+              "insertions": 3,
+              "deletions": 3,
+              "lines": 6
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "PROGRAMMING:CONTROL-FLOW",
+      "EVOLUTION:FIRMWARE"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_e1a8005",
+    "system": "mavros",
+    "title": "Incorrect ROS parameter names used throughout a file",
+    "description": "All ROS parameter interactions within \"mavros/src/plugins/sys_time.cpp\" use an older name for each parameter. Following a refactoring of the source code, namespaces were introduced to separate these parameters (e.g., \"conn_system_time\" -> \"conn/system_time\"). Because of how Mavros uses \"ros::NodeHandle::param\" (the function used to fetch parameter values), it returns a default value when no parameter matching the given name is found, thus causing the regression to go undetected.\n",
+    "issue_url": "https://github.com/mavlink/mavros/issues/206",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "e1a80052fbdb8324573c8cce0401b01aa78765ae",
+        "stats": {
+          "total": {
+            "insertions": 10,
+            "deletions": 11,
+            "lines": 21,
+            "files": 1
+          },
+          "files": {
+            "mavros/src/plugins/sys_time.cpp": {
+              "insertions": 10,
+              "deletions": 11,
+              "lines": 21
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "CONFIG:NAMESPACE",
+      "EVOLUTION:PACKAGE"
+    ],
+    "gold_dimension": [
+      "Sig",
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_ff581a0",
+    "system": "mavros",
+    "title": "Incorrect parameter names used to fetch values",
+    "description": "Lines 311--313 are used to fetch the current x, y, and z coordinates. The \"ros::NodeHandle::param\" function used to fetch these values accepts the name of a parameter, a reference to the variable to which its value should be written, and a default value which should be written to the variable in the case that no parameter can be found that matches the given name. Lines 312 and 313 incorrectly retrieve the \"sensor_position/x\" value for all three dimensions of the position of the sensor (ie: x, y and z), rather than the correct \"sensor_position/y\" and \"sensor_position/z\" parameters.\n",
+    "issue_url": "N/A",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/mavlink/mavros",
+        "hash": "ff581a0752107f7ad875c16f83f7b75ccd92f847",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 2,
+            "lines": 4,
+            "files": 1
+          },
+          "files": {
+            "mavros_extras/src/plugins/distance_sensor.cpp": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            }
+          }
+        }
+      }
+    ],
+    "package": "mavlink/mavros",
+    "subsystem": "N/A",
+    "fault_codes": [
+      "MODELS:ROBOT",
+      "MODELS:TRANSFORMATIONS"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_0829607",
+    "system": "motoman",
+    "title": "SDA10f model meshes are malformed",
+    "description": "When loading the SDA10F robot model in rviz, it shows the warning that the single meshes are 'malformed', because they start with the word 'solid' to indicate it is an ASCII file, but it does not contain the word 'endsolid'.\n",
+    "issue_url": "https://github.com/ros-industrial/motoman/issues/123",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/motoman",
+        "hash": "082960760dd90c4040e394721b3991f4e17aac2d",
+        "stats": {
+          "total": {
+            "insertions": 0,
+            "deletions": 0,
+            "lines": 0,
+            "files": 2
+          },
+          "files": {
+            "motoman_sda10f_support/meshes/sda10f/visual/motoman_axis_b1.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "motoman_sda10f_support/meshes/sda10f/visual/motoman_base.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/motoman/motoman_sda10f_support",
+    "subsystem": "visualization",
+    "fault_codes": [
+      "CONFIG:ENCODING",
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_1ec8ca1",
+    "system": "motoman",
+    "title": "Wrong transform in MH5",
+    "description": "Visualizing the Robot Model described in the xacro and overlaying the TF frames, it looks like the position from the last link - link_t - is set to a wrong position.\n",
+    "issue_url": "https://github.com/ros-industrial/motoman/issues/122",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/motoman",
+        "hash": "1ec8ca1bb14fb68bac9672988ea311cdae7997c5",
+        "stats": {
+          "total": {
+            "insertions": 13,
+            "deletions": 2,
+            "lines": 15,
+            "files": 1
+          },
+          "files": {
+            "motoman_mh5_support/urdf/mh5.urdf": {
+              "insertions": 13,
+              "deletions": 2,
+              "lines": 15
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/motoman/motoman_mh5_support",
+    "subsystem": null,
+    "fault_codes": [
+      "MODELS:ROBOT",
+      "CONFIG:CONSTANTS"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_292b5cc",
+    "system": "motoman",
+    "title": "Incorrect response from FS100 to a control request",
+    "description": "The FS100 is one of the robot controllers by Motoman that are open to be used with ROS. The ROS side can send requests to the controller (running the MotoROS application), and each request must carry a request type identification. The MotoROS code constructs responses to such requests based on the message type ID, but the code responsible for this compared against the same msg type ID twice: once in the main 'if' clause, and another time in the subsequent 'if else'. The msg type ID affected by the bug was therefore never handled, causing the data fields in the response to contain invalid/unini",
+    "issue_url": "https://github.com/ros-industrial/motoman/issues/1",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/motoman",
+        "hash": "292b5cc8a10a640a8b364a529e3eadffffc9b56b",
+        "stats": {
+          "total": {
+            "insertions": 24,
+            "deletions": 8,
+            "lines": 32,
+            "files": 3
+          },
+          "files": {
+            "fs100/MotoPlus/MotionServer.c": {
+              "insertions": 16,
+              "deletions": 4,
+              "lines": 20
+            },
+            "fs100/MotoPlus/SimpleMessage.c": {
+              "insertions": 8,
+              "deletions": 4,
+              "lines": 12
+            },
+            "fs100/MotoPlus/output/MPRosFS100.out": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/motoman",
+    "subsystem": "motoplus pluging for the controller",
+    "fault_codes": [
+      "PROGRAMMING:DATATYPE"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_2d42582",
+    "system": "motoman",
+    "title": "Incorrect values for joint limits in sia20d package",
+    "description": "The position limits for the joints joint_s, joint_r and joint_t for the SIA20 are set to exactly 3.1416 or -3.1416, but from the data sheet the limits for these joints are exactly Pi. The values appear to be rounded up, which gives the possibility for the robot to try to reach positions, which are physically not reachable.\n",
+    "issue_url": "https://github.com/ros-industrial/motoman/issues/102",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/motoman",
+        "hash": "2d42582c692191f67f1e986467822fcd3b3935b9",
+        "stats": {
+          "total": {
+            "insertions": 19,
+            "deletions": 14,
+            "lines": 33,
+            "files": 2
+          },
+          "files": {
+            "motoman_sia20d_support/urdf/sia20d.urdf": {
+              "insertions": 12,
+              "deletions": 7,
+              "lines": 19
+            },
+            "motoman_sia20d_support/urdf/sia20d_macro.xacro": {
+              "insertions": 7,
+              "deletions": 7,
+              "lines": 14
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/motoman | ros-industrial/motoman/sia20d_support | ros-industrial/motoman/sia10d_support | ros-industrial/motoman/sia10f_support",
+    "subsystem": "motion",
+    "fault_codes": [
+      "CONFIG:PARAM",
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Beh",
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_6a7a506",
+    "system": "motoman",
+    "title": "Deprecated reference to files in sia5d package",
+    "description": "The sia5d_support packages makes use of mesh files for robot visualization.  The meshes used in the robot description file sia5d_macro.xacro refers to the motoman_config package for this mesh files, which is deprecated.\n",
+    "issue_url": "https://github.com/ros-industrial/motoman/issues/81",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/motoman",
+        "hash": "6a7a506290af111727ececa3baaee9f7afed58a7",
+        "stats": {
+          "total": {
+            "insertions": 34,
+            "deletions": 32,
+            "lines": 66,
+            "files": 2
+          },
+          "files": {
+            "motoman_sia5d_support/urdf/sia5d.urdf": {
+              "insertions": 18,
+              "deletions": 16,
+              "lines": 34
+            },
+            "motoman_sia5d_support/urdf/sia5d_macro.xacro": {
+              "insertions": 16,
+              "deletions": 16,
+              "lines": 32
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/motoman | ros-industrial/motoman/sia5d_support",
+    "subsystem": "visualization",
+    "fault_codes": [
+      "MODELS:ROBOT",
+      "EVOLUTION:PATHS"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_90a9464",
+    "system": "motoman",
+    "title": "SDA10f incorrect macro usage in top-level xacro",
+    "description": "The sda10f.xacro tries to instantiate a macro called motoman_sda10f', but that does not exist. So roslaunch tests for that top-level xacro fail.\n",
+    "issue_url": "https://github.com/ros-industrial/motoman/issues/166",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/motoman",
+        "hash": "90a94642f763903f71536dc972782a237309a7f1",
+        "stats": {
+          "total": {
+            "insertions": 43,
+            "deletions": 12,
+            "lines": 55,
+            "files": 5
+          },
+          "files": {
+            "motoman_sda10f_support/test/launch_test.xml": {
+              "insertions": 5,
+              "deletions": 0,
+              "lines": 5
+            },
+            "motoman_sda10f_support/test/sda10f_test.xacro": {
+              "insertions": 18,
+              "deletions": 0,
+              "lines": 18
+            },
+            "motoman_sda10f_support/urdf/arm_macro.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "motoman_sda10f_support/urdf/common_torso_macro.xacro": {
+              "insertions": 3,
+              "deletions": 3,
+              "lines": 6
+            },
+            "motoman_sda10f_support/urdf/sda10f_macro.xacro": {
+              "insertions": 16,
+              "deletions": 8,
+              "lines": 24
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/motoman/motoman_driver",
+    "subsystem": null,
+    "fault_codes": [
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_9bf25ea",
+    "system": "motoman",
+    "title": "Incorrect values for frame transform between two robot links",
+    "description": "The transform from link_t to tool0 in sia20 package is in reality -pi.  In the robot description file it is rounded to -3.1416, which leads to an offset of 3 degree difference from the real robot to the description.\n",
+    "issue_url": "https://github.com/ros-industrial/motoman/issues/106",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/motoman",
+        "hash": "9bf25eae1b495fd9ccacb904d93f82c959227582",
+        "stats": {
+          "total": {
+            "insertions": 2,
+            "deletions": 2,
+            "lines": 4,
+            "files": 2
+          },
+          "files": {
+            "motoman_sia10f_support/urdf/sia10f_macro.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "motoman_sia20d_support/urdf/sia20d_macro.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/motoman/sia20d_support | ros-industrial/motoman/sia10f_support",
+    "subsystem": "motion",
+    "fault_codes": [
+      "CONFIG:CONSTANTS",
+      "MODELS:TRANSFORMATIONS"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_eadbcb8",
+    "system": "motoman",
+    "title": "ASCII STL file beginning with characters \"solid\"",
+    "description": "ASCII STL files are supposed to be designated by the first 5 lines reading \"solid\" in ASCII. The following binary STL files start with \"solid\" and they shouldn't.\n",
+    "issue_url": "https://github.com/ros-industrial/motoman/issues/60",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/motoman",
+        "hash": "eadbcb8077cd5c6138cdd133ee61888cac377c91",
+        "stats": {
+          "total": {
+            "insertions": 0,
+            "deletions": 0,
+            "lines": 0,
+            "files": 7
+          },
+          "files": {
+            "motoman_mh5_support/meshes/mh5/visual/MH5_BASE_AXIS.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "motoman_mh5_support/meshes/mh5/visual/MH5_B_AXIS.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "motoman_mh5_support/meshes/mh5/visual/MH5_L_AXIS.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "motoman_mh5_support/meshes/mh5/visual/MH5_R_AXIS.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "motoman_mh5_support/meshes/mh5/visual/MH5_S_AXIS.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "motoman_mh5_support/meshes/mh5/visual/MH5_T_AXIS.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "motoman_mh5_support/meshes/mh5/visual/MH5_U_AXIS.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            }
+          }
+        }
+      }
+    ],
+    "package": [
+      "ros-industrial/motoman",
+      "ros-industrial/motoman/motoman_mh5_support"
+    ],
+    "subsystem": null,
+    "fault_codes": [
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_22e4e4f",
+    "system": "confidential",
+    "title": "Image from the Kinect v2 is flipped",
+    "description": "The Kinect v2 is a camera providing images and depth data. The driver Freenect2 is used to access the images from that device. By default, the images provided by the camera + Freenect2 driver are \"mirrored\" or flipped by the vertical axis, which is not standard and/or expected by the application using the images.\n",
+    "issue_url": "https://git.code.tecnalia.com/robdream/kintinuous/issues/9",
+    "fix_commits": [
+      {
+        "repo": "https://git.code.tecnalia.com/robdream/kintinuous",
+        "hash": "22e4e4f44ed3ead6f9d2d863fcd9d6d677e771f3"
+      }
+    ],
+    "package": "robdream/kintinuous/kintinuous_ros",
+    "subsystem": "driver",
+    "fault_codes": [
+      "MODELS:TRANSFORMATIONS",
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Sig",
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_ca23e58",
+    "system": "ros_comm",
+    "title": "Use of unsafe concurrency patterns",
+    "description": "A singleton object is created using the Double-checked Locking pattern. This pattern is commonly used for lazy initialization of singleton objects in a way that seems to be thread-safe, but in fact is not. It consists of checking if the object has already been created, and, if not, acquire a lock, only to then check again if the object has been created, and create it if necessary. The issue can only be understood by also understanding the internals of object instantiation. When an object is instantiated, three things happen: (1) memory is allocated; (2) the object is constructed; (3) a referen",
+    "issue_url": "https://github.com/ros/ros_comm/issues/770",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/ros_comm",
+        "hash": "ca23e58883ed2f1784840485ceba9af3cd2d5729",
+        "stats": {
+          "total": {
+            "insertions": 3,
+            "deletions": 13,
+            "lines": 16,
+            "files": 2
+          },
+          "files": {
+            "clients/roscpp/CMakeLists.txt": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "clients/roscpp/src/libros/topic_manager.cpp": {
+              "insertions": 2,
+              "deletions": 12,
+              "lines": 14
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros/ros_comm/roscpp",
+    "subsystem": "ROS",
+    "fault_codes": [
+      "CONCURRENCY:BAD-SYNC"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_eab0d3c",
+    "system": "turtlebot",
+    "title": "Subscribers Do Not Receive Messages When Environment Variable Is Set",
+    "description": "C++ subscribers were not receiving any messages from the publishers when the ROS_IP or ROS_HOSTNAME environment variables were set. The bug manifests both with local and remote publishers and subscribers (ie: on the same as well as on different hosts). This was a bug introduced with IPv6 support in roscpp, caused by misuse of the inet_pton(..) function.\n",
+    "issue_url": "https://github.com/turtlebot/turtlebot/issues/39",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros/ros_comm",
+        "hash": "eab0d3cd54fb419764e7f60e84b249d66ba6c3d1",
+        "stats": {
+          "total": {
+            "insertions": 6,
+            "deletions": 2,
+            "lines": 8,
+            "files": 1
+          },
+          "files": {
+            "clients/roscpp/src/libros/transport/transport_tcp.cpp": {
+              "insertions": 6,
+              "deletions": 2,
+              "lines": 8
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros/ros_comm/roscpp",
+    "subsystem": "ROS-comm",
+    "fault_codes": [
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_3e32933",
+    "system": "turtlebot",
+    "title": "Image Processing Sometimes Does Not Receive Data",
+    "description": "One of Turtlebot's launch files launches a node that processes depth images and converts the point cloud data to a laser scan. This node had remappings that expected the images to arrive on a specific topic. However, depending on whether some options were set, the correct topic name could change. This scenario was not foreseen, and under those circumstances the node would not receive any images to process. The fix leveraged the ability to define conditional values in launch files to account for the different cases.\n",
+    "issue_url": "https://github.com/turtlebot/turtlebot/issues/103",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/turtlebot/turtlebot",
+        "hash": "3e32933c829e308600707a9f971334d13d1cbe19",
+        "stats": {
+          "total": {
+            "insertions": 4,
+            "deletions": 2,
+            "lines": 6,
+            "files": 1
+          },
+          "files": {
+            "turtlebot_bringup/launch/3dsensor.launch": {
+              "insertions": 4,
+              "deletions": 2,
+              "lines": 6
+            }
+          }
+        }
+      }
+    ],
+    "package": "turtlebot/turtlebot/turtlebot_bringup",
+    "subsystem": "core component",
+    "fault_codes": [
+      "CONFIG:REMAPPING"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_61a75df",
+    "system": "turtlebot",
+    "title": "Dashboard Crashes In ROS Kinetic",
+    "description": "Turtlebot and Kobuki come with a dashboard program for live diagnostics.  This program worked well on previous versions of ROS, but users reported crashes when using it in ROS Kinetic and Ubuntu 16.04 (required by Kinetic). The issue is that the application's GUI was built on top of Qt4, but Ubuntu 16.04 uses Qt5 which changed the API and made it incompatible. On the programming language level the problem manifests as a missing dependency issue. A Python import of a module fails, because the module is not longer available under the same name in Qt5.\n",
+    "issue_url": "https://github.com/turtlebot/turtlebot/issues/250",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/yujinrobot/kobuki_desktop",
+        "hash": "61a75df171e8ac8f34ed848456a7a267d4d9d3e3",
+        "stats": {
+          "total": {
+            "insertions": 3,
+            "deletions": 4,
+            "lines": 7,
+            "files": 2
+          },
+          "files": {
+            "kobuki_dashboard/src/kobuki_dashboard/battery_widget.py": {
+              "insertions": 1,
+              "deletions": 2,
+              "lines": 3
+            },
+            "kobuki_dashboard/src/kobuki_dashboard/dashboard.py": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            }
+          }
+        }
+      }
+    ],
+    "package": "yujinrobot/kobuki_desktop/kobuki_dashboard",
+    "subsystem": "application-specific component",
+    "fault_codes": [
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_928306b",
+    "system": "turtlebot",
+    "title": "No Laptop Battery Information Displaying",
+    "description": "Turtlebot's dashboard application features an indicator for the remaining charge of the laptop controlling the robot. After an upgrade to more recent OS versions and laptops, this indicator stopped displaying information. This was due to a change in the OS layer where the battery information was moved, and thus the script that looked for it could not find it in the old location.\n",
+    "issue_url": "https://github.com/turtlebot/turtlebot/issues/102",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/turtlebot/turtlebot",
+        "hash": "0c0f53217bbd838d89f6be5584ae1b9f45106875",
+        "stats": {
+          "total": {
+            "insertions": 21,
+            "deletions": 5,
+            "lines": 26,
+            "files": 1
+          },
+          "files": {
+            "linux_hardware/scripts/laptop_battery.py": {
+              "insertions": 21,
+              "deletions": 5,
+              "lines": 26
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/turtlebot/turtlebot",
+        "hash": "928306ba94acbfcc4e0ee61c7c8e432561b0824f",
+        "stats": {
+          "total": {
+            "insertions": 17,
+            "deletions": 15,
+            "lines": 32,
+            "files": 3
+          },
+          "files": {
+            "linux_hardware/scripts/laptop_battery.py": {
+              "insertions": 15,
+              "deletions": 13,
+              "lines": 28
+            },
+            "turtlebot_bringup/launch/minimal.launch": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "turtlebot_bringup/launch/minimal_with_appmanager.launch": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "turtlebot/turtlebot/turtlebot_bringup | turtlebot/turtlebot/linux_hardware",
+    "subsystem": "specific application component",
+    "fault_codes": [
+      "EVOLUTION:PACKAGE",
+      "SYSTEMS:CONFIG"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_9299530",
+    "system": "turtlebot",
+    "title": "Update Breaks Robot Visualization",
+    "description": "An update to the rviz tool broke the visualization for some robots, by requiring additional information in the models.\n",
+    "issue_url": "https://github.com/turtlebot/turtlebot/issues/65",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/turtlebot/turtlebot",
+        "hash": "8cf9d9710e9f2bfb1a7256e2ef292dd70138339c",
+        "stats": {
+          "total": {
+            "insertions": 63,
+            "deletions": 26,
+            "lines": 89,
+            "files": 12
+          },
+          "files": {
+            "turtlebot_description/.cproject": {
+              "insertions": 14,
+              "deletions": 14,
+              "lines": 28
+            },
+            "turtlebot_description/meshes/stacks/circles/68-02403-125_Spacer.dae": {
+              "insertions": 1,
+              "deletions": 0,
+              "lines": 1
+            },
+            "turtlebot_description/meshes/stacks/circles/68-02421-8000-RA_Turtlebot_F-F_Standoff.dae": {
+              "insertions": 1,
+              "deletions": 0,
+              "lines": 1
+            },
+            "turtlebot_description/meshes/stacks/circles/68-04552-1000-RA_Turtlebot_M-F_Standoff.dae": {
+              "insertions": 1,
+              "deletions": 0,
+              "lines": 1
+            },
+            "turtlebot_description/meshes/stacks/circles/68-04552-2000-RA_Turtlebot_M-F_Standoff.dae": {
+              "insertions": 1,
+              "deletions": 0,
+              "lines": 1
+            },
+            "turtlebot_description/meshes/stacks/circles/68-04556-RA_Kinect_Standoff_Assy.dae": {
+              "insertions": 1,
+              "deletions": 0,
+              "lines": 1
+            },
+            "turtlebot_description/meshes/stacks/circles/plate_0_logo.dae": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "turtlebot_description/meshes/stacks/circles/plate_1_logo.dae": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "turtlebot_description/meshes/stacks/circles/plate_2_logo.dae": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "turtlebot_description/robots/roomba_circles_asus_xtion_pro.urdf.xacro": {
+              "insertions": 18,
+              "deletions": 1,
+              "lines": 19
+            },
+            "turtlebot_description/robots/roomba_circles_kinect.urdf.xacro": {
+              "insertions": 18,
+              "deletions": 1,
+              "lines": 19
+            },
+            "turtlebot_description/urdf/stacks/circles.urdf.xacro": {
+              "insertions": 5,
+              "deletions": 7,
+              "lines": 12
+            }
+          }
+        }
+      },
+      {
+        "repo": "https://github.com/turtlebot/turtlebot_create",
+        "hash": "9299530eb77b9e8a2a18160fb6ece325d38abfbc",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 14,
+            "lines": 15,
+            "files": 2
+          },
+          "files": {
+            "create_description/meshes/create_body.dae": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "create_description/urdf/create.urdf.xacro": {
+              "insertions": 0,
+              "deletions": 13,
+              "lines": 13
+            }
+          }
+        }
+      }
+    ],
+    "package": "turtlebot/turtlebot/turtlebot_description | turtlebot/turtlebot_create/create_description",
+    "subsystem": "visualization",
+    "fault_codes": [
+      "EVOLUTION:PACKAGE",
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Ver",
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_9ffffca",
+    "system": "turtlebot",
+    "title": "Node Does Not Support Namespaces",
+    "description": "A velocity smoother node for Kobuki's teleoperation was being used with remappings to global topic names.  A global name (starts with \"/\") is already fully resolved (ie: cannot be namespaced), which makes setups very inflexible. If a user wants to launch multiple robots, or simply launch a robot within a specific namespace, topic names may clash because of this or end up disconnected. The use of global names is not a recommended practice, and relative names (ie: without a leading \"/\") should be used instead.\n",
+    "issue_url": "https://github.com/turtlebot/turtlebot/issues/234",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/turtlebot/turtlebot",
+        "hash": "9ffffcaeca7dd5a1fbb327c7289b8a11f84da39f",
+        "stats": {
+          "total": {
+            "insertions": 4,
+            "deletions": 4,
+            "lines": 8,
+            "files": 1
+          },
+          "files": {
+            "turtlebot_teleop/launch/includes/velocity_smoother.launch.xml": {
+              "insertions": 4,
+              "deletions": 4,
+              "lines": 8
+            }
+          }
+        }
+      }
+    ],
+    "package": "turtlebot/turtlebot/turtlebot_teleop",
+    "subsystem": "generic component",
+    "fault_codes": [
+      "CONFIG:NAMESPACE"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_a482f82",
+    "system": "turtlebot",
+    "title": "No Support For Namespaces and Multiple Instances",
+    "description": "Camera processing nodes used hard-coded and global names, making it impossible to launch multiple instances in different namespaces, as the names would clash.\n",
+    "issue_url": "https://github.com/turtlebot/turtlebot/issues/80",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-drivers/openni_launch",
+        "hash": "a482f8268042aa8fae0e73970ed2af5dfd01e5df",
+        "stats": {
+          "total": {
+            "insertions": 143,
+            "deletions": 73,
+            "lines": 216,
+            "files": 9
+          },
+          "files": {
+            "launch/includes/depth.launch": {
+              "insertions": 21,
+              "deletions": 18,
+              "lines": 39
+            },
+            "launch/includes/depth_registered.launch": {
+              "insertions": 2,
+              "deletions": 10,
+              "lines": 12
+            },
+            "launch/includes/device.launch": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "launch/includes/disparity.launch": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "launch/includes/ir.launch": {
+              "insertions": 5,
+              "deletions": 3,
+              "lines": 8
+            },
+            "launch/includes/manager.launch": {
+              "insertions": 6,
+              "deletions": 1,
+              "lines": 7
+            },
+            "launch/includes/processing.launch": {
+              "insertions": 35,
+              "deletions": 21,
+              "lines": 56
+            },
+            "launch/includes/rgb.launch": {
+              "insertions": 37,
+              "deletions": 0,
+              "lines": 37
+            },
+            "launch/openni.launch": {
+              "insertions": 35,
+              "deletions": 18,
+              "lines": 53
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-drivers/openni-launch/openni-launch",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:BAD-SMELL",
+      "CONFIG:NAMESPACE"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_18ffa89",
+    "system": "universal_robot",
+    "title": "An error in physical robot specification",
+    "description": "A Xacro file refers to wrong wrist of the robot, which results in a wrong physical model being used for simulation. A robotics application needs a description of the physical appearance, shape, etc. of the robot.  This is used, among others, by the simulation tools.  The robot descriptions are stored in URDF files, an XML format. Xacro files are URDF files enriched with macros, mostly for better code reuse (so that similar parts of the robot can be generated). This particular URDF file is specific to the Gazebo physics simulator.  It does not actually define the robot shape. It decorates a rob",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "18ffa89f797266ea519c2047dcb9416f0f79796b",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 2,
+            "lines": 3,
+            "files": 1
+          },
+          "files": {
+            "ur_description/urdf/ur10.gazebo.xacro": {
+              "insertions": 1,
+              "deletions": 2,
+              "lines": 3
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_description",
+    "subsystem": "driver",
+    "fault_codes": [
+      "MODELS:ROBOT",
+      "PROGRAMMING:COPYPASTA"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_1e0904c",
+    "system": "universal_robot",
+    "title": "Syntax error in a robot script",
+    "description": "The bug occurs in the code running on the robot that is uploaded there by ROS.  This code is written in a prioprietary language URScript. The entire program (ur_driver/prog) consists of one top-level function 'driverProg'.  After this program, there was one toplevel call to this function, which was not required (indeed not allowed) by the syntax of URScript.  The language's semantics by default performs this call to the only existing function upon function definition. The parser for URScript produces a parsing error, but the language is permissive and the program continuous to execute as if th",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "1e0904c38934fe09c9647825caf3b58dda2636f9",
+        "stats": {
+          "total": {
+            "insertions": 0,
+            "deletions": 1,
+            "lines": 1,
+            "files": 1
+          },
+          "files": {
+            "ur_driver/prog": {
+              "insertions": 0,
+              "deletions": 1,
+              "lines": 1
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_21b86f6",
+    "system": "universal_robot",
+    "title": "Specifications of dimensions of a robot arm are not reflecting real dimensions",
+    "description": "URDF is an XML-based modeling language in which robot physical models are described. As robots are often produced in families of similar devices, it is convenient to parameterize this models. ROS uses the XACRO language to write parameterized models.  XACRO files are preprocessed to generate instantiated URDF files. In this particular case, a XACRO file contained physical dimensions of the UR10 robots that were inconsistent with those stored in the native software of Universal Robots (and also inconsistent with the documentation data). This means that the robot visualized in the visualization ",
+    "issue_url": "https://github.com/ros-industrial/universal_robot/issues/74",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "21b86f63408a99aff35cd82ca6ac180a99566ee5",
+        "stats": {
+          "total": {
+            "insertions": 4876,
+            "deletions": 519,
+            "lines": 5395,
+            "files": 40
+          },
+          "files": {
+            "ur10_moveit_config/.setup_assistant": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur10_moveit_config/config/fake_controllers.yaml": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur10_moveit_config/config/ur10.srdf": {
+              "insertions": 7,
+              "deletions": 1,
+              "lines": 8
+            },
+            "ur10_moveit_config/package.xml": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/launch/test.launch": {
+              "insertions": 3,
+              "deletions": 2,
+              "lines": 5
+            },
+            "ur_description/meshes/ur10/collision/Base.dae": {
+              "insertions": 228,
+              "deletions": 0,
+              "lines": 228
+            },
+            "ur_description/meshes/ur10/collision/Base.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/collision/Forearm.dae": {
+              "insertions": 416,
+              "deletions": 0,
+              "lines": 416
+            },
+            "ur_description/meshes/ur10/collision/Forearm.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/collision/Shoulder.dae": {
+              "insertions": 378,
+              "deletions": 0,
+              "lines": 378
+            },
+            "ur_description/meshes/ur10/collision/Shoulder.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/collision/UpperArm.dae": {
+              "insertions": 371,
+              "deletions": 0,
+              "lines": 371
+            },
+            "ur_description/meshes/ur10/collision/UpperArm.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/collision/Wrist1.dae": {
+              "insertions": 314,
+              "deletions": 0,
+              "lines": 314
+            },
+            "ur_description/meshes/ur10/collision/Wrist1.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/collision/Wrist2.dae": {
+              "insertions": 314,
+              "deletions": 0,
+              "lines": 314
+            },
+            "ur_description/meshes/ur10/collision/Wrist2.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/collision/Wrist3.dae": {
+              "insertions": 236,
+              "deletions": 0,
+              "lines": 236
+            },
+            "ur_description/meshes/ur10/collision/Wrist3.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/visual/Base.dae": {
+              "insertions": 228,
+              "deletions": 0,
+              "lines": 228
+            },
+            "ur_description/meshes/ur10/visual/Base.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/visual/Forearm.dae": {
+              "insertions": 416,
+              "deletions": 0,
+              "lines": 416
+            },
+            "ur_description/meshes/ur10/visual/Forearm.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/visual/Shoulder.dae": {
+              "insertions": 378,
+              "deletions": 0,
+              "lines": 378
+            },
+            "ur_description/meshes/ur10/visual/Shoulder.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/visual/UpperArm.dae": {
+              "insertions": 371,
+              "deletions": 0,
+              "lines": 371
+            },
+            "ur_description/meshes/ur10/visual/UpperArm.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/visual/Wrist1.dae": {
+              "insertions": 314,
+              "deletions": 0,
+              "lines": 314
+            },
+            "ur_description/meshes/ur10/visual/Wrist1.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/visual/Wrist2.dae": {
+              "insertions": 314,
+              "deletions": 0,
+              "lines": 314
+            },
+            "ur_description/meshes/ur10/visual/Wrist2.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/meshes/ur10/visual/Wrist3.dae": {
+              "insertions": 236,
+              "deletions": 0,
+              "lines": 236
+            },
+            "ur_description/meshes/ur10/visual/Wrist3.stl": {
+              "insertions": 0,
+              "deletions": 0,
+              "lines": 0
+            },
+            "ur_description/urdf/ur10.transmission.xacro": {
+              "insertions": 55,
+              "deletions": 55,
+              "lines": 110
+            },
+            "ur_description/urdf/ur10.urdf.xacro": {
+              "insertions": 114,
+              "deletions": 72,
+              "lines": 186
+            },
+            "ur_description/urdf/ur10_joint_limited.urdf.xacro": {
+              "insertions": 0,
+              "deletions": 275,
+              "lines": 275
+            },
+            "ur_description/urdf/ur10_joint_limited_robot.urdf": {
+              "insertions": 79,
+              "deletions": 54,
+              "lines": 133
+            },
+            "ur_description/urdf/ur10_joint_limited_robot.urdf.xacro": {
+              "insertions": 11,
+              "deletions": 2,
+              "lines": 13
+            },
+            "ur_description/urdf/ur10_robot.urdf": {
+              "insertions": 79,
+              "deletions": 54,
+              "lines": 133
+            },
+            "ur_description/urdf/ur10_robot.urdf.xacro": {
+              "insertions": 11,
+              "deletions": 1,
+              "lines": 12
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_description",
+    "subsystem": "driver",
+    "fault_codes": [
+      "CONFIG:CONSTANTS",
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_359a2e9",
+    "system": "universal_robot",
+    "title": "Controller reads too many bytes for IO message",
+    "description": "The controller reads more from the socket than the size of the message. This is not always a problem, as often messages are processed one a time, and there is nothing more available to read.  However in many-message scenarios (like executing a trajectory) this leads to errors, as remaining messages are read with an offset (incomplete gibberish). The bug occurs in the code running on the robot that is uploaded there by ROS.  This code is written in a prioprietary language URScript. The bug appears in universal-robot-specific language, but overreading is a standard issue, that could be seen in m",
+    "issue_url": "https://github.com/ros-industrial/universal_robot/issues/107",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "359a2e9d0c21b37c4fc077e08dbb56de771734cb",
+        "stats": {
+          "total": {
+            "insertions": 11,
+            "deletions": 11,
+            "lines": 22,
+            "files": 1
+          },
+          "files": {
+            "ur_driver/prog": {
+              "insertions": 11,
+              "deletions": 11,
+              "lines": 22
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:BROKEN-CONTRACT"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_778c1ac",
+    "system": "universal_robot",
+    "title": "parameter moved into namespace",
+    "description": "MoveIt parameters have been reorganized. The parameters 'allowed_execution_duration_scaling' and 'allowed_goal_duration_margin' have been moved down in the hierarchy, under 'trajectory_execution'. This now produces warning during execution of launch files (so files that start ROS nodes), as assigned parameters no longer exist at top level.  The framework still assigns them but produces a warning, presumably because it will become less forgiving at some point. This is a bug that was caused by evolution of a data schema / language outside of the UR driver code.  Since the driver depends on this ",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "778c1acda6dc3e194b50328259936c3f058bcb7",
+        "stats": {
+          "total": {
+            "insertions": 9,
+            "deletions": 9,
+            "lines": 18,
+            "files": 3
+          },
+          "files": {
+            "ur10_moveit_config/launch/trajectory_execution.launch.xml": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur3_moveit_config/launch/trajectory_execution.launch.xml": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur5_moveit_config/launch/trajectory_execution.launch.xml": {
+              "insertions": 5,
+              "deletions": 5,
+              "lines": 10
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-planning/moveit_ros/planning",
+    "subsystem": "driver",
+    "fault_codes": [
+      "EVOLUTION:DEPRECATION"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_89145c4",
+    "system": "universal_robot",
+    "title": "Self-collisions break planning when full joint space is used",
+    "description": "The state space of the elbow joint of UR5 and UR10 is set to be [2pi;+2pi] in accordance with manufacturers documentation. However the if the joint is close to Pi or -Pi then the robot enters a self-collision due to a design limitation.  This causes problems with planning as either the robots stops during some plans, or the planning mechanism detects a self collision and stops. The proposed solution is to limit the elbow joint to (-pi,pi) so that the plans cannot cross through the collision zone. The linked issue shows diagrams and pictures explaining the problem. The issue has not been fixed ",
+    "issue_url": "https://github.com/ros-industrial/universal_robot/issues/265",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "2e078f5e3e9b3ec52dac83c096e90e7cd3edd0f2",
+        "stats": {
+          "total": {
+            "insertions": 3,
+            "deletions": 3,
+            "lines": 6,
+            "files": 3
+          },
+          "files": {
+            "ur_description/urdf/ur10.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur3.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur5.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "error reported by a planner but unclear by which package",
+    "subsystem": "driver",
+    "fault_codes": [
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_b3c2c21",
+    "system": "universal_robot",
+    "title": "Robot jumps to the first point of the new trajectory",
+    "description": "The problem was caused by using absolute, instead of relative time, when resetting the old trajectory to a new goal.  On_goal() function of the trajectory action server in the ur_driver driver.py file, the sample_traj() function was not being called correctly. It used the absolute time (from time.time()) instead of the offset into the previous trajectory which is used in every other call of this particular function. As a result the robot would attempt to perform an abrupt fast jump to a new trajectory. The bug is an improper contract fullfillment although it was not an 'abuse', as it was not i",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "b3c2c215b4fc46bb66ca61e6e693920540d0daef",
+        "stats": {
+          "total": {
+            "insertions": 1,
+            "deletions": 1,
+            "lines": 2,
+            "files": 1
+          },
+          "files": {
+            "ur_driver/src/ur_driver/driver.py": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "PROGRAMMING:CALCULATIONS",
+      "CONCURRENCY:NO-SYNC"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_c4e1187",
+    "system": "universal_robot",
+    "title": "Using a Boost type instead of a C++11 type",
+    "description": "The urdf_model package started to use C++11 features, more precisely the shared pointer type that clashes with a similar type in the Boost library. The (single) call to this package needs to be updated from boost::shared_ptr to std::shared_ptr as otherwise the compiler fails with a type error. This issue is caused by the dependent upon packages switching to a newer programmin language version.  This issue could appear in any complex projects which mixes versions of the programming language (here C++). (At the time of analysis of this bug, the fix was not merged.)\n",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "c4e118757123ef243d0f3c2e14a6c3d63549f20d",
+        "stats": {
+          "total": {
+            "insertions": 4,
+            "deletions": 0,
+            "lines": 4,
+            "files": 1
+          },
+          "files": {
+            "ur_kinematics/src/ur_moveit_plugin.cpp": {
+              "insertions": 4,
+              "deletions": 0,
+              "lines": 4
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_kinematics",
+    "subsystem": "driver",
+    "fault_codes": [
+      "EVOLUTION:LANGUAGE"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_c779432",
+    "system": "universal_robot",
+    "title": "required C++11 compiler",
+    "description": "The geometric_shapes package (from moveit) started to use C++11 features, more precisely the shared pointer type that clashes with a similar type in the Boost library.  The geometry shapes headers were updated to include a check if a C++11 compiler is used, and fail with an error otherwise. This issue could appear in any complex projects which mixes versions of the programming language (here C++).\n",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "c7794329bf632592bf1d345d1290ff4b8d13580a",
+        "stats": {
+          "total": {
+            "insertions": 4,
+            "deletions": 2,
+            "lines": 6,
+            "files": 2
+          },
+          "files": {
+            "ur_kinematics/CMakeLists.txt": {
+              "insertions": 3,
+              "deletions": 1,
+              "lines": 4
+            },
+            "ur_kinematics/include/ur_kinematics/ur_moveit_plugin.h": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_kinematics",
+    "subsystem": "driver",
+    "fault_codes": [
+      "BDO:BUILD",
+      "EVOLUTION:LIBRARY"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_f8d175b",
+    "system": "universal_robot",
+    "title": "package ur_kinematics fails to build",
+    "description": "The moveit sub-project has factored out kinematics solvers to a separate package moveit_kinematics. This cuased the current version of ur_kinmaitics to fail at compile time, as it did not depend on the new package.  Concretely, a header file was now missing (not installed) to complete C++ compilation. The bug is general -- a missing header file. Could appear in any C/C++ codebase. The fix is ROS-specific, as it is addressed in a ROS-specific build system. The bug was found by ROS build farm, and reported by one of the member developers overseeing the build farm. In TOS the actual creation of a",
+    "issue_url": "https://github.com/ros-industrial/universal_robot/issues/274",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "f8d175b09ea955ebe83aecbe19105c28f0225524",
+        "stats": {
+          "total": {
+            "insertions": 4,
+            "deletions": 2,
+            "lines": 6,
+            "files": 2
+          },
+          "files": {
+            "ur_kinematics/CMakeLists.txt": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur_kinematics/package.xml": {
+              "insertions": 2,
+              "deletions": 0,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_kinematics",
+    "subsystem": "driver",
+    "fault_codes": [
+      "EVOLUTION:PACKAGE"
+    ],
+    "gold_dimension": [
+      "Ver"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_fa64ec6",
+    "system": "universal_robot",
+    "title": "xacro namespace warnings",
+    "description": "URDF is an XML-based modeling language in which robot physical models are described. As robots are often produced in families of similar devices, it is convenient to parameterize this models. ROS uses the XACRO language to write parameterized models.  XACRO files are preprocessed to generate instantiated URDF files. The domain specific language (xacro) used in ROS has evolved, and now the files in this language need to be appropriately updated. This is somewhat similar to API evolution.  XACRO detects these problems, flags them as warnings and even displays a sed script that would fix them. fi",
+    "issue_url": null,
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "fa64ec6585745c60fa02cf3be13b6d78bf449d8d",
+        "stats": {
+          "total": {
+            "insertions": 115,
+            "deletions": 121,
+            "lines": 236,
+            "files": 18
+          },
+          "files": {
+            "ur10_moveit_config/launch/planning_context.launch": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur3_moveit_config/launch/planning_context.launch": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur5_moveit_config/launch/planning_context.launch": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur_description/launch/ur10_upload.launch": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur_description/launch/ur3_upload.launch": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur_description/launch/ur5_upload.launch": {
+              "insertions": 2,
+              "deletions": 2,
+              "lines": 4
+            },
+            "ur_description/urdf/common.gazebo.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur.gazebo.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur.transmission.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur10.urdf.xacro": {
+              "insertions": 31,
+              "deletions": 33,
+              "lines": 64
+            },
+            "ur_description/urdf/ur10_joint_limited_robot.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur10_robot.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur3.urdf.xacro": {
+              "insertions": 29,
+              "deletions": 31,
+              "lines": 60
+            },
+            "ur_description/urdf/ur3_joint_limited_robot.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur3_robot.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur5.urdf.xacro": {
+              "insertions": 34,
+              "deletions": 36,
+              "lines": 70
+            },
+            "ur_description/urdf/ur5_joint_limited_robot.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            },
+            "ur_description/urdf/ur5_robot.urdf.xacro": {
+              "insertions": 1,
+              "deletions": 1,
+              "lines": 2
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_description",
+    "subsystem": "driver",
+    "fault_codes": [
+      "EVOLUTION:LANGUAGE",
+      "MODELS:ROBOT"
+    ],
+    "gold_dimension": [
+      "Sig"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  },
+  {
+    "case_id": "robust_fc95a19",
+    "system": "universal_robot",
+    "title": "Node-local global velocity limit driver incorrectly aborts trajectory execution",
+    "description": "This problem is caused by inconsistency between parameters in different parts of the driver (or application). The ROS planner (MoveIt!) plans with the velocity limits specified in joint_limits.yaml, which are retrieved from a physical description of the robot in URDF files (see limit tag for instance the second link in the 'links' section below). This velocities are specified per joint. The driver (ur_driver) has another velocity limit.  This limit is specified globally (not per joint). It has been introduced privately and is used for testing and debugging purposes.  The driver stops the motio",
+    "issue_url": "http://answers.ros.org/question/194667/path-planning-exceeding-velocity-limits-of-ur5/ | https://github.com/ros-industrial/universal_robot/issues/124",
+    "fix_commits": [
+      {
+        "repo": "https://github.com/ros-industrial/universal_robot",
+        "hash": "fc95a19ac913e31c09ab52666405be0f5aacc24e",
+        "stats": {
+          "total": {
+            "insertions": 11,
+            "deletions": 1,
+            "lines": 12,
+            "files": 2
+          },
+          "files": {
+            "ur_bringup/launch/ur_common.launch": {
+              "insertions": 4,
+              "deletions": 0,
+              "lines": 4
+            },
+            "ur_driver/src/ur_driver/driver.py": {
+              "insertions": 7,
+              "deletions": 1,
+              "lines": 8
+            }
+          }
+        }
+      }
+    ],
+    "package": "ros-industrial/universal_robot/ur_driver",
+    "subsystem": "driver",
+    "fault_codes": [
+      "CONFIG:PARAM"
+    ],
+    "gold_dimension": [
+      "Beh"
+    ],
+    "source": "ROBUST (Timperley et al. 2024, arXiv:2404.03629)"
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "item_id": "A1-C3-094",
+  "kind": "A1",
+  "case_id": "C3-094",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Subscriber with strict policy refuses to subscribe less strict publishers.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022",
+    "reason": "E1/E4: the public reproducer includes an incompatible-QoS diagnostic and endpoint information. E2: rosbridge_suite and robot_state_publisher exchange /tf; the subscription durability is an interface attribute, not deployment name wiring. E3: PAIR; the controller publisher is the environmental trigger, not the rejected peer. Stop at 6."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Actually my issue is not about Reliability policy, my problem is Durability policy.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022#issuecomment-2760427627",
+      "reason": "Agree qos_durability and topic:/tf. The same comment identifies robot_state_publisher as a VOLATILE publisher and rosbridge_websocket as a TRANSIENT_LOCAL subscription; every listed endpoint is RELIABLE. Do not add a reliability condition from the first, subsequently corrected warning.",
+      "additional_evidence": [
+        {
+          "quote": "Node name: robot_state_publisher\nNode namespace: /",
+          "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022#issuecomment-2760427627"
+        },
+        {
+          "quote": "  Durability: VOLATILE",
+          "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022#issuecomment-2760427627"
+        },
+        {
+          "quote": "Node name: rosbridge_websocket\nNode namespace: /",
+          "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022#issuecomment-2760427627"
+        },
+        {
+          "quote": "  Durability: TRANSIENT_LOCAL",
+          "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022#issuecomment-2760427627"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rosbridge_websocket]: New publisher discovered on topic '/tf', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022",
+    "reason": "A ROS incompatible-QoS diagnostic is explicitly present at endpoint discovery. Its initial policy label is not sufficient evidence for a separate reliability mismatch; the endpoint dump and clarification establish durability."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rosbridge_websocket]: New publisher discovered on topic '/tf', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1022",
+    "reason": "The documented failure is detected at connect, not inferred from the location of the eventual edit."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Yes this change resolves my issue.",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/pull/1023#issuecomment-2801952924",
+    "reason": "Agree recommended under the rubric requiring both resolved unit revisions. The reporter confirms success, but does not identify the robot_state_publisher revision. The PR diff changes any to all with a nonempty-publisher guard; a distro-derived 3.3.3 must not be represented as the reported binary revision."
+  },
+  "notes": "Primary issue, all issue/PR comments and PR #1023 diff read. No additional failed condition is established in the selected pair. Success is reported, but revision-qualified observed status is not established."
+}

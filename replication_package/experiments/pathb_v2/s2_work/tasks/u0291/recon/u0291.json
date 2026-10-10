@@ -1,0 +1,70 @@
+{
+  "task_id": "u0291",
+  "package": "rclcpp_components (generated component node main)",
+  "manifest_version": "27.0.0",
+  "ports": [
+    {
+      "element": "api:rclcpp_components::NodeFactory::create_node_instance",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp_components::NodeFactoryTemplate<@component@>",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp_components::NodeInstanceWrapper::get_node_base_interface",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rclcpp_components::NodeFactory::create_node_instance",
+    "api:rclcpp_components::NodeFactoryTemplate<@component@>",
+    "api:rclcpp_components::NodeInstanceWrapper::get_node_base_interface"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp_components/package.xml:5",
+    "ports[0].side": "snapshot:rclcpp_components/src/node_main.cpp.in:69",
+    "ports[1].side": "snapshot:rclcpp_components/src/node_main.cpp.in:39",
+    "ports[2].side": "snapshot:rclcpp_components/src/node_main.cpp.in:70",
+    "references[api:rclcpp_components::NodeFactory::create_node_instance]": "snapshot:rclcpp_components/src/node_main.cpp.in:69 | rclcpp_components::NodeInstanceWrapper node_wrapper = node_factory->create_node_instance(options);",
+    "references[api:rclcpp_components::NodeFactoryTemplate<@component@>]": "snapshot:rclcpp_components/src/node_main.cpp.in:39 | std::string class_name = \"rclcpp_components::NodeFactoryTemplate<@component@>\";",
+    "references[api:rclcpp_components::NodeInstanceWrapper::get_node_base_interface]": "snapshot:rclcpp_components/src/node_main.cpp.in:70 | rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node = node_wrapper.get_node_base_interface(); (also line 75)",
+    "exclusive": "searched snapshot:rclcpp_components/src/node_main.cpp.in and rclcpp_components/cmake/ for exclusive/claim/lock: no exclusive resource claims",
+    "perm_requires.state": "searched snapshot:rclcpp_components/ (src, include, cmake, package.xml) for permission|enclave|sros|security|access_control|grant: only license boilerplate and QUALITY_DECLARATION.md:202 policy heading; no permission declarations",
+    "perm_grants.state": "same search as perm_requires.state; no permission grants declared",
+    "recovery.state": "searched snapshot:rclcpp_components/src, include, cmake for retry|respawn|restart|recover|fallback: none; node_main.cpp.in:49-65 logs the error and returns 1 on lookup/instantiation failure, with no recovery path"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "Within the snapshot, all three consumed symbols are declared with signatures matching their use in the template: NodeFactory::create_node_instance(const rclcpp::NodeOptions &) returning NodeInstanceWrapper (node_factory.hpp:41-43), NodeInstanceWrapper::get_node_base_interface() returning NodeBaseInterface::SharedPtr (node_instance_wrapper.hpp:59-63), and the class-name string rclcpp_components::NodeFactoryTemplate<@component@> matches the form registered by RCLCPP_COMPONENTS_REGISTER_NODE (register_node_macro.hpp:33-36)."
+  },
+  "confidence": "high",
+  "notes": "The unit is the template rclcpp_components/src/node_main.cpp.in, which rclcpp_components_register_node() (cmake/rclcpp_components_register_node.cmake:56-72) configures per executable, substituting @component@ with the PLUGIN argument, @node@ with EXECUTABLE, @executor@ with EXECUTOR (default SingleThreadedExecutor) and @library_name@ with the target file name. All three packet elements are C++ API symbols that the template consumes; none is provided by the template, so declares and not_declared are empty and the three names go into references. NodeFactoryTemplate<@component@> is referenced only as a class-name string passed to class_loader::ClassLoader::getAvailableClasses/createInstance (lines 39, 43, 59), not instantiated as a C++ type; the concrete component name is supplied at CMake configure time. The consumed symbols are declared in the same snapshot at include/rclcpp_components/node_factory.hpp:41-43 (virtual NodeInstanceWrapper create_node_instance(const rclcpp::NodeOptions & options) = 0;), include/rclcpp_components/node_factory_template.hpp:31-32 (template<typename NodeT> class NodeFactoryTemplate : public NodeFactory), and include/rclcpp_components/node_instance_wrapper.hpp:59-60 (rclcpp::node_interfaces::NodeBaseInterface::SharedPtr get_node_base_interface()). msg_type, frame, units, QoS, rates and definition_id are null for every port because these elements are C++ API symbols with no message type, spatial data, or DDS QoS. The template also uses 'using namespace rclcpp::experimental::executors;' (line 28), which this snapshot's rclcpp provides via rclcpp/executors.hpp:24. The manifest version in the snapshot is 27.0.0 (rclcpp and rclcpp_components package.xml) while the packet gives ros_distro humble; recorded as found in the snapshot without comparison against any other source."
+}

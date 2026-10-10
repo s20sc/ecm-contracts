@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-153",
+  "kind": "A1",
+  "case_id": "C3-153",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "warning: ‘controller_interface::return_type controller_interface::ControllerInterfaceBase::init(const std::string&, const std::string&, unsigned int, const std::string&, const rclcpp::NodeOptions&)’ is deprecated: Use the init(const controller_interface::ControllerInterfaceParams & params) method instead. This method will be removed in the future ROS 2 releases. [-Wdeprecated-declarations]",
+    "url": "https://github.com/ros-controls/ros2_controllers/issues/1946 (issue body, read this session)"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[[deprecated(\n    \"Use the init(const controller_interface::ControllerInterfaceParams & params) method instead. \"\n    \"This method will be removed in the future ROS 2 releases.\")]]\n  return_type init(\n    const std::string & controller_name, const std::string & urdf, unsigned int cm_update_rate,\n    const std::string & node_namespace, const rclcpp::NodeOptions & node_options);",
+      "url": "https://raw.githubusercontent.com/ros-controls/ros2_control/150641294b26e1b8bc98359bb281226d2cdaf226/controller_interface/include/controller_interface/controller_interface_base.hpp (lines 156-161, read this session)"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "/workspaces/ros2_rolling_ws/src/ros2_controllers/forward_command_controller/test/test_forward_command_controller.cpp:58:40: warning: ‘controller_interface::return_type controller_interface::ControllerInterfaceBase::init(const std::string&, const std::string&, unsigned int, const std::string&, const rclcpp::NodeOptions&)’ is deprecated: Use the init(const controller_interface::ControllerInterfaceParams & params) method instead. This method will be removed in the future ROS 2 releases. [-Wdeprecated-declarations]",
+    "url": "https://github.com/ros-controls/ros2_controllers/issues/1946 (issue body, read this session)"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have done all the tests and fixed the issues. Please review once"
+  },
+  "notes": "Independently verified: (1) E1 — maintainer-filed (christophfroehlich) issue quoting the compiler warning verbatim with file:line:col (58:40) and the offending source line 'const auto result = controller_->init(\"forward_command_controller\", \"\", 0, \"\", node_options);'. (2) E2 stop 6 — provider change verified at ros2_control 15064129 (merge of #2390, parent aebc2b88b288bde658eb9e150e349d11e7887e74 confirmed via API): the five-argument init carries [[deprecated(...)]] while remaining present, and 'return_type init(const controller_interface::ControllerInterfaceParams & params);' is added; consumer verified at 4b1f45ee test_forward_command_controller.cpp line 58, which is exactly the deprecated five-argument call. The provider's declared interface changed (declaration changed, element still present) — not wiring/build-only/firmware; the deprecation is a source-level interface change, and the fix edits consumer source. (3) E3 UPGRADE with consumer_built_against.broken = aebc2b88 (parent of the #2390 merge, verified) is the correct application of the definition's clause for consumers still referencing provider elements as they existed at an earlier provider revision; basis inferred is honest (no source states the built-against revision). (4) Class element_retyped fits: declaration changed, element still present. (5) Loudness loud_documented/build: the compiler itself flags the mismatch at build and names both the deprecated declaration and its replacement; treating a -Wdeprecated-declarations warning as a compiler diagnostic is consistent with the taxonomy (the compiler refuses to stay silent about the interface change), and outcome_class warning_only correctly records that the composition keeps working. (6) Resolution recommended: PR 1973 verified merged to master (merge_commit_sha fcf89fc6e226ecdfda1e674ca7e13c8399c84e8f); contributor comment 'I have done all the tests and fixed the issues. Please review once' read this session; no build output of forward_command_controller at fcf89fc6 against an identified ros2_control revision is shown, so recommended (not observed) is correct. Other controllers fixed by the same PR are other compositions and correctly excluded."
+}

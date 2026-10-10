@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3-003",
+ "kind": "A1",
+ "case_id": "C3-003",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Thread 4 \"example_segfault\" received signal SIGSEGV, Segmentation fault.\n\n#0  0x..in rmw_fastrtps_shared_cpp::__rmw_event_set_callback (rmw_event=0x5555559ea0b0, callback=0x0, user_data=0x0)\n    at /root/iron_ros2/src/ros2/rmw_fastrtps/rmw_fastrtps_shared_cpp/src/rmw_event.cpp:160",
+  "url": "https://github.com/ros2/rmw_fastrtps/issues/717"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "Three lines after setting `info->deleted = true;` there is a `delete info;`, so it seems to me the info structure is used after it was destroyed. This would mean there is a call to `rmw_event_set_callback` after the call to `rmw_destroy_publisher`.",
+   "url": "https://github.com/ros2/rmw_fastrtps/issues/717#issuecomment-1770551745"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Thread 4 \"example_segfault\" received signal SIGSEGV, Segmentation fault.",
+  "url": "https://github.com/ros2/rmw_fastrtps/issues/717"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Even without being able to reproduce properly on rolling, I think this fix may be correct and could avoid future issues."
+ },
+ "notes": "Independently verified this session via gh api. Issue 717 body: reproducer (1000 nodes with SensorDataQoS publishers added to an EventsExecutor spinning in another thread), 'On ROS2 Iron (or Galactic/Humble with [EventsExecutor](https://github.com/irobot-ros/events-executor) package), the example below produces a seg-fault due a data race trying to access a deleted listener', full backtrace matching the spec's frames (event_handler.cpp:47/86, event_handler.hpp:219, events_executor.cpp:122/392). MiguelCompany comment (2023-10-19) quote verified verbatim. rclcpp PR 2349 'Fix data race in ~EventHandlerBase' body verified: 'Both the `EventHandler` and its associated pubs/subs share the same underlying rmw event listener' / 'When a pub/sub is destroyed, that listener is destroyed.' / 'There is a data race when the `~EventHandlerBase` calls  `clear_on_ready_callback()`, since it wants to access the listener that could have already been destroyed, thus causing a segfault.'; merged 2023-11-14 as 411dbe8212dd753ee60871f8605d0a8beaae5e37; iron backport PR 2387 merged 2023-12-13 as 7877358e7b913e19a7a07845d1ed198f10f94657; humble backport PR 2388 CLOSED unmerged -- all match the spec. Revision spot-checks via commits API: rclcpp iron head on 2023-10-03 = fbb78ec9 (2023-09-28), rmw_fastrtps iron head = 6899cac1 (2023-08-30); rmw_event.cpp at 6899cac1 line 160 is exactly 'custom_event_info->get_listener()->set_on_new_event_callback(' as claimed. Eligibility: agree with stop at 6 -- the tree's step-2 test ('would occur with any correct peer') fails because the crash depends on rmw_fastrtps's shared-listener lifetime, making it a call-ordering assumption crossing the library-API boundary; class 'other' is right since no listed class covers lifetime/call-order violations. 'recommended' is right: the fix is merged but the PR author states he could not even reproduce on rolling and no source shows the reproducer passing."
+}

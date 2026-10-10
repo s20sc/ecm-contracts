@@ -1,0 +1,46 @@
+{
+ "case_id": "C3-047",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/cra-ros-pkg/robot_localization/issues/727",
+  "https://github.com/ros-navigation/navigation2/pull/2814"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": false,
+   "evidence": "Issue #727 is a question (\"Can this offset exist? If that is the case, should it be accounted for in the `fromLL` service?\", https://github.com/cra-ros-pkg/robot_localization/issues/727). After the maintainer's explanation the reporter tested a NWU IMU and withdrew the concern: \"This, however was accounted for in the response of the `/fromLL` service,  which at the end always returns the point correctly on the `map` frame.\" and \"So, to conclude, everything is working correctly, I apologize for the confusion.\" (https://github.com/cra-ros-pkg/robot_localization/issues/727#issuecomment-1081106430). The linked navigation2 PR #2814 is a feature (\"Add nav2_gps_waypoint_follower\"; \"Add an action server into `nav2_waypoint_follower` to follow GPS waypoints\", https://github.com/ros-navigation/navigation2/pull/2814), not a fix of a defect in this thread."
+  },
+  "E2": {
+   "pass": false,
+   "stop_step": 1,
+   "reason_code": null,
+   "units_identified": [],
+   "interface_kind": null,
+   "evidence": "No failed interaction is documented: the suspected frame offset between utm and map was shown by the reporter to be handled by navsat_transform's fromLL service."
+  },
+  "E3": {
+   "pass": false,
+   "evidence": "No failing operation is documented."
+  },
+  "E4": {
+   "pass": false,
+   "evidence": "No defect effect: the reporter concludes \"everything is working correctly\" (https://github.com/cra-ros-pkg/robot_localization/issues/727#issuecomment-1081106430)."
+  }
+ },
+ "eligible": false,
+ "ineligible_reason": "E1: question thread that the reporter closed as not-a-bug (\"everything is working correctly\"); the linked navigation2 PR #2814 adds a GPS waypoint follower feature.",
+ "units": null,
+ "operation": null,
+ "consumer_built_against": null,
+ "inventory": null,
+ "failed_conditions": null,
+ "outcome_class": null,
+ "loudness": null,
+ "loudness_evidence": null,
+ "detection_stage": null,
+ "resolution": null,
+ "ros_generation": null,
+ "excerpt_based": null,
+ "confidence": null,
+ "notes": "The composition asked about would have been nav2_waypoint_follower (GPS waypoint action server from PR #2814, merge 1efc96c3aa1b80d4926238238b56d45a9d7a8993, merged 2023-09-21) consuming robot_localization navsat_transform's fromLL service; the maintainer explains the utm->map transform is computed from the map-frame and UTM-frame poses and fromLL applies it (https://github.com/cra-ros-pkg/robot_localization/issues/727#issuecomment-1080564987). A 2025 follow-up question about fixing the utm->map relation was answered with the existing datum parameters (https://github.com/cra-ros-pkg/robot_localization/issues/727#issuecomment-3450553721). Confidence in ineligibility: high."
+}

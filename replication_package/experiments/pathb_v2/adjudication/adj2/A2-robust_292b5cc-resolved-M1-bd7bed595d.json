@@ -1,0 +1,31 @@
+{
+ "item_id": "A2-robust_292b5cc-resolved-M1-bd7bed595d",
+ "kind": "A2",
+ "case_id": "robust_292b5cc",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "missing_permission",
+ "values": [
+  {
+   "path": "consumer.perm_requires[Ros_Controller_IsRemote(controller)]",
+   "verdict": "verified",
+   "source_excerpt": "u0053 (MotoROS FS100 at 292b5cc, consumer of JointTrajPtFull) snapshot/fs100/MotoPlus/MotionServer.c:447, inside Ros_MotionServer_StartTrajMode (:429): \"\t\t|| !Ros_Controller_IsRemote(controller))\" completing the gate \"// Check for condition that need operator manual intervention\" / \"if(Ros_Controller_IsEStop(controller)\" / \"\t\t|| Ros_Controller_IsHold(controller)\" / \"\t\t|| !Ros_Controller_IsRemote(controller))\" / \"\t\treturn FALSE;\". Further requirement sites: Controller.c:375-377 \"// Check remote\" / \"\tif(!Ros_Controller_IsRemote(controller))\" / \"\t\treturn ROS_RESULT_NOT_READY_NOT_REMOTE;\" and Controller.c:489-491 \"&& (Ros_Controller_IsOperating(controller))\" / \"&& (Ros_Controller_IsRemote(controller)) )\". The predicate reads polled controller state: Controller.c:325-327 \"BOOL Ros_Controller_IsRemote(Controller* controller)\" / \"{\" / \"\treturn ((controller->ioStatus[IOSTATUS_REMOTE]!=0));\" with the input mapped at Controller.c:290 \"controller->ioStatusAddr[IOSTATUS_REMOTE].ulAddr = 50056;\t\t\t// Remote\"."
+  },
+  {
+   "path": "producer.perm_grants",
+   "verdict": "verified",
+   "source_excerpt": "u0055 (fs100 ROS driver at 8d77063, producer of JointTrajPtFull): grep -rni 'isremote' over snapshot/fs100/src and snapshot/fs100/include returns no matches — the producer contains no code that grants or sets the controller's REMOTE mode. Its only 'remote'-related lines are observational: fs100/src/simple_message/motoman_motion_reply.cpp:146-147 \"case MotionReplySubcodes::NotReady::NOT_REMOTE:\" / \"\t  return \\\"Controller not in REMOTE mode\\\";\" — parsing the reply subcode the consumer returns when the permission is missing. Absence of a producer grant is supported."
+  },
+  {
+   "path": "consumer.perm_grants",
+   "verdict": "verified",
+   "source_excerpt": "u0053 snapshot/fs100/MotoPlus: exhaustive grep for 'IsRemote' finds only Controller.c:62 (forward declaration), Controller.c:325 (definition reading ioStatus), Controller.c:376 and :491 and MotionServer.c:447 (checks), Controller.h:117 (extern) — every occurrence is a declaration or a check; none grants remote mode. The REMOTE state is an external controller input refreshed by Ros_Controller_StatusRead (Controller.c:129 \"Ros_Controller_StatusRead(controller, controller->ioStatus);\") from IO address 50056, and the only IO write in the snapshot is Ros_Controller_SetIOState (Controller.c:532-544, \"void Ros_Controller_SetIOState(ULONG signal, BOOL status)\" ... \"ret = mpWriteIO(&ioData, 1);\" writing a caller-specified feedback signal) — nothing writes the REMOTE input, so the consumer's perm_grants absence is supported: MotoROS can only require and observe this permission, never grant it."
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The PAIR encoding represents the spec's operation for this element (fs100 ROS driver provides msg:simple_message/JointTrajPtFull, MotoROS FS100 consumes it) at the resolved revisions: producer = u0055 (driver 8d77063), consumer = u0053 (MotoROS 292b5cc). Both ports are actually connected: the producer builds JointTrajPtFull requests in FS100_JointTrajectoryStreamer::create_message (u0055 fs100/src/fs100_joint_trajectory_streamer.cpp:79 \"bool FS100_JointTrajectoryStreamer::create_message(int seq, const trajectory_msgs::JointTrajectoryPoint &pt, SimpleMessage *msg)\", with :118-121 \"msg_data.setRobotID(robot_id_);\" / \"msg_data.setSequence(seq);\" / \"msg_data.setTime(pt.time_from_start.toSec());\" and :126 \"return jtpf_msg.toRequest(*msg);\") and streams them at :204-209 (\"ROS_DEBUG(\\\"Sending joint trajectory point\\\");\" / \"if (!this->connection_->sendAndReceiveMsg(msg, reply, false))\"); the consumer binds the motion server socket (Controller.c:212 \"sdMotionServer = Ros_Controller_OpenSocket(TCP_PORT_MOTION);\") and dispatches the received type at MotionServer.c:276-280 \"case ROS_MSG_JOINT_TRAJ_PT_FULL:\" ... \"ret = Ros_MotionServer_JointTrajDataProcess(controller, connectionIndex, receiveMsg, replyMsg);\"."
+ },
+ "notes": "The item's evidence.provenance is null for all three trigger paths; I resolved the locations from the referenced assembled file (producer/consumer port provenance) and by exhaustive grep enumeration in the two snapshots, then opened each cited file. All three values verified, including both absence claims (producer and consumer perm_grants) via complete occurrence inventories. Recorded observations, not disagreements: (1) The permission Ros_Controller_IsRemote(controller) is a standing controller-side safety gate in the MotoROS code (present in this resolved revision), while the case's documented failure per specs/robust_292b5cc.json is invalid sequence/robot_id fields in MOTO_MOTION_CTRL replies, fixed by consumer-side commit 292b5cc; the perm finding's relation to that documented failure is a method-level question outside evidence adjudication. (2) The two encodings transcribe the same physical units differently (producer 'time: s; pos: rad; vel: rad/s; acc: rad/s^2' vs consumer 'time: seconds; pos: radian; vel: radian/sec; acc: radian/sec^2', the latter matching fs100/MotoPlus/SimpleMessage.h:105-108 comments) — a transcription difference, and not a trigger value for this finding. (3) The token string matches the consumer source form verbatim: Ros_Controller_IsRemote(controller)."
+}

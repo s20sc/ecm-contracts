@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-B-Sig-02",
+  "kind": "A1",
+  "case_id": "B-Sig-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "I create two different Project on different workspace. One is `idfa_msgs/GDXBoxesMessage` under Rosjava 0.2.. The other is `obstacle_detection/GDXBoxMessage` under Roscpp.",
+    "url": "https://answers.ros.org/question/375062/"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "It looks like `idfa_msgs/GDXBoxesMessage` is not the same package (and thus message) as `obstacle_detection/GDXBoxMessage`.",
+      "url": "https://answers.ros.org/question/375062/"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ERROR] [1617170692.958476152]: Client [/GPUPlanarRegionSubscriber] wants topic /box to have datatype/md5sum [idfa_msgs/GDXBoxesMessage/d41d8cd98f00b204e9800998ecf8427e], but our version has [obstacle_detection/GDXBoxMessage/bbc122c887def5dd8eda16d81d7d1109]. Dropping connection.",
+    "url": "https://answers.ros.org/question/375062/"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Have java expect the lidar_obstacle_detection/gdxboxesmessage, have the c++ ros node use the java message, or create another node that subscribers to one and published the other. But I dont know how to do either of these",
+    "url": "https://answers.ros.org/question/375062/"
+  },
+  "notes": "独立核验通过。访问路径：answers.ros.org 直连为反爬页（Anubis），Wayback CDX 无捕获，Stack Exchange 未迁移；最终经文本代理（r.jina.ai/https://answers.ros.org/question/375062/）读到全帖（标题 'Md5sum mismatch with customized message under rosjava and roscpp enviroment'，Chao Chen 2021-03-31 提问，仅 Comments 无 Answers）。spec 全部引文逐字核到：正文两项目陈述、错误行、六行 .msg 体、gvdhoorn 诊断与追问、报告者 'The problem is that I have different message types send and receive on the same topic. Even if they have the same contents they are considered different types.'、以及收尾的三选一方案句。md5 断言由我独立复算证实：printf 'float64 x_min\\nfloat64 y_min\\nfloat64 z_min\\nfloat64 x_max\\nfloat64 y_max\\nfloat64 z_max'（无尾随换行）| md5 = bbc122c887def5dd8eda16d81d7d1109（= 发布侧 our version 哈希，六个 float64 正文即 obstacle_detection/GDXBoxMessage）；md5 of 空输入 = d41d8cd98f00b204e9800998ecf8427e（= 订阅侧哈希），支持 spec 未给订阅侧记录 definition_mismatch 的处置。class=nominal_type_mismatch（同话题上完全不同的包/类型名，非同名异定义）与元素 topic:/box + 两 msg 元素认可；loud_documented/connect 认可（ROS1 连接期类型/md5 校验拒绝）；recommended 认可（方案仅在评论中提出，报告者明言不会实施，无运行展示；Answers 节为空）。"
+}

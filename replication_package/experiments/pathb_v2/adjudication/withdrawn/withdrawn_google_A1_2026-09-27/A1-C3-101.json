@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-101",
+  "kind": "A1",
+  "case_id": "C3-101",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The type annotation `def time_jump_callback(time_jump: TimeJump):` is incorrect. The first argument of a method is always bound to an instance of the class, and by convention this argument is usually called `self`. If I fix the argument name and the type annotation then the reason for the error becomes clear: `def time_jump_callback(self: \"Buffer\"):`. `Buffer.time_jump_callback()` takes 1 positional argument (a Buffer instance) but 2 were given (a Buffer instance and a `TimeJump` instance).",
+    "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392115230"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The type annotation `def time_jump_callback(time_jump: TimeJump):` is incorrect. The first argument of a method is always bound to an instance of the class, and by convention this argument is usually called `self`. If I fix the argument name and the type annotation then the reason for the error becomes clear: `def time_jump_callback(self: \"Buffer\"):`. `Buffer.time_jump_callback()` takes 1 positional argument (a Buffer instance) but 2 were given (a Buffer instance and a `TimeJump` instance).",
+      "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392115230"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "interestingly python only crashes once the method is actually called, not when it is referenced as `buffer.time_jump_callback`",
+    "url": "https://github.com/ros2/geometry2/issues/710#issuecomment-2392209396"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "this fixes the problem all the way to rqt-tf-tree in jazzy! now i get \n```\n[WARN] [1727982819.603705139] [tf2_buffer]: Detected jump back in time. Clearing tf buffer.\n```\nwhen without the fix rqt would crash, as expected."
+  },
+  "notes": "Agree with all fields. tf2_ros_py declared time_jump_callback missing 'self', causing Python runtime TypeError when rclpy invokes the jump callback."
+}

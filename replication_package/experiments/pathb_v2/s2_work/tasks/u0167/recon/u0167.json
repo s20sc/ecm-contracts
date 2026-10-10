@@ -1,0 +1,91 @@
+{
+  "task_id": "u0167",
+  "package": "tf2_ros",
+  "manifest_version": "0.5.8",
+  "ports": [
+    {
+      "element": "msg:tf2_msgs/TFMessage",
+      "side": "provides",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "94810edda583a504dfda3829e70d7eec"
+      }
+    },
+    {
+      "element": "topic:/tf",
+      "side": "provides",
+      "msg_type": "tf2_msgs/TFMessage",
+      "frame": "per_message",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {
+        "algorithm": "ros1_md5",
+        "kind": "msg",
+        "value": "94810edda583a504dfda3829e70d7eec"
+      }
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "msg:tf2_msgs/TFMessage": "msg tf2_msgs/TFMessage: 94810edda583a504dfda3829e70d7eec",
+    "topic:/tf": "topic /tf: tf2_msgs/TFMessage"
+  },
+  "not_declared": [],
+  "references": [
+    "topic:/tf",
+    "topic:/tf_static",
+    "msg:geometry_msgs/TransformStamped"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "TransformListener clears the tf buffer when ros::Time::now() is earlier than the previous update (ROS_WARN \"Detected jump back in time. Clearing TF buffer.\"; buffer_.clear())"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:tf2_ros/package.xml:3 | <version>0.5.8</version>",
+    "ports[0].msg_type": "snapshot:tf2_ros/src/transform_broadcaster.cpp:55 | tf2_msgs::TFMessage message;",
+    "ports[0].frame": "snapshot:tf2_msgs/msg/TFMessage.msg:1 | geometry_msgs/TransformStamped[] transforms (each element carries its own header.frame_id and child_frame_id per https://raw.githubusercontent.com/ros/common_msgs/1.11.10/geometry_msgs/msg/TransformStamped.msg; tf2_ros copies caller-supplied TransformStamped values, snapshot:tf2_ros/src/transform_broadcaster.cpp:58 | message.transforms.push_back(*it);)",
+    "ports[0].definition_id": "snapshot:tf2_msgs/msg/TFMessage.msg:1 | python3 definition_hash.py ros1 tf2_msgs/TFMessage snapshot/tf2_msgs <common_msgs 1.11.10 geometry_msgs/msg/{TransformStamped,Transform,Vector3,Quaternion}.msg> <std_msgs 0.5.11 msg/Header.msg> -> {\"algorithm\": \"ros1_md5\", \"kind\": \"msg\", \"value\": \"94810edda583a504dfda3829e70d7eec\"}",
+    "ports[1].msg_type": "snapshot:tf2_ros/src/transform_broadcaster.cpp:42 | publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf\", 100);",
+    "ports[1].frame": "snapshot:tf2_ros/src/transform_broadcaster.cpp:58 | message.transforms.push_back(*it); (frames are those in each caller-supplied geometry_msgs/TransformStamped; no frame is hard-coded; Python: snapshot:tf2_ros/src/tf2_ros/transform_broadcaster.py:49 | self.pub_tf.publish(TFMessage(transform)))",
+    "ports[1].definition_id": "snapshot:tf2_msgs/msg/TFMessage.msg:1 | python3 definition_hash.py ros1 tf2_msgs/TFMessage (same inputs as ports[0].definition_id) -> 94810edda583a504dfda3829e70d7eec",
+    "declares[msg:tf2_msgs/TFMessage]": "snapshot:tf2_msgs/msg/TFMessage.msg:1 | geometry_msgs/TransformStamped[] transforms (sibling package tf2_msgs 0.5.8 in the same snapshot, snapshot:tf2_msgs/package.xml:3-4; registered at snapshot:tf2_msgs/CMakeLists.txt:7 | add_message_files(DIRECTORY msg FILES TF2Error.msg TFMessage.msg))",
+    "declares[topic:/tf]": "snapshot:tf2_ros/src/transform_broadcaster.cpp:42 | publisher_ = node_.advertise<tf2_msgs::TFMessage>(\"/tf\", 100); also snapshot:tf2_ros/src/tf2_ros/transform_broadcaster.py:44 | self.pub_tf = rospy.Publisher(\"/tf\", TFMessage, queue_size=1)",
+    "references[topic:/tf]": "snapshot:tf2_ros/src/transform_listener.cpp:72 | message_subscriber_tf_ = node_.subscribe<tf2_msgs::TFMessage>(\"/tf\", 100, ...); also snapshot:tf2_ros/src/tf2_ros/transform_listener.py:52 | rospy.Subscriber(\"/tf\", TFMessage, self.callback)",
+    "references[topic:/tf_static]": "snapshot:tf2_ros/src/transform_listener.cpp:73 | message_subscriber_tf_static_ = node_.subscribe<tf2_msgs::TFMessage>(\"/tf_static\", 100, ...); also snapshot:tf2_ros/src/tf2_ros/transform_listener.py:53 | rospy.Subscriber(\"/tf_static\", TFMessage, self.static_callback)",
+    "references[msg:geometry_msgs/TransformStamped]": "snapshot:tf2_ros/include/tf2_ros/transform_broadcaster.h:63 | void sendTransform(const geometry_msgs::TransformStamped & transform);",
+    "perm_requires": "searched snapshot/tf2_ros (src, include, test launch files, package.xml, CMakeLists.txt, rosdoc.yaml): no permission, access-control or security declarations",
+    "perm_grants": "searched snapshot/tf2_ros (src, include, test launch files, package.xml, CMakeLists.txt, rosdoc.yaml): no permission, access-control or security declarations",
+    "recovery.value": "snapshot:tf2_ros/src/transform_listener.cpp:105-107 | if(now < last_update_){ ROS_WARN(\"Detected jump back in time. Clearing TF buffer.\"); buffer_.clear();"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "tf2_ros advertises /tf with tf2_msgs/TFMessage in both the C++ and Python broadcasters and the TFMessage definition (geometry_msgs/TransformStamped[] transforms) hashes to the standard md5; nothing in these two elements looks inconsistent."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (indigo), so all QoS fields are null. The snapshot is the whole geometry_experimental repository; tf2_ros 0.5.8 and tf2_msgs 0.5.8 are sibling packages in it. msg:tf2_msgs/TFMessage is defined in tf2_msgs (snapshot/tf2_msgs/msg/TFMessage.msg), not in tf2_ros; tf2_ros publishes it, and the packet lists it as provided, so it is recorded under declares with the hash computed from the snapshot definition. Dependency definitions for the hash were fetched as raw files from https://raw.githubusercontent.com/ros/common_msgs/1.11.10/geometry_msgs/msg/{TransformStamped,Transform,Vector3,Quaternion}.msg (1.11.10 is the highest 1.11.x tag, the indigo series; 1.11.11 returns 404) and https://raw.githubusercontent.com/ros/std_msgs/0.5.11/msg/Header.msg. They were stored in the session scratchpad, not the workspace, with a minimal package.xml naming each package so definition_hash.py can resolve them. The TFMessage hash is identical with std_msgs 0.5.9, 0.5.11 and 0.5.13 Header.msg. Queue sizes differ between bindings (C++ advertise queue 100 at transform_broadcaster.cpp:42; Python queue_size=1 at transform_broadcaster.py:44). Neither is a rate, and no publish rate is set. Frames are per_message: TransformBroadcaster::sendTransform forwards caller-supplied TransformStamped messages, and no frame is hard-coded for /tf. static_transform_publisher takes its frames from argv but publishes on /tf_static, not /tf. /tf and /tf_static are also consumed: TransformListener subscribes to both. They are listed under references for that reason, and /tf remains under declares because the package also publishes it. /tf_static is also provided, by StaticTransformBroadcaster (latched, static_transform_broadcaster.cpp:42), but it is not a packet element. Other interfaces outside the packet: service tf2_frames (buffer.cpp:46), the LookupTransform action server and client (buffer_server.h:50, buffer_client.h:49), and param buffer_size (buffer_server_main.cpp:61). No exclusive resource claims were found. The recovery entry is consumer-side behaviour of TransformListener; it is not a recovery policy declared for the provided elements. Unrelated oddities: tf2_ros/package.xml:40 has a stray 'g' after </test_depend>, and tf2_msgs/include/foo is an empty file."
+}

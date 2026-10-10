@@ -1,0 +1,27 @@
+{
+ "item_id": "A1-CAL2-03",
+ "kind": "A1",
+ "case_id": "CAL2-03",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 2,
+  "reason_code": "internal",
+  "quote": "Fixes a bug causing RViz to print a ton of error messages about material not existing in the `General` resource group when adding a mesh to the planning scene",
+  "url": "https://github.com/moveit/moveit2/pull/672"
+ },
+ "failed_conditions": [],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "[rviz2-4] [ERROR] [1649066982.936072797] [rviz2]: Can't assign material Shape22Material to the ManualObject MeshShape_ManualObject0 because this Material does not exist in group General. Have you forgotten to define it in a .material script?",
+  "url": "https://github.com/moveit/moveit2/issues/1164"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Hi @JafarAbdi, I have tried to checkout to branch `5099f70001762e5f8ec5dbde84b6f6ff3728274d`(#672), it doesn't work. I found the changes in #672 at two positions. So I changed the code at branch `foxy` manually. It works! Thank you very much!",
+  "url": "https://github.com/moveit/moveit2/issues/1164"
+ },
+ "notes": "Spec is ineligible, so failed_conditions/loudness/resolution are null and I affirm that recording (verdicts 'agree' with the null fields; quotes are the symptom and the reporter's fix confirmation). I independently checked the fix: PR #672 changes only moveit_ros/visualization/rviz_plugin_render_tools/src/mesh_shape.cpp, passing the literal group \"rviz_rendering\" to Ogre's manual_object_->begin and entity_->setMaterialName. The material itself is created by rviz_rendering::Shape's constructor (moveit's MeshShape subclasses rviz_rendering::Shape via <rviz_rendering/objects/shape.hpp>), and rviz_rendering's material manager (rviz 8.2.6) creates it in the \"rviz_rendering\" Ogre resource group. Between the two units (moveit plugin, rviz_rendering) the values that cross (material name, Shape object) are valid; the defect is the consumer hard-coding Ogre's default \"General\" group instead of the material's actual group — a self-contained consumer coding error that fails with any correct peer and violates no documented provider contract (the resource group is an implementation detail, and the API hands the consumer the material pointer directly). That is step-2 internal. Had it been eligible, the Ogre error at render time would be a run-stage observation with a diagnostic naming the missing resource, and the reporter's manual backport confirmation ('It works!') would support resolution."
+}

@@ -1,0 +1,97 @@
+{
+  "task_id": "u0276",
+  "package": "compressed_depth_image_transport",
+  "manifest_version": "2.6.0",
+  "ports": [
+    {
+      "element": "api:cv_bridge/cv_bridge.h",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::CvImage",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::CvImagePtr",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::Exception",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:cv_bridge::toCvCopy",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:cv_bridge/cv_bridge.h",
+    "api:cv_bridge::CvImage",
+    "api:cv_bridge::CvImagePtr",
+    "api:cv_bridge::Exception",
+    "api:cv_bridge::toCvCopy"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:compressed_depth_image_transport/package.xml:3",
+    "ports[0].element": "snapshot:compressed_depth_image_transport/src/codec.cpp:40 (#include \"cv_bridge/cv_bridge.h\"); snapshot:compressed_depth_image_transport/src/compressed_depth_publisher.cpp:36 (#include <cv_bridge/cv_bridge.h>)",
+    "ports[1].element": "snapshot:compressed_depth_image_transport/src/codec.cpp:63 (cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);)",
+    "ports[2].element": "snapshot:compressed_depth_image_transport/src/codec.cpp:63; snapshot:compressed_depth_image_transport/src/codec.cpp:203; snapshot:compressed_depth_image_transport/src/codec.cpp:278",
+    "ports[3].element": "snapshot:compressed_depth_image_transport/src/codec.cpp:208 (catch (cv_bridge::Exception& e))",
+    "ports[4].element": "snapshot:compressed_depth_image_transport/src/codec.cpp:206; snapshot:compressed_depth_image_transport/src/codec.cpp:281 (cv_ptr = cv_bridge::toCvCopy(message);)",
+    "references[api:cv_bridge/cv_bridge.h]": "snapshot:compressed_depth_image_transport/src/codec.cpp:40; snapshot:compressed_depth_image_transport/src/compressed_depth_publisher.cpp:36",
+    "references[api:cv_bridge::CvImage]": "snapshot:compressed_depth_image_transport/src/codec.cpp:63",
+    "references[api:cv_bridge::CvImagePtr]": "snapshot:compressed_depth_image_transport/src/codec.cpp:63; snapshot:compressed_depth_image_transport/src/codec.cpp:203; snapshot:compressed_depth_image_transport/src/codec.cpp:278",
+    "references[api:cv_bridge::Exception]": "snapshot:compressed_depth_image_transport/src/codec.cpp:208",
+    "references[api:cv_bridge::toCvCopy]": "snapshot:compressed_depth_image_transport/src/codec.cpp:206; snapshot:compressed_depth_image_transport/src/codec.cpp:281",
+    "perm_requires.state": "searched snapshot/compressed_depth_image_transport (package.xml, CMakeLists.txt, compressed_depth_plugins.xml, cfg/CompressedDepthPublisher.cfg, src/*.cpp, include/**/*.h): no permission requirement declared",
+    "perm_grants.state": "searched snapshot/compressed_depth_image_transport (package.xml, CMakeLists.txt, compressed_depth_plugins.xml, cfg/CompressedDepthPublisher.cfg, src/*.cpp, include/**/*.h): no permission grant declared",
+    "recovery.state": "searched snapshot/compressed_depth_image_transport src and include: no recovery behaviour declared; failures are logged and a null pointer returned (snapshot:compressed_depth_image_transport/src/codec.cpp:208-211, 283-286)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The packet lists both cv_bridge/cv_bridge.h and cv_bridge/cv_bridge.hpp, which suggests a header rename in cv_bridge; this revision, targeted at rolling, still includes only the older cv_bridge/cv_bridge.h and never cv_bridge/cv_bridge.hpp, so it likely references the superseded header name."
+  },
+  "confidence": "high",
+  "notes": "All six packet elements are cv_bridge C++ API symbols on the consumes side; this package provides none of them, so declares and not_declared are empty. The package references cv_bridge/cv_bridge.h (codec.cpp:40, compressed_depth_publisher.cpp:36), cv_bridge::CvImage, cv_bridge::CvImagePtr, cv_bridge::Exception and cv_bridge::toCvCopy. It does not reference api:cv_bridge/cv_bridge.hpp anywhere in the package (grep of the full package directory for 'cv_bridge.hpp' returned no hits), so that element has no port and is in neither declares nor not_declared nor references. msg_type, frame, units, QoS, rates and definition_id are not applicable to C++ API symbols and are left null; cv_bridge headers are not definition files, so their content at the rolling release was not fetched (not an allowed source). At codec.cpp:283 the 16-bit branch catches an unqualified 'Exception' under 'using namespace cv;' (codec.cpp:53), which resolves to cv::Exception, not cv_bridge::Exception; only codec.cpp:208 names cv_bridge::Exception. Unrelated to the listed elements: compressed_depth_publisher.cpp:71 reads parameter 'depth_quantization' into config_.depth_max rather than config_.depth_quantization. The package also declares node parameters png_level (int), depth_max (double) and depth_quantization (double) via get_parameter_or (compressed_depth_publisher.cpp:69-71) and transport name 'compressedDepth'; these are not packet elements and are not recorded in declares. cv_bridge is a declared dependency (package.xml:16, CMakeLists.txt:14,34)."
+}

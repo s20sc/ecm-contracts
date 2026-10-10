@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-098",
+  "kind": "A1",
+  "case_id": "C3-098",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).  Instead, the user should call `node.destroy_rate(rate)` to properly destroy a previously created Rate object.",
+    "url": "https://github.com/ros2/rclpy/issues/1278"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Well, it definitely should not do that.  The timer as passed in there is not owned by the `Rate` object, it is owned by whatever is creating that (in this case, the Node is the one that calls `create_rate`).",
+      "url": "https://github.com/ros2/rclpy/issues/1278"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "CPU usage I report come from `$ top`",
+    "url": "https://github.com/ros2/rclpy/issues/1278"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Ok I understood how to use it now thank you. I did the same benchmark with the code below. Conclusion: Yes this works as intended and the CPU usage stays low.",
+    "url": "https://github.com/ros2/rclpy/issues/1278"
+  },
+  "notes": "Independently verified: the artifact file (snapshot:artifacts/C3-098.txt:2-30) holds the broken callback exactly as the issue quotes it (`wait = self.create_rate(1000)` / `wait.sleep()` / `wait.destroy()`), and the resolved section (snapshot:artifacts/C3-098.txt:33-36) matches the reporter's confirmation comment code (`self.destroy_rate(myRate)`), which I read in the issue comments. Issue body: \"The CPU usage explodes and ros becomes laggy. I found that `Rate._timer` are not properly destroyed.\" — effect observed via top, no tooling diagnostic, so silent_documented/run is right. Eligibility: the failure depends on the consumer's assumption that Rate.destroy() releases the timer — an ownership convention of the provider's API crossing the boundary; a consumer following the documented contract does not fail (maintainer's answer + reporter's low-CPU re-run), so it is not internal; fix edits only the consumer, which E2.2 explicitly admits. Class `other` is right (ownership/lifecycle convention; no listed class covers it). Resolution observed is right: the reporter confirms the resolved composition working on 2024-05-09; rclpy is unchanged (inferred 3.3.12 kept), the consumer unit is excerpt-based with revision label as-reported-2024-05-09, which S1 explicitly allows as a revision identification for excerpt-based units."
+}

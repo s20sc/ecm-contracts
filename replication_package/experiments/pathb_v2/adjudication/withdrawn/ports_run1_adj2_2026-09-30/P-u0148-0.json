@@ -1,0 +1,7 @@
+{"item_id": "P-u0148-0", "kind": "P", "task_id": "u0148", "element": "api:tf2_py.BufferCore.can_transform_core", "side": "provides",
+ "values": [
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "tf2_py.cpp:200: static const char *keywords[] = { \"target_frame\", \"source_frame\", \"time\", NULL }; | 202: if (!PyArg_ParseTupleAndKeywords(args, kw, \"ssO&\", (char**)keywords, &target_frame, &source_frame, rostime_converter, &time)) | 207: return Py_BuildValue(\"bs\", can_transform, error_msg.c_str());",
+   "qos_basis": null}
+ ],
+ "notes": "Lines 196-210 opened under s2_work/tasks/u0148/snapshot (geometry_experimental); line numbers confirmed with awk. The provenance excerpt matches: keywords are target_frame/source_frame/time, bound from caller-supplied Python args ('ssO&'); bc->canTransform(target_frame, source_frame, time, &error_msg) at line 205 returns a bool plus error string, returned as ('bs') tuple at line 207. No hard-coded frame token; the API carries frames as opaque caller inputs and returns no spatial value, so frame=none is supported."}

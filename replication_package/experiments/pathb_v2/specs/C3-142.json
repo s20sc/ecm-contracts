@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-142",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/815",
+    "https://github.com/ros-controls/ros2_controllers/pull/949",
+    "https://github.com/ros-controls/ros2_controllers/commit/61617b3f58a2d5915d9ea1121fb1cb362891a46e"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": false,
+      "evidence": "The issue is a feature proposal by a maintainer, not a defect report: \"Once https://github.com/ros-controls/ros2_control/pull/1088 gets merged, we could parse if the joint is of type _\\\"continuous\\\"_ and automatically set the `angle_wraparound` variable instead of manually setting it from the ROS parameters\" and \"Or do I miss something? Is there a use case where a joint with type \\\"revolute\\\" should have angle_wraparound, or type _\\\"continuous\\\"_ which should not have angle_wraparound?\" The only reply: \"I agree, ideally a lot of parameters can be removed once the URDF is available.\" (https://github.com/ros-controls/ros2_controllers/issues/815#issuecomment-1793554183). No reproducer, error log, or confirmed failure. PR #949 (\"[JTC] Parse URDF for continuous joints\") adds the feature: \"Use `urdf` package to parse the URDF string for joints. If they are of continuous type, activate `angle_wraparound` automatically.\""
+    },
+    "E2": {
+      "pass": null,
+      "stop_step": null,
+      "reason_code": null,
+      "units_identified": null,
+      "interface_kind": null,
+      "evidence": "Not evaluated: no defect is documented (fails E1)."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No failing operation is described; the issue proposes deriving a controller setting from the URDF."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on any interaction is documented or claimed."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "no_documented_defect",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "ineligible_reason 'no_documented_defect' is used because the case fails E1, for which the instructions define no reason code. The issue is an enhancement request for joint_trajectory_controller (read joint type from the URDF instead of the angle_wraparound parameter); it depends on ros2_control PR #1088 for URDF access. Merged to master 2024-03-02 as 61617b3f."
+}

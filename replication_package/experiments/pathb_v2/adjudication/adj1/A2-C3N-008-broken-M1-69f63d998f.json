@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-C3N-008-broken-M1-69f63d998f",
+  "kind": "A2",
+  "case_id": "C3N-008",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[api:rclcpp::Executor::add_node]",
+      "verdict": "verified",
+      "source_excerpt": "Built-against 31.0.0:\nsnapshot:s2_work/tasks/u0421/snapshot/rclcpp/include/rclcpp/executor.hpp:198 [lines 198-202]\n```\n  RCLCPP_PUBLIC\n  virtual void\n  add_node(\n    const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr,\n    bool notify = true);\n```\nRunning 30.1.5:\nsnapshot:s2_work/tasks/u0420/snapshot/rclcpp/include/rclcpp/executor.hpp:198 [lines 198-200]\n```\n  RCLCPP_PUBLIC\n  virtual void\n  add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);\n```"
+    },
+    {
+      "path": "ver_delta.consumer_reads[api:rclcpp::Executor::add_node]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0419/snapshot/hardware_interface_testing/test/test_resource_manager.cpp:1360 [lines 1360-1368]\n```\n#if RCLCPP_VERSION_GTE(30, 1, 5)\n  void add_node(\n    const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, bool notify) override\n#else\n  void add_node(\n    rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify) override\n#endif\n  {\n    rclcpp::executors::SingleThreadedExecutor::add_node(node_ptr, notify);\n```"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:rclcpp::Executor::add_node]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0421/snapshot/rclcpp/include/rclcpp/executor.hpp:198 [lines 198-202]\n```\n  RCLCPP_PUBLIC\n  virtual void\n  add_node(\n    const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr,\n    bool notify = true);\n```",
+      "running_excerpt": "snapshot:s2_work/tasks/u0420/snapshot/rclcpp/include/rclcpp/executor.hpp:198 [lines 198-200]\n```\n  RCLCPP_PUBLIC\n  virtual void\n  add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);\n```"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The specification deliberately models built-against 31.0.0 versus running 30.1.5, despite the downward version ordering. The broken consumer is u0419, not the fixed u0418. Its version guard selects the const-reference override at 30.1.5 although that provider declares the by-value virtual function; the override and forwarded base call establish a direct dependency.\nsnapshot:specs/C3N-008.json:73 [lines 73-73]\n```\n  \"operation\": \"UPGRADE\",\n```\nsnapshot:specs/C3N-008.json:74 [lines 74-77]\n```\n  \"consumer_built_against\": {\n    \"broken\": \"31.0.0\",\n    \"resolved\": \"30.1.5\",\n    \"basis\": \"inferred\"\n```\nsnapshot:s2_work/tasks/u0419/snapshot/hardware_interface_testing/test/test_resource_manager.cpp:1360 [lines 1360-1368]\n```\n#if RCLCPP_VERSION_GTE(30, 1, 5)\n  void add_node(\n    const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, bool notify) override\n#else\n  void add_node(\n    rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify) override\n#endif\n  {\n    rclcpp::executors::SingleThreadedExecutor::add_node(node_ptr, notify);\n```"
+  },
+  "notes": "Substantive C++ parameter-type difference: const SharedPtr& versus SharedPtr by value. This is not whitespace, a visibility macro, or a parameter-name difference. The fixed consumer changes the guard to 31.0.0, which was checked only as a cross-check, not substituted for the broken consumer.\nsnapshot:s2_work/tasks/u0418/snapshot/hardware_interface_testing/test/test_resource_manager.cpp:1360 [lines 1360-1365]\n```\n#if RCLCPP_VERSION_GTE(31, 0, 0)\n  void add_node(\n    const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, bool notify) override\n#else\n  void add_node(\n    rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify) override\n```"
+}

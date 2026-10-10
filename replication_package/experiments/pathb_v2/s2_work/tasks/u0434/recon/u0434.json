@@ -1,0 +1,115 @@
+{
+  "task_id": "u0434",
+  "package": "rclcpp",
+  "manifest_version": "15.4.0",
+  "ports": [
+    {
+      "element": "api:rclcpp::Duration",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Duration::Duration(rcl_duration_value_t)",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": "nanoseconds",
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Duration::from_nanoseconds",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": "nanoseconds",
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclcpp::Node",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:rclcpp::Duration": "api rclcpp::Duration: class RCLCPP_PUBLIC Duration",
+    "api:rclcpp::Duration::Duration(rcl_duration_value_t)": "api rclcpp::Duration::Duration(rcl_duration_value_t): [[deprecated( \"Use Duration::from_nanoseconds instead or std::chrono_literals. For example:\" \"rclcpp::Duration::from_nanoseconds(int64_variable);\" \"rclcpp::Duration(0ns);\")]] explicit Duration(rcl_duration_value_t nanoseconds);",
+    "api:rclcpp::Duration::from_nanoseconds": "api rclcpp::Duration::from_nanoseconds: static Duration from_nanoseconds(rcl_duration_value_t nanoseconds);",
+    "api:rclcpp::Node": "api rclcpp::Node: class Node : public std::enable_shared_from_this<Node>"
+  },
+  "not_declared": [],
+  "references": [
+    "api:rcl_duration_value_t",
+    "msg:builtin_interfaces/Duration"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rclcpp/package.xml:5",
+    "ports[0].frame": "snapshot:rclcpp/include/rclcpp/duration.hpp:26 (C++ class representing a time span; no spatial meaning)",
+    "ports[1].frame": "snapshot:rclcpp/include/rclcpp/duration.hpp:46 (constructor taking a time span in nanoseconds; no spatial meaning)",
+    "ports[1].units": "snapshot:rclcpp/include/rclcpp/duration.hpp:41 | /// Construct duration from the specified nanoseconds.",
+    "ports[2].frame": "snapshot:rclcpp/include/rclcpp/duration.hpp:138 (static factory taking a time span in nanoseconds; no spatial meaning)",
+    "ports[2].units": "snapshot:rclcpp/include/rclcpp/duration.hpp:136 | /// Create a duration object from an integer number representing nanoseconds",
+    "ports[3].frame": "snapshot:rclcpp/include/rclcpp/node.hpp:77 (C++ class; not spatial data)",
+    "declares[api:rclcpp::Duration]": "snapshot:rclcpp/include/rclcpp/duration.hpp:26",
+    "declares[api:rclcpp::Duration::Duration(rcl_duration_value_t)]": "snapshot:rclcpp/include/rclcpp/duration.hpp:42-46 (definition at snapshot:rclcpp/src/rclcpp/duration.cpp:40)",
+    "declares[api:rclcpp::Duration::from_nanoseconds]": "snapshot:rclcpp/include/rclcpp/duration.hpp:137-138 (definition at snapshot:rclcpp/src/rclcpp/duration.cpp:295-296)",
+    "declares[api:rclcpp::Node]": "snapshot:rclcpp/include/rclcpp/node.hpp:77",
+    "references[api:rcl_duration_value_t]": "snapshot:rclcpp/include/rclcpp/duration.hpp:46 and snapshot:rclcpp/include/rclcpp/duration.hpp:138 (type from rcl, included via snapshot:rclcpp/include/rclcpp/duration.hpp:21 #include \"rcl/time.h\")",
+    "references[msg:builtin_interfaces/Duration]": "snapshot:rclcpp/include/rclcpp/duration.hpp:20 #include \"builtin_interfaces/msg/duration.hpp\"; snapshot:rclcpp/include/rclcpp/duration.hpp:60 Duration(const builtin_interfaces::msg::Duration & duration_msg);",
+    "perm_requires": "searched snapshot for permission/policy/security files and 'permission' strings: only Apache license boilerplate (LICENSE, test file headers); no .policy or permissions files",
+    "perm_grants": "same search as perm_requires; none found",
+    "recovery": "grep for 'recovery' in snapshot/rclcpp: no hits"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All four provided API elements are declared and defined at this revision; Duration(rcl_duration_value_t) is still present but marked [[deprecated]] in favour of from_nanoseconds, which is also provided, so the provider is internally consistent; any breakage would be on a consumer built with warnings-as-errors."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the rclcpp repository (rclcpp, rclcpp_action, rclcpp_components, rclcpp_lifecycle); only snapshot/rclcpp was used, package.xml version 15.4.0, distro rolling. All packet elements are C++ API symbols, so msg_type, qos, rate and definition_id do not apply and are null; frame is 'none' because the symbols carry no spatial data. The Duration(rcl_duration_value_t) declaration spans lines 42-46 including a [[deprecated(...)]] attribute; declares[] records the whole declaration whitespace-collapsed; line 46 alone reads 'explicit Duration(rcl_duration_value_t nanoseconds);'. Inside the snapshot's library sources no call to the deprecated int64 constructor was found (qos_parameters.hpp:280 uses the (int32_t, uint32_t) constructor). references lists only external elements named in the declarations of the packet elements (rcl's rcl_duration_value_t and builtin_interfaces/Duration), not every external symbol rclcpp uses. No exclusive resource claims found; rclcpp is a client library."
+}

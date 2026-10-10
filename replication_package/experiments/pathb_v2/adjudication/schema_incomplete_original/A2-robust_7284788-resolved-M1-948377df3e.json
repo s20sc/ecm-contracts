@@ -1,0 +1,28 @@
+{
+  "item_id": "A2-robust_7284788-resolved-M1-948377df3e",
+  "kind": "A2",
+  "case_id": "robust_7284788",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::canTransform]",
+      "verdict": "verified",
+      "source_excerpt": "u0032/snapshot/tf/src/tf.cpp:361 -> \"  return tf2_buffer_.canTransform(strip_leading_slash(target_frame),\""
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::canTransform]",
+      "verdict": "transcription_only",
+      "built_excerpt": "u0099/snapshot/tf2_ros/include/tf2_ros/buffer.h:100-102 -> \"    virtual bool\" / \"      canTransform(const std::string& target_frame, const std::string& source_frame, \" / \"\t   const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;\"",
+      "running_excerpt": "u0101/snapshot/tf2_ros/include/tf2_ros/buffer.h:50,100-102 -> \"    using tf2::BufferCore::canTransform;\" / \"    virtual bool\" / \"    canTransform(const std::string& target_frame, const std::string& source_frame, \" / \"                 const ros::Time& target_time, const ros::Duration timeout, std::string* errstr = NULL) const;\""
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Spec operation is UPGRADE. The resolved composition pairs provider tf2_ros (u0101) with consumer tf (u0032); the consumer calls tf2_buffer_.canTransform(...) at tf.cpp:361 and the pair_view edge connects out_role == in_role == api:tf2_ros::Buffer::canTransform."
+  },
+  "notes": "Consumer read verified at tf.cpp:361. Substance is transcription_only: a whole-file diff of tf2_ros/include/tf2_ros/buffer.h between built u0099 (0.5.7) and running u0101 (0.5.10) shows ONLY whitespace/indentation changes (tabs->spaces) on the canTransform and lookupTransform declaration lines; the signatures are byte-identical. Both revisions already contain 'using tf2::BufferCore::canTransform;' (buffer.h:50) and the two timeout overloads (buffer.h:100-102 and 114-117). The ver_delta 'change' arises solely because the two recon runs transcribed the declares string differently: u0099 recorded only the first overload (omitting the using-declaration and second overload), while u0101 recorded the using-declaration plus both overloads. No type/arity/return/default/presence change, so this field_break on canTransform is a transcription artifact, not a substantive API break — consistent with the case's real failure being a body-level precondition (ros::ok() loop term) in buffer.cpp, not a declaration change."
+}

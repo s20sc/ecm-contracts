@@ -1,0 +1,26 @@
+{
+  "item_id": "A1-C3-027",
+  "kind": "A1",
+  "case_id": "C3-027",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 1,
+    "reason_code": null,
+    "quote": "Any plans to support zero-copy IPC in [CameraPublisher](https://github.com/ros-perception/image_common/blob/ros2/image_transport/include/image_transport/camera_publisher.hpp)? I think this means adding publish methods in Publisher and CameraPublisher that take unique_ptrs. I'd be willing to look into this if there is interest.",
+    "url": "https://github.com/ros-perception/image_common/issues/212"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Working with a [high-speed camera](https://github.com/fhwedel-hoe/pylon_instant_camera) and a relatively weak system, the copying eats quite a lot of CPU as discussed [here](https://answers.ros.org/question/312964/ros2-megapixel-image-pubsub-cpu-usage-is-very-high/).",
+    "url": "https://github.com/ros-perception/image_common/issues/212#issuecomment-966304130"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This PR is my attempt to add support for publishing using `std::unique_ptr` without breaking any of the existing APIs."
+  },
+  "notes": "Independently verified this session via gh api. Issue #212 (clydemcqueen, 2021-11-06, '[ROS2] Intra-process-comm support in CameraPublisher') body verified verbatim — it is a feature request ('Any plans to support...', 'I'd be willing to look into this if there is interest'), not a defect report: no concrete failed interaction, no reproducer, no error log. Comment id 966304130 (fhwedel-hoe) verified verbatim including 'the copying eats quite a lot of CPU' — a performance motivation, not an observed integration failure between two units. Closing comment id 2142188575 (ahcorde, 2024-05-31) verified verbatim: 'This is already supported thank to this PR https://github.com/ros-perception/image_common/pull/306.' PR #306 verified: title 'Support zero-copy intra-process publishing', author bjsowa, base rolling, merged 2024-05-16T07:50:51Z, merge_commit_sha fd51363e; its body sentence 'This PR is my attempt to add support for publishing using `std::unique_ptr` without breaking any of the existing APIs.' verified verbatim — an API addition, not a defect fix. PR #310 verified: 'Support zero-copy intra-process publishing (backport #306)', base jazzy, merged 2024-05-24T11:12:33Z, merge_commit_sha a3c2cc64 — both matching the spec's notes. E1 fails correctly, E3/E4 correctly find no failing operation or defect effect, and eligible=false is right. One presentational note: the spec records E2 stop_step as null ('Not evaluated'); I would record stop_step 1 as the sibling ineligible specs do (no documented failed interaction means the tree cannot pass step 1) — semantically equivalent, not a substantive disagreement. Null failed_conditions/loudness/resolution are appropriate; no missed condition exists because the thread documents no failed interaction at all."
+}

@@ -1,0 +1,98 @@
+{
+  "case_id": "C3-026",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/moveit/moveit2/issues/2741",
+    "https://github.com/moveit/moveit2/pull/2943",
+    "https://github.com/moveit/moveit2_tutorials/pull/917",
+    "https://github.com/moveit/moveit2/issues/2945",
+    "https://github.com/moveit/moveit2/pull/2961",
+    "https://github.com/moveit/moveit2/pull/3000",
+    "https://github.com/moveit/moveit2/pull/3001",
+    "https://github.com/ros-controls/ros2_controllers/blob/32757e1c8ca5934118d2fd3e0609ab48a3036984/joint_trajectory_controller/src/joint_trajectory_controller.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #2741 gives a full reproducer (panda demo.launch.py plus a MoveGroupSequence Python client with blend_radius = 0.1) and the console log, including \"[panda_arm_controller]: Time between points 122 and 123 is not strictly increasing, it is 12.200000 and 12.200000 respectively\" (https://github.com/moveit/moveit2/issues/2741). A maintainer confirmed and fixed it in PR #2943, which says \"Closes https://github.com/moveit/moveit2/issues/2741\"."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["pilz_industrial_motion_planner", "joint_trajectory_controller"],
+      "interface_kind": "action",
+      "evidence": "The Pilz sequence capability (moveit2, loaded in move_group) produces a joint trajectory whose points carry duplicate time_from_start values. move_group sends that trajectory as a FollowJointTrajectory goal to ros2_controllers' joint_trajectory_controller, which requires strictly increasing times and rejects the goal. The wrong timing value crosses the boundary between the two separately released packages, so this is an interface failure even though the fix is inside the planner. The follow-up issue states the dependency: \"to de-duplicate trajectory time points due to requirements on the `ros2_controllers` Joint Trajectory Controller.\" (https://github.com/moveit/moveit2/issues/2945). The fix is a code change in the planner, not deployment wiring or build (steps 3-5 do not apply)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the planner's output trajectory is the controller's input goal. \"Generates the points and sends them to executor, but that throws an error.\" (https://github.com/moveit/moveit2/issues/2741)"
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: \"[move_group-4] [WARN] [1710412387.953620473] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request rejected\" and \"Completed trajectory execution with status ABORTED ...\" (https://github.com/moveit/moveit2/issues/2741)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "pilz_industrial_motion_planner",
+      "role": "provider",
+      "repo": "https://github.com/moveit/moveit2",
+      "broken_rev": "2.9.0",
+      "resolved_rev": "955f308f166b07b9c1a4fbf34bab922a9968ee0b",
+      "pinned": true,
+      "revision_basis": "Broken: the reporter writes \"Build from source following [Getting Started] ..., must be v2.9.0 then.\" with \"ROS Distro: Iron\" (issue #2741, 2024-03-14). Tag 2.9.0 is commit 1fb4041e (2024-01-10) and is an ancestor of main. The reporter's own 'must be ... then' is an inference, so the exact commit may lie between 2.9.0 and main head on 2024-03-14 (e65491e1). Resolved: merge commit of PR #2943 on main (2024-08-02), the change that closed #2741. The principled fix PR #2961 (merge 4fad0d0d on main) replaced it and was backported to iron as PR #3001 (merge b98ca873, 2024-10-29) and to humble as PR #3000 (merge ccf7e5c4).",
+      "excerpt": false,
+      "ros_distro": "iron"
+    },
+    {
+      "name": "joint_trajectory_controller",
+      "role": "consumer",
+      "repo": "https://github.com/ros-controls/ros2_controllers",
+      "broken_rev": "32757e1c8ca5934118d2fd3e0609ab48a3036984",
+      "resolved_rev": "32757e1c8ca5934118d2fd3e0609ab48a3036984",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distro (Iron) and does not say whether ros2_controllers came from binaries or source. The iron branch head on the report date (2024-03-14) was 32757e1c (committed 2024-03-13); its validate_trajectory_msg contains the same check that produced the logged error (\"Time between points %zu and %zu is not strictly increasing, it is %f and %f respectively\"). A binary install could be older. The resolution does not change this unit, so the resolved revision equals the broken one.",
+      "excerpt": false,
+      "ros_distro": "iron"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "action:/panda_arm_controller/follow_joint_trajectory", "sides": {"joint_trajectory_controller": "provides", "pilz_industrial_motion_planner": "consumes"}},
+    {"element": "msg:trajectory_msgs/JointTrajectory", "sides": {"pilz_industrial_motion_planner": "provides", "joint_trajectory_controller": "consumes"}},
+    {"element": "field:trajectory_msgs/JointTrajectory.joint_names", "sides": {"pilz_industrial_motion_planner": "provides", "joint_trajectory_controller": "consumes"}},
+    {"element": "field:trajectory_msgs/JointTrajectory.points", "sides": {"pilz_industrial_motion_planner": "provides", "joint_trajectory_controller": "consumes"}},
+    {"element": "field:trajectory_msgs/JointTrajectoryPoint.positions", "sides": {"pilz_industrial_motion_planner": "provides", "joint_trajectory_controller": "consumes"}},
+    {"element": "field:trajectory_msgs/JointTrajectoryPoint.velocities", "sides": {"pilz_industrial_motion_planner": "provides", "joint_trajectory_controller": "consumes"}},
+    {"element": "field:trajectory_msgs/JointTrajectoryPoint.accelerations", "sides": {"pilz_industrial_motion_planner": "provides", "joint_trajectory_controller": "consumes"}},
+    {"element": "field:trajectory_msgs/JointTrajectoryPoint.time_from_start", "sides": {"pilz_industrial_motion_planner": "provides", "joint_trajectory_controller": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "field:trajectory_msgs/JointTrajectoryPoint.time_from_start",
+        "action:/panda_arm_controller/follow_joint_trajectory"
+      ],
+      "quote": "Using `pilz_industrial_motion_planner` to generate a motionsequence with a blend radius generates (multiple) points with the same value for `RobotTrajectory.joint_trajectory.points[].time_from_start`.",
+      "url": "https://github.com/moveit/moveit2/issues/2741"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The controller's goal validation refuses the goal at runtime: \"[ros2_control_node-5] [ERROR] [1710412387.951283595] [panda_arm_controller]: Time between points 122 and 123 is not strictly increasing, it is 12.200000 and 12.200000 respectively\" followed by \"Goal was rejected by server\" (https://github.com/moveit/moveit2/issues/2741).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Planner-side change. PR #2943 (merge 955f308f) de-duplicates points with equal time_from_start in CommandListManager::solve before the trajectory is returned (\"This is necessary since some controllers do not allow times that are not monotonically increasing.\"). PR #2961 replaced it with a fix in PlanComponentsBuilder::appendWithStrictTimeIncrease and blend(), which had appended segments with dt = 0. The controller is not changed.",
+    "status": "recommended",
+    "evidence": "PR #2943's author reports the fix working in a different composition (Rolling/main with the moveit2_tutorials #917 example), without naming the controller revision: \"I was unable to test https://github.com/moveit/moveit2_tutorials/pull/917 successfully on Rolling/main because there was an issue with sending duplicate time points to joint trajectory controllers with the Pilz move group sequence capability. This PR fixes that, ... But... this works.\" (https://github.com/moveit/moveit2/pull/2943). No source shows the reporter's Iron composition working after the fix."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Unit naming: the Pilz planner is a plugin/capability loaded into move_group (moveit_ros_move_group), and move_group's moveit_simple_controller_manager is the FollowJointTrajectory action client. All three ship in moveit/moveit2 at the same revision. Here 'pilz_industrial_motion_planner' is the moveit2 side that produces the faulty trajectory; the action-client side is attributed to it for brevity. Canonical forms: the action type control_msgs/action/FollowJointTrajectory has no fitting canonical form, so the action is listed by name and the goal payload by its trajectory_msgs types. Class 'other' is used because the defect is a value constraint (strictly increasing time_from_start) on a field crossing the boundary, and none of the named classes fits. The action name comes from moveit_resources panda_moveit_config config/moveit_controllers.yaml (controller panda_arm_controller, action_ns: follow_joint_trajectory). Other compositions: the reporter first hit the problem with Universal_Robots_ROS2_Driver's controller and reproduced it with the panda example. A commenter using a timing workaround saw wrong velocity/acceleration at those points (\"the robot moves in an abrupt and jittery way when transitioning\", https://github.com/moveit/moveit2/issues/2741#issuecomment-2006553397); that belongs to the workaround composition and is not a condition here. MoveIt 1 has analogous issues (moveit/moveit#3553, #3583). moveit2_tutorials PR #917 is the example that exposed the bug for the fix author; it does not change either unit."
+}

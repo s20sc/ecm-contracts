@@ -1,0 +1,145 @@
+{
+ "case_id": "CAL2-08",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/mavlink/mavros/issues/2088",
+  "https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a",
+  "https://github.com/mavlink/mavros/commit/4768303a27c3a793e5619f49640381266fe53cd7",
+  "https://github.com/jnnycn007/mavros/commit/4768303a27c3a793e5619f49640381266fe53cd7",
+  "https://raw.githubusercontent.com/ros2-gbp/mavlink-gbp-release/release/humble/mavlink/2025.9.9-1/message_definitions/v1.0/common.xml",
+  "https://raw.githubusercontent.com/ros2-gbp/mavlink-gbp-release/release/humble/mavlink/2025.12.12-1/message_definitions/v1.0/standard.xml",
+  "https://raw.githubusercontent.com/mavlink/mavros/2.13.0/mavros/src/plugins/global_position.cpp",
+  "https://github.com/mavlink/mavros/pull/2059#issuecomment-3316759269"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue gives the full colcon compiler error log and the exact package versions (rosinstall output: mavlink \"version: release/humble/mavlink/2025.12.12-1\", mavros \"version: 2.13.0\"); maintainer vooon confirms: \"Ah, i overlooked https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a - so, i'll release 2.14.0 today.\" (https://github.com/mavlink/mavros/issues/2088)."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "mavlink",
+    "mavros"
+   ],
+   "interface_kind": "library API",
+   "evidence": "mavlink (ROS package generating per-dialect C++ message headers) and mavros are separately released packages. The provider moved message GLOBAL_POSITION_INT from the common dialect to the standard dialect (present in common.xml at release/humble/mavlink/2025.9.9-1 line 5427, absent there at 2025.12.12-1, present in standard.xml at 2025.12.12-1 line 115), which changes the C++ symbol the consumer references; maintainer: \"MAVLink move some of messages between dialects, that's not a problem for the protocol itself or C implementation, but for C++ it is because here i have a namespace for each dialect.\" Rebuilding/editing the consumer because the provider's definition moved is an interface change, not a build-only change."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "UPGRADE: mavlink runs at 2025.12.12 while mavros 2.13.0 still references the element as declared at the earlier mavlink revision. Maintainer: \"Do you have mavlink 2025.12.12? Looks like there yet another case of moved message. Try previous mavlink 2025.9.9.\" Reporter: \"Yes, it works with 2025.9.9.\""
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Compile failure: \"/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: \u2018mavlink::common::msg::GLOBAL_POSITION_INT\u2019 has not been declared\" and \"Failed   <<< mavros [2min 3s, exited with code 2]\" (https://github.com/mavlink/mavros/issues/2088)."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "mavlink",
+   "role": "provider",
+   "repo": "https://github.com/ros2-gbp/mavlink-gbp-release",
+   "broken_rev": "release/humble/mavlink/2025.12.12-1",
+   "resolved_rev": "release/humble/mavlink/2025.12.12-1",
+   "pinned": true,
+   "revision_basis": "The reporter's rosinstall_generator output names the ROS release repository and tag: \"url: https://github.com/ros2-gbp/mavlink-gbp-release.git\" / \"version: release/humble/mavlink/2025.12.12-1\" (tag commit c99f053599385fa657b210c121501133d24a3171). The resolution changes only mavros, so the provider keeps its broken revision.",
+   "excerpt": false,
+   "ros_distro": "humble"
+  },
+  {
+   "name": "mavros",
+   "role": "consumer",
+   "repo": "https://github.com/mavlink/mavros",
+   "broken_rev": "2.13.0",
+   "resolved_rev": "2.14.0",
+   "pinned": true,
+   "revision_basis": "Broken: the reporter's rosinstall output \"url: https://github.com/mavlink/mavros.git\" / \"version: 2.13.0\" (annotated tag, commit 1b6d9a2cd0c13f674c4f779ec92e939683b43b88); at that tag global_position.cpp line 301 reads \"mavlink::common::msg::GLOBAL_POSITION_INT & gpos,\". Resolved: the fixing commit 42d26080d197f173947e8636abc6bbd295acb07a (2025-12-19) is followed by 4768303a27c3a793e5619f49640381266fe53cd7 \"prepare changelog for 2.14.0 / Fix #2088\", and the maintainer announced \"i'll release 2.14.0 today\"; tag 2.14.0 (commit c655e6343ec81687d51e7185bcba7a651e361fcd) is the first release containing the fix.",
+   "excerpt": false,
+   "ros_distro": "humble"
+  }
+ ],
+ "operation": "UPGRADE",
+ "consumer_built_against": {
+  "broken": "release/humble/mavlink/2025.9.9-1",
+  "resolved": "release/humble/mavlink/2025.12.12-1",
+  "basis": "documented"
+ },
+ "inventory": [
+  {
+   "element": "api:mavlink::common::msg::GLOBAL_POSITION_INT",
+   "sides": {
+    "mavlink": "provides",
+    "mavros": "consumes"
+   }
+  },
+  {
+   "element": "api:mavlink::standard::msg::GLOBAL_POSITION_INT",
+   "sides": {
+    "mavlink": "provides",
+    "mavros": "consumes"
+   }
+  },
+  {
+   "element": "api:mavlink::common::msg::GPS_RAW_INT",
+   "sides": {
+    "mavlink": "provides",
+    "mavros": "consumes"
+   }
+  },
+  {
+   "element": "api:mavlink::common::msg::GPS_GLOBAL_ORIGIN",
+   "sides": {
+    "mavlink": "provides",
+    "mavros": "consumes"
+   }
+  },
+  {
+   "element": "api:mavlink::common::msg::LOCAL_POSITION_NED_SYSTEM_GLOBAL_OFFSET",
+   "sides": {
+    "mavlink": "provides",
+    "mavros": "consumes"
+   }
+  },
+  {
+   "element": "api:mavlink::common::msg::SET_GPS_GLOBAL_ORIGIN",
+   "sides": {
+    "mavlink": "provides",
+    "mavros": "consumes"
+   }
+  },
+  {
+   "element": "api:mavlink::mavlink_message_t",
+   "sides": {
+    "mavlink": "provides",
+    "mavros": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "element_removed_or_renamed",
+   "implicated_elements": [
+    "api:mavlink::common::msg::GLOBAL_POSITION_INT"
+   ],
+   "quote": "/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: \u2018mavlink::common::msg::GLOBAL_POSITION_INT\u2019 has not been declared",
+   "url": "https://github.com/mavlink/mavros/issues/2088"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "loud_documented",
+ "loudness_evidence": "Compiler error during colcon build: \"error: \u2018mavlink::common::msg::GLOBAL_POSITION_INT\u2019 has not been declared\" ... \"Failed   <<< mavros [2min 3s, exited with code 2]\" (https://github.com/mavlink/mavros/issues/2088).",
+ "detection_stage": "build",
+ "resolution": {
+  "summary": "mavros changes the handler parameter type from mavlink::common::msg::GLOBAL_POSITION_INT to mavlink::standard::msg::GLOBAL_POSITION_INT (commit 42d26080d197f173947e8636abc6bbd295acb07a), released in mavros 2.14.0; mavlink stays at 2025.12.12.",
+  "status": "recommended",
+  "evidence": "Fix diff: \"-    mavlink::common::msg::GLOBAL_POSITION_INT & gpos,\\n+    mavlink::standard::msg::GLOBAL_POSITION_INT & gpos,\" (https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a); issue closed by 4768303a (\"Fix #2088\"). The thread does not show mavros 2.14.0 building against mavlink 2025.12.12; the only working composition shown is the workaround of downgrading the provider (\"Yes, it works with 2025.9.9.\")."
+ },
+ "ros_generation": "ROS2",
+ "excerpt_based": false,
+ "confidence": "high",
+ "notes": "Element form: MAVLink messages are generated C++ classes, not ROS message types, so the api:<C++ symbol> form is used rather than msg:. The mavlink::standard::msg::GLOBAL_POSITION_INT entry is the element as the consumer references it at the resolved revision (2.14.0). Primary-source check: the maintainer at one point wrote \"i've checked build, and 2025.12.12 has the same standard.xml as 2025.9.9\"; the release-tag files contradict this for GLOBAL_POSITION_INT (in common.xml at 2025.9.9-1, in standard.xml at 2025.12.12-1, message field definitions identical), and the maintainer later accepted the fix, so the primary files are followed. consumer_built_against basis: the broken label is documented (maintainer's advice to use 2025.9.9 and the reporter's successful build with it); the resolved label is inferred from the fix referencing the standard-dialect symbol that exists at 2025.12.12-1. Other items in the thread that are not this composition: a documentation path typo for install_geographiclib_datasets.sh (fixed by 32a702b3d6343fc7f80fbca4d019ff5cbdf3f611) and a CMake dev warning in mavlink. A later commenter relates it to an earlier dialect move handled in PR #2059, where the MAVLink maintainer wrote \"MAVLink is planning on moving as much of the stuff in common.xml as is actually common into standard.xml.\" The jnnycn007 fork commit is the same SHA as the upstream changelog commit."
+}

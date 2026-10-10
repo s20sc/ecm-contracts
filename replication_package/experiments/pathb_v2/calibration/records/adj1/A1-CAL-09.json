@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-CAL-09",
+  "kind": "A1",
+  "case_id": "CAL-09",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "statistics include `NaN` data in the message, when it is being converted with `rosidl_python`, it detects the following.",
+    "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1304061993",
+    "reason": "The reproduced failure occurs when the statistics publisher's allowed NaN values cross to a Python subscriber. It depends on the producer's data and the generated consumer's accepted domain, so it is a PAIR topic/library interaction rather than an internal-only crash. E1/E4 are explicit in the report and confirmation."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "# A value of nan represents no data is available.",
+      "url": "https://raw.githubusercontent.com/ros2/rcl_interfaces/humble/statistics_msgs/msg/StatisticDataPoint.msg",
+      "reason": "The consumer rejects an allowed floating-point value in StatisticDataPoint.data on /statistics. The sources do not establish a different nominal type, definition, units or component encoding; other is appropriate.",
+      "additional_evidence": [
+        {
+          "quote": "statistics include `NaN` data in the message, when it is being converted with `rosidl_python`, it detects the following.",
+          "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1304061993"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "silent_documented",
+    "quote": "Unable to convert call argument to Python object (compile in debug mode for details)",
+    "url": "https://github.com/ros2/ros2/issues/1341",
+    "reason": "There is a diagnostic, but it is a runtime message-conversion failure. The rubric reserves loud_documented for build, connection or activation diagnostics. Its reference to compiling in debug mode does not make this a build error."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "At this point, `ros2 topic list` shows all the topics correctly, and echoing `/topic_statistics_chatter` is working, but echoing `/statistics` does not work.",
+    "url": "https://github.com/ros2/ros2/issues/1341",
+    "reason": "The failure is observed during an executing echo command when data are converted."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I just confirmed that the backports work when building humble from sources with @clalancette's PR.",
+    "url": "https://github.com/ros2/ros2/issues/1341#issuecomment-1306798327",
+    "reason": "A successful Humble source-build test exists. The supplied Dockerfile imports the Humble ros2.repos, not the specification's pinned rolling demos provider; it therefore supports recommended for the specified pair rather than observed."
+  },
+  "notes": "The actual consumer process is ros2 topic echo/rclpy using generated message code, not the generator executable itself. The generator revision is a provenance proxy for that consumer implementation. The failure concerns NaN; the contract expressly disallows infinities, so the broader generator fix is not evidence of a second infinity-related failure in this composition."
+}

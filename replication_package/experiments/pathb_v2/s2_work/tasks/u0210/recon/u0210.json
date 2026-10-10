@@ -1,0 +1,44 @@
+{
+  "task_id": "u0210",
+  "package": "create_description",
+  "manifest_version": "2.0.1",
+  "ports": [
+    {
+      "element": "resource:package://create_description/meshes/create_body.dae",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "base_link",
+      "units": "centimeter",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "dae", "value": "c1da4a8bbe9c734078b00bb6ad81054e443702aa744a7bd00e446be74305ee97"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "resource:package://create_description/meshes/create_body.dae": "resource package://create_description/meshes/create_body.dae: c1da4a8bbe9c734078b00bb6ad81054e443702aa744a7bd00e446be74305ee97"
+  },
+  "not_declared": ["param:robot_description"],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:CMakeLists.txt:17",
+    "ports[0].frame": "snapshot:create_description/urdf/create.urdf.xacro:47",
+    "ports[0].units": "snapshot:create_description/meshes/create_body.dae:13",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 snapshot/create_description/meshes/create_body.dae",
+    "declares[resource:package://create_description/meshes/create_body.dae]": "snapshot:create_description/meshes/create_body.dae:1",
+    "not_declared[param:robot_description]": "grep -rn robot_description over all 56 files of the snapshot: 0 hits; the snapshot contains no .launch file; create_description holds only manifest.xml, CMakeLists.txt, Makefile, mainpage.dox, .project, .cproject, .gitignore, urdf/create.urdf.xacro (defines xacro macro 'create' at line 14, never instantiated in the file), urdf/create_gazebo.urdf.xacro and meshes/; nothing sets or loads a robot_description parameter",
+    "perm_requires": "checked all files of create_description (manifest.xml, CMakeLists.txt, urdf/*.xacro, meshes/): no permission declarations",
+    "perm_grants": "checked all files of create_description (manifest.xml, CMakeLists.txt, urdf/*.xacro, meshes/): no permission declarations",
+    "recovery": "checked all files of create_description: description-only package with no executable code and no recovery declaration"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The mesh resource exists at the declared path and is referenced correctly (urdf line 58), with its texture create_body.tga present. robot_description is set nowhere in the snapshot, which is a gap only if a consumer relies on this package to set it. The xacro macro that any robot_description would be built from has internal inconsistencies: it calls <sim_wall_sensor/> and <sim_cliff_sensors/> while the included file defines sim_create_wall_sensor and sim_create_cliff_sensors, and the base_link collision cylinder radius is 0.016495 for a 0.33 m base."
+  },
+  "confidence": "high",
+  "notes": "rosbuild package (manifest.xml, no package.xml). manifest.xml has no version tag; 2.0.1 is the enclosing stack's distribution version from rosbuild_make_distribution(2.0.1) in the stack CMakeLists.txt, which rosbuild packages inherit. Resource element: the declares templates have no form for resource elements; the entry follows the msg template (name followed by the definition_hash.py sha256 value of the file). The port definition_id is the tool's verbatim output; kind 'dae' is what the tool emits for this extension, so it is a content hash of the mesh file, not a message definition hash, and the tool's normalisation truncates each line at '#', which is lossy for XML (deterministic only). frame 'base_link' is the URDF link whose <visual> uses the mesh (create.urdf.xacro lines 47 and 58, visual origin xyz ' 0 0 0.0308' at line 56). units: the COLLADA asset states <unit meter=\"0.01\" name=\"centimeter\"/> (dae line 13); the instanced visual scene Scene_002 also applies <scale sid=\"scale\">0.02540 0.02540 0.02540</scale> (dae line 253); up_axis Z_UP (dae line 14). QoS and rates are null (ROS 1, and a file resource has none). param:robot_description: no port was recorded because the package neither sets nor reads the parameter at this revision; create.urdf.xacro only defines macros (create, plus sim_* via the include at line 9) and instantiates none, so expanding it alone yields an empty robot named turtlebot_hardware. Other code observations not tied to packet elements: macro invocations at create.urdf.xacro lines 313-317 (<sim_create/>, <sim_imu/>, <sim_wall_sensor/>, <sim_cliff_sensors/>, <sim_laser/>) versus macro definitions in create_gazebo.urdf.xacro (sim_create line 4, sim_imu line 51, sim_create_wall_sensor line 67, sim_create_cliff_sensors line 85, sim_laser line 151); base_link collision cylinder radius=\"0.016495\" (line 65); leftfront_cliff_sensor_link ixx=\"1.0\" (line 104); unused xacro properties M_PI, SCALE=0.0254, base_x, base_y. Gazebo plugin configuration in create_gazebo.urdf.xacro names libgazebo_ros_create.so (node_namespace turtlebot_node), libgazebo_ros_imu.so (topicName imu/data, serviceName imu/service, bodyName gyro_link) and libgazebo_ros_laser.so (topicName scan, frameName laser); these are other packages' plugins configured by this file, not packet elements, and are not listed in references. No dependency definition files were needed and nothing was fetched."
+}

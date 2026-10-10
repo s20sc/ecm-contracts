@@ -1,0 +1,176 @@
+[
+ {
+  "item_id": "P-u0029-1",
+  "kind": "P",
+  "task_id": "u0029",
+  "task_kind": "done",
+  "port_index": 1,
+  "element": "field:geometry_msgs/Twist.linear.x",
+  "side": "provides",
+  "values": {
+   "msg_type": "geometry_msgs/Twist",
+   "units": "m/s",
+   "definition_id": {
+    "algorithm": "ros1_md5",
+    "kind": "msg",
+    "value": "9f195f881246fdfa2798d1d3eebca84a"
+   }
+  },
+  "provenance": {
+   "msg_type": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:134 | cmd_vel->linear.x = self->dock_.getVX(); (cmd_vel is geometry_msgs::TwistPtr, line 133)",
+   "units": "snapshot:kobuki_auto_docking/src/dock_drive.cpp:340 | // vx: in m/s",
+   "definition_id": "python3 definition_hash.py ros1 geometry_msgs/Twist <dir holding geometry_msgs/msg/Twist.msg and Vector3.msg fetched from https://raw.githubusercontent.com/ros/common_msgs/1.10.6/geometry_msgs/msg/> -> 9f195f881246fdfa2798d1d3eebca84a (Vector3 nested md5 4a842b65f413084dc2b10fb484ea7f17)"
+  }
+ },
+ {
+  "item_id": "P-u0027-5",
+  "kind": "P",
+  "task_id": "u0027",
+  "task_kind": "done",
+  "port_index": 5,
+  "element": "api:kobuki::Kobuki::setBaseControl",
+  "side": "provides",
+  "values": {
+   "units": "linear_velocity: m/s; angular_velocity: rad/s"
+  },
+  "provenance": {
+   "units": "snapshot:kobuki_driver/src/driver/kobuki.cpp:335 | diff_drive.velocityCommands(linear_velocity, angular_velocity); -> snapshot:kobuki_driver/src/driver/diff_drive.cpp:147-148 | // vx: in m/s | // wz: in rad/s"
+  }
+ },
+ {
+  "item_id": "P-u0166-2",
+  "kind": "P",
+  "task_id": "u0166",
+  "task_kind": "done",
+  "port_index": 2,
+  "element": "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_L_AXIS.stl",
+  "side": "provides",
+  "values": {
+   "frame": "${prefix}link_l"
+  },
+  "provenance": {
+   "frame": "snapshot:motoman_mh5_support/urdf/mh5_macro.xacro:45 | <mesh filename=\"package://motoman_mh5_support/meshes/mh5/visual/MH5_L_AXIS.stl\"/> inside <link name=\"${prefix}link_l\"> (line 41)"
+  }
+ },
+ {
+  "item_id": "P-u0195-0",
+  "kind": "P",
+  "task_id": "u0195",
+  "task_kind": "done",
+  "port_index": 0,
+  "element": "msg:ur_driver/MSG_JOINT_STATES",
+  "side": "provides",
+  "values": {
+   "msg_type": "ur_driver/MSG_JOINT_STATES",
+   "frame": "none",
+   "units": "q[0..5], qdot[0..5], tau[0..5] each sent as floor(MULT_jointstate * value), MULT_jointstate = 10000.0; physical units not stated in code"
+  },
+  "provenance": {
+   "msg_type": "snapshot:ur_driver/prog:6 | MSG_JOINT_STATES = 3 ; wire payload snapshot:ur_driver/prog:48-66 | socket_send_int(MSG_JOINT_STATES) then 18 x socket_send_int(floor(MULT_jointstate * x)) for x = q[0..5], qdot[0..5], tau[0..5] (q = get_joint_positions(), qdot = get_joint_speeds(), tau = get_joint_torques(), lines 43-45)",
+   "frame": "snapshot:ur_driver/prog:42-66 | payload is 18 joint-space integers; no frame is sent, named or referenced",
+   "units": "snapshot:ur_driver/prog:20 | MULT_jointstate = 10000.0 ; snapshot:ur_driver/prog:49 | socket_send_int(floor(MULT_jointstate * q[0]))"
+  }
+ },
+ {
+  "item_id": "P-u0342-0",
+  "kind": "P",
+  "task_id": "u0342",
+  "task_kind": "done",
+  "port_index": 0,
+  "element": "topic:/tf",
+  "side": "provides",
+  "values": {
+   "msg_type": "tf2_msgs/TFMessage",
+   "frame": "per_message",
+   "qos.reliability": "reliable",
+   "qos.durability": "volatile",
+   "definition_id": {
+    "algorithm": "sha256_normalised",
+    "kind": "msg",
+    "value": "c4eca5d2ce24bce7c7a12af0eed741dad50bbb5ab3f3abe97b1bf73ad0902a90"
+   }
+  },
+  "provenance": {
+   "msg_type": "snapshot:README.md:18: * `tf` (`tf2_msgs/msg/TFMessage`) - The transforms corresponding to the movable joints of the robot.; published through snapshot:src/robot_state_publisher.cpp:129 (tf2_ros::TransformBroadcaster) and :275 tf_broadcaster_->sendTransform(tf_transforms);",
+   "frame": "snapshot:src/robot_state_publisher.cpp:270: tf_transform.header.frame_id = frame_prefix + seg->second.root; snapshot:src/robot_state_publisher.cpp:271: tf_transform.child_frame_id = frame_prefix + seg->second.tip; (frames come from the URDF segments and the frame_prefix parameter at run time, one per transform)",
+   "qos.reliability": "API documented default, code sets none: snapshot:src/robot_state_publisher.cpp:129 constructs tf2_ros::TransformBroadcaster(this) with no QoS argument; tf2_ros (jazzy) TransformBroadcaster's default qos argument is tf2_ros::DynamicBroadcasterQoS (tf2_ros/qos.hpp: rclcpp::QoS with depth 100), and rclcpp::QoS(depth) takes rmw_qos_profile_default = RELIABLE, VOLATILE. Cited from the tf2_ros/rclcpp API documentation; tf2_ros sources are not an allowed source here and were not fetched.",
+   "qos.durability": "API documented default, code sets none: snapshot:src/robot_state_publisher.cpp:129 constructs tf2_ros::TransformBroadcaster(this) with no QoS argument; tf2_ros (jazzy) TransformBroadcaster's default qos argument is tf2_ros::DynamicBroadcasterQoS (tf2_ros/qos.hpp: rclcpp::QoS with depth 100), and rclcpp::QoS(depth) takes rmw_qos_profile_default = RELIABLE, VOLATILE. Cited from the tf2_ros/rclcpp API documentation; tf2_ros sources are not an allowed source here and were not fetched.",
+   "definition_id": "python3 definition_hash.py sha256 on tf2_msgs/msg/TFMessage.msg fetched from https://raw.githubusercontent.com/ros2/geometry2/jazzy/tf2_msgs/msg/TFMessage.msg (identical one-line body at tags 0.36.0 and 0.36.4): geometry_msgs/TransformStamped[] transforms"
+  }
+ },
+ {
+  "item_id": "P-u0428-5",
+  "kind": "P",
+  "task_id": "u0428",
+  "task_kind": "done",
+  "port_index": 5,
+  "element": "api:BT::TreeNode::executeTick",
+  "side": "provides",
+  "values": {
+   "frame": "none"
+  },
+  "provenance": {
+   "frame": "snapshot:snapshot/include/behaviortree_cpp_v3/tree_node.h:73 (C++ library API symbol; no spatial data)"
+  }
+ },
+ {
+  "item_id": "P-u0351-7",
+  "kind": "P",
+  "task_id": "u0351",
+  "task_kind": "excerpt",
+  "port_index": 7,
+  "element": "api:rclpy.timer.Rate.destroy",
+  "side": "consumes",
+  "values": {
+   "frame": "none"
+  },
+  "provenance": {
+   "frame": "artifact.txt:16: rate teardown; no spatial data"
+  }
+ },
+ {
+  "item_id": "P-u0351-2",
+  "kind": "P",
+  "task_id": "u0351",
+  "task_kind": "excerpt",
+  "port_index": 2,
+  "element": "api:rclpy.node.Node",
+  "side": "consumes",
+  "values": {
+   "frame": "none"
+  },
+  "provenance": {
+   "frame": "artifact.txt:4-6: base-class use and node construction; no spatial data"
+  }
+ },
+ {
+  "item_id": "P-u0396-2",
+  "kind": "P",
+  "task_id": "u0396",
+  "task_kind": "done",
+  "port_index": 2,
+  "element": "api:importlib.metadata.SelectableGroups.get",
+  "side": "consumes",
+  "values": {
+   "frame": "none"
+  },
+  "provenance": {
+   "frame": "snapshot:rosidl_cli/rosidl_cli/entry_points.py:39 | for entry_point in importlib_metadata.entry_points().get(group_name, []):  (Python library call; no spatial meaning)"
+  }
+ },
+ {
+  "item_id": "P-u0138-3",
+  "kind": "P",
+  "task_id": "u0138",
+  "task_kind": "done",
+  "port_index": 3,
+  "element": "topic:/mavros/setpoint_accel/accel",
+  "side": "consumes",
+  "values": {
+   "msg_type": "geometry_msgs/Vector3Stamped"
+  },
+  "provenance": {
+   "msg_type": "snapshot:mavros/src/plugins/setpoint_accel.cpp:92"
+  }
+ }
+]

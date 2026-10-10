@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-046",
+  "kind": "A1",
+  "case_id": "C3-046",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!",
+    "url": "https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!",
+      "url": "https://github.com/ros-perception/vision_opencv/issues/262#issuecomment-1760609581"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Current packages build status for autoware_universe: ... Once these final PRs are merged, everything compiles!",
+    "url": "https://github.com/autowarefoundation/autoware_universe/issues/11418#issuecomment-3787249827"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "## How was this PR tested?\n\nCompiles locally with jazzy.",
+    "url": "https://github.com/autowarefoundation/autoware_universe/pull/11873"
+  },
+  "notes": "独立核验：(1) issue #262 正文（\"the suffix of header files should be changed from *.h to *.hpp\"）与两条评论逐字确认（threeal \"renaming the header files will create a problem on other packages that depends on this package.\"；ijnek \"All .h files have been deprecated in I-turtle, and have removed for J-turtle onwards!\"）。(2) 提交 5d6148ab \"remove header files that were deprecated in I-turtle\" 确认删除 cv_bridge/include/cv_bridge/cv_bridge.h（及 rgb_colors.h、image_geometry 两头文件）。(3) Autoware PR #11873 \"fix: add cv_bridge.hpp support\" 合并于 2026-01-16（merge f50b5c39）；shape_draw.hpp 的 diff 逐字确认（\"-#include <cv_bridge/cv_bridge.h>\" → \"+#if __has_include(<cv_bridge/cv_bridge.hpp>)\" / \"+#include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer\" / \"+#else\" / \"+#include <cv_bridge/cv_bridge.h>  // for ROS 2 Humble or older\" / \"+#endif\"）；PR 正文 \"Compiles locally with jazzy.\" 确认。(4) rosdistro ec4bcc08 的 jazzy/distribution.yaml 确认 vision_opencv release \"version: 4.1.0-1\"（该日期 Jazzy 唯一 vision_opencv 版本）——provider 修订经 distro 记录识别，observed 判定成立且规格已如实说明依据。(5) autoware #11418 两条评论确认：3757294247 仅附构建状态图表（\"Current packages build status for autoware\"），3787249827 \"Once these final PRs are merged, everything compiles!\"——均未归于该头文件，loudness=unknown / detection_stage=unknown 正确。E1 依两侧维护者确认（provider 侧移除声明 + consumer 侧修复提交命名失配）成立；E4 记 code-level statement、outcome undocumented 正确。UPGRADE 判定（Humble 3.2.1 引用 vs Jazzy 4.1.0）与 element_removed_or_renamed 分类均成立。未发现遗漏条件（同 PR 修复的其他三个 consumer 属其他组合，已记 notes）。"
+}

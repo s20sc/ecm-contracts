@@ -1,0 +1,49 @@
+{
+  "case_id": "C3-075",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/1235",
+    "https://github.com/ros-controls/ros2_control/pull/1238"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue documents an intermittent CI test failure with its log: \"Here's an example error we see on the CI from time-to-time:\" followed by the log lines \"Expected: is approximately 508.18968922836888 (absolute error <= 9.9999999999999995e-07)\" and \"Actual: 508.19 (of type double), which is -1.0207e-06 from 508.19\" (https://github.com/ros-controls/ros2_control/issues/1235)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "transmission_interface (library)",
+        "transmission_interface gtest executables (same package's own tests)"
+      ],
+      "interface_kind": null,
+      "evidence": "The failure is a floating-point comparison tolerance inside transmission_interface's own unit tests; the issue asks to \"Improve the robustness of transmission tests by making sure all floating-point value comparisons are using an approximate equality check\" and notes \"The `EPS` value used for these tests could perhaps be relaxed slightly too\" (https://github.com/ros-controls/ros2_control/issues/1235). The fix touches only files under transmission_interface/test/, e.g. \"-const double EPS = 1e-6;\" / \"+const double EPS = 1e-5;\" and \"-  EXPECT_EQ(50.0, actuator_reduction[0]);\" / \"+  EXPECT_THAT(50.0, DoubleNear(actuator_reduction[0], EPS));\" (https://github.com/ros-controls/ros2_control/pull/1238/files). No value crosses a boundary between two separately deployable units; the test and the code under test ship in one package, and the defect is the test's own tolerance."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 2)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 2)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Exit step: E2 step 2 (internal): test-only tolerance change in ros2_control's transmission_interface tests. PR #1238 merged 2023-12-20 into master, merge commit e92b6c2c84946c8dab44146a5b4a666390543d61; the issue was closed by christophfroehlich: \"I think this was solved by #1238?\"."
+}

@@ -1,0 +1,49 @@
+{
+ "case_id": "C3-090",
+ "corpus": "C3",
+ "source_refs": [
+  "https://github.com/ros-controls/ros2_control/issues/1223",
+  "https://github.com/ros-controls/ros2_control/pull/1273"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue gives the scenario (rqt_controller_manager open, controller manager stopped, e.g. simulation restarted) and the traceback ending in \"RuntimeError: Could not contact service /controller_manager/list_controllers\"; the maintainer-authored PR #1273 (merged 2024-01-08, merge commit 2d82de84ba0ce746ecc6d3db58b0e12b2533bd2c) confirms and fixes it. -- https://github.com/ros-controls/ros2_control/issues/1223"
+  },
+  "E2": {
+   "pass": false,
+   "stop_step": 2,
+   "reason_code": "internal",
+   "units_identified": [
+    "rqt_controller_manager",
+    "controller_manager"
+   ],
+   "interface_kind": null,
+   "evidence": "The failure is an unhandled exception in rqt_controller_manager's own polling logic: when any controller manager (a correct one, legitimately stopped for a simulation restart) is unreachable, controller_manager_services.service_caller raises \"RuntimeError(f'Could not contact service {service_name}')\" and _list_controllers does not catch it, which \"raises an error and kills the window\" (issue). No wrong value, frame, unit, name, type or timing crosses the boundary; the provider is simply absent and the consumer crashes, which would happen with any correct peer that is stopped. The fix wraps the call in \"try: ... except RuntimeError as e: print(e); return []\" in rqt_controller_manager/controller_manager.py and adds an optional service_timeout argument (default 10.0) to the controller_manager_services helpers so the GUI polls with 2.0/self._cm_update_freq; the existing interface is unchanged. -- https://github.com/ros-controls/ros2_control/pull/1273. Borderline: the scenario is a provider stop/restart while the consumer keeps polling (a SWITCH-like lifecycle), but the tree's step-2 example (a crash in one unit's own logic) fits better than any interface class."
+  },
+  "E3": {
+   "pass": null,
+   "evidence": "Not evaluated past E2 (candidate operation would be SWITCH: the controller manager stopped/restarted while the rqt plugin keeps polling service /controller_manager/list_controllers)."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Traceback and window crash documented in the issue and PR #1273 'Before' section."
+  }
+ },
+ "eligible": false,
+ "ineligible_reason": "internal",
+ "units": null,
+ "operation": null,
+ "consumer_built_against": null,
+ "inventory": null,
+ "failed_conditions": null,
+ "outcome_class": null,
+ "loudness": null,
+ "loudness_evidence": null,
+ "detection_stage": null,
+ "resolution": null,
+ "ros_generation": null,
+ "excerpt_based": null,
+ "confidence": null,
+ "notes": null
+}

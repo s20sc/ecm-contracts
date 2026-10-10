@@ -1,0 +1,52 @@
+{
+  "case_id": "C3-097",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/rclcpp/issues/2083",
+    "https://github.com/ros2/rclcpp/pull/2085",
+    "https://github.com/ros2/rclcpp/commit/ab71df3ce1d8993e8424e7d0934b2e205284c682",
+    "https://github.com/ros2/rclcpp/pull/3282",
+    "https://github.com/ros2/rclcpp/commit/cfdb3b7dcea4a503c0acaa304d033636beeb1dba"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue with launch-file excerpt and launch log showing SIGINT->SIGTERM->SIGKILL escalation (\"failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'\"); maintainer mjcarroll: \"I now have a minimal reproduction example using a component with a single timer and publication\" and isolated the hang: \"In the isolated case, we end up blocking on a `sem_wait` and the semaphore never gets posted to because `Signalhandler::uninstall` never seems to get called.\" https://github.com/ros2/rclcpp/issues/2083"
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": [
+        "rclcpp_components (component_container_isolated / ComponentManagerIsolated)",
+        "loaded components (nav2 composable nodes in the report; any component per the maintainer reproduction)"
+      ],
+      "interface_kind": null,
+      "evidence": "The hang is an infinite wait loop inside ComponentManagerIsolated::cancel_executor in rclcpp_components, which waits for its own dedicated executor to report is_spinning() after context shutdown had already made spin() return. PR #2085: \"The issue is that there is a race where the executor is already shutdown/cancelled (so is_spinning is always false), causing an infinite loop.\" The pre-fix code comment states the assumption is about the class's own behaviour: \"We rely on the assumption that this class creates executors and then immediately makes them\" / \"spin in a separate thread\" (https://github.com/ros2/rclcpp/blob/37adc03c11171f67c213ee72f7ce43fdcbda7b9e/rclcpp_components/include/rclcpp_components/component_manager_isolated.hpp). The failure occurs with any loaded component: the reporter dujeong: \"I also had the same problem when using non-Nav2 component\", and mjcarroll reproduced it \"using a component with a single timer and publication\". No value, name, frame or timing crosses a boundary to a peer; the executor (rclcpp) behaves as designed by returning from spin() on context shutdown, and both fixes (#2085 rolling, #3282 humble) change only the container's own wait loop (\"It only modifies the `cancel_executor()` function body\")."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated: E2 stopped at step 2 (internal). The observed situation is process shutdown on SIGINT of a running container with loaded components."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed: \"[ERROR] [component_container_isolated-13]: process[component_container_isolated-13] failed to terminate '10.0' seconds after receiving 'SIGTERM', escalating to 'SIGKILL'\" https://github.com/ros2/rclcpp/issues/2083"
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "Alternative reading considered and rejected: rclcpp_components (ComponentManagerIsolated) and rclcpp (Executor::is_spinning/cancel/spin) are separate packages, and mjcarroll attributes the defect partly to \"a little bit of under-documentation in the way that the executor's cancel works\" (PR #2085 comment). However the executor behaves correctly (spin returns on context shutdown and is_spinning is then false), the loop that never terminates is the container's own logic, and any correct executor would produce the same hang; so the case is classed internal. Fix for rolling: ab71df3ce1d8993e8424e7d0934b2e205284c682 (PR #2085, adds a thread_initialized atomic and an rclcpp::ok(context) guard); not backported to humble because \"the addition of the `atomic_bool` to the inner struct definitely breaks ABI\" (clalancette). Humble fix: cfdb3b7dcea4a503c0acaa304d033636beeb1dba (PR #3282, 2026-09-22, adds only the rclcpp::ok(context) guard). Reporter: Ubuntu 22.04, humble binaries, cyclonedds."
+}

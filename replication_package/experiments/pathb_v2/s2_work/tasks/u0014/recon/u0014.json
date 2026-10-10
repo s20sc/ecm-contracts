@@ -1,0 +1,116 @@
+{
+  "task_id": "u0014",
+  "package": "controller_manager",
+  "manifest_version": "2.36.0",
+  "ports": [
+    {
+      "element": "field:controller_manager_msgs/srv/SwitchController.ok",
+      "side": "provides",
+      "msg_type": "controller_manager_msgs/srv/SwitchController",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": "reliable", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e"}
+    },
+    {
+      "element": "field:controller_manager_msgs/srv/SwitchController.start_controllers",
+      "side": "consumes",
+      "msg_type": "controller_manager_msgs/srv/SwitchController",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": "reliable", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e"}
+    },
+    {
+      "element": "field:controller_manager_msgs/srv/SwitchController.strictness",
+      "side": "consumes",
+      "msg_type": "controller_manager_msgs/srv/SwitchController",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": "reliable", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e"}
+    },
+    {
+      "element": "msg:controller_manager_msgs/srv/SwitchController",
+      "side": "provides",
+      "msg_type": "controller_manager_msgs/srv/SwitchController",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e"}
+    },
+    {
+      "element": "service:/controller_manager/switch_controller",
+      "side": "provides",
+      "msg_type": "controller_manager_msgs/srv/SwitchController",
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": "reliable", "durability": "volatile", "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": {"algorithm": "sha256_normalised", "kind": "srv", "value": "c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e"}
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "field:controller_manager_msgs/srv/SwitchController.ok": "field controller_manager_msgs/srv/SwitchController.ok: bool",
+    "msg:controller_manager_msgs/srv/SwitchController": "msg controller_manager_msgs/srv/SwitchController: c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e",
+    "service:/controller_manager/switch_controller": "service /controller_manager/switch_controller: controller_manager_msgs/srv/SwitchController"
+  },
+  "not_declared": [],
+  "references": [
+    "field:controller_manager_msgs/srv/SwitchController.start_controllers",
+    "field:controller_manager_msgs/srv/SwitchController.strictness"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:controller_manager/package.xml:5 | <version>2.36.0</version>",
+    "ports[0].msg_type": "snapshot:controller_manager/src/controller_manager.cpp:1696-1698 | void ControllerManager::switch_controller_service_cb( const std::shared_ptr<controller_manager_msgs::srv::SwitchController::Request> request, std::shared_ptr<controller_manager_msgs::srv::SwitchController::Response> response); response field written at snapshot:controller_manager/src/controller_manager.cpp:1741-1743 | response->ok = switch_controller( activate_controllers, deactivate_controllers, request->strictness, activate_asap, request->timeout) == controller_interface::return_type::OK;",
+    "ports[0].frame": "snapshot:controller_manager_msgs/srv/SwitchController.srv:22-33 | request/response carry controller-name lists, an int32 strictness enum, bools and a Duration; no header, frame_id or spatial field",
+    "ports[0].qos.reliability": "snapshot:controller_manager/src/controller_manager.cpp:39-48 | static const rmw_qos_profile_t rmw_qos_profile_services_hist_keep_all = { RMW_QOS_POLICY_HISTORY_KEEP_ALL, 1, RMW_QOS_POLICY_RELIABILITY_RELIABLE, RMW_QOS_POLICY_DURABILITY_VOLATILE, RMW_QOS_DEADLINE_DEFAULT, ... }; applied at snapshot:controller_manager/src/controller_manager.cpp:419-422",
+    "ports[0].qos.durability": "snapshot:controller_manager/src/controller_manager.cpp:43 | RMW_QOS_POLICY_DURABILITY_VOLATILE (profile applied at :419-422)",
+    "ports[0].definition_id": "python3 definition_hash.py sha256 snapshot/controller_manager_msgs/srv/SwitchController.srv | {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e\"}",
+    "ports[1].msg_type": "snapshot:controller_manager/src/controller_manager.cpp:1714-1722 | if (!request->start_controllers.empty()) { RCLCPP_WARN(get_logger(), \"'start_controllers' field is deprecated, use 'activate_controllers' field instead!\"); activate_controllers.insert( activate_controllers.end(), request->start_controllers.begin(), request->start_controllers.end()); }",
+    "ports[1].frame": "snapshot:controller_manager_msgs/srv/SwitchController.srv:24 | string[] start_controllers       # DEPRECATED: Use activate_controllers filed instead (controller names, no spatial meaning)",
+    "ports[1].qos.reliability": "snapshot:controller_manager/src/controller_manager.cpp:42 | RMW_QOS_POLICY_RELIABILITY_RELIABLE (profile rmw_qos_profile_services_hist_keep_all applied to the switch_controller service at :419-422)",
+    "ports[1].qos.durability": "snapshot:controller_manager/src/controller_manager.cpp:43 | RMW_QOS_POLICY_DURABILITY_VOLATILE (profile applied at :419-422)",
+    "ports[1].definition_id": "python3 definition_hash.py sha256 snapshot/controller_manager_msgs/srv/SwitchController.srv | value c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e",
+    "ports[2].msg_type": "snapshot:controller_manager/src/controller_manager.cpp:1741-1743 | response->ok = switch_controller( activate_controllers, deactivate_controllers, request->strictness, activate_asap, request->timeout) == controller_interface::return_type::OK;",
+    "ports[2].frame": "snapshot:controller_manager_msgs/srv/SwitchController.srv:26-28 | int32 strictness / int32 BEST_EFFORT=1 / int32 STRICT=2 (enum, no spatial meaning)",
+    "ports[2].qos.reliability": "snapshot:controller_manager/src/controller_manager.cpp:42 | RMW_QOS_POLICY_RELIABILITY_RELIABLE (profile applied at :419-422)",
+    "ports[2].qos.durability": "snapshot:controller_manager/src/controller_manager.cpp:43 | RMW_QOS_POLICY_DURABILITY_VOLATILE (profile applied at :419-422)",
+    "ports[2].definition_id": "python3 definition_hash.py sha256 snapshot/controller_manager_msgs/srv/SwitchController.srv | value c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e",
+    "ports[3].msg_type": "snapshot:controller_manager_msgs/srv/SwitchController.srv:1-33 | full definition; package name from snapshot:controller_manager_msgs/package.xml:4 | <name>controller_manager_msgs</name>; CMake source list not needed (rosidl package)",
+    "ports[3].frame": "snapshot:controller_manager_msgs/srv/SwitchController.srv:22-33 | no header/frame/spatial field in request or response",
+    "ports[3].definition_id": "python3 definition_hash.py sha256 snapshot/controller_manager_msgs/srv/SwitchController.srv | {\"algorithm\": \"sha256_normalised\", \"kind\": \"srv\", \"value\": \"c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e\"}",
+    "ports[4].msg_type": "snapshot:controller_manager/src/controller_manager.cpp:419-422 | switch_controller_service_ = create_service<controller_manager_msgs::srv::SwitchController>( \"~/switch_controller\", std::bind(&ControllerManager::switch_controller_service_cb, this, _1, _2), rmw_qos_profile_services_hist_keep_all, best_effort_callback_group_);",
+    "ports[4].frame": "snapshot:controller_manager_msgs/srv/SwitchController.srv:22-33 | service payload has no spatial field",
+    "ports[4].qos.reliability": "snapshot:controller_manager/src/controller_manager.cpp:39-48 | rmw_qos_profile_services_hist_keep_all: RMW_QOS_POLICY_RELIABILITY_RELIABLE; passed as the qos argument at :422",
+    "ports[4].qos.durability": "snapshot:controller_manager/src/controller_manager.cpp:43 | RMW_QOS_POLICY_DURABILITY_VOLATILE; passed as the qos argument at :422",
+    "ports[4].definition_id": "python3 definition_hash.py sha256 snapshot/controller_manager_msgs/srv/SwitchController.srv | value c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e",
+    "declares[field:controller_manager_msgs/srv/SwitchController.ok]": "snapshot:controller_manager_msgs/srv/SwitchController.srv:33 | bool ok (response section, after the --- separator at :32); written by this package at snapshot:controller_manager/src/controller_manager.cpp:1741",
+    "declares[msg:controller_manager_msgs/srv/SwitchController]": "snapshot:controller_manager_msgs/srv/SwitchController.srv:1-33 | hash from python3 definition_hash.py sha256 snapshot/controller_manager_msgs/srv/SwitchController.srv = c7248719ab98313925d1080c11cf46f676b90e32223b19feb43ad91af936792e; definition file lives in sibling package controller_manager_msgs (snapshot:controller_manager_msgs/package.xml:4-5, version 2.36.0) which controller_manager depends on (snapshot:controller_manager/package.xml:17 | <depend>controller_manager_msgs</depend>; snapshot:controller_manager/CMakeLists.txt:11)",
+    "declares[service:/controller_manager/switch_controller]": "snapshot:controller_manager/src/controller_manager.cpp:419-422 | create_service<controller_manager_msgs::srv::SwitchController>(\"~/switch_controller\", ...); private-name prefix resolved with default node name snapshot:controller_manager/include/controller_manager/controller_manager.hpp:72 | const std::string & manager_node_name = \"controller_manager\", and default namespace :73 | const std::string & namespace_ = \"\"; executable sets the same name at snapshot:controller_manager/src/ros2_control_node.cpp:42 | std::string manager_node_name = \"controller_manager\"; in-package client default snapshot:controller_manager/controller_manager/unspawner.py:34 | default='/controller_manager'",
+    "references[field:controller_manager_msgs/srv/SwitchController.start_controllers]": "snapshot:controller_manager/src/controller_manager.cpp:1714 | if (!request->start_controllers.empty()) and :1720-1721 | request->start_controllers.begin(), request->start_controllers.end()); deprecated field merged into the activate list with a warning at :1716-1718",
+    "references[field:controller_manager_msgs/srv/SwitchController.strictness]": "snapshot:controller_manager/src/controller_manager.cpp:1742 | request->strictness passed to switch_controller(); value 0 is remapped to BEST_EFFORT at snapshot:controller_manager/src/controller_manager.cpp:757-767",
+    "perm_requires.state": "searched snapshot/controller_manager (src, include, controller_manager/*.py, test, doc, package.xml, CMakeLists.txt, setup.cfg) case-insensitively for permission|sros|security|.policy|policies; only Apache-2.0 licence header lines (\"governing permissions and\") matched; no policy, keystore or access-control file exists in the package",
+    "perm_grants.state": "same search as perm_requires.state; nothing granted or declared",
+    "recovery.state": "snapshot:controller_manager/src/controller_manager.cpp:725-1142 (switch_controller) and :1204-1230 (manage_switch): STRICT pre-checks abort before the switch starts via clear_requests() + return ERROR (:804, :891, :937, :1084-1085); once do_switch is set (:1093) there is no rollback path, perform_command_mode_switch failure is only logged (:1207-1211), and switch_params_.timeout is assigned at :1092 but never read (grep 'timeout' hits only :728, :1092, :1707, :1743)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "For the five listed elements the definition and the code agree at this revision: the .srv still carries both the deprecated start_controllers/stop_controllers/start_asap fields and their activate_* replacements, the service callback merges start_controllers into the activate list with a deprecation warning rather than ignoring it, strictness is validated (0 -> BEST_EFFORT) and both enum constants match the code, and ok is set from the switch result. Nothing in the listed elements looks broken; the only oddity seen (timeout stored but unused) is not a listed element."
+  },
+  "confidence": "high",
+  "notes": "Fully-qualified service name: the code registers the private name ~/switch_controller (controller_manager.cpp:420); with the default node name controller_manager (controller_manager.hpp:72; ros2_control_node.cpp:42) and default namespace \"\" (controller_manager.hpp:73) it resolves to /controller_manager/switch_controller. Both name and namespace are constructor arguments, so a launch/remap can change the FQN at run time; the recorded name is the built-in default. The .srv definition belongs to the sibling package controller_manager_msgs inside the same snapshot (same repository, version 2.36.0); controller_manager only depends on it (package.xml:17, CMakeLists.txt:11). It is recorded under declares because the packet lists it as provided by this package and the definition is present in the snapshot; a strict per-package reading would attribute the definition to controller_manager_msgs. The definition depends on builtin_interfaces/Duration (SwitchController.srv:31); definition_hash.py sha256 hashes only this file's normalised text, so no dependency file was fetched. QoS: the service uses the package-local profile rmw_qos_profile_services_hist_keep_all (controller_manager.cpp:39-48: KEEP_ALL history, depth 1, RELIABLE, VOLATILE, RMW_QOS_DEADLINE_DEFAULT i.e. no deadline, hence deadline_ms null), not the rclcpp default; all values are fixed in code. The same values are recorded on the three field ports because those fields travel only over this service endpoint; the msg-definition port has qos null because a type definition declares no transport QoS. The callback group is MutuallyExclusive (controller_manager.cpp:396). The service callback also reads request->activate_controllers, deactivate_controllers, stop_controllers, start_asap, activate_asap and timeout (controller_manager.cpp:1711-1743); these are not packet elements so they are not listed in references. The package also ships Python clients of this service (controller_manager/controller_manager_services.py:87-99 switch_controllers(), used by spawner.py:296-342 and unspawner.py:44) that call f'{controller_manager_name}/switch_controller' and set activate_controllers, deactivate_controllers, strictness (STRICT or BEST_EFFORT), activate_asap and timeout; they never set start_controllers. exclusive is empty: command/state interfaces are claimed at run time on behalf of controllers (resource_manager_->claim_command_interface at controller_manager.cpp:1371, claim_state_interface at :1405) with names supplied by each controller's configuration, so no exclusive token is named in this snapshot. rate_hz/min_rate_hz null: the update_rate parameter (default 100, controller_manager.hpp:281) governs the control loop, not this service. units null: the packet fields are name lists, an int32 enum and a bool. No element was left undetermined."
+}

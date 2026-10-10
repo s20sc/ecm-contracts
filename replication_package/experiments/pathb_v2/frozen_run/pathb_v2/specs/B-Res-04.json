@@ -1,0 +1,96 @@
+{
+  "case_id": "B-Res-04",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/1177",
+    "https://github.com/ros-controls/ros2_control/pull/1391",
+    "https://github.com/ros-controls/ros2_control/pull/2120",
+    "https://github.com/ros-controls/ros2_control/pull/2273",
+    "https://github.com/tenfoldpaper/panda_ros2/blob/b8555c77a5d687b5612402b8fd7c048f80964eaa/franka_hardware/src/franka_hardware_interface.cpp",
+    "https://github.com/ros-controls/ros2_control/blob/2.35.0/hardware_interface/src/resource_manager.cpp",
+    "https://github.com/ros-controls/ros2_control/blob/2.35.0/hardware_interface/include/hardware_interface/system_interface.hpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #1177 gives the full setup (ros2_control xacro, controller YAML, launch file) and the error log of the failed activation; a second user confirms the same behaviour in PR #1391 (\"I am facing this exact issue\"), and maintainer PR #2120 changes the resource manager behaviour the log exposes."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["ros2_control (hardware_interface resource manager)", "franka_hardware (FrankaHardwareInterface plugin)"],
+      "interface_kind": "library API",
+      "evidence": "The resource manager (host framework, ros2_control/hardware_interface) calls the plugin's prepare_command_mode_switch with every start/stop interface key, including keys of another hardware component; the plugin (tenfoldpaper/panda_ros2 franka_hardware) treats every key it receives as its own and rejects the switch because its own control mode is already set. The value that crosses the boundary (the interface-key list) is what the two sides disagree on: the host header states \"All starting and stopping interface keys are passed to all components, so the function should return return_type::OK by default when given interface keys not relevant for this component\", while the plugin's prepare_command_mode_switch never filters by its own joints. With fake_components/GenericSystem as the plugin the same host works (reporter: \"Using only the _fake_components/GenericSystem_ everything works just fine\"), and PR #2120 resolves it by changing what the host passes, so it is not an internal defect of either unit and not deployment wiring."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the host's output (the start-interface list for activating panda_3_arm_controller) feeds the plugin's prepare_command_mode_switch input, and the plugin's return value feeds the host's switch decision (\"Could not switch controllers since prepare command mode switch was rejected\")."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed failure: activation of panda_3_arm_controller is refused; log lines \"Component 'panda_1_FrankaHardwareInterface' did not accept new command resource combination\" and \"Could not switch controllers since prepare command mode switch was rejected.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "ros2_control",
+      "role": "provider",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "2.35.0",
+      "resolved_rev": "157beab216ee60e662bb03e66ae2b822bd3bda72",
+      "pinned": true,
+      "revision_basis": "The reporter names only \"ROS2 Humble\" and \"tested with ros2_control installed from binaries and from source\". The humble branch head at the log timestamp (1700586290 = 2023-11-21) was tag 2.35.0 (commit 927ca588f98b7c044ead06ebcb3813e3f44dd0a9, 2023-11-14); the binary may have been an earlier 2.3x humble release. The per-component loop that passes the full start/stop lists to every component and prints \"did not accept new command resource combination\" was verified at 2.35.0. The resolving change is PR #2120, merged to master as 157beab216ee60e662bb03e66ae2b822bd3bda72 (2025-05-24) and backported to jazzy only (PR #2273, 0ca2ee9c833bbfb7fe7151ad234d1b30f26adb0e); there is no humble backport, so the resolved revision is on a later ROS 2 distribution than the reporter used.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    },
+    {
+      "name": "franka_hardware",
+      "role": "consumer",
+      "repo": "https://github.com/tenfoldpaper/panda_ros2",
+      "broken_rev": "b8555c77a5d687b5612402b8fd7c048f80964eaa",
+      "resolved_rev": "b8555c77a5d687b5612402b8fd7c048f80964eaa",
+      "pinned": true,
+      "revision_basis": "The reporter links franka_hardware \"from [here](https://github.com/tenfoldpaper/panda_ros2/tree/humble/franka_hardware)\" (humble branch, no commit). The humble branch head at the log timestamp (2023-11-21T17:04Z) by committer date was b8555c77a5d6 (2023-11-20T13:40:59Z); its prepare_command_mode_switch prints \"Preparing command mode switch\", \"++ %s\" and \"Switching between control modes without stopping it first is not supported.\" exactly as in the reporter's log. The resolution (PR #2120) is in ros2_control only, so this unit keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": "humble"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "api:hardware_interface::SystemInterface", "sides": {"ros2_control": "provides", "franka_hardware": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::on_init", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::export_state_interfaces", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::export_command_interfaces", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::on_activate", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::on_deactivate", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::read", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::write", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::prepare_command_mode_switch", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}},
+    {"element": "api:hardware_interface::SystemInterface::perform_command_mode_switch", "sides": {"franka_hardware": "provides", "ros2_control": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:hardware_interface::SystemInterface::prepare_command_mode_switch"],
+      "quote": "This PR makes sure that the start and stop interfaces in `perform_command_mode_switch` and `prepare_command_mode_switch` methods of the Hardware components will receive only the interfaces they expose, instead of all of them as of now.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/2120"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "[resource_manager]: Component 'panda_1_FrankaHardwareInterface' did not accept new command resource combination: ... [controller_manager]: Could not switch controllers since prepare command mode switch was rejected. (https://github.com/ros-controls/ros2_control/issues/1177)",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Resource manager filters the start/stop interface lists per hardware component before calling prepare_command_mode_switch / perform_command_mode_switch, and skips components with no matching interfaces (ros2_control PR #2120, master 157beab2; jazzy backport PR #2273). The alternative, per the humble header note, is for the plugin to return OK for interface keys that are not its own; that was not done in the franka_hardware fork.",
+    "status": "recommended",
+    "evidence": "Neither the reporter nor a maintainer shows the franka_hardware composition working with PR #2120. The PR #1391 author states after reading #2120: \"Looking at the content it looks like that is exactly what I was looking for and fixes the problem.\" (https://github.com/ros-controls/ros2_control/pull/1391). The reporter closed the issue with a workaround in a different unit (MoveIt): \"When I switch the controller manager to the moveit_simple_controller_manager/MoveItSimpleControllerManager this problem disappears.\""
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Primary evidence of the mismatch: the humble host header (system_interface.hpp at 2.35.0) says \"All starting and stopping interface keys are passed to all components, so the function should return return_type::OK by default when given interface keys not relevant for this component\"; the plugin's prepare_command_mode_switch applies \"only allow new controller to be started if the current control mode is NONE\" to whatever keys it receives. PR #2120 removed that header note and changed the host behaviour instead. The failure only arises when two hardware components are active and a controller on one is active while a controller on the other is activated (CONCURRENT between the two plugin instances / two arm controllers); both plugin instances are the same plugin in one ros2_control_node process, so they are not recorded as separate units. The refusal looks like an exclusive-resource conflict, but the requested panda_3 interfaces were unclaimed (list_hardware_components output) and the conflict comes only from misrouted keys, so it is classed `other`, not `exclusive_resource_conflict`. Reporter's YAML declares position command interfaces while the log shows effort interfaces being started; the log is taken as authoritative. The reporter's closing workaround changes MoveIt's controller-manager plugin (a different composition, MoveIt to ros2_control) and does not change either unit here. A later commenter (karanchahal) reports a different symptom (joint not found with topic-based systems), not part of this case. PR #1391 (unmerged) proposed an alternative host-side change."
+}

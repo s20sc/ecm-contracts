@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-C3N-020",
+  "kind": "A1",
+  "case_id": "C3N-020",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: the maintainer confirms missing generated parameters, linked to a reported failure. E2: a separate generator package produces configuration consumed by the controller-manager plugin; the regression changes the generator's emitted interface, not just deployment bindings. E3: PAIR of generated configuration and its consumer.",
+    "quote": "As reported in issue #1506, the default `moveit_controllers.yaml` created by MSA is missing a few lines:",
+    "url": "https://github.com/moveit/moveit2/issues/1514"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-            emitter << YAML::Key << \"action_ns\" << YAML::Value << \"follow_joint_trajectory\";",
+      "url": "https://github.com/moveit/moveit2/commit/8ee767a49912476497a45917057654a3351dc465.diff",
+      "reason": "The regression removes unconditional action_ns emission; PR 1515 restores it. The consumer reads that parameter for controller_name and skips the controller if missing. The linked reproduction names rotate_joint_controller."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "-            emitter << YAML::Key << \"default\" << YAML::Value << \"true\";",
+      "url": "https://github.com/moveit/moveit2/commit/8ee767a49912476497a45917057654a3351dc465.diff",
+      "reason": "The same regression removes the generated default=true value, expressly included in the maintainer's missing-lines report and restored by PR 1515. Its omission selects the consumer's false fallback. It is a documented output-interface regression, but not independently established as the cause of the controller rejection."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "disagree",
+    "proposed": "unknown",
+    "quote": "I am still facing the same issue. The complete terminal log is [here](https://gist.github.com/Cryoschrome/2e6a47a87e8ff89509822db4a7fb2585)",
+    "url": "https://github.com/moveit/moveit2/issues/1506#issuecomment-1214647754",
+    "reason": "The particular runtime log cited by the specification returned HTTP 404 at both the gist page and its raw endpoint. The accessible issue's earlier log diagnoses missing ros2_control type parameters, a different composition. The inspected consumer code contains an action_ns error branch, but that is indirect evidence rather than the claimed observed log, so loud_documented cannot be independently verified here."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "RCLCPP_ERROR_STREAM(LOGGER, \"No action namespace specified for controller `\"",
+    "url": "https://raw.githubusercontent.com/moveit/moveit2/7dd0434f742d6586f32843802135ebcc2720c79c/moveit_plugins/moveit_simple_controller_manager/src/moveit_simple_controller_manager.cpp#L119",
+    "reason": "The source places the missing-parameter check in controller initialization, supporting the activation/startup category. This verifies the check's location, not the inaccessible log's execution."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "We had the same problem. We edited the moveit_controllers.yaml file with the text editor and added the two lines at the bottom.",
+    "url": "https://github.com/moveit/moveit2/issues/1506#issuecomment-1215014684",
+    "reason": "The accessible confirmation concerns a hand-edited configuration. PR 1515 restores both generated entries, but no successful run identifies both units at the specified fixed revisions. recommended is supported."
+  },
+  "notes": "Source-access limitation: the Cryoschrome gist and /raw endpoint both returned HTTP 404; no quote from that inaccessible log is asserted as read. Other primary evidence remained readable, so the generator regression can still be adjudicated. The optional default parameter's omission is retained as a maintainer-documented regression without claiming a second observed crash."
+}

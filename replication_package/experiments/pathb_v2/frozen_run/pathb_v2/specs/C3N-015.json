@@ -1,0 +1,48 @@
+{
+  "case_id": "C3N-015",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_controllers/issues/364",
+    "https://github.com/ros-controls/ros2_controllers/pull/365",
+    "https://github.com/ros-controls/ros2_controllers/blob/801b708f58d0e63fab635d03f6bf4fc36e512a02/joint_trajectory_controller/src/joint_trajectory_controller.cpp#L64",
+    "https://github.com/ros-controls/ros2_control/blob/643483355ba1c2c6c4d029eed7c7d3d6e3bcb116/controller_interface/include/controller_interface/controller_interface_base.hpp#L131"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Code-level report: \"The JTC loads parameters [like this] ... `auto_declare<bool>(\"open_loop_control\", open_loop_control_);` ... I think the returned value is ignored.\" The fix PR #365 (\"Properly retrieve parameters in the Joint Trajectory Controller\", \"Fixes #364.\") was approved and merged by maintainer bmagyar (master 4163f142, 2022-06-29). No reproducer or error log is given."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["joint_trajectory_controller", "controller_interface"],
+      "interface_kind": "library API",
+      "evidence": "controller_interface's auto_declare behaves as declared (it returns the declared or existing parameter value); the reported problem is that joint_trajectory_controller discards that return value in on_init, i.e. the controller's own use of a value it computes and consumes itself. No value, name, type, or timing crossing the boundary is wrong, and the same code would behave identically with any correct controller_interface. At the reported revision (801b708f) the controller also re-reads each of these parameters in on_configure (e.g. `joint_names_ = get_node()->get_parameter(\"joints\").as_string_array();`, `open_loop_control_ = get_node()->get_parameter(\"open_loop_control\").get_value<bool>();`), and the fix assigns auto_declare's return values to members in on_init and uses the stored state_publish_rate_ and action_monitor_rate_ in on_configure instead of re-reading those two parameters."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "Not evaluated; ineligible at E2 step 2."
+    },
+    "E4": {
+      "pass": false,
+      "evidence": "No effect on any interaction is documented; the report is a code-reading observation and the reported revision re-read the parameters in on_configure."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "E2 step 2 (internal): joint_trajectory_controller ignored the return value of controller_interface::auto_declare inside its own on_init; auto_declare's interface was used as declared and no cross-boundary value was wrong (no failure observed).",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "medium",
+  "notes": "PR #365 also removed the on_init declarations of constraints.stopped_velocity_tolerance and constraints.goal_time (author: \"As far as I can tell, `constraints.goal_time` isn't used anywhere. Same for `stopped_velocity_tolerance`.\"; reviewer: they are \"pretty much just used in the tolerances.hpp file\"). The PR author remarks \"There are probably similar fixes that should be made for the other controller types.\" Medium confidence only because E1 rests on a merged maintainer-approved fix rather than an observed failure; either way the case is ineligible."
+}

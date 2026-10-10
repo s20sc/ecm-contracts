@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_89145c4",
+  "kind": "A1",
+  "case_id": "robust_89145c4",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The 'disjoint-ness' shown in Fig. 2 means that it is _impossible_ to plan a path where the elbow joint position starts in one of the sets A, B, or C and finishes in another. I think this is why plans fail reasonably often when using the full joint limits of the UR5. \n\nThis could be fixed by limiting the elbow joint to [-Pi, Pi) when full joint limits are used.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The 'disjoint-ness' shown in Fig. 2 means that it is _impossible_ to plan a path where the elbow joint position starts in one of the sets A, B, or C and finishes in another. I think this is why plans fail reasonably often when using the full joint limits of the UR5.",
+      "url": "https://github.com/ros-industrial/universal_robot/issues/265"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Now when the robot is tested (without limiting the elbow joint) it times out (fails) on many queries, this will be because of the elbow self collisions. The planners then work when the elbow is limited to -pi, pi.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/265#issuecomment-252904527"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The planners then work when the elbow is limited to -pi, pi."
+  },
+  "notes": "Independently verified. (1) E1/E4: issue #265 body (scottpaulin, 2016-10-11, 'Elbow joint self-collisions break path planning when full joint space is used on UR5') matches the condition quote verbatim; the observed effect read in comment 252904527: 'I booted up the UR5 and started planning to random valid targets through RVIZ.' and the loudness quote above; maintainer positions read in-thread: gavanderhoorn 'How can setting the joint limits to what the mfg specs be a bug?' and v4hn (comment 252917167) '+1 to restrict the elbow joint in the not-limited URDF in this repo. It does not make much sense to specify the full joint space of the individual joint if the whole arm makes it impossible to reach it.' — the spec's E1 citations are accurate. (2) E2 judgement call checked: the failure depends on the pairing (provider's declared range consumed as the planning space; a consumer picking per-region IK solutions would not fail — scottpaulin: 'If you are careful with what IK solution is used then the non-joint-limited version works best.'), the resolving change alters the provider's declared value, and it is not name-binding/build/firmware — stop at 6, interface kind parameter, agreed; the counter-reading (mfg-spec value, self-collision intrinsic to the same URDF's geometry) is fairly recorded by the spec itself. (3) Class 'other' with param:/robot_description implicated: the declared range contains self-colliding, disjoint regions — no named class covers a value-semantics mismatch; agreed. The longest_valid_segment_fraction defect ('[ WARN] [1476187001.882120692]: Fail: ABORTED: Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing.', read in comment 252904527) is a different composition (ur5_moveit_config -> MoveIt) and is correctly excluded to notes. (4) Fix read directly: commit 2e078f5 (2017-09-12, merge of PR #320 from gavanderhoorn/bp_268_indigo-devel, parents 68d76b24 + eb120195) changes the elbow_joint limit in ur3/ur5/ur10.urdf.xacro from '<limit lower=\"${-2.0 * pi}\" upper=\"${2.0 * pi}\" ...' to '<limit lower=\"${-pi}\" upper=\"${pi}\" ...' under the non-joint-limited branch; PR #268 verified merged into kinetic-devel 2017-09-12 as 8a8591e2 ('Fix elbow joint limits'). (5) Loudness silent_documented/run: planning timeouts at run time only. (6) Resolution recommended: the reporter observed planners working only with a locally modified model and an unidentified MoveIt revision, so the resolved composition is not identified by revision — the strict definition puts this at recommended, as specified."
+}

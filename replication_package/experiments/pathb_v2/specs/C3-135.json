@@ -1,0 +1,137 @@
+{
+  "case_id": "C3-135",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/ros2/issues/1254",
+    "https://github.com/ros2/rosidl/blob/62fc0bd06854e1b3f3cf64d0af33f57ad75632fe/rosidl_cli/rosidl_cli/entry_points.py#L26-L59",
+    "https://github.com/ros2/rosidl/pull/674",
+    "https://github.com/ament/ament_lint/pull/365",
+    "https://github.com/osrf/osrf_pycommon/pull/84",
+    "https://github.com/ros2/launch/pull/606",
+    "https://github.com/ros2/launch_ros/pull/307",
+    "https://github.com/ros2/ros2cli/pull/706",
+    "https://github.com/roger-strain/launch_ros/commit/32409afd08f238d41cb6d6293345097645712906",
+    "https://github.com/roger-strain/launch_ros/commit/dac2d14d239109368d71b29632e71b248cc56278",
+    "https://github.com/roger-strain/launch_ros/commit/f3e911cfeaf1cc4ce5ea255acdacd66102cb6cfe",
+    "https://github.com/python/cpython/blob/v3.10.0/Lib/importlib/metadata/__init__.py",
+    "https://github.com/python/cpython/blob/v3.9.0/Lib/importlib/metadata.py"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "ROS 2 maintainer clalancette documents the concrete defect with the exact warning and a code example: \"Python 3.10, however, has deprecated the use of a 'dict' interface for the entry_points.  When accessing the entry_points in this way with Python 3.10, we get a deprecation warning:\" / \"DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.\", pointing at rosidl_cli/entry_points.py L26-L59 at 62fc0bd0 (https://github.com/ros2/ros2/issues/1254); fix PRs were merged (\"Everything is merged, so closing this out.\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "rosidl_cli",
+        "cpython"
+      ],
+      "interface_kind": "library API",
+      "evidence": "rosidl_cli (package in ros2/rosidl) calls the Python standard library's importlib.metadata (\"try:\" / \"    import importlib.metadata as importlib_metadata\"; \"for entry_point in importlib_metadata.entry_points().get(group_name, []):\", entry_points.py L17-18, L39 at 62fc0bd0). The warning arises from the provider's changed declaration of entry_points(): in CPython v3.9.0 it returns a plain dict (\"return {\" / \"group: tuple(eps)\", Lib/importlib/metadata.py), while in v3.10.0 \"def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:\" returns SelectableGroups, whose dict methods warn (\"SelectableGroups dict interface is deprecated. Use select.\", Lib/importlib/metadata/__init__.py L390). It depends on the consumer's assumption about the provider's API, so it is not internal; the fix changes consumer code, not names, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: the provider (Python 3.10 importlib.metadata) is newer than the API the consumer code was written against: \"Unfortunately this is not supported on earlier versions of Python, so the full solution (so we can support all of our target platforms) ends up looking like:\" with a hasattr(entry_points_impl, 'select') fallback to the old dict interface (https://github.com/ros2/ros2/issues/1254)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "\"When accessing the entry_points in this way with Python 3.10, we get a deprecation warning:\" followed by \"DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.\" (https://github.com/ros2/ros2/issues/1254)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rosidl_cli",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/rosidl",
+      "broken_rev": "62fc0bd06854e1b3f3cf64d0af33f57ad75632fe",
+      "resolved_rev": "7909d0f66109482c28a118472431670bdcecf622",
+      "pinned": true,
+      "revision_basis": "The reporter links rosidl_cli/entry_points.py at 62fc0bd06854e1b3f3cf64d0af33f57ad75632fe (commit \"3.1.2\", 2022-04-05), which is also the parent of the fix merge. Resolved revision is the merge commit of PR #674 (\"Fix importlib_metdata warning with Python 3.10.\", merged 2022-04-07 to master), which changes only rosidl_cli/rosidl_cli/entry_points.py.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "cpython",
+      "role": "provider",
+      "repo": "https://github.com/python/cpython",
+      "broken_rev": "v3.10.0",
+      "resolved_rev": "v3.10.0",
+      "pinned": false,
+      "revision_basis": "The report names only \"Python 3.10\" (no patch release). v3.10.0 is the first 3.10 release and already declares `def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:` with the \"SelectableGroups dict interface is deprecated. Use select.\" warning, so it stands in for any 3.10.x; the exact patch release run by the reporter is unknown (hence pinned false). The resolution does not change the provider, so the resolved revision equals the broken one.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "v3.9.0",
+    "resolved": "v3.10.0",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {
+      "element": "api:importlib.metadata.entry_points",
+      "sides": {
+        "cpython": "provides",
+        "rosidl_cli": "consumes"
+      }
+    },
+    {
+      "element": "api:importlib.metadata.SelectableGroups.get",
+      "sides": {
+        "cpython": "provides",
+        "rosidl_cli": "consumes"
+      }
+    },
+    {
+      "element": "api:importlib.metadata.SelectableGroups.select",
+      "sides": {
+        "cpython": "provides",
+        "rosidl_cli": "consumes"
+      }
+    },
+    {
+      "element": "api:importlib.metadata.EntryPoint.name",
+      "sides": {
+        "cpython": "provides",
+        "rosidl_cli": "consumes"
+      }
+    },
+    {
+      "element": "api:importlib.metadata.EntryPoint.load",
+      "sides": {
+        "cpython": "provides",
+        "rosidl_cli": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": [
+        "api:importlib.metadata.entry_points",
+        "api:importlib.metadata.SelectableGroups.get"
+      ],
+      "quote": "Python 3.10, however, has deprecated the use of a 'dict' interface for the entry_points.  When accessing the entry_points in this way with Python 3.10, we get a deprecation warning:\n\n```\nDeprecationWarning: SelectableGroups dict interface is deprecated. Use select.\n```",
+      "url": "https://github.com/ros2/ros2/issues/1254"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The provider's own deprecation mechanism emits \"DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.\" when the consumer uses the dict interface (https://github.com/ros2/ros2/issues/1254; emitted by `_warn` in CPython v3.10.0 Lib/importlib/metadata/__init__.py). The warning appears when entry_points() is called at run time (plugin discovery), not at build, connection, or activation; the composition keeps working.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "rosidl PR #674 replaces `importlib_metadata.entry_points().get(group_name, [])` with `entry_points_impl = importlib_metadata.entry_points()` and `groups = entry_points_impl.select(group=group_name)` when `hasattr(entry_points_impl, 'select')`, falling back to `entry_points_impl.get(group_name, [])` otherwise.",
+    "status": "recommended",
+    "evidence": "Merged after CI runs whose Python version is not stated (\"All of the failing tests seem to be there in the nightlies, so I'm going to go ahead and merge these all in.\", https://github.com/ros2/ros2/issues/1254); no source shows the fixed rosidl_cli running on Python 3.10 without the warning."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "The issue covers the same deprecated idiom in many consumers of importlib.metadata; this case specifies the one the reporter links as the example (rosidl_cli). Other compositions fixed under the same issue: ament_lint PR #365 (merge 4d23cd104004d25a72969a395b7de5bae0fb0e7e), osrf_pycommon PR #84 (d330cfd5321a51c1ba9a53acc5c461e2bf68003c), launch PR #606 (9555c0424a51f394f4d533fad6d0d119ded701e2), launch_ros PR #307 (6a2b7d66e7e5a3a4efbbd15fc39f291ddf56efcc), ros2cli PR #706 (b1d1cb29ae56b23e0e4636632b15a0a485f4e16a; the reporter names ros2cli as a user of entry points). The three roger-strain/launch_ros commits in the packet (dated 2023-09-18, message \"Resolve SelectableGroups deprecation warning, using approach used to resolve https://github.com/ros2/ros2/issues/1254 by clalancette.\") change launch_ros/launch_ros/descriptions/node.py in a fork, a later instance of the same pattern. Provider choice: on Python >= 3.8 rosidl_cli imports the stdlib module (\"import importlib.metadata as importlib_metadata\"), falling back to the importlib_metadata backport only on ModuleNotFoundError, so the provider under Python 3.10 is CPython's importlib.metadata. Built-against label v3.9.0 is inferred: the consumer's `entry_points().get(...)` matches the dict-returning declaration found in every stdlib release from 3.8.0 through 3.9.x; the source does not say which Python the code was first written or tested against (it only says the select interface \"is not supported on earlier versions of Python\"). Canonical `api:` names use the provider's class names from v3.10.0 (SelectableGroups, EntryPoint); in v3.9.0 the returned object is a plain dict, so `SelectableGroups.get` stands for the `.get` call on the entry_points() result. ros_distro is not stated; the PRs target the rolling (master) branches in April 2022."
+}

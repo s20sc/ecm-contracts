@@ -1,0 +1,175 @@
+{
+ "case_id": "robust_35682ec",
+ "corpus": "C1",
+ "operation": "UPGRADE",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [
+        "topic:cmd_vel_mux/output"
+       ],
+       "consumer_reads": [
+        "topic:cmd_vel_mux/mux_cmd_vel"
+       ],
+       "semver_old": null,
+       "semver_new": "0.2.2"
+      }
+     },
+     "provenance": {
+      "ver_delta.changed_fields[topic:cmd_vel_mux/output]": "built: Searched all 45 snapshot files (grep -rn -i for output, mux_cmd_vel, advertise, auto_docking, yaml_cfg_file). The only publishers are snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:129 | mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (\"mux_cmd_vel\", 10); and snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:130 | allowed_sub_pub = nh.advertise <std_msgs::String> (\"allowed_cmd_vel\", 1, true); // latched topic. The example launcher remaps to a different name: snapshot:cmd_vel_mux/launch/example.launch:12 | <remap from=\"cmd_vel_mux/mux_cmd_vel\" to=\"cmd_vel_mux/output/cmd_vel\"/>. No file names a topic cmd_vel_mux/output. || running: snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:126-131 | std::string output_name(\"output\"); ... mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (output_name, 10); on the private node handle (line 98 nh = this->getPrivateNodeHandle()); nodelet loaded with name cmd_vel_mux in snapshot:cmd_vel_mux/launch/example.launch:10",
+      "ver_delta.consumer_reads[topic:cmd_vel_mux/mux_cmd_vel]": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:7 | <remap from=\"cmd_vel_mux/mux_cmd_vel\" to=\"mobile_base/commands/velocity\"/>",
+      "ver_delta.semver_new": "snapshot:cmd_vel_mux/package.xml:3"
+     },
+     "unknown_delta": []
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:cmd_vel_mux/output",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:cmd_vel_mux/auto_docking",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "pair_view",
+     "element": "param:cmd_vel_mux/yaml_cfg_file",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [],
+       "consumer_reads": [
+        "topic:cmd_vel_mux/output"
+       ],
+       "semver_old": "0.2.2",
+       "semver_new": "0.2.2"
+      }
+     },
+     "provenance": {
+      "ver_delta.consumer_reads[topic:cmd_vel_mux/output]": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:7 | <remap from=\"cmd_vel_mux/output\" to=\"mobile_base/commands/velocity\"/>",
+      "ver_delta.semver_old": "snapshot:cmd_vel_mux/package.xml:3",
+      "ver_delta.semver_new": "snapshot:cmd_vel_mux/package.xml:3"
+     },
+     "unknown_delta": []
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:cmd_vel_mux/output",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "topic:cmd_vel_mux/output",
+         "msg_type": "geometry_msgs/Twist",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "9f195f881246fdfa2798d1d3eebca84a"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "topic:cmd_vel_mux/output",
+         "msg_type": "geometry_msgs/Twist",
+         "frame": null,
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "9f195f881246fdfa2798d1d3eebca84a"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "topic:cmd_vel_mux/output",
+       "in_role": "topic:cmd_vel_mux/output"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].msg_type": "snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:131 | mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (output_name, 10);",
+      "producer.outputs[0].definition_id": "same computation as ports[1].definition_id (geometry_msgs/Twist): 9f195f881246fdfa2798d1d3eebca84a at all seven common_msgs tags",
+      "consumer.inputs[0].msg_type": "built-against provider: snapshot:cmd_vel_mux/src/cmd_vel_mux_nodelet.cpp:131 | mux_cmd_vel_pub = nh.advertise <geometry_msgs::Twist> (output_name, 10);",
+      "consumer.inputs[0].definition_id": "built-against provider: same computation as ports[1].definition_id (geometry_msgs/Twist): 9f195f881246fdfa2798d1d3eebca84a at all seven common_msgs tags"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "topic:cmd_vel_mux/auto_docking",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "pair_view",
+     "element": "param:cmd_vel_mux/yaml_cfg_file",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    }
+   ]
+  }
+ }
+}

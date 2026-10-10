@@ -1,0 +1,142 @@
+{
+  "task_id": "u0436",
+  "package": "nav2_amcl",
+  "manifest_version": "1.1.0",
+  "ports": [
+    {
+      "element": "api:tf2::BufferCore::lookupTransform",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::TimePoint",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::Transform",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::TransformException",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::getYaw",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": "rad",
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:tf2::impl::Converter",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:tf2::BufferCore::lookupTransform",
+    "api:tf2::TimePoint",
+    "api:tf2::Transform",
+    "api:tf2::TransformException",
+    "api:tf2::getYaw",
+    "api:tf2::impl::Converter"
+  ],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "present",
+    "value": "handleInitialPose: on tf2::TransformException from tf_buffer_->lookupTransform, warn if sent_first_transform_ and substitute the identity transform for tx_odom"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:nav2_amcl/package.xml:5",
+    "ports[1].frame": "snapshot:nav2_amcl/src/amcl_node.cpp:551 | tf2::TimePoint tf2_time(std::chrono::nanoseconds(rclcpp_time.nanoseconds())); (a time value, no spatial meaning)",
+    "ports[3].frame": "snapshot:nav2_amcl/src/amcl_node.cpp:557 | } catch (tf2::TransformException & e) { (exception type, no spatial meaning)",
+    "ports[4].units": "snapshot:nav2_amcl/src/amcl_node.cpp:801-805 | double angle_min = tf2::getYaw(min_q.quaternion); ... // wrapping angle to [-pi .. pi] angle_increment = fmod(angle_increment + 5 * M_PI, 2 * M_PI) - M_PI;",
+    "references[api:tf2::BufferCore::lookupTransform]": "snapshot:nav2_amcl/src/amcl_node.cpp:554-556 | tx_odom = tf_buffer_->lookupTransform( base_frame_id_, tf2_ros::fromMsg(msg.header.stamp), base_frame_id_, tf2_time, odom_frame_id_); (tf_buffer_ is std::shared_ptr<tf2_ros::Buffer>, snapshot:nav2_amcl/include/nav2_amcl/amcl_node.hpp:164)",
+    "references[api:tf2::TimePoint]": "snapshot:nav2_amcl/src/amcl_node.cpp:551, 705, 716, 1006; snapshot:nav2_amcl/include/nav2_amcl/amcl_node.hpp:327 | void sendMapToOdomTransform(const tf2::TimePoint & transform_expiration);",
+    "references[api:tf2::Transform]": "snapshot:nav2_amcl/include/nav2_amcl/amcl_node.hpp:167 | tf2::Transform latest_tf_; also snapshot:nav2_amcl/src/amcl_node.cpp:417, 565, 568, 571, 574, 736, 985, 1489",
+    "references[api:tf2::TransformException]": "snapshot:nav2_amcl/src/amcl_node.cpp:421, 557, 739, 795, 996 | } catch (tf2::TransformException & e) {",
+    "references[api:tf2::getYaw]": "snapshot:nav2_amcl/src/amcl_node.cpp:380, 434, 583, 589, 801, 802, 1559 | yaw = tf2::getYaw(odom_pose.pose.orientation);",
+    "references[api:tf2::impl::Converter]": "snapshot:nav2_amcl/src/amcl_node.cpp:565, 569, 572, 1001, 1014 | tf2::impl::Converter<true, false>::convert(tx_odom.transform, tx_odom_tf2);",
+    "perm_requires.state": "searched snapshot/nav2_amcl (package.xml, CMakeLists.txt, plugins.xml, src/, include/) for permission/sros/security/policy/enclave declarations: none",
+    "perm_grants.state": "searched snapshot/nav2_amcl (package.xml, CMakeLists.txt, plugins.xml, src/, include/) for permission/sros/security/policy/enclave declarations: none",
+    "recovery.state": "snapshot:nav2_amcl/src/amcl_node.cpp:553-566",
+    "recovery.value": "snapshot:nav2_amcl/src/amcl_node.cpp:557-566 | } catch (tf2::TransformException & e) { ... if (sent_first_transform_) { RCLCPP_WARN(get_logger(), \"Failed to transform initial pose in time (%s)\", e.what()); } tf2::impl::Converter<false, true>::convert(tf2::Transform::getIdentity(), tx_odom.transform); }"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "All six elements are consumed tf2 APIs and each is referenced in amcl_node.cpp/amcl_node.hpp. The most fragile use is direct calls into the internal namespace tf2::impl::Converter<bool,bool>::convert (five sites) and the 5-argument advanced lookupTransform called through tf2_ros::Buffer without a timeout; whether these still resolve against rolling's tf2 cannot be told from the snapshot alone."
+  },
+  "confidence": "medium",
+  "notes": "All packet elements are C++ API symbols that nav2_amcl consumes; it provides none of them, so declares and not_declared are empty and all six go into references. Port msg_type and definition_id are null because these are API symbols, not message definitions; QoS, rate_hz and min_rate_hz are null because they are not topic interfaces. lookupTransform: the call site is tf_buffer_->lookupTransform(target_frame, target_time, source_frame, source_time, fixed_frame) on a std::shared_ptr<tf2_ros::Buffer> (amcl_node.hpp:164); attributing it to tf2::BufferCore::lookupTransform (the 5-argument time-travel overload that tf2_ros::Buffer inherits from tf2::BufferCore) relies on the tf2_ros header, which is not in the allowed sources. Its frames are not hard-coded: target/source are base_frame_id_ and fixed is odom_frame_id_, read from parameters base_frame_id (default \"base_footprint\", amcl_node.cpp:87) and odom_frame_id (default \"odom\", amcl_node.cpp:156); because one frame field cannot hold three frame roles, ports[0].frame is null. ports[2] (tf2::Transform), ports[4] (tf2::getYaw) and ports[5] (tf2::impl::Converter) frames are null because the transforms/orientations they handle come from several frames at different call sites. getYaw units recorded as rad because the code wraps the result with M_PI arithmetic (amcl_node.cpp:804-805). tf2::TimePoint units left null: the code constructs it from std::chrono::nanoseconds (amcl_node.cpp:551) but the type definition is not in the allowed sources. Code also uses tf2_ros::Buffer::transform (lines 420, 738, 793, 794, 995), tf2::toMsg, tf2::durationFromSec, tf2::Quaternion, tf2::Vector3 and tf2_ros::fromMsg/toMsg, which are not packet elements. recovery_alpha_slow/recovery_alpha_fast parameters (amcl_node.cpp:163, 169) are particle-filter random-particle injection rates, not a fault-recovery declaration, and are not used as the recovery value. Includes use the .h forms tf2/convert.h, tf2/utils.h, tf2/LinearMath/Transform.h (amcl_node.cpp:37, 39, 48). exclusive is empty: no hardware command interfaces or exclusive device handles are claimed (the only 'Exclusive' hit is rclcpp::CallbackGroupType::MutuallyExclusive at amcl_node.cpp:240)."
+}

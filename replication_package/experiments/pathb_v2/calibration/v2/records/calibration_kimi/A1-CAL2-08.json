@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-CAL2-08",
+ "kind": "A1",
+ "case_id": "CAL2-08",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: ‘mavlink::common::msg::GLOBAL_POSITION_INT’ has not been declared",
+  "url": "https://github.com/mavlink/mavros/issues/2088"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: ‘mavlink::common::msg::GLOBAL_POSITION_INT’ has not been declared",
+   "url": "https://github.com/mavlink/mavros/issues/2088"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "--- stderr: mavros\n/home/cosma_auv/ros2_ws/src/mavros/mavros/src/plugins/global_position.cpp:301:5: error: ‘mavlink::common::msg::GLOBAL_POSITION_INT’ has not been declared",
+  "url": "https://github.com/mavlink/mavros/issues/2088"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Ah, i overlooked https://github.com/mavlink/mavros/commit/42d26080d197f173947e8636abc6bbd295acb07a - so, i'll release 2.14.0 today.",
+  "url": "https://github.com/mavlink/mavros/issues/2088"
+ },
+ "notes": "Eligibility agreed at step 6 (library API; UPGRADE). I verified the dialect move at the provider's release tags: message id=\"33\" GLOBAL_POSITION_INT is defined in message_definitions/v1.0/common.xml at release/humble/mavlink/2025.9.9-1 (line 5427), is absent from common.xml at 2025.12.12-1, and appears in standard.xml at 2025.12.12-1 (line 115). The C++ symbol mavlink::common::msg::GLOBAL_POSITION_INT the consumer references was therefore removed by the provider — element_removed_or_renamed is right. Loudness loud_documented/build agreed (colcon compiler error). Resolution recommended agreed: the maintainer committed 42d26080 switching the handler to mavlink::standard::msg::GLOBAL_POSITION_INT and released 2.14.0, but the thread's only shown-working composition is the provider downgrade ('Yes, it works with 2025.9.9.'), i.e. a different composition; the resolved one is not shown building. Note: vooon's intermediate claim that '2025.12.12 has the same standard.xml as 2025.9.9' is contradicted by the release-tag files, and the spec correctly followed the primary files."
+}

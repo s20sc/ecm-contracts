@@ -1,0 +1,25 @@
+{
+  "task_id": "u0124",
+  "package": "kobuki_bumper2pc",
+  "manifest_version": "0.3.7",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:snapshot/kobuki_bumper2pc/package.xml:3",
+    "perm_requires.state": "Searched every file of snapshot/kobuki_bumper2pc (package.xml, CMakeLists.txt, plugins/nodelet_plugins.xml, launch/standalone.launch, include/kobuki_bumper2pc/kobuki_bumper2pc.hpp, src/kobuki_bumper2pc.cpp, mainpage.dox, .project, .cproject); no permission requirement is declared (the only match for 'permission' is the BSD licence text at kobuki_bumper2pc.hpp:15).",
+    "perm_grants.state": "Same search as perm_requires.state; no permission grant is declared in code or configuration.",
+    "recovery.state": "Same search as perm_requires.state; no recovery behaviour or recovery declaration in code or configuration (callbacks at src/kobuki_bumper2pc.cpp:21-75 only log ROS_WARN on an unknown sensor id)."
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "Bumper2PcNodelet holds a pcl::PointCloud<pcl::PointXYZ> by value (kobuki_bumper2pc.hpp:86) and is heap-allocated by pluginlib (PLUGINLIB_EXPORT_CLASS, src:108), but the class declares no EIGEN_MAKE_ALIGNED_OPERATOR_NEW; a PCL point cloud carries fixed-size vectorizable Eigen members (Eigen::Vector4f / Eigen::Quaternionf, from general knowledge of PCL, not verified in the snapshot), so the object may be misaligned. The sibling kobuki_node class in the same snapshot does declare the macro."
+  },
+  "confidence": "high",
+  "notes": "All three packet elements are consumed-side api symbols. The package's own code (include/kobuki_bumper2pc/kobuki_bumper2pc.hpp, src/kobuki_bumper2pc.cpp) names none of them: grep for 'Eigen', 'EIGEN', 'Quaternionf', 'Vector4f' and 'aligned' over snapshot/kobuki_bumper2pc returns no match. So there are no ports, and nothing goes into references. The package does not call or name these symbols itself. Any use is only through the included PCL headers (#include <pcl/point_types.h> and <pcl_ros/point_cloud.h> at hpp:52-53) and the by-value member pcl::PointCloud<pcl::PointXYZ> pointcloud_ (hpp:86), which is advertised as topic 'pointcloud' (src:97). The PCL headers are not in the snapshot and are not an allowed source, so the transitive use of Eigen::Vector4f / Eigen::Quaternionf / EIGEN_MAKE_ALIGNED_OPERATOR_NEW inside pcl::PointCloud is not recorded as a reference. Class Bumper2PcNodelet (hpp:68-99) has no EIGEN_MAKE_ALIGNED_OPERATOR_NEW line. Outside this package, the snapshot's sibling package kobuki_node uses EIGEN_MAKE_ALIGNED_OPERATOR_NEW at kobuki_node/include/kobuki_node/kobuki_ros.hpp:90. That is a different package and is not attributed here. No packet element is provided, so declares and not_declared are empty. references is limited to packet elements; the code also refers to kobuki_msgs/CliffEvent and kobuki_msgs/BumperEvent (hpp:55-56), which are subscribed on 'cliff_events' and 'bumper_events' (src:99-100), and it reads param 'pointcloud_radius' (default 0.25, src:86). It hard-codes frame_id '/base_link' for the published cloud (src:91). None of these are packet elements. No exclusive resource claims were found. ROS 1 (groovy), so no QoS applies."
+}

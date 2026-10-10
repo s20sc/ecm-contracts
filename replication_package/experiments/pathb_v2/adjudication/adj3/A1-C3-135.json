@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-C3-135",
+  "kind": "A1",
+  "case_id": "C3-135",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Python 3.10, however, has deprecated the use of a 'dict' interface for the entry_points.  When accessing the entry_points in this way with Python 3.10, we get a deprecation warning: DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.",
+    "url": "https://github.com/ros2/ros2/issues/1254"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": ["api:importlib.metadata.entry_points", "api:importlib.metadata.SelectableGroups.get"],
+      "quote": "Python 3.10, however, has deprecated the use of a 'dict' interface for the entry_points.  When accessing the entry_points in this way with Python 3.10, we get a deprecation warning: DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.",
+      "url": "https://github.com/ros2/ros2/issues/1254"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.",
+    "url": "https://github.com/ros2/ros2/issues/1254"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "entry_points_impl = importlib_metadata.entry_points() ... if hasattr(entry_points_impl, 'select'): groups = entry_points_impl.select(group=group_name) else: groups = entry_points_impl.get(group_name, [])"
+  },
+  "notes": "Issue body verbatim confirms the deprecation warning and the fix idiom. This is a clean UPGRADE case: CPython 3.10 changed entry_points() to return SelectableGroups whose dict interface warns, and the consumer (rosidl_cli) still uses the old dict interface. class element_retyped is correct (the declaration changed return type while the element remains). outcome warning_only, loudness loud_documented (provider's own DeprecationWarning, detection_stage run), and resolution recommended (PR #674 merged but no source shows the fixed consumer running on Python 3.10 without the warning) are all correct."
+}

@@ -1,0 +1,104 @@
+{
+  "case_id": "B-Res-03",
+  "corpus": "C2",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/1179",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1825885817",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1880057833",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1911700097",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1912400524",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-2464683564",
+    "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-2890854136",
+    "https://github.com/ros-controls/ros2_control/blob/0.11.0/controller_manager_msgs/srv/SwitchController.srv",
+    "https://github.com/ros-controls/ros2_control/blob/2.36.0/controller_manager_msgs/srv/SwitchController.srv",
+    "https://github.com/ros-controls/ros2_control/blob/0.11.0/controller_manager/src/controller_manager.cpp",
+    "https://github.com/ros-controls/ros2_control/blob/2.36.0/controller_manager/src/controller_manager.cpp",
+    "https://github.com/ros-controls/ros2_control/blob/2.43.1/controller_manager/src/controller_manager.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #1179 (2023-11-24, labels bug, stale) gives a reproducer (\"1. Launch any demo with a set of controllers loaded 2. Switch for a non existing controller\" with `ros2 service call /controller_manager/switch_controller controller_manager_msgs/srv/SwitchController \"{start_controllers: [\"dummy_controller\"]}\"`), the observed response (`controller_manager_msgs.srv.SwitchController_Response(ok=True)`) and the controller_manager's error log (\"Resource conflict for controller 'dummy_controller'. Command interface 'XXXX' is already claimed.\"). The reporter re-ran it on Humble (2024-01-07): \"[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists\" / \"[controller_manager]: Empty activate and deactivate list, not requesting switch\" with \"But the service response is Ok\". Maintainers saikishor and christophfroehlich (MEMBER) replied; contributor fmauch confirmed a second manifestation (2024-11-08). No fix is linked; the issue was closed by the stale bot on 2025-05-19."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["controller_manager", "switch_controller_client"],
+      "interface_kind": "service",
+      "evidence": "Step 1: the two units are the ros2_control controller_manager node (provider of /controller_manager/switch_controller) and the client process calling that service (in the reproducer `ros2 service call` from ros2cli; in fmauch's report an unspecified client of \"the controller switch service\"). Step 2: the defect is the value of the response field `ok` that crosses the service boundary. The service definition declares its meaning: \"The return value \"ok\" indicates if the controllers were switched successfully or not.  The meaning of success depends on the specified strictness.\" (SwitchController.srv, both 0.11.0 and 2.36.0). controller_manager itself handles the request as designed (it refuses the switch and logs the reason), so nothing fails inside either unit on its own; the failure exists only in what the client is told, i.e. a wrong value crossing the boundary, which the tree treats as an interface failure even though the resolving edit would be inside controller_manager. Step 3: no name binding at deployment is involved. Step 4: no build or dependency change. Step 5: not firmware. Step 6: eligible; interface kind service (response field of controller_manager_msgs/srv/SwitchController)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the client's request is the input to controller_manager's switch_controller_service_cb and the response `ok` (\"response->ok = switch_controller(...) == controller_interface::return_type::OK;\", controller_manager.cpp 2.36.0 lines 1741-1743) is the output consumed by the client. No upgrade, switch or concurrency between these two units is documented."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed effect on the interaction: \"The response expected should be ok = False but the ok is equals to true\" together with the controller_manager error log (issue body, Foxy); on Humble \"The controller manager notify the error ... But the service response is Ok\" (comment 1880057833); fmauch: \"The service response will contain `ok=True`.\" after \"Resource conflict for controller [...]\" (comment 2464683564)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "controller_manager",
+      "role": "provider",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "foxy binary of unstated version at 2023-11-24 (last foxy release 0.11.0, 2022-08-03); humble binary of unstated version at 2024-01-07 (latest humble release then 2.36.0, 2023-12-12); fmauch's 2024-11-08 report states no distro or version",
+      "resolved_rev": null,
+      "pinned": false,
+      "ros_distro": "foxy (issue body); humble (comment 2024-01-07)"
+    },
+    {
+      "name": "switch_controller_client",
+      "role": "consumer",
+      "repo": "https://github.com/ros2/ros2cli",
+      "broken_rev": null,
+      "resolved_rev": null,
+      "pinned": false,
+      "ros_distro": "foxy (issue body); humble (comment 2024-01-07)"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null},
+  "inventory": [
+    {"element": "service:/controller_manager/switch_controller", "sides": {"controller_manager": "provides", "switch_controller_client": "consumes"}},
+    {"element": "field:controller_manager_msgs/SwitchController.start_controllers", "sides": {"switch_controller_client": "provides", "controller_manager": "consumes"}},
+    {"element": "field:controller_manager_msgs/SwitchController.activate_controllers", "sides": {"switch_controller_client": "provides", "controller_manager": "consumes"}},
+    {"element": "field:controller_manager_msgs/SwitchController.strictness", "sides": {"switch_controller_client": "provides", "controller_manager": "consumes"}},
+    {"element": "field:controller_manager_msgs/SwitchController.ok", "sides": {"controller_manager": "provides", "switch_controller_client": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["service:/controller_manager/switch_controller", "field:controller_manager_msgs/SwitchController.ok", "field:controller_manager_msgs/SwitchController.strictness", "field:controller_manager_msgs/SwitchController.start_controllers"],
+      "quote": "Calling the service **/controller_manager/switch_controller** return always true even if it could not switch the controllers.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1179"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["service:/controller_manager/switch_controller", "field:controller_manager_msgs/SwitchController.ok", "field:controller_manager_msgs/SwitchController.strictness"],
+      "quote": "When switching a controller passes the `prepare_switch` method in the HW interface but causes a conflict in the resource manager, the service still returns `ok=True`.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-2464683564"
+    },
+    {
+      "class": "other",
+      "implicated_elements": ["service:/controller_manager/switch_controller", "field:controller_manager_msgs/SwitchController.ok", "field:controller_manager_msgs/SwitchController.strictness"],
+      "quote": "Hint: the problem with `STRICT` is, that it does return false also if the controller exists but is already in the desired state.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1179#issuecomment-1912400524"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "controller_manager emits a diagnostic at activation in every documented run: \"Resource conflict for controller 'dummy_controller'. Command interface 'XXXX' is already claimed.\" (issue body, Foxy; a resource-manager claim error), \"[controller_manager]: Could not 'activate' controller with name 'dummy_controller' because no controller with this name exists\" and \"[controller_manager]: Empty activate and deactivate list, not requesting switch\" (Humble), and \"... [controller_manager]: Resource conflict for controller [...]. Comand interface 'jointXYZ/position' is already claimed.\" (fmauch). These diagnostics appear only in the controller_manager's own log; the response delivered to the client carries no indication (ok=True), which is the defect.",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "No resolving change was merged or linked. A maintainer proposed that the client send `strictness` = STRICT (\"Please try with the `strictness` set to `STRICT` when sending the service request. I think it should respond with false.\"); per the code this returns ERROR for a nonexistent controller (controller_manager.cpp 2.36.0 lines 802-806) but, as another maintainer noted, also returns false when the controller is already in the requested state, and, as fmauch reported, still returns true when the resource manager rejects the claim during activation. fmauch proposed to \"propagate a rejection from the resource manager to the service response.\" The issue was closed by the stale bot on 2025-05-19.",
+    "status": "recommended",
+    "evidence": "\"Please try with the `strictness` set to `STRICT` when sending the service request. I think it should respond with false.\" (saikishor, MEMBER, comment 1911700097); \"I think it would be worthwile to propagate a rejection from the resource manager to the service response.\" (fmauch, comment 2464683564); \"This issue was closed because it has been stalled for 45 days with no activity.\" (comment 2890854136). Neither proposal is shown working in the source; a search of ros2_control pull requests and commits for references to #1179 found none."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Why medium: eligibility rests on treating the misreported response field as a wrong value crossing the boundary (E2 step 2); for the first condition the request omitted `strictness`, so controller_manager defaulted it to BEST_EFFORT with a warning (controller_manager.cpp 2.36.0 lines 757-767), and the definition's BEST_EFFORT text (\"BEST_EFFORT means that even when something goes wrong with on controller, the service will still try to activate/stop the remaining controllers\") leaves it arguable whether ok=True for a request in which nothing was switched is a defect or the declared semantics; the maintainers neither confirmed nor rejected it as a bug, and no revision is pinned. Code trace (2.36.0): a name not found logs a WARN and returns ERROR only under STRICT (lines 796-807); an empty request list logs \"Empty activate and deactivate list, not requesting switch\" and returns OK (lines 1068-1073); the service callback sets response->ok from that return value (lines 1741-1743). The resource-manager claim check (\"Resource conflict for controller '%s'. Command interface '%s' is already claimed.\", lines 1360-1368) runs inside activate_controllers(), called from the realtime loop's manage_switch(); a failed assignment only `continue`s (lines 1381-1384), and switch_controller() returns OK once the realtime loop clears do_switch (lines 1093-1104), which is consistent with fmauch's report; the same structure exists at 2.43.1 (lines 1482-1490, 1871-1873) and at 0.11.0 (lines 757-765, 1109-1111). Inconsistency in the source: the Foxy body describes switching to a non-existent controller but quotes a resource-conflict log for 'dummy_controller' with a redacted interface name 'XXXX' (per the code a nonexistent name never reaches the claim check); the Humble re-test shows the nonexistent-controller path. The underlying trigger of the second condition (and possibly of the Foxy log) is a command-interface claim conflict between two controllers, which the resource manager refuses as designed; those two controllers are not modeled as the units because the refusal itself is not the documented defect. Inventory sides for request fields follow data flow (client provides the value, controller_manager consumes it); the reporter used the deprecated `start_controllers` field, which on Humble is merged into activate_controllers with a deprecation warning (lines 1714-1722). The third condition is a maintainer's statement without a reproducer in the source. Outcome is `failure` (wrong data in the response; the requested switch is refused), resolution status `recommended` because only workarounds and a proposal exist."
+}

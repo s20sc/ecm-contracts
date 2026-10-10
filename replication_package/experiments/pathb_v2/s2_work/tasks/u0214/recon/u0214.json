@@ -1,0 +1,41 @@
+{
+  "task_id": "u0214",
+  "package": "ur_kinematics",
+  "manifest_version": "1.1.9",
+  "ports": [
+    {
+      "element": "api:urdf::ModelInterface",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:urdf::ModelInterface"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:ur_kinematics/package.xml:4",
+    "ports[0]": "snapshot:ur_kinematics/src/ur_moveit_plugin.cpp:179",
+    "references[api:urdf::ModelInterface]": "snapshot:ur_kinematics/src/ur_moveit_plugin.cpp:179 | const boost::shared_ptr<urdf::ModelInterface>& urdf_model = rdf_loader.getURDF();",
+    "perm_requires": "searched snapshot/ur_kinematics (package.xml, CMakeLists.txt, ur_moveit_plugins.xml, src/, include/) for permission declarations; none",
+    "perm_grants": "searched snapshot/ur_kinematics (package.xml, CMakeLists.txt, ur_moveit_plugins.xml, src/, include/) for permission grants; none",
+    "recovery": "searched snapshot/ur_kinematics src/ and include/ and config files for a declared recovery behaviour; none"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The only use of the URDF model type binds rdf_loader.getURDF() to a const boost::shared_ptr<urdf::ModelInterface>& (and getSRDF() to boost::shared_ptr<srdf::Model>), and the code never names urdf::ModelInterfaceSharedPtr; for a lunar target, where the URDF/SRDF pointer typedefs are std::shared_ptr, that binding is likely not to compile."
+  },
+  "confidence": "high",
+  "notes": "Both packet elements are consumed; this package provides none of them, so declares and not_declared are empty. api:urdf::ModelInterface is named once, in URKinematicsPlugin::initialize (ur_moveit_plugin.cpp:179), spelled as boost::shared_ptr<urdf::ModelInterface> and bound to the return of moveit rdf_loader::RDFLoader::getURDF(); the same object is then passed to robot_model::RobotModel(urdf_model, srdf) at line 187 and dereferenced into kdl_parser::treeFromUrdfModel at line 206. The header is pulled in via #include <urdf_model/model.h> (line 82). api:urdf::ModelInterfaceSharedPtr is not named anywhere in snapshot/ur_kinematics (grep for ModelInterface, SharedPtr, shared_ptr, urdf:: across src/ and include/); it gets no port and is in neither references nor any other list. The whole snapshot was also grepped: ur_moveit_plugin.cpp is the only file that names urdf::. package.xml does not list urdf, urdfdom or urdfdom_headers as a direct dependency (the type arrives through moveit_core / kdl_parser). The element is a C++ type, not a ROS interface, so msg_type, frame, units, QoS, rate and definition_id are null (ROS 1, no message definition). No exclusive resources are claimed: this is a MoveIt kinematics plugin with no hardware interfaces or device handles. The references list is limited to packet elements; the file also uses other external APIs (rdf_loader::RDFLoader, kdl_parser::treeFromUrdfModel, robot_model::RobotModel, srdf::Model) that are not packet elements."
+}

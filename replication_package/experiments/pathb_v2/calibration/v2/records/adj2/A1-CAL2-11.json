@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL2-11",
+ "kind": "A1",
+ "case_id": "CAL2-11",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "[[obstacle_detection@as-reported-2021-03-31]]\ntopic=/box\ntype=obstacle_detection/GDXBoxMessage\n...\n[[GPUPlanarRegionSubscriber@as-reported-2021-03-31]]\ncallerid=/GPUPlanarRegionSubscriber\ntopic=/box\ntype=idfa_msgs/GDXBoxesMessage",
+  "url": "snapshot:artifacts/CAL2-11.txt:1-9"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "topic=/box\ntype=obstacle_detection/GDXBoxMessage  versus  topic=/box\ntype=idfa_msgs/GDXBoxesMessage — two different nominal types declared for the same topic by the two separately built projects (the artifact's runtime-record fields, read this session)",
+   "url": "snapshot:artifacts/CAL2-11.txt:2-3"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "type=obstacle_detection/GDXBoxMessage  /  type=idfa_msgs/GDXBoxesMessage — the connection-record type fields the ROS 1 publisher/subscriber handshake compares; the spec's quoted error line ('Client [/GPUPlanarRegionSubscriber] wants topic /box to have datatype/md5sum ... Dropping connection.') could NOT be read this session (source unreachable, see notes), so the loudness verdict rests on the mechanism these artifact fields document plus the spec's internal consistency",
+  "url": "snapshot:artifacts/CAL2-11.txt:3"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "No change resolving the failure was merged or tested; the thread ends without a fix. — NOT VERIFIED this session: the thread's end could not be read (see notes); agreement rests on the spec's internal consistency (no fix, repository, or resolution is named anywhere in the spec or the artifact) and on the absence of any resolution pointer in the packet"
+ },
+ "notes": "SOURCE UNREACHABLE. The single source ref (https://answers.ros.org/question/375062) was attempted through every route the rules allow: (1) direct curl — bot-check interstitial ('Making sure you're not a bot!'); (2) web.archive.org via curl with three URL forms (generic '2024' redirect, exact timestamp, raw id_ form) — each returned a 4635-byte JavaScript wrapper with no archived content; (3) archive.org availability API — HTTP 429 Too Many Requests; (4) CDX API — empty response; (5) web_fetch tool — blocked (resolves to a disallowed IP range); (6) Stack Exchange API (search/advanced and search/excerpts on robotics.stackexchange, queries GDXBoxMessage / idfa_msgs / GPUPlanarRegionSubscriber) — no migrated copy exists. Per the S1 rule of two attempts this exceeds the threshold; I did not stop earlier because the case would otherwise rest on zero primary evidence. What I could verify: the workspace artifact artifacts/CAL2-11.txt (read in full) carries the connection-record fields of both sides — same topic /box, two different nominal types with the singular/plural spelling difference — which is the core of the case and matches the spec's inventory and its single failed condition. Verdicts therefore AGREE, but every quote-level claim from the source itself (the error line, gvdhoorn's diagnosis, the reporter's statements, E1/E2/E4 evidence) remains UNVERIFIED this session and is so marked; the loudness and resolution fields above carry explicit caveats. If a later pass can read the source (e.g. a Wayback snapshot for 2024-12-04, the URL form the packet's sibling case CAL2-12 uses), the loudness/resolution agreements should be re-checked against the actual error text and thread end."
+}

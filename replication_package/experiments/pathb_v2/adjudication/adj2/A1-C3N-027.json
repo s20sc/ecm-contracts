@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-C3N-027",
+ "kind": "A1",
+ "case_id": "C3N-027",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Compiling TF next to Nav2, I bisected commits from the last time I knew it was working properly for us `0.30.0` and now and found the behavior breaks when https://github.com/ros2/geometry2/commit/3bac620777043a1c8761cd74c1bb814667341b65 is introduced",
+  "url": "https://github.com/osrf/ros2_test_cases/issues/1042"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "There was an oversight in how the code, before introduction of `error_code`, handled the `error_string`. In particular, one code path saves the error in a \"side\" (so not directly in `error_string` but in `extrapolation_error_string`) and this HAS to be done also with the new `error_code` stuff.",
+   "url": "https://github.com/ros2/geometry2/pull/601"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "As such, I would expect to see some kind of logging but I see none.",
+  "url": "https://github.com/ros2/geometry2/issues/600"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "That fixes it! Can you submit the PR?",
+  "url": "https://github.com/ros2/geometry2/issues/600"
+ },
+ "notes": "Independently re-decided and agree. E1: the reporter (SteveMacenski) bisected and gave the reproducer ('you can reproduce it yourself easily by launching the default Nav2 system', issue 600 body); a geometry2 maintainer (roncapat) supplied and merged the fix. E2 stop 6: tf2 and nav2_amcl are separately released packages (ros2/geometry2, ros-navigation/navigation2) interacting through the tf2 C++ API; the wrong value crossing the boundary is lookupTransform returning a transform instead of raising its documented exception -- I read buffer_core.h at b037e20a: 'Possible exceptions tf2::LookupException, tf2::ConnectivityException,\n   * tf2::ExtrapolationException, tf2::InvalidArgumentException' (raw.githubusercontent.com/ros2/geometry2/b037e20a90d79a87447d9cde6da6dc2c5e1e9a57/tf2/include/tf2/buffer_core.h, lines 132-133) -- so the declared interface is unchanged and the provider violated it; per the tree a wrong value crossing the boundary is an interface failure even though the resolving edit is inside tf2; the fix is a C++ source change in tf2/src/buffer_core.cpp, so steps 3-5 do not stop. Class 'other' is right: no named class covers a provider violating its unchanged declared exception contract. Implicated elements lookupTransform + TransformException agree (the exception that failed to raise is part of the failed condition). E3 UPGRADE agree: worked at 0.30.0, broke when 3bac6207 introduced (bisection quote above, read in the 1042 comment thread); the reporter also narrowed the line ('Its actually just one of those lines, L461 changing it back fixes the problem.'). E4: 'We're seeing Nav2 receiving AMCL localization service requests, but not honoring the content of them (and seems to randomly just bounce around)' (issue 600 body) and 'Every system test we have involving simulation is breaking - so its not just end-users are seeing it, our CI is picking it up too.' (issue 600 comment). Loudness silent_documented agree: the same comment continues 'I would expect to see some kind of logging but I see none.' and 'The silence is illustrative.'; detection_stage run agree. Resolution observed agree: reporter tested the patch commit 23de342f ('That fixes it!', 2023-05-06T15:49:05Z, issue 600 comments); PR #601 merged (API: merged=true, merge_commit_sha ac2479e181a9d0a3efbc630ef55dfa5dd7afb1a9) and its body matches the resolution summary; the Nav2 side is pinned by the spec's branch-head reasoning rather than a source-stated commit -- acceptable, flagged in the spec itself. Also read: 'Resolved and binaries released!' (https://github.com/ros-navigation/navigation2/issues/3557, SteveMacenski 2023-06-02T23:54:26Z)."
+}

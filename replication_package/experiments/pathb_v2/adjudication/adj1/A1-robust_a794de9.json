@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-robust_a794de9",
+  "kind": "A1",
+  "case_id": "robust_a794de9",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Case 1: Structures having Eigen objects as members\nAdding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257#issuecomment-18128700",
+    "reason": "The plugin must meet an independently provided library's object-alignment precondition. The address supplied to Eigen construction is an API-boundary assumption, not an arbitrary internal arithmetic defect. The reported nodelet load is PAIR and supplies a concrete assertion failure."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW",
+      "url": "https://github.com/yujinrobot/kobuki/commit/18b46dc557676adc00b9f17c09c3af5281b5ea88",
+      "reason": "The hunk adds the allocator macro to Bumper2PcNodelet. The issue's plain_array<float,4> assertion supports the fixed-size vector storage implicated by the specification; other is the supplied taxonomy's appropriate class for alignment."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Assertion `(reinterpret_cast<size_t>(array) & 0xf) == 0 && \"this assertion is explained here: \" \"http://eigen.tuxfamily.org/dox-devel/TopicUnalignedArrayAssert.html\" \" **** READ THIS WEB PAGE !!! ****\"' failed.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257"
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "cmd /opt/ros/groovy/lib/nodelet/nodelet load kobuki_bumper2pc/Bumper2PcNodelet mobile_base_nodelet_manager",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257",
+    "reason": "The posted assertion and nodelet-loader death occur while activating/constructing the plugin, not during message transport or compilation."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Adding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem",
+    "url": "https://github.com/yujinrobot/kobuki/issues/257#issuecomment-18128700",
+    "reason": "This supports the repair, but does not identify the Eigen revision or demonstrate the specified 0.3.8/Eigen-3.0.5 pair working. The specification acknowledges that the maintainer's test-machine Eigen revision is unstated. Its observed status therefore exceeds the required two-revision evidence."
+  },
+  "notes": "Read issue #257 with all comments, the bumper2pc fix, the 0.3.7/0.3.8 headers and a794de9. The headers verify the macro addition, not a successful run. The later comment 'Believe or not, this is still alive: still can fail for very, very unlucky people.' is at https://github.com/yujinrobot/kobuki/issues/257#issuecomment-21234252. Commit a794de9 changes DockDrive in kobuki_auto_docking and states 'But the fact is that something is wrong on ecl.' That is a different composition, not proof that the selected bumper2pc fix failed or a missed condition in it. No adjudication relies on the unfetched ROS Answers/Wayback quotations in the specification."
+}

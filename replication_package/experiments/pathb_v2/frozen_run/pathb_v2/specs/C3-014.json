@@ -1,0 +1,100 @@
+{
+  "case_id": "C3-014",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/issues/1381",
+    "https://github.com/mavlink/mavros/pull/1942",
+    "https://github.com/mavlink/mavros/commit/20c15364e26117669fcfd3fa11170a5034d528a3",
+    "https://github.com/ArchangelAutonomy/mavros/commit/a9960190ab82dea823748ed62febae9ae150b349",
+    "https://github.com/mavlink/mavros/blob/1.0.0/mavros/src/plugins/global_position.cpp"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The reporter quotes the publishing code and describes the observed round trip (\"Then FCU confirms this with GPS_GLOBAL_ORIGIN message containing the same coordinates as LLA. But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.\", https://github.com/mavlink/mavros/issues/1381); other users confirm (\"I just ran into this as well\", https://github.com/mavlink/mavros/issues/1381#issuecomment-1056053123) and the maintainer-merged fix states \"However the messages are published in ECEF coordinates.\" (https://github.com/mavlink/mavros/pull/1942)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "mavros (global_position plugin)",
+        "reporter's origin-setting client node"
+      ],
+      "interface_kind": "topic",
+      "evidence": "The value published on topic mavros/global_position/gp_origin (type geographic_msgs/GeoPointStamped) crosses to the subscribing client, which expects geodetic LLA as defined by the message type: \"Topic `mavros/global_position/gp_origin` has type `geographic_msgs/GeoPointStamped` and must contain coordinates in LLA.\" (issue 1381). The fix changes what the provider publishes (removes the LLA-to-ECEF conversion), not a deployment binding."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the client publishes an origin on set_gp_origin and reads the confirmation that the global_position plugin publishes on gp_origin (\"When I send a request containing LLA, I expect to receive a response containing LLA too in order to compare it and ensure that global_origin has been successfully set.\", issue 1381)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Wrong data on the topic, described by the reporter and confirmed in the fix PR: \"This message contains https://docs.ros.org/en/api/geographic_msgs/html/msg/GeoPoint.html and expects > Geographic point, using the WGS 84 reference ellipsoid. However the messages are published in ECEF coordinates.\" (https://github.com/mavlink/mavros/pull/1942)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros (global_position plugin)",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "1.0.0",
+      "resolved_rev": "20c15364e26117669fcfd3fa11170a5034d528a3",
+      "pinned": true,
+      "revision_basis": "Reporter states \"Mavros: 1.0.0\" and \"ROS: Melodic\"; tag 1.0.0 (commit a1dd03c6db26107f914b4526305abca9733f7486, tagged 2020-01-01) contains the quoted handle_gps_global_origin code with the GeographicLib::Geocentric Forward conversion before gp_global_origin_pub.publish. resolved_rev is the commit on master that merged PR 1942 (2024-06-06, single parent 7f1a8c7adfdb582abc02c03d479e36ad666a0d08); ArchangelAutonomy a9960190 is the same change on the PR author's fork. No later release tag is identified by the source.",
+      "excerpt": false,
+      "ros_distro": "melodic"
+    },
+    {
+      "name": "reporter's origin-setting client node",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2020-01",
+      "resolved_rev": "as-reported-2020-01",
+      "pinned": false,
+      "revision_basis": "The reporter's own client is not published; it is described only by the reporter's statements in issue 1381 (2020-01-29). The resolution does not change it.",
+      "excerpt": true,
+      "ros_distro": "melodic"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "topic:/mavros/global_position/gp_origin", "sides": {"mavros (global_position plugin)": "provides", "reporter's origin-setting client node": "consumes"}},
+    {"element": "topic:/mavros/global_position/set_gp_origin", "sides": {"reporter's origin-setting client node": "provides", "mavros (global_position plugin)": "consumes"}},
+    {"element": "msg:geographic_msgs/GeoPointStamped", "sides": {"mavros (global_position plugin)": "provides", "reporter's origin-setting client node": "consumes"}},
+    {"element": "field:geographic_msgs/GeoPointStamped.position", "sides": {"mavros (global_position plugin)": "provides", "reporter's origin-setting client node": "consumes"}},
+    {"element": "field:geographic_msgs/GeoPoint.latitude", "sides": {"mavros (global_position plugin)": "provides", "reporter's origin-setting client node": "consumes"}},
+    {"element": "field:geographic_msgs/GeoPoint.longitude", "sides": {"mavros (global_position plugin)": "provides", "reporter's origin-setting client node": "consumes"}},
+    {"element": "field:geographic_msgs/GeoPoint.altitude", "sides": {"mavros (global_position plugin)": "provides", "reporter's origin-setting client node": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "topic:/mavros/global_position/gp_origin",
+        "field:geographic_msgs/GeoPointStamped.position",
+        "field:geographic_msgs/GeoPoint.latitude",
+        "field:geographic_msgs/GeoPoint.longitude",
+        "field:geographic_msgs/GeoPoint.altitude"
+      ],
+      "quote": "Then FCU confirms this with GPS_GLOBAL_ORIGIN message containing the same coordinates as LLA. But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.",
+      "url": "https://github.com/mavlink/mavros/issues/1381"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No source shows any diagnostic; the wrong values are noticed only by users comparing the published origin. Users report running into it (\"I just ran into this as well and agree that it is very confusing and probably wrong to use ECEF in a `GeoPoint`.\", https://github.com/mavlink/mavros/issues/1381#issuecomment-1056053123).",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "The global_position plugin publishes the GPS_GLOBAL_ORIGIN fields as geodetic latitude/longitude/ellipsoid altitude, removing the GeographicLib::Geocentric LLA-to-ECEF Forward conversion before gp_global_origin_pub.publish(g_origin).",
+    "status": "recommended",
+    "evidence": "PR 1942 (\"gps_global_origin: remove LLA to ECEF conversion\", \"FIX https://github.com/mavlink/mavros/issues/1381\") merged into master as 20c15364e26117669fcfd3fa11170a5034d528a3; no source shows the fixed plugin running with the reporter's client."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "medium",
+  "notes": "Class choice: the conflict is the coordinate representation of a value crossing the boundary (ECEF Cartesian values written into GeoPoint latitude/longitude/altitude fields), so representation_convention; the reference frame itself is not disputed (header.frame_id stays \"earth\"; a commenter argues \"The frame_id just specifies the reference point of the coordinates ... which is identical in case of ECEF and WGS84 LLA coordinates\", https://github.com/mavlink/mavros/issues/1381#issuecomment-1005574073), so I did not add frame_mismatch; the lat/lon fields also receive metres instead of degrees as a consequence, which I did not list separately as unit_mismatch. The maintainer first defended the ECEF output by REP 105 (\"you have the answer for that in https://github.com/mavlink/mavros/blob/master/mavros/src/plugins/global_position.cpp#L237 and in https://www.ros.org/reps/rep-0105.html#id17\"), but the conversion was later removed by PR 1942, merged by maintainer vooon. The mavros<->FCU (ArduPilot) MAVLink exchange of SET_GPS_GLOBAL_ORIGIN / GPS_GLOBAL_ORIGIN works as expected per the reporter and is not a failed composition. Between tag 1.0.0 and the fix revision the gp_origin publisher also became latched (advertise(..., 10, true)), an unrelated change. The inventory message/field elements are defined in geographic_msgs (a third package), not in either unit."
+}

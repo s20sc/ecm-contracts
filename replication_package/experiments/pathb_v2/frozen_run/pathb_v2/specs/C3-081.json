@@ -1,0 +1,112 @@
+{
+  "case_id": "C3-081",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/1012",
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/1012#issuecomment-2678494907",
+    "https://github.com/RobotWebTools/rosbridge_suite/issues/1012#issuecomment-2686506588",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1193",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1213",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1214",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1215",
+    "https://github.com/RobotWebTools/rosbridge_suite/pull/1150",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/52d39c16beb8875c33f58f8812aeda9d0a38fa15/ROSBRIDGE_PROTOCOL.md",
+    "https://github.com/RobotWebTools/rosbridge_suite/blob/52d39c16beb8875c33f58f8812aeda9d0a38fa15/rosbridge_library/src/rosbridge_library/capabilities/advertise.py",
+    "https://github.com/RobotWebTools/roslibjs/blob/a293e18c8a724f49b18648b540a19fa9356cdeea/src/core/Topic.js",
+    "https://github.com/RobotWebTools/roslibjs/blob/a293e18c8a724f49b18648b540a19fa9356cdeea/src/core/Service.js"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue quotes the provider code (advertise.py reads latch/queue_size) and the protocol document section that omits them; the maintainer (bjsowa) confirms: \"The `queue_size` and `latch` arguments for publishers are supported\" and \"It seems to always return something but the type in the protocol doc is wrong.\""
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rosbridge_suite", "roslibjs"],
+      "interface_kind": "wire protocol field",
+      "evidence": "The two units are the rosbridge server (rosbridge_library/rosbridge_server in rosbridge_suite) and the roslibjs client, separately released packages that interact only through the rosbridge JSON protocol. The mismatch is between the protocol's declared operation definitions (ROSBRIDGE_PROTOCOL.md) and the fields that actually cross the boundary (advertise.latch/queue_size sent by roslibjs and read by the server; service_response.values sent as object or string; call_service.args always sent as an object). It depends on the protocol contract between the units, so it is not internal; the resolving change is a protocol-specification edit, not name binding, build, or firmware."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: client operations (advertise, subscribe) feed the server's capability handlers and server operations (call_service, service_response) feed the client's handlers over one rosbridge connection."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Code-level statement of the mismatch by the reporter (quoting advertise.py against section 3.3.1) and by the maintainer (\"the type in the protocol doc is wrong\"). No runtime failure is observed in the source, so outcome is undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rosbridge_suite",
+      "role": "provider",
+      "repo": "https://github.com/RobotWebTools/rosbridge_suite",
+      "broken_rev": "52d39c16beb8875c33f58f8812aeda9d0a38fa15",
+      "resolved_rev": "03858b2351162666c671d96d9dda81ef247d12d1",
+      "pinned": true,
+      "revision_basis": "The reporter quotes rosbridge_library/src/rosbridge_library/capabilities/advertise.py and ROSBRIDGE_PROTOCOL.md section 3.3.1 without naming a revision; the issue was opened 2025-02-20T20:55:59Z and the head of the ros2 branch at that time was 52d39c16 (2025-02-17, 'New async rosapi params module implementation (#1001)'), whose advertise.py and protocol document match the quoted text. The resolved revision is the merge commit of PR #1193 on ros2 (03858b23, 2026-04-02), which states 'Fixes #1012, I think' and closed the issue; the same document was backported to kilted (#1213, ec007e23), jazzy (#1214, 1cdfa3b0) and humble (#1215, 201a72b4).",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "roslibjs",
+      "role": "consumer",
+      "repo": "https://github.com/RobotWebTools/roslibjs",
+      "broken_rev": "a293e18c8a724f49b18648b540a19fa9356cdeea",
+      "resolved_rev": "a293e18c8a724f49b18648b540a19fa9356cdeea",
+      "pinned": true,
+      "revision_basis": "The reporter says they were working on a roslibjs PR (draft roslibjs#851) and that 'rosbridge / roslib add fields `latch` and `queue_size`'; no roslibjs revision is named. The head of roslibjs develop at the issue date was a293e18c (2025-02-17), whose Topic.advertise() sends latch and queue_size and whose Service handles service_response.values. The resolution changes only the rosbridge protocol document, so roslibjs keeps its broken revision.",
+      "excerpt": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "msg:rosbridge_protocol/advertise", "sides": {"roslibjs": "provides", "rosbridge_suite": "consumes"}},
+    {"element": "field:rosbridge_protocol/advertise.latch", "sides": {"roslibjs": "provides", "rosbridge_suite": "consumes"}},
+    {"element": "field:rosbridge_protocol/advertise.queue_size", "sides": {"roslibjs": "provides", "rosbridge_suite": "consumes"}},
+    {"element": "msg:rosbridge_protocol/subscribe", "sides": {"roslibjs": "provides", "rosbridge_suite": "consumes"}},
+    {"element": "field:rosbridge_protocol/subscribe.queue_length", "sides": {"roslibjs": "provides", "rosbridge_suite": "consumes"}},
+    {"element": "msg:rosbridge_protocol/call_service", "sides": {"rosbridge_suite": "provides", "roslibjs": "consumes"}},
+    {"element": "field:rosbridge_protocol/call_service.args", "sides": {"rosbridge_suite": "provides", "roslibjs": "consumes"}},
+    {"element": "msg:rosbridge_protocol/service_response", "sides": {"rosbridge_suite": "provides", "roslibjs": "consumes"}},
+    {"element": "field:rosbridge_protocol/service_response.values", "sides": {"rosbridge_suite": "provides", "roslibjs": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": ["msg:rosbridge_protocol/advertise", "field:rosbridge_protocol/advertise.latch", "field:rosbridge_protocol/advertise.queue_size"],
+      "quote": "But the protocol document doesn't include these fields. Latch is mentioned briefly in its own section, and the phrase `queue_size` doesn't appear in the entire document.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012"
+    },
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": ["msg:rosbridge_protocol/call_service", "field:rosbridge_protocol/call_service.args"],
+      "quote": "Looking at the implementation it seems true but the type is not completely correct.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012#issuecomment-2686506588"
+    },
+    {
+      "class": "definition_mismatch",
+      "implicated_elements": ["msg:rosbridge_protocol/service_response", "field:rosbridge_protocol/service_response.values"],
+      "quote": "It seems to always return something but the type in the protocol doc is wrong. It returns a JSON object literal with response message fields if the service call succeeds (result set to true) or a string with the error message if it fails.",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/1012#issuecomment-2686506588"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "The source reports only a reading of the code against the protocol document; no runtime error, warning, or wrong behaviour of the roslibjs-rosbridge composition is shown.",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Rewrite of ROSBRIDGE_PROTOCOL.md (PR #1193, merged 03858b23 on ros2; backports #1213/#1214/#1215) that documents latch and queue_size on advertise/publish, types call_service.args as 'object or list', and types service_response.values as 'object or string' conditional on result. No code change in either unit.",
+    "status": "recommended",
+    "evidence": "PR #1193 body: \"Fixed any inconsistencies I could find in specification vs implementation (Fixes #1012, I think)\". The merge closed the issue; the source does not show a client composed against the corrected specification running with an identified server revision."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "low",
+  "notes": "Canonical forms: the rosbridge protocol has no ROS package or message type, so its operations are written as msg:rosbridge_protocol/<op> and their JSON fields as field:rosbridge_protocol/<op>.<field>; this is the closest fit to msg:/field: for wire-protocol operation fields. Side assignment follows the direction the reporter discusses: advertise/subscribe are sent by the client; call_service and service_response are the server-to-client direction ('rosbridge seems to always send them when the direction is `ROS -> Bridge -> Client`'). Eligibility is borderline: the two units' code agree with each other (roslibjs a293e18c sends latch/queue_size and treats a result=false service_response.values as the failure payload), and the mismatch is between the provider's declared protocol definition and its implementation, which matters to a client written against the document (the reporter's TypeScript typing draft, roslibjs#851). An alternative reading would treat a documentation-only discrepancy as not an interaction failure. PR #1150 (QoS profile support for advertise/publish/subscribe, merged 2026-04-21, references issue #887) is listed as a fix reference but addresses a different change (adding QoS profile fields), not this issue. ROS 1 compatibility of the field names is explained by the maintainer (queue_size/latch are translated to QoS depth/durability in ROS 2)."
+}

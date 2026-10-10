@@ -1,0 +1,31 @@
+{
+  "task_id": "u0310",
+  "package": "nav2_mppi_controller",
+  "manifest_version": "1.3.7",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "Optimizer::fallback: on critics fail_flag, reset() and re-run optimize() up to retry_attempt_limit (default 1) times, then throw nav2_core::NoValidControl(\"Optimizer fail to compute path\")"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:nav2_mppi_controller/package.xml:5",
+    "ports": "searched all 72 files under snapshot/nav2_mppi_controller (src, include, test, benchmark, CMakeLists.txt, package.xml, mppic.xml, critics.xml, README.md) for 'Odometry', 'odometry', 'odom_topic', 'filtered', 'twist' and every create_subscription/create_publisher/create_service/create_client call: no subscription, client or type reference to nav_msgs/Odometry, its twist field, or /odometry/filtered; the only publishers are snapshot:nav2_mppi_controller/src/trajectory_visualizer.cpp:29-31 (/trajectories, transformed_global_plan, optimal_trajectory)",
+    "exclusive": "no hardware command interfaces or exclusive device handles claimed anywhere in snapshot/nav2_mppi_controller",
+    "perm_requires.state": "searched snapshot/nav2_mppi_controller for permission/security/sros/enclave declarations: only license text matches (LICENSE.md:7, source headers)",
+    "perm_grants.state": "same search as perm_requires.state; none found",
+    "recovery.state": "snapshot:nav2_mppi_controller/src/optimizer.cpp:188-204",
+    "recovery.value": "snapshot:nav2_mppi_controller/src/optimizer.cpp:87 getParam(s.retry_attempt_limit, \"retry_attempt_limit\", 1); snapshot:nav2_mppi_controller/src/optimizer.cpp:165-167 do { optimize(); } while (fallback(critics_data_.fail_flag)); snapshot:nav2_mppi_controller/src/optimizer.cpp:197-201 reset(); if (++counter > settings_.retry_attempt_limit) { counter = 0; throw nav2_core::NoValidControl(\"Optimizer fail to compute path\");"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The package does not itself subscribe to or name any of the three listed elements; robot velocity reaches it only as a geometry_msgs/Twist argument through the nav2_core::Controller plugin API, so nothing in this package's own code can be judged against those elements."
+  },
+  "confidence": "high",
+  "notes": "All three packet elements are consumed-side (field:nav_msgs/Odometry.twist, msg:nav_msgs/Odometry, topic:/odometry/filtered). nav2_mppi_controller is a nav2_core::Controller plugin (exported via mppic.xml, package.xml:38) and creates no odometry subscription. It receives the robot velocity as 'const geometry_msgs::msg::Twist & robot_speed' in MPPIController::computeVelocityCommands (snapshot:nav2_mppi_controller/src/controller.cpp:77-80) and copies it into the optimizer state (src/optimizer.cpp:215 state_.speed = robot_speed; used at optimizer.cpp:303-307 as linear.x, angular.z, linear.y). The odometry subscription belongs to the host controller server, which is a different package in the snapshot: nav2_controller/src/controller_server.cpp:223 creates nav_2d_utils::OdomSubscriber, whose topic comes from parameter odom_topic with default \"odom\" (nav2_dwb_controller/nav_2d_utils/include/nav_2d_utils/odom_subscriber.hpp:64-77, SystemDefaultsQoS), and passes nav_2d_utils::twist2Dto3D(twist) to the plugin (controller_server.cpp:636-645). Because this package neither publishes, offers, subscribes to, nor calls any packet element, ports is empty; since no element is provided, declares and not_declared are empty; since the code never names nav_msgs/Odometry, its twist field, or /odometry/filtered (CMakeLists.txt:29 lists nav_msgs, but only nav_msgs/Path is used), references is empty. No definition hashes were computed because no port or declaration needed one. /odometry/filtered appears in the snapshot only as a remapping source in nav2_system_tests/src/gps_navigation/dual_ekf_navsat.launch.py:39,47,60, unrelated to this package."
+}

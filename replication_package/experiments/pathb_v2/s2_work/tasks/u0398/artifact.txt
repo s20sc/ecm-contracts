@@ -1,0 +1,25 @@
+exported_state_interfaces_[name]->set_value()
+-- https://github.com/ros-controls/ros2_control/issues/2121
+std::vector<hardware_interface::StateInterface> OdometryProvider::on_export_state_interfaces()
+{
+  state_interfaces_values_.clear();
+  state_interfaces_values_.resize(6, 0.0);
+  std::vector<hardware_interface::StateInterface> state_interfaces;
+  state_interfaces.push_back(hardware_interface::StateInterface(
+      get_node()->get_name(), interface_name0, &state_interfaces_values_[0]));
+  state_interfaces.push_back(hardware_interface::StateInterface(
+      get_node()->get_name(), interface_name1, &state_interfaces_values_[1]));
+  state_interfaces.push_back(hardware_interface::StateInterface(
+      get_node()->get_name(), interface_name2, &state_interfaces_values_[2]));
+  state_interfaces.push_back(hardware_interface::StateInterface(
+      get_node()->get_name(), interface_name3, &state_interfaces_values_[3]));
+  state_interfaces.push_back(hardware_interface::StateInterface(
+      get_node()->get_name(), interface_name4, &state_interfaces_values_[4]));
+  state_interfaces.push_back(hardware_interface::StateInterface(
+      get_node()->get_name(), interface_name5, &state_interfaces_values_[5]));
+
+  return state_interfaces;
+}
+-- https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2742591806
+state_interfaces_values_[0] = value;
+-- https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2742591806

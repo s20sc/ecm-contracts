@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_054c753",
+  "kind": "A1",
+  "case_id": "robust_054c753",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93\n\n```\n  serial.block(4000); // blocks by default, but just to be clear!\n  try {\n    serial.open(parameters.device_port, ecl::BaudRate_115200, ecl::DataBits_8, ecl::StopBits_1, ecl::NoParity);  // this will throw exceptions - NotFoundError, OpenError\n    is_connected = true;\n  }\n```\n\nIn the version 0.3.9, which I confirmed that working fine,  the block() was called after open().",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93",
+      "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21917240"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I have a new version of mangled output - this time all is CAPTIAL LETTERS! :-)",
+    "url": "https://github.com/yujinrobot/kobuki/issues/272#issuecomment-21840623"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Thus, the proposed patch is going to call serial.block() function after serial.open() in kobuki.cpp\nAlso, ecl serial.block() should warn user if file_descriptor is not initialized."
+  },
+  "notes": "All key claims verified. (1) Issue 272 body 'ROS log gets somehow horribly mangled ... And prevents Ctrl+C to work. Strange thing is that it happens only sometimes.' (2) Symptom comment 21840623 (bit-pirate): 'I have a new version of mangled output - this time all is CAPTIAL LETTERS! :-)' with an all-uppercase roslaunch log, ending 'Same result though - terminal get's unresponsive.' (3) Diagnosis comment 21917240 (jihoonl) verbatim: 'The problem was that serial.block() is called before serial.open() in hydro branch kobuki_driver/kobuki.cpp line 93' with the code block (block at 93, open at 95), 'In the version 0.3.9 ... the block() was called after open().', the serial_pos.hpp open() doc 'use the block(timeout_ms) and unblock() methods to alter its behaviour', and 'If block() is called without initializing serial, it uses default value for file_descriptor in serial_pos.cpp:line 320 ... tcsetattr(file_descriptor, TCSAFLUSH, &options);'. (4) Driver code at ba100858 confirmed: line 93 'serial.block(4000); // blocks by default, but just to be clear!' and line 95 'serial.open(parameters.device_port, ...)'. (5) Fix 054c753 'Merge pull request #278 ... To resolve issue 272. babo terminal' (PR #278, merged 2013-08-01). (6) E2 library-API eligible at step 6: a documented call-order precondition of ecl::Serial (block only after open) violated by the consumer; failure crosses the boundary (a peer that guarded block() against an unopened device, or a consumer that opened first, would not mangle the terminal). (7) Class 'other' correct: a call-order/initialisation precondition has no dedicated schema class; implicated elements block+open correct. (8) Loudness silent_documented + activate: no tooling diagnostic; the misuse is visible only as terminal side effects; jihoonl explicitly notes the provider gives no warning ('ecl serial.block() should warn user if file_descriptor is not initialized'). (9) Resolution 'recommended': PR merged, but the issue was closed without a comment showing the terminal problem gone at 054c753; the only working evidence is the older 0.3.9 release (open before block), a different consumer revision. No missed conditions."
+}

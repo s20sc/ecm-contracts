@@ -1,0 +1,11 @@
+{"item_id": "P-u0105-1", "kind": "P", "task_id": "u0105", "element": "api:tf2_msgs::TFMessage::__connection_header", "side": "provides",
+ "values": [{"field": "msg_type", "recorded": "tf2_msgs/TFMessage", "verdict": "unverifiable",
+   "source_excerpt": "scripts/msg.h.template:55 \"cpp_namespace = '::%s::'%(spec.package) # TODO handle nested namespace\" :92 'namespace @(spec.package)' :95 'struct @(spec.short_name)_'",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "scripts/msg.h.template:128 'boost::shared_ptr<std::map<std::string, std::string> > __connection_header;'",
+   "qos_basis": null},
+  {"field": "definition_id", "recorded": {"algorithm": "ros1_md5", "kind": "msg", "value": "94810edda583a504dfda3829e70d7eec"}, "verdict": "unverifiable",
+   "source_excerpt": "python3 definition_hash.py ros1 tf2_msgs/TFMessage s2_work/tasks/u0105/snapshot -> FileNotFoundError: tf2_msgs/TFMessage.msg not found under ['s2_work/tasks/u0105/snapshot']",
+   "qos_basis": null}],
+ "notes": "msg_type: cited lines 55 and 95 are readable and state a generic naming mechanism parameterized by spec.package/spec.short_name, but the template never mentions tf2_msgs or TFMessage ('rg -l \"TFMessage|TransformStamped|tf2_msgs\"' over the whole snapshot: no matches), so the location does not state the recorded value. frame: line 128 declares __connection_header as a string-to-string shared_ptr map inside the generated struct - connection metadata, no spatial data; verified. definition_id: the provenance relies on TFMessage.msg and dependency definitions fetched from raw.githubusercontent.com URLs; 'find snapshot -name \"*.msg\"' shows no .msg files anywhere in the snapshot, so the cited definition_hash.py command cannot be run over snapshot inputs (attempt exited with FileNotFoundError), and network use is prohibited. The MD5Sum-trait embedding at msg.h.template:211 was opened (\"[['MD5Sum', md5sum], ...]\") and matches the claimed mechanism, but it states no hash value."}

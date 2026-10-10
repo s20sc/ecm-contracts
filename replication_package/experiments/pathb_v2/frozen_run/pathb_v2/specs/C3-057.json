@@ -1,0 +1,115 @@
+{
+  "case_id": "C3-057",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/5386",
+    "https://github.com/ros-navigation/navigation2/pull/6336",
+    "https://github.com/ros-navigation/navigation2/pull/5617",
+    "https://github.com/ros-navigation/navigation2/issues/5214",
+    "https://github.com/ros-navigation/navigation2/issues/5694"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #5386 gives the full parameter file, reproduction steps and the observed effect (\"On Ubuntu 24.04, maximum speed is limited to \\~0.25 m/s.\"), with the installed version \"ros-jazzy-navigation2 1.3.7-1noble.20250624.020544\". The merged jazzy backport PR #6336 names #5386 and states the mechanism: \"Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command\"."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "nav2_mppi_controller",
+        "robot_odometry_source"
+      ],
+      "interface_kind": "topic",
+      "evidence": "Step 1: the MPPI controller plugin (loaded in controller_server, which reads the robot twist from odom_topic \"/odometry/filtered\" through nav_2d_utils::OdomSubscriber and passes it to the plugin) and the separately deployed process that publishes that odometry. Step 2: the failure depends on a timing assumption across that boundary: at 1.3.7 the optimizer sets state_.speed = robot_speed and seeds the rollouts' initial velocity from it (updateInitialStateVelocities), with per-step acceleration limits max_delta_vx = model_dt * ax_max applied after it, so an odometry twist that lags the commanded velocity caps the achievable speed. The maintainer states the cross-unit assumption in #5214: \"all controllers in Nav2 assume that your robot has properly setup robot controllers to be able to execute commands given.\" A peer whose reported twist tracked the command would not trigger it. Step 3/4: the resolving change adds a new controller parameter and changes the optimizer's use of the consumed twist; not wiring or build only."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the odometry source's /odometry/filtered output feeds the controller's initial-state input. The symptom surfaced on the reporter's Humble-to-Jazzy migration (the whole stack moved from Ubuntu 22.04/Humble to 24.04/Jazzy), but the odometry provider is not identified as upgraded against a fixed consumer, so the failure is recorded in the pairing; see notes."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed wrong motion: \"On Ubuntu 24.04, maximum speed is limited to \\~0.25 m/s.\" (issue #5386)."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "nav2_mppi_controller",
+      "role": "consumer",
+      "repo": "https://github.com/ros-navigation/navigation2",
+      "broken_rev": "1.3.7",
+      "resolved_rev": "3f71f94b105b6731953a137561e8c27acc3e3acf",
+      "pinned": true,
+      "revision_basis": "The reporter lists \"ros-jazzy-navigation2 1.3.7-1noble.20250624.020544\"; tag 1.3.7 (803e7b81089d196c53593b1d5aec9020f1659f9d, 2025-05-30) is the source of that binary release. The resolving change is the jazzy backport merge commit 3f71f94b105b6731953a137561e8c27acc3e3acf (PR #6336, merged 2026-08-11); the first jazzy tag containing it is 1.3.13 (f4108e5b), tag 1.3.12 does not contain it. The fix is opt-in (open_loop defaults to false).",
+      "excerpt": false,
+      "ros_distro": "jazzy"
+    },
+    {
+      "name": "robot_odometry_source",
+      "role": "provider",
+      "repo": null,
+      "broken_rev": "as-reported-2025-07",
+      "resolved_rev": "as-reported-2025-07",
+      "pinned": false,
+      "revision_basis": "The reporter never identifies the process that publishes \"/odometry/filtered\" (conventionally a robot_localization EKF over the robot's wheel odometry) nor its version; the resolution does not change it, so it keeps its as-reported label.",
+      "excerpt": true,
+      "ros_distro": "jazzy"
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {
+    "broken": null,
+    "resolved": null,
+    "basis": null
+  },
+  "inventory": [
+    {
+      "element": "topic:/odometry/filtered",
+      "sides": {
+        "robot_odometry_source": "provides",
+        "nav2_mppi_controller": "consumes"
+      }
+    },
+    {
+      "element": "msg:nav_msgs/Odometry",
+      "sides": {
+        "robot_odometry_source": "provides",
+        "nav2_mppi_controller": "consumes"
+      }
+    },
+    {
+      "element": "field:nav_msgs/Odometry.twist",
+      "sides": {
+        "robot_odometry_source": "provides",
+        "nav2_mppi_controller": "consumes"
+      }
+    }
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": [
+        "topic:/odometry/filtered",
+        "field:nav_msgs/Odometry.twist"
+      ],
+      "quote": "Fixes a Humble to Jazzy regression: MPPI seeds rollouts from lagging odometry instead of its own last command",
+      "url": "https://github.com/ros-navigation/navigation2/pull/6336"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "\"On Ubuntu 24.04, maximum speed is limited to \\~0.25 m/s.\" (https://github.com/ros-navigation/navigation2/issues/5386); no diagnostic is reported, the reporter found it by observing /cmd_vel.",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Add an MPPI parameter open_loop (default false); when true, Optimizer::prepare seeds state_.speed from the controller's own last command (last_command_vel_) instead of the odometry twist, and reset() zeroes that stored command. Upstream PR #5617 (main, merge 8dbc92910b020b19b9891849b3ee7cb92e1b3b03), backported to jazzy as PR #6336 (merge 3f71f94b105b6731953a137561e8c27acc3e3acf).",
+    "status": "recommended",
+    "evidence": "Not shown working in the reporter's composition: the reporter closed the issue after concluding \"It seems that the small acceleration value causes the vehicle to slow down.\" The backport author reports it working with a different peer: \"Tested: Ubuntu 24.04, MuJoCo sim. Our measurement on a simulated Ridgeback mecanum base, vx_max: 0.5: commanded speed 0.165 to 0.466 m/s; ground truth 0.138 to 0.452\" (https://github.com/ros-navigation/navigation2/pull/6336)."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": true,
+  "confidence": "low",
+  "notes": "Class 'other' is used because the mismatch is a latency of the consumed twist relative to the commanded velocity (a timing assumption), which none of the listed classes (rate_shortfall covers publishing rate, qos_deadline an enforced QoS policy) describes. The reporter's own diagnosis differs in emphasis: the acceleration limits ax_max/ax_min/ay_*/az_max in their YAML were ignored on Humble (the humble branch optimizer declares no ax_max) and take effect on Jazzy (\"I think the following parameters are not effective in the HUMBLE version ... and it is effective in JAZZY\"); another user worked around it by raising ax_max to 15.0. The maintainer first pointed to the migration guides and a missing velocity smoother. The fix PR in the packet attributes the regression to seeding from lagging odometry and cites #5386 and #5694 (0.17 m/s cap after migration) as the same symptom class; #5214 is the upstream discussion (motor lag with heavy load), where an earlier change (#5266) was merged then reverted. The symptom appeared with a Humble-to-Jazzy migration of the whole stack, so an UPGRADE reading of nav2_mppi_controller is also possible, but the second unit in that reading would be the reporter's own parameter file, which is configuration of the same node rather than a separate unit. The odometry provider (and the base driver that consumes /cmd_vel, whose response lag produces the lagging twist) is not identified by the reporter; /cmd_vel is therefore left out of the inventory. The artifact section for robot_odometry_source is empty because the source quotes no code, definition, or interface-attribute statement for it."
+}

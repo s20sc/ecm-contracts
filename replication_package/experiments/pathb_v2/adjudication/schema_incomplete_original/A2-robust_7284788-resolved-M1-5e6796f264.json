@@ -1,0 +1,28 @@
+{
+  "item_id": "A2-robust_7284788-resolved-M1-5e6796f264",
+  "kind": "A2",
+  "case_id": "robust_7284788",
+  "composition": "resolved",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.consumer_reads[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "verified",
+      "source_excerpt": "u0032/snapshot/tf/src/tf.cpp:441 -> \"  return tf2_buffer_._allFramesAsDot();\""
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[api:tf2_ros::Buffer::_allFramesAsDot]",
+      "verdict": "substantive",
+      "built_excerpt": "u0099/snapshot/tf2/include/tf2/buffer_core.h:296 -> \"  std::string _allFramesAsDot() const;\"",
+      "running_excerpt": "u0101/snapshot/tf2/include/tf2/buffer_core.h:300-301 -> \"  std::string _allFramesAsDot(double current_time) const;\" / \"  std::string _allFramesAsDot() const;\""
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "Spec operation is UPGRADE. The resolved composition pairs provider tf2_ros (task u0101, revision 7284788) with consumer tf (task u0032); api:tf2_ros::Buffer::_allFramesAsDot is inherited from public base tf2::BufferCore (tf2_ros buffer.h:46) and the consumer reads it at tf.cpp:441. The pair_view edge sets out_role == in_role == the element, so the two ports are connected."
+  },
+  "notes": "Consumer read verified at tf.cpp:441. The element is not redeclared in tf2_ros; it is inherited from tf2::BufferCore, and the bundled tf2 dependency moved from 0.5.7 (u0099, zero-arg 'std::string _allFramesAsDot() const;' at buffer_core.h:296) to 0.5.10 (u0101, which adds 'std::string _allFramesAsDot(double current_time) const;' at line 300 while keeping the zero-arg overload at line 301). This is a substantive arity change (a double parameter added), the same underlying PR #74/#86 change as case robust_0481047, so substance=substantive. Note the finding fires on the inherited member even though the actual robust_7284788 failure is the unrelated ros::ok() loop term in buffer.cpp (a body change, not a declaration change); the declaration-level delta is nonetheless real."
+}

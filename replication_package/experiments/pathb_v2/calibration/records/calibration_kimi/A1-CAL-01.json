@@ -1,0 +1,47 @@
+{
+ "item_id": "A1-CAL-01",
+ "kind": "A1",
+ "case_id": "CAL-01",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "after #74 I get this error\n/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'\n\nto reproduce: create a workspace with the ros/velodyne repo and the ros/geometry_experimental repo, both of them checked out to the latest version.\n\nI bisected on ros/geometry_experimental and I confirmed #74 is the culprit",
+  "url": "https://github.com/ros/geometry2/issues/84"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "-  std::string _allFramesAsDot() const;\n+  std::string _allFramesAsDot(double current_time = 0) const;",
+   "url": "https://github.com/ros/geometry2/pull/74/files"
+  },
+  {
+   "index": 1,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "/opt/ros/indigo/lib/libtf.so: undefined reference to `tf2::BufferCore::_allFramesAsDot() const'",
+   "url": "https://github.com/ros/geometry2/issues/84"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "detection_stage": "build",
+  "quote": "/tmp/catkin_workspace/devel_isolated/tf2_ros/lib/libtf2_ros.so: undefined reference to `tf2::BufferCore::allFramesAsYAML() const'\ncollect2: error: ld returned 1 exit status",
+  "url": "https://github.com/ros/geometry2/issues/84"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "yep that fixes it!",
+  "url": "https://github.com/ros/geometry2/issues/84"
+ },
+ "notes": "Verified in this session via gh api: issue #84 body and all comments (tfoote's 'You shouldn't be using symbols from /opt/ros that depend on a source overlay', the fix_84 proposal, 'I patched fix_84 for _allFramesAsDOT as well.', and bricerebsamen's 'yep that fixes it!'), PR #74 title 'change _allFramesAsDot() -> _allFramesAsDot(double current_time)' and its buffer_core.h patch, PR #86 'Use overloading instead of default arguments' with body 'Fixes #84'. Eligible UPGRADE at step 6 (library API): the binary consumer tf 1.11.4 references the zero-argument symbol the upgraded provider no longer exports; both failed conditions (source-level retype, binary-level missing symbol) are two views of the same declaration change and both quotes are verbatim. Loud: linker diagnostic at build. Resolution observed: reporter confirmed the fix_84 branch working with the unchanged binary consumer."
+}

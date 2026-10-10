@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-044",
+  "kind": "A1",
+  "case_id": "C3-044",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "/tmp/ws/src/ros-perception/image_common/image_transport/test/test_qos_override.cpp:115\nExpected equality of these values:\n  endpoint_info_vec[0].qos_profile().reliability()\n    Which is: 4-byte object <01-00 00-00>\n  rclcpp::ReliabilityPolicy::BestEffort\n    Which is: 4-byte object <02-00 00-00>",
+    "url": "https://github.com/ros-perception/image_common/issues/370"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "/tmp/ws/src/ros-perception/image_common/image_transport/test/test_qos_override.cpp:115\nExpected equality of these values:\n  endpoint_info_vec[0].qos_profile().reliability()\n    Which is: 4-byte object <01-00 00-00>\n  rclcpp::ReliabilityPolicy::BestEffort\n    Which is: 4-byte object <02-00 00-00>",
+      "url": "https://github.com/ros-perception/image_common/issues/370"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Expected equality of these values:\n  endpoint_info_vec[0].qos_profile().reliability()\n    Which is: 4-byte object <01-00 00-00>\n  rclcpp::ReliabilityPolicy::BestEffort\n    Which is: 4-byte object <02-00 00-00>",
+    "url": "https://github.com/ros-perception/image_common/issues/370"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This is already fixed. We should close the issue",
+    "url": "https://github.com/ros-perception/image_common/issues/370#issuecomment-3486564849"
+  },
+  "notes": "独立核验：(1) issue #370 正文（标题 \"[image_transport] Nightly test failure with rmw_zenoh due to SystemDefaultsQoS assumptions #127\"、Rci__nightly-zenoh_ubuntu_noble_amd64/143、第 115/123 行断言失败输出）逐字确认。(2) 评论逐字确认：Crola1702 \"This is happening not only on Zenoh, but it's also happening consistently on cyclone.\"；失败测试清单（qos_override_subscriber_without_options / with_options / projectroot.test_image_transport_qos_override）；\"This is already fixed. We should close the issue\"（未指明 nightly 构建号或 rmw_zenoh 修订）。(3) PR #376 \"Fix QoS override tests\" 合并于 2025-09-08（merge 10981bfa），diff 确认 \"-  EXPECT_EQ(...,rclcpp::ReliabilityPolicy::BestEffort); +  EXPECT_NE(...,rclcpp::ReliabilityPolicy::Unknown);\"。(4) rmw_zenoh qos.cpp@cdb66eed 确认第 28 行 \"#define RMW_ZENOH_DEFAULT_RELIABILITY RMW_QOS_POLICY_RELIABILITY_RELIABLE;\"、第 42 行 default_qos_.reliability 赋值、第 112 行 SYSTEM_DEFAULT 分支。(5) broken_rev b2abe1e5 的测试文件确认：create_subscription(..., \"camera/image\", fcn, \"raw\", rclcpp::SystemDefaultsQoS()) 后紧跟 EXPECT_EQ(...BestEffort)。(6) point_cloud_transport #127 引语逐字确认：\"since the RMW implementation can decide what the reliability should be if `SystemDefaultsQoS` is specified.\"——界定为跨界假设（仅 zenoh/cyclone 夜间任务失败）而非 consumer 内部缺陷，E2 到 6 步正确；qos_reliability 分类成立（跨界属性是 reliability 的解析值，无发布订阅不兼容）。silent_documented 正确：仅测试自身 gtest 断言报告，无中间件/QoS 不兼容事件。recommended 成立。cyclone 同类失败与 missing_result 属其他 provider/其他症状，规格处理正确。"
+}

@@ -1,0 +1,114 @@
+{
+ "case_id": "B-Ver-02",
+ "corpus": "C2",
+ "source_refs": [
+  "https://answers.ros.org/question/318190/",
+  "https://github.com/frankaemika/franka_ros/commit/3991f55ffc9c1f4928bbbad03b452f4202e96eea",
+  "https://github.com/frankaemika/franka_ros/blob/0.6.0/franka_msgs/msg/FrankaState.msg",
+  "https://github.com/frankaemika/franka_ros/blob/2489b6c6b7fe0b8fd9dd0e9f2f3c27c3bd05b9f5/franka_msgs/msg/FrankaState.msg"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "ROS Answers question 318190 (static archive) gives the connection-time error log: \"[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.\" and the subscriber code; answerer mgruhler explains the version cause and the reporter posts the change that resolved it."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "franka_ros",
+    "MoveRobot"
+   ],
+   "interface_kind": "definition",
+   "evidence": "The publisher (franka_state_controller from franka_ros, run in franka_control) and the reporter's own subscriber node /MoveRobot (\"No this Node is my own, because i need some data from the robot for my application.\") are separate units interacting through the topic /franka_state_controller/franka_states of type franka_msgs/FrankaState. The two sides carry different franka_msgs/FrankaState definitions (md5 ed28b9cb... vs 7782ef1d...). The resolving change is a CMakeLists.txt find_package edit, but its effect is to rebuild the consumer against the provider's changed definition, which the tree counts as an interface change, not build-only."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "UPGRADE: the running publisher comes from the reporter's source build of current franka_ros (\"i rebuild the full current franka_ros package yesterday\"), whose FrankaState gained robot_mode after release 0.6.0 (commit 3991f55, 2018-08-24, unreleased until 0.7.0 in 2020); the subscriber was compiled against a FrankaState whose md5 equals the 0.6.0 definition. Answerer: \"This is usually the case when messages change between versions. FrankaState actually changed a while back and this change hasn't been released yet.\""
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed at connection: \"... Dropping connection.\""
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "franka_ros",
+   "role": "provider",
+   "repo": "https://github.com/frankaemika/franka_ros",
+   "broken_rev": "2489b6c6b7fe0b8fd9dd0e9f2f3c27c3bd05b9f5",
+   "resolved_rev": "2489b6c6b7fe0b8fd9dd0e9f2f3c27c3bd05b9f5",
+   "pinned": true,
+   "revision_basis": "Inferred. The reporter says only \"i rebuild the full current franka_ros package yesterday\" (comment dated 2019-03-12, so the build was on 2019-03-11) and runs ROS Kinetic on Ubuntu 16.04.6. On the develop branch's first-parent history the head on 2019-03-11 was 2489b6c (2019-01-23 'Formatting fixes'; the next first-parent commit is 3fd3397 on 2019-05-27; kinetic-devel follows the same first-parent line). The publisher's md5 in the error, 7782ef1d208d3efc42f6a4cc3c41c065, is what franka_msgs/FrankaState (with std_msgs/Header and franka_msgs/Errors) hashes to at 2489b6c, and at every revision from 3991f55 (2018-08-24) up to the parent of fb431c7 (2019-05-06); computed here with the genmsg md5 rule. The unit covers franka_msgs (definition) and franka_control's franka_state_controller (publisher of 'franka_states'), both built from this revision. The resolution does not change it.",
+   "excerpt": false,
+   "ros_distro": "kinetic"
+  },
+  {
+   "name": "MoveRobot",
+   "role": "consumer",
+   "repo": null,
+   "broken_rev": "as-reported-2019-03-11",
+   "resolved_rev": "as-reported-2019-03-12",
+   "pinned": false,
+   "revision_basis": "The reporter's own node; no public repository. Broken: the code and connection record posted with the question on 2019-03-11. Resolved: the same node rebuilt after the reporter added franka_msgs to find_package in CMakeLists.txt (answer posted 2019-03-12 03:28 UTC). Described from the artifact file.",
+   "excerpt": true,
+   "ros_distro": "kinetic"
+  }
+ ],
+ "operation": "UPGRADE",
+ "consumer_built_against": {
+  "broken": "0.6.0",
+  "resolved": "2489b6c6b7fe0b8fd9dd0e9f2f3c27c3bd05b9f5",
+  "basis": "inferred"
+ },
+ "inventory": [
+  {
+   "element": "topic:/franka_state_controller/franka_states",
+   "sides": {
+    "franka_ros": "provides",
+    "MoveRobot": "consumes"
+   }
+  },
+  {
+   "element": "msg:franka_msgs/FrankaState",
+   "sides": {
+    "franka_ros": "provides",
+    "MoveRobot": "consumes"
+   }
+  },
+  {
+   "element": "msg:franka_msgs/Errors",
+   "sides": {
+    "franka_ros": "provides",
+    "MoveRobot": "consumes"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "definition_mismatch",
+   "implicated_elements": [
+    "msg:franka_msgs/FrankaState",
+    "topic:/franka_state_controller/franka_states"
+   ],
+   "quote": "[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.",
+   "url": "https://answers.ros.org/question/318190/"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "loud_documented",
+ "loudness_evidence": "ROS 1 md5sum mismatch at connection, printed by the publisher side: \"[ERROR] [1552291056.204600387]: Client [/MoveRobot] wants topic /franka_state_controller/franka_states to have datatype/md5sum [franka_msgs/FrankaState/ed28b9cbecdc83fa7d31efb59f1ce010], but our version has [franka_msgs/FrankaState/7782ef1d208d3efc42f6a4cc3c41c065]. Dropping connection.\" (https://answers.ros.org/question/318190/)",
+ "detection_stage": "connect",
+ "resolution": {
+  "summary": "Rebuild the subscriber against the franka_msgs that the running franka_ros build uses, by adding franka_msgs to find_package(catkin REQUIRED COMPONENTS ...) in the subscriber's CMakeLists.txt. The answerer's general recommendation: \"You should clone and compile the full franka_ros package or use it entirely from debians, whatever makes more sense for you.\"",
+  "status": "observed",
+  "evidence": "Reporter: \"I find the solution: I forget to rework the CMakeList.txt to add the line franka_msgs in the find_package part\" followed by the find_package block and \"Thank you for all your help.\" (https://answers.ros.org/question/318190/). The provider revision in the resolved composition is the same source build (date-derived, see revision_basis). The answerer doubted the mechanism: \"even though this is required for the code to compile, this should not lead to the problem of shown above... franka_msgs was obviously found, otherwise it could not have been included in your code. How remains a mystery to me, however :-)\""
+ },
+ "ros_generation": "ROS1",
+ "excerpt_based": true,
+ "confidence": "medium",
+ "notes": "Direction: the error is printed by the publisher (\"our version has\" 7782ef1d...), and the client /MoveRobot requests ed28b9cb.... Computing the genmsg md5 of franka_msgs/FrankaState at repository revisions gives ed28b9cbecdc83fa7d31efb59f1ce010 at 0.5.0 and 0.6.0 (the definition is unchanged from 29ed2e3/9b3e4c8, 2018-01-29, until 3991f55), and 7782ef1d208d3efc42f6a4cc3c41c065 from 3991f55 (2018-08-24, which added the ROBOT_MODE_* constants and 'uint8 robot_mode') until fb431c7 (2019-05-06). So the subscriber was compiled against the 0.6.0-era definition while the publisher ran the unreleased one. The 0.6.0 label for consumer_built_against is inferred from that md5 match and from the answerer's naming of 0.6.0 as the latest release installed under /opt/ros; the thread never states which franka_msgs headers the node was compiled against. A plausible mechanism, not confirmed in the thread: without franka_msgs in find_package the node picked up the released franka_msgs headers from /opt/ros/kinetic instead of the workspace's; the answerer found the fix unexplained. The answerer's first reading had the roles reversed (MoveRobot as a franka_ros client); the reporter corrected that MoveRobot is their own node. Only the added field and constants differ between the two definitions; no field was renamed, so element_retyped does not apply. The artifact's consumer sections quote the posted callback code and the connection record with both md5 fields removed; the record comes from the broken run, and it is repeated in the resolved section because the reporter changed only CMakeLists.txt. The provider section [[franka_ros@0.6.0]] holds FrankaState.msg and Errors.msg at tag 0.6.0 plus std_msgs/Header (std_msgs 0.5.11, Kinetic), laid out as a ROS 1 message_definition. The thread was read from the answers.ros.org static archive."
+}

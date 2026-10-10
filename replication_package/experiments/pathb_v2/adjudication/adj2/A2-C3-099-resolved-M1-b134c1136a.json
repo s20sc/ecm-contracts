@@ -1,0 +1,26 @@
+{
+ "item_id": "A2-C3-099-resolved-M1-b134c1136a",
+ "kind": "A2",
+ "case_id": "C3-099",
+ "composition": "resolved",
+ "method_label": "M1",
+ "rule": "semver_major",
+ "values": [
+  {
+   "path": "ver_delta.semver_old",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0353/snapshot/rmw_dds_common/package.xml:5 (opened this session): '<version>1.6.0</version>'"
+  },
+  {
+   "path": "ver_delta.semver_new",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0354/snapshot/rmw_dds_common/package.xml:5 (opened this session): '<version>3.1.0</version>'"
+  }
+ ],
+ "substance": [],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The resolved composition's upgrade unit keeps built=u0353 (1.6.0), running=u0354 (3.1.0), consumer=u0355 (rmw_fastrtps 6.2.7), which matches the spec: the resolution is consumer-side hardening in rosidl_typesupport_fastrtps (not a unit revision change here), so the provider version delta 1.6.0 -> 3.1.0 persists in the resolved composition and the major bump (1 -> 3) is the declared-breaking signal the rule fires on. The composition's pair_views connect the provider (u0354) and consumer (u0355, built against u0353) ports for the Gid/field elements, so the operation and its edges are represented."
+ },
+ "notes": "Both values are read directly at the single cited location in each task's snapshot. The rule is a pure semver-delta signal (element is null); its correctness here rests only on the two version strings, both verified, and on the spec's UPGRADE framing in which 1.6.0 and 3.1.0 are the consumer's built-against and running provider revisions."
+}

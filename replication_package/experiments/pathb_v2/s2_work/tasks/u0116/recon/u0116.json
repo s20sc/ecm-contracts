@@ -1,0 +1,107 @@
+{
+  "task_id": "u0116",
+  "package": "boost_smart_ptr",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "api:boost/shared_ptr.hpp",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:boost::dynamic_pointer_cast",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:boost::shared_dynamic_cast",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:boost::shared_ptr",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:boost/shared_ptr.hpp": "api boost/shared_ptr.hpp: #include <boost/smart_ptr/shared_ptr.hpp>",
+    "api:boost::dynamic_pointer_cast": "api boost::dynamic_pointer_cast: template<class T, class U> shared_ptr<T> dynamic_pointer_cast(shared_ptr<U> const & r)",
+    "api:boost::shared_dynamic_cast": "api boost::shared_dynamic_cast: template<class T, class U> shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r)",
+    "api:boost::shared_ptr": "api boost::shared_ptr: template<class T> class shared_ptr"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "ports[0].frame": "snapshot:include/boost/shared_ptr.hpp:17",
+    "ports[1].frame": "snapshot:include/boost/smart_ptr/shared_ptr.hpp:526",
+    "ports[2].frame": "snapshot:include/boost/smart_ptr/shared_ptr.hpp:538",
+    "ports[3].frame": "snapshot:include/boost/smart_ptr/shared_ptr.hpp:164",
+    "declares[api:boost/shared_ptr.hpp]": "snapshot:include/boost/shared_ptr.hpp:17",
+    "declares[api:boost::dynamic_pointer_cast]": "snapshot:include/boost/smart_ptr/shared_ptr.hpp:526",
+    "declares[api:boost::shared_dynamic_cast]": "snapshot:include/boost/smart_ptr/shared_ptr.hpp:538",
+    "declares[api:boost::shared_ptr]": "snapshot:include/boost/smart_ptr/shared_ptr.hpp:164",
+    "perm_requires": "searched whole snapshot (include/, src/, example/, test/, docs): header-only C++ library, no permission declarations",
+    "perm_grants": "searched whole snapshot (include/, src/, example/, test/, docs): header-only C++ library, no permission grants",
+    "recovery": "searched whole snapshot (include/, src/, example/, test/, docs): no recovery policy declared"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All four provided API elements are declared at this revision; shared_dynamic_cast is present but carries a deprecation comment (shared_ptr.hpp:531), so it is still usable here."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the Boost.SmartPtr library tree (docs, include/, src/, example/, test/); it has no package.xml, manifest.xml or version header, so manifest_version is null. All elements are C++ API symbols, not ROS interfaces: msg_type, units, QoS, rates and definition_id are null (ROS 1, no message definition); frame is 'none' because the symbols carry no spatial data. boost/shared_ptr.hpp is a forwarding header whose only content besides the include guard is '#include <boost/smart_ptr/shared_ptr.hpp>' (line 17); that line is recorded as its declaration. boost::shared_ptr is forward-declared at smart_ptr/shared_ptr.hpp:57 and defined at :164; an alternative definition exists in smart_ptr/detail/shared_ptr_nmt.hpp:33, selected only when BOOST_NO_MEMBER_TEMPLATES is defined (shared_ptr.hpp:19-20), and that variant declares neither dynamic_pointer_cast nor shared_dynamic_cast. dynamic_pointer_cast has further overloads for raw pointers (boost/pointer_cast.hpp:24, 'inline T* dynamic_pointer_cast(U *ptr)') and intrusive_ptr (smart_ptr/intrusive_ptr.hpp:248); the shared_ptr overload is recorded because the packet pairs it with shared_ptr. shared_dynamic_cast is preceded by the comment '// shared_*_cast names are deprecated. Use *_pointer_cast instead.' (smart_ptr/shared_ptr.hpp:531). No exclusive resources and no consumed packet elements, so exclusive and references are empty."
+}

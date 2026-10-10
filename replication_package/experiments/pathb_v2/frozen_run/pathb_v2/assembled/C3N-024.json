@@ -1,0 +1,394 @@
+{
+ "case_id": "C3N-024",
+ "corpus": "C3N",
+ "operation": "UPGRADE",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [
+        "api:rclcpp::Duration::Duration(rcl_duration_value_t)"
+       ],
+       "consumer_reads": [
+        "api:rclcpp::Duration",
+        "api:rclcpp::Duration::Duration(rcl_duration_value_t)",
+        "api:rclcpp::Node"
+       ],
+       "semver_old": "15.4.0",
+       "semver_new": "16.0.0"
+      }
+     },
+     "provenance": {
+      "ver_delta.changed_fields[api:rclcpp::Duration::Duration(rcl_duration_value_t)]": "built: snapshot:rclcpp/include/rclcpp/duration.hpp:42-46 (definition at snapshot:rclcpp/src/rclcpp/duration.cpp:40) || running: Searched the whole snapshot for Duration constructors. Header snapshot:rclcpp/include/rclcpp/duration.hpp declares only Duration(int32_t seconds, uint32_t nanoseconds) (39), explicit Duration(std::chrono::nanoseconds nanoseconds) (42), template Duration(const std::chrono::duration<Rep, Period> & duration) (46-50), Duration(const builtin_interfaces::msg::Duration & duration_msg) (53), explicit Duration(const rcl_duration_t & duration) (59), Duration(const Duration & rhs) (61), private Duration() = default (151). snapshot:rclcpp/src/rclcpp/duration.cpp defines only the constructors at lines 34, 40, 45, 47, 55. grep for 'Duration(rcl_duration_value_t' and 'Duration::Duration' over the snapshot finds no single-argument rcl_duration_value_t constructor; rcl_duration_value_t appears in duration.hpp only at 113 (nanoseconds() return) and 131 (from_nanoseconds parameter).",
+      "ver_delta.consumer_reads[api:rclcpp::Duration]": "snapshot:moveit_core/collision_detection/src/collision_tools.cpp:55 | rclcpp::Duration(60, 0); also snapshot:moveit_core/robot_trajectory/src/robot_trajectory.cpp:290 | rclcpp::Duration::from_seconds(0); snapshot:moveit_core/collision_distance_field/src/collision_common_distance_field.cpp:170 | sphere_marker.lifetime = rclcpp::Duration(0, 0); (26 occurrences of rclcpp::Duration in moveit_core)",
+      "ver_delta.consumer_reads[api:rclcpp::Duration::Duration(rcl_duration_value_t)]": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 | virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(-1)) = 0; (single integer-argument construction; the only such construction in moveit_core)",
+      "ver_delta.consumer_reads[api:rclcpp::Node]": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:186 | virtual void initialize(const rclcpp::Node::SharedPtr& node) = 0; also snapshot:moveit_core/kinematics_base/include/moveit/kinematics_base/kinematics_base.h:361, snapshot:moveit_core/planning_interface/include/moveit/planning_interface/planning_interface.h:167",
+      "ver_delta.semver_old": "snapshot:rclcpp/package.xml:5",
+      "ver_delta.semver_new": "snapshot:rclcpp/package.xml:5"
+     },
+     "unknown_delta": []
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:rclcpp::Duration",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:rclcpp::Duration",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:rclcpp::Duration",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:rclcpp::Duration",
+       "in_role": "api:rclcpp::Duration"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:rclcpp/include/rclcpp/duration.hpp:26 (class holds only a time span, rcl_duration_t rcl_duration_ at line 149; no spatial frame)",
+      "consumer.inputs[0].element": "snapshot:moveit_core/collision_detection/src/collision_tools.cpp:55 | getCostMarkers(arr, frame_id, cost_sources, color, rclcpp::Duration(60, 0));",
+      "consumer.inputs[0].frame": "C++ time-duration type; no spatial meaning (snapshot:moveit_core/robot_trajectory/src/robot_trajectory.cpp:290 | static const auto ZERO_DURATION = rclcpp::Duration::from_seconds(0);)"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:rclcpp::Duration::Duration(rcl_duration_value_t)",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:rclcpp::Duration::from_nanoseconds",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:rclcpp::Node",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:rclcpp::Node",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:rclcpp::Node",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:rclcpp::Node",
+       "in_role": "api:rclcpp::Node"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:rclcpp/include/rclcpp/node.hpp:77 (C++ class, not spatial data)",
+      "consumer.inputs[0].element": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:186 | virtual void initialize(const rclcpp::Node::SharedPtr& node) = 0;",
+      "consumer.inputs[0].frame": "C++ node handle type; carries no spatial data (snapshot:moveit_core/planning_interface/include/moveit/planning_interface/planning_interface.h:167)"
+     }
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "upgrade",
+     "element": null,
+     "status": "done",
+     "encoding": {
+      "type": "UPGRADE",
+      "ver_delta": {
+       "changed_fields": [],
+       "consumer_reads": [
+        "api:rclcpp::Duration",
+        "api:rclcpp::Duration::from_nanoseconds",
+        "api:rclcpp::Node"
+       ],
+       "semver_old": "16.0.0",
+       "semver_new": "16.0.0"
+      }
+     },
+     "provenance": {
+      "ver_delta.consumer_reads[api:rclcpp::Duration]": "snapshot:moveit_core/collision_detection/src/collision_tools.cpp:55 | getCostMarkers(arr, frame_id, cost_sources, color, rclcpp::Duration(60, 0));",
+      "ver_delta.consumer_reads[api:rclcpp::Duration::from_nanoseconds]": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 | virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration::from_nanoseconds(-1)) = 0;",
+      "ver_delta.consumer_reads[api:rclcpp::Node]": "snapshot:moveit_core/planning_interface/include/moveit/planning_interface/planning_interface.h:167 | virtual bool initialize(const moveit::core::RobotModelConstPtr& model, const rclcpp::Node::SharedPtr& node,",
+      "ver_delta.semver_old": "snapshot:rclcpp/package.xml:5",
+      "ver_delta.semver_new": "snapshot:rclcpp/package.xml:5"
+     },
+     "unknown_delta": []
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:rclcpp::Duration",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:rclcpp::Duration",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:rclcpp::Duration",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:rclcpp::Duration",
+       "in_role": "api:rclcpp::Duration"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:rclcpp/include/rclcpp/duration.hpp:26 (class holds only a time span, rcl_duration_t rcl_duration_ at line 149; no spatial frame)",
+      "consumer.inputs[0].frame": "snapshot:moveit_core/collision_detection/src/collision_tools.cpp:55 (rclcpp::Duration(60, 0) used as a marker lifetime; a time span with no spatial meaning)"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:rclcpp::Duration::Duration(rcl_duration_value_t)",
+     "status": "unassessable_edge",
+     "reason": "port_missing",
+     "encoding": null,
+     "provenance": {}
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:rclcpp::Duration::from_nanoseconds",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:rclcpp::Duration::from_nanoseconds",
+         "msg_type": null,
+         "frame": "none",
+         "units": "nanoseconds",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:rclcpp::Duration::from_nanoseconds",
+         "msg_type": null,
+         "frame": "none",
+         "units": "nanoseconds",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:rclcpp::Duration::from_nanoseconds",
+       "in_role": "api:rclcpp::Duration::from_nanoseconds"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:rclcpp/include/rclcpp/duration.hpp:130 (static factory returning a time span; no spatial frame)",
+      "producer.outputs[0].units": "snapshot:rclcpp/include/rclcpp/duration.hpp:129 \"/// Create a duration object from an integer number representing nanoseconds\"",
+      "consumer.inputs[0].frame": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 (timeout duration; no spatial meaning)",
+      "consumer.inputs[0].units": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:141 | virtual bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration::from_nanoseconds(-1)) = 0;"
+     }
+    },
+    {
+     "kind": "pair_view",
+     "element": "api:rclcpp::Node",
+     "status": "done",
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "api:rclcpp::Node",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "api:rclcpp::Node",
+         "msg_type": null,
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": null
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": []
+      },
+      "edge": {
+       "out_role": "api:rclcpp::Node",
+       "in_role": "api:rclcpp::Node"
+      }
+     },
+     "provenance": {
+      "producer.outputs[0].frame": "snapshot:rclcpp/include/rclcpp/node.hpp:77 (C++ class, not spatial data)",
+      "consumer.inputs[0].frame": "snapshot:moveit_core/controller_manager/include/moveit/controller_manager/controller_manager.h:186 (node handle passed to plugin initialize; no spatial meaning)"
+     }
+    }
+   ]
+  }
+ }
+}

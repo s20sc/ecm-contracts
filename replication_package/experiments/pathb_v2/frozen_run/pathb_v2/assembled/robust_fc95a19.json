@@ -1,0 +1,610 @@
+{
+ "case_id": "robust_fc95a19",
+ "corpus": "C1",
+ "operation": "PAIR",
+ "status": "done",
+ "reason": null,
+ "compositions": {
+  "broken": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "action:follow_joint_trajectory",
+     "status": "done",
+     "direction": {
+      "producer": "ur_driver",
+      "consumer": "ur5_moveit_config"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "action:follow_joint_trajectory",
+         "msg_type": "control_msgs/FollowJointTrajectoryAction",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "action",
+          "value": "3bd3b9b759eaa42b90e5aaa4b47aee5d3c8ce38fc575c3ad06e689976bee60bb"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on loss of the robot connection the main loop re-sends the URScript program, waits for the robot to reconnect and re-attaches the service provider and action server (set_robot); on goal cancel the action server replaces the trajectory with a stop segment of STOP_DURATION = 0.5 s",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "action:follow_joint_trajectory",
+         "msg_type": "control_msgs/FollowJointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "action",
+          "value": "3bd3b9b759eaa42b90e5aaa4b47aee5d3c8ce38fc575c3ad06e689976bee60bb"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "robot_state_publisher node launched with respawn=\"true\" (demo.launch); no other recovery/fallback declared",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "action:follow_joint_trajectory",
+       "in_role": "action:follow_joint_trajectory"
+      }
+     },
+     "provenance": {
+      "consumer.recovery": "snapshot:ur5_moveit_config/launch/demo.launch:27 | <node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" respawn=\"true\" output=\"screen\" /> ; move_group is respawn=\"false\" (move_group.launch:43)",
+      "producer.outputs[0].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:15 (from control_msgs.msg import FollowJointTrajectoryAction); snapshot:ur_driver/src/ur_driver/driver.py:662-664 (self.server = actionlib.ActionServer(\"follow_joint_trajectory\", FollowJointTrajectoryAction, self.on_goal, self.on_cancel, auto_start=False))",
+      "producer.outputs[0].frame": "snapshot:ur_driver/src/ur_driver/driver.py:709-763 (on_goal reads only trajectory.joint_names and trajectory.points; the goal header/frame_id is never read or set; the goal carries joint-space positions/velocities with no spatial frame)",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py sha256 on https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action (control_msgs 1.2.0, the 1.2.x hydro release line)",
+      "consumer.inputs[0].side": "snapshot:ur5_moveit_config/config/controllers.yaml:1-4 | controller_list: - name: \"\" action_ns: follow_joint_trajectory type: FollowJointTrajectory; loaded as the move_group controller list by snapshot:ur5_moveit_config/launch/ur5_moveit_controller_manager.launch.xml:2,5 (MoveItSimpleControllerManager, an action client)",
+      "consumer.inputs[0].msg_type": "snapshot:ur5_moveit_config/config/controllers.yaml:4 | type: FollowJointTrajectory ; qualified as the FollowJointTrajectory action of control_msgs (only definition of that name in the hydro dependency set), https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action",
+      "consumer.inputs[0].frame": "none: goal is a joint-space trajectory (controllers.yaml:5-11 lists joint names only); no frame is set anywhere in the package (grep of snapshot/ur5_moveit_config)",
+      "consumer.inputs[0].definition_id": "python3 definition_hash.py sha256 FollowJointTrajectory.action fetched from https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action (control_msgs package.xml <version>1.2.0</version>)"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+     "status": "done",
+     "direction": {
+      "producer": "ur5_moveit_config",
+      "consumer": "ur_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "f3cd1e1c4d320c79d6985c904ae5dcd3"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "robot_state_publisher node launched with respawn=\"true\" (demo.launch); no other recovery/fallback declared",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "f3cd1e1c4d320c79d6985c904ae5dcd3"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on loss of the robot connection the main loop re-sends the URScript program, waits for the robot to reconnect and re-attaches the service provider and action server (set_robot); on goal cancel the action server replaces the trajectory with a stop segment of STOP_DURATION = 0.5 s",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.velocities"
+      }
+     },
+     "provenance": {
+      "producer.recovery": "snapshot:ur5_moveit_config/launch/demo.launch:27 | <node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" respawn=\"true\" output=\"screen\" /> ; move_group is respawn=\"false\" (move_group.launch:43)",
+      "producer.outputs[0].side": "snapshot:ur5_moveit_config/launch/ompl_planning_pipeline.launch.xml:8 | <arg name=\"planning_adapters\" value=\"default_planner_request_adapters/AddTimeParameterization ; velocity bounds snapshot:ur5_moveit_config/config/joint_limits.yaml:3-4 | has_velocity_limits: true max_velocity: 3.15 (loaded by snapshot:ur5_moveit_config/launch/planning_context.launch:19-20)",
+      "producer.outputs[0].msg_type": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg:6 | float64[] velocities",
+      "producer.outputs[0].frame": "none: per-joint velocities in joint space, no spatial frame",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectoryPoint <common_msgs 1.10.6> <std_msgs 0.5.8>; source https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg",
+      "consumer.inputs[0].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:16 (JointTrajectoryPoint); snapshot:ur_driver/src/ur_driver/driver.py:623-627 (has_velocities: for p in traj.points: if len(p.velocities) != len(p.positions))",
+      "consumer.inputs[0].frame": "joint-space velocity values, no spatial frame; JointTrajectoryPoint has no header (common_msgs 1.10.6 trajectory_msgs/msg/JointTrajectoryPoint.msg:5-9)",
+      "consumer.inputs[0].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectoryPoint over https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectory.joint_names",
+     "status": "done",
+     "direction": {
+      "producer": "ur5_moveit_config",
+      "consumer": "ur_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.joint_names",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "65b4f94a94d1ed67169da35a02f33d3f"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "robot_state_publisher node launched with respawn=\"true\" (demo.launch); no other recovery/fallback declared",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.joint_names",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "65b4f94a94d1ed67169da35a02f33d3f"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on loss of the robot connection the main loop re-sends the URScript program, waits for the robot to reconnect and re-attaches the service provider and action server (set_robot); on goal cancel the action server replaces the trajectory with a stop segment of STOP_DURATION = 0.5 s",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectory.joint_names",
+       "in_role": "field:trajectory_msgs/JointTrajectory.joint_names"
+      }
+     },
+     "provenance": {
+      "producer.recovery": "snapshot:ur5_moveit_config/launch/demo.launch:27 | <node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" respawn=\"true\" output=\"screen\" /> ; move_group is respawn=\"false\" (move_group.launch:43)",
+      "producer.outputs[0].side": "snapshot:ur5_moveit_config/config/controllers.yaml:5-11 | joints: - shoulder_pan_joint - shoulder_lift_joint - elbow_joint - wrist_1_joint - wrist_2_joint - wrist_3_joint (joint set carried in the trajectory goals the controller manager sends)",
+      "producer.outputs[0].msg_type": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg:2 | string[] joint_names ; carried as FollowJointTrajectory goal field 'trajectory_msgs/JointTrajectory trajectory' (https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action:2)",
+      "producer.outputs[0].frame": "none: joint_names is a list of joint identifiers, no spatial frame",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectory <common_msgs 1.10.6> <std_msgs 0.5.8>; sources https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg, https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg, https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg",
+      "consumer.inputs[0].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:16 (from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint); snapshot:ur_driver/src/ur_driver/driver.py:719 (goal_handle.get_goal().trajectory.joint_names)",
+      "consumer.inputs[0].frame": "field holds joint name strings; no spatial meaning (snapshot:ur_driver/src/ur_driver/driver.py:719, 561)",
+      "consumer.inputs[0].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectory over https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg, .../1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg and https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "topic:joint_states",
+     "status": "unassessable_edge",
+     "reason": "port_missing_consumer",
+     "direction": {
+      "producer": "ur_driver",
+      "consumer": "ur5_moveit_config"
+     },
+     "encoding": null,
+     "provenance": {}
+    }
+   ]
+  },
+  "resolved": {
+   "status": "done",
+   "reason": null,
+   "units": [
+    {
+     "kind": "edge",
+     "element": "action:follow_joint_trajectory",
+     "status": "done",
+     "direction": {
+      "producer": "ur_driver",
+      "consumer": "ur5_moveit_config"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "action:follow_joint_trajectory",
+         "msg_type": "control_msgs/FollowJointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "action",
+          "value": "3bd3b9b759eaa42b90e5aaa4b47aee5d3c8ce38fc575c3ad06e689976bee60bb"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [
+        "reverse_port"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on loss of the robot connection the main loop re-sends the URScript program and re-attaches the service and action providers to the new connection; on goal cancel the follower decelerates to a stop over 0.5 s",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "action:follow_joint_trajectory",
+         "msg_type": "control_msgs/FollowJointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "sha256_normalised",
+          "kind": "action",
+          "value": "3bd3b9b759eaa42b90e5aaa4b47aee5d3c8ce38fc575c3ad06e689976bee60bb"
+         }
+        }
+       ],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "robot_state_publisher node launched with respawn=\"true\" (demo.launch); no other recovery/fallback declared",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "action:follow_joint_trajectory",
+       "in_role": "action:follow_joint_trajectory"
+      }
+     },
+     "provenance": {
+      "producer.exclusive[reverse_port]": "snapshot:ur_driver/src/ur_driver/driver.py:948 | server = TCPServer((\"\", reverse_port), CommanderTCPHandler)",
+      "consumer.recovery": "snapshot:ur5_moveit_config/launch/demo.launch:27 | <node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" respawn=\"true\" output=\"screen\" /> ; move_group is respawn=\"false\" (move_group.launch:43)",
+      "producer.outputs[0].side": "snapshot:ur_driver/src/ur_driver/driver.py:666-668 | self.server = actionlib.ActionServer(\"follow_joint_trajectory\", FollowJointTrajectoryAction, self.on_goal, self.on_cancel, auto_start=False)",
+      "producer.outputs[0].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:15 | from control_msgs.msg import FollowJointTrajectoryAction ; :666-667 ActionServer(\"follow_joint_trajectory\", FollowJointTrajectoryAction, ...)",
+      "producer.outputs[0].frame": "snapshot:ur_driver/src/ur_driver/driver.py:713-767 | on_goal reads only goal.trajectory.joint_names and points (positions/velocities/accelerations/time_from_start); trajectory.header.frame_id is never read or written; the goal is joint-space data with no spatial frame",
+      "producer.outputs[0].definition_id": "https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action (control_msgs hydro release tag 1.2.0; identical at 1.1.6) | python3 definition_hash.py sha256 FollowJointTrajectory.action",
+      "consumer.inputs[0].side": "snapshot:ur5_moveit_config/config/controllers.yaml:1-4 | controller_list: - name: \"\" action_ns: follow_joint_trajectory type: FollowJointTrajectory; loaded as the move_group controller list by snapshot:ur5_moveit_config/launch/ur5_moveit_controller_manager.launch.xml:2,5 (MoveItSimpleControllerManager, an action client)",
+      "consumer.inputs[0].msg_type": "snapshot:ur5_moveit_config/config/controllers.yaml:4 | type: FollowJointTrajectory ; qualified as the FollowJointTrajectory action of control_msgs (only definition of that name in the hydro dependency set), https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action",
+      "consumer.inputs[0].frame": "none: goal is a joint-space trajectory (controllers.yaml:5-11 lists joint names only); no frame is set anywhere in the package (grep of snapshot/ur5_moveit_config)",
+      "consumer.inputs[0].definition_id": "python3 definition_hash.py sha256 FollowJointTrajectory.action fetched from https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action (control_msgs package.xml <version>1.2.0</version>)"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+     "status": "done",
+     "direction": {
+      "producer": "ur5_moveit_config",
+      "consumer": "ur_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "f3cd1e1c4d320c79d6985c904ae5dcd3"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "robot_state_publisher node launched with respawn=\"true\" (demo.launch); no other recovery/fallback declared",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+         "msg_type": "trajectory_msgs/JointTrajectoryPoint",
+         "frame": "none",
+         "units": "rad/s",
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "f3cd1e1c4d320c79d6985c904ae5dcd3"
+         }
+        }
+       ],
+       "exclusive": [
+        "reverse_port"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on loss of the robot connection the main loop re-sends the URScript program and re-attaches the service and action providers to the new connection; on goal cancel the follower decelerates to a stop over 0.5 s",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectoryPoint.velocities",
+       "in_role": "field:trajectory_msgs/JointTrajectoryPoint.velocities"
+      }
+     },
+     "provenance": {
+      "producer.recovery": "snapshot:ur5_moveit_config/launch/demo.launch:27 | <node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" respawn=\"true\" output=\"screen\" /> ; move_group is respawn=\"false\" (move_group.launch:43)",
+      "consumer.exclusive[reverse_port]": "snapshot:ur_driver/src/ur_driver/driver.py:948 | server = TCPServer((\"\", reverse_port), CommanderTCPHandler)",
+      "producer.outputs[0].side": "snapshot:ur5_moveit_config/launch/ompl_planning_pipeline.launch.xml:8 | <arg name=\"planning_adapters\" value=\"default_planner_request_adapters/AddTimeParameterization ; velocity bounds snapshot:ur5_moveit_config/config/joint_limits.yaml:3-4 | has_velocity_limits: true max_velocity: 3.15 (loaded by snapshot:ur5_moveit_config/launch/planning_context.launch:19-20)",
+      "producer.outputs[0].msg_type": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg:6 | float64[] velocities",
+      "producer.outputs[0].frame": "none: per-joint velocities in joint space, no spatial frame",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectoryPoint <common_msgs 1.10.6> <std_msgs 0.5.8>; source https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg",
+      "consumer.inputs[0].side": "snapshot:ur_driver/src/ur_driver/driver.py:627-631 | def has_velocities(traj): for p in traj.points: if len(p.velocities) != len(p.positions): return False ; :735-738 goal rejected \"Received a goal without velocities\"",
+      "consumer.inputs[0].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:16 | from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint ; https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg:3 | JointTrajectoryPoint[] points",
+      "consumer.inputs[0].frame": "snapshot:ur_driver/src/ur_driver/driver.py:571,586-587,620-631 | joint-space velocities, no spatial frame",
+      "consumer.inputs[0].units": "snapshot:ur_driver/src/ur_driver/driver.py:935-936 | max_velocity = rospy.get_param(\"~max_velocity\", MAX_VELOCITY) # [rad/s] ; rospy.loginfo(\"Max velocity accepted by ur_driver: %s [rad/s]\" % max_velocity) (bound applied to point velocities at :620-625)",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg | python3 definition_hash.py ros1 trajectory_msgs/JointTrajectoryPoint"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "field:trajectory_msgs/JointTrajectory.joint_names",
+     "status": "done",
+     "direction": {
+      "producer": "ur5_moveit_config",
+      "consumer": "ur_driver"
+     },
+     "encoding": {
+      "type": "PAIR",
+      "producer": {
+       "outputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.joint_names",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "65b4f94a94d1ed67169da35a02f33d3f"
+         }
+        }
+       ],
+       "inputs": [],
+       "exclusive": [],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "robot_state_publisher node launched with respawn=\"true\" (demo.launch); no other recovery/fallback declared",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "consumer": {
+       "outputs": [],
+       "inputs": [
+        {
+         "role": "field:trajectory_msgs/JointTrajectory.joint_names",
+         "msg_type": "trajectory_msgs/JointTrajectory",
+         "frame": "none",
+         "units": null,
+         "qos": {
+          "reliability": null,
+          "durability": null,
+          "deadline_ms": null
+         },
+         "rate_hz": null,
+         "min_rate_hz": null,
+         "definition_id": {
+          "algorithm": "ros1_md5",
+          "kind": "msg",
+          "value": "65b4f94a94d1ed67169da35a02f33d3f"
+         }
+        }
+       ],
+       "exclusive": [
+        "reverse_port"
+       ],
+       "perm_requires": [],
+       "perm_grants": [],
+       "perm_limits": {},
+       "recovery": "on loss of the robot connection the main loop re-sends the URScript program and re-attaches the service and action providers to the new connection; on goal cancel the follower decelerates to a stop over 0.5 s",
+       "_states": {
+        "perm_requires": "absent",
+        "perm_grants": "absent",
+        "recovery": "present"
+       }
+      },
+      "edge": {
+       "out_role": "field:trajectory_msgs/JointTrajectory.joint_names",
+       "in_role": "field:trajectory_msgs/JointTrajectory.joint_names"
+      }
+     },
+     "provenance": {
+      "producer.recovery": "snapshot:ur5_moveit_config/launch/demo.launch:27 | <node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" respawn=\"true\" output=\"screen\" /> ; move_group is respawn=\"false\" (move_group.launch:43)",
+      "consumer.exclusive[reverse_port]": "snapshot:ur_driver/src/ur_driver/driver.py:948 | server = TCPServer((\"\", reverse_port), CommanderTCPHandler)",
+      "producer.outputs[0].side": "snapshot:ur5_moveit_config/config/controllers.yaml:5-11 | joints: - shoulder_pan_joint - shoulder_lift_joint - elbow_joint - wrist_1_joint - wrist_2_joint - wrist_3_joint (joint set carried in the trajectory goals the controller manager sends)",
+      "producer.outputs[0].msg_type": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg:2 | string[] joint_names ; carried as FollowJointTrajectory goal field 'trajectory_msgs/JointTrajectory trajectory' (https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action:2)",
+      "producer.outputs[0].frame": "none: joint_names is a list of joint identifiers, no spatial frame",
+      "producer.outputs[0].definition_id": "python3 definition_hash.py ros1 trajectory_msgs/JointTrajectory <common_msgs 1.10.6> <std_msgs 0.5.8>; sources https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg, https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectoryPoint.msg, https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg",
+      "consumer.inputs[0].side": "snapshot:ur_driver/src/ur_driver/driver.py:723 | if set(goal_handle.get_goal().trajectory.joint_names) != set(joint_names):",
+      "consumer.inputs[0].msg_type": "snapshot:ur_driver/src/ur_driver/driver.py:16 | from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint ; https://raw.githubusercontent.com/ros-controls/control_msgs/1.2.0/control_msgs/action/FollowJointTrajectory.action:2 | trajectory_msgs/JointTrajectory trajectory",
+      "consumer.inputs[0].frame": "snapshot:ur_driver/src/ur_driver/driver.py:565,574,723 | joint_names is a list of joint name strings compared with set(joint_names) and used for reordering; no spatial meaning",
+      "consumer.inputs[0].definition_id": "https://raw.githubusercontent.com/ros/common_msgs/1.10.6/trajectory_msgs/msg/JointTrajectory.msg + JointTrajectoryPoint.msg, https://raw.githubusercontent.com/ros/std_msgs/0.5.8/msg/Header.msg | python3 definition_hash.py ros1 trajectory_msgs/JointTrajectory"
+     }
+    },
+    {
+     "kind": "edge",
+     "element": "topic:joint_states",
+     "status": "unassessable_edge",
+     "reason": "port_missing_consumer",
+     "direction": {
+      "producer": "ur_driver",
+      "consumer": "ur5_moveit_config"
+     },
+     "encoding": null,
+     "provenance": {}
+    }
+   ]
+  }
+ }
+}

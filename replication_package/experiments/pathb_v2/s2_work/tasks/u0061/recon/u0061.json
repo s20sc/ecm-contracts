@@ -1,0 +1,74 @@
+{
+  "task_id": "u0061",
+  "package": "kobuki_auto_docking",
+  "manifest_version": "0.3.5",
+  "ports": [
+    {
+      "element": "param:cmd_vel_mux/yaml_cfg_file",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "topic:cmd_vel_mux/auto_docking",
+      "side": "provides",
+      "msg_type": "geometry_msgs/Twist",
+      "frame": null,
+      "units": "linear.x m/s, angular.z rad/s",
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": 5.0,
+      "definition_id": {"algorithm": "ros1_md5", "kind": "msg", "value": "9f195f881246fdfa2798d1d3eebca84a"}
+    },
+    {
+      "element": "topic:cmd_vel_mux/output",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "param:cmd_vel_mux/yaml_cfg_file": "param cmd_vel_mux/yaml_cfg_file: string",
+    "topic:cmd_vel_mux/auto_docking": "topic cmd_vel_mux/auto_docking: geometry_msgs/Twist"
+  },
+  "not_declared": [],
+  "references": ["topic:cmd_vel_mux/output"],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "bumper hit without charger: state BUMPED, reverse at -0.05 m/s for 50 updates, then IDLE and rescan; action goal aborted and MotorPower OFF published when DockDrive is disabled unexpectedly or on shutdown"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_auto_docking/package.xml:3",
+    "ports[0].frame": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:6 | <param name=\"yaml_cfg_file\" value=\"$(find kobuki_auto_docking)/param/cmd_vel_mux.yaml\"/> (value is a filesystem path, no spatial meaning)",
+    "ports[1].msg_type": "snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:47 | velocity_commander_ = nh.advertise<geometry_msgs::Twist>(\"velocity\", 10);",
+    "ports[1].units": "snapshot:kobuki_auto_docking/src/dock_drive.cpp:333 | // vx: in m/s ; snapshot:kobuki_auto_docking/src/dock_drive.cpp:334 | // wz: in rad/s ; assigned to cmd_vel->linear.x / cmd_vel->angular.z at snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:129-130",
+    "ports[1].min_rate_hz": "snapshot:kobuki_auto_docking/param/cmd_vel_mux.yaml:22-24 | name: \"Auto docking\", topic: \"auto_docking\", timeout: 0.2 (header line 9: 'Time in seconds without incoming messages to consider this topic inactive'); 1/0.2 s = 5.0 Hz; this file is passed to the mux via snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:6",
+    "ports[1].definition_id": "python3 definition_hash.py ros1 geometry_msgs/Twist <dir>, over geometry_msgs/msg/Twist.msg and geometry_msgs/msg/Vector3.msg fetched from https://raw.githubusercontent.com/ros/common_msgs/1.9.21/geometry_msgs/msg/ (ros_distro is null; groovy chosen from snapshot:kobuki.rosinstall:8,39,44,49)",
+    "declares[param:cmd_vel_mux/yaml_cfg_file]": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:5-6 | <node pkg=\"nodelet\" type=\"nodelet\" name=\"cmd_vel_mux\" ...> <param name=\"yaml_cfg_file\" value=\"$(find kobuki_auto_docking)/param/cmd_vel_mux.yaml\"/> (no type attribute; non-numeric, non-boolean value, so roslaunch stores it as a string)",
+    "declares[topic:cmd_vel_mux/auto_docking]": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:15 | <remap from=\"dock_drive/velocity\" to=\"cmd_vel_mux/auto_docking\"/> ; publisher advertised on the nodelet private handle at snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:47 (init called with getPrivateNodeHandle() at snapshot:kobuki_auto_docking/src/nodelet.cpp:64) ; mux subscriber entry topic: \"auto_docking\" at snapshot:kobuki_auto_docking/param/cmd_vel_mux.yaml:23",
+    "references[topic:cmd_vel_mux/output]": "snapshot:kobuki_auto_docking/launch/auto_dock_with_safe_keyop.launch:7 | <remap from=\"cmd_vel_mux/output\" to=\"mobile_base/commands/velocity\"/>",
+    "perm_requires.state": "searched snapshot:kobuki_auto_docking/ (package.xml, CMakeLists.txt, launch/*.launch, param/cmd_vel_mux.yaml, plugins/nodelet_plugins.xml, src/*.cpp, include/kobuki_auto_docking/*.hpp, scripts/*.py): no permission or access-control declarations",
+    "perm_grants.state": "same search as perm_requires.state: no permission grants declared",
+    "recovery.state": "snapshot:kobuki_auto_docking/src/dock_drive.cpp:209-216,222-224 (bump_remainder = 50; setStateVel(BUMPED, -0.05, 0.0); later setState(IDLE)); snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:144-150 (as_.setAborted(...); dock_.disable(); toggleMotor(false);) and 33-41 (destructor aborts and turns motor off)",
+    "recovery.value": "snapshot:kobuki_auto_docking/src/dock_drive.cpp:209-216,222-224; snapshot:kobuki_auto_docking/src/auto_docking_ros.cpp:33-41,144-150,166-172"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "Inside the package the three elements are mutually consistent: the dock_drive velocity output is remapped to cmd_vel_mux/auto_docking, the yaml passed as yaml_cfg_file subscribes the mux to 'auto_docking', and the mux output is remapped to mobile_base/commands/velocity. Whether this is correct depends on the cmd_vel_mux counterpart still reading 'yaml_cfg_file', accepting this yaml schema and publishing on 'output', which the snapshot cannot show. package.xml also lacks a run_depend on cmd_vel_mux although the launch file loads cmd_vel_mux/CmdVelMuxNodelet."
+  },
+  "confidence": "high",
+  "notes": "ROS 1 (catkin, package.xml format 1). The provided topic cmd_vel_mux/auto_docking exists only under launch/auto_dock_with_safe_keyop.launch; minimal.launch, compact.launch and standalone.launch remap dock_drive/velocity to mobile_base/commands/velocity instead. The code publishes geometry_msgs/Twist from the message_filters ApproximateTime sync callback (queue 10) only when DockDrive is enabled and canRun(); it sets no publish rate (the ros::Rate(10) update thread in src/nodelet.cpp:73-81 is never started, lines 65-69 commented out), so rate_hz is null. min_rate_hz 5.0 is derived from the mux timeout 0.2 s that this package configures for the auto_docking source; it is a consumer-side inactivity threshold, not a publish rate set by the publisher. Frame of the Twist is null: the message has no header and the code names no frame. QoS fields are null because this is ROS 1. topic:cmd_vel_mux/output is not published or subscribed by this package's code; it is named only as the 'from' of a remap on the cmd_vel_mux nodelet the launch file starts, so its port has no type, frame or definition: the package never declares the type of that topic (its own nodes put geometry_msgs/Twist on the remap target mobile_base/commands/velocity, e.g. scripts/DockDriveControl.py:97, but that is not a declaration of cmd_vel_mux/output). references is limited to packet elements; the code also names other packages' topics (odom, mobile_base/sensors/core, mobile_base/sensors/dock_ir, mobile_base/commands/motor_power, mobile_base/commands/velocity, cmd_vel_mux/safety_controller, cmd_vel_mux/keyboard_teleop) and the action dock_drive_action (kobuki_msgs/AutoDocking). The mux yaml gives Auto docking priority 15, above Safe reactive controller (10) and Keyboard operation (7). ros_distro was null; the dependency tag was taken from the snapshot's kobuki.rosinstall (groovy). To pick the groovy tag I also read the version line of geometry_msgs/package.xml on the groovy-devel branch (1.9.21), which goes beyond definition files; the two .msg files were then fetched at tag 1.9.21 and hashed in a session scratch directory outside the workspace (with a stub package.xml naming geometry_msgs so the tool can resolve the package). Vector3 md5 at that tag: 4a842b65f413084dc2b10fb484ea7f17. recovery is the dock-drive fault handling in code; no recovery policy is declared in the configuration."
+}

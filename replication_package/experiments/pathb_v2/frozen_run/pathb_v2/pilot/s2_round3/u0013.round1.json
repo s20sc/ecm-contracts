@@ -1,0 +1,72 @@
+{
+  "task_id": "u0013",
+  "package": "rosbridge_server",
+  "manifest_version": "1.1.0",
+  "ports": [
+    {
+      "element": "topic:/my_topic",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {
+        "reliability": "reliable",
+        "durability": "volatile",
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [
+    "topic:/my_topic"
+  ],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "present",
+    "values": [
+      "topics_glob",
+      "services_glob",
+      "params_glob"
+    ]
+  },
+  "recovery": {
+    "state": "present",
+    "value": "Server start-up only: bind_sockets(port, address) is retried every retry_startup_delay seconds (parameter default 2.0, launch default 5.0) while self.context.ok(). The topic subscription path has no retry, re-subscribe or timeout: TopicNotEstablishedException / TypeConflictException propagate to Protocol.incoming, which logs an error status to the client and drops the request."
+  },
+  "provenance": {
+    "manifest_version": "snapshot:rosbridge_server/package.xml:4 | <version>1.1.0</version>",
+    "ports[0].element": "packet.json elements[0]; the literal string my_topic does not occur anywhere in the snapshot (grep -rn \"my_topic\" snapshot: 0 hits; grep -rn \"/my_\" snapshot: 0 hits). The package subscribes to a topic name supplied at run time by a websocket client: snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:243 | topic = msg[\"topic\"]",
+    "ports[0].side": "snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:230 | protocol.register_operation(\"subscribe\", self.subscribe); snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:131-133 | self.subscriber = node_handle.create_subscription( msg_class, topic, self.callback, qos, raw=raw ); the subscribe capability is loaded by snapshot:rosbridge_library/src/rosbridge_library/rosbridge_protocol.py:51-60 and instantiated per client by snapshot:rosbridge_server/src/rosbridge_server/websocket_handler.py:142-144",
+    "ports[0].msg_type": "null: the type is not written in the package. It is taken from the client's optional \"type\" field (snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:275 | \"msg_type\": msg.get(\"type\", None)) or inferred from the graph at subscribe time (snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:79-80 | topics_names_and_types = dict(node_handle.get_topic_names_and_types()) / topic_type = topics_names_and_types.get(topic); :83-84 raise TopicNotEstablishedException(topic) when neither is available; :100-102 raise TypeConflictException when both are given and differ)",
+    "ports[0].frame": "null: the message type of /my_topic is not fixed by the code, so whether the data has a frame is undeterminable; the subscriber callback only wraps the message for serialisation (snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:202 | outgoing = OutgoingMessage(msg)) and reads no header field",
+    "ports[0].units": "null: no unit is stated for a run-time-named topic anywhere in the snapshot",
+    "ports[0].qos.reliability": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:112-116 | qos = QoSProfile( depth=10, durability=DurabilityPolicy.VOLATILE, reliability=ReliabilityPolicy.RELIABLE, ); conditionally overridden at :128-129 | if any(pub.qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT for pub in infos): qos.reliability = ReliabilityPolicy.BEST_EFFORT (infos = node_handle.get_publishers_info_by_topic(topic) at :117, evaluated once at subscription creation)",
+    "ports[0].qos.durability": "snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:112-116 | durability=DurabilityPolicy.VOLATILE; conditionally overridden at :126-127 | if any(pub.qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL for pub in infos): qos.durability = DurabilityPolicy.TRANSIENT_LOCAL",
+    "ports[0].qos.deadline_ms": "null: no deadline is set in snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:112-116 or anywhere else in rosbridge_server/rosbridge_library sources (grep -rn -i qos)",
+    "ports[0].rate_hz": "null: no publish or subscribe rate is set in code; the per-client throttle_rate is a minimum interval in ms defaulting to 0 (snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:276 | \"throttle_rate\": msg.get(\"throttle_rate\", 0))",
+    "ports[0].min_rate_hz": "null: not set (same search as ports[0].rate_hz)",
+    "ports[0].definition_id": "null: no definition file for /my_topic exists in or is named by the snapshot, so definition_hash.py was not run",
+    "exclusive": "empty: no hardware command interface or device handle is claimed; grep -rn -i \"interface\\|claim\\|device\" over rosbridge_server/src, scripts, launch, package.xml and CMakeLists.txt matched only BSD licence boilerplate (disclaimer/DISCLAIMED) and the package description \"A WebSocket interface to rosbridge.\" (package.xml:5), no resource claim. (The node binds a TCP listening socket, snapshot:rosbridge_server/scripts/rosbridge_websocket.py:295 | sockets = bind_sockets(port, address), port parameter default 9090 at :111; this is a network port, not recorded as an exclusive resource token.)",
+    "not_declared[topic:/my_topic]": "Searched the whole snapshot (150 files) with grep -rn \"my_topic\" and grep -rn \"/my_\": 0 hits. rosbridge_server hard-codes no subscription topics at all; the only topic names written in its code are the publishers client_count and connected_clients (snapshot:rosbridge_server/src/rosbridge_server/client_mananger.py:50-56; snapshot:rosbridge_server/scripts/rosbridge_websocket.py:124-126) and the launch file names no topics (snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:1-66). The element is therefore not declared statically; it is consumed only when a websocket client sends {\"op\": \"subscribe\", \"topic\": \"/my_topic\"} at run time.",
+    "references": "empty: the code contains no literal reference to /my_topic or to any other package's topic, service, parameter or message type under that name (grep above)",
+    "perm_requires.state": "absent: checked snapshot:rosbridge_server/package.xml, snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml, snapshot:rosbridge_server/scripts/rosbridge_websocket.py, snapshot:rosbridge_server/src/rosbridge_server/*.py and snapshot:rosbridge_library/src/rosbridge_library/**; no permission requirement is declared. A parameter \"authenticate\" is declared (snapshot:rosbridge_server/scripts/rosbridge_websocket.py:109 | RosbridgeWebSocket.authenticate = self.declare_parameter(\"authenticate\", False).value) but grep -rn authenticate over the snapshot shows no other code reads it and no auth operation is registered (snapshot:rosbridge_library/src/rosbridge_library/rosbridge_protocol.py:51-60 lists the capabilities; none handles auth).",
+    "perm_grants.state": "present: the server gates which topics/services/params clients may access with glob allow-lists described in the code as \"Topic security glob\": snapshot:rosbridge_library/src/rosbridge_library/capabilities/subscribe.py:245-261 | if Subscribe.topics_glob is not None and Subscribe.topics_glob: ... for glob in Subscribe.topics_glob: if fnmatch.fnmatch(topic, glob): ... if not match: self.protocol.log(\"warn\", \"No match found for topic, cancelling subscription to: \" + topic); return",
+    "perm_grants.values": "snapshot:rosbridge_server/scripts/rosbridge_websocket.py:130-134 | topics_glob = self.declare_parameter(\"topics_glob\", \"\").value / services_glob = self.declare_parameter(\"services_glob\", \"\").value / params_glob = self.declare_parameter(\"params_glob\", \"\").value; propagated at :274-279 | Subscribe.topics_glob = RosbridgeWebSocket.topics_glob ...; launch defaults all \"\" at snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:17-19 (empty list = no restriction, subscribe.py:262-263)",
+    "recovery.state": "present: snapshot:rosbridge_server/scripts/rosbridge_websocket.py:289-306 | connected = False / while not connected and self.context.ok(): try: ... sockets = bind_sockets(port, address) ... connected = True / except OSError as e: self.get_logger().warn(\"Unable to start server: {} \" \"Retrying in {}s.\".format(e, retry_startup_delay)) / time.sleep(retry_startup_delay)",
+    "recovery.value": "retry_startup_delay parameter default 2.0 at snapshot:rosbridge_server/scripts/rosbridge_websocket.py:73; launch default 5.0 at snapshot:rosbridge_server/launch/rosbridge_websocket_launch.xml:8. Topic-path absence of recovery: exceptions raised in snapshot:rosbridge_library/src/rosbridge_library/internal/subscribers.py:84 and :102 are caught only in snapshot:rosbridge_library/src/rosbridge_library/protocol.py:213-216 | try: self.operations[op](msg) / except Exception as exc: self.log(\"error\", f\"{op}: {str(exc)}\", mid); no re-subscribe, timeout or watchdog exists for subscriptions."
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The name /my_topic never appears in the code: rosbridge_server subscribes to whatever a websocket client names, so whether this element works depends on the unseen publisher. Two mechanisms in this snapshot could break delivery for a particular pairing: (1) the first-client subscription copies TRANSIENT_LOCAL / BEST_EFFORT from publishers present at subscribe time only (subscribers.py:117-129), so a publisher that appears later with a BEST_EFFORT profile is never matched; (2) a second client on an already-subscribed topic gets a temporary rclpy subscription created with the integer 10 (depth only, subscribers.py:173-175), and its callback is only promoted into the shared subscriber after that temporary subscription receives a message (subscribers.py:217-233), so with a BEST_EFFORT publisher the second client never receives anything; the multiple_subscribers launch test exists but is not registered in CMakeLists.txt:26-30. Without the pairing I cannot say which, if either, applies; the primary path already carries the publisher-QoS matching and is covered by the best_effort_publisher and transient_local_publisher launch tests."
+  },
+  "confidence": "medium",
+  "notes": "rosbridge_server 1.1.0 (ROS 2, ament_cmake, Python) is a generic websocket-to-ROS bridge; it declares no topic subscriptions of its own. Consumption of topic:/my_topic happens only at run time: a client sends {\"op\": \"subscribe\", \"topic\": <name>, optional \"type\", \"throttle_rate\", \"queue_length\", \"fragment_size\", \"compression\", \"id\"} (ROSBRIDGE_PROTOCOL.md:386-419; field list subscribe.py:213-220). Flow: websocket_handler.py:142-147 creates a RosbridgeProtocol per client and an IncomingQueue thread; protocol.py:213-216 dispatches to Subscribe.subscribe (subscribe.py:235-283), which applies the topics_glob allow-list, creates a per-client Subscription (subscribe.py:56-81) and calls SubscriberManager.subscribe (subscribers.py:245-264); the first client on a topic creates a MultiSubscriber that resolves the type (client-supplied or inferred via get_topic_names_and_types; type string compared in pkg/msg/Type form, message_conversion.py:194-200), builds QoSProfile(depth=10, VOLATILE, RELIABLE) then flips durability to TRANSIENT_LOCAL and/or reliability to BEST_EFFORT if any publisher currently on the topic has those (subscribers.py:112-129, comment cites issue #551), and calls node_handle.create_subscription(msg_class, topic, self.callback, qos, raw=raw) (subscribers.py:131-133). Later clients on the same topic go through MultiSubscriber.subscribe (subscribers.py:157-175), which creates a temporary create_subscription(self.msg_class, self.topic, self._new_sub_callback, 10) with no reliability/durability set and migrates the new callbacks on its first message. Messages are wrapped in OutgoingMessage and sent as {\"op\": \"publish\", \"topic\": ..., \"msg\": ...} with optional png / cbor / cbor-raw encoding (subscribe.py:322-374); throttle_rate (ms) and queue_length are per-client and default to 0 (subscription_modifiers.py). Because no type is fixed, msg_type, frame, units and definition_id are null; the QoS recorded is the base profile written in code, with the conditional override noted in provenance. The element is listed in not_declared because no static declaration or literal reference exists, not because the consumption path is missing; references is empty for the same reason. Provides-side declarations not in the packet: publishers client_count (std_msgs/msg/Int32) and connected_clients (rosbridge_msgs/msg/ConnectedClients), both depth 1 (10 in the script), TRANSIENT_LOCAL (client_mananger.py:44-56; rosbridge_websocket.py:119-127), and parameters retry_startup_delay, use_compression, fragment_timeout, delay_between_messages, max_message_size, unregister_timeout, bson_only_mode, websocket_ping_interval, websocket_ping_timeout, certfile, keyfile, authenticate, port, address, topics_glob, services_glob, params_glob, actual_port (rosbridge_websocket.py:73-134, 299). ros_distro foxy: no dependency definition files were needed or fetched. All 150 snapshot files were listed; the search covered the whole tree, not only rosbridge_server/."
+}

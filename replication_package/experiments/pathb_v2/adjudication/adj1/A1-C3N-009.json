@@ -1,0 +1,47 @@
+{
+  "item_id": "A1-C3N-009",
+  "kind": "A1",
+  "case_id": "C3N-009",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: missing state publications and instrumented clock values are reported. E2: the host supplies use_sim_time too late for its controller plugin's initialization, so a time-source assumption crosses a package boundary. E3: PAIR of host-supplied configuration and plugin consumption. Moving the parameter into construction is a code/interface timing repair, not a deployment remap.",
+    "quote": "We have been facing an issue for several months that the JTC doesn't publish the `state` or the `controller_state` topic after starting TIAGo simulation.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1311"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "their node clock tends to stay in the RCL_SYSTEM_TIME` for some cycle time instead of switching to the clock of the gazebo.",
+      "url": "https://github.com/ros-controls/ros2_control/issues/1311",
+      "reason": "The problem is clock-source initialization order, not differing measurement units or a spatial frame. other and the implicated use_sim_time/init elements are appropriate. The inspected 201fd47c diff passes the parameter before init and removes the later set_parameter call."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I've added some print statements and found out the following",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1311",
+    "reason": "The reporter instrumented the behavior to diagnose missing publications; the added prints are not an existing compatibility diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "As shown above, this is creating a jump and then that particular condition is always true and the topic is never published.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1311"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "The only way I could get the proper close inside the controllers is by parsing the `use_sim_time` as an argument to the NodeOptions at the time of LifeCycleNode creation and this did help to fix the issue by correctly initializing the clock from the beginning",
+    "url": "https://github.com/ros-controls/ros2_control/issues/1311",
+    "reason": "The local workaround is reported successful and the linked commit implements that strategy. The successful local run does not identify both component revisions, so recommended is the supported S1 status."
+  },
+  "notes": "The source's Expected behavior block repeats bad timestamps; it is not used as proof of corrected output. Resolution relies on the explicit successful-local-change statement, not an invented transcription of the attached screenshots. Gazebo's /clock publisher is a third unit rather than another failed condition of the specified host/plugin pair."
+}

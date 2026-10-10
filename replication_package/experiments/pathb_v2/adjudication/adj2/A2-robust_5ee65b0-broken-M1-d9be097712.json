@@ -1,0 +1,33 @@
+{
+ "item_id": "A2-robust_5ee65b0-broken-M1-d9be097712",
+ "kind": "A2",
+ "case_id": "robust_5ee65b0",
+ "composition": "broken",
+ "method_label": "M1",
+ "rule": "field_break",
+ "values": [
+  {
+   "path": "ver_delta.changed_fields[api:rospy.Publisher.__init__]",
+   "verdict": "verified",
+   "source_excerpt": "built: s2_work/tasks/u0094/snapshot/clients/rospy/src/rospy/topics.py:743 'def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None):' inside 'class Publisher(Topic):' (line 738). running: s2_work/tasks/u0093/snapshot/clients/rospy/src/rospy/topics.py:749 'def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):' inside 'class Publisher(Topic):' (line 744)."
+  },
+  {
+   "path": "ver_delta.consumer_reads[api:rospy.Publisher.__init__]",
+   "verdict": "verified",
+   "source_excerpt": "s2_work/tasks/u0092/snapshot/kobuki_dashboard/src/kobuki_dashboard/motor_widget.py:11 'self._pub = rospy.Publisher(topic, MotorPower)'; s2_work/tasks/u0092/snapshot/kobuki_dashboard/src/kobuki_dashboard/led_widget.py:11 'self._pub = rospy.Publisher(topic, Led)'."
+  }
+ ],
+ "substance": [
+  {
+   "path": "ver_delta.changed_fields[api:rospy.Publisher.__init__]",
+   "verdict": "substantive",
+   "built_excerpt": "s2_work/tasks/u0094/snapshot/clients/rospy/src/rospy/topics.py:743 'def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None):'",
+   "running_excerpt": "s2_work/tasks/u0093/snapshot/clients/rospy/src/rospy/topics.py:749 'def __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):'"
+  }
+ ],
+ "operation_edge": {
+  "verdict": "agree",
+  "reason": "The broken upgrade unit records provider rospy built=u0094 (clients/rospy/package.xml:3 '<version>1.9.40</version>') and running=u0093 ('<version>1.11.8</version>'), both opened. The consumer kobuki_dashboard (u0092) instantiates rospy.Publisher at motor_widget.py:11 and led_widget.py:11, i.e. it invokes exactly the api:rospy.Publisher.__init__ port whose declaration is recorded as changed, so the two ports of the edge are the provider constructor declaration and the consumer constructor call on the same element."
+ },
+ "notes": "The two declarations differ by the added keyword parameter 'queue_size=None': the arity grows from 6 to 7 and a new keyword name is introduced in a language where callers pass arguments by name, which meets the stated substantive criterion. Caveat recorded for the study: because the parameter carries a default and the broken-side consumers pass only two positional arguments, the added parameter alone does not break these particular calls; the substance verdict is about the declaration differing in substance, not about consumer-visible breakage. Both cited consumer lines show exactly the quoted calls."
+}

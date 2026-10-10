@@ -1,0 +1,87 @@
+{
+  "task_id": "u0318",
+  "package": "image_geometry",
+  "manifest_version": "3.4.0",
+  "ports": [
+    {
+      "element": "api:numpy.matrix",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:numpy.matrix.resize",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:numpy.ndarray",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:numpy.zeros",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:numpy.matrix",
+    "api:numpy.matrix.resize",
+    "api:numpy.ndarray",
+    "api:numpy.zeros"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:image_geometry/package.xml:3",
+    "ports[0].element": "snapshot:image_geometry/image_geometry/cameramodels.py:7",
+    "ports[0].side": "snapshot:image_geometry/image_geometry/cameramodels.py:7 | mat = numpy.matrix(L, dtype='float64')",
+    "ports[1].element": "snapshot:image_geometry/image_geometry/cameramodels.py:8",
+    "ports[1].side": "snapshot:image_geometry/image_geometry/cameramodels.py:8 | mat.resize((rows,cols)) (mat is the numpy.matrix built on line 7); also snapshot:image_geometry/image_geometry/cameramodels.py:102 | src.resize((1,1,2)) (src = mkmat(1, 2, list(uv_raw)) on line 101)",
+    "ports[2].element": "snapshot:image_geometry/image_geometry/cameramodels.py:83",
+    "ports[2].side": "snapshot:image_geometry/image_geometry/cameramodels.py:83 | self.mapx = numpy.ndarray(shape=(self.height, self.width, 1), ; also line 85 | self.mapy = numpy.ndarray(shape=(self.height, self.width, 1),",
+    "ports[3].element": "snapshot:image_geometry/image_geometry/cameramodels.py:306",
+    "ports[3].side": "snapshot:image_geometry/image_geometry/cameramodels.py:306 | self.Q = numpy.zeros((4, 4), dtype='float64')",
+    "references[api:numpy.matrix]": "snapshot:image_geometry/image_geometry/cameramodels.py:7 | mat = numpy.matrix(L, dtype='float64')",
+    "references[api:numpy.matrix.resize]": "snapshot:image_geometry/image_geometry/cameramodels.py:8 | mat.resize((rows,cols)); snapshot:image_geometry/image_geometry/cameramodels.py:102 | src.resize((1,1,2))",
+    "references[api:numpy.ndarray]": "snapshot:image_geometry/image_geometry/cameramodels.py:83 and :85 | numpy.ndarray(shape=(self.height, self.width, 1), dtype='float32')",
+    "references[api:numpy.zeros]": "snapshot:image_geometry/image_geometry/cameramodels.py:306 | self.Q = numpy.zeros((4, 4), dtype='float64')",
+    "perm_requires.state": "searched snapshot/image_geometry (package.xml, CMakeLists.txt, test/CMakeLists.txt, image_geometry/*.py, src/*.cpp, include/image_geometry/*.hpp, test/*): no permission requirement declared; only 'permissions' hit is the Apache license header in include/image_geometry/visibility_control.hpp:12",
+    "perm_grants.state": "same search as perm_requires.state: no permission grant declared",
+    "recovery.state": "same search: no recovery behaviour or recovery configuration declared; package is a library with no nodes or configuration files"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The Python camera model is built on numpy.matrix (a subclass numpy discourages) and resizes matrix objects in place; rectifyPoint resizes a 1x2 numpy.matrix to the 3-D shape (1,1,2), which conflicts with numpy.matrix being strictly 2-D. The Python test (test/directed.py) is not registered in test/CMakeLists.txt, so this path is unexercised. Guess only, not verified."
+  },
+  "confidence": "high",
+  "notes": "All four packet elements are numpy library APIs that this package consumes; it provides none of them, so declares and not_declared are empty and all four appear in references. All uses are in the single Python module snapshot/image_geometry/image_geometry/cameramodels.py (import numpy at line 4); the C++ sources and headers do not use numpy. msg_type, frame, units, QoS, rates and definition_id are null for every port because these are in-process Python library calls, not ROS communication elements: there is no message type, definition file, or QoS profile, and a coordinate frame is not a property of these calls. numpy.matrix.resize is not named textually; it is called as a method on numpy.matrix instances returned by mkmat (lines 8 and 102). The call at line 8 resizes a matrix constructed from a CameraInfo array field (msg.k, msg.d, msg.r, msg.p) to (rows, cols). package.xml (format 2) declares depends libopencv-dev and sensor_msgs only; it declares no python3-numpy or python3-opencv dependency, although cameramodels.py imports numpy and cv2. The Python package is installed via ament_python_install_package in CMakeLists.txt:7. The top-level CMakeLists.txt builds only the C++ gtest; test/CMakeLists.txt has the pytest registration of directed.py commented out (lines 3-5). No exclusive resources are claimed. No network access was used."
+}

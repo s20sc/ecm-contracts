@@ -1,0 +1,52 @@
+{
+  "item_id": "A1-robust_3c7f92a",
+  "kind": "A1",
+  "case_id": "robust_3c7f92a",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Fix some bugs in plotting due to changes in rqt:",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/9",
+    "reason": "E1/E4: the issue supplies a traceback and the consumer fix confirms the API incompatibility. E2: separately released rqt_plot and kobuki_qtestsuite share a subclass-accessible record layout; this is not an isolated plotting algorithm defect or build-only fix. E3: the unchanged three-value consumer encounters a newer four-value provider record, supporting UPGRADE."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "+        self._curves[curve_id] = ([], [], line, [None, None])",
+      "url": "https://github.com/ros-visualization/rqt_common_plugins/commit/f33257862cbbb10e87577304172ad53171d1ea30.patch",
+      "reason": "The attribute remains present but its record structure changes: element_retyped. _curves carries the incompatible values and the consumer's redraw override unpacks them; both implicated elements are relevant. This does not mean the redraw function signature itself changed.",
+      "supporting_evidence": [
+        {"quote": "-        self._curves[curve_id] = (data_x, data_y, plot)", "url": "https://github.com/ros-visualization/rqt_common_plugins/commit/f33257862cbbb10e87577304172ad53171d1ea30.patch"},
+        {"quote": "-            data_x, data_y, plot = curve\n+            data_x, data_y, plot, min_max_y = curve", "url": "https://github.com/yujinrobot/kobuki_desktop/commit/3c7f92a2c6a51b4896e669d0da34b4de90a71914.patch"}
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "ValueError: too many values to unpack",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/9",
+    "reason": "The error arises inside the running update_plot/redraw path, not an import, connection, or plugin-load check. silent_documented follows the stipulated early-diagnostic definition."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "    self.data_plot.redraw()",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/issues/9",
+    "reason": "The traceback is in update_plot: run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "bugfix new matdataplot api with resizing the plot, refs #9.",
+    "url": "https://github.com/yujinrobot/kobuki_desktop/commit/3c7f92a2c6a51b4896e669d0da34b4de90a71914.patch",
+    "reason": "The consumer patch implements four-value unpacking and uses the new range entry. The issue's closing comments report documentation updates, not a working run with both revisions identified; recommended is correct."
+  },
+  "notes": "Read the complete issue #9 comment set and both the provider-layout and consumer-fix patches. The underscore-prefixed attribute is nevertheless an actual dependency used by the subclass. Unrelated script, packaging, and UI edits bundled with the fix are not additional failed conditions."
+}

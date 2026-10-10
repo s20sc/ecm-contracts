@@ -1,0 +1,58 @@
+{
+  "item_id": "A1-C3-120",
+  "kind": "A1",
+  "case_id": "C3-120",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: reproducer, QoS endpoint dumps, and a middleware diagnostic. E2: MAVROS publisher and rosbridge subscriber are separate ROS units, and incompatible reliability policies cross a topic boundary. The code fix changes subscription QoS rather than deployment name bindings. E3: PAIR. E4: messages are refused.",
+    "quote": "[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+      "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769",
+      "reason": "RELIABILITY is explicit for /mavros/local_position/pose; the separate /mavros/global_position/global endpoint dump also shows a BEST_EFFORT publisher against a RELIABLE rosbridge subscription. Both listed topics are supported, although the report inconsistently labels the ordering of the two dumps.",
+      "supporting_evidence": [
+        {
+          "quote": "Node name: global_position\r\nNode namespace: /mavros\r\nTopic type: sensor_msgs/msg/NavSatFix\r\nEndpoint type: PUBLISHER",
+          "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+        },
+        {
+          "quote": "Reliability: RELIABLE\r\nDurability: VOLATILE",
+          "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769",
+    "reason": "Explicit incompatible-QoS connection diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[rosbridge_websocket]: New publisher discovered on topic '/mavros/local_position/pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769",
+    "reason": "The diagnostic is emitted when the new publisher is discovered, establishing connect."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Should be fixed now by #991, #1023 and #1033",
+    "url": "https://github.com/RobotWebTools/rosbridge_suite/issues/769#issuecomment-2896918866",
+    "reason": "The maintainer recommends the merged fixes; no fixed MAVROS/rosbridge revision-pair observation is supplied."
+  },
+  "notes": "Read the full issue including timeline page 1 and the diffs of #991, #1023, and #1033. The reliability default changes to BEST_EFFORT. The durability refinement in #1023 concerns other publisher configurations; it is not evidence of an additional failed durability condition in this MAVROS composition. No missed condition found."
+}

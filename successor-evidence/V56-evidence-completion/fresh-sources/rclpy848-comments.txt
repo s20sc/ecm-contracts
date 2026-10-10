@@ -1,0 +1,39 @@
+URL: https://github.com/ros2/rclpy/issues/848#issuecomment-966628590
+DATE: 2021-11-11T21:12:08Z
+Edit: For context, I discovered this issue because of nan values appearing in a stereo_image_proc test.
+
+~~The sibling test [`test_point_cloud_node.py`](https://github.com/ros-perception/image_pipeline/blob/rolling/stereo_image_proc/test/test_point_cloud_node.py) is very similar to the failing test, but does not have the same issue. So I suspect it has something to do with the message type.~~
+
+URL: https://github.com/ros2/rclpy/issues/848#issuecomment-966727759
+DATE: 2021-11-12T00:44:40Z
+It seems like there's something going awry in the stereo image processing. If I comment out [this line](https://github.com/ros-perception/image_pipeline/blob/3da80a133ea78d4273bfc35fac5a95ea5144d74f/stereo_image_proc/src/stereo_image_proc/disparity_node.cpp#L343), then the code no longer crashes.
+
+Still, it seems wrong that rclpy would fail like this. I think the error message could probably be improved in the case that the conversion happening here fails: https://github.com/ros2/rclpy/blob/77949d2c54b8104e48a94d0ea83c7049e18a8809/rclpy/src/rclpy/subscription.cpp#L127
+
+
+
+URL: https://github.com/ros2/rclpy/issues/848#issuecomment-966769543
+DATE: 2021-11-12T02:28:09Z
+A division by zero is happening here, 
+
+https://github.com/ros-perception/vision_opencv/blob/7bbc5ecc232e8faf36b45efaa2b6bc979b04157f/image_geometry/include/image_geometry/stereo_camera_model.h#L135
+
+causing a `-nan` getting set in the ROS message here:
+
+https://github.com/ros-perception/image_pipeline/blob/3da80a133ea78d4273bfc35fac5a95ea5144d74f/stereo_image_proc/src/stereo_image_proc/stereo_processor.cpp#L133
+
+which then causes the executor to crash on the subscriber end when taking the message (I don't know why).
+
+---
+
+I can fix my immediate issue by making sure I populate CameraInfo message correctly in my test fixture. However, I think there's a separate issue here when I publish a message with a `nan` value, the subscriber crashes. I've updated the description with a reproducible example. 
+
+URL: https://github.com/ros2/rclpy/issues/848#issuecomment-1304064215
+DATE: 2022-11-04T19:28:34Z
+https://github.com/ros2/rosidl_python/pull/167 can fix this problem.
+
+URL: https://github.com/ros2/rclpy/issues/848#issuecomment-1305867642
+DATE: 2022-11-07T16:29:31Z
+> [ros2/rosidl_python#167](https://github.com/ros2/rosidl_python/pull/167) can fix this problem.
+
+Yes, good call.  I'm actually going to close this one as a duplicate, since it is already fixed in Rolling and there is now a backport PR to humble for it.

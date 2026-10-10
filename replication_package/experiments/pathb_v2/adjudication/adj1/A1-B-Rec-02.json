@@ -1,0 +1,62 @@
+{
+  "item_id": "A1-B-Rec-02",
+  "kind": "A1",
+  "case_id": "B-Rec-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The `sequence` node in the V3 behavior tree library works differently than in V2. There seems to be no way to have two subtrees running simultaneously in V3 unless you use the `parallel` node.",
+    "url": "https://github.com/ros-navigation/navigation2/pull/1336",
+    "reason": "E1/E4: #1307 reproduces missing replanning and the fix author identifies the library-behavior change. E2: the separately built BT library and navigation consumer disagree about tick semantics; this is not merely a build or deployment fix. E3: UPGRADE is supported by the V2-to-V3 change and retained consumer expectations, even though the consumer was rebuilt for V3."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "disagree",
+      "proposed_class": "other",
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The Sequence node never ticks the CP subtree again because it is waiting for the FP subtree to complete and return a SUCCESS.",
+      "url": "https://github.com/ros-navigation/navigation2/pull/1336#issuecomment-554580325",
+      "reason": "The demonstrated incompatibility is behavioral: whether completed children are re-ticked while a later child is RUNNING. It is not evidence that the consumed Sequence element has a different type/signature. Both inspected headers retain SequenceNode(const std::string& name) and BT::NodeStatus tick(); added implementation state/halt support does not make this observed failure a retyping. S1 has no dedicated semantic-protocol-change class, so use other. The implicated SequenceNode API is correct.",
+      "supporting_evidence": [
+        {
+          "quote": " * If any child returns RUNNING, previous children will be ticked again.",
+          "url": "https://raw.githubusercontent.com/BehaviorTree/BehaviorTree.CPP/2.5.2/include/behaviortree_cpp/controls/sequence_node.h"
+        },
+        {
+          "quote": " * If any child returns RUNNING, previous children will NOT be ticked again.",
+          "url": "https://raw.githubusercontent.com/BehaviorTree/BehaviorTree.CPP/3.0.9/include/behaviortree_cpp/controls/sequence_node.h"
+        },
+        {
+          "quote": "    SequenceNode(const std::string& name);",
+          "url": "https://raw.githubusercontent.com/BehaviorTree/BehaviorTree.CPP/3.0.9/include/behaviortree_cpp/controls/sequence_node.h"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I put print statements to see if the path was being calculated at 1Hz, and it was not. It was only being calculated once.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/1307#issuecomment-546566169",
+    "reason": "The reporter discovers the failed behavioral expectation through instrumentation, not a build/connection/activation compatibility diagnostic."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Obstacle appears in the global costmap, but the path is not updated.",
+    "url": "https://github.com/ros-navigation/navigation2/issues/1307",
+    "reason": "The failure is observed during navigation after an obstacle is placed in the current path."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This uses an alternate control node that I'm calling PipelineSequence for lack of a better name.",
+    "url": "https://github.com/ros-navigation/navigation2/pull/1371",
+    "reason": "The merged alternative supplies a semantic fix; its general TB3/Gazebo test declaration does not identify both revisions of a successful reproduction of #1307. recommended is appropriate."
+  },
+  "notes": "The missed 1-Hz planning requests are evidence of this library/consumer semantic condition, not an additional rate_shortfall on a nonexistent rate port of SequenceNode. The planner-server composition and goal-preemption scenario are distinct. Exact BehaviorTree.CPP deployment revisions remain inferred from the specification; the directly inspected 2.5.2 and 3.0.9 declarations establish the semantic contrast without establishing the reporter's exact library binary."
+}

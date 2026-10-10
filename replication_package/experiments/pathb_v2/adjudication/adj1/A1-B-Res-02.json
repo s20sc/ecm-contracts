@@ -1,0 +1,64 @@
+{
+  "item_id": "A1-B-Res-02",
+  "kind": "A1",
+  "case_id": "B-Res-02",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The same occurs if the command is split into two separate calls, one stopping the old and one starting the new controller.",
+    "url": "https://github.com/ros-controls/ros2_control/pull/343",
+    "reason": "E1/E4: #343 supplies a reproducer and resource-claim rejection, corroborated by #345. E2: separately instantiated controller plugins compete for exclusive command interfaces retained across deactivation. E3: SWITCH is directly reproduced even with separate stop/start calls. Host-framework implementation of the fix does not make the resource interaction deployment wiring or a build issue."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "[controller_manager]: Resource conflict for controller 'forward_position_controller2'. Command interface 'joint1/position' is already claimed.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/343",
+      "reason": "The log proves the exclusive claim conflict on joint1/position. Both joint1/position and joint2/position are implicated because the reproducer copies the same two-joint position controller configuration; the first reported rejection need not enumerate all retained resources.",
+      "supporting_evidence": [
+        {
+          "quote": "forward_position_controller:\n  ros__parameters:\n    joints:\n      - joint1\n      - joint2\n    interface_name: position",
+          "url": "https://raw.githubusercontent.com/ros-controls/ros2_control_demos/046ce0c5ff3d9a412ca05a10a5c37508e02c6325/ros2_control_demo_robot/config/rrbot_controllers.yaml"
+        },
+        {
+          "quote": "There is no clearing of the `LoanedCommandInterface` when stopping a controller.",
+          "url": "https://github.com/ros-controls/ros2_control/pull/343"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[controller_manager]: Resource conflict for controller 'forward_position_controller2'. Command interface 'joint1/position' is already claimed.",
+    "url": "https://github.com/ros-controls/ros2_control/pull/343",
+    "reason": "A resource-manager/controller-manager claim diagnostic explicitly qualifies as loud_documented."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "ros2 control switch_controllers --start-controllers forward_position_controller2 --stop-controllers forward_position_controller",
+    "url": "https://github.com/ros-controls/ros2_control/pull/343",
+    "reason": "The new controller cannot claim interfaces when it is activated after the old controller is stopped."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "it matches perfectly with what I patched locally on the repo",
+    "url": "https://github.com/ros-controls/ros2_control/issues/345#issuecomment-799753683",
+    "reason": "This confirms agreement with the patch, not a successful revision-identified run of the two forward controllers. The inspected fix adds release_interfaces after deactivate and supplies tests using different controller fixtures, supporting recommended.",
+    "supporting_evidence": [
+      {
+        "quote": "+      controller->release_interfaces();",
+        "url": "https://github.com/ros-controls/ros2_control/commit/29efb0beaffdc86ea074b5b8d9dcb890cfa5d489.patch"
+      }
+    ]
+  },
+  "notes": "The separate discussion of simultaneously starting two controllers returning success concerns a CONCURRENT operation, not this SWITCH composition. It is therefore not added as a missed condition. The host controller_manager revision is material to reproducing the switch even though the selected two controller units are unchanged by the fix."
+}

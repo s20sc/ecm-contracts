@@ -1,0 +1,7 @@
+{"item_id": "P-u0131-8", "kind": "P", "task_id": "u0131", "element": "field:common/SET_ATTITUDE_TARGET.type_mask", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "common/SET_ATTITUDE_TARGET", "verdict": "unverifiable",
+   "source_excerpt": "setpoint_attitude.cpp:100: type_mask,\nsetpoint_raw.cpp:178: type_mask,", "qos_basis": null},
+  {"field": "frame", "recorded": "none", "verdict": "verified",
+   "source_excerpt": "setpoint_attitude.cpp:117: const uint8_t ignore_all_except_q = (1 << 6) | (7 << 0);", "qos_basis": null}],
+ "notes": "msg_type: both cited lines open, but each states only the bare argument 'type_mask,' — neither mentions SET_ATTITUDE_TARGET in any form, so the recorded value is not stated at the cited locations (not 'wrong': nothing conflicting is stated). Context I read: each cited line is an argument inside the statement 'mavlink_msg_set_attitude_target_pack_chan(UAS_PACK_CHAN(uas), &msg, ...)' whose first line is setpoint_attitude.cpp:97 and setpoint_raw.cpp:175 — that function name does encode set_attitude_target in lowercase C form, but those are not the cited lines, and the 'common' dialect qualifier appears nowhere at the cited locations. frame: line 117 defines a uint8 bitmask (ignore_all_except_q) for the type_mask field — no spatial data, frame=none verified."}

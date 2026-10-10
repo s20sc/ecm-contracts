@@ -1,0 +1,18 @@
+{"item_id": "A1-C3-072", "kind": "A1", "case_id": "C3-072",
+ "eligibility": {"verdict": "agree", "stop_step": 6, "reason_code": null,
+   "quote": "However, what we do next is suspicious.  In line 120, we call `publisher->toggle()`, which is the first time that we are instantiating the underlying `rclcpp::Publisher`.  And then we are immediately calling `publisher->get_publishers_info_by_topic()`, which doesn't wait around at all; it just returns what it has right now.  So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+   "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"},
+ "failed_conditions": [
+   {"index": 0, "class_verdict": "agree", "proposed_class": null,
+    "elements_verdict": "agree", "proposed_elements": [],
+    "quote": "So we have not given discovery any time to happen, and update the graph cache (which is what we are looking at here).",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/440#issuecomment-1490563629"}
+ ],
+ "missed_conditions": [],
+ "loudness": {"verdict": "agree", "proposed": null,
+   "quote": "Expected equality of these values:\n  publishers_info.size()\n    Which is: 0\n  1u\n    Which is: 1",
+   "url": "https://github.com/ros2/rmw_cyclonedds/issues/440"},
+ "resolution": {"verdict": "agree", "proposed": null,
+   "quote": "refer to [ros2cli](...) to implement a `wait_for`, and then wait to call the `get_subscriptions_info_by_topic` or `get_publishers_info_by_topic` by a timeout.",
+   "url": "https://github.com/ros2/system_tests/pull/513"},
+ "notes": "Verified this session: issue #440 body quotes the CI failure at test_best_available.cpp:128 (verbatim match) and links test_best_available.cpp at c21d78c8f3386a6081578303439c1c04d5433e29 and rmw_node.cpp at 4bec4c8c5c9a7bf7187a2681dc57b1d9395dce0e as the spec's revision_basis claims; clalancette comment 1490563629 (the failed-conditions quote) read verbatim; eboasson comments confirm the synchronous-vs-discovery-thread analysis ('The graph cache update functions are also all synchronous. Following that line of reasoning, the race must be between the `discovery_thread` thread and the main thread.') and the not-implemented provider-side alternative; PR #513 'avoid flaky test' merged 2023-04-04T12:11:26Z as 6313065486c6db146356b63e63c52b0c1e844f13 with parent 010c34ba963b071e88a5208d01dafc7dd9532bf7 (verified via commit API), confirming the spec's claim that the broken_rev is the parent of the fix; rmw PR #352 'Add a note about asynchronicity of discovery.' merged 2023-04-03T18:28:24Z as bb044d59df89fac9fed8706aa58a8d7092fa31a2 and its diff adds verbatim 'Depending on the RMW in use, discovery may be asynchronous.  Therefore, creating a publisher\n * and then calling this API may not show the newly created publisher immediately.' Class 'other' is right (consistency/timing assumption on an API return, not any listed kind). Loudness silent_documented is right: the middleware returns an empty list with no diagnostic; the wrong answer surfaces only through the consumer's own assertion. Resolution recommended is right: PR #513's CI runs appear only as status badges without stated outcomes or rmw_cyclonedds revisions."}

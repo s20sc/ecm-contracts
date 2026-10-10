@@ -1,0 +1,33 @@
+{
+  "item_id": "A2-C3-099-broken-M1-e0bc209998",
+  "kind": "A2",
+  "case_id": "C3-099",
+  "composition": "broken",
+  "method_label": "M1",
+  "rule": "field_break",
+  "values": [
+    {
+      "path": "ver_delta.changed_fields[field:rmw_dds_common/Gid.data]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1\nchar[24] data\n\nsnapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1\nchar[16] data"
+    },
+    {
+      "path": "ver_delta.consumer_reads[field:rmw_dds_common/Gid.data]",
+      "verdict": "verified",
+      "source_excerpt": "snapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171\n          if (std::memcmp(\n              reinterpret_cast<char *>(common_context->gid.data),\n              reinterpret_cast<char *>(&msg.gid.data),\n              RMW_GID_STORAGE_SIZE) == 0)"
+    }
+  ],
+  "substance": [
+    {
+      "path": "ver_delta.changed_fields[field:rmw_dds_common/Gid.data]",
+      "verdict": "substantive",
+      "built_excerpt": "snapshot:s2_work/tasks/u0353/snapshot/rmw_dds_common/msg/Gid.msg:1\nchar[24] data",
+      "running_excerpt": "snapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/Gid.msg:1\nchar[16] data"
+    }
+  ],
+  "operation_edge": {
+    "verdict": "agree",
+    "reason": "The UPGRADE compares rmw_dds_common 1.6.0 (u0353, consumer-built-against) with 3.1.0 (u0354, peer definition); rmw_fastrtps 6.2.7 (u0355) receives ParticipantEntitiesInfo on ros_discovery_info. Gid.data is nested in that received type, not an independent topic. Evidence:\nsnapshot:s2_work/tasks/u0354/snapshot/rmw_dds_common/msg/ParticipantEntitiesInfo.msg:1\nGid gid\nNodeEntitiesInfo[] node_entities_info_seq\n\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_cpp/src/init_rmw_context_impl.cpp:119\n    rmw_fastrtps_cpp::create_subscription(\n      participant_info.get(),\n      rosidl_typesupport_cpp::get_message_type_support_handle<ParticipantEntitiesInfo>(),\n      \"ros_discovery_info\",\n      &qos,\n\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:156\n      rmw_dds_common::msg::ParticipantEntitiesInfo msg;\n      bool taken = true;\n\n      while (taken) {\n        if (RMW_RET_OK != rmw_fastrtps_shared_cpp::__rmw_take(\n            context->implementation_identifier,\n            common_context->sub,\n            static_cast<void *>(&msg),\n            &taken,\n            nullptr))\n\nsnapshot:s2_work/tasks/u0355/snapshot/rmw_fastrtps_shared_cpp/src/listener_thread.cpp:171\n          if (std::memcmp(\n              reinterpret_cast<char *>(common_context->gid.data),\n              reinterpret_cast<char *>(&msg.gid.data),\n              RMW_GID_STORAGE_SIZE) == 0)"
+  },
+  "notes": "Substantive: fixed-size char[24] becomes char[16], changing the serialized array extent. The consumer reads msg.gid.data in the quoted memcmp. Verification of that read does not require inventing a numerical value for RMW_GID_STORAGE_SIZE. No absent permission-grant state is triggered."
+}

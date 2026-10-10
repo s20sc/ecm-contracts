@@ -1,0 +1,63 @@
+{
+  "task_id": "u0352",
+  "package": "reporter_mover_node",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "api:rclpy.node.Node.create_rate",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": 1000,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclpy.node.Node.destroy_rate",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:rclpy.timer.Rate.sleep",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:rclpy.node.Node.create_rate",
+    "api:rclpy.node.Node.destroy_rate",
+    "api:rclpy.timer.Rate.sleep"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].rate_hz": "artifact.txt:2: myRate = self.create_rate(1000)",
+    "references[api:rclpy.node.Node.create_rate]": "artifact.txt:2: myRate = self.create_rate(1000)",
+    "references[api:rclpy.node.Node.destroy_rate]": "artifact.txt:4: self.destroy_rate(myRate)",
+    "references[api:rclpy.timer.Rate.sleep]": "artifact.txt:3: myRate.sleep()"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The excerpt is a four-line timer callback that creates a 1000-argument rate, sleeps on it once and destroys it on every tick, and its last line attributes it to an rclpy issue comment, so it reads like a minimal reproducer. Whether it misbehaves depends on code not in the excerpt (for example which executor spins the node, since sleeping on a rate inside a callback needs another executor thread), and any fault it shows may lie in the consumed rclpy rate API rather than in this package's own code."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task: artifact.txt holds 5 lines. Lines 1-4 are one method, def tmr_callback(self) -> None; line 5 is a source attribution (a URL to an rclpy issue comment), not code, and was not followed. No package.xml, imports, class definition, main function or configuration is in the artifact, so manifest_version is null and permissions/recovery are unknown. All ten packet elements are consumed, so declares and not_declared stay empty by rule. Referenced elements: self.create_rate (line 2), myRate.sleep (line 3), self.destroy_rate (line 4). Mapping self.create_rate / self.destroy_rate to rclpy.node.Node and myRate.sleep to rclpy.timer.Rate is inferred from the method names and from myRate being the object returned by create_rate; the excerpt shows neither the class base nor the imports. rate_hz = 1000 is the literal argument to create_rate at line 2, taking rclpy's create_rate frequency argument as hertz; the code states no unit, so units is null. frame, units, qos and definition_id are null on all three ports because these are API calls with no message type, spatial data or QoS profile (not topic endpoints). The other seven elements (api:rclpy.executors.MultiThreadedExecutor, api:rclpy.init, api:rclpy.node.Node, api:rclpy.node.Node.create_timer, api:rclpy.node.Node.destroy_node, api:rclpy.shutdown, api:rclpy.timer.Rate.destroy) do not appear in the excerpt. Because the excerpt is partial, whether the package uses them cannot be determined, so they have no port and are not in references. The method name tmr_callback suggests it is registered with create_timer, but no create_timer call is shown. exclusive is empty because no exclusive resource appears in the excerpt."
+}

@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-robust_03660af",
+  "kind": "A1",
+  "case_id": "robust_03660af",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "Need to be a bit careful here, because we have no control over how the user\n * is calling this - they may be calling from different threads (this is so for\n * kobuki_node), so we mutex protect it here rather than relying on the user\n * to do so above.",
+    "url": "https://github.com/yujinrobot/kobuki/commit/03660afb5917366cc6d57567e2f695450fd95feb"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "These are potentially accessible from multiple threads.\n\nNeed to mutex around the serial.write().",
+      "url": "https://github.com/yujinrobot/kobuki/issues/125"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "These are potentially accessible from multiple threads.\n\nNeed to mutex around the serial.write().",
+    "url": "https://github.com/yujinrobot/kobuki/issues/125"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Done.",
+    "url": "https://github.com/yujinrobot/kobuki/issues/125#issuecomment-6092352"
+  },
+  "notes": "All quotes below were read this session via gh api / raw.githubusercontent (fetched to /tmp/adj_a1_14, deleted after). E1: issue #125 opened by stonier 2012-06-04T04:54:19Z, title 'Serial writes unprotected', body exactly as quoted; sole comment is 'Done.' (id 6092352) closing the issue at 04:54:34Z; maintainer confirmation + fix commit satisfy E1 without reproducer or log. Minor spec slip (evidence prose only, no field affected): spec says closed 'four minutes later'; API timestamps show ~15 s after opening, and the fixing commit is authored 04:58:58Z, after closure. E2 stop_step 6 / library API independently confirmed at parent 32388d7: kobuki.cpp:133 'thread.start(&Kobuki::spin, *this);' starts the driver's own thread whose spin loop writes serial on every packet (kobuki.cpp:259 'sendBaseControlCommand(); // send the command packet to mainboard;' -> :362 'serial.write(cmd, 9);'), while kobuki_node's ROS subscriber callbacks enter the driver's public API from callback threads (subscriber_callbacks.cpp:63 'kobuki.setBaseControl(msg->linear.x, msg->angular.z);', :73-88 setLed, :101 'kobuki.setDigitalOutput(digital_output);', :112-136 playSoundSequence, :156 'kobuki.resetOdometry();', :160-172 enable/disable; topics wired at kobuki_node.cpp:265-273) reaching unlocked 'serial.write(&command_buffer[0], command_buffer.size());' (kobuki.cpp:384) through the shared command_buffer (kobuki.hpp:196, no Mutex member at this rev). The failure is a timing/concurrency contract crossing the API boundary, framed by the maintainer as imposed by the peer, so steps 2-5 do not apply. E3 CONCURRENT confirmed: both units at the same snapshot 32388d7 (sole parent of the fix, verified via commit API), failure is simultaneity of writers; no UPGRADE. E4 undocumented confirmed: only code-level statements, no observed corrupted write. Failed condition class 'other' agreed: unstated thread-safety of the command API has no dedicated class, and exclusive_resource_conflict does not fit because the serial port is internal to kobuki_driver, not an interaction element between the two units. Implicated elements agreed: the four are exactly the callback-reached entries that synchronously write serial from the caller's thread at 32388d7 — setLed/setDigitalOutput/playSoundSequence via sendCommand (kobuki.cpp:314-331 -> :384) and disable via sendBaseControlCommand (:407-413 -> :362); the excluded entries do not write serial at this revision (setBaseControl :333-336 only calls 'diff_drive.velocityCommands(linear_velocity, angular_velocity);', resetOdometry :294-297 only 'diff_drive.reset(inertia.data.angle);', enable :401-405 only sets is_enabled), which matches the issue's 'Serial writes unprotected' scope. Borderline: the fix's mutex comment is broader ('protection against the user calling the command functions from multiple threads'), so adding api:setBaseControl would also be defensible given its diff_drive state race with the spin thread (:345 reads 'diff_drive.velocityCommands()'), which the SetVelocityControl rerouting incidentally serializes; I judge the spec's scoping a correct, code-grounded reading, not an error. Loudness unknown / detection_stage unknown agreed: the complete source record is the two-sentence issue body plus 'Done.' — no run, no diagnostic, no observed effect; the quoted body itself shows only an exposure statement and fix intent. Resolution summary verified against the commit patch: '#include <ecl/threads/mutex.hpp>' added, 'ecl::Mutex command_mutex;' added to the class, 'command_mutex.lock();' ... 'serial.write(&command_buffer[0], command_buffer.size());' ... 'command_mutex.unlock();' in sendCommand, and sendBaseControlCommand's body replaced by 'sendCommand(Command::SetVelocityControl(velocity_commands[0], velocity_commands[1]));' so the streaming thread takes the same lock; commit also bundles unrelated work (sig_raw_data_command debug signal + kobuki_node publisher in kobuki_node files, debugStream removal, laptop battery monitor disabled), consistent with the spec's units note that 03660af edits kobuki_node in ways unrelated to the race. Status 'recommended' agreed: 'Done.' + committed change, but no run of the resolved composition is shown in the source."
+}

@@ -1,0 +1,36 @@
+{
+  "item_id": "A1-robust_7284788",
+  "kind": "A1",
+  "case_id": "robust_7284788",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "It must be a bug in TF2. When I checked out geometry 1.11.4 the bug was still there, but when I also checked out geometry-experimental 0.5.7 the bug disappeared.",
+    "url": "https://github.com/ros/geometry2/issues/102"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "When running inside rospy, the roscpp client is not initialized and thus ros::ok is false. I'm going to have to think about how to make this work cleanly in both roscpp and rospy. .",
+      "url": "https://github.com/ros/geometry2/issues/102#issuecomment-95081747"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "listener.waitForTransform(\"/turtle2\", \"/carrot1\", rospy.Time(), rospy.Duration(4.0))\ntf.Exception",
+    "url": "https://web.archive.org/web/20231201073917/https://answers.ros.org/question/207039/tfexception-thrown-while-using-waitfortransform/"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This should be fixed in geometry_experimental 0.5.11"
+  },
+  "notes": "Independently verified. (1) E1: issue #102 body (marcoesposito1988, 2015-04-21, 'tf.Exception thrown while using waitForTransform when a frame doesn't exist') matches the spec verbatim; tfoote's diagnosis comment 95081747 matches verbatim (quoted above). ROS Answers 207039 fetched via the Wayback snapshot: contains the traceback 'File \"/home/sklaw/Desktop/experiment/ros/indigo/tutorials_ws/src/learning_tf/nodes/turtle_tf_listener.py\", line 18, in <module> / listener.waitForTransform(\"/turtle2\", \"/carrot1\", rospy.Time(), rospy.Duration(4.0)) / tf.Exception', the later 'tf.Exception: Lookup would require extrapolation into the future.  Requested time 1429597531.491660118 but the latest data is at time 1429597531.490922928', and 'It seems that the waitForTransfrom never waits.' — all as cited. (2) E3 UPGRADE: sklaw's matrix read both in issue comment 94836006 ('Here are the combinations of TF and TF2 I've found so far that will cause this problem: TF 1.11.6 with TF2 0.59 ... TF 1.11.4 with TF2 0.5.8') and in the Answers thread ('When I used tf 1.11.6 and tf2 0.5.9, the problem showed up.', 'And I am using tf 1.11.4 and tf2 0.5.7 now, and amazingly,  the problem is gone!!!', 'tf 1.11.4 and tf2 0.5.7 is the working combination that my classmates are using.') — consumer_built_against 0.5.7 with basis documented is right; the PAIR alternative is correctly relegated to notes. (3) Cause chain read directly: 2f5ba1db (message 'break out of loop if ros is shutdown. Fixes #26') adds the ros::ok() term to the timed canTransform loop; fix 7284788 (parent 3c2df0c2, message 'do not short circuit waitForTransform timeout when running inside pytf. Fixes #102' with body 'roscpp is not initialized inside pytf which means that ros::ok is not valid. This was causing the timer to abort immediately.') changes '-         ros::ok()) // Make sure we haven't been stopped' to '+         (ros::ok() || !ros::isInitialized())) // Make sure we haven't been stopped (won't work for pytf)' in both overloads — matches the spec's resolution evidence verbatim. Added-precondition failure crossing the library-API boundary (declaration unchanged, so not element_retyped); class 'other' is the correct residual. (4) Loudness silent_documented/run: the effect is a message-less exception at call time; no tooling diagnostic at build/connect/activate. (5) Resolution recommended: tfoote closed with the release note quoted above; no run of tf against the fixed tf2_ros is shown — only the downgrade combination is shown working."
+}

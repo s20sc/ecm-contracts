@@ -1,0 +1,61 @@
+{
+  "task_id": "u0118",
+  "package": "kobuki_gazebo_plugins",
+  "manifest_version": "0.3.1",
+  "ports": [
+    {
+      "element": "api:boost/shared_ptr.hpp",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:boost::shared_dynamic_cast",
+      "side": "consumes",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "api:boost/shared_ptr.hpp",
+    "api:boost::shared_dynamic_cast"
+  ],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {
+    "state": "present",
+    "value": "velocity command watchdog: when sim time since the last commands/velocity message exceeds velocity_command_timeout (SDF element) or motors are disabled, both wheel speed commands are set to 0.0"
+  },
+  "provenance": {
+    "manifest_version": "snapshot:kobuki_gazebo_plugins/package.xml:3",
+    "ports[0].element": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:41",
+    "ports[0].side": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:41",
+    "ports[1].element": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251",
+    "ports[1].side": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251",
+    "references[api:boost/shared_ptr.hpp]": "snapshot:kobuki_gazebo_plugins/include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h:41",
+    "references[api:boost::shared_dynamic_cast]": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251 (also lines 253, 255, 301, 325)",
+    "perm_requires.state": "searched all files under snapshot/kobuki_gazebo_plugins (package.xml, CMakeLists.txt, include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h, src/gazebo_ros_kobuki.cpp): no permission requirement declared",
+    "perm_grants.state": "searched all files under snapshot/kobuki_gazebo_plugins (package.xml, CMakeLists.txt, include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h, src/gazebo_ros_kobuki.cpp): no permission grant declared",
+    "recovery.state": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:500",
+    "recovery.value": "snapshot:kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:500-504 (timeout read from SDF at line 206)"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The plugin casts Gazebo sensor pointers with boost::shared_dynamic_cast (five call sites) rather than boost::dynamic_pointer_cast; from general knowledge (not checked here) shared_dynamic_cast is the deprecated form that newer Boost releases dropped, so the build depends on an older Boost. Whether this counts as a defect depends on the Boost version the consumer builds against."
+  },
+  "confidence": "high",
+  "notes": "Package lives at snapshot/kobuki_gazebo_plugins inside a multi-package kobuki_desktop checkout; the only sources are include/kobuki_gazebo_plugins/gazebo_ros_kobuki.h and src/gazebo_ros_kobuki.cpp (Gazebo model plugin GazeboRosKobuki). All four packet elements are consumed C++ API elements, so declares and not_declared are empty by rule. A grep of the whole snapshot for shared_ptr, dynamic_pointer_cast, shared_dynamic_cast and boost/ found: boost/shared_ptr.hpp included at gazebo_ros_kobuki.h:41; boost::shared_dynamic_cast called at gazebo_ros_kobuki.cpp:251, 253, 255 (sensors::RaySensor), 301 (sensors::ContactSensor), 325 (sensors::ImuSensor). api:boost::dynamic_pointer_cast is not referenced anywhere in the snapshot, so it has no port and is not in references. api:boost::shared_ptr appears only inside a commented-out member declaration (gazebo_ros_kobuki.h:97, '//  boost::shared_ptr<boost::thread> ros_spinner_thread_; necessary?'); live code does not name it (the sensor pointers use Gazebo typedefs sensors::RaySensorPtr / ContactSensorPtr / ImuSensorPtr, whose underlying type is not stated in the snapshot), so it has no port and is not in references. For the two API ports, msg_type, frame, units, rate and definition_id are null because the elements are C++ header/function symbols carrying no message, frame or rate; QoS is null because this is ROS 1. exclusive is empty: the plugin commands the wheel joints (SetVelocity/SetMaxForce at gazebo_ros_kobuki.cpp:505-508) but claims no resource exclusively in code or configuration. package.xml lists boost as build_depend/run_depend (lines 14, 24); CMakeLists.txt does not find_package(Boost). No dependency definition files were fetched (none needed for API elements)."
+}

@@ -1,0 +1,27 @@
+{
+ "item_id": "A1-CAL2-05",
+ "kind": "A1",
+ "case_id": "CAL2-05",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 2,
+  "reason_code": "internal",
+  "quote": "That said, I see exactly what you mean about the loaned APIs.  They do not work like that; once the memory is returned to the underlying middleware, they should be considered invalid.",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+ },
+ "failed_conditions": [],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "terminate called after throwing an instance of 'std::runtime_error'\n  what():  cannot store a negative time point in rclcpp::Time",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "In the above code the excecutor creates dummy **shared_ptr** with empty destructor and loads the loaned message, than calls the subscription callbacks (`cache_last_msg`) and frees the memory, altought the shared_ptr is still kept by `ClockState`.",
+  "url": "https://github.com/ros2/rmw_cyclonedds/issues/469"
+ },
+ "notes": "Spec is ineligible; failed_conditions/loudness/resolution are null and I affirm that recording (verdicts 'agree' with the null fields). I read the issue body (Docker reproducer with ros:humble + rmw_cyclonedds_cpp + iceoryx SharedMemory, 'cannot store a negative time point in rclcpp::Time') and the analysis thread. The mechanism is entirely inside rclcpp: the executor wraps the loaned /clock message in a no-delete shared_ptr, TimeSource::ClocksState caches it (cache_last_msg), the executor then returns the loan to the middleware, and the cached pointer later reads reused memory. The middleware behaves per its documented contract — 'once the memory is returned to the underlying middleware, they should be considered invalid' — and any correct middleware is free to reuse the returned memory, so the failure occurs with any correct peer: step-2 internal. The /clock message crossing the boundary was valid at crossing time. The adopted fix is in rclcpp (rclcpp#2335), consistent with a one-unit defect."
+}

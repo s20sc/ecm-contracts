@@ -1,0 +1,67 @@
+{
+  "item_id": "A1-robust_bb3c7ec",
+  "kind": "A1",
+  "case_id": "robust_bb3c7ec",
+  "eligibility": {
+    "verdict": "disagree",
+    "stop_step": 1,
+    "reason_code": null,
+    "quote": "  <node pkg=\"diagnostic_aggregator\" type=\"aggregator_node\" name=\"diagnostic_aggregator\" >\n    <rosparam command=\"load\" file=\"$(find kobuki_bringup)/resources/yaml/diagnostics.yaml\" />\n  </node>",
+    "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/abf4e852dbfef8bee9859cf3a25c1d23ee847a8d/kobuki_bringup/resources/launch/minimal.launch",
+    "reason": "The nominated direct kobuki_node/android_app_manager pair does not represent both failures under the one-composition rule. A separately launched diagnostic_aggregator node publishes the dashboard input, and the status-name fix changes that node's configuration. The key-value fix instead changes kobuki_node. Locating the aggregator's configuration in the kobuki repository does not merge this separate ROS node into kobuki_node under E2. E1 and E4 are supported, but step 1 needs an explicit re-scoped composition rather than silently treating three nodes as two.",
+    "additional_evidence": [
+      {
+        "quote": "      diagnosticSubscriber = node.newSubscriber(\"diagnostics_agg\", \"diagnostic_msgs/DiagnosticArray\");",
+        "url": "https://raw.githubusercontent.com/ros-android/android_app_manager/f080cd934460fc92babd48eee5f660454c1b48d0/library/src/ros/android/views/TurtlebotDashboard.java"
+      },
+      {
+        "quote": "    <node pkg=\"kobuki_node\" type=\"kobuki_node\" name=\"mobile_base\" output=\"screen\">",
+        "url": "https://raw.githubusercontent.com/yujinrobot/kobuki/abf4e852dbfef8bee9859cf3a25c1d23ee847a8d/kobuki_bringup/resources/launch/components/mobile_base.launch"
+      }
+    ]
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base)",
+      "url": "https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016",
+      "reason": "As a factual payload mismatch, the named status/topic elements and other class are supported. This does not endorse attributing the aggregator's output directly to kobuki_node. The consumer code explicitly matches /Power System/Battery."
+    },
+    {
+      "index": 1,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "We send Current Charge and Capacity diagnostic values. See /kobuki_node/src/node/diagnostics.cpp",
+      "url": "https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016",
+      "reason": "The diff adds the three payload keys used by the dashboard; these are semantic KeyValue contents rather than renamed ROS message fields or nominal message types. The class and elements are supported independently of the composition objection."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Battery charge not shown in Android apps",
+    "url": "https://github.com/yujinrobot/kobuki/issues/136",
+    "reason": "The public report describes a missing display, with no interface diagnostic posted."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Battery charge not shown in Android apps",
+    "url": "https://github.com/yujinrobot/kobuki/issues/136"
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "Fixed with two changes:\n- I modified diagnostics.yaml to remove the node name (by adding remove_prefix: mobile_base)\n- We send Current Charge and Capacity diagnostic values. See /kobuki_node/src/node/diagnostics.cpp",
+    "url": "https://github.com/yujinrobot/kobuki/issues/136#issuecomment-6444016",
+    "reason": "The maintainer supports the repair and describes its intended/correct display behavior, but neither names a tested Android application revision nor demonstrates the specified inferred app checkout with the patched provider. A fix declaration alone does not meet the strict revision-identified observed criterion."
+  },
+  "notes": "Read issue #136 and its complete comment, the fix diff, parent launch files and the pinned dashboard source. Condition judgments describe documented payload defects; eligibility is a separate objection to their aggregation into the declared two-unit pair. The maintainer's hard-coded charger/battery caveats are conditional limitations, not evidence that another failure was observed with this composition. No new failed condition is asserted from them."
+}

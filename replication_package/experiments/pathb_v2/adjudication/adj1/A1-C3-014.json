@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-014",
+  "kind": "A1",
+  "case_id": "C3-014",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "When I send a request containing LLA, I expect to receive a response containing LLA too in order to compare it and ensure that global_origin has been successfully set.",
+    "url": "https://github.com/mavlink/mavros/issues/1381",
+    "reason": "The client and MAVROS exchange an origin and confirmation across topics. E1/E4 are supported by the concrete report, publishing code and maintainer-accepted fix. Wrong coordinate values cross the boundary, so a provider-only edit is not an internal-only defect. PAIR is supported."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Then FCU confirms this with GPS_GLOBAL_ORIGIN message containing the same coordinates as LLA. But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.",
+      "url": "https://github.com/mavlink/mavros/issues/1381",
+      "reason": "The nominal GeoPointStamped type is unchanged; its geographic position fields are overwritten with a Cartesian coordinate representation. The issue's Forward call explicitly uses latitude, longitude and altitude as both input and output, supporting all listed fields and the gp_origin topic."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I just ran into this as well and agree that it is very confusing and probably wrong to use ECEF in a `GeoPoint`.",
+    "url": "https://github.com/mavlink/mavros/issues/1381#issuecomment-1056053123",
+    "reason": "Users observe semantically wrong delivered data, without a compatibility diagnostic in the report."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Then FCU confirms this with GPS_GLOBAL_ORIGIN message containing the same coordinates as LLA. But plugin transforms it to ECEF and sends to topic `mavros/global_position/gp_origin`.",
+    "url": "https://github.com/mavlink/mavros/issues/1381",
+    "reason": "The mismatch is observed in the runtime request/confirmation exchange."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "This PR removes such conversion matching message requirements and message contents.",
+    "url": "https://github.com/mavlink/mavros/pull/1942",
+    "reason": "The diff removes the ECEF conversion, but the discussion does not identify a working resolved pair with the reporter's client revision. recommended is supported."
+  },
+  "notes": "Reviewed issue discussion and PR 1942 including its diff. The coordinate-representation error does not establish a separate frame-ID mismatch: the discussion explicitly distinguishes the earth reference frame from Cartesian versus geographic coordinates. No additional independent failed interaction was established."
+}

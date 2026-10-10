@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-CAL2-09",
+  "kind": "A1",
+  "case_id": "CAL2-09",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "The 'disjoint-ness' shown in Fig. 2 means that it is _impossible_ to plan a path where the elbow joint position starts in one of the sets A, B, or C and finishes in another. I think this is why plans fail reasonably often when using the full joint limits of the UR5.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/265",
+    "reason": "E1/E4: the source documents concrete planning failures and the disconnected configuration-space explanation. E2: the model's declared elbow range is consumed across the ur_description/MoveIt boundary; the resolving edit changes a declaration's value, not a name binding. E3: PAIR. A planner correctly refusing an impossible path does not itself negate the documented composition failure."
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "This could be fixed by limiting the elbow joint to [-Pi, Pi) when full joint limits are used. The other joints will be fine to use their full [-2Pi, 2Pi) range of motion.",
+      "url": "https://github.com/ros-industrial/universal_robot/issues/265",
+      "reason": "The failure concerns admissible range/configuration-space connectivity, not radians versus degrees, a frame, a type, or a component-order convention. other and the robot_description model value are appropriate.",
+      "supporting_evidence": [
+        {
+          "quote": "-        <limit lower=\"${-2.0 * pi}\" upper=\"${2.0 * pi}\" effort=\"150.0\" velocity=\"3.15\"/>\n+        <limit lower=\"${-pi}\" upper=\"${pi}\" effort=\"150.0\" velocity=\"3.15\"/>",
+          "url": "https://github.com/ros-industrial/universal_robot/commit/2e078f5e3e9b3ec52dac83c096e90e7cd3edd0f2.diff"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "It fails if the IK solution is in the 'unreachable' space.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/265#issuecomment-252886259",
+    "reason": "The documented effect is a planning failure after choosing an unreachable IK solution; the examined evidence does not show a build, connect, or activate diagnostic rejecting the model range."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "Yip! This is why the planning works sometimes. It fails if the IK solution is in the 'unreachable' space.",
+    "url": "https://github.com/ros-industrial/universal_robot/issues/265#issuecomment-252886259",
+    "reason": "The failure is encountered during planning, hence run."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "We want to propose this PR that will fix the joints limits of the elbow joint according with the results discussed in #265 for the ur10 and ur5",
+    "url": "https://github.com/ros-industrial/universal_robot/pull/268",
+    "reason": "The proposal and inspected committed limit edit support the resolution, but do not establish a successful pair with both the model and MoveIt identified by tested revision. recommended is warranted."
+  },
+  "notes": "Eligibility is about a documented model/planner interaction, not whether the manufacturer's full joint range is intrinsically incorrect. The smaller range is a planning workaround. Do not add the separate collision-checking-resolution configuration problem as a condition of the selected ur_description/MoveIt pair."
+}

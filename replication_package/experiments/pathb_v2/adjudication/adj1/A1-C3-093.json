@@ -1,0 +1,48 @@
+{
+  "item_id": "A1-C3-093",
+  "kind": "A1",
+  "case_id": "C3-093",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1/E4: roslaunch produces a concrete YAML constructor exception. E2 reaches step 6: ros_comm uses PyYAML registration/loading APIs across separately released libraries. E3: the 5.1 load default changes from the prior Loader behavior while the consumer still relies on it, supporting UPGRADE. This is an API/default-loader compatibility change, not merely dependency resolution.",
+    "quote": "could not determine a constructor for the tag '!degrees'",
+    "url": "https://github.com/mavlink/mavros/issues/1210"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "* Repair incompatibilities introduced with 5.1. The default Loader was changed,\n  but several methods like add_constructor still used the old default",
+      "url": "https://raw.githubusercontent.com/yaml/pyyaml/5.2/CHANGES",
+      "reason": "The inspected 3.13 and 5.1 sources change load(stream, Loader=Loader) to load(stream, Loader=None), selecting FullLoader, while add_constructor still defaults to Loader. That is a changed declaration/default with the element retained, and both load and add_constructor are implicated in the registry mismatch."
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "RLException: error loading <rosparam> tag:",
+    "url": "https://github.com/mavlink/mavros/issues/1210",
+    "reason": "The launch exception is an explicit activation-time diagnostic, satisfying loud_documented independently of the deprecation warning."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "roslaunch px4 multi_uav_mavros_sitl.launch",
+    "url": "https://github.com/mavlink/mavros/issues/1210",
+    "reason": "Parsing the rosparam tag fails during launch before the composition activates normally."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "So tests are passing now.",
+    "url": "https://github.com/ros/ros_comm/pull/1688#issuecomment-480210375",
+    "reason": "The inspected fix uses safe_load and registers the custom constructors on SafeLoader. Tests passing and workaround reports do not show the specified final ros_comm revision with PyYAML 5.1 in the original composition; recommended, not observed, remains appropriate."
+  },
+  "notes": "The load deprecation warning and !degrees exception arise from the same default-loader change, not two independent failed conditions. Other APIs changed by the repository-wide safe-load patch are not automatically additional observed conditions of the reported launch. add_constructor is implicated because its unchanged default no longer matches load, not because both signatures were independently retyped."
+}

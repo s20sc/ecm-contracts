@@ -1,0 +1,37 @@
+{
+ "item_id": "A1-CAL2-11",
+ "kind": "A1",
+ "case_id": "CAL2-11",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "The problem is that I have different message types send and receive on the same topic. Even if they have the same contents they are considered different types.",
+  "url": "https://answers.ros.org/question/375062"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "It looks like idfa_msgs/GDXBoxesMessage is not the same package (and thus message) as obstacle_detection/GDXBoxMessage.",
+   "url": "https://answers.ros.org/question/375062"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "[ERROR] [1617170692.958476152]: Client [/GPUPlanarRegionSubscriber] wants topic /box to have datatype/md5sum [idfa_msgs/GDXBoxesMessage/d41d8cd98f00b204e9800998ecf8427e], but our version has [obstacle_detection/GDXBoxMessage/bbc122c887def5dd8eda16d81d7d1109]. Dropping connection.",
+  "url": "https://answers.ros.org/question/375062"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Have java expect the lidar_obstacle_detection/gdxboxesmessage, have the c++ ros node use the java message, or create another node that subscribers to one and published the other. But I dont know how to do either of these",
+  "url": "https://answers.ros.org/question/375062"
+ },
+ "notes": "Verified against the live ROS Answers static archive (answers.ros.org/question/375062, 'Md5sum mismatch with customized message under rosjava and roscpp enviroment', asked 2021-03-31 by Chao Chen). Eligibility agreed at step 6: two separately built nodes (roscpp obstacle_detection publishing /box, rosjava GPUPlanarRegionSubscriber subscribing) declare different nominal types for the same topic — note the singular/plural difference GDXBoxMessage vs GDXBoxesMessage as well as the different packages — and the topic name matches, so it is not a name-binding problem. nominal_type_mismatch on the topic plus both msg elements is right; no second condition is recorded, correctly, because the rosjava side's definition is never shown (its d41d8cd98f00b204e9800998ecf8427e md5 is the hash of empty input, but that alone does not document a definition). Loudness loud_documented/connect agreed: the ROS 1 datatype/md5sum check at connection with 'Dropping connection.' is the textbook loud diagnostic. Resolution 'none' agreed: the thread ends with the reporter's unanswered question and no fix merged, tested, or even chosen."
+}

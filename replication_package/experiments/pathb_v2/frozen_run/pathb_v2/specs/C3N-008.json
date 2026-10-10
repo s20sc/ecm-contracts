@@ -1,0 +1,113 @@
+{
+  "case_id": "C3N-008",
+  "corpus": "C3N",
+  "source_refs": [
+    "https://github.com/ros-controls/ros2_control/issues/3193",
+    "https://github.com/ros-controls/ros2_control/pull/3198",
+    "https://github.com/ros-controls/ros2_control/pull/3200",
+    "https://github.com/ros-controls/ros2_control/pull/3201",
+    "https://github.com/ros-controls/ros2_control/pull/3080",
+    "https://github.com/ros-controls/ros2_control/issues/3079",
+    "https://github.com/ros-controls/ros2_control_ci/issues/733",
+    "https://github.com/ros-controls/ros2_control/actions/runs/24063312146",
+    "https://github.com/ros-controls/ros2_control/actions/runs/24018250241",
+    "https://github.com/ros-controls/ros2_control/actions/runs/24116710553",
+    "https://github.com/ros2/rclcpp/commit/048e47ec105e34def37770ef1dba33955e3a6999",
+    "https://github.com/ros2/rclcpp/commit/f145c9ee04fbaa34f70b6f5cbbe095a6342f97c9",
+    "https://raw.githubusercontent.com/ros2/rclcpp/30.1.5/rclcpp/include/rclcpp/executor.hpp",
+    "https://raw.githubusercontent.com/ros2/rclcpp/31.0.0/rclcpp/include/rclcpp/executor.hpp",
+    "https://raw.githubusercontent.com/ros-controls/ros2_control/bb07fdd55a59ea750f06bb2fee7a3a1c113b10dd/hardware_interface_testing/test/test_resource_manager.cpp",
+    "https://raw.githubusercontent.com/ros-controls/ros2_control/bb07fdd55a59ea750f06bb2fee7a3a1c113b10dd/.github/workflows/rolling-binary-build.yml"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Scheduled CI failure with compiler log posted by a maintainer: \"test_resource_manager.cpp:1361:8: error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override\" -- https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579 ; maintainer's diagnosis in the fix PR: \"I misconfigured the version macro with #3080. It is a GTE and not a GT macro\" -- https://github.com/ros-controls/ros2_control/pull/3198"
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": [
+        "hardware_interface_testing",
+        "rclcpp"
+      ],
+      "interface_kind": "library API",
+      "evidence": "The consumer package's MockExecutor overrides rclcpp's virtual `Executor::add_node`, whose declaration differs between provider revisions: rclcpp 30.1.5 declares `add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);` and rclcpp 31.0.0 declares `add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, bool notify = true);` (changed in f145c9ee \"perf: Optimized out shared_ptr copies (#3079)\"). The consumer at bb07fdd5 selects the const-reference override under `#if RCLCPP_VERSION_GTE(30, 1, 5)`, so against a provider at 30.1.5 its override matches no base declaration. Not internal (depends on the provider's declaration), not deployment wiring, and not build-only: the resolving edit changes which provider declaration the consumer references for a given provider version (\"The breaking PR was released with 31.0.0\" -- https://github.com/ros-controls/ros2_control/pull/3198)."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "Version-skew composition, recorded as UPGRADE (the only listed version-skew operation) with the direction reversed relative to the definition: the consumer's selected declaration is the one introduced in provider release 31.0.0, while the provider installed from the ROS rolling `main` apt repository was older. The same scheduled run built successfully against the rolling `testing` repository (job \"binary (rolling, testing) / rolling testing\" success, job \"binary (rolling, main) / rolling main\" failure in runs 24018250241 and 24063312146), and a maintainer noted for rclcpp 31.0.0: \"New release is out: https://github.com/ros2/rclcpp/commit/048e47ec105e34def37770ef1dba33955e3a6999 but blocked by an upstream failure https://build.ros2.org/job/Rbin_uN64__rclcpp__ubuntu_noble_amd64__binary/\" -- https://github.com/ros-controls/ros2_control/pull/3080."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Build failure: \"Failed   <<< hardware_interface_testing [45.3s, exited with code 2]\" -- https://github.com/ros-controls/ros2_control_ci/issues/733#issuecomment-4198372029 ; same compiler error in https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rclcpp",
+      "role": "provider",
+      "repo": "https://github.com/ros2/rclcpp",
+      "broken_rev": "30.1.5",
+      "resolved_rev": "30.1.5",
+      "pinned": true,
+      "revision_basis": "Inferred; the CI job logs are no longer downloadable (HTTP 410). The failing job is the rolling binary build against ROS_REPO main (rolling-binary-build.yml matrix `ROS_REPO: [main, testing]`). The compiler error shows the installed headers do not declare the const-reference add_node (so the installed rclcpp predates f145c9ee / release 31.0.0), while the consumer's `RCLCPP_VERSION_GTE(30, 1, 5)` branch was taken (so the installed version is at least 30.1.5); tag 30.1.5 (866c56d153c6b874bf684ac2bd34fe1fda050089) is the only rclcpp release in that range, and the maintainer states the rclcpp 31.0.0 binary was blocked on the build farm. The resolution does not change rclcpp, so resolved_rev equals broken_rev.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    },
+    {
+      "name": "hardware_interface_testing",
+      "role": "consumer",
+      "repo": "https://github.com/ros-controls/ros2_control",
+      "broken_rev": "bb07fdd55a59ea750f06bb2fee7a3a1c113b10dd",
+      "resolved_rev": "64f9645a6c948ad9ecf4bb1a51746f7227c45e38",
+      "pinned": true,
+      "revision_basis": "Broken: bb07fdd55a59ea750f06bb2fee7a3a1c113b10dd (tag 6.5.1) is the head_sha of both failing scheduled runs (24018250241 on 2026-04-06 and 24063312146 on 2026-04-07) and the parent of the fix; it contains #3080 (7aafd1ebbb75b5f3ef574ed0752d3aa6e59ea949), which introduced the `RCLCPP_VERSION_GTE(30, 1, 5)` guard. Resolved: 64f9645a6c948ad9ecf4bb1a51746f7227c45e38, the master merge of PR 3198.",
+      "excerpt": false,
+      "ros_distro": "rolling"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "31.0.0",
+    "resolved": "30.1.5",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:rclcpp::Executor::add_node", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}},
+    {"element": "api:rclcpp::executors::SingleThreadedExecutor", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}},
+    {"element": "api:rclcpp::ExecutorOptions", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}},
+    {"element": "api:rclcpp::node_interfaces::NodeBaseInterface", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}},
+    {"element": "api:RCLCPP_VERSION_GTE", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}},
+    {"element": "api:rclcpp::Node", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}},
+    {"element": "api:rclcpp::Time", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}},
+    {"element": "api:rclcpp::Duration", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}},
+    {"element": "api:rclcpp::init", "sides": {"rclcpp": "provides", "hardware_interface_testing": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "element_retyped",
+      "implicated_elements": [
+        "api:rclcpp::Executor::add_node"
+      ],
+      "quote": "/home/runner/work/ros2_control/ros2_control/.work/target_ws/src/ros2_control/hardware_interface_testing/test/test_resource_manager.cpp:1361:8: error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override",
+      "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "loud_documented",
+  "loudness_evidence": "Compiler error at build: \"error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override\" -- https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579",
+  "detection_stage": "build",
+  "resolution": {
+    "summary": "Raise the consumer's version guard from `#if RCLCPP_VERSION_GTE(30, 1, 5)` to `#if RCLCPP_VERSION_GTE(31, 0, 0)` so that against rclcpp 30.1.5 the consumer overrides the by-value `add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify)` declaration (PR 3198 on master, merge 64f9645a; backports PR 3200 to jazzy, merge f69d26cbab8d66681838f1db2cb3929d93bc250b, and PR 3201 to kilted, merge 763ccbbed885bb445b8489d6bc716660ce1992a9).",
+    "status": "recommended",
+    "evidence": "The next scheduled Rolling Binary Build (run 24116710553, 2026-04-08, head 64f9645a) succeeded in both jobs, including \"binary (rolling, main) / rolling main\" -- https://github.com/ros-controls/ros2_control/actions/runs/24116710553. The rclcpp revision installed in that run is not recorded in any readable source (logs expired), so the resolved composition is not identified by revision on the provider side."
+  },
+  "ros_generation": "ROS2",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Direction caveat for E3: the provider in the failing composition is older than the revision the consumer's selected code was written against (consumer_built_against 31.0.0 vs provider 30.1.5); the consumer, not the provider, was the unit that changed (#3080 merged 2026-04-05, one day before the failing scheduled build). If UPGRADE is applied strictly as provider-newer-than-consumer, this case should be re-classified. consumer_built_against is inferred from the consumer's declarations: the broken consumer's selected override matches rclcpp 31.0.0's `add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr, bool notify = true)`, the resolved consumer's selected override matches rclcpp 30.1.5's by-value declaration. Other provider changes between 30.1.5 and 31.0.0 (17 commits, including const-reference changes to add_callback_group, remove_callback_group and remove_node in f145c9ee) are visible to an inferred-revision diff. Related but distinct composition: ros2_control issue 3079 (\"hardware_interface_testing build broke\", 2026-03-04) is the forward UPGRADE in which the old by-value override failed to compile against rclcpp after f145c9ee (\"https://github.com/ros2/rclcpp/pull/3079 introduced changes\"); PR 3080 fixed that one and introduced this case's guard. The consumer file is a test source (hardware_interface_testing/test/test_resource_manager.cpp) of the hardware_interface_testing package; the job aborted controller_interface and transmission_interface only as a consequence of the build failure. The jazzy and kilted backports (PRs 3200, 3201) change the same guard; there the guard was not reached by jazzy/kilted rclcpp versions, and no failure is reported on those branches. The issue title says \"rolling/main\" and the body links the ros2_control run; the ros2_control_ci issue 733 reports the same failure from the ros2_control_ci scheduled build and was closed by the same PR."
+}

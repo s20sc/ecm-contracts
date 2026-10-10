@@ -1,0 +1,37 @@
+{
+  "item_id": "A1-C3-093",
+  "kind": "A1",
+  "case_id": "C3-093",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "quote": "RLException: error loading <rosparam> tag: could not determine a constructor for the tag '!degrees' in \"<string>\", line 63, column 27: angular_velocity_stdev: !degrees 0.02",
+    "url": "https://github.com/mavlink/mavros/issues/1210"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "Repair incompatibilities introduced with 5.1. The default Loader was changed, but several methods like add_constructor still used the old default",
+      "url": "https://github.com/yaml/pyyaml/blob/5.2/CHANGES"
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "RLException: error loading <rosparam> tag: could not determine a constructor for the tag '!degrees' in \"<string>\", line 63, column 27: angular_velocity_stdev: !degrees 0.02",
+    "url": "https://github.com/mavlink/mavros/issues/1210"
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "I can confirm that downgrading PyYAML from 5.1 to 3.13 works",
+    "url": "https://github.com/PX4/PX4-Autopilot/issues/11662"
+  },
+  "notes": "Verified against mavros issue #1210, PX4 issue #11662, and PyYAML 5.2 CHANGES. PyYAML 5.1 changed default loader for load() to FullLoader without updating the default for add_constructor(), breaking rosparam/roslaunch custom YAML constructors like !degrees."
+}

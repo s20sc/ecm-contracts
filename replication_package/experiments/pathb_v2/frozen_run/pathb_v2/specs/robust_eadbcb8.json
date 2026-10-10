@@ -1,0 +1,96 @@
+{
+  "case_id": "robust_eadbcb8",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/ros-industrial/motoman/issues/60",
+    "https://github.com/ros-industrial/motoman/commit/eadbcb8077cd5c6138cdd133ee61888cac377c91"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Public issue #60 (jbohren, 2015-04-03) with a reproducer (the grep listing seven binary STL files whose first bytes match ^solid: \"Binary file mh5/visual/MH5_T_AXIS.stl matches\" ... \"Binary file mh5/visual/MH5_B_AXIS.stl matches\") and maintainer confirmation (\"Nice catch. The other pkgs should probably also be checked. I've used something like `sed -i 's/solid/dilos/g'` in the past for this.\"). Fix commit eadbcb8 (\"mh5: remove 'solid' from binary visual meshes. Fix #60. Also removes executable bit (not needed).\")."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["motoman_mh5_support", "assimp"],
+      "interface_kind": "resource (STL mesh files referenced by package:// URI; file-format designator)",
+      "evidence": "Step 1: motoman_mh5_support is a package that ships the seven MH5 visual meshes; the STL loader that reads them when the URDF is displayed or collision-checked is a separate library (the source does not name it; assimp, the STL importer behind rviz's mesh loader and geometric_shapes, is my identification). Step 2: the defect is the encoding marker of a value crossing the boundary: the binary files begin with the five bytes that the STL format reserves to designate ASCII files, so a loader that follows the format reads them under the wrong representation; the files are otherwise valid binary STL and the failure depends on the loader's (correct) reading of the designator, so it is not internal. Step 3: no name binding; the fix rewrites bytes inside the mesh files. Step 4: not build/packaging. Step 5: not firmware. Step 6: eligible; interface kind is the mesh resource and its format designator."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: the mesh files produced by the support package are the loader's input. No other operation is supported by the source."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The effect on a loader was never observed in the source (no error log, no rendering report); the reporter states the mismatch at code level: \"ASCII STL files are supposed to be designated by the first 5 lines reading \\\"solid\\\" in ASCII. The following binary STL files start with \\\"solid\\\" and they shouldn't.\" and the maintainer's commit names it (\"remove 'solid' from binary visual meshes\"). Outcome class undocumented."
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "motoman_mh5_support",
+      "role": "provider",
+      "repo": "https://github.com/ros-industrial/motoman",
+      "broken_rev": "73a2410c24e8c8a28dd2048826a694fe3dc5a742",
+      "resolved_rev": "eadbcb8077cd5c6138cdd133ee61888cac377c91",
+      "pinned": true,
+      "revision_basis": "broken_rev is the parent of the fix on indigo-devel (fix dated 2016-01-12). The reporter's shell prompt shows the branch \"(hydro-devel)\" at report time (2015-04-03); the MH5_BASE_AXIS.stl blob at the hydro-devel head (c6814a83b9f861718ae90db1f3f3883970fd67dc, 2015-05-07) is 92c030fdac9cfa72fa76948e5fa1af7beed3e520, identical to the blob at 73a2410, so the files the reporter grepped are byte-for-byte the pre-fix files. resolved_rev is the fixing commit named by its message (\"Fix #60\"); per branch comparison it is contained in indigo-devel, jade-devel and kinetic-devel but not in hydro-devel.",
+      "excerpt": false,
+      "ros_distro": null
+    },
+    {
+      "name": "assimp",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": "as-reported-2015-04",
+      "resolved_rev": "as-reported-2015-04",
+      "pinned": false,
+      "revision_basis": "The source names neither the consuming loader nor a version; the only statement of the consumer's interface is the reporter's description of the STL designator convention, quoted in artifacts/robust_eadbcb8.txt. Naming the unit assimp is my identification (assimp is the STL importer used by rviz's mesh loader and by geometric_shapes/MoveIt to read URDF meshes); the source does not say it, so the unit is excerpt-based with a descriptive label and no repository revision. The resolution does not change this unit.",
+      "excerpt": true,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null, "basis": null},
+  "inventory": [
+    {"element": "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_BASE_AXIS.stl", "sides": {"motoman_mh5_support": "provides", "assimp": "consumes"}},
+    {"element": "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_S_AXIS.stl", "sides": {"motoman_mh5_support": "provides", "assimp": "consumes"}},
+    {"element": "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_L_AXIS.stl", "sides": {"motoman_mh5_support": "provides", "assimp": "consumes"}},
+    {"element": "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_U_AXIS.stl", "sides": {"motoman_mh5_support": "provides", "assimp": "consumes"}},
+    {"element": "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_R_AXIS.stl", "sides": {"motoman_mh5_support": "provides", "assimp": "consumes"}},
+    {"element": "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_B_AXIS.stl", "sides": {"motoman_mh5_support": "provides", "assimp": "consumes"}},
+    {"element": "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_T_AXIS.stl", "sides": {"motoman_mh5_support": "provides", "assimp": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": [
+        "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_BASE_AXIS.stl",
+        "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_S_AXIS.stl",
+        "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_L_AXIS.stl",
+        "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_U_AXIS.stl",
+        "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_R_AXIS.stl",
+        "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_B_AXIS.stl",
+        "resource:package://motoman_mh5_support/meshes/mh5/visual/MH5_T_AXIS.stl"
+      ],
+      "quote": "Head's up, ASCII STL files are supposed to be designated by the first 5 lines reading \"solid\" in ASCII. The following binary STL files start with \"solid\" and they shouldn't. I'm pretty sure this is something that the SolidWorks STL exporter does. It should be sufficient to replace \"solid\" with some other five characters like \"hello\".",
+      "url": "https://github.com/ros-industrial/motoman/issues/60"
+    }
+  ],
+  "outcome_class": "undocumented",
+  "loudness": "unknown",
+  "loudness_evidence": "The source contains no observation of a loader failing on these files and no diagnostic; the reporter found the defect by grepping the files (\"grep -r -A 1 ^solid *\").",
+  "detection_stage": "unknown",
+  "resolution": {
+    "summary": "Overwrite the leading five bytes \"solid\" in the seven binary MH5 visual STL files so that they no longer carry the ASCII designator (the maintainer's suggested method was `sed -i 's/solid/dilos/g'`; the commit rewrites the binary files and drops their executable bit).",
+    "status": "recommended",
+    "evidence": "Commit eadbcb8 on indigo-devel (\"mh5: remove 'solid' from binary visual meshes. Fix #60.\") closed the issue; the source does not show the meshes being loaded afterwards, so the resolved composition is not observed. The exact replacement bytes are not visible in the source (binary diff)."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": true,
+  "confidence": "low",
+  "notes": "The consumer unit is not named anywhere in the source; the case is specified with the loader as an excerpt-based unit whose only interface evidence is the reporter's statement of the STL designator convention. The reporter's branch is hydro-devel (from the shell prompt in the grep listing), which is a branch name, not a distro statement, so ros_distro is left null; the fix landed on indigo-devel ten months later and hydro-devel diverged without it. The maintainer's remark \"The other pkgs should probably also be checked.\" points at further compositions (other support packages' meshes) that are not conditions of this case. Only the visual meshes of the MH5 are listed because those are the seven files the reporter's grep matched and the commit rewrote."
+}

@@ -1,0 +1,52 @@
+{
+  "task_id": "u0306",
+  "package": "mavros",
+  "manifest_version": null,
+  "ports": [
+    {
+      "element": "msg:common/DISTANCE_SENSOR",
+      "side": "consumes",
+      "msg_type": "common/DISTANCE_SENSOR",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "field:common/DISTANCE_SENSOR.orientation",
+      "side": "consumes",
+      "msg_type": "common/DISTANCE_SENSOR",
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [
+    "field:common/DISTANCE_SENSOR.orientation"
+  ],
+  "perm_requires": {"state": "unknown", "values": []},
+  "perm_grants": {"state": "unknown", "values": []},
+  "recovery": {"state": "unknown", "value": null},
+  "provenance": {
+    "ports[0].msg_type": "ROS_ERROR_NAMED(\"distance_sensor\", \"DS: %s: received sensor data has different orientation (%s) than in config (%s)!\", ... utils::to_string_enum<MAV_SENSOR_ORIENTATION>(dist_sen.orientation).c_str()",
+    "ports[1].msg_type": "if (sensor->orientation >= 0 && dist_sen.orientation != sensor->orientation) {",
+    "references[field:common/DISTANCE_SENSOR.orientation]": "if (sensor->orientation >= 0 && dist_sen.orientation != sensor->orientation) {",
+    "perm_requires.state": "artifact.txt is a 113-line excerpt; no permission declaration appears in it and the rest of the code is not available",
+    "perm_grants.state": "artifact.txt is a 113-line excerpt; no permission declaration appears in it and the rest of the code is not available",
+    "recovery.state": "artifact.txt is a 113-line excerpt; no recovery declaration appears in it and the rest of the code is not available"
+  },
+  "blinding_guess": {
+    "defective": "cannot_tell",
+    "why": "The excerpt centres on the orientation field: a received message whose orientation differs from the configured one is dropped with an error (artifact lines 7-14), and line 1 quotes a comment about leaving CUSTOM and using a tf frame, which hints at an orientation-handling issue; but nothing in the excerpt shows a mismatch between the field as defined and as consumed."
+  },
+  "confidence": "medium",
+  "notes": "Excerpt-based task; only artifact.txt was read (no network access, no definition fetch). All eight packet elements are on the consumes side, so declares and not_declared are empty by rule. The type of the variable dist_sen is not declared in the excerpt; it is identified as the received DISTANCE_SENSOR message from the log namespace \"distance_sensor\", the \"DS:\" prefix and the text \"received sensor data\" (artifact lines 7-12), and its orientation field is cast to the enum MAV_SENSOR_ORIENTATION (line 11); msg_type common/DISTANCE_SENSOR follows the packet's element naming. The message type name DISTANCE_SENSOR is not written anywhere in the excerpt, so msg:common/DISTANCE_SENSOR is not listed in references even though its orientation field is read. The fields current_distance, id, max_distance, min_distance, time_boot_ms and type do not appear in the excerpt; whether the package reads them cannot be determined, so they have no port and appear in no list. Consumption of orientation (lines 2-14): the configured value comes from the private parameter \"orientation\" (pnh.getParam, -1 when not set), parsed by utils::sensor_orientation_from_str, which accepts a name from the sensor_orientations table or a numeric index present in it (keys 0-40 and 100 CUSTOM, lines 15-58) and returns -1 otherwise; when the configured value is >= 0 and the received orientation differs, the message is rejected with ROS_ERROR and return. The table maps each index to roll/pitch/yaw values (e.g. YAW_45 -> 0.0, 0.0, 45.0); make_orientation's signature and angle units are not in the excerpt, so units stay null. No frame id is written in the excerpt for these elements (the tf-frame mention on line 1 is a quoted comment, not code), so frame is null. definition_id is null: DISTANCE_SENSOR is a MAVLink dialect message, its definition is not in the artifact, and it is not a .msg/.srv/.action/.idl file. QoS is null (ROS 1 / MAVLink link, nothing set in the excerpt). exclusive is empty because nothing in the excerpt claims a resource exclusively; the full code was not available. Line 1 of the artifact is a quoted URL to an issue comment; it was not followed."
+}

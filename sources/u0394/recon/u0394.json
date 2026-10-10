@@ -1,0 +1,126 @@
+{
+  "task_id": "u0394",
+  "package": "cpython",
+  "manifest_version": "3.10.0",
+  "ports": [
+    {
+      "element": "api:importlib.metadata.EntryPoint.load",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.EntryPoint.name",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.SelectableGroups.get",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.SelectableGroups.select",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:importlib.metadata.entry_points",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {
+        "reliability": null,
+        "durability": null,
+        "deadline_ms": null
+      },
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:importlib.metadata.EntryPoint.load": "api importlib.metadata.EntryPoint.load: def load(self):",
+    "api:importlib.metadata.EntryPoint.name": "api importlib.metadata.EntryPoint.name: class EntryPoint( collections.namedtuple('EntryPointBase', 'name value group')):",
+    "api:importlib.metadata.SelectableGroups.get": "api importlib.metadata.SelectableGroups.get: def get(self, name, default=None):",
+    "api:importlib.metadata.SelectableGroups.select": "api importlib.metadata.SelectableGroups.select: def select(self, **params):",
+    "api:importlib.metadata.entry_points": "api importlib.metadata.entry_points: def entry_points(**params) -> Union[EntryPoints, SelectableGroups]:"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {
+    "state": "absent",
+    "values": []
+  },
+  "perm_grants": {
+    "state": "absent",
+    "values": []
+  },
+  "recovery": {
+    "state": "absent",
+    "value": null
+  },
+  "provenance": {
+    "manifest_version": "snapshot:Include/patchlevel.h:26 | #define PY_VERSION              \"3.10.0\"",
+    "ports[0].frame": "snapshot:Lib/importlib/metadata/__init__.py:156",
+    "declares[api:importlib.metadata.EntryPoint.load]": "snapshot:Lib/importlib/metadata/__init__.py:156",
+    "ports[1].frame": "snapshot:Lib/importlib/metadata/__init__.py:125",
+    "declares[api:importlib.metadata.EntryPoint.name]": "snapshot:Lib/importlib/metadata/__init__.py:125 | class EntryPoint( (line 124) / collections.namedtuple('EntryPointBase', 'name value group')): (line 125)",
+    "ports[2].frame": "snapshot:Lib/importlib/metadata/__init__.py:399",
+    "declares[api:importlib.metadata.SelectableGroups.get]": "snapshot:Lib/importlib/metadata/__init__.py:399 | def get(self, name, default=None): in class Deprecated (line 365); inherited via class SelectableGroups(Deprecated, dict): (line 420)",
+    "ports[3].frame": "snapshot:Lib/importlib/metadata/__init__.py:454",
+    "declares[api:importlib.metadata.SelectableGroups.select]": "snapshot:Lib/importlib/metadata/__init__.py:454",
+    "ports[4].frame": "snapshot:Lib/importlib/metadata/__init__.py:949",
+    "declares[api:importlib.metadata.entry_points]": "snapshot:Lib/importlib/metadata/__init__.py:949",
+    "perm_requires": "searched snapshot:Lib/importlib/metadata/ (all 7 modules) for permission/access declarations; none",
+    "perm_grants": "searched snapshot:Lib/importlib/metadata/ (all 7 modules) for permission/grant declarations; none",
+    "recovery": "searched snapshot:Lib/importlib/metadata/ (all 7 modules) for recovery/fallback declarations tied to the elements; none"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All five packet elements are declared at this revision (Python 3.10.0 importlib.metadata). entry_points() with no params returns SelectableGroups, whose dict-style get() still exists but emits a DeprecationWarning ('SelectableGroups dict interface is deprecated. Use select.'); select() is the documented forward-compatible path. That is a deprecation signal, not an absent or broken element."
+  },
+  "confidence": "high",
+  "notes": "cpython has no package.xml; manifest_version taken from PY_VERSION in Include/patchlevel.h (README.rst line 1 also says 'This is Python version 3.10.0'). All elements are Python API symbols in Lib/importlib/metadata/__init__.py, not ROS communication primitives: msg_type, units, QoS, rates and definition_id are null because no message/service/action/idl definition, QoS profile or rate exists for them; frame is 'none' because the values (entry-point objects, callables) carry no spatial meaning. EntryPoint is a subclass of collections.namedtuple('EntryPointBase', 'name value group'), so .name is a namedtuple field declared on the class statement spanning lines 124-125 (recorded as the collapsed logical line). SelectableGroups (line 420) does not define get() itself; SelectableGroups.get resolves (MRO SelectableGroups -> Deprecated -> dict) to Deprecated.get (line 399), which calls self._warn() (DeprecationWarning 'SelectableGroups dict interface is deprecated. Use select.', lines 388-393) and then dict.get. SelectableGroups.select(**params) returns self when no params, else EntryPoints filtered via EntryPoint.matches. entry_points(**params) (line 949) returns SelectableGroups.load(eps).select(**params), i.e. SelectableGroups when called without parameters and EntryPoints otherwise; distributions are de-duplicated by normalized name (lines 966-970). entry_points is in __all__ (line 38); EntryPoint and SelectableGroups are module-level classes not listed in __all__. EntryPoint.load (line 156) imports the module from the value pattern and resolves dotted attrs with functools.reduce(getattr, ...). No packet element is consumed, so references is empty. Sources consulted: only the snapshot (Lib/importlib/metadata/, Include/patchlevel.h, README.rst, Doc/library/importlib.metadata.rst); no network access."
+}

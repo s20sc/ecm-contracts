@@ -1,0 +1,47 @@
+{
+  "case_id": "C3-139",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros2/geometry2/issues/771",
+    "https://github.com/ros2/geometry2/pull/783",
+    "https://github.com/ros2/geometry2/commit/bbc69c7ec086f59d7531eab6607e0804c16ab68a"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue gives a gtest reproducer and its failing output (\"Value of: t1 == t2\\n  Actual: true\\nExpected: false\"). A maintainer first wrote \"this looks like a bug/problem\" (https://github.com/ros2/geometry2/issues/771#issuecomment-2776572539), later \"coming back to look at the original issue report, it does not really make sense\" (https://github.com/ros2/geometry2/issues/771#issuecomment-2831343452); PR #783 was merged anyway."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 2,
+      "reason_code": "internal",
+      "units_identified": ["tf2 (tf2::TransformStorage)", "a unit test written against tf2::TransformStorage (no second deployable unit)"],
+      "interface_kind": "library API",
+      "evidence": "Only one deployable unit is involved: the reporter's gtest directly assigns a public member of tf2::TransformStorage and compares two objects in-process. Contributor analysis: \"`tf2::CompactFrameID` is an alias for `uint32_t`. In `createTransformStorage()`, `frame_id_` is initialized with `0`.\" and \"Value of default-constructed uint32_t may still be 0.\" (https://github.com/ros2/geometry2/issues/771#issuecomment-2799844824). The fix (PR #783) only changes the default member initializers in tf2/include/tf2/transform_storage.hpp to \"CompactFrameID frame_id_{UINT32_MAX};\" and \"CompactFrameID child_frame_id_{UINT32_MAX};\". No value crosses a boundary between two separately deployable units; the behaviour would be the same with any caller."
+    },
+    "E3": {
+      "pass": false,
+      "evidence": "No composition operation between two units is documented; the reproducer is an in-process unit test of one class."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "The failing test output is shown; no effect on any robot or node interaction is documented, and a maintainer states \"We believe that this issue came in from some sort of automated tool so it is probably overly pedantic\" (https://github.com/ros2/geometry2/issues/771#issuecomment-2813672697)."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "internal",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": null,
+  "notes": "A second unit cannot be named at E2 step 1; recorded as internal at step 2 because the reason codes offer no separate code for a single-unit report. The andschi/geometry2 fork commits listed in the packet are the PR #783 branch commits (the first revision of the PR proposed validating non-zero ids in operator==; the merged revision changed the default initializers instead). Reported on Jazzy (source build); PR merged to rolling 2025-06-15."
+}

@@ -1,0 +1,68 @@
+{
+  "task_id": "u0123",
+  "package": "eigen",
+  "manifest_version": "3.0.5",
+  "ports": [
+    {
+      "element": "api:EIGEN_MAKE_ALIGNED_OPERATOR_NEW",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:Eigen::Quaternionf",
+      "side": "provides",
+      "msg_type": null,
+      "frame": null,
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    },
+    {
+      "element": "api:Eigen::Vector4f",
+      "side": "provides",
+      "msg_type": null,
+      "frame": "none",
+      "units": null,
+      "qos": {"reliability": null, "durability": null, "deadline_ms": null},
+      "rate_hz": null,
+      "min_rate_hz": null,
+      "definition_id": null
+    }
+  ],
+  "exclusive": [],
+  "declares": {
+    "api:EIGEN_MAKE_ALIGNED_OPERATOR_NEW": "api EIGEN_MAKE_ALIGNED_OPERATOR_NEW: #define EIGEN_MAKE_ALIGNED_OPERATOR_NEW EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(true)",
+    "api:Eigen::Quaternionf": "api Eigen::Quaternionf: typedef Quaternion<float> Quaternionf;",
+    "api:Eigen::Vector4f": "api Eigen::Vector4f: EIGEN_MAKE_TYPEDEFS_ALL_SIZES(float, f)"
+  },
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:Eigen/src/Core/util/Macros.h:30",
+    "ports[0].frame": "snapshot:Eigen/src/Core/util/Memory.h:620",
+    "ports[2].frame": "snapshot:Eigen/src/Core/Matrix.h:407",
+    "declares[api:EIGEN_MAKE_ALIGNED_OPERATOR_NEW]": "snapshot:Eigen/src/Core/util/Memory.h:620",
+    "declares[api:Eigen::Quaternionf]": "snapshot:Eigen/src/Geometry/Quaternion.h:300",
+    "declares[api:Eigen::Vector4f]": "snapshot:Eigen/src/Core/Matrix.h:407",
+    "perm_requires.state": "searched snapshot Eigen/, unsupported/, cmake/, CMakeLists.txt for permission/capability/device declarations; only license text in unsupported/test/mpreal and a /dev/zero comment in dlmalloc.c; no ROS manifest, launch, yaml or xml files present",
+    "perm_grants.state": "same search as perm_requires.state; nothing found",
+    "recovery.state": "searched snapshot for recovery/fallback declarations in headers and CMake files; none found (header-only math library, no runtime node or configuration)"
+  },
+  "blinding_guess": {
+    "defective": "no",
+    "why": "All three elements are declared in the conventional Eigen 3.0 form (macro in Memory.h, typedefs in Quaternion.h and via EIGEN_MAKE_TYPEDEFS_ALL_SIZES in Matrix.h); nothing visible in the declarations looks broken, and alignment problems with these fixed-size vectorizable types usually arise in consumers that omit EIGEN_MAKE_ALIGNED_OPERATOR_NEW, not in the provider."
+  },
+  "confidence": "high",
+  "notes": "Snapshot is the Eigen 3 source tree (no package.xml/manifest.xml/stack.xml). manifest_version is the library version declared in Eigen/src/Core/util/Macros.h lines 30-32 (EIGEN_WORLD_VERSION 3, EIGEN_MAJOR_VERSION 0, EIGEN_MINOR_VERSION 5), which CMakeLists.txt:37 composes into EIGEN_VERSION_NUMBER. All three packet elements are C++ API symbols, not ROS interfaces: msg_type, units, QoS (ROS 1), rates and definition_id are null (no .msg/.srv/.action/.idl definition exists). Frame: 'none' for the allocation macro and for Vector4f (generic 4-float Matrix<float,4,1> container with no spatial meaning declared); null for Quaternionf because a quaternion is a rotation representation but the library declares no frame. EIGEN_MAKE_ALIGNED_OPERATOR_NEW expands to EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(true); EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF defines aligned operator new/delete when EIGEN_ALIGN is 1 (Memory.h:581-615) and is empty when EIGEN_ALIGN is 0, i.e. when EIGEN_DONT_ALIGN is defined (Memory.h:616-617, Macros.h:85-92). Quaternionf: Eigen/src/Geometry/Quaternion.h is included inside namespace Eigen by Eigen/Geometry when EIGEN2_SUPPORT_STAGE > STAGE20_RESOLVE_API_CONFLICTS (default STAGE99); in EIGEN2_SUPPORT stage 10 the same line appears in Eigen/src/Eigen2Support/Geometry/Quaternion.h:221, and at stages >=20 the Eigen2 variant is renamed eigen2_Quaternionf (Eigen2Support/Geometry/All.h:30). Vector4f has no literal declaration line: it is produced by EIGEN_MAKE_TYPEDEFS_ALL_SIZES(float, f) at Matrix.h:407, via EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 4, 4) (Matrix.h:400) and 'typedef Matrix<Type, Size, 1> Vector##SizeSuffix##TypeSuffix;' (Matrix.h:387), inside namespace Eigen opened in Eigen/Core:182; the declares entry records the float-specific instantiation line verbatim with whitespace collapsed. No exclusive resources. No consumed elements in the packet, so references is empty."
+}

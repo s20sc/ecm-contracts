@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-robust_9c8abeb",
+ "kind": "A1",
+ "case_id": "robust_9c8abeb",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Building kobuki_gazebo_plugins fails with boost 1.54\n\n```\n error: ‘shared_dynamic_cast’ is not a member of ‘boost’\n```\n\nThis function was deprecated in boost as far back as ver 1.35 and was removed in the previous release (1.53).",
+  "url": "https://github.com/yujinrobot-release/kobuki_desktop-release/issues/1"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "/Users/william/hydro_tb_sim/src/kobuki_desktop/kobuki_gazebo_plugins/src/gazebo_ros_kobuki.cpp:251:31: error: no member named 'shared_dynamic_cast' in namespace 'boost'\n  cliff_sensor_left_ = boost::shared_dynamic_cast<sensors::RaySensor>(\n                       ~~~~~~~^",
+   "url": "https://github.com/yujinrobot/kobuki_desktop/issues/27"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "8 warnings and 10 errors generated.",
+  "url": "https://github.com/yujinrobot/kobuki_desktop/issues/27"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Running the `sed` script in the above linked issue solved the problem for me."
+ },
+ "notes": "Verified this session: kobuki_desktop#25 and jihoonl's '#26 fixes.'; kobuki_desktop-release#1 body verbatim (boost 1.54 failure, removal-in-1.53 statement, the sed script 'sed \\'s/shared_dynamic_cast/dynamic_pointer_cast/g\\' -i src/gazebo_ros_kobuki.cpp'); kobuki_desktop#27 body verbatim (five call sites at lines 251/253/255/301/325, '8 warnings and 10 errors generated.') and its comments (wjwwood's sed-works statement at https://github.com/yujinrobot/kobuki_desktop/issues/27#issuecomment-40991882, bit-pirate's documented baseline 'I believe it is not necessary, since Hydro officially uses Boost 1.48 (http://www.ros.org/reps/rep-0003.html#hydro-medusa-aug-2013).', and 'This issues has already been fixed by PR #26.'); the 9c8abeb patch (exactly five shared_dynamic_cast -> dynamic_pointer_cast replacements). Provider side verified in the headers: boostorg/smart_ptr tag boost-1.48.0 include/boost/smart_ptr/shared_ptr.hpp line 531 '// shared_*_cast names are deprecated. Use *_pointer_cast instead.' and line 538 'template<class T, class U> shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r)'; tag boost-1.53.0 has only the *_pointer_cast variants (line 808 'template<class T, class U> shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> const & r ) BOOST_NOEXCEPT'). Eligibility: the same consumer source compiles against 1.48 and fails against 1.53+ because the provider removed a public header symbol, and the fix changes which provider symbol the consumer calls — an interface change, not build-only — E2 stops at 6, library API. UPGRADE with documented built-against (REP-3 statement). Loudness loud_documented/build. Resolution recommended is right: commit 9c8abeb is not shown compiling against 1.53+, and wjwwood's working observation used the equivalent sed edit on the hydro branch (a different consumer revision), which S1 classifies as recommended evidence."
+}

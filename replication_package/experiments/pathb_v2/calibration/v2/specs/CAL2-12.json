@@ -1,0 +1,122 @@
+{
+ "case_id": "CAL2-12",
+ "corpus": "C1",
+ "source_refs": [
+  "https://github.com/yujinrobot/kobuki/issues/257",
+  "http://answers.ros.org/question/62606/error-starting-turtlebot-2/",
+  "http://web.archive.org/web/20241204152222/https://answers.ros.org/question/62606/error-starting-turtlebot-2/",
+  "https://github.com/yujinrobot/kobuki/commit/18b46dc557676adc00b9f17c09c3af5281b5ea88",
+  "https://github.com/yujinrobot/kobuki/commit/f62c63ff94ab65fb3218e647e3886636e250f189",
+  "https://github.com/yujinrobot/kobuki/commit/193ba75ee7b08b8bdb09b5815e486948913e3442",
+  "https://github.com/yujinrobot/kobuki/commit/936e46785de6ae1fc473ff670b07ab16016ab7ef",
+  "https://github.com/yujinrobot/kobuki/commit/a794de9b6567b69f6c4885a177d017685f518524",
+  "https://github.com/yujinrobot/kobuki/blob/0.3.7/kobuki_bumper2pc/include/kobuki_bumper2pc/kobuki_bumper2pc.hpp",
+  "https://github.com/yujinrobot/kobuki/blob/0.3.8/kobuki_bumper2pc/include/kobuki_bumper2pc/kobuki_bumper2pc.hpp",
+  "https://gitlab.com/libeigen/eigen/-/raw/3.0.5/Eigen/src/Core/DenseStorage.h",
+  "https://api.launchpad.net/1.0/ubuntu/+archive/primary?ws.op=getPublishedSources&source_name=eigen3&distro_series=https://api.launchpad.net/1.0/ubuntu/precise&exact_match=true"
+ ],
+ "eligibility": {
+  "E1": {
+   "pass": true,
+   "evidence": "Issue #257 (maintainer stonier, 2013-05-15) carries the reporter's full error log from ROS Answers 62606 (CarolineQ, ROS groovy, Turtlebot 2, 32-bit Asus Eee PC 1025C): the Eigen unaligned-array assertion in DenseStorage.h:69 followed by the nodelet manager dying with exit code -6 and the bumper2pointcloud loader dying with exit code 255. The reporter narrowed it to the bumper2pc include (\"if I comment the include tag corresponding to the bumper2pc I don't get the error\") and to the 32-bit OS; maintainer corot confirmed the cause (\"Case 1: Structures having Eigen objects as members\") and fixed it in commits 18b46dc / f62c63f."
+  },
+  "E2": {
+   "pass": true,
+   "stop_step": 6,
+   "reason_code": null,
+   "units_identified": [
+    "kobuki_bumper2pc",
+    "eigen"
+   ],
+   "interface_kind": "library API",
+   "evidence": "Unit 1 is the kobuki_bumper2pc nodelet plugin (class Bumper2PcNodelet, loaded into the mobile_base_nodelet_manager), which holds a pcl::PointCloud<pcl::PointXYZ> member whose sensor_origin_/sensor_orientation_ members are fixed-size vectorizable Eigen objects (Eigen::Vector4f / Eigen::Quaternionf; the assertion names plain_array<float, 4>). Unit 2 is the Eigen 3 library (system package, /usr/include/eigen3). Step 2: the failure depends on an assumption between the two units, Eigen's documented requirement that an object holding fixed-size vectorizable Eigen members and created with new must be 16-byte aligned (EIGEN_MAKE_ALIGNED_OPERATOR_NEW); the address of the object handed to Eigen's constructor crosses the boundary, and the resolving edit is inside the consumer only. Step 3: no name binding involved. Step 4: not a build-system change (a declaration in the consumer's class). Step 5: not firmware. Interface kind: library API (Eigen types and the EIGEN_MAKE_ALIGNED_OPERATOR_NEW macro)."
+  },
+  "E3": {
+   "pass": true,
+   "evidence": "PAIR: the consumer's object allocation (performed by new when the nodelet manager instantiates the plugin) feeds Eigen's DenseStorage constructor, which asserts on the alignment of the array it receives. No other operation is documented for this composition."
+  },
+  "E4": {
+   "pass": true,
+   "evidence": "Observed failure in the issue body / ROS Answers thread: \"Assertion `(reinterpret_cast<size_t>(array) & 0xf) == 0 && \\\"this assertion is explained here: \\\" ...' failed.\" followed by \"[mobile_base_nodelet_manager-5] process has died [pid 26924, exit code -6, ...]\" and \"[bumper2pointcloud-9] process has died [pid 27236, exit code 255, ...]\"."
+  }
+ },
+ "eligible": true,
+ "ineligible_reason": null,
+ "units": [
+  {
+   "name": "kobuki_bumper2pc",
+   "role": "consumer",
+   "repo": "https://github.com/yujinrobot/kobuki",
+   "broken_rev": "0.3.7",
+   "resolved_rev": "0.3.8",
+   "pinned": true,
+   "revision_basis": "The reporter ran ROS groovy from binary packages (\"All packages are up to date on both computers\", error dated 1368451090 = 2013-05-13) and the log path is /opt/ros/groovy. The newest kobuki release before that date was tag 0.3.7 (2013-04-16), whose Bumper2PcNodelet declares the pcl::PointCloud<pcl::PointXYZ> pointcloud_ member and carries no EIGEN_MAKE_ALIGNED_OPERATOR_NEW; the nodelet remaps in the reporter's log (bumper2pointcloud/cliff_events, bumper2pointcloud/bumper_events) match the cliff_event_sub_/bumper_event_sub_ subscribers of the 0.3.7 class. The fix f62c63f (cherry-pick of 18b46dc onto groovy-devel, 2013-05-20) is one commit before tag 0.3.8 (2013-05-22), matching jorge's ROS Answers comment of 2013-05-22: \"We fixed it and released just now. New version should be available soon on shadow-fix repo.\"",
+   "excerpt": false,
+   "ros_distro": "groovy"
+  },
+  {
+   "name": "eigen",
+   "role": "provider",
+   "repo": "https://gitlab.com/libeigen/eigen",
+   "broken_rev": "3.0.5",
+   "resolved_rev": "3.0.5",
+   "pinned": true,
+   "revision_basis": "Not stated by the reporter. Inferred: the assertion comes from /usr/include/eigen3, i.e. the Ubuntu libeigen3-dev package; ROS groovy on a 32-bit laptop targets Ubuntu 12.04 precise, whose eigen3 source package is 3.0.5-1 (Launchpad); the reported assertion line DenseStorage.h:69 (\"plain_array() { EIGEN_MAKE_UNALIGNED_ARRAY_ASSERT(0xf) }\") matches the 3.0.x series (3.0.4/3.0.5/3.0.6 all have it at line 69) and not 3.1.x or 3.2.x (line 69 is elsewhere there; 12.10 quantal ships 3.1.0~beta1). The resolution does not change Eigen, so resolved_rev keeps the broken revision.",
+   "excerpt": false,
+   "ros_distro": null
+  }
+ ],
+ "operation": "PAIR",
+ "consumer_built_against": {
+  "broken": null,
+  "resolved": null,
+  "basis": null
+ },
+ "inventory": [
+  {
+   "element": "api:Eigen::Vector4f",
+   "sides": {
+    "kobuki_bumper2pc": "consumes",
+    "eigen": "provides"
+   }
+  },
+  {
+   "element": "api:Eigen::Quaternionf",
+   "sides": {
+    "kobuki_bumper2pc": "consumes",
+    "eigen": "provides"
+   }
+  },
+  {
+   "element": "api:EIGEN_MAKE_ALIGNED_OPERATOR_NEW",
+   "sides": {
+    "kobuki_bumper2pc": "consumes",
+    "eigen": "provides"
+   }
+  }
+ ],
+ "failed_conditions": [
+  {
+   "class": "representation_convention",
+   "implicated_elements": [
+    "api:Eigen::Vector4f",
+    "api:EIGEN_MAKE_ALIGNED_OPERATOR_NEW"
+   ],
+   "quote": "Case 1: Structures having Eigen objects as members\nAdding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem",
+   "url": "https://github.com/yujinrobot/kobuki/issues/257#issuecomment-18128700"
+  }
+ ],
+ "outcome_class": "failure",
+ "loudness": "loud_documented",
+ "loudness_evidence": "Eigen's own diagnostic at object construction, quoted in the issue body: \"nodelet: /usr/include/eigen3/Eigen/src/Core/DenseStorage.h:69: Eigen::internal::plain_array<T, Size, MatrixOrArrayOptions, 16>::plain_array() [with T = float, int Size = 4, int MatrixOrArrayOptions = 0]: Assertion `(reinterpret_cast<size_t>(array) & 0xf) == 0 && \"this assertion is explained here: \" \"http://eigen.tuxfamily.org/dox-devel/TopicUnalignedArrayAssert.html\" \" **** READ THIS WEB PAGE !!! ****\"' failed.\" followed by roslaunch's \"[mobile_base_nodelet_manager-5] process has died [pid 26924, exit code -6, cmd /opt/ros/groovy/lib/nodelet/nodelet manager __name:=mobile_base_nodelet_manager ...]\" (https://github.com/yujinrobot/kobuki/issues/257).",
+ "detection_stage": "activate",
+ "resolution": {
+  "summary": "Add EIGEN_MAKE_ALIGNED_OPERATOR_NEW to the Bumper2PcNodelet class declaration (kobuki_bumper2pc/include/kobuki_bumper2pc/kobuki_bumper2pc.hpp) so that the plugin object, which embeds a pcl::PointCloud with fixed-size Eigen members, is allocated 16-byte aligned when the nodelet manager creates it with new. Commit 18b46dc (2013-05-20) on the hydro line, cherry-picked as f62c63f onto groovy-devel and released in kobuki 0.3.8.",
+  "status": "observed",
+  "evidence": "Maintainer corot, same day as the commit: \"Adding EIGEN_MAKE_ALIGNED_OPERATOR_NEW to class declaration solves the problem\" (https://github.com/yujinrobot/kobuki/issues/257#issuecomment-18128700); jorge on ROS Answers 2013-05-22: \"We fixed it and released just now. New version should be available soon on shadow-fix repo. Thanks for your inputs!\" The reporter (CarolineQ) did not post a confirmation; the Eigen revision of the maintainers' 32-bit test machine is not stated (the composition revisions above are the reporter's, inferred)."
+ },
+ "ros_generation": "ROS1",
+ "excerpt_based": false,
+ "confidence": "medium",
+ "notes": "Other composition documented in the same thread and fixed by the packet's listed commits: kobuki_auto_docking's DockDrive class held (a commented-out) ecl::Pose2D<double> member (an Eigen inheritor) and could still trip the same assertion on 32-bit; 193ba75 / 936e467 (2013-06-04) added EIGEN_MAKE_ALIGNED_OPERATOR_NEW to DockDrive, and a794de9 (2013-08-12) removed the ecl::Pose2D remnants (\"just remove the eigen-inheritor attribute, as it's not really needed ... something is wrong on ecl. We keep track on https://github.com/stonier/ecl_core/issues/30\"); corot: \"The root of the problem remains, but now it's an ecl problem.\" That composition (kobuki_auto_docking <-> ecl_core/Eigen) is not this case. Carrier of the Eigen members: PCL's pcl::PointCloud<pcl::PointXYZ> (pcl_ros), which itself declares EIGEN_MAKE_ALIGNED_OPERATOR_NEW but cannot align an enclosing object; the enclosing object is created by the nodelet manager through pluginlib/class_loader (new Bumper2PcNodelet). The condition is an ABI/alignment precondition of the library API (no class in the list fits exactly; recorded as other). The problem is 32-bit specific because glibc malloc returns 16-byte aligned blocks on x86-64 but only 8-byte aligned blocks on i386 (reporter: 32-bit OS; her desktop worked). Stonier's pointer to the provider's documentation: \"Usually from cause 1 or 2 on http://eigen.tuxfamily.org/dox/TopicUnalignedArrayAssert.html\". Loudness stage: the assertion fires while the nodelet manager constructs the plugin during the nodelet load service call (\"[FATAL] ... Service call failed!\"), i.e. at plugin activation, before any topic traffic."
+}

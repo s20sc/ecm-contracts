@@ -1,0 +1,49 @@
+{
+  "case_id": "C3-074",
+  "corpus": "C3",
+  "source_refs": [
+    "https://github.com/ros-navigation/navigation2/issues/3646",
+    "https://github.com/ros-navigation/navigation2/pull/3662"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "The issue names a concrete code-level defect and the maintainer confirms it: \"Just reading the NAV2 CMake source code and NAV2 source code, this variable is deprecated: https://cmake.org/cmake/help/latest/variable/CMAKE_COMPILER_IS_GNUCXX.html\" and \"NAV2 is using deprecated variables\" (https://github.com/ros-navigation/navigation2/issues/3646); maintainer SteveMacenski: \"A PR would be appreciated\" (same URL)."
+    },
+    "E2": {
+      "pass": false,
+      "stop_step": 4,
+      "reason_code": "build",
+      "units_identified": [
+        "nav2_common (nav2_package.cmake macro) / nav2_rviz_plugins",
+        "CMake"
+      ],
+      "interface_kind": null,
+      "evidence": "The resolving change edits only CMake build logic: in nav2_common/cmake/nav2_package.cmake and nav2_rviz_plugins/CMakeLists.txt, \"-  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES \\\"Clang\\\")\" becomes \"+  if(CMAKE_CXX_COMPILER_ID MATCHES \\\"GNU\\\" OR CMAKE_CXX_COMPILER_ID MATCHES \\\"Clang\\\")\" (https://github.com/ros-navigation/navigation2/pull/3662/files). No ROS interface, library API, or definition of any unit changes; it is a build-system-only change."
+    },
+    "E3": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 4)."
+    },
+    "E4": {
+      "pass": null,
+      "evidence": "Not evaluated (exit at E2 step 4). The issue reports no observed build failure or warning; the reporter found it by reading source."
+    }
+  },
+  "eligible": false,
+  "ineligible_reason": "build",
+  "units": null,
+  "operation": null,
+  "consumer_built_against": null,
+  "inventory": null,
+  "failed_conditions": null,
+  "outcome_class": null,
+  "loudness": null,
+  "loudness_evidence": null,
+  "detection_stage": null,
+  "resolution": null,
+  "ros_generation": null,
+  "excerpt_based": null,
+  "confidence": "high",
+  "notes": "Exit step: E2 step 4 (build). ROS 2 Rolling on Ubuntu 22.04 per the issue. PR #3662 merged 2023-06-27 into main, merge commit 236310c05f8373022aecbff921de5a7295a20c8d."
+}

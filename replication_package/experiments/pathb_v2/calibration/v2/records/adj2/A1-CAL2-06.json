@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-CAL2-06",
+ "kind": "A1",
+ "case_id": "CAL2-06",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "I misconfigured the version macro with #3080. It is a GTE and not a GT macro :see_no_evil:\n\nThe breaking PR was released with 31.0.0\nhttps://github.com/ros2/rclcpp/commit/048e47ec105e34def37770ef1dba33955e3a6999",
+  "url": "https://github.com/ros-controls/ros2_control/pull/3198"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "/home/runner/work/ros2_control/ros2_control/.work/target_ws/src/ros2_control/hardware_interface_testing/test/test_resource_manager.cpp:1361:8: error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override",
+   "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "test_resource_manager.cpp:1361:8: error: ‘void MockExecutor::add_node(const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr&, bool)’ marked ‘override’, but does not override\n   1361 |   void add_node(\n        |        ^~~~~~~~",
+  "url": "https://github.com/ros-controls/ros2_control/issues/3193#issuecomment-4198379579"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "Action run 24116710553 (read this session via the GitHub API): {\"conclusion\":\"success\",\"created_at\":\"2026-04-08T03:51:32Z\",\"event\":\"schedule\",\"head_sha\":\"64f9645a6c948ad9ecf4bb1a51746f7227c45e38\",\"name\":\"Rolling Binary Build\"} — both failing runs verified at head bb07fdd5 (2026-04-06 and 2026-04-07, conclusion failure); the rclcpp revision installed in the passing run is not recorded in any readable source, so the resolved composition is not identified by revision on the provider side."
+ },
+ "notes": "Sources opened this session: issue 3193 (CI bot) and comment 4198379579 (compiler error verbatim); PR 3198 merged 2026-04-07 as 64f9645a with the maintainer's diagnosis quote verbatim; rclcpp executor.hpp at tag 30.1.5 line 200 ('add_node(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr node_ptr, bool notify = true);' — by value) and at tag 31.0.0 lines 200-201 ('add_node(\n    const rclcpp::node_interfaces::NodeBaseInterface::SharedPtr & node_ptr,' — const reference), confirming the element_retyped reading; the consumer's guard at bb07fdd5 read from the raw file ('#if RCLCPP_VERSION_GTE(30, 1, 5)' selecting the const-reference override, '#else' the by-value one); all three action runs' head_sha/conclusion verified; ros2_control_ci issue 733 and comment 4198372029 (same compiler error from the CI repo build); rclcpp commit f145c9ee message 'perf: Optimized out shared_ptr copies (#3079)'. Eligibility agree: version-skew interface failure; step 4 (build) is excluded by the tree's own parenthetical ('Rebuilding a consumer because a provider's definition changed is an interface change'); class element_retyped fits exactly (declaration changed, element still present); loud_documented/build correct. Resolution agree: 'recommended' is the right strictness — the follow-up run succeeded at the fix head but the provider revision in it is unrecorded, so 'observed' (both units identified by revision) is not available. Caveat noted by the spec itself and shared by me: the UPGRADE direction is reversed relative to the definition's letter (the provider at 30.1.5 is OLDER than the 31.0.0 revision the consumer's selected code was written against); UPGRADE is the only version-skew operation available and the spec documents the direction honestly."
+}

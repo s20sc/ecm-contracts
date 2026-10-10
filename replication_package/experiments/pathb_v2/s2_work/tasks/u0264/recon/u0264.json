@@ -1,0 +1,25 @@
+{
+  "task_id": "u0264",
+  "package": "rosidl_generator_py",
+  "manifest_version": "0.14.2",
+  "ports": [],
+  "exclusive": [],
+  "declares": {},
+  "not_declared": [],
+  "references": [],
+  "perm_requires": {"state": "absent", "values": []},
+  "perm_grants": {"state": "absent", "values": []},
+  "recovery": {"state": "absent", "value": null},
+  "provenance": {
+    "manifest_version": "snapshot:rosidl_generator_py/package.xml:5",
+    "perm_requires.state": "searched all 34 snapshot files (grep -i permission|security|sros|enclave); only Apache license boilerplate matches, e.g. snapshot:rosidl_generator_py/rosidl_generator_py/generate_py_impl.py:12",
+    "perm_grants.state": "same search as perm_requires; no permission, security or enclave declarations in code, CMake or package.xml",
+    "recovery.state": "searched all snapshot files (grep -i recover|retry|fallback): no matches; the package is a build-time code generator with no runtime node"
+  },
+  "blinding_guess": {
+    "defective": "yes",
+    "why": "The generated scalar double setter asserts -1.7976931348623157e+308 <= value <= 1.7976931348623157e+308 (resource/_msg.py.em:566-573), which rejects NaN and +/-inf; a statistics value field such as StatisticDataPoint.data plausibly carries NaN (e.g. no samples in a window), so Python code assigning it would fail an AssertionError when __debug__ is on."
+  },
+  "confidence": "high",
+  "notes": "rosidl_generator_py 0.14.2 is a build-time code generator (Python/C extension generator for ROS 2 interfaces). It has no node, publisher, subscriber, service or action, so no packet element is published, offered, subscribed to or called; ports is therefore empty. None of the four packet elements (topic:/statistics, msg:statistics_msgs/MetricsMessage, msg:statistics_msgs/StatisticDataPoint, field:statistics_msgs/StatisticDataPoint.data) is named anywhere in the snapshot: grep -riE 'statistic|metrics' over all 34 files returned no match, and statistics_msgs is not a dependency in package.xml. All four elements are consumed-side, so declares/not_declared do not apply; they are not in references because the code never names them. The only relation is generic: message packages (which would include statistics_msgs) pass their interface names to this generator at build time through rosidl_generate_interfaces, via IDL_TUPLES written into the generator arguments file (snapshot:rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:113-116) and read by generate_py (snapshot:rosidl_generator_py/rosidl_generator_py/generate_py_impl.py:56-70); i.e. the names are supplied at build time, not in code. Generic handling relevant to a float64 scalar field such as the data field element: the generated property setter, under 'if __debug__:' (snapshot:rosidl_generator_py/resource/_msg.py.em:439), asserts isinstance(value, float) (lines 543-545) and then 'value >= -bound and value <= bound' with bound = 1.7976931348623157e+308 for double and 3.402823e+38 for float (lines 560-573), message \"The '<name>' field must be a double in [...]\"; the same bound check applies element-wise to float/double arrays and sequences (lines 503-517). As written, that comparison is false for NaN and for +/-inf. No QoS, frame, units, rate or exclusive resource is declared since the package has no runtime communication. Statistics_msgs definition files were not fetched because statistics_msgs is not a dependency of this snapshot's definitions or code, so no definition_id is recorded."
+}

@@ -1,0 +1,22 @@
+{"item_id": "P-u0322-0", "kind": "P", "task_id": "u0322", "element": "field:nav_msgs/Odometry.pose", "side": "provides",
+ "values": [
+  {"field": "msg_type", "recorded": "nav_msgs/Odometry", "verdict": "verified",
+   "source_excerpt": "global_position.cpp:122  gp_odom_pub = node->create_publisher<nav_msgs::msg::Odometry>(\"~/local\", sensor_qos);",
+   "qos_basis": null},
+  {"field": "frame", "recorded": "map", "verdict": "verified",
+   "source_excerpt": "global_position.cpp:70  \"frame_id\", \"map\", [&](const rclcpp::Parameter & p) { ; :338  odom.header.frame_id = frame_id; ; px4_config.yaml:51  frame_id: \"map\"               # origin frame ; apm_config.yaml:52  frame_id: \"map\"",
+   "qos_basis": null},
+  {"field": "units", "recorded": "m", "verdict": "verified",
+   "source_excerpt": "global_position.cpp:328  * X: spherical coordinate X-axis (meters) ; :329  * Y: spherical coordinate Y-axis (meters) ; :330  * Z: spherical coordinate Z-axis (meters)",
+   "qos_basis": null},
+  {"field": "qos.reliability", "recorded": "best_effort", "verdict": "verified",
+   "source_excerpt": "global_position.cpp:111  auto sensor_qos = rclcpp::SensorDataQoS(); ; :122  gp_odom_pub = node->create_publisher<nav_msgs::msg::Odometry>(\"~/local\", sensor_qos);",
+   "qos_basis": "default"},
+  {"field": "qos.durability", "recorded": "volatile", "verdict": "verified",
+   "source_excerpt": "global_position.cpp:111  auto sensor_qos = rclcpp::SensorDataQoS(); ; :122  gp_odom_pub = node->create_publisher<nav_msgs::msg::Odometry>(\"~/local\", sensor_qos);",
+   "qos_basis": "default"},
+  {"field": "definition_id", "recorded": "{\"algorithm\": \"sha256_normalised\", \"kind\": \"msg\", \"value\": \"00e5542a16efb41fe7ff52707cfd39a254f7bb20a143057d596f6f0c98d49892\"}", "verdict": "unverifiable",
+   "source_excerpt": "provenance cites only https://raw.githubusercontent.com/ros2/common_interfaces/4.2.4/nav_msgs/msg/Odometry.msg; no Odometry.msg exists anywhere under s2_work (find -L: no match); network access prohibited",
+   "qos_basis": null}
+ ],
+ "notes": "All four snapshot locations opened directly. (1) msg_type/frame/units supported by code as cited. (2) Cited units range :327-329 is off by one: the X/Y/Z (meters) doc lines sit at :328-330; :328-329 fall inside the cited range, value still stated. (3) qos values are recorded via the named profile rclcpp::SensorDataQoS() applied to gp_odom_pub at :111/:122, hence qos_basis=default; the rmw/qos_profiles.h portion of the provenance is not in the packet (no rmw headers under s2_work), so the SensorDataQoS -> best_effort/volatile expansion rests on the profile name, not on an opened line stating 'best_effort' literally. (4) nav_msgs/Odometry.msg (cited 'line 2') is absent from the packet; definition_id rests on an unreachable URL and no local copy exists to rehash with definition_hash.py, so unverifiable."}

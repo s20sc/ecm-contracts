@@ -1,0 +1,36 @@
+{
+ "item_id": "A1-C3-019",
+ "kind": "A1",
+ "case_id": "C3-019",
+ "eligibility": {
+  "verdict": "agree",
+  "stop_step": 6,
+  "reason_code": null,
+  "quote": "Publish String from C++ with arbitrary byte content: ... std::string data;\n      for (uint8_t c = 120; c < 130; c++) data.push_back(c); ... UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"
+ },
+ "failed_conditions": [
+  {
+   "index": 0,
+   "class_verdict": "agree",
+   "proposed_class": null,
+   "elements_verdict": "agree",
+   "proposed_elements": [],
+   "quote": "There is a heavy mismatch here between the message/C++ types and Python types. `string` is 8-bit data which does not have encoding, neither does `std::string`. Message strings *ought* to be UTF-8, but this is not enforced. But Python strings always enforce an encoding. So it is perfectly possible to publish data from C++, which gets mangled when received in Python.",
+   "url": "https://github.com/ros2/rclpy/issues/881#issuecomment-1210405369"
+  }
+ ],
+ "missed_conditions": [],
+ "loudness": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "    msg_info = _rclpy.rclpy_take(capsule, sub.msg_type, sub.raw)\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 15: invalid start byte",
+  "url": "https://github.com/ros2/rclpy/issues/881"
+ },
+ "resolution": {
+  "verdict": "agree",
+  "proposed": null,
+  "quote": "having decode mode with `replace` instead of `strict` in https://github.com/ros2/rosidl_python ... it can change the behavior as following w/o `UnicodeDecodeError`.\n\n```\nroot@tomoyafujita:~/ros2_ws/colcon_ws# ros2 topic echo /topic\ndata: \"Hello, xyz{|}~\\x7F��!\"\n```"
+ },
+ "notes": "Independently verified this session via gh api. Issue 881 body (suurjaak, 2022-01-16) verified: the C++ publisher (bytes 120..129 into std_msgs/String.data), both Python listeners, the full traceback ending in the UnicodeDecodeError, the foxy binary versions ('ros-foxy-rclcpp 2.4.0-1focal.20211112.191736', 'ros-foxy-rclpy 1.0.7-1focal.20211112.191643'), and the example.tar.gz attachment link. Comments verified verbatim: fujitatomoya's reproduction ending 'ros2 topic echo /topic -> Unable to convert call argument '0' of type 'object' to Python object' (id 1020572058) and the raw-subscriber output b'\\x00\\x01\\x00\\x00\\x13\\x00\\x00\\x00Hello, xyz{|}~\\x7f\\x80\\x81!\\x00\\x00'; jacobperron's design-doc quote 'If a `string` or `wstring` field is populated with the wrong encoding then the behavior is undefined.' (id 1209988539) and 'With https://github.com/ros2/rosidl_python/pull/176 merged, I believe this issue is resolved for Rolling.' (id 1209995906). Code read directly: rosidl_python _msg_support.c.em at tag 0.9.4 contains PyUnicode_DecodeUTF8 with \"strict\" at both decode sites (lines 657 and 720), matching the spec's revision_basis. PR metadata verified: #176 'Change decode mode into replace.' merged rolling 2022-08-09 (20df6835), foxy backport #181 'Change decode mode into replace. (backport #176)' merged 2022-10-18 as 3788639b37118e0ab003828d9a07f52da411bf87. Eligibility stop 6 (encoding of a value crossing the topic boundary; fix changes generated conversion code), class representation_convention with field std_msgs/String.data + topic /topic implicated, silent_documented/run (runtime exception on receipt), and recommended (the working demonstration used fujitatomoya's own prover_rclcpp publisher on a rolling source build -- a different peer and distribution; the reporter's foxy composition with the backport never shown working) all verified correct."
+}

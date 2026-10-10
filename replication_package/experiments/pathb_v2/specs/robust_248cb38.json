@@ -1,0 +1,94 @@
+{
+  "case_id": "robust_248cb38",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/mavlink/mavros/commit/248cb389b122fa94a68578a48e50d4f240df4629",
+    "https://github.com/mavlink/mavros/pull/351",
+    "https://github.com/mavlink/mavros/issues/352",
+    "https://github.com/mavlink/mavros/blob/3a82c908b6dba4b784c46106c51ae73ff1e881b8/mavros/src/plugins/setpoint_attitude.cpp",
+    "https://github.com/mavlink/mavros/commit/411b7e7e1af0bd39273633e0c6f87bea6dcb8a54",
+    "https://github.com/mavlink/mavros/commit/9990651fe1898bc32991fbacf5afab281ba211c3",
+    "https://github.com/mavlink/mavros/commit/805112a059c4ccb07f2c680c1d1b51e2c2bc3ed6",
+    "https://github.com/mavlink/mavlink/blob/77a13142dfe571dfa3bcee69ab1c68e395ad258d/message_definitions/v1.0/common.xml",
+    "https://eigen.tuxfamily.org/dox/classEigen_1_1Quaternion.html"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "PR #351 (merged 2015-07-28) documents one concrete defect with a maintainer's confirmation and a reproducer. PR body: \"The transformed quaternion wasn't being passed to set_attitude_target(), resulting in an incorrect attitude setpoint. I've now fixed this issue.\" Maintainer vooon posted a gtest comparing a hand-made w,x,y,z copy against an Eigen::Map<Eigen::Quaternionf> copy into float q2[4] and wrote: \"And it fails. So bug confirmed. But there should be another way to fix Map.\" (https://github.com/mavlink/mavros/pull/351#issuecomment-125763805). He opened issue #352 titled \"Eigen::Map<Quaternionf> place data in xyzw order instead of wxyz.\" (https://github.com/mavlink/mavros/issues/352)."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["mavros (setpoint_attitude plugin)", "FCU firmware"],
+      "interface_kind": "wire protocol field",
+      "evidence": "Step 1: the two units are the mavros setpoint_attitude plugin (package mavros, a pluginlib plugin run inside mavros_node) and the flight-controller firmware that consumes the MAVLink SET_ATTITUDE_TARGET message it sends; the plugin's class comment reads \"Send setpoint attitude/orientation/thrust to FCU controller.\" The firmware is a separately deployable image; the source does not name which autopilot was flown. Step 2: not internal. The wrong value crosses the boundary: at the broken revision the plugin writes the (already ENU->NED transformed) quaternion into float q[4] through an Eigen::Map (code: \"// Eigen use same convention as mavlink: w x y z\" / \"Eigen::Map<Eigen::Quaternionf> q_out(q);\" / \"q_out = UAS::transform_frame_enu_ned(Eigen::Quaterniond(tr.rotation())).cast<float>();\") and then passes q to set_attitude_target(), which packs it into the MAVLink message. Eigen's map stores coefficients as [x, y, z, w] (issue #352 title: \"Eigen::Map<Quaternionf> place data in xyzw order instead of wxyz.\"; Eigen docs: \"Note the order of the arguments: the real w coefficient first, while internally the coefficients are stored in the following order: [x, y, z, w]\"), while the MAVLink definition the FCU decodes against declares the field as \"Attitude quaternion (w, x, y, z order, zero-rotation is 1, 0, 0, 0)\" (common.xml, message id 82 SET_ATTITUDE_TARGET, field q). A component-order error in a value crossing the boundary is an interface failure even though the resolving edit is inside mavros. Steps 3-5: the fix is a code change in the producer, not a deployment remap, build change, or firmware fault. Step 6: eligible; the interface is the MAVLink wire-protocol field SET_ATTITUDE_TARGET.q."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "PAIR: an output of the mavros setpoint_attitude plugin (the SET_ATTITUDE_TARGET message built in send_attitude_target() and sent via UAS_FCU(uas)->send_message(&msg)) feeds the FCU's attitude-controller input (\"Send setpoint attitude/orientation/thrust to FCU controller.\"). No revision skew between the two units and no start/stop sequence is involved; the source supports only PAIR."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Effect on the interaction is stated by the reporter who flew the code and confirmed at code level by the maintainer: PR body \"resulting in an incorrect attitude setpoint\"; reviewer LorenzMeier: \"Have you flight-tested this? The fix looks correct on the math level, but we need a system-level verification as well.\"; reporter: \"Yes. Flew with this code yesterday. I've verified that it now behaves the same as release 0.12.0\"; maintainer's gtest on the Map storage order: \"And it fails. So bug confirmed.\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "mavros (setpoint_attitude plugin)",
+      "role": "provider",
+      "repo": "https://github.com/mavlink/mavros",
+      "broken_rev": "3a82c908b6dba4b784c46106c51ae73ff1e881b8",
+      "resolved_rev": "248cb389b122fa94a68578a48e50d4f240df4629",
+      "pinned": true,
+      "ros_distro": null
+    },
+    {
+      "name": "FCU firmware",
+      "role": "consumer",
+      "repo": null,
+      "broken_rev": null,
+      "resolved_rev": null,
+      "pinned": false,
+      "ros_distro": null
+    }
+  ],
+  "operation": "PAIR",
+  "consumer_built_against": {"broken": null, "resolved": null},
+  "inventory": [
+    {"element": "msg:common/SET_ATTITUDE_TARGET", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.time_boot_ms", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.target_system", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.target_component", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.type_mask", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.q", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.body_roll_rate", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.body_pitch_rate", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.body_yaw_rate", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}},
+    {"element": "field:common/SET_ATTITUDE_TARGET.thrust", "sides": {"mavros (setpoint_attitude plugin)": "provides", "FCU firmware": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "representation_convention",
+      "implicated_elements": ["field:common/SET_ATTITUDE_TARGET.q"],
+      "quote": "Eigen::Map<Quaternionf> place data in xyzw order instead of wxyz.",
+      "url": "https://github.com/mavlink/mavros/issues/352"
+    }
+  ],
+  "outcome_class": "failure",
+  "loudness": "silent_documented",
+  "loudness_evidence": "No diagnostic from existing tooling appears anywhere in the source: the mis-ordered quaternion is a well-formed float[4] that packs, sends, and decodes without error. Detection was by flight test and a hand-written unit test. LorenzMeier: \"Have you flight-tested this? The fix looks correct on the math level, but we need a system-level verification as well.\" Reporter: \"Yes. Flew with this code yesterday. I've verified that it now behaves the same as release 0.12.0\". Maintainer: \"And it fails. So bug confirmed.\"",
+  "detection_stage": "run",
+  "resolution": {
+    "summary": "Stop writing the quaternion into the MAVLink float[4] through Eigen::Map<Eigen::Quaternionf>; copy q_out.w(), q_out.x(), q_out.y(), q_out.z() explicitly into a new array q_transformed[4] and pass that to set_attitude_target() (commit 248cb389, PR #351). The next day the maintainer replaced this with the helper UAS::quaternion_to_mavlink() (9990651f) and used it in the plugin (805112a0), which performs the same explicit w,x,y,z copy.",
+    "status": "observed",
+    "evidence": "Reporter on the fixed code: \"Yes. Flew with this code yesterday. I've verified that it now behaves the same as release 0.12.0\" (https://github.com/mavlink/mavros/pull/351#issuecomment-125707818). Merged 2015-07-28T22:45:12Z. Helper doc comment in 9990651f: \"MAVLink uses wxyz order, wile Eigen::Quaterniond uses xyzw internal order, so it can't be stored to array using Eigen::Map.\""
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "high",
+  "notes": "Classification follows the primary sources and disagrees with the dataset's secondary summary. The packet title says \"Missing ENU->NED frame conversion in send_attitude_target\" (which would be frame_mismatch), but the parent-revision code already applies UAS::transform_frame_enu_ned(...) to the quaternion (unchanged context line in the diff), and the maintainer's own diagnosis (issue #352, the PR #351 gtest, and the 9990651f helper comment) identifies the mechanism as Eigen::Map storing coefficients in x,y,z,w order while MAVLink SET_ATTITUDE_TARGET.q is declared w,x,y,z; the PR author's wording \"The transformed quaternion wasn't being passed\" was also corrected by vooon (\"I don't see change. `Eigen::Map<>` should place values in q[4] in wxyz, so your code does nothing.\" followed by his failing test). So the class is representation_convention (component order), not frame_mismatch. Defect window: the Eigen::Map line was introduced in 411b7e7e (2015-07-10, \"plugin #71: Implement TF2 listener. Change param names.\"), which is after tag 0.12.0 (0.12.0 copied q[0] = qt.w() etc. explicitly), and fixed in 248cb389 (2015-07-28), which is before tag 0.13.0; no tagged mavros release contains the broken code. broken_rev 3a82c908 is the fix's parent (pinned); any commit from 411b7e7e to 3a82c908 is broken. The consuming FCU firmware is not identified in the source (the reviewer is the PX4 lead, but no autopilot or firmware revision is stated), so its repo and revisions are null; the wire-protocol definition is quoted from mavlink/mavlink common.xml at 77a13142 (last change to common.xml before the fix date). The ROS-side input to the plugin (~setpoint_attitude/attitude PoseStamped, ~setpoint_attitude/cmd_vel, TF listener) comes from a third unit not involved in the failure and is not inventoried. ros_distro is not stated in the case sources (package README of the era says tested with Hydro and Indigo)."
+}

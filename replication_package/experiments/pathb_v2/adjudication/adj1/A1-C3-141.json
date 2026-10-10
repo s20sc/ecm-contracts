@@ -1,0 +1,54 @@
+{
+  "item_id": "A1-C3-141",
+  "kind": "A1",
+  "case_id": "C3-141",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 6,
+    "reason_code": null,
+    "reason": "E1: concrete plugin stack trace, reporter diagnosis, and maintainer identification of the breaking change. E2: the controller plugin and host framework are separate units, and the framework changes how it keys exported interfaces. Updating consumer source is required; this is not a launch remap. E3: UPGRADE is explicitly reported. E4: the controller update crashes.",
+    "quote": "Though before the last update it worked without the node name perfectly fine.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747169475"
+  },
+  "failed_conditions": [
+    {
+      "index": 0,
+      "class_verdict": "agree",
+      "proposed_class": null,
+      "elements_verdict": "agree",
+      "proposed_elements": [],
+      "quote": "The ``exported_state_interfaces_`` and ``exported_reference_interfaces_`` now uses the the full interface name as the key to the unordered_map, instead of the interface type.",
+      "url": "https://github.com/ros-controls/ros2_control/pull/2129.diff",
+      "reason": "The exported map member is still present; what changes is the string convention by which the consumer addresses its entries. representation_convention on exported_state_interfaces_ is supported. The source documents the analogous reference-interface change but does not show the reporter using that separate map, so it is not added.",
+      "supporting_evidence": [
+        {
+          "quote": "-    const auto interface_name = state_interface->get_interface_name();\n+    const auto interface_name = state_interface->get_name();",
+          "url": "https://github.com/ros-controls/ros2_control/pull/2038.diff"
+        }
+      ]
+    }
+  ],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "[ros2_control_node-2] Segmentation fault (Address not mapped to object [0x80])",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121",
+    "reason": "The source shows a crash during controller update rather than an earlier diagnostic identifying the bad interface-name convention. A generic segmentation fault does not establish loud contract checking."
+  },
+  "detection_stage": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "four_wheel_steering::OdometryProvider::update_and_write_commands(rclcpp::Time const&, rclcpp::Duration const&)",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121",
+    "reason": "The stack places the failure in the controller update loop, supporting run."
+  },
+  "resolution": {
+    "verdict": "disagree",
+    "proposed": "recommended",
+    "quote": "The issue is solved, it was the interface_name being incomplete. I did not add the node name to it.",
+    "url": "https://github.com/ros-controls/ros2_control/issues/2121#issuecomment-2747169475",
+    "reason": "The reporter genuinely confirms a successful edit, but identifies neither an exact ros2_control revision nor a reproducible revision of the edited unpublished plugin. The specification infers 4.27.0 and assigns a dated consumer label. Under the explicit requirement that both working units be identified by revision, this is not an observed result for the specified resolved composition."
+  },
+  "notes": "The source establishes a real successful user workaround; the downgrade concerns evidence for the selected revision pair, not whether the reporter solved the problem. Provider 4.27.0 and the inferred earlier 4.26.0 baseline are not stated in the issue. The key-convention change is independently confirmed by #2038 and its migration note in #2129. No separate failed condition is established by the failing get_value/get_optional calls: they share the same incorrectly addressed map entry."
+}

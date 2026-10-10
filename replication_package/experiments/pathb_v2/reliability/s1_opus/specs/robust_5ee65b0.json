@@ -1,0 +1,92 @@
+{
+  "case_id": "robust_5ee65b0",
+  "corpus": "C1",
+  "source_refs": [
+    "https://github.com/yujinrobot/kobuki_desktop/issues/32",
+    "https://github.com/yujinrobot/kobuki_desktop/commit/5ee65b061a4a919b2a32e80087f4cb3e51e924ed",
+    "https://github.com/ros/ros_comm/commit/8b43036842926cc9a351d37cd888537fd2797eb0",
+    "https://github.com/ros/ros_comm/pull/372",
+    "https://github.com/ros/ros_comm/issues/346"
+  ],
+  "eligibility": {
+    "E1": {
+      "pass": true,
+      "evidence": "Issue #32 (opened and closed by maintainer jihoonl): \"From indigo, Publisher complains not having queue_size arguement..\"; closed with a link to the fixing commit 5ee65b0, which adds queue_size to the rospy.Publisher calls."
+    },
+    "E2": {
+      "pass": true,
+      "stop_step": 6,
+      "reason_code": null,
+      "units_identified": ["rospy", "kobuki_dashboard"],
+      "interface_kind": "library API",
+      "evidence": "rospy (ros/ros_comm) and kobuki_dashboard (yujinrobot/kobuki_desktop) are separately released packages. In ros_comm 8b430368 (\"add warning when queue_size is omitted for rospy publisher (#346)\", first released after 1.11.0) the provider changed the contract of rospy.Publisher: calls that omit queue_size now trigger warnings.warn(\"The publisher should be created with an explicit keyword argument 'queue_size'. ...\", SyntaxWarning, ...). kobuki_dashboard still constructs rospy.Publisher(topic, Led) and rospy.Publisher(topic, MotorPower) without it. The warning depends on the consumer's call form against the provider's newer declaration, and the fix is a change to how the consumer calls the provider API, not a name binding or build change."
+    },
+    "E3": {
+      "pass": true,
+      "evidence": "UPGRADE: rospy at Indigo (\"From indigo\") runs newer than the rospy revision whose Publisher contract the kobuki_dashboard code matches (queue_size omitted without a warning, up to ros_comm 1.11.0)."
+    },
+    "E4": {
+      "pass": true,
+      "evidence": "Observed warning: \"Publisher complains not having queue_size arguement..\""
+    }
+  },
+  "eligible": true,
+  "ineligible_reason": null,
+  "units": [
+    {
+      "name": "rospy",
+      "role": "provider",
+      "repo": "https://github.com/ros/ros_comm",
+      "broken_rev": "1.11.8",
+      "resolved_rev": "1.11.8",
+      "pinned": true,
+      "revision_basis": "The reporter names only the distro (\"From indigo\") on 2014-08-08; the latest ros_comm Indigo release tag before that date is 1.11.8 (af735bb8, 2014-08-04), which contains the warning added in 8b430368 (released after 1.11.0). The resolution does not change rospy.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    },
+    {
+      "name": "kobuki_dashboard",
+      "role": "consumer",
+      "repo": "https://github.com/yujinrobot/kobuki_desktop",
+      "broken_rev": "f04c615cd9216e1b7b6949db2745dc8fa25acc0b",
+      "resolved_rev": "5ee65b061a4a919b2a32e80087f4cb3e51e924ed",
+      "pinned": true,
+      "revision_basis": "Broken: f04c615c is the parent of the fix commit (both 2014-08-08, the issue date); kobuki_dashboard/src/kobuki_dashboard/led_widget.py and motor_widget.py there call rospy.Publisher(topic, Led) and rospy.Publisher(topic, MotorPower). Resolved: the fix commit 5ee65b0, which passes queue_size=5.",
+      "excerpt": false,
+      "ros_distro": "indigo"
+    }
+  ],
+  "operation": "UPGRADE",
+  "consumer_built_against": {
+    "broken": "1.11.0",
+    "resolved": "1.11.8",
+    "basis": "inferred"
+  },
+  "inventory": [
+    {"element": "api:rospy.Publisher", "sides": {"rospy": "provides", "kobuki_dashboard": "consumes"}},
+    {"element": "api:rospy.Publisher.publish", "sides": {"rospy": "provides", "kobuki_dashboard": "consumes"}},
+    {"element": "api:rospy.Subscriber", "sides": {"rospy": "provides", "kobuki_dashboard": "consumes"}},
+    {"element": "api:rospy.get_time", "sides": {"rospy": "provides", "kobuki_dashboard": "consumes"}}
+  ],
+  "failed_conditions": [
+    {
+      "class": "other",
+      "implicated_elements": ["api:rospy.Publisher"],
+      "quote": "From indigo, Publisher complains not having queue_size arguement..",
+      "url": "https://github.com/yujinrobot/kobuki_desktop/issues/32"
+    }
+  ],
+  "outcome_class": "warning_only",
+  "loudness": "loud_documented",
+  "loudness_evidence": "The provider emits a warning when the publisher is created: \"From indigo, Publisher complains not having queue_size arguement..\" (https://github.com/yujinrobot/kobuki_desktop/issues/32); the provider code issuing it is warnings.warn(\"The publisher should be created with an explicit keyword argument 'queue_size'. \" ... SyntaxWarning, stacklevel=2) (https://github.com/ros/ros_comm/commit/8b43036842926cc9a351d37cd888537fd2797eb0).",
+  "detection_stage": "activate",
+  "resolution": {
+    "summary": "Pass an explicit queue_size to every rospy.Publisher the consumer creates (queue_size=5 in led_widget.py and motor_widget.py).",
+    "status": "recommended",
+    "evidence": "The issue was closed by linking the commit (\"https://github.com/yujinrobot/kobuki_desktop/commit/5ee65b061a4a919b2a32e80087f4cb3e51e924ed\"); no run of the resolved composition is shown."
+  },
+  "ros_generation": "ROS1",
+  "excerpt_based": false,
+  "confidence": "medium",
+  "notes": "Class 'other': the rospy.Publisher signature did not change (queue_size was already an optional keyword); the provider began warning about the call form that omits it (\"When the keyword is not being used or when None is passed all publishing will happen synchronously and a warning message will be printed.\"), as planned in ros_comm #346 (\"For indigo we should make the new behavior default.\"). consumer_built_against is inferred: 1.11.0 (09e1d5eb) is the parent of the warning commit 8b430368 and the last ros_comm tag whose rospy.Publisher accepts an omitted queue_size silently; the kobuki_dashboard code itself dates from 2013 (Groovy/Hydro era). The same defect in another composition: kobuki_qtestsuite's testsuite_widget.py (rospy.Publisher(..., Twist) -> queue_size=10), fixed in the same commit. The commit also contains an unrelated UPGRADE adaptation in kobuki_qtestsuite to an rqt_plot API change (rqt_plot.mat_data_plot.MatDataPlot replaced by rqt_plot.data_plot.DataPlot); that is a different composition and not a condition of this case."
+}

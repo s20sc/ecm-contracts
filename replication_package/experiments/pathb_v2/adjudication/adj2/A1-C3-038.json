@@ -1,0 +1,25 @@
+{
+  "item_id": "A1-C3-038",
+  "kind": "A1",
+  "case_id": "C3-038",
+  "eligibility": {
+    "verdict": "agree",
+    "stop_step": 2,
+    "reason_code": "internal",
+    "quote": "The essence is in `serdata_rmw_free` the loan is not returned to the middleware if there is an outstanding loan. -- and at cb129b58 serdata.cpp L165-169 the free callback is only: \"static void serdata_rmw_free(struct ddsi_serdata * dcmn)\\n{\\n  auto * d = static_cast<const serdata_rmw *>(dcmn);\\n  delete d;\\n}\"",
+    "url": "https://github.com/ros2/rmw_cyclonedds/issues/364"
+  },
+  "failed_conditions": [],
+  "missed_conditions": [],
+  "loudness": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "After some iterations, the shared memory chunks pile up and eventually leading to\"out of chunks\" error."
+  },
+  "resolution": {
+    "verdict": "agree",
+    "proposed": null,
+    "quote": "PR #365 \"Fix freeing of loaned chunks \" merged 2022-02-16; reviewer eboasson: \"As far as I am concerned, this is good to go.\""
+  },
+  "notes": "Independently verified: issue #364 body (version 1.1.1 cb129b58..., repro steps, reporter's diagnosis quoted above); serdata.cpp at cb129b5859e4c1793757d71f521540ae67a4fb20 L165-169 (free callback deletes the wrapper without releasing the SHM chunk) and L247 \"static_cast<void>(sub);  // unused\" inside serdata_rmw_from_iox, exactly as the spec quotes; PR #365 merged 2022-02-16 with eboasson's approval comment and sumanth-nirmal's \"I did a code walkthrough for memory audit in the shared memory case and fixed a couple of memory leaks\". My independent reading matches the spec's E2 stop: the leak is rmw_cyclonedds_cpp's own release logic; Cyclone DDS dropping samples per reader history depth is documented by the reporter as normal (\"based on the history depth the samples in the reader history cache will be lost without being processed by the executor\"), so the failure occurs with any correct peer — tree step 2 'a leak inside one process' → internal. The alternative reading (ownership convention for the chunk crossing the Cyclone-to-rmw serdata callback) was considered by the spec and reasonably rejected: no wrong value/name/type/timing crosses the boundary; the resolving edit is entirely inside rmw_cyclonedds. E1/E3/E4 pass records also match what I read. Spec is ineligible with failed_conditions/loudness/resolution null, consistent with ineligibility."
+}
