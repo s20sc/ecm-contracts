@@ -4,7 +4,7 @@ This post-hoc analysis quantifies one fixed-sample exclusion. It does not adjudi
 
 Both specifications cite navigation2 issue #5386. C3-057 is an eligible C3 failure, selected into the frozen 40-case H1 sample, with class `other` and an unassessable provider. All five methods are unassessable for it; no method receives right-reason credit. Its associated recommended repair is also unassessable. C3N-001 is ineligible (`internal`) and has no primary score row. There is no double counting of this pair in the primary scores. The source-guided interpretations nevertheless conflict.
 
-A later [joint source assessment](../V56-evidence-completion/README.md) assigns both records the same current status, interface eligibility unconfirmed. It retains this numerical exclusion result and the original primary inputs. The discussion below records the earlier assessment stage.
+A later [joint source assessment](../source-assessment/README.md) assigns both records the same current status, interface eligibility unconfirmed. It retains this numerical exclusion result and the original primary inputs. The discussion below records the earlier assessment stage.
 
 ## Results
 

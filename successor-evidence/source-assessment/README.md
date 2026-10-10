@@ -14,7 +14,7 @@ This dated post hoc supplement accompanies the revised manuscript. It adds seven
 From the repository root, using Python 3.10 or later and a new output file outside both input directories:
 
 ```sh
-python3 -B successor-evidence/V56-evidence-completion/recompute.py --package replication_package --out /tmp/ecm-evidence-result.json
+python3 -B successor-evidence/source-assessment/recompute.py --package replication_package --out /tmp/ecm-evidence-result.json
 ```
 
 This verifies the current evidence inventory, exact source quotes, seven census gaps, seven method-state records, and original 126-row numerical reaggregation. It then computes the separate 125-row exclusion reading. It does not regenerate model judgments, execute ROS, or repair missing historical data. The command needs no full snapshot download or network access. Output uses portable evidence/package path prefixes.

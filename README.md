@@ -99,7 +99,7 @@ independent annotations, or a second-machine validation.
 
 ## Supplementary evidence completion and eligibility sensitivity
 
-[`successor-evidence/V56-evidence-completion/`](successor-evidence/V56-evidence-completion/README.md)
+[`successor-evidence/source-assessment/`](successor-evidence/source-assessment/README.md)
 adds source assessments for seven omitted control findings, seven boundary
 candidate dispositions, and one common eligibility treatment for the two Nav2
 records. Review coverage is 44/44; three supplementary semantic judgments remain
